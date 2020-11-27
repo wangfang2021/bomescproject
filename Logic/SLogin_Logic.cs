@@ -14,7 +14,7 @@ namespace Logic
         SLogin_DataAccess da;
         public SLogin_Logic()
         {
-            //实例化数据层对象
+            //实例化数据层对象1
             da = new SLogin_DataAccess();
         }
 

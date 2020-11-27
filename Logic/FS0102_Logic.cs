@@ -19,7 +19,7 @@ namespace Logic
         }
 
 
-        #region 按检索条件检索,返回dt33
+        #region 按检索条件检索,返回dt334
         public DataTable Search( string strRoleName)
         {
             return fs0102_DataAccess.Search(strRoleName);

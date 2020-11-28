@@ -32,7 +32,7 @@ namespace Logic
         }
         #endregion
 
-        #region 验证角色名称是否被使用 1
+        #region 验证角色名称是否被使用 2
         public bool hasRoleName(string strRoleName)
         {
             return fs0102_DataAccess.hasRoleName(strRoleName);

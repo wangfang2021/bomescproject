@@ -25,7 +25,7 @@ namespace Logic
             return fs0102_DataAccess.Search(strRoleName);
         }
         #endregion
-        #region 检索所有机能 d
+        #region 检索所有机能 e
         public DataTable SearchRoleFunction()
         {
             return fs0102_DataAccess.SearchRoleFunction();

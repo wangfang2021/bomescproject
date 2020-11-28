@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
  
 
-namespace WebApplication5.Controllers
+namespace SPPSApi.Controllers
 {
     [Route("api/[controller]/[action]")]
     [EnableCors("any")]

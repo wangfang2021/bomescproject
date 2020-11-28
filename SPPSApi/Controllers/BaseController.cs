@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using System;
 using System.Security.Cryptography;
 
-namespace WebApplication5.Controllers
+namespace SPPSApi.Controllers
 {
     public class BaseController : ControllerBase
     {

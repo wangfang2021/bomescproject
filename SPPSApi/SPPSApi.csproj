@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Controllers\G08\" />
+    <Folder Include="Controllers\G12\" />
   </ItemGroup>
 
 

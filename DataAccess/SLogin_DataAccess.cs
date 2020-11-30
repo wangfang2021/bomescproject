@@ -14,7 +14,7 @@ namespace DataAccess
         {
             me = new MultiExcute();
         }
-        #region 用户登录1
+        #region 用户登录
         public DataTable UserLogin(string strUserID, string strPassword)
         {
             System.Data.SqlClient.SqlParameter[] parameters = {

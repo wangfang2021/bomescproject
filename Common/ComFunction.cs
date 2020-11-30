@@ -116,7 +116,7 @@ namespace Common
         /// <param name="macroName">宏名称</param>
         /// <param name="parameters">宏所需的参数</param>
         /// <param name="rtnValue"></param>
-        public void RunExcelMacro(Microsoft.Office.Interop.Excel.Application app, string macroName, object[] parameters, out object rtnValue)
+        public static void RunExcelMacro(Microsoft.Office.Interop.Excel.Application app, string macroName, object[] parameters, out object rtnValue)
         {
             // 根据参数组是否为空，准备参数组对象
             object[] paraObjects;
@@ -130,7 +130,7 @@ namespace Common
                 for (int i = 0; i < paraLength; i++)
                     paraObjects[i + 1] = parameters[i];
             }
-            rtnValue = this.RunMacro(app, paraObjects);
+            rtnValue = RunMacro(app, paraObjects);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Common
         /// <param name="oApp">Excel对象</param>
         /// <param name="oRunArgs">参数（第一个参数为指定宏名称，后面为指定宏的参数值）</param>
         /// <returns>宏返回值</returns>
-        private object RunMacro(object app, object[] oRunArgs)
+        private static object RunMacro(object app, object[] oRunArgs)
         {
             object objRtn;     // 声明一个返回对象
 

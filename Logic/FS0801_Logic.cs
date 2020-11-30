@@ -18,11 +18,17 @@ namespace Logic
             fs0801_DataAccess = new FS0801_DataAccess();
         }
 
-
         #region 绑定包装厂
         public DataTable BindPlant()
         {
             return fs0801_DataAccess.BindPlant();
+        }
+        #endregion
+
+        #region 检索
+        public DataTable Search(string bzplant, string pinfan, string bigpm, string smallpm)
+        {
+            return fs0801_DataAccess.Search(bzplant, pinfan, bigpm, smallpm);
         }
         #endregion
 

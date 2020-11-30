@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SPPSApi.Controllers.G12
 {
-    public class Class
+    public class FS1202Controller
     {
     }
 }

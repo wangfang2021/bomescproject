@@ -57,14 +57,14 @@ namespace SPPSApi.Controllers.G00
             try
             {
                 DataTable dt = fs0101_Logic.Search(vcUnitID, vcUserID, vcUserName);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcUserID", "vcUserName", "vcUnitName", "vcPlantCode", "vcRoleName", "vcStop" });
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcUserID", "vcUserName", "vcUnitName", "vcPlantCode", "vcRoleName", "vcStop", "vcSpecial" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0104", ex, strUserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -87,12 +87,8 @@ namespace SPPSApi.Controllers.G00
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcUnitID = dataForm.vcUnitID;
             string vcUserID = dataForm.vcUserID;
-            string vcUserName = dataForm.vcUserName;
-            string vcPassWord = dataForm.vcPassWord;
-            string vcRole = dataForm.vcRole;
-            string vcType = dataForm.vcType;
+            string strType = dataForm.vcType;
             try
             {
                 DataTable dt_AllRole = fs0101_Logic.getAllRole();//获取所有可选择的角色
@@ -102,8 +98,6 @@ namespace SPPSApi.Controllers.G00
                 List<Object> list_AllRole = ComFunction.convertToResult(dt_AllRole, new string[] { "key", "label" });//返回所有角色
                 List<Object> list_MyRole = ComFunction.convertToResult(dt_MyRole, "vcRoleID");//返回用户所拥有的角色
                 List<Object> list_AllSpecialRole = ComFunction.convertToResult(dt_Special, new string[] { "label", "value" });//返回所有特别角色
-
-
 
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 res.Add("allRole", list_AllRole);

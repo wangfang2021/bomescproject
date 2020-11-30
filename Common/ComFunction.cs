@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
-
 namespace Common
 {
     public class ComFunction
@@ -108,5 +107,48 @@ namespace Common
             }
             return sBuilder.ToString();
         }
+
+        #region VBA调用
+        /// <summary>
+        /// 调用xslm中宏
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="macroName">宏名称</param>
+        /// <param name="parameters">宏所需的参数</param>
+        /// <param name="rtnValue"></param>
+        public void RunExcelMacro(Microsoft.Office.Interop.Excel.Application app, string macroName, object[] parameters, out object rtnValue)
+        {
+            // 根据参数组是否为空，准备参数组对象
+            object[] paraObjects;
+            if (parameters == null)
+                paraObjects = new object[] { macroName };
+            else
+            {
+                int paraLength = parameters.Length;
+                paraObjects = new object[paraLength + 1];
+                paraObjects[0] = macroName;
+                for (int i = 0; i < paraLength; i++)
+                    paraObjects[i + 1] = parameters[i];
+            }
+            rtnValue = this.RunMacro(app, paraObjects);
+        }
+
+        /// <summary>
+        /// 执行宏
+        /// </summary>
+        /// <param name="oApp">Excel对象</param>
+        /// <param name="oRunArgs">参数（第一个参数为指定宏名称，后面为指定宏的参数值）</param>
+        /// <returns>宏返回值</returns>
+        private object RunMacro(object app, object[] oRunArgs)
+        {
+            object objRtn;     // 声明一个返回对象
+
+            // 反射方式执行宏
+            objRtn = app.GetType().InvokeMember("Run", System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.InvokeMethod, null, app, oRunArgs);
+
+            return objRtn;
+        }
+
+        #endregion
     }
 }

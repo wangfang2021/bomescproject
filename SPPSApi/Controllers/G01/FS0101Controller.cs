@@ -95,17 +95,22 @@ namespace SPPSApi.Controllers.G00
             string vcType = dataForm.vcType;
             try
             {
-                DataTable dt = null;
-                //List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcChildFunID", "vcChildFunName", "vcRead", "vcFunctionType", "vcWrite" });
-                //for (int i = 0; i < dataList.Count; i++)
-                //{
-                //    //vcRead vcWrite字段需要从 0 1转换成false true
-                //    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                //    row["vcRead"] = row["vcRead"].ToString() == "1" ? true : false;
-                //    row["vcWrite"] = row["vcWrite"].ToString() == "1" ? true : false;
-                //}
+                DataTable dt_AllRole = fs0101_Logic.getAllRole();//获取所有可选择的角色
+                DataTable dt_MyRole = fs0101_Logic.getRoleList(vcUserID);//获取所有可选择的角色
+                DataTable dt_Special = fs0101_Logic.getAllSpecial();//获取所有特别角色
+
+                List<Object> list_AllRole = ComFunction.convertToResult(dt_AllRole, new string[] { "key", "label" });//返回所有角色
+                List<Object> list_MyRole = ComFunction.convertToResult(dt_MyRole, "vcRoleID");//返回用户所拥有的角色
+                List<Object> list_AllSpecialRole = ComFunction.convertToResult(dt_Special, new string[] { "label", "value" });//返回所有特别角色
+
+
+
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                res.Add("allRole", list_AllRole);
+                res.Add("myRole", list_MyRole);
+                res.Add("allSpecialRole", list_AllSpecialRole);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                //apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

@@ -111,7 +111,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcRoleID,vcRoleName from SRole    ");
+                strSql.Append("    select vcRoleID as [key],vcRoleName as label from SRole    ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcValue,vcMeaning from TCode where vcCodeId='C011'    ");
+                strSql.Append("    select vcValue as [label],vcMeaning as [value] from TCode where vcCodeId='C011'    ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

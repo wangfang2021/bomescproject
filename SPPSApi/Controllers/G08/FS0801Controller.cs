@@ -91,7 +91,13 @@ namespace SPPSApi.Controllers.G08
             {
                 DataTable dt = fs0801_Logic.Search(bzplant,pinfan,bigpm,smallpm);
                 List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPartsNo", "dTimeFrom", "dTimeTo", "vcBZPlant", "vcBigPM",
-                "vcSmallPM","vcStandardTime","vcBZQF","vcBZUnit","vcRHQF"});
+                "vcSmallPM","vcStandardTime","vcBZQF","vcBZUnit","vcRHQF","vcflag"});
+                for (int i = 0; i < dataList.Count; i++)
+                {
+                    //vcRead vcWrite字段需要从 0 1转换成false true
+                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
+                    row["vcflag"] = row["vcflag"].ToString() == "1" ? true : false;
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

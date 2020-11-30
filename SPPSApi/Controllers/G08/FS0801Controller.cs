@@ -68,5 +68,42 @@ namespace SPPSApi.Controllers.G08
         }
         #endregion
 
+        #region 检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            string strUserId = ComFunction.Decrypt(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string bzplant = dataForm.plant == null?"": dataForm.plant;
+            string pinfan = dataForm.pinfan == null ? "" : dataForm.pinfan;
+            string bigpm = dataForm.bigpm == null ? "" : dataForm.bigpm;
+            string smallpm = dataForm.smallpm == null ? "" : dataForm.smallpm;
+            try
+            {
+                DataTable dt = fs0801_Logic.Search(bzplant,pinfan,bigpm,smallpm);
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPartsNo", "dTimeFrom", "dTimeTo", "vcBZPlant", "vcBigPM",
+                "vcSmallPM","vcStandardTime","vcBZQF","vcBZUnit","vcRHQF"});
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, strUserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

@@ -16,5 +16,9 @@
     <ProjectReference Include="..\Logic\Logic.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\G08\" />
+  </ItemGroup>
+
 
 </Project>

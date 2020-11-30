@@ -36,6 +36,19 @@ namespace Common
         }
         #endregion
 
+        #region 根据Datatable某个字段，把“值”的集合转换json结果
+        public static List<Object> convertToResult(DataTable dt, string field)
+        {
+            List<Object> res = new List<Object>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string strTemp = dt.Rows[i][field] == System.DBNull.Value ? "" : dt.Rows[i][field].ToString();
+                res.Add(strTemp);
+            }
+            return res;
+        }
+        #endregion
+
         /// <summary>
         /// 加密
         /// </summary>

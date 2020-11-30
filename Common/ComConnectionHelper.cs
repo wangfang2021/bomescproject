@@ -44,7 +44,7 @@ namespace Common
         #endregion 
 
 
-        #region 获取数据库连接字符串
+        #region 获取数据库连接字符串 
         public static string GetConnectionString()
         {
             return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =.";

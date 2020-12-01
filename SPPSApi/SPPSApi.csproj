@@ -5,6 +5,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Doc\Import\No.1_000GF9MDL.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZCKZT07.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZCKZT11.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZCKZV29.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZCKZV77.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZCKZV95.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZZK2410.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZZK2423.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZZK2430.xlsx" />
+    <None Remove="Doc\Import\No.1_16ZZK2447.xlsx" />
+    <None Remove="Doc\Import\No.1_476WHJ009.xlsx" />
+    <None Remove="Doc\Import\No.1_564WHJ011.xlsx" />
+    <None Remove="Doc\Import\No.1_599WF1439.xlsx" />
+    <None Remove="Doc\Import\No.1_599WFW007.xlsx" />
+    <None Remove="Doc\Import\No.1_607WF1134.xlsx" />
+    <None Remove="Doc\Import\No.1_618WQV055.xlsx" />
+    <None Remove="Doc\Import\No.1_668WJ0030.xlsx" />
+    <None Remove="Doc\Import\No.1_685WF0373.xlsx" />
+    <None Remove="Doc\Import\No.1_HBV791.xlsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
@@ -19,9 +41,8 @@
   <ItemGroup>
     <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G12\" />
-    <Folder Include="Doc\Template\" />
+    <Folder Include="Doc\Import\FS0201\" />
     <Folder Include="Doc\Export\" />
-    <Folder Include="Doc\Import\" />
   </ItemGroup>
 
 

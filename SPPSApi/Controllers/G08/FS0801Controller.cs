@@ -172,5 +172,45 @@ namespace SPPSApi.Controllers.G08
             }
         }
         #endregion
+
+        #region 获取
+        [HttpPost]
+        [EnableCors("any")]
+        public string gainApi()
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            string strUserId = ComFunction.Decrypt(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                //从采购品番基础数据表中获取数据：品番、开始、结束、受入
+
+
+                //if (dt.Rows.Count == 0)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "最少选择一个编辑行！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
+                //fs0801_Logic.Save(dt, strUserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, strUserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "获取失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

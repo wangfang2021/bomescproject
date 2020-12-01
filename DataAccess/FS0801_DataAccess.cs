@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select vcPlantCode,vcPlantName from SUnitPlant where vcUnitCode='TFTM' order by iSort  \n");
+                strSql.Append("select 'H1' as vcPlantCode,'H1' as vcPlantName  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -49,6 +49,32 @@ namespace DataAccess
                 strSql.Append("and isnull(t4.vcBigPM,'') like '%"+bigpm+"%'  \n");
                 strSql.Append("and isnull(t3.vcSmallPM,'') like '%"+smallpm+"%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 保存
+        public void Save(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for(int i=0;i<dt.Rows.Count;i++)
+                {
+                    DataRow dr = dt.Rows[i];
+                    sql.Append("update tPackageMaster set vcBZPlant='"+dr["vcBZPlant"].ToString()+ "',vcBZQF='" + dr["vcBZQF"].ToString() + "',   \n");
+                    sql.Append("vcBZUnit='" + dr["vcBZUnit"].ToString() + "',vcRHQF='" + dr["vcRHQF"].ToString() + "'  \n");
+                    sql.Append("where vcPartsNo='" + dr["vcPartsNo"].ToString() + "' and dTimeFrom='" + dr["dTimeFrom"].ToString() + "'   \n");
+                    sql.Append("and dTimeTo='" + dr["dTimeTo"].ToString() + "'  \n");
+                }
+                if(sql.Length>0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
             }
             catch (Exception ex)
             {

@@ -32,5 +32,12 @@ namespace Logic
         }
         #endregion
 
+        #region 保存
+        public void Save(DataTable dt,string strUserId)
+        {
+            fs0801_DataAccess.Save(dt, strUserId);
+        }
+        #endregion
+
     }
 }

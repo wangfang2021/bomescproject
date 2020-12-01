@@ -230,7 +230,7 @@ namespace DataAccess
         #endregion
 
         #region 插入操作,若成功返回true；失败返回false
-        public int Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, ArrayList roleList, string strOperatorID,string strMail,string strStop,string strSpecial, string vcPlatForm)
+        public int Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail,string strStop,string strSpecial, string vcPlatForm)
         {
             try
             {
@@ -254,7 +254,7 @@ namespace DataAccess
                 for (int i = 0; i < roleList.Count; i++)
                 {
                     strSql.Append("   insert into SUserRole     \n");
-                    strSql.Append("   select '" + strUserId + "',vcRoleID from SRole where vcRoleName='" + roleList[i] + "';     \n");
+                    strSql.Append("   select '" + strUserId + "',vcRoleID from SRole where vcRoleID='" + roleList[i] + "';     \n");
                 }
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
@@ -266,7 +266,7 @@ namespace DataAccess
         #endregion
 
         #region 修改操作,若成功返回true；失败返回false
-        public int Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, ArrayList roleList, string strOperatorID,string strMail, string strStop,string strSpecial, string vcPlatForm)
+        public int Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail, string strStop,string strSpecial, string vcPlatForm)
         {
             try
             {
@@ -290,7 +290,7 @@ namespace DataAccess
                 for (int i = 0; i < roleList.Count; i++)
                 {
                     strSql.Append("   insert into SUserRole     \n");
-                    strSql.Append("   select '" + strUserId + "',vcRoleID from SRole where vcRoleName='" + roleList[i] + "';     \n");
+                    strSql.Append("   select '" + strUserId + "',vcRoleID from SRole where vcRoleID='" + roleList[i] + "';     \n");
                 }
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }

@@ -47,7 +47,7 @@ namespace SPPSApi.Controllers.G00
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -63,7 +63,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -83,7 +83,7 @@ namespace SPPSApi.Controllers.G00
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -107,7 +107,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0202", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0202", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -126,7 +126,7 @@ namespace SPPSApi.Controllers.G00
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -155,7 +155,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化修改子画面失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -175,7 +175,7 @@ namespace SPPSApi.Controllers.G00
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             try
@@ -216,7 +216,7 @@ namespace SPPSApi.Controllers.G00
                     apiResult.data = "最少选择一个机能！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0102_Logic.Update(strRoleId, strRoleName, functionList, rightList, strUserId);
+                fs0102_Logic.Update(strRoleId, strRoleName, functionList, rightList, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -224,7 +224,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "修改失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -243,7 +243,7 @@ namespace SPPSApi.Controllers.G00
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             try
@@ -290,7 +290,7 @@ namespace SPPSApi.Controllers.G00
                     apiResult.data = "已存在该角色名称，请修改！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0102_Logic.Insert(strRoleName, functionList, rightList, strUserId);
+                fs0102_Logic.Insert(strRoleName, functionList, rightList, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -298,7 +298,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "新增失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

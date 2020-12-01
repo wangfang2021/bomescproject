@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 namespace Common
@@ -10,7 +13,7 @@ namespace Common
         #region MD5密码加密
         public static string encodePwd(string strPwd)
         {
-            if (strPwd.Trim() == "")
+            if (strPwd==null||strPwd.Trim() == "")
                 return "";
             byte[] result = Encoding.Default.GetBytes(strPwd);
             MD5 md5 = new MD5CryptoServiceProvider();
@@ -163,5 +166,31 @@ namespace Common
         }
 
         #endregion
+
+        #region 对象序列化
+        public static byte[] objectToBytes(object obj)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                return ms.GetBuffer();
+            }
+        }
+        #endregion
+
+        #region 对象反序列化
+        public static object bytesToObject(byte[] bytes)
+        {
+            using (MemoryStream ms = new MemoryStream(bytes))
+            {
+                IFormatter formatter = new BinaryFormatter();
+                return formatter.Deserialize(ms);
+            }
+        }
+        #endregion
+
+        
+
     }
 }

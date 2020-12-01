@@ -102,7 +102,7 @@ namespace Logic
         //#endregion
 
         #region 插入操作,若成功返回true；失败返回false
-        public bool Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, ArrayList roleList, string strOperatorID,string strMail,string strStop, string strSpecial, string vcPlatForm)
+        public bool Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail,string strStop, string strSpecial, string vcPlatForm)
         {
             try
             {
@@ -120,7 +120,7 @@ namespace Logic
         }
         #endregion
         #region 修改操作,若成功返回true；失败返回false
-        public bool Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit,  ArrayList roleList, string strOperatorID, string strMail, string strStop, string strSpecial,string vcPlatForm)
+        public bool Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID, string strMail, string strStop, string strSpecial,string vcPlatForm)
         {
             try
             {
@@ -157,6 +157,22 @@ namespace Logic
             {
                 throw ex;
             }
+        }
+        #endregion
+
+        #region 转换工厂选项，从list转成string存储
+        public string getStrByList(List<string> list)
+        {
+            if (list == null || list.Count == 0)
+                return "";
+            StringBuilder sbr = new StringBuilder();
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (i != 0)
+                    sbr.Append(",");
+                sbr.Append(list[i]);
+            }
+            return sbr.ToString();
         }
         #endregion
     }

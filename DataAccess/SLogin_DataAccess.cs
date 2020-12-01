@@ -25,7 +25,14 @@ namespace DataAccess
             parameters[1].Value = strPassword;
 
             StringBuilder sbSql = new StringBuilder();
-            sbSql.Append("  select * from SUser where vcUserID=@userId and vcPassWord=@userPwd and vcStop='0'   \n");
+            sbSql.Append("  select a.*,b.vcUnitName from   \n");
+            sbSql.Append("  (   \n");
+            sbSql.Append("  select * from SUser where  vcUserID=@userId and vcPassWord=@userPwd and vcStop='0'     \n");
+            sbSql.Append("  )a   \n");
+            sbSql.Append("  left join         \n");
+            sbSql.Append("  (        \n");
+            sbSql.Append("  select vcUnitCode,vcUnitName from SUnitInfo         \n");
+            sbSql.Append("  )b on a.vcUnitCode=b.vcUnitCode        \n");
             return me.ExcuteSqlWithSelectToDT(sbSql.ToString(), parameters);
         }
         #endregion

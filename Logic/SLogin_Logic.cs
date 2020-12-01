@@ -19,9 +19,31 @@ namespace Logic
         }
 
         #region 用户登录
-        public DataTable LonginState(string strUserId, string strPassword)
+        public LoginInfo LonginState(string strUserId, string strPassword)
         {
-            return da.UserLogin(strUserId, strPassword);
+            DataTable dt = da.UserLogin(strUserId, strPassword);
+
+            if (dt.Rows.Count > 0)
+            {
+
+                LoginInfo info = new LoginInfo();
+
+                info.UserId = strUserId;
+                info.UserName = dt.Rows[0]["vcUserName"].ToString();
+                info.UnitCode = dt.Rows[0]["vcUnitCode"].ToString();
+                info.UnitName = dt.Rows[0]["vcUnitName"].ToString();
+                info.PlantCode = dt.Rows[0]["vcPlantCode"].ToString();
+                info.Email = dt.Rows[0]["vcEmail"].ToString();
+                info.IsAdmin = dt.Rows[0]["vcIsAdmin"].ToString();
+                info.Ip = dt.Rows[0]["vcIp"].ToString();
+                info.Special = dt.Rows[0]["vcSpecial"].ToString();
+                info.PlatForm = dt.Rows[0]["vcPlatForm"].ToString();
+                return info;
+            }
+            else
+            {
+                return null;
+            }
         }
         #endregion
 

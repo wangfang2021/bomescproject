@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace SPPSApi.Controllers
 {
@@ -23,9 +24,22 @@ namespace SPPSApi.Controllers
             public string token;
         }
         #region 用户登录后，新增token
-        public string createToken(string strUserId)
+        public string createToken(LoginInfo info)
         {
-            string token = ComFunction.Encrypt(strUserId);
+            byte[] bytedata = ComFunction.objectToBytes(info);
+            SymmetricAlgorithm des = Aes.Create();
+            des.Key = Encoding.UTF8.GetBytes(ComConstant.SERVER_KEY);
+            des.Mode = CipherMode.ECB;
+            des.Padding = PaddingMode.PKCS7;
+            ICryptoTransform cryptoTransform = des.CreateEncryptor();
+            byte [] res=cryptoTransform.TransformFinalBlock(bytedata, 0, bytedata.Length);
+            string token = Convert.ToBase64String(res);
+
+            byte[] res22 = Convert.FromBase64String(token);
+
+
+
+
             using (var entry = memoryCache.CreateEntry(token))
             {
                 entry.Value = token;
@@ -59,6 +73,21 @@ namespace SPPSApi.Controllers
         }
         #endregion
 
+        #region 根据token获取用户所有信息
+        public LoginInfo getLoginByToken(string token)
+        {
+            byte[] source = Convert.FromBase64String(token);
+            SymmetricAlgorithm des = Aes.Create();
+            des.Key = Encoding.UTF8.GetBytes(ComConstant.SERVER_KEY);
+            des.Mode = CipherMode.ECB;
+            des.Padding = PaddingMode.PKCS7;
+            ICryptoTransform cryptoTransform = des.CreateDecryptor();
+            byte[] res = cryptoTransform.TransformFinalBlock(source, 0, source.Length);
+            LoginInfo info = (LoginInfo)ComFunction.bytesToObject(res);
+            return info;
+        }
+        #endregion
+
         #region 清除token
         public void clearToken(string tokenKey)
         {
@@ -75,5 +104,7 @@ namespace SPPSApi.Controllers
             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
         }
         #endregion
+
+        
     }
 }

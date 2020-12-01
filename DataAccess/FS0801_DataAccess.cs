@@ -37,7 +37,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select t1.vcPartsNo,convert(varchar(10),t1.dTimeFrom,120) as dTimeFrom,  \n");
                 strSql.Append("convert(varchar(10),t1.dTimeTo,120) as dTimeTo,t1.vcBZPlant,  \n");
-                strSql.Append("t4.vcBigPM,t3.vcSmallPM,t5.vcStandardTime,t1.vcBZQF,t1.vcBZUnit,t1.vcRHQF  \n");
+                strSql.Append("t4.vcBigPM,t3.vcSmallPM,t5.vcStandardTime,t1.vcBZQF,t1.vcBZUnit,t1.vcRHQF,'1' as vcflag  \n");
                 strSql.Append("from tPackageMaster t1  \n");
                 strSql.Append("left join tBCPartsGC t2 on t1.vcPartsNo=t2.vcPartsNo  \n");
                 strSql.Append("left join tPMSmall t3 on left(t1.vcPartsNo,5)=t3.vcPartsNoBefore5 and t1.vcSR=t3.vcSR   \n");

@@ -20,9 +20,9 @@ namespace Logic
 
 
         #region 按检索条件检索,返回
-        public DataTable Search( string strRoleName)
+        public DataTable Search( string vcFunctionID, string vcLogType,string  vcTimeFrom,string vcTimeTo)
         {
-            return fs0104_DataAccess.Search(strRoleName);
+            return fs0104_DataAccess.Search(vcFunctionID, vcLogType, vcTimeFrom, vcTimeTo);
         }
         #endregion
     }

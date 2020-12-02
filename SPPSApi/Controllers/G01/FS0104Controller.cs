@@ -52,10 +52,16 @@ namespace SPPSApi.Controllers.G00
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcFunctionID = dataForm.vcFunctionID;
+            string vcLogType = dataForm.vcLogType;
+            string vcTimeFrom = dataForm.vcTimeFrom;
+            string vcTimeTo = dataForm.vcTimeTo;
             vcFunctionID = vcFunctionID == null ? "" : vcFunctionID;
+            vcLogType = vcLogType == null ? "" : vcLogType;
+            vcTimeFrom = vcTimeFrom == null ? "" : vcTimeFrom;
+            vcTimeTo = vcTimeTo == null ? "" : vcTimeTo;
             try
             {
-                DataTable dt = fs0104_Logic.Search(vcFunctionID);
+                DataTable dt = fs0104_Logic.Search(vcFunctionID, vcLogType, vcTimeFrom, vcTimeTo);
                 List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcFunctionID", "vcLogType", "vcMessage", "vcException", "vcTrack", "dCreateTime", "vcIp", "vcUserName" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

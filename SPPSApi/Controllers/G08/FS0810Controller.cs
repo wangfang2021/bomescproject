@@ -44,7 +44,7 @@ namespace SPPSApi.Controllers.G08
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -69,7 +69,7 @@ namespace SPPSApi.Controllers.G08
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -88,7 +88,7 @@ namespace SPPSApi.Controllers.G08
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             try
@@ -105,8 +105,8 @@ namespace SPPSApi.Controllers.G08
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bmodflag = (bool)listInfoData[i]["vcmodflag"];//false可编辑,true不可编辑
-                    bool baddflag= (bool)listInfoData[i]["vcaddflag"];//false可编辑,true不可编辑
-                    if (bmodflag==false && baddflag==false)
+                    bool baddflag = (bool)listInfoData[i]["vcaddflag"];//false可编辑,true不可编辑
+                    if (bmodflag == false && baddflag == false)
                     {//新增
                         DataRow dr = dtadd.NewRow();
                         dr["vcSR"] = listInfoData[i]["vcSR"].ToString();
@@ -115,7 +115,7 @@ namespace SPPSApi.Controllers.G08
                         dr["vcSmallPM"] = listInfoData[i]["vcSmallPM"].ToString();
                         dtadd.Rows.Add(dr);
                     }
-                    else if(bmodflag==false && baddflag==true)
+                    else if (bmodflag == false && baddflag == true)
                     {//修改
                         DataRow dr = dtmod.NewRow();
                         dr["vcSR"] = listInfoData[i]["vcSR"].ToString();
@@ -125,22 +125,75 @@ namespace SPPSApi.Controllers.G08
                         dtmod.Rows.Add(dr);
                     }
                 }
-                if (dtadd.Rows.Count == 0 && dtmod.Rows.Count==0)
+                if (dtadd.Rows.Count == 0 && dtmod.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0810_Logic.Save(dtadd,dtmod, strUserId);
+                fs0810_Logic.Save(dtadd, dtmod, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 删除
+        [HttpPost]
+        [EnableCors("any")]
+        public string delApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dtdel = new DataTable();
+                dtdel.Columns.Add("vcSR");
+                dtdel.Columns.Add("vcPartsNoBefore5");
+                dtdel.Columns.Add("vcBCPartsNo");
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    DataRow dr = dtdel.NewRow();
+                    dr["vcSR"] = checkedInfoData[i]["vcSR"].ToString();
+                    dr["vcPartsNoBefore5"] = checkedInfoData[i]["vcPartsNoBefore5"].ToString();
+                    dr["vcBCPartsNo"] = checkedInfoData[i]["vcBCPartsNo"].ToString();
+                    dtdel.Rows.Add(dr);
+
+                }
+                if (dtdel.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs0810_Logic.Del(dtdel,loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

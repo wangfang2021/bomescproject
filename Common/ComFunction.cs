@@ -33,6 +33,7 @@ namespace Common
                 {
                     row[field] = dt.Rows[i][field];
                 }
+                row["iAPILineNo"] = i;
                 res.Add(row);
             }
             return res;

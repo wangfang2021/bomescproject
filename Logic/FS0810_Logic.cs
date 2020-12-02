@@ -32,5 +32,11 @@ namespace Logic
         }
         #endregion
 
+        #region 删除
+        public void Del(DataTable dtdel, string strUserId)
+        {
+            fs0810_DataAccess.Del(dtdel, strUserId);
+        }
+        #endregion
     }
 }

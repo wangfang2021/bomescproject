@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.vcSR,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t1.vcSmallPM,t2.vcBigPM,'1' as vcmodflag,'1' as vcaddflag  \n");
+                strSql.Append("select t1.vcSR,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t1.vcSmallPM,t2.vcBigPM,'1' as vcmodflag,'1' as vcaddflag,'uncheck' as cb  \n");
                 strSql.Append("from tPMSmall t1  \n");
                 strSql.Append("left join tPMRelation t2 on t1.vcSmallPM=t2.vcSmallPM  \n");
                 strSql.Append("where ISNULL(t1.vcSmallPM,'') like '%" + smallpm + "%'  \n");
@@ -50,6 +50,31 @@ namespace DataAccess
                 {
                     DataRow dr = dtmod.Rows[i];
                     sql.Append("update tPMSmall set vcSmallPM='" + dr["vcSmallPM"].ToString() + "'   \n");
+                    sql.Append("where vcPartsNoBefore5='" + dr["vcPartsNoBefore5"].ToString() + "' and vcSR='" + dr["vcSR"].ToString() + "'   \n");
+                    sql.Append("and vcBCPartsNo='" + dr["vcBCPartsNo"].ToString() + "'  \n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 删除
+        public void Del(DataTable dtdel,string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < dtdel.Rows.Count; i++)
+                {
+                    DataRow dr = dtdel.Rows[i];
+                    sql.Append("delete from tPMSmall   \n");
                     sql.Append("where vcPartsNoBefore5='" + dr["vcPartsNoBefore5"].ToString() + "' and vcSR='" + dr["vcSR"].ToString() + "'   \n");
                     sql.Append("and vcBCPartsNo='" + dr["vcBCPartsNo"].ToString() + "'  \n");
                 }

@@ -47,15 +47,21 @@ namespace SPPSApi.Controllers.G00
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcFunctionID = dataForm.vcFunctionID;
+            string vcLogType = dataForm.vcLogType;
+            string vcTimeFrom = dataForm.vcTimeFrom;
+            string vcTimeTo = dataForm.vcTimeTo;
             vcFunctionID = vcFunctionID == null ? "" : vcFunctionID;
+            vcLogType = vcLogType == null ? "" : vcLogType;
+            vcTimeFrom = vcTimeFrom == null ? "" : vcTimeFrom;
+            vcTimeTo = vcTimeTo == null ? "" : vcTimeTo;
             try
             {
-                DataTable dt = fs0104_Logic.Search(vcFunctionID);
+                DataTable dt = fs0104_Logic.Search(vcFunctionID, vcLogType, vcTimeFrom, vcTimeTo);
                 List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcFunctionID", "vcLogType", "vcMessage", "vcException", "vcTrack", "dCreateTime", "vcIp", "vcUserName" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -63,7 +69,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0104", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0104", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

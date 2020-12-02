@@ -80,13 +80,13 @@ namespace SPPSApi.Controllers.G12
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             try
             {
                 DataTable tb = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(data));
-                string msg = logic.InUpdeOldData(tb, strUserId);
+                string msg = logic.InUpdeOldData(tb, loginInfo.UserId);
                 if (!string.IsNullOrEmpty(msg))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -99,7 +99,7 @@ namespace SPPSApi.Controllers.G12
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0202", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0202", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

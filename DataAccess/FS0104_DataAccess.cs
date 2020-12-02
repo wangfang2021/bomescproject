@@ -27,11 +27,11 @@ namespace DataAccess
                 strSql.AppendLine("where 1=1 ");
                 if (vcFunctionID.Length>0)
                 {
-                    strSql.AppendLine(" and a.vcFunctionID  like '%'" + vcFunctionID + "'%' ");
+                    strSql.AppendLine(" and a.vcFunctionID  like '%" + vcFunctionID + "%' ");
                 }
                 if (vcLogType.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcLogType  like '%'" + vcLogType + "'%' ");
+                    strSql.AppendLine(" and a.vcLogType  = '" + vcLogType + "' ");
                 }
                 if (vcTimeFrom.Length > 0)
                 {

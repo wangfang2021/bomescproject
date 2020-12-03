@@ -38,14 +38,14 @@ namespace SPPSApi.Controllers.G02
             LoginInfo loginInfo = getLoginByToken(strToken);
 
             //以下开始业务处理
-            BaseController.ApiResult apiResult = new BaseController.ApiResult();
+            ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             int flag = dataForm.fileType;
             string UploadTime = dataForm.uploadDate == null ? "" : dataForm.uploadDate;
             try
             {
                 DataTable dt = fs0203_logic.searchHistory(flag, UploadTime);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcFileName", "vcCreater", "dCreateTime" });
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcFileName", "vcOperator", "dCreateTime" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -59,9 +59,10 @@ namespace SPPSApi.Controllers.G02
             }
         }
 
+
         [HttpPost]
         [EnableCors("any")]
-        public string uploadFile([FromBody] dynamic data)
+        public string AddPart([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -72,22 +73,21 @@ namespace SPPSApi.Controllers.G02
             LoginInfo loginInfo = getLoginByToken(strToken);
 
             //以下开始业务处理
-            BaseController.ApiResult apiResult = new BaseController.ApiResult();
+            ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string type = dataForm.type;
+
+            string path = @"D:\";
+            string fileName = "test.txt";
             try
             {
-
-                List<Object> dataList = new List<object>();
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                fs0203_logic.addPartList(path, fileName, "123");
+                return null;
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0302", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "导入失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

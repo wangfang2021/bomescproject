@@ -47,7 +47,7 @@ namespace SPPSApi.Controllers.G02
             try
             {
                 DataTable dt = fs0202_logic.searchHistory(filename, TimeFrom, TimeTo);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcFileName", "vcCreater", "dCreateTime" });
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcFileName", "vcOperator", "dCreateTime" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

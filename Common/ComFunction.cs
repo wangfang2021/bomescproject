@@ -6,6 +6,11 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+
 namespace Common
 {
     public class ComFunction
@@ -13,7 +18,7 @@ namespace Common
         #region MD5密码加密
         public static string encodePwd(string strPwd)
         {
-            if (strPwd==null||strPwd.Trim() == "")
+            if (strPwd == null || strPwd.Trim() == "")
                 return "";
             byte[] result = Encoding.Default.GetBytes(strPwd);
             MD5 md5 = new MD5CryptoServiceProvider();
@@ -125,6 +130,8 @@ namespace Common
             return sBuilder.ToString();
         }
 
+        #region Excel操作
+
         #region VBA调用
         /// <summary>
         /// 调用xslm中宏
@@ -168,6 +175,378 @@ namespace Common
 
         #endregion
 
+        #region 导入
+        /// <summary>
+        /// 导入标准Excel，第一行为列头
+        /// </summary>
+        /// <param name="FileFullName">文件完整路径</param>
+        /// <param name="sheetName">指定sheet页名称，如未匹配则默认选择第一个sheet</param>
+        /// <param name="Header">5个数组,第一个为文件中列头，第二个为对应DataTable列头，第三个对应校验数据类型，第四个为最大长度限定（为0不校验），第五个为最小长度限定（为0不校验）</param>
+        /// <param name="RetMsg">返回信息</param>
+        /// <returns></returns>
+        public static DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, ref string RetMsg)
+        {
+            FileStream fs = null;
+            IWorkbook workbook = null;
+            ISheet sheet = null;
+            List<int> index = new List<int>();
+            DataTable data = new DataTable();
+
+            RetMsg = "";
+            int startRow = 0;
+
+            try
+            {
+                fs = new FileStream(FileFullName, FileMode.Open, FileAccess.Read);
+
+                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0) // 2007版本
+                    workbook = new XSSFWorkbook(fs);
+                else if (FileFullName.IndexOf(".xls") > 0) // 2003版本
+                    workbook = new HSSFWorkbook(fs);
+
+                if (sheetName != null)
+                {
+                    sheet = workbook.GetSheet(sheetName);
+                    if (sheet == null) //如果没有找到指定的sheetName对应的sheet，则尝试获取第一个sheet
+                    {
+                        sheet = workbook.GetSheetAt(0);
+                    }
+                }
+                else
+                {
+                    sheet = workbook.GetSheetAt(0);
+                }
+
+                if (sheet != null)
+                {
+                    IRow firstRow = sheet.GetRow(0);
+                    int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+
+                    //对应索引
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        bool bFound = false;
+                        for (int j = 0; j < cellCount; j++)
+                        {
+                            ICell cell = firstRow.GetCell(j);
+                            string cellValue = cell.StringCellValue;
+                            if (!string.IsNullOrEmpty(cellValue))
+                            {
+                                if (Header[0, i] == cellValue)
+                                {
+                                    bFound = true;
+                                    index.Add(j);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bFound == false)
+                        {
+                            RetMsg = Header[0, i] + "列不存在";
+                            return null;
+                        }
+                    }
+
+                    //创建Datatable的列
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        data.Columns.Add(Header[1, i].ToString().Trim());
+                    }
+
+                    //获取数据首尾行
+                    startRow = sheet.FirstRowNum + 1;
+                    int rowCount = sheet.LastRowNum;
+
+                    //读取数据
+                    for (int i = startRow; i <= rowCount; ++i)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row == null) continue; //没有数据的行默认是null　　　　　　　
+
+                        DataRow dataRow = data.NewRow();
+                        for (int j = 0; j < Header.GetLength(1); j++)
+                        {
+                            ICell cell = row.GetCell(index[j]);
+                            if (cell != null) //同理，没有数据的单元格都默认是null
+                            {
+                                if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
+                                {
+                                    dataRow[j] = cell.DateCellValue.ToString();
+                                    ;
+                                }
+                                else
+                                {
+                                    dataRow[j] = cell.ToString();
+                                }
+                            }
+                        }
+
+                        data.Rows.Add(dataRow);
+                    }
+                }
+
+                for (int i = 0; i < data.Columns.Count; i++)
+                {
+                    data.Columns[i].DataType = typeof(string);
+                }
+
+                #region 校验格式
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    DataRow dr = data.Rows[i];
+                    for (int j = 0; j < Header.GetLength(1); j++)
+                    {
+                        if (Convert.ToInt32(Header[3, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length > Convert.ToInt32(Header[3, j]))
+                        {
+                            RetMsg = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
+                            return null;
+                        }
+
+                        if (Convert.ToInt32(Header[4, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
+                        {
+                            RetMsg = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
+                            return null;
+                        }
+
+                        switch (Header[2, j])
+                        {
+                            case "decimal":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDecimal(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                            case "d":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDate(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                            case "ym":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckYearMonth(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                            default:
+                                if (Header[2, j].Length > 0 && Regex.Match(dr[Header[1, j]].ToString(), Header[2, j],
+                                    RegexOptions.None).Success)
+                                {
+                                    RetMsg = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                        }
+                    }
+                }
+
+
+                #endregion
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception: " + ex.Message);
+                return null;
+            }
+            finally
+            {
+                if (fs != null)
+                {
+                    fs.Close();
+                }
+            }
+        }
+        #endregion
+
+        #region 导出
+        /// <summary>
+        /// DataTable导出为Excel
+        /// </summary>
+        /// <param name="head">Excel列头</param>
+        /// <param name="field">DataTable列头</param>
+        /// <param name="dt">DataTable</param>
+        /// <param name="mapPath">匹配路径</param>
+        /// <param name="responserid"></param>
+        /// <param name="strFunctionName"></param>
+        /// <param name="RetMsg"></param>
+        /// <returns></returns>
+        public static bool DataTableToExcel(string[] head, string[] field, DataTable dt, string mapPath, string responserid, string strFunctionName, ref string RetMsg)
+        {
+            bool result = false;
+            RetMsg = "";
+            FileStream fs = null;
+            int size = 1048576 - 1;
+
+            string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + responserid + ".xlsx";
+            //string path = mapPath + @"\..\Doc\Export\" + strFileName;
+            string path = mapPath + @"D:/" + strFileName;
+
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+            }
+            try
+            {
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    int page = dt.Rows.Count / size;
+                    IWorkbook workbook = new XSSFWorkbook();
+                    for (int i = 0; i < page + 1; i++)
+                    {
+                        string sheetname = "Sheet" + (i + 1).ToString();
+                        ISheet sheet = workbook.CreateSheet(sheetname);
+                        int rowCount = dt.Rows.Count - i * size > size ? size : dt.Rows.Count - i * size;//行数  
+                        int columnCount = dt.Columns.Count;//列数  
+
+                        //设置列头  
+                        IRow row = sheet.CreateRow(0);
+                        ICell cell;
+                        for (int h = 0; h < head.Length; h++)
+                        {
+                            cell = row.CreateCell(h);
+                            cell.SetCellValue(head[h]);
+                        }
+                        List<ICellStyle> styles = new List<ICellStyle>();
+                        //设置每列单元格属性
+                        for (int h = 0; h < field.Length; h++)
+                        {
+                            Type type = dt.Columns[field[h]].DataType;
+                            ICellStyle dateStyle = workbook.CreateCellStyle();
+                            IDataFormat dataFormat = workbook.CreateDataFormat();
+                            if (type == Type.GetType("System.DateTime"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("yyyy-m-d hh:mm:ss");
+                            }
+                            else if (type == Type.GetType("System.Decimal"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("General");
+                            }
+                            else if (type == Type.GetType("System.Int32"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("General");
+                            }
+                            else if (type == Type.GetType("System.Int16"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("General");
+                            }
+                            else if (type == Type.GetType("System.Int64"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("General");
+                            }
+                            else if (type == Type.GetType("System.String") && field[h].StartsWith("d") && !field[h].StartsWith("dec"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("@");
+                            }
+                            else if (type == Type.GetType("System.String") && field[h].StartsWith("vc"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("@");
+                            }
+                            else if (type == Type.GetType("System.String"))
+                            {
+                                dateStyle.DataFormat = dataFormat.GetFormat("General");
+                            }
+                            styles.Add(dateStyle);
+                        }
+                        //设置每行每列的单元格,  
+                        for (int j = 0; j < rowCount; j++)
+                        {
+                            row = sheet.CreateRow(j + 1);
+                            for (int l = 0; l < field.Length; l++)
+                            {
+                                cell = row.CreateCell(l);//excel第二行开始写入数据 
+                                cell.CellStyle = styles[l];
+                                cell.SetCellValue(dt.Rows[j + i * size][field[l]].ToString());
+                            }
+                        }
+                        using (fs = File.OpenWrite(path))
+                        {
+                            workbook.Write(fs);//向打开的这个xls文件中写入数据  
+                        }
+                    }
+                    result = true;
+                }
+                else
+                {
+                    RetMsg = "传入数据为空。";
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                if (fs != null)
+                {
+                    fs.Close();
+                }
+
+                RetMsg = "导出文件失败";
+                return false;
+            }
+        }
+        #endregion
+
+        #region 校验日期
+        public static bool CheckDate(string value)
+        {
+            try
+            {
+                Convert.ToDateTime(value);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
+
+        #region 校验6位年月
+        public static bool CheckYearMonth(string value)
+        {
+            if (value.Length != 6)
+                return false;
+            try
+            {
+                Convert.ToDateTime(string.Format("{0}-{1}-01", value.Substring(0, 4), value.Substring(4, 2)));
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        #endregion
+
+        #region 校验decimal类型
+        public static bool CheckDecimal(string value)
+        {
+            try
+            {
+                Convert.ToDecimal(value);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        #endregion
+
+        #endregion
+
         #region 对象序列化
         public static byte[] objectToBytes(object obj)
         {
@@ -191,7 +570,64 @@ namespace Common
         }
         #endregion
 
-        
+    }
+
+
+    #region 导入文件时,作校验的类
+    /// <summary>
+    /// 导入检查类
+    /// </summary>
+    public static class FieldCheck
+    {
+        /// <summary>
+        /// 数字
+        /// </summary>
+        public static readonly string Num = "[^0-9]+";
+        /// <summary>
+        /// 小数
+        /// </summary>
+        public static readonly string Float = "[^0-9^.]+";
+        /// <summary>
+        /// 英文
+        /// </summary>
+        public static readonly string Char = "[^A-Z^a-z]+";
+        /// <summary>
+        /// 英数
+        /// </summary>
+        public static readonly string NumChar = "[^A-Z^a-z^0-9]+";
+        /// <summary>
+        /// 英数 + "-"
+        /// </summary>
+        public static readonly string NumCharL = "[^A-Z^a-z^0-9^-]+";
+        /// <summary>
+        /// 日期
+        /// </summary>
+        public static readonly string Date = "d";
+        /// <summary>
+        /// 年月
+        /// </summary>
+        public static readonly string YearMonth = "ym";
+        /// <summary>
+        /// 特殊品番
+        /// </summary>
+        public static readonly string SpecialPartNo = "[^A-Z^a-z^0-9^-]+";
+        /// <summary>
+        /// 英数 + "/"
+        /// </summary>
+        public static readonly string NumCharLL = "[^A-Z^a-z^0-9^/]+";
+        //Add by liuchunyan at 2012-2-2
+        /// <summary>
+        /// 数字可以录入带"-"的
+        /// </summary>
+        public static readonly string FNum = "[^-^0-9]+";
+
+        /// <summary>
+        /// 英数 + "/"+"_"+"-"
+        /// </summary>
+        public static readonly string NumCharLLL = "[^A-Z^a-z^0-9^/^_^-]+";
+
+        public static readonly string Decimal = "decimal";
 
     }
+    #endregion
 }

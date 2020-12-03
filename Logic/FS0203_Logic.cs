@@ -3,21 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using Common;
+using System.Text;
 using DataAccess;
 
 namespace Logic
 {
-    public class FS0202_Logic
+    public class FS0203_Logic
     {
-        FS0202_DataAccess fs0202_dataAccess = new FS0202_DataAccess();
-        public DataTable searchHistory(string filename, string timefrom, string timeto)
+        FS0203_DataAccess fs0203_dataAccess = new FS0203_DataAccess();
+        public DataTable searchHistory(int flag, string UploadTime)
         {
-            DataTable dt = fs0202_dataAccess.searchHistory(filename, timefrom, timeto);
-            return dt;
+            return fs0203_dataAccess.searchHistory(flag, UploadTime);
         }
 
-        #region 读取部品文本文件
         public List<Hashtable> GetPartFromFile(string path)
         {
             string[] strs = File.ReadAllLines(@path);
@@ -64,32 +62,5 @@ namespace Logic
 
             return list;
         }
-        public DataTable GetPartDataTable(List<Hashtable> list)
-        {
-            DataTable dt = new DataTable();
-            string[] field = { };
-
-            for (int i = 0; i < field.Length; i++)
-            {
-                dt.Columns.Add(field[i]);
-            }
-
-            for (int i = 0; i < list.Count; i++)
-            {
-
-                DataRow row = dt.NewRow();
-                for (int j = 0; j < field.Length; j++)
-                {
-                    row[field[j]] = list[i][field[j]];
-                }
-
-                dt.Rows.Add(row);
-            }
-
-            return dt;
-        }
-        #endregion
-
-
     }
 }

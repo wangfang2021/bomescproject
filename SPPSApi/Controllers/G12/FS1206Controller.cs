@@ -55,7 +55,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 DataTable dt = logic.Search(vcPartsNo, vcMon);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum", "iCONum" });
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum", "iCONum", "iFlag" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

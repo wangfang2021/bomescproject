@@ -18,52 +18,20 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G08
 {
-    [Route("api/FS0801/[action]")]
+    [Route("api/FS0810/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0801Controller : BaseController
+    public class FS0810Controller : BaseController
     {
-        FS0801_Logic fs0801_Logic = new FS0801_Logic();
-        private readonly string FunctionID = "FS0801";
+        FS0810_Logic fs0810_Logic = new FS0810_Logic();
+        private readonly string FunctionID = "FS0810";
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FS0801Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0810Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
-
-        #region 绑定包装厂
-        [HttpPost]
-        [EnableCors("any")]
-        public string bindPlant()
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                DataTable dt = fs0801_Logic.BindPlant();
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPlantCode", "vcPlantName" });
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定包装厂失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
 
         #region 检索
         [HttpPost]
@@ -80,20 +48,20 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string bzplant = dataForm.plant == null ? "" : dataForm.plant;
-            string pinfan = dataForm.pinfan == null ? "" : dataForm.pinfan;
-            string bigpm = dataForm.bigpm == null ? "" : dataForm.bigpm;
             string smallpm = dataForm.smallpm == null ? "" : dataForm.smallpm;
+            string sr = dataForm.sr == null ? "" : dataForm.sr;
+            string pfbefore5 = dataForm.pfbefore5 == null ? "" : dataForm.pfbefore5;
             try
             {
-                DataTable dt = fs0801_Logic.Search(bzplant, pinfan, bigpm, smallpm);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPartsNo", "dTimeFrom", "dTimeTo", "vcBZPlant", "vcBigPM",
-                "vcSmallPM","vcStandardTime","vcBZQF","vcBZUnit","vcRHQF","vcflag"});
+                DataTable dt = fs0810_Logic.Search(smallpm, sr, pfbefore5);
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcSR", "vcPartsNoBefore5", "vcBCPartsNo", "vcSmallPM", "vcBigPM",
+                    "vcmodflag","vcaddflag"});
                 for (int i = 0; i < dataList.Count; i++)
                 {
                     //vcRead vcWrite字段需要从 0 1转换成false true
                     Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcflag"] = row["vcflag"].ToString() == "1" ? true : false;
+                    row["vcmodflag"] = row["vcmodflag"].ToString() == "1" ? true : false;
+                    row["vcaddflag"] = row["vcaddflag"].ToString() == "1" ? true : false;
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -128,37 +96,42 @@ namespace SPPSApi.Controllers.G08
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcPartsNo");
-                dt.Columns.Add("dTimeFrom");
-                dt.Columns.Add("dTimeTo");
-                dt.Columns.Add("vcBZPlant");
-                dt.Columns.Add("vcBZQF");
-                dt.Columns.Add("vcBZUnit");
-                dt.Columns.Add("vcRHQF");
+                DataTable dtmod = new DataTable();
+                dtmod.Columns.Add("vcSR");
+                dtmod.Columns.Add("vcPartsNoBefore5");
+                dtmod.Columns.Add("vcBCPartsNo");
+                dtmod.Columns.Add("vcSmallPM");
+                DataTable dtadd = dtmod.Clone();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bflag = (bool)listInfoData[i]["vcflag"];//编辑标识,取false的
-                    if (bflag == false)
-                    {
-                        DataRow dr = dt.NewRow();
-                        dr["vcPartsNo"] = listInfoData[i]["vcPartsNo"].ToString();
-                        dr["dTimeFrom"] = listInfoData[i]["dTimeFrom"].ToString();
-                        dr["dTimeTo"] = listInfoData[i]["dTimeTo"].ToString();
-                        dr["vcBZPlant"] = listInfoData[i]["vcBZPlant"].ToString();
-                        dr["vcBZQF"] = listInfoData[i]["vcBZQF"].ToString();
-                        dr["vcBZUnit"] = listInfoData[i]["vcBZUnit"].ToString();
-                        dr["vcRHQF"] = listInfoData[i]["vcRHQF"].ToString();
-                        dt.Rows.Add(dr);
+                    bool bmodflag = (bool)listInfoData[i]["vcmodflag"];//false可编辑,true不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcaddflag"];//false可编辑,true不可编辑
+                    if (bmodflag == false && baddflag == false)
+                    {//新增
+                        DataRow dr = dtadd.NewRow();
+                        dr["vcSR"] = listInfoData[i]["vcSR"].ToString();
+                        dr["vcPartsNoBefore5"] = listInfoData[i]["vcPartsNoBefore5"].ToString();
+                        dr["vcBCPartsNo"] = listInfoData[i]["vcBCPartsNo"].ToString();
+                        dr["vcSmallPM"] = listInfoData[i]["vcSmallPM"].ToString();
+                        dtadd.Rows.Add(dr);
+                    }
+                    else if (bmodflag == false && baddflag == true)
+                    {//修改
+                        DataRow dr = dtmod.NewRow();
+                        dr["vcSR"] = listInfoData[i]["vcSR"].ToString();
+                        dr["vcPartsNoBefore5"] = listInfoData[i]["vcPartsNoBefore5"].ToString();
+                        dr["vcBCPartsNo"] = listInfoData[i]["vcBCPartsNo"].ToString();
+                        dr["vcSmallPM"] = listInfoData[i]["vcSmallPM"].ToString();
+                        dtmod.Rows.Add(dr);
                     }
                 }
-                if (dt.Rows.Count == 0)
+                if (dtadd.Rows.Count == 0 && dtmod.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一个编辑行！";
+                    apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0801_Logic.Save(dt, loginInfo.UserId);
+                fs0810_Logic.Save(dtadd, dtmod, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -173,10 +146,10 @@ namespace SPPSApi.Controllers.G08
         }
         #endregion
 
-        #region 获取
+        #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string gainApi()
+        public string delApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -184,30 +157,43 @@ namespace SPPSApi.Controllers.G08
             {
                 return error_login();
             }
-            string strUserId = ComFunction.Decrypt(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             try
             {
-                //从采购品番基础数据表中获取数据：品番、开始、结束、受入
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dtdel = new DataTable();
+                dtdel.Columns.Add("vcSR");
+                dtdel.Columns.Add("vcPartsNoBefore5");
+                dtdel.Columns.Add("vcBCPartsNo");
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    DataRow dr = dtdel.NewRow();
+                    dr["vcSR"] = checkedInfoData[i]["vcSR"].ToString();
+                    dr["vcPartsNoBefore5"] = checkedInfoData[i]["vcPartsNoBefore5"].ToString();
+                    dr["vcBCPartsNo"] = checkedInfoData[i]["vcBCPartsNo"].ToString();
+                    dtdel.Rows.Add(dr);
 
-
-                //if (dt.Rows.Count == 0)
-                //{
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = "最少选择一个编辑行！";
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //}
-                //fs0801_Logic.Save(dt, strUserId);
+                }
+                if (dtdel.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs0810_Logic.Del(dtdel,loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, strUserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "获取失败";
+                apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

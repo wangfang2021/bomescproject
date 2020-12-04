@@ -13,24 +13,35 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strRoleName)
+        public DataTable Search(string vcFunctionID, string vcLogType, string vcTimeFrom, string vcTimeTo)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                System.Data.SqlClient.SqlParameter[] parameters = {
-                    new SqlParameter("@vcFunctionID", SqlDbType.NVarChar,20),
-                };
-                parameters[0].Value = strRoleName;
+               
                 strSql.AppendLine("  select  vcFunctionID, vcLogType, vcMessage, vcException,    ");
                 strSql.AppendLine("  vcTrack, convert(varchar(20), dCreateTime,120) as dCreateTime, a.vcIp,   ");
                 strSql.AppendLine("  a.vcUserID+'-'+b.vcUserName as vcUserName   ");
                 strSql.AppendLine("  from [dbo].[SLog] a   ");
                 strSql.AppendLine("  left join [dbo].[SUser] b on a.vcUserID=b.vcUserID   ");
-                strSql.AppendLine("  where vcFunctionID like '%'+@vcFunctionID+'%'   ");
-                strSql.AppendLine("     ");
-               
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
+                strSql.AppendLine("where 1=1 ");
+                if (vcFunctionID.Length>0)
+                {
+                    strSql.AppendLine(" and a.vcFunctionID  like '%" + vcFunctionID + "%' ");
+                }
+                if (vcLogType.Length > 0)
+                {
+                    strSql.AppendLine(" and a.vcLogType  = '" + vcLogType + "' ");
+                }
+                if (vcTimeFrom.Length > 0)
+                {
+                    strSql.AppendLine(" and a.dCreateTime>='"+ vcTimeFrom + "'  ");
+                }
+                if (vcTimeTo.Length > 0)
+                {
+                    strSql.AppendLine(" and a.dCreateTime<'" + vcTimeTo + "' ");
+                }
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {

@@ -8,6 +8,7 @@
     <PackageReference Include="EPPlus" Version="5.4.2" />
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1000" />
     <PackageReference Include="MicrosoftOfficeCore" Version="15.0.0" />
+    <PackageReference Include="NPOI" Version="2.5.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>

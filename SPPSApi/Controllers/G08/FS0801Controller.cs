@@ -50,7 +50,7 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0801_Logic.BindPlant();
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPlantCode", "vcPlantName" });
+                List<Object> dataList = ComFunction.convertAllToResult(dt);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -87,8 +87,7 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0801_Logic.Search(bzplant, pinfan, bigpm, smallpm);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPartsNo", "dTimeFrom", "dTimeTo", "vcBZPlant", "vcBigPM",
-                "vcSmallPM","vcStandardTime","vcBZQF","vcBZUnit","vcRHQF","vcflag"});
+                List<Object> dataList = ComFunction.convertAllToResult(dt);
                 for (int i = 0; i < dataList.Count; i++)
                 {
                     //vcRead vcWrite字段需要从 0 1转换成false true
@@ -129,7 +128,7 @@ namespace SPPSApi.Controllers.G08
                 JArray listInfo = dataForm.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 DataTable dt = new DataTable();
-                dt.Columns.Add("vcPartsNo");
+                dt.Columns.Add("vcPart_id");
                 dt.Columns.Add("dTimeFrom");
                 dt.Columns.Add("dTimeTo");
                 dt.Columns.Add("vcBZPlant");
@@ -142,7 +141,7 @@ namespace SPPSApi.Controllers.G08
                     if (bflag == false)
                     {
                         DataRow dr = dt.NewRow();
-                        dr["vcPartsNo"] = listInfoData[i]["vcPartsNo"].ToString();
+                        dr["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString();
                         dr["dTimeFrom"] = listInfoData[i]["dTimeFrom"].ToString();
                         dr["dTimeTo"] = listInfoData[i]["dTimeTo"].ToString();
                         dr["vcBZPlant"] = listInfoData[i]["vcBZPlant"].ToString();

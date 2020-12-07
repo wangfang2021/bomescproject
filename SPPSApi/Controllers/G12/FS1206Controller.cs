@@ -30,7 +30,7 @@ namespace SPPSApi.Controllers.G12
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 点击检索按钮获取列表数据
+        #region 检索列表
         [HttpPost]
         [EnableCors("any")]
         public string searchApi([FromBody] dynamic data)

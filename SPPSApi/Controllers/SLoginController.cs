@@ -50,6 +50,7 @@ namespace SPPSApi.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine("登录异常:" + ex.Message);
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0008", ex, strUserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "登录失败";

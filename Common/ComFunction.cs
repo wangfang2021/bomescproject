@@ -30,6 +30,8 @@ namespace Common
         #region 数据转换json结果
         public static List<Object> convertToResult(DataTable dt, string[] fields)
         {
+            
+
             List<Object> res = new List<Object>();
             for (int i = 0; i < dt.Rows.Count; i++)
             {
@@ -37,6 +39,24 @@ namespace Common
                 foreach (string field in fields)
                 {
                     row[field] = dt.Rows[i][field];
+                }
+                row["iAPILineNo"] = i;
+                res.Add(row);
+            }
+            return res;
+        }
+        public static List<Object> convertAllToResult(DataTable dt)
+        {
+
+
+            List<Object> res = new List<Object>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                Dictionary<string, object> row = new Dictionary<string, object>();
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    string colName = dt.Columns[j].ColumnName;
+                    row[colName] = dt.Rows[i][colName];
                 }
                 row["iAPILineNo"] = i;
                 res.Add(row);

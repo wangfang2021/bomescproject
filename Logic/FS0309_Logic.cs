@@ -38,6 +38,13 @@ namespace Logic
         }
         #endregion
 
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0309_DataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
 
     }
 }

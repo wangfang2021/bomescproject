@@ -63,6 +63,29 @@ namespace Common
             }
             return res;
         }
+        /// <summary>
+        /// 带格式转换的datatable转json
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="boolFields"></param>
+        /// <returns></returns>
+        public static List<Object> convertAllToResultByConverter(DataTable dt,DtConverter dtConverter)
+        {
+            List<Object> res = new List<Object>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                Dictionary<string, object> row = new Dictionary<string, object>();
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    string colName = dt.Columns[j].ColumnName;
+                    row[colName] = dtConverter.doConvert(dt.Rows[i][colName], colName);
+                }
+                row["iAPILineNo"] = i;
+                res.Add(row);
+            }
+            return res;
+        }
+
         #endregion
 
         #region 根据Datatable某个字段，把“值”的集合转换json结果
@@ -650,4 +673,6 @@ namespace Common
 
     }
     #endregion
+
+ 
 }

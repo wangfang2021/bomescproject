@@ -17,18 +17,18 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G06
 {
-    [Route("api/FS0605/[action]")]
+    [Route("api/FS0606/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0605Controller : BaseController
+    public class FS0606Controller : BaseController
     {
-        FS0605_Logic fs0605_Logic = new FS0605_Logic();
-        private readonly string FunctionID = "FS0605";
+        FS0606_Logic fs0606_Logic = new FS0606_Logic();
+        private readonly string FunctionID = "FS0606";
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
 
-        public FS0605Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0606Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -49,7 +49,7 @@ namespace SPPSApi.Controllers.G06
         //    ApiResult apiResult = new ApiResult();
         //    try
         //    {
-        //        DataTable dt = fs0605_Logic.BindConst();
+        //        DataTable dt = fs0606_Logic.BindConst();
         //        List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
         //        apiResult.code = ComConstant.SUCCESS_CODE;
         //        apiResult.data = dataList;
@@ -80,15 +80,12 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
-            string vcIsSureFlag = dataForm.vcIsSureFlag == null ? "" : dataForm.vcIsSureFlag;
-
+            string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             try
             {
-                DataTable dt = fs0605_Logic.Search(vcSupplier_id, vcWorkArea, vcIsSureFlag);
-                // TypeCode, TypeName, KeyCode, KeyValue, Sort, Memo
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcSupplier_id", "vcWorkArea", "vcIsSureFlag", "vcLinkMan", "vcPhone","vcEmail",
+                DataTable dt = fs0606_Logic.Search(vcPartNo);
+                // vcPartNo, dBeginDate, dEndDate, vcOperatorID, dOpertatorTime
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcPartNo", "dBeginDate", "dEndDate", 
                 "vcmodflag","vcaddflag"});
                 for (int i = 0; i < dataList.Count; i++)
                 {
@@ -103,7 +100,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0501", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0601", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -131,13 +128,10 @@ namespace SPPSApi.Controllers.G06
                 JArray listInfo = dataForm.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 DataTable dtmod = new DataTable();
-                //vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail, vcOperatorID, dOperatorTime
-                dtmod.Columns.Add("vcSupplier_id");
-                dtmod.Columns.Add("vcWorkArea");
-                dtmod.Columns.Add("vcIsSureFlag");
-                dtmod.Columns.Add("vcLinkMan");
-                dtmod.Columns.Add("vcPhone");
-                dtmod.Columns.Add("vcEmail");
+                // vcPartNo, dBeginDate, dEndDate, vcOperatorID, dOpertatorTime
+                dtmod.Columns.Add("vcPartNo");
+                dtmod.Columns.Add("dBeginDate");
+                dtmod.Columns.Add("dEndDate");
 
                 DataTable dtadd = dtmod.Clone();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -147,23 +141,19 @@ namespace SPPSApi.Controllers.G06
                     if (bmodflag == false && baddflag == false)
                     {//新增
                         DataRow dr = dtadd.NewRow();
-                        dr["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"].ToString();
-                        dr["vcWorkArea"] = listInfoData[i]["vcWorkArea"].ToString();
-                        dr["vcIsSureFlag"] = listInfoData[i]["vcIsSureFlag"].ToString();
-                        dr["vcLinkMan"] = listInfoData[i]["vcLinkMan"].ToString();
-                        dr["vcPhone"] = listInfoData[i]["vcPhone"].ToString();
-                        dr["vcEmail"] = listInfoData[i]["vcEmail"].ToString();
+                        dr["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dr["dBeginDate"] = listInfoData[i]["dBeginDate"].ToString();
+                        dr["dEndDate"] = listInfoData[i]["dEndDate"].ToString();
+                       
                         dtadd.Rows.Add(dr);
                     }
                     else if (bmodflag == false && baddflag == true)
                     {//修改
                         DataRow dr = dtmod.NewRow();
-                        dr["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"].ToString();
-                        dr["vcWorkArea"] = listInfoData[i]["vcWorkArea"].ToString();
-                        dr["vcIsSureFlag"] = listInfoData[i]["vcIsSureFlag"].ToString();
-                        dr["vcLinkMan"] = listInfoData[i]["vcLinkMan"].ToString();
-                        dr["vcPhone"] = listInfoData[i]["vcPhone"].ToString();
-                        dr["vcEmail"] = listInfoData[i]["vcEmail"].ToString();
+                        dr["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dr["dBeginDate"] = listInfoData[i]["dBeginDate"].ToString();
+                        dr["dEndDate"] = listInfoData[i]["dEndDate"].ToString();
+                      
                         dtmod.Rows.Add(dr);
                     }
                 }
@@ -176,59 +166,51 @@ namespace SPPSApi.Controllers.G06
                 //判断空
                 for (int i = 0; i < dtadd.Rows.Count; i++)
                 {
-                    //[vcCodeId] ,[vcCodeName]  ,[vcValue] ,[vcName] ,[vcMeaning]
-                    string vcSupplier_id = dtadd.Rows[i]["vcSupplier_id"].ToString();
-                    string strvcWorkArea = dtadd.Rows[i]["vcWorkArea"].ToString();
-                    string strvcIsSureFlag = dtadd.Rows[i]["vcIsSureFlag"].ToString();
-                    string strvcEmail = dtadd.Rows[i]["vcEmail"].ToString();
-                    if (vcSupplier_id.Length == 0|| vcSupplier_id.Trim().Length!=4)
+                    // vcPartNo, dBeginDate, dEndDate, vcOperatorID, dOpertatorTime
+                    string vcPartNo = dtadd.Rows[i]["vcPartNo"].ToString();
+                    string dBeginDate = dtadd.Rows[i]["dBeginDate"].ToString();
+                    string dEndDate = dtadd.Rows[i]["dEndDate"].ToString();
+                    
+                    if (vcPartNo.Trim().Length!=12)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "新增的数据供应商代码不能为空并且长度必须是四位,请确认！";
+                        apiResult.data = "新增的品番长度必须是12位,请确认！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (strvcWorkArea.Length == 0)
+                    if (dBeginDate.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "新增的工区不能为空,请确认！";
+                        apiResult.data = "新增的开始日不能为空,请确认！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (strvcIsSureFlag.Length == 0)
+                    if (dEndDate.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "新增的生产能力&纳期确认不能为空,请确认！";
+                        apiResult.data = "新增的结束日不能为空,请确认！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    if (strvcEmail.Length>0)
-                    {
-                        //：("^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$")；
-                        //^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$
-                        Regex r = new Regex("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
-                        if (!r.IsMatch(strvcEmail))
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "新增的邮箱不是一个有效的邮箱地址,请确认！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
                     }
                 }
                 for (int i = 0; i < dtmod.Rows.Count; i++)
                 {
-                    //[vcCodeId] ,[vcCodeName]  ,[vcValue] ,[vcName] ,[vcMeaning]
-                    string strvcEmail = dtmod.Rows[i]["vcEmail"].ToString();
-                    if (strvcEmail.Length > 0)
+                    // vcPartNo, dBeginDate, dEndDate, vcOperatorID, dOpertatorTime
+                    string dBeginDate = dtmod.Rows[i]["dBeginDate"].ToString();
+                    string dEndDate = dtmod.Rows[i]["dEndDate"].ToString();
+                    
+                    if (dBeginDate.Length == 0)
                     {
-                        Regex r = new Regex("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
-                        if (!r.IsMatch(strvcEmail))
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "修改的邮箱不是一个有效的邮箱地址,请确认！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "新增的开始日不能为空,请确认！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (dEndDate.Length == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "新增的结束日不能为空,请确认！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
                 //验证 是否有重复 数据
-                string[] columnArray = { "vcSupplier_id", "vcWorkArea" };
+                string[] columnArray = { "vcPartNo"};
                 if (dtadd.Rows.Count > 0)
                 {
                     DataView dtaddView = dtadd.DefaultView;
@@ -273,7 +255,7 @@ namespace SPPSApi.Controllers.G06
 
                 if (dtadd.Rows.Count > 0)
                 {
-                    Boolean isExistAddData = fs0605_Logic.isExistAddData(dtadd);
+                    Boolean isExistAddData = fs0606_Logic.isExistAddData(dtadd);
                     if (isExistAddData)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -293,14 +275,14 @@ namespace SPPSApi.Controllers.G06
                 //    }
                 //}
 
-                fs0605_Logic.Save(dtadd, dtmod, loginInfo.UserId);
+                fs0606_Logic.Save(dtadd, dtmod, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0502", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0602", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -344,16 +326,58 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0605_Logic.Del(dtdel, loginInfo.UserId);
+                fs0606_Logic.Del(dtdel, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0503", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0603", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 一括赋予
+        [HttpPost]
+        [EnableCors("any")]
+        public string allInstallApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string dBeginDate = dataForm.dBeginDate == null ? "" : dataForm.dBeginDate;
+            string dEndDate = dataForm.dEndDate == null ? "" : dataForm.dEndDate;
+            try
+            {
+                if (dataForm.length==0|| dBeginDate.Length == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "一括赋予开始日、结束日都不能为空,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                fs0606_Logic.allInstall (Convert.ToDateTime(dBeginDate), Convert.ToDateTime(dEndDate), loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0604", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "一括赋予失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

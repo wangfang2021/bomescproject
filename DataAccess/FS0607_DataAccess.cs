@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace DataAccess
 {
-    public class FS0605_DataAccess
+    public class FS0607_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
@@ -27,11 +27,11 @@ namespace DataAccess
                 {
                     if (strSql.Length > 0)
                     {
-                        strSql.AppendLine("  union all SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
+                        strSql.AppendLine("  union all select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='"+ dtadd.Rows[i]["vcWorkArea"] + "' ");
                     }
                     else
                     {
-                        strSql.AppendLine("  SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
+                        strSql.AppendLine("  select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
                     }
                 }
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -47,13 +47,13 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcIsSureFlag)
+        public DataTable Search(string vcSupplier_id,string vcWorkArea)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select  [vcSupplier_id], [vcWorkArea], case when vcIsSureFlag='0' then '未确认' when vcIsSureFlag='1'  then '已确认' else '' end as vcIsSureFlag, [vcLinkMan], [vcPhone], [vcEmail], [vcOperatorID], [dOperatorTime],'1' as vcmodflag,'1' as vcaddflag From [dbo].[TSupplierInfo] where 1=1   ");
+                strSql.AppendLine("   select iAutoId, vcSupplier_id, vcWorkArea, convert(varchar(20), dBeginDate,111) as dBeginDate, convert(varchar(20), dEndDate,111) as dEndDate, '1' as vcmodflag,'1' as vcaddflag, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier]    ");
 
                 if (vcSupplier_id.Length > 0)
                 {
@@ -61,13 +61,10 @@ namespace DataAccess
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea like '%" + vcWorkArea + "%' ");
+                    strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
                 }
-                if (vcIsSureFlag.Length > 0)
-                {
-                    strSql.AppendLine("  and  vcIsSureFlag = '" + vcIsSureFlag + "' ");
-                }
-                strSql.AppendLine("  order by  vcWorkArea ");
+
+                strSql.AppendLine("  order by  dOperatorTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -86,8 +83,8 @@ namespace DataAccess
             for (int i = 0; i < dtdel.Rows.Count; i++)
             {
                 DataRow dr = dtdel.Rows[i];
-                sql.Append("delete from [TSupplierInfo]   \n");
-                sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "' and vcWorkArea='" + dr["vcWorkArea"].ToString() + "' \n");
+                sql.Append("delete from [TSpecialSupplier]  \n");
+                sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "'  and vcWorkArea='" + dr["vcWorkArea"].ToString() + "' \n");
 
             }
             if (sql.Length > 0)
@@ -108,14 +105,14 @@ namespace DataAccess
                 for (int i = 0; i < dtadd.Rows.Count; i++)
                 {
                     DataRow dr = dtadd.Rows[i];
-                    sql.Append("insert into [TSupplierInfo] (vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail, vcOperatorID, dOperatorTime)  \n");
-                    sql.Append(" values('" + dr["vcSupplier_id"].ToString() + "','" + dr["vcWorkArea"].ToString() + "','" + dr["vcIsSureFlag"].ToString() + "','" + dr["vcLinkMan"].ToString() + "','" + dr["vcPhone"].ToString() + "','" + dr["vcEmail"].ToString() + "','" + userId + "',GETDATE()) \n");
+                    sql.Append("insert into [TSpecialSupplier] (vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime)  \n");
+                    sql.Append(" values('" + dr["vcSupplier_id"].ToString() + "','" + dr["vcWorkArea"].ToString() + "','" + dr["dBeginDate"].ToString() + "','" + dr["dEndDate"].ToString() + "','" + userId + "',GETDATE()) \n");
                 }
                 for (int i = 0; i < dtmod.Rows.Count; i++)
                 {
                     DataRow dr = dtmod.Rows[i];
-                    sql.Append("update TSupplierInfo set vcIsSureFlag='" + dr["vcIsSureFlag"].ToString() + "', vcLinkMan='" + dr["vcLinkMan"].ToString() + "', vcPhone='" + dr["vcPhone"].ToString() + "', vcEmail='" + dr["vcEmail"].ToString() + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
-                    sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "' and vcWorkArea='" + dr["vcWorkArea"].ToString() + "'  \n");
+                    sql.Append("update TSpecialSupplier set dBeginDate='" + Convert.ToDateTime(dr["dBeginDate"].ToString()) + "', dEndDate='" + Convert.ToDateTime(dr["dEndDate"].ToString()) + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
+                    sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "' and vcWorkArea ='" + dr["vcWorkArea"].ToString() + "' \n");
 
                 }
                 if (sql.Length > 0)
@@ -152,6 +149,27 @@ namespace DataAccess
                 }
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 return dt.Rows.Count > 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// <summary>
+        /// 一括赋予
+        /// </summary>
+        /// <returns></returns>
+        public void allInstall(DateTime dBeginDate,DateTime dEndDate,string userId) {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                
+                sql.Append("update TSpecialSupplier set dBeginDate='" + dBeginDate + "', dEndDate='" + dEndDate + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
+
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
             }
             catch (Exception ex)
             {

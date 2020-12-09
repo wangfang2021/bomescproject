@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace DataAccess
 {
-    public class FS0605_DataAccess
+    public class FS0613_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
@@ -27,11 +27,11 @@ namespace DataAccess
                 {
                     if (strSql.Length > 0)
                     {
-                        strSql.AppendLine("  union all SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
+                        strSql.AppendLine("  union all select iAutoId, vcDock, vcCarType, dBeginDate, dEndDate, vcMemo, vcOperatorID, dOperatorTime [dbo].[TDockCar] where vcDock='" + dtadd.Rows[i]["vcDock"] + "' and  vcCarType='" + dtadd.Rows[i]["vcCarType"] + "' ");
                     }
                     else
                     {
-                        strSql.AppendLine("  SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
+                        strSql.AppendLine("  select iAutoId, vcDock, vcCarType, dBeginDate, dEndDate, vcMemo, vcOperatorID, dOperatorTime [dbo].[TDockCar] where vcDock='" + dtadd.Rows[i]["vcDock"] + "' and  vcCarType='" + dtadd.Rows[i]["vcCarType"] + "'  ");
                     }
                 }
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -47,27 +47,24 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcIsSureFlag)
+        public DataTable Search(string vcDock, string vcCarType)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select  [vcSupplier_id], [vcWorkArea], case when vcIsSureFlag='0' then '未确认' when vcIsSureFlag='1'  then '已确认' else '' end as vcIsSureFlag, [vcLinkMan], [vcPhone], [vcEmail], [vcOperatorID], [dOperatorTime],'1' as vcmodflag,'1' as vcaddflag From [dbo].[TSupplierInfo] where 1=1   ");
+                strSql.AppendLine("   select iAutoId, vcDock, vcCarType, convert(varchar(20), dBeginDate,111) as dBeginDate, convert(varchar(20), dEndDate,111) as dEndDate, '1' as vcmodflag,'1' as vcaddflag, vcMemo, vcOperatorID, dOperatorTime [dbo].[TDockCar]   ");
 
-                if (vcSupplier_id.Length > 0)
+                if (vcDock.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  vcDock like '%" + vcDock + "%' ");
                 }
-                if (vcWorkArea.Length > 0)
+                if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea like '%" + vcWorkArea + "%' ");
+                    strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
                 }
-                if (vcIsSureFlag.Length > 0)
-                {
-                    strSql.AppendLine("  and  vcIsSureFlag = '" + vcIsSureFlag + "' ");
-                }
-                strSql.AppendLine("  order by  vcWorkArea ");
+
+                strSql.AppendLine("  order by  dOperatorTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -86,8 +83,8 @@ namespace DataAccess
             for (int i = 0; i < dtdel.Rows.Count; i++)
             {
                 DataRow dr = dtdel.Rows[i];
-                sql.Append("delete from [TSupplierInfo]   \n");
-                sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "' and vcWorkArea='" + dr["vcWorkArea"].ToString() + "' \n");
+                sql.Append("delete from [TDockCar]  \n");
+                sql.Append("where vcDock='" + dr["vcDock"].ToString() + "'  and vcCarType='" + dr["vcCarType"].ToString() + "' \n");
 
             }
             if (sql.Length > 0)
@@ -108,14 +105,14 @@ namespace DataAccess
                 for (int i = 0; i < dtadd.Rows.Count; i++)
                 {
                     DataRow dr = dtadd.Rows[i];
-                    sql.Append("insert into [TSupplierInfo] (vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail, vcOperatorID, dOperatorTime)  \n");
-                    sql.Append(" values('" + dr["vcSupplier_id"].ToString() + "','" + dr["vcWorkArea"].ToString() + "','" + dr["vcIsSureFlag"].ToString() + "','" + dr["vcLinkMan"].ToString() + "','" + dr["vcPhone"].ToString() + "','" + dr["vcEmail"].ToString() + "','" + userId + "',GETDATE()) \n");
+                    sql.Append("insert into [TDockCar] (vcDock, vcCarType, dBeginDate, dEndDate, vcMemo, vcOperatorID, dOperatorTime)  \n");
+                    sql.Append(" values('" + dr["vcDock"].ToString() + "','" + dr["vcCarType"].ToString() + "','" + dr["dBeginDate"].ToString() + "','" + dr["dEndDate"].ToString() + "','" + dr["vcMemo"].ToString() + "','" + userId + "',GETDATE()) \n");
                 }
                 for (int i = 0; i < dtmod.Rows.Count; i++)
                 {
                     DataRow dr = dtmod.Rows[i];
-                    sql.Append("update TSupplierInfo set vcIsSureFlag='" + dr["vcIsSureFlag"].ToString() + "', vcLinkMan='" + dr["vcLinkMan"].ToString() + "', vcPhone='" + dr["vcPhone"].ToString() + "', vcEmail='" + dr["vcEmail"].ToString() + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
-                    sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "' and vcWorkArea='" + dr["vcWorkArea"].ToString() + "'  \n");
+                    sql.Append("update TDockCar set dBeginDate='" + Convert.ToDateTime(dr["dBeginDate"].ToString()) + "', dEndDate='" + Convert.ToDateTime(dr["dEndDate"].ToString()) + "', vcMemo='" + Convert.ToDateTime(dr["vcMemo"].ToString()) + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
+                    sql.Append("where vcDock='" + dr["vcDock"].ToString() + "' and vcCarType ='" + dr["vcCarType"].ToString() + "' \n");
 
                 }
                 if (sql.Length > 0)
@@ -158,5 +155,6 @@ namespace DataAccess
                 throw ex;
             }
         }
+        
     }
 }

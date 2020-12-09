@@ -124,6 +124,14 @@ namespace SPPSApi.Controllers.G03
                     {//修改
                         hasFind = true;
                     }
+                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    if (strPart_id.Trim() == "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "品番不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                 }
                 if (!hasFind)
                 {

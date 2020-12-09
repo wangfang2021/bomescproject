@@ -54,14 +54,12 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search(smallpm, sr, pfbefore5);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcModFlag"] = row["vcModFlag"].ToString() == "1" ? true : false;
-                    row["vcAddFlag"] = row["vcAddFlag"].ToString() == "1" ? true : false;
-                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+
+                List <Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -216,14 +214,12 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search_PM(smallpm, bigpm);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcModFlag"] = row["vcModFlag"].ToString() == "1" ? true : false;
-                    row["vcAddFlag"] = row["vcAddFlag"].ToString() == "1" ? true : false;
-                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -374,14 +370,12 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search_StandardTime(bigpm, standardtime);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcModFlag"] = row["vcModFlag"].ToString() == "1" ? true : false;
-                    row["vcAddFlag"] = row["vcAddFlag"].ToString() == "1" ? true : false;
-                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

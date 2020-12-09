@@ -33,9 +33,9 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(DataTable dt,string strUserId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs0801_DataAccess.Save(dt, strUserId);
+            fs0801_DataAccess.Save(listInfoData, strUserId);
         }
         #endregion
 

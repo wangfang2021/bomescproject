@@ -87,13 +87,13 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0801_Logic.Search(bzplant, pinfan, bigpm, smallpm);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcflag"] = row["vcflag"].ToString() == "1" ? true : false;
-                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dTimeFrom", ConvertFieldType.BoolType, "yyyy-MM-dd");
+                dtConverter.addField("dTimeTo", ConvertFieldType.BoolType, "yyyy-MM-dd");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -125,39 +125,43 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.list;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcPart_id");
-                dt.Columns.Add("dTimeFrom");
-                dt.Columns.Add("dTimeTo");
-                dt.Columns.Add("vcBZPlant");
-                dt.Columns.Add("vcBZQF");
-                dt.Columns.Add("vcBZUnit");
-                dt.Columns.Add("vcRHQF");
+                int ieditRows = 0;
+                //DataTable dt = new DataTable();
+                //dt.Columns.Add("vcPart_id");
+                //dt.Columns.Add("dTimeFrom");
+                //dt.Columns.Add("dTimeTo");
+                //dt.Columns.Add("vcBZPlant");
+                //dt.Columns.Add("vcBZQF");
+                //dt.Columns.Add("vcBZUnit");
+                //dt.Columns.Add("vcRHQF");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bflag = (bool)listInfoData[i]["vcflag"];//编辑标识,取false的
-                    if (bflag == false)
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//编辑标识,取false的
+                    if (bmodflag == true)
                     {
-                        DataRow dr = dt.NewRow();
-                        dr["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString();
-                        dr["dTimeFrom"] = listInfoData[i]["dTimeFrom"].ToString();
-                        dr["dTimeTo"] = listInfoData[i]["dTimeTo"].ToString();
-                        dr["vcBZPlant"] = listInfoData[i]["vcBZPlant"].ToString();
-                        dr["vcBZQF"] = listInfoData[i]["vcBZQF"].ToString();
-                        dr["vcBZUnit"] = listInfoData[i]["vcBZUnit"].ToString();
-                        dr["vcRHQF"] = listInfoData[i]["vcRHQF"].ToString();
-                        dt.Rows.Add(dr);
+                        //DataRow dr = dt.NewRow();
+                        //dr["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString();
+                        //dr["dTimeFrom"] = listInfoData[i]["dTimeFrom"].ToString();
+                        //dr["dTimeTo"] = listInfoData[i]["dTimeTo"].ToString();
+                        //dr["vcBZPlant"] = listInfoData[i]["vcBZPlant"].ToString();
+                        //dr["vcBZQF"] = listInfoData[i]["vcBZQF"].ToString();
+                        //dr["vcBZUnit"] = listInfoData[i]["vcBZUnit"].ToString();
+                        //dr["vcRHQF"] = listInfoData[i]["vcRHQF"].ToString();
+                        //dt.Rows.Add(dr);
+                        ieditRows++;
+                        string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                        //校验
                     }
                 }
-                if (dt.Rows.Count == 0)
+                if (ieditRows == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一个编辑行！";
+                    apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0801_Logic.Save(dt, loginInfo.UserId);
+                fs0801_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

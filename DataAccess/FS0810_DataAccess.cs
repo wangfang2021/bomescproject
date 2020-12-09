@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.vcSR,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t1.vcSmallPM,t2.vcBigPM,'0' as vcModFlag,'0' as vcAddFlag  \n");
+                strSql.Append("select t1.iAutoId,t1.vcSR,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t1.vcSmallPM,t2.vcBigPM,'0' as vcModFlag,'0' as vcAddFlag  \n");
                 strSql.Append("from TPMSmall t1  \n");
                 strSql.Append("left join TPMRelation t2 on t1.vcSmallPM=t2.vcSmallPM  \n");
                 strSql.Append("where ISNULL(t1.vcSmallPM,'') like '%" + smallpm + "%'  \n");
@@ -61,9 +61,8 @@ namespace DataAccess
                     }
                     else
                     {
-                        sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "'   \n");
-                        sql.Append("where vcPartsNoBefore5='" + strPartsNoBefore5 + "' and vcSR='" + strSR + "'   \n");
-                        sql.Append("and vcBCPartsNo='" + strBCPartsNo + "'  \n");
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "' where iAutoId="+iAutoId+"   \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -86,13 +85,8 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
-                    string vcPartsNoBefore5= checkedInfoData[i]["vcPartsNoBefore5"].ToString();
-                    string vcSR= checkedInfoData[i]["vcSR"].ToString();
-                    string vcBCPartsNo= checkedInfoData[i]["vcBCPartsNo"].ToString();
-
-                    sql.Append("delete from TPMSmall   \n");
-                    sql.Append("where vcPartsNoBefore5='" + vcPartsNoBefore5 + "' and vcSR='" + vcSR + "'   \n");
-                    sql.Append("and vcBCPartsNo='" + vcBCPartsNo + "'  \n");
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from TPMSmall where iAutoId="+iAutoId+"   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -112,7 +106,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcBigPM as vcBigPM_init,vcSmallPM as vcSmallPM_init  \n");
+                strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcBigPM as vcBigPM_init,vcSmallPM as vcSmallPM_init  \n");
                 strSql.Append("from TPMRelation   \n");
                 strSql.Append("where isnull(vcBigPM,'') like '%"+bigpm+"%' and isnull(vcSmallPM,'') like '%"+smallpm+"%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -136,8 +130,6 @@ namespace DataAccess
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     string strBigPM = listInfoData[i]["vcBigPM"].ToString();
                     string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
-                    string strBigPM_init = listInfoData[i]["vcBigPM_init"].ToString();
-                    string strSmallPM_init = listInfoData[i]["vcSmallPM_init"].ToString();
 
                     if (baddflag)
                     {//新增
@@ -146,8 +138,8 @@ namespace DataAccess
                     }
                     else
                     {
-                        sql.Append("update TPMRelation set vcBigPM='" + strBigPM + "',vcSmallPM='" + strSmallPM + "'   \n");
-                        sql.Append("where vcBigPM='" + strBigPM_init + "' and vcSmallPM='" + strSmallPM_init + "'   \n");
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TPMRelation set vcBigPM='" + strBigPM + "',vcSmallPM='" + strSmallPM + "' where iAutoId="+iAutoId+"    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -204,11 +196,8 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
-                    string strBigPM = checkedInfoData[i]["vcBigPM"].ToString();
-                    string strSmallPM = checkedInfoData[i]["vcSmallPM"].ToString();
-
-                    sql.Append("delete from TPMRelation   \n");
-                    sql.Append("where vcBigPM='" + strBigPM + "' and vcSmallPM='" + strSmallPM + "'   \n");
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from TPMRelation where iAutoId="+iAutoId+"   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -228,7 +217,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select vcBigPM,vcStandardTime,'0' as vcAddFlag,'0' as vcModFlag  \n");
+                strSql.Append("select iAutoId,vcBigPM,vcStandardTime,'0' as vcAddFlag,'0' as vcModFlag  \n");
                 strSql.Append("from TPMStandardTime   \n");
                 strSql.Append("where isnull(vcBigPM,'') like '%" + bigpm + "%' and isnull(vcStandardTime,'') like '%" + standardtime + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -276,8 +265,8 @@ namespace DataAccess
                     }
                     else
                     {
-                        sql.Append("update TPMStandardTime set vcStandardTime='" + strStandardTime + "'   \n");
-                        sql.Append("where vcBigPM='" + strBigPM + "'   \n");
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TPMStandardTime set vcStandardTime='" + strStandardTime + "' where iAutoId="+iAutoId+"   \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -300,11 +289,8 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
-                    string strBigPM = checkedInfoData[i]["vcBigPM"].ToString();
-                    string strStandardTime = checkedInfoData[i]["vcStandardTime"].ToString();
-
-                    sql.Append("delete from TPMStandardTime   \n");
-                    sql.Append("where vcBigPM='" + strBigPM + "' and vcStandardTime='" + strStandardTime + "'   \n");
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from TPMStandardTime where iAutoId="+iAutoId+"   \n");
                 }
                 if (sql.Length > 0)
                 {

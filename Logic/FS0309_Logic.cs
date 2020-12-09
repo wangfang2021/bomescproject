@@ -31,6 +31,20 @@ namespace Logic
         }
         #endregion
 
-         
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0309_DataAccess.Save(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0309_DataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
+
     }
 }

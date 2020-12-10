@@ -30,7 +30,7 @@ namespace Common
         #region 数据转换json结果
         public static List<Object> convertToResult(DataTable dt, string[] fields)
         {
-            
+
 
             List<Object> res = new List<Object>();
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -69,7 +69,7 @@ namespace Common
         /// <param name="dt"></param>
         /// <param name="boolFields"></param>
         /// <returns></returns>
-        public static List<Object> convertAllToResultByConverter(DataTable dt,DtConverter dtConverter)
+        public static List<Object> convertAllToResultByConverter(DataTable dt, DtConverter dtConverter)
         {
             List<Object> res = new List<Object>();
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -541,6 +541,51 @@ namespace Common
         }
         #endregion
 
+        #region 导出带模板
+
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string xltName, int startRow)
+        {
+            try
+            {
+                HSSFWorkbook hssfworkbook = new HSSFWorkbook();
+                string strMouldPath = @"D:\test.xlt";
+
+                using (FileStream fs = File.OpenRead(strMouldPath))
+                {
+                    hssfworkbook = new HSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+
+                int RowsNum = startRow;
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        ICell cell = row.CreateCell(j);
+                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                    }
+                }
+
+                using (FileStream fs = File.OpenWrite(@"D:\test11.xls"))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xlsx文件中写入数据  
+                    fs.Close();
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
+        #endregion
+
         #region 校验日期
         public static bool CheckDate(string value)
         {
@@ -674,5 +719,5 @@ namespace Common
     }
     #endregion
 
- 
+
 }

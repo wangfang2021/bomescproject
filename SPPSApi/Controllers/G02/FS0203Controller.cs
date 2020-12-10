@@ -45,7 +45,10 @@ namespace SPPSApi.Controllers.G02
             try
             {
                 DataTable dt = fs0203_logic.searchHistory(flag, UploadTime);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcFileName", "vcOperator", "dCreateTime" });
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

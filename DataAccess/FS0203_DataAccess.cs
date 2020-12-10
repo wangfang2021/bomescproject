@@ -17,7 +17,7 @@ namespace DataAccess
         {
             string TableName = flag == 0 ? "TPartHistory" : "TSPIHistory";
             StringBuilder sbr = new StringBuilder();
-            sbr.Append(" SELECT vcFileName,vcOperator,CONVERT(varchar(20), dCreateTime, 23) as dCreateTime FROM " + TableName + " \r\n");
+            sbr.Append(" SELECT vcFileName,vcOperatorID,dOperatorTime FROM " + TableName + " \r\n");
             sbr.Append(" WHERE 1=1  \r\n");
             if (flag == 1)
             {
@@ -25,7 +25,7 @@ namespace DataAccess
             }
             if (!string.IsNullOrWhiteSpace(UploadTime))
             {
-                sbr.Append(" and dCreateTime = '" + UploadTime + "' \r\n");
+                sbr.Append(" and dOperatorTime = '" + UploadTime + "' \r\n");
             }
 
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
@@ -52,7 +52,7 @@ namespace DataAccess
                     string vcPart_Name = list[i]["Part Name"].ToString();
                     string vcParent = list[i]["Parent RTG"].ToString();
 
-                    sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Name,vcParent,vcFileName,dCreateTime,vcOperator) VALUES \r\n");
+                    sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Name,vcParent,vcFileName,dOperatorTime,vcOperatorID) VALUES \r\n");
                     sbr.Append(" ('" + vcCarType + "','" + vcUseLocation + "'," + iLV + ",'" + vcPart_Id + "','" + vcPart_Name + "','" + vcParent + "','" + fileName + "',GETDATE(),'" + userId + "') \r\n");
 
                     if (i % 1000 == 0)
@@ -67,7 +67,7 @@ namespace DataAccess
                 }
 
                 StringBuilder sbrList = new StringBuilder();
-                sbrList.Append(" INSERT INTO TPartHistory (vcFileName,vcCreater,dCreateTime,vcType) VALUES \r\n");
+                sbrList.Append(" INSERT INTO TPartHistory (vcFileName,vcOperatorID,dOperatorTime,vcType) VALUES \r\n");
                 sbrList.Append(" ('" + fileName + "','" + userId + "',GETDATE(),0 ) \r\n");
                 excute.ExcuteSqlWithStringOper(sbrList.ToString());
             }

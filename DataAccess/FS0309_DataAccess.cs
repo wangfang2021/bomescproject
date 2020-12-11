@@ -44,6 +44,7 @@ namespace DataAccess
                     strSql.Append("       and vcReceiver like '%%'         \n");
                 if (strPriceState != "")
                     strSql.Append("       and vcPriceState=''         \n");
+                strSql.Append("     order by  vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

@@ -426,7 +426,7 @@ namespace Common
         /// <param name="strFunctionName"></param>
         /// <param name="RetMsg"></param>
         /// <returns></returns>
-        public static bool DataTableToExcel(string[] head, string[] field, DataTable dt, string mapPath, string responserid, string strFunctionName, ref string RetMsg)
+        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath, string responserid, string strFunctionName, ref string RetMsg)
         {
             bool result = false;
             RetMsg = "";
@@ -435,7 +435,10 @@ namespace Common
 
             string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + responserid + ".xlsx";
             //string path = mapPath + @"\..\Doc\Export\" + strFileName;
-            string path = mapPath + @"D:/" + strFileName;
+            string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+
+            string path = fileSavePath + strFileName;
+
 
             if (System.IO.File.Exists(path))
             {
@@ -526,7 +529,7 @@ namespace Common
                     RetMsg = "传入数据为空。";
                 }
 
-                return result;
+                return strFileName;
             }
             catch (Exception ex)
             {
@@ -536,7 +539,7 @@ namespace Common
                 }
 
                 RetMsg = "导出文件失败";
-                return false;
+                return "";
             }
         }
         #endregion

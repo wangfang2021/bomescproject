@@ -48,11 +48,12 @@ namespace SPPSApi.Controllers.G02
             {
                 DataTable dt = fs0202_logic.searchHistory(filename, TimeFrom, TimeTo);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy-MM-dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

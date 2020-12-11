@@ -18,6 +18,21 @@ namespace Logic
     {
         FS0201_DataAccess fs0201_DataAccess = new FS0201_DataAccess();
 
+        #region 检索SPI
+
+        public DataTable searchSPI(string vcSPINO, string vcPart_Id, string vcCarType, string vcState)
+        {
+            DataTable dt = fs0201_DataAccess.searchSPI(vcSPINO, vcPart_Id, vcCarType);
+            if (dt.Rows.Count > 0)
+            {
+
+            }
+
+            return dt;
+        }
+
+        #endregion
+
         public void AddSPI(string path, string userId)
         {
             try
@@ -48,7 +63,7 @@ namespace Logic
                 dt = ExcelToDataTable(path + @"\" + fileName, "list", header, ref reMsg);
                 if (dt.Rows.Count > 0)
                 {
-                    fs0201_DataAccess.AddSPI(dt, userId);
+                    fs0201_DataAccess.addSPI(dt, userId);
                 }
                 else
                 {

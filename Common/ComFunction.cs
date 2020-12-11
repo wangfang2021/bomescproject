@@ -426,7 +426,7 @@ namespace Common
         /// <param name="strFunctionName"></param>
         /// <param name="RetMsg"></param>
         /// <returns></returns>
-        public static bool DataTableToExcel(string[] head, string[] field, DataTable dt, string mapPath, string responserid, string strFunctionName, ref string RetMsg)
+        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath, string responserid, string strFunctionName, ref string RetMsg)
         {
             bool result = false;
             RetMsg = "";
@@ -434,8 +434,10 @@ namespace Common
             int size = 1048576 - 1;
 
             string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + responserid + ".xlsx";
-            //string path = mapPath + @"\..\Doc\Export\" + strFileName;
-            string path = mapPath + @"D:/" + strFileName;
+            string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+
+            string path = fileSavePath + strFileName;
+
 
             if (System.IO.File.Exists(path))
             {
@@ -526,7 +528,7 @@ namespace Common
                     RetMsg = "传入数据为空。";
                 }
 
-                return result;
+                return strFileName;
             }
             catch (Exception ex)
             {
@@ -536,29 +538,26 @@ namespace Common
                 }
 
                 RetMsg = "导出文件失败";
-                return false;
+                return "";
             }
         }
         #endregion
 
         #region 导出带模板
-
-        public static string generateExcelWithXlt(DataTable dt, string[] field, string xltName, int startRow)
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string responserid, string strFunctionName)
         {
             try
             {
                 HSSFWorkbook hssfworkbook = new HSSFWorkbook();
-                string strMouldPath = @"D:\test.xlt";
 
-                using (FileStream fs = File.OpenRead(strMouldPath))
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
                 {
                     hssfworkbook = new HSSFWorkbook(fs);
                     fs.Close();
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
-
-                int RowsNum = startRow;
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -569,21 +568,21 @@ namespace Common
                         cell.SetCellValue(dt.Rows[i][field[j]].ToString());
                     }
                 }
-
-                using (FileStream fs = File.OpenWrite(@"D:\test11.xls"))
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + responserid + ".xls";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
                 {
-                    hssfworkbook.Write(fs);//向打开的这个xlsx文件中写入数据  
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
                     fs.Close();
                 }
-                return null;
+                return strFileName;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                throw;
+                return "";
             }
         }
-
         #endregion
 
         #region 校验日期

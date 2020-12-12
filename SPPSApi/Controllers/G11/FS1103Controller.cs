@@ -16,16 +16,16 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G11
 {
-    [Route("api/FS1101/[action]")]
+    [Route("api/FS1103/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS1101Controller : BaseController
+    public class FS1103Controller : BaseController
     {
-        FS1101_Logic fS1101_Logic = new FS1101_Logic();
-        private readonly string FunctionID = "FS1101";
+        FS1103_Logic fS1103_Logic = new FS1103_Logic();
+        private readonly string FunctionID = "FS1103";
 
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public FS1101Controller(IWebHostEnvironment webHostEnvironment)
+        public FS1103Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -48,14 +48,12 @@ namespace SPPSApi.Controllers.G11
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strDQuNo = dataForm.sDQuNo == null ? "" : dataForm.sDQuNo;
-            string strTrolleyNo = dataForm.sTrolleyNo == null ? "" : dataForm.sTrolleyNo;
+            string strReParty = dataForm.sReParty == null ? "" : dataForm.sReParty;
             string strPartId = dataForm.sPartId == null ? "" : dataForm.sPartId;
-            string strOrderNo = dataForm.sOrderNo == null ? "" : dataForm.sOrderNo;
-            string strLianFan = dataForm.sLianFan == null ? "" : dataForm.sLianFan;
+            string strTianFan = dataForm.sTianFan == null ? "" : dataForm.sTianFan;
             try
             {
-                DataTable dt = fS1101_Logic.getSearchInfo(strDQuNo, strTrolleyNo, strPartId, strOrderNo, strLianFan);
+                DataTable dt = fS1103_Logic.getSearchInfo(strReParty, strPartId, strTianFan);
                 List<Object> dataList = ComFunction.convertAllToResult(dt);
                 for (int i = 0; i < dataList.Count; i++)
                 {
@@ -95,7 +93,7 @@ namespace SPPSApi.Controllers.G11
             string strSaleno = dataForm.Saleno == null ? "" : dataForm.Saleno;
             try
             {
-                string strFilesPath = fS1101_Logic.getPrintFile();
+                string strFilesPath = fS1103_Logic.getPrintFile();
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = strFilesPath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

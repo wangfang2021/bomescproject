@@ -44,6 +44,7 @@ namespace DataAccess
                     strSql.Append("       and vcReceiver like '%%'         \n");
                 if (strPriceState != "")
                     strSql.Append("       and vcPriceState=''         \n");
+                strSql.Append("     order by  vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -67,7 +68,7 @@ namespace DataAccess
                     {//新增
                         sql.Append("  insert into TPrice(vcChange,vcPart_id,dUseBegin,dUseEnd,vcProjectType,vcSupplier_id,vcSupplier_Name,dProjectBegin,dProjectEnd,vcHaoJiu   \r\n");
                         sql.Append("  ,dJiuBegin,dJiuEnd,dJiuBeginSustain,vcPriceChangeInfo,vcPriceState,dPriceSendDate,vcPriceGS,decPriceOrigin,decPriceAfter,decPriceTNPWithTax   \r\n");
-                        sql.Append("  ,dPricebegin,dPriceEnd,vcCarTypeDev,vcCarTypeDesign,vcPart_Name,vcOE,vcPart_id_HK,vcStateFX,vcFXNO,vcSumLater,vcReceiver,vcOriginCompany   \r\n");
+                        sql.Append("  ,dPricebegin,dPriceEnd,vcCarTypeDev,vcCarTypeDesign,vcPart_Name,vcOE,vcPart_id_HK,vcStateFX,vcFXNO,vcSumLater,vcReceiver,vcOriginCompany,vcOperatorID,dOperatorTime   \r\n");
                         sql.Append("  )   \r\n");
                         sql.Append(" values (  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcChange"], false) + ",  \r\n");
@@ -101,7 +102,9 @@ namespace DataAccess
                         sql.Append(getSqlValue(listInfoData[i]["vcFXNO"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcSumLater"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcReceiver"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcOriginCompany"], false) + "  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcOriginCompany"], false) + ",  \r\n");
+                        sql.Append("'"+ strUserId + "',  \r\n");
+                        sql.Append("getdate()  \r\n");
                         sql.Append(" );  \r\n");
                     }
                     else if (bAddFlag == false && bModFlag == true)
@@ -118,6 +121,8 @@ namespace DataAccess
                         sql.Append("  ,decPriceTNPWithTax=" + getSqlValue(listInfoData[i]["decPriceTNPWithTax"], true) + "   \r\n");
                         sql.Append("  ,dPricebegin=" + getSqlValue(listInfoData[i]["dPricebegin"], true) + "   \r\n");
                         sql.Append("  ,dPriceEnd=" + getSqlValue(listInfoData[i]["dPriceEnd"], true) + "   \r\n");
+                        sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
+                        sql.Append("  ,dOperatorTime=getdate()   \r\n");
                         sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
                     }
                 }

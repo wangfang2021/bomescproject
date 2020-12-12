@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Common;
 using Logic;
@@ -179,7 +180,7 @@ namespace SPPSApi.Controllers.G06
                     string vcSupplier_id = dtadd.Rows[i]["vcSupplier_id"].ToString();
                     string strvcWorkArea = dtadd.Rows[i]["vcWorkArea"].ToString();
                     string strvcIsSureFlag = dtadd.Rows[i]["vcIsSureFlag"].ToString();
-                    //string strvcName = dtadd.Rows[i]["vcName"].ToString();
+                    string strvcEmail = dtadd.Rows[i]["vcEmail"].ToString();
                     if (vcSupplier_id.Length == 0|| vcSupplier_id.Trim().Length!=4)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -198,21 +199,36 @@ namespace SPPSApi.Controllers.G06
                         apiResult.data = "新增的生产能力&纳期确认不能为空,请确认！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (strvcEmail.Length>0)
+                    {
+                        //：("^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$")；
+                        //^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$
+                        Regex r = new Regex("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
+                        if (!r.IsMatch(strvcEmail))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "新增的邮箱不是一个有效的邮箱地址,请确认！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
                 }
-                //for (int i = 0; i < dtmod.Rows.Count; i++)
-                //{
-                //    //[vcCodeId] ,[vcCodeName]  ,[vcValue] ,[vcName] ,[vcMeaning]
-
-                //    string strvcName = dtadd.Rows[i]["vcName"].ToString();
-                //    if (strvcName.Length == 0)
-                //    {
-                //        apiResult.code = ComConstant.ERROR_CODE;
-                //        apiResult.data = "修改的数据Key值不能为空,请确认！";
-                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //    }
-                //}
+                for (int i = 0; i < dtmod.Rows.Count; i++)
+                {
+                    //[vcCodeId] ,[vcCodeName]  ,[vcValue] ,[vcName] ,[vcMeaning]
+                    string strvcEmail = dtmod.Rows[i]["vcEmail"].ToString();
+                    if (strvcEmail.Length > 0)
+                    {
+                        Regex r = new Regex("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
+                        if (!r.IsMatch(strvcEmail))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "修改的邮箱不是一个有效的邮箱地址,请确认！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                }
                 //验证 是否有重复 数据
-                string[] columnArray = { "vcSupplier_id" };
+                string[] columnArray = { "vcSupplier_id", "vcWorkArea" };
                 if (dtadd.Rows.Count > 0)
                 {
                     DataView dtaddView = dtadd.DefaultView;
@@ -257,7 +273,6 @@ namespace SPPSApi.Controllers.G06
 
                 if (dtadd.Rows.Count > 0)
                 {
-
                     Boolean isExistAddData = fs0605_Logic.isExistAddData(dtadd);
                     if (isExistAddData)
                     {

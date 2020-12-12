@@ -1,7 +1,6 @@
 ﻿using Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Security.Cryptography;
@@ -17,6 +16,7 @@ namespace SPPSApi.Controllers
         {
             public int code;
             public Object data;
+            public int flag;//个别画面对于返回值类型特别判断用
         }
 
         public class ApiToken
@@ -32,7 +32,7 @@ namespace SPPSApi.Controllers
             des.Mode = CipherMode.ECB;
             des.Padding = PaddingMode.PKCS7;
             ICryptoTransform cryptoTransform = des.CreateEncryptor();
-            byte [] res=cryptoTransform.TransformFinalBlock(bytedata, 0, bytedata.Length);
+            byte[] res = cryptoTransform.TransformFinalBlock(bytedata, 0, bytedata.Length);
             string token = Convert.ToBase64String(res);
 
             byte[] res22 = Convert.FromBase64String(token);
@@ -55,7 +55,7 @@ namespace SPPSApi.Controllers
             if (token == null || token.Trim() == "")
                 return false;
             Object temp = null;
-            memoryCache.TryGetValue(token,out temp);
+            memoryCache.TryGetValue(token, out temp);
             if (temp != null && temp.ToString() != "")
             {//缓存重置
                 memoryCache.Remove(token);
@@ -105,6 +105,8 @@ namespace SPPSApi.Controllers
         }
         #endregion
 
-        
+       
+
+
     }
 }

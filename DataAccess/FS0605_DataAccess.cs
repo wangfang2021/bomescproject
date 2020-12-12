@@ -114,8 +114,8 @@ namespace DataAccess
                 for (int i = 0; i < dtmod.Rows.Count; i++)
                 {
                     DataRow dr = dtmod.Rows[i];
-                    sql.Append("update TSupplierInfo set vcWorkArea='" + dr["vcWorkArea"].ToString() + "', vcIsSureFlag='" + dr["vcIsSureFlag"].ToString() + "', vcLinkMan='" + dr["vcLinkMan"].ToString() + "', vcPhone='" + dr["vcPhone"].ToString() + "', vcEmail='" + dr["vcEmail"].ToString() + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
-                    sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "'   \n");
+                    sql.Append("update TSupplierInfo set vcIsSureFlag='" + dr["vcIsSureFlag"].ToString() + "', vcLinkMan='" + dr["vcLinkMan"].ToString() + "', vcPhone='" + dr["vcPhone"].ToString() + "', vcEmail='" + dr["vcEmail"].ToString() + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
+                    sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "' and vcWorkArea='" + dr["vcWorkArea"].ToString() + "'  \n");
 
                 }
                 if (sql.Length > 0)

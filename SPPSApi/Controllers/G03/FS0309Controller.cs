@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using Common;
@@ -9,6 +10,7 @@ using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -91,6 +93,61 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strChange = dataForm.Change;
+            string strPart_id = dataForm.Part_id;
+            string strOriginCompany = dataForm.OriginCompany;
+            string strHaoJiu = dataForm.HaoJiu;
+            string strProjectType = dataForm.ProjectType;
+            string strPriceChangeInfo = dataForm.PriceChangeInfo;
+            string strCarTypeDev = dataForm.CarTypeDev;
+            string strSupplier_id = dataForm.Supplier_id;
+            string strReceiver = dataForm.Receiver;
+            string strPriceState = dataForm.PriceState;
+            try
+            {
+                DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+                   , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
+                   , strReceiver, strPriceState
+                   );
+                string[] fields = { "vcChange", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType", "vcSupplier_id"
+                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
+                ,"vcPriceState","dPriceSendDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
+                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver"
+                ,"vcOriginCompany" 
+                };
+
+                string RetMsg = "";
+                //string filepath = ComFunction.DataTableToExcel(headers, fields, dt, _webHostEnvironment.ContentRootPath, "000000", "test", ref RetMsg);
+                string filepath = "test_导出信息_20201210153429_000000.xlsx";
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
 
         #region 保存
         [HttpPost]
@@ -123,6 +180,25 @@ namespace SPPSApi.Controllers.G03
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
+                    }
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{"品番","使用开始","使用结束"},
+                                                {"vcPart_id","dUseBegin","dUseEnd"},
+                                                {FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date },
+                                                {"12","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"10","1","1"},//最小长度设定,可以为空用0
+                                                {"2","3","4"}//前台显示列号，从0开始计算
+                    };
+                    List<Object> checkRes=ListChecker.validateList(listInfoData, strField, true);
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = 1;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
                 if (!hasFind)

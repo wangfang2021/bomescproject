@@ -12,7 +12,7 @@ namespace DataAccess
     public class FS1101_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getDataInfo()
+        public DataTable getSearchInfo(string strDQuNo, string strTrolleyNo, string strPartId, string strOrderNo, string strLianFan)
         {
             try
             {

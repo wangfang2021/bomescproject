@@ -39,7 +39,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G03\" />
     <Folder Include="Doc\Import\FS0201\" />
     <Folder Include="Doc\Export\" />

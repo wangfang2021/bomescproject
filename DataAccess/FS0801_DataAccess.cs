@@ -71,12 +71,11 @@ namespace DataAccess
                     string strRHQF = listInfoData[i]["vcRHQF"].ToString();
 
                     //标识说明
-                    //默认  bmodflag:false  baddflag:false
-                    //新增  bmodflag:true   baddflag:true
-                    //修改  bmodflag:true   baddflag:false
+                    //默认  bmodflag:false  
+                    //修改  bmodflag:true   
 
-                    if(bmodflag)
-                    {
+                    if(bmodflag == true)
+                    {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
                         sql.Append("update TPackageMaster set vcBZPlant='" + strBZPlant + "',vcBZQF='" + strBZQF + "',   \n");
                         sql.Append("vcBZUnit='" + strBZUnit + "',vcRHQF='" + strRHQF + "'  \n");

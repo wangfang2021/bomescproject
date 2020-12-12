@@ -54,15 +54,15 @@ namespace DataAccess
                     //新增  bmodflag:true   baddflag:true
                     //修改  bmodflag:true   baddflag:false
 
-                    if (baddflag)
+                    if (baddflag == true && bmodflag == true)
                     {//新增
                         sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM) values   \n");
                         sql.Append("('" + strPartsNoBefore5 + "','" + strSR + "','" + strBCPartsNo + "','" + strSmallPM + "')  \n");
                     }
-                    else
-                    {
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "' where iAutoId="+iAutoId+"   \n");
+                        sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "' where iAutoId=" + iAutoId + "   \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -86,7 +86,7 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from TPMSmall where iAutoId="+iAutoId+"   \n");
+                    sql.Append("delete from TPMSmall where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -108,7 +108,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcBigPM as vcBigPM_init,vcSmallPM as vcSmallPM_init  \n");
                 strSql.Append("from TPMRelation   \n");
-                strSql.Append("where isnull(vcBigPM,'') like '%"+bigpm+"%' and isnull(vcSmallPM,'') like '%"+smallpm+"%'  \n");
+                strSql.Append("where isnull(vcBigPM,'') like '%" + bigpm + "%' and isnull(vcSmallPM,'') like '%" + smallpm + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -124,22 +124,22 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for(int i=0;i< listInfoData.Count;i++)
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     string strBigPM = listInfoData[i]["vcBigPM"].ToString();
                     string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
 
-                    if (baddflag)
+                    if (baddflag == true && bmodflag == true)
                     {//新增
                         sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM) values   \n");
                         sql.Append("('" + strBigPM + "','" + strSmallPM + "')  \n");
                     }
-                    else
-                    {
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("update TPMRelation set vcBigPM='" + strBigPM + "',vcSmallPM='" + strSmallPM + "' where iAutoId="+iAutoId+"    \n");
+                        sql.Append("update TPMRelation set vcBigPM='" + strBigPM + "',vcSmallPM='" + strSmallPM + "' where iAutoId=" + iAutoId + "    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -197,7 +197,7 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from TPMRelation where iAutoId="+iAutoId+"   \n");
+                    sql.Append("delete from TPMRelation where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -258,15 +258,15 @@ namespace DataAccess
                     string strBigPM = listInfoData[i]["vcBigPM"].ToString();
                     string strStandardTime = listInfoData[i]["vcStandardTime"].ToString();
 
-                    if (baddflag)
+                    if (baddflag == true && bmodflag == true)
                     {//新增
                         sql.Append("insert into TPMStandardTime (vcBigPM,vcStandardTime) values   \n");
                         sql.Append("('" + strBigPM + "','" + strStandardTime + "')  \n");
                     }
-                    else
-                    {
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("update TPMStandardTime set vcStandardTime='" + strStandardTime + "' where iAutoId="+iAutoId+"   \n");
+                        sql.Append("update TPMStandardTime set vcStandardTime='" + strStandardTime + "' where iAutoId=" + iAutoId + "   \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -290,7 +290,7 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from TPMStandardTime where iAutoId="+iAutoId+"   \n");
+                    sql.Append("delete from TPMStandardTime where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {

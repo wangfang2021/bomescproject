@@ -18,7 +18,7 @@ namespace Logic
         }
         public DataTable getSearchInfo(string strReParty, string strPartId, string strTianFan)
         {
-            return fs1103_DataAccess.getSearchInfo(strReParty, strPartId, strTianFan);
+            return fs1103_DataAccess.getSearchInfo(strReParty, strPartId, strTianFan);  
         }
         public string getPrintFile()
         {

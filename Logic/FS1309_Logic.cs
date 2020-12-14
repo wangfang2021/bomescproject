@@ -16,9 +16,17 @@ namespace Logic
         {
             fs1309_DataAccess = new FS1309_DataAccess();
         }
-        public DataTable getDataInfo()
+        public DataTable getPlantInfo()
         {
-            return fs1309_DataAccess.getDataInfo();
+            return fs1309_DataAccess.getPlantInfo();
+        }
+        public DataTable getSearchInfo(string strPlant)
+        {
+            return fs1309_DataAccess.getSearchInfo(strPlant);
+        }
+        public void Save(DataTable dataTable, string strOperId)
+        {
+            fs1309_DataAccess.saveDataInfo(dataTable, strOperId);
         }
     }
 }

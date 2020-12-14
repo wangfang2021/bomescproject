@@ -223,5 +223,14 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 取出所有ED品番信息
+        public DataTable GetPartsInfo()
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Append("select * from TEDTZPartsNoMaster  \n");
+            return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        }
+        #endregion
     }
 }

@@ -59,5 +59,12 @@ namespace Logic
             fs0807_DataAccess.Del(checkedInfoData, strUserId);
         }
         #endregion
+
+        #region 取出所有ED品番信息
+        public DataTable GetPartsInfo()
+        {
+            return fs0807_DataAccess.GetPartsInfo();
+        }
+        #endregion
     }
 }

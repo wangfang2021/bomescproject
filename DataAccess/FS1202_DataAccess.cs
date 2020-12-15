@@ -28,11 +28,11 @@ namespace DataAccess
                 sql.AppendLine(" left join (select distinct vcData1 ,vcData3 from ConstMst where vcDataId = 'ProType') b ");
                 sql.AppendLine("on a.vcPorType=b.vcData1 and a.vcZB=b.vcData3 where 1=1");
 
-                if (ddlpro != " ")
+                if (ddlpro != "")
                 {
                     sql.AppendLine(" and vcPorType = @ddlpro");
                 }
-                if (ddlgroup != " ")
+                if (ddlgroup != "")
                 {
                     sql.AppendLine(" and vcZB =@ddlgroup");
                 }

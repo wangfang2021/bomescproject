@@ -12,6 +12,15 @@ namespace DataAccess
     public class FS1207_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
+
+        #region 发注计算
+
+        #endregion
+
+        #region 追加发注
+
+        #endregion
+
         public DataTable getSSPMaster(string partsno)
         {
             string str = "select vcPartsNo,iSRNum from tSSPMaster where vcPartsNo='" + partsno + "';";
@@ -24,7 +33,7 @@ namespace DataAccess
         }
         public DataTable getPlant()
         {
-            string str = "select '请选择' as vcData2 union all select vcData2 from ConstMst where vcDataId='Plant' ";
+            string str = "select vcData2 from ConstMst where vcDataId='Plant' ";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
         }
         public DataTable getClass()
@@ -196,9 +205,8 @@ namespace DataAccess
             cmd.ExecuteNonQuery();
         }
 
-        #region  发注计算
+        #region  发注计算 检索
         //检索
-
         public DataTable search_FZJS(string mon, string partsno)
         {
             try
@@ -327,6 +335,7 @@ namespace DataAccess
             return msg;
         }
 
+        #region 保存
         public string UpdateFZJSEdit(DataTable dt, string user)
         {
             string msg = "";
@@ -371,6 +380,7 @@ namespace DataAccess
             }
             return msg;
         }
+        #endregion
         public DataTable GetSaleuser(string user)
         {
             string str = "select vcData3 as name,vcData4 as email,vcData5 as pphone,vcData6 as ChuanZhenSale from ConstMst where vcDataId='SaleUser' ";

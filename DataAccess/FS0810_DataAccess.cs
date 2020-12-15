@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.vcSR,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t1.vcSmallPM,t2.vcBigPM,'1' as vcmodflag,'1' as vcaddflag,'uncheck' as cb  \n");
+                strSql.Append("select t1.iAutoId,t1.vcSR,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t1.vcSmallPM,t2.vcBigPM,'0' as vcModFlag,'0' as vcAddFlag  \n");
                 strSql.Append("from TPMSmall t1  \n");
                 strSql.Append("left join TPMRelation t2 on t1.vcSmallPM=t2.vcSmallPM  \n");
                 strSql.Append("where ISNULL(t1.vcSmallPM,'') like '%" + smallpm + "%'  \n");
@@ -35,23 +35,35 @@ namespace DataAccess
         #endregion
 
         #region 保存
-        public void Save(DataTable dtadd, DataTable dtmod, string strUserId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < dtadd.Rows.Count; i++)
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    DataRow dr = dtadd.Rows[i];
-                    sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM) values   \n");
-                    sql.Append("('"+ dr["vcPartsNoBefore5"].ToString() + "','"+ dr["vcSR"].ToString() + "','"+ dr["vcBCPartsNo"].ToString() + "','"+ dr["vcSmallPM"].ToString() + "')  \n");
-                }
-                for (int i = 0; i < dtmod.Rows.Count; i++)
-                {
-                    DataRow dr = dtmod.Rows[i];
-                    sql.Append("update TPMSmall set vcSmallPM='" + dr["vcSmallPM"].ToString() + "'   \n");
-                    sql.Append("where vcPartsNoBefore5='" + dr["vcPartsNoBefore5"].ToString() + "' and vcSR='" + dr["vcSR"].ToString() + "'   \n");
-                    sql.Append("and vcBCPartsNo='" + dr["vcBCPartsNo"].ToString() + "'  \n");
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    string strSR = listInfoData[i]["vcSR"].ToString();
+                    string strPartsNoBefore5 = listInfoData[i]["vcPartsNoBefore5"].ToString();
+                    string strBCPartsNo = listInfoData[i]["vcBCPartsNo"].ToString();
+                    string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
+
+                    //标识说明
+                    //默认  bmodflag:false  baddflag:false
+                    //新增  bmodflag:true   baddflag:true
+                    //修改  bmodflag:true   baddflag:false
+
+                    if (baddflag == true && bmodflag == true)
+                    {//新增
+                        sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM) values   \n");
+                        sql.Append("('" + strPartsNoBefore5 + "','" + strSR + "','" + strBCPartsNo + "','" + strSmallPM + "')  \n");
+                    }
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "' where iAutoId=" + iAutoId + "   \n");
+                    }
                 }
                 if (sql.Length > 0)
                 {
@@ -66,17 +78,15 @@ namespace DataAccess
         #endregion
 
         #region 删除
-        public void Del(DataTable dtdel,string strUserId)
+        public void Del(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < dtdel.Rows.Count; i++)
+                for (int i = 0; i < checkedInfoData.Count; i++)
                 {
-                    DataRow dr = dtdel.Rows[i];
-                    sql.Append("delete from TPMSmall   \n");
-                    sql.Append("where vcPartsNoBefore5='" + dr["vcPartsNoBefore5"].ToString() + "' and vcSR='" + dr["vcSR"].ToString() + "'   \n");
-                    sql.Append("and vcBCPartsNo='" + dr["vcBCPartsNo"].ToString() + "'  \n");
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from TPMSmall where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -96,9 +106,9 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select vcBigPM,vcSmallPM,'1' as vcaddflag,'1' as vcmodflag,vcBigPM as vcBigPM_init,vcSmallPM as vcSmallPM_init  \n");
+                strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcBigPM as vcBigPM_init,vcSmallPM as vcSmallPM_init  \n");
                 strSql.Append("from TPMRelation   \n");
-                strSql.Append("where isnull(vcBigPM,'') like '%"+bigpm+"%' and isnull(vcSmallPM,'') like '%"+smallpm+"%'  \n");
+                strSql.Append("where isnull(vcBigPM,'') like '%" + bigpm + "%' and isnull(vcSmallPM,'') like '%" + smallpm + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -109,23 +119,27 @@ namespace DataAccess
         #endregion
 
         #region 保存_品目
-        public void Save_pm(DataTable dt, string strUserId)
+        public void Save_pm(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for(int i=0;i<dt.Rows.Count;i++)
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    DataRow dr = dt.Rows[i];
-                    if(dr["vcflag"].ToString()=="add")
-                    {
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    string strBigPM = listInfoData[i]["vcBigPM"].ToString();
+                    string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
+
+                    if (baddflag == true && bmodflag == true)
+                    {//新增
                         sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM) values   \n");
-                        sql.Append("('" + dr["vcBigPM"].ToString() + "','" + dr["vcSmallPM"].ToString() + "')  \n");
+                        sql.Append("('" + strBigPM + "','" + strSmallPM + "')  \n");
                     }
-                    if(dr["vcflag"].ToString() == "mod")
-                    {
-                        sql.Append("update TPMRelation set vcBigPM='" + dr["vcBigPM"].ToString() + "',vcSmallPM='" + dr["vcSmallPM"].ToString() + "'   \n");
-                        sql.Append("where vcBigPM='" + dr["vcBigPM_init"].ToString() + "' and vcSmallPM='" + dr["vcSmallPM_init"].ToString() + "'   \n");
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TPMRelation set vcBigPM='" + strBigPM + "',vcSmallPM='" + strSmallPM + "' where iAutoId=" + iAutoId + "    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -157,7 +171,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 取得关系表中所有ih品目
+        #region 取得关系表中所有小品目
         public DataTable GetSmallPM()
         {
             try
@@ -175,16 +189,15 @@ namespace DataAccess
         #endregion
 
         #region 删除_品目
-        public void Del_pm(DataTable dtdel, string strUserId)
+        public void Del_pm(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < dtdel.Rows.Count; i++)
+                for (int i = 0; i < checkedInfoData.Count; i++)
                 {
-                    DataRow dr = dtdel.Rows[i];
-                    sql.Append("delete from TPMRelation   \n");
-                    sql.Append("where vcBigPM='" + dr["vcBigPM"].ToString() + "' and vcSmallPM='" + dr["vcSmallPM"].ToString() + "'   \n");
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from TPMRelation where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -204,7 +217,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select vcBigPM,vcStandardTime,'1' as vcaddflag,'1' as vcmodflag  \n");
+                strSql.Append("select iAutoId,vcBigPM,vcStandardTime,'0' as vcAddFlag,'0' as vcModFlag  \n");
                 strSql.Append("from TPMStandardTime   \n");
                 strSql.Append("where isnull(vcBigPM,'') like '%" + bigpm + "%' and isnull(vcStandardTime,'') like '%" + standardtime + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -217,39 +230,43 @@ namespace DataAccess
         #endregion
 
         #region 取得大品目和基准时间关系
-        public int GetStandardTime(string bigpm, string standardtime)
+        public DataTable GetStandardTime()
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select count(1) from TPMStandardTime where vcBigPM='"+ bigpm+"' and vcStandardTime='"+standardtime+"'  \n");
-                return excute.ExecuteScalar(sql.ToString());
+                sql.Append("select distinct vcBigPM from TPMStandardTime  \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        #endregion 
+        #endregion
 
         #region 保存_品目
-        public void Save_Standardtime(DataTable dt, string strUserId)
+        public void Save_Standardtime(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < dt.Rows.Count; i++)
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    DataRow dr = dt.Rows[i];
-                    if (dr["vcflag"].ToString() == "add")
-                    {
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    string strBigPM = listInfoData[i]["vcBigPM"].ToString();
+                    string strStandardTime = listInfoData[i]["vcStandardTime"].ToString();
+
+                    if (baddflag == true && bmodflag == true)
+                    {//新增
                         sql.Append("insert into TPMStandardTime (vcBigPM,vcStandardTime) values   \n");
-                        sql.Append("('" + dr["vcBigPM"].ToString() + "','" + dr["vcStandardTime"].ToString() + "')  \n");
+                        sql.Append("('" + strBigPM + "','" + strStandardTime + "')  \n");
                     }
-                    if (dr["vcflag"].ToString() == "mod")
-                    {
-                        sql.Append("update TPMStandardTime set vcStandardTime='" + dr["vcStandardTime"].ToString() + "'   \n");
-                        sql.Append("where vcBigPM='" + dr["vcBigPM"].ToString() + "'   \n");
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TPMStandardTime set vcStandardTime='" + strStandardTime + "' where iAutoId=" + iAutoId + "   \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -265,16 +282,15 @@ namespace DataAccess
         #endregion
 
         #region 删除_基准时间
-        public void Del_Standardtime(DataTable dtdel, string strUserId)
+        public void Del_Standardtime(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < dtdel.Rows.Count; i++)
+                for (int i = 0; i < checkedInfoData.Count; i++)
                 {
-                    DataRow dr = dtdel.Rows[i];
-                    sql.Append("delete from TPMStandardTime   \n");
-                    sql.Append("where vcBigPM='" + dr["vcBigPM"].ToString() + "' and vcStandardTime='" + dr["vcStandardTime"].ToString() + "'   \n");
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from TPMStandardTime where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -284,6 +300,24 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 取得品目信息维护表中信息
+        public DataTable GetPMSmall()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select distinct vcPartsNoBefore5,vcSR,vcBCPartsNo from TPMSmall   \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
         #endregion

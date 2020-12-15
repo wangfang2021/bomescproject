@@ -54,14 +54,12 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search(smallpm, sr, pfbefore5);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcmodflag"] = row["vcmodflag"].ToString() == "1" ? true : false;
-                    row["vcaddflag"] = row["vcaddflag"].ToString() == "1" ? true : false;
-                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+
+                List <Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -93,44 +91,55 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.list;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dtmod = new DataTable();
-                dtmod.Columns.Add("vcSR");
-                dtmod.Columns.Add("vcPartsNoBefore5");
-                dtmod.Columns.Add("vcBCPartsNo");
-                dtmod.Columns.Add("vcSmallPM");
-                DataTable dtadd = dtmod.Clone();
+                DataTable dtPMSmall = fs0810_Logic.GetPMSmall();//取得品目信息维护表中信息
+                int ieditRows = 0;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bmodflag = (bool)listInfoData[i]["vcmodflag"];//false可编辑,true不可编辑
-                    bool baddflag = (bool)listInfoData[i]["vcaddflag"];//false可编辑,true不可编辑
-                    if (bmodflag == false && baddflag == false)
-                    {//新增
-                        DataRow dr = dtadd.NewRow();
-                        dr["vcSR"] = listInfoData[i]["vcSR"].ToString();
-                        dr["vcPartsNoBefore5"] = listInfoData[i]["vcPartsNoBefore5"].ToString();
-                        dr["vcBCPartsNo"] = listInfoData[i]["vcBCPartsNo"].ToString();
-                        dr["vcSmallPM"] = listInfoData[i]["vcSmallPM"].ToString();
-                        dtadd.Rows.Add(dr);
-                    }
-                    else if (bmodflag == false && baddflag == true)
-                    {//修改
-                        DataRow dr = dtmod.NewRow();
-                        dr["vcSR"] = listInfoData[i]["vcSR"].ToString();
-                        dr["vcPartsNoBefore5"] = listInfoData[i]["vcPartsNoBefore5"].ToString();
-                        dr["vcBCPartsNo"] = listInfoData[i]["vcBCPartsNo"].ToString();
-                        dr["vcSmallPM"] = listInfoData[i]["vcSmallPM"].ToString();
-                        dtmod.Rows.Add(dr);
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    //标识说明
+                    //默认  bmodflag:false  baddflag:false
+                    //新增  bmodflag:true   baddflag:true
+                    //修改  bmodflag:true   baddflag:false
+
+                    if (bmodflag == true)
+                    {//编辑行
+                        ieditRows++;
+                        string strSR = listInfoData[i]["vcSR"].ToString();
+                        string strPartsNoBefore5 = listInfoData[i]["vcPartsNoBefore5"].ToString();
+                        string strBCPartsNo = listInfoData[i]["vcBCPartsNo"].ToString();
+                        string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
+                        //校验1：受入号、品番前5位、包材品番、小品目不能为空
+                        if (strSR == "" || strPartsNoBefore5 == "" || strBCPartsNo == "" || strSmallPM == "")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "受入号、品番前5位、包材品番、小品目不能为空";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        //校验2：受入号、品番前5位、包材品番不能重复
+                        if (baddflag)
+                        {
+                            DataRow[] drs = dtPMSmall.Select("vcSR='" + strSR + "' " + "and vcPartsNoBefore5='" + strPartsNoBefore5 + "' " + "and vcBCPartsNo='" + strBCPartsNo + "'  ");
+                            if (drs.Length > 0)
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = string.Format("[受入号-品番前5位-包材品番]不能重复：{0}-{1}-{2}",
+                                    strSR, strPartsNoBefore5, strBCPartsNo);
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                        //校验3：品番前5位+包材品番 在 包材品番表中是否存在
                     }
                 }
-                if (dtadd.Rows.Count == 0 && dtmod.Rows.Count == 0)
+                if (ieditRows == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
+                    apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0810_Logic.Save(dtadd, dtmod, loginInfo.UserId);
+                fs0810_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -164,26 +173,13 @@ namespace SPPSApi.Controllers.G08
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dtdel = new DataTable();
-                dtdel.Columns.Add("vcSR");
-                dtdel.Columns.Add("vcPartsNoBefore5");
-                dtdel.Columns.Add("vcBCPartsNo");
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    DataRow dr = dtdel.NewRow();
-                    dr["vcSR"] = checkedInfoData[i]["vcSR"].ToString();
-                    dr["vcPartsNoBefore5"] = checkedInfoData[i]["vcPartsNoBefore5"].ToString();
-                    dr["vcBCPartsNo"] = checkedInfoData[i]["vcBCPartsNo"].ToString();
-                    dtdel.Rows.Add(dr);
-
-                }
-                if (dtdel.Rows.Count == 0)
+                if (checkedInfoData.Count==0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0810_Logic.Del(dtdel, loginInfo.UserId);
+                fs0810_Logic.Del(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -218,14 +214,12 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search_PM(smallpm, bigpm);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcmodflag"] = row["vcmodflag"].ToString() == "1" ? true : false;
-                    row["vcaddflag"] = row["vcaddflag"].ToString() == "1" ? true : false;
-                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -257,68 +251,51 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.functionlist;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 DataTable dtBigPM = fs0810_Logic.GetBigPM();//取得关系表中所有大品目
                 DataTable dtSmallPM = fs0810_Logic.GetSmallPM();//取得关系表中所有小品目
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcBigPM");
-                dt.Columns.Add("vcSmallPM");
-                dt.Columns.Add("vcBigPM_init");
-                dt.Columns.Add("vcSmallPM_init");
-                dt.Columns.Add("vcflag");
+                int ieditRows = 0;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bmodflag = (bool)listInfoData[i]["vcmodflag"];//false可编辑,true不可编辑
-                    bool baddflag = (bool)listInfoData[i]["vcaddflag"];//false可编辑,true不可编辑
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     //标识说明
-                    //默认  bmodflag:true    baddflag:true
-                    //新增  bmodflag:false   baddflag:false
-                    //修改  bmodflag:false   baddflag:true
+                    //默认  bmodflag:false  baddflag:false
+                    //新增  bmodflag:true   baddflag:true
+                    //修改  bmodflag:true   baddflag:false
 
-                    if (bmodflag == false)
+                    if (bmodflag == true)
                     {//编辑行
-                        DataRow dr = dt.NewRow();
-                        dr["vcBigPM"] = listInfoData[i]["vcBigPM"].ToString().Trim();
-                        dr["vcSmallPM"] = listInfoData[i]["vcSmallPM"].ToString().Trim();
-                        dr["vcBigPM_init"] = listInfoData[i]["vcBigPM_init"].ToString().Trim();
-                        dr["vcSmallPM_init"] = listInfoData[i]["vcSmallPM_init"].ToString().Trim();
-                        if (bmodflag == false && baddflag == false)
-                        {//新增
-                            dr["vcflag"] = "add";
-                        }
-                        else if (bmodflag == false && baddflag == true)
-                        {//修改
-                            dr["vcflag"] = "mod";
-                        }
-
-                        //校验
-                        //大品目、小品目不能为空
-                        if(dr["vcBigPM"].ToString()=="" || dr["vcSmallPM"].ToString() == "")
+                        ieditRows++;
+                        string strBigPM = listInfoData[i]["vcBigPM"].ToString();
+                        string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
+                        string strBigPM_init = listInfoData[i]["vcBigPM_init"].ToString();
+                        string strSmallPM_init = listInfoData[i]["vcSmallPM_init"].ToString();
+                        //校验1：大品目、小品目不能为空
+                        if (strBigPM == "" || strSmallPM == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "大品目和小品目不能为空";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        //小品目不能重复
-                        DataRow[] drsmallpm = dtSmallPM.Select("vcSmallPM='" + dr["vcSmallPM"].ToString() + "' and vcSmallPM<>'" + dr["vcSmallPM_init"].ToString() + "'  ");
+                        //校验2：小品目不能重复
+                        DataRow[] drsmallpm = dtSmallPM.Select("vcSmallPM='" + strSmallPM + "' and vcSmallPM<>'" + strSmallPM_init + "'  ");
                         if (drsmallpm.Length > 0)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "已经存在小品目：" + dr["vcSmallPM"].ToString();
+                            apiResult.data = "已经存在小品目：" + strSmallPM;
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-
-                        dt.Rows.Add(dr);
                     }
                 }
-                if (dt.Rows.Count == 0)
+                if (ieditRows == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
+                    apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0810_Logic.Save_pm(dt, loginInfo.UserId);
+                fs0810_Logic.Save_pm(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -352,24 +329,13 @@ namespace SPPSApi.Controllers.G08
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dtdel = new DataTable();
-                dtdel.Columns.Add("vcBigPM");
-                dtdel.Columns.Add("vcSmallPM");
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    DataRow dr = dtdel.NewRow();
-                    dr["vcBigPM"] = checkedInfoData[i]["vcBigPM"].ToString();
-                    dr["vcSmallPM"] = checkedInfoData[i]["vcSmallPM"].ToString();
-                    dtdel.Rows.Add(dr);
-
-                }
-                if (dtdel.Rows.Count == 0)
+                if (checkedInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0810_Logic.Del_pm(dtdel, loginInfo.UserId);
+                fs0810_Logic.Del_pm(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -404,14 +370,12 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search_StandardTime(bigpm, standardtime);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcmodflag"] = row["vcmodflag"].ToString() == "1" ? true : false;
-                    row["vcaddflag"] = row["vcaddflag"].ToString() == "1" ? true : false;
-                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -443,61 +407,52 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.functionlist;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcBigPM");
-                dt.Columns.Add("vcStandardTime");
-                dt.Columns.Add("vcflag");
+                DataTable dtStandardTime = fs0810_Logic.GetStandardTime();//取得大品目基准时间
+                int ieditRows = 0;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bmodflag = (bool)listInfoData[i]["vcmodflag"];//false可编辑,true不可编辑
-                    bool baddflag = (bool)listInfoData[i]["vcaddflag"];//false可编辑,true不可编辑
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     //标识说明
-                    //默认  bmodflag:true    baddflag:true
-                    //新增  bmodflag:false   baddflag:false
-                    //修改  bmodflag:false   baddflag:true
+                    //默认  bmodflag:false  baddflag:false
+                    //新增  bmodflag:true   baddflag:true
+                    //修改  bmodflag:true   baddflag:false                                                   
 
-                    if (bmodflag == false)
+                    if (bmodflag == true)
                     {//编辑行
-                        DataRow dr = dt.NewRow();
-                        dr["vcBigPM"] = listInfoData[i]["vcBigPM"].ToString().Trim();
-                        dr["vcStandardTime"] = listInfoData[i]["vcStandardTime"].ToString().Trim();
-                        if (bmodflag == false && baddflag == false)
-                        {//新增
-                            dr["vcflag"] = "add";
-                        }
-                        else if (bmodflag == false && baddflag == true)
-                        {//修改
-                            dr["vcflag"] = "mod";
-                        }
+                        ieditRows++;
+                        string strBigPM = listInfoData[i]["vcBigPM"].ToString();
+                        string strStandardTime = listInfoData[i]["vcStandardTime"].ToString();
 
-                        //校验
-                        //大品目、基准时间不能为空
-                        if (dr["vcBigPM"].ToString() == "" || dr["vcStandardTime"].ToString() == "")
+                        //校验1：大品目、基准时间不能为空
+                        if (strBigPM == "" || strStandardTime == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "大品目和基准时间不能为空";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        //大品目、基准时间不能重复
-                        if(fs0810_Logic.IsExit(dr["vcBigPM"].ToString(), dr["vcStandardTime"].ToString()))
+                        //校验2：大品目、基准时间不能重复
+                        if (baddflag)
                         {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "已经存在["+ dr["vcBigPM"].ToString()+"-"+dr["vcStandardTime"].ToString()+"]";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            DataRow[] drs = dtStandardTime.Select("vcBigPM='" + strBigPM + "'  ");
+                            if (drs.Length > 0)
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = string.Format("[大品目]不能重复：{0}", strBigPM);
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
                         }
-
-                        dt.Rows.Add(dr);
                     }
                 }
-                if (dt.Rows.Count == 0)
+                if (ieditRows == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
+                    apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0810_Logic.Save_Standardtime(dt, loginInfo.UserId);
+                fs0810_Logic.Save_Standardtime(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -531,24 +486,13 @@ namespace SPPSApi.Controllers.G08
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dtdel = new DataTable();
-                dtdel.Columns.Add("vcBigPM");
-                dtdel.Columns.Add("vcStandardTime");
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    DataRow dr = dtdel.NewRow();
-                    dr["vcBigPM"] = checkedInfoData[i]["vcBigPM"].ToString();
-                    dr["vcStandardTime"] = checkedInfoData[i]["vcStandardTime"].ToString();
-                    dtdel.Rows.Add(dr);
-
-                }
-                if (dtdel.Rows.Count == 0)
+                if (checkedInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0810_Logic.Del_Standardtime(dtdel, loginInfo.UserId);
+                fs0810_Logic.Del_Standardtime(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

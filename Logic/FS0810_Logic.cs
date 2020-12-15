@@ -26,16 +26,16 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(DataTable dtadd, DataTable dtmod, string strUserId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs0810_DataAccess.Save(dtadd, dtmod, strUserId);
+            fs0810_DataAccess.Save(listInfoData, strUserId);
         }
         #endregion
 
         #region 删除
-        public void Del(DataTable dtdel, string strUserId)
+        public void Del(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
-            fs0810_DataAccess.Del(dtdel, strUserId);
+            fs0810_DataAccess.Del(checkedInfoData, strUserId);
         }
         #endregion
 
@@ -47,9 +47,9 @@ namespace Logic
         #endregion
 
         #region 保存_品目
-        public void Save_pm(DataTable dtadd, string strUserId)
+        public void Save_pm(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs0810_DataAccess.Save_pm(dtadd, strUserId);
+            fs0810_DataAccess.Save_pm(listInfoData, strUserId);
         }
         #endregion
 
@@ -68,9 +68,9 @@ namespace Logic
         #endregion
 
         #region 删除_品目
-        public void Del_pm(DataTable dtdel, string strUserId)
+        public void Del_pm(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
-            fs0810_DataAccess.Del_pm(dtdel, strUserId);
+            fs0810_DataAccess.Del_pm(checkedInfoData, strUserId);
         }
         #endregion
 
@@ -82,32 +82,33 @@ namespace Logic
         #endregion
 
         #region 大品目、基准时间是否重复，返回true存在，false不存在
-        public bool IsExit(string bigpm, string standardtime)
+        public DataTable GetStandardTime()
         {
-            int rows = fs0810_DataAccess.GetStandardTime(bigpm, standardtime);
-            if (rows > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return fs0810_DataAccess.GetStandardTime();
         }
         #endregion
 
         #region 保存_基准时间
-        public void Save_Standardtime(DataTable dtadd, string strUserId)
+        public void Save_Standardtime(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs0810_DataAccess.Save_Standardtime(dtadd, strUserId);
+            fs0810_DataAccess.Save_Standardtime(listInfoData, strUserId);
         }
         #endregion
 
         #region 删除_品目
-        public void Del_Standardtime(DataTable dtdel, string strUserId)
+        public void Del_Standardtime(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
-            fs0810_DataAccess.Del_Standardtime(dtdel, strUserId);
+            fs0810_DataAccess.Del_Standardtime(checkedInfoData, strUserId);
         }
         #endregion
+
+        #region 取得品目信息维护表中信息
+        public DataTable GetPMSmall()
+        {
+            return fs0810_DataAccess.GetPMSmall();
+        }
+        #endregion
+
+
     }
 }

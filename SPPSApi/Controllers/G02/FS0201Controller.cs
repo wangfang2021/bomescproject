@@ -1,127 +1,102 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Office.Interop.Excel;
+using Newtonsoft.Json;
 
 namespace SPPSApi.Controllers.G02
 {
-    [Route("api/[controller]/[action]")]
+
+    [Route("api/FS0201/[action]")]
     [EnableCors("any")]
     [ApiController]
     public class FS0201Controller : BaseController
     {
-        //FS0201_Logic fs0201_logic = new FS0201_Logic();
+        FS0201_Logic fs0201_logic = new FS0201_Logic();
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly string FunctionID = "FS0201";
+
         public FS0201Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
 
+
         [HttpPost]
         [EnableCors("any")]
-        public void test()
+        public string searchSPI([FromBody]dynamic data)
         {
-            string path = Directory.GetCurrentDirectory() + @"\Doc\import";
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcSPINo = dataForm.vcSPINo == null ? "" : dataForm.vcSPINo;
+            string vcPart_Id = dataForm.vcPart_Id == null ? "" : dataForm.vcPart_Id;
+            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
+            string vcState = dataForm.vcState == null ? "" : dataForm.vcCarType;
             try
             {
-                getTTCCData(path);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
+                DataTable dt = fs0201_logic.searchSPI(vcSPINo, vcPart_Id, vcCarType, vcState);
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy-MM-dd");
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
-
-        public static void getTTCCData(string path)
-        {
-            try
-            {
-                if (Directory.GetFiles(path).Length == 0)
-                {
-                    Console.WriteLine("没有该路径");
-                    return;
-                }
-                ChangePath(path);
-                CreateList();
-                //DataTable dt = ReadExcel();
-                //return dt;
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                throw ex;
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-        public static void ChangePath(string path)
+
+
+        [HttpPost]
+        [EnableCors("any")]
+        public string importSPI()
         {
-            Console.WriteLine("开始修改文件路径");
-            Application app = new Application();
-            app.Visible = false;
-            string filePath = Directory.GetCurrentDirectory() + @"\Doc\template\TestList.xlsm";
-            string a = @path;
-            Workbook wb = app.Workbooks.Open(filePath);
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            string path = Directory.GetCurrentDirectory() + @"\Doc\import\FS0201";
             try
             {
-                object objRtn = new object();
-                ComFunction.RunExcelMacro(app, "getPath", new Object[] { a }, out objRtn);
+                fs0201_logic.AddSPI(path, loginInfo.UserId);
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine("修改文件路径失败，原因：" + ex.Message);
-
-            }
-            finally
-            {
-                if (wb != null)
-                {
-                    wb.Save();
-                    System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
-                    app.Quit();
-                    System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
-
-                }
-                Console.WriteLine("修改文件路径结束");
-            }
-
-
-        }
-        public static void CreateList()
-        {
-            Console.WriteLine("读取文件生成新文件");
-
-            Application app = new Application();
-            app.Visible = false;
-            string filePath = Directory.GetCurrentDirectory() + @"\Doc\template\TestList.xlsm";
-
-            Workbook wb = app.Workbooks.Open(filePath);
-            try
-            {
-                object objRtn = new object();
-                ComFunction.RunExcelMacro(app, "MakeList", new Object[] { }, out objRtn);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("读取失败，原因：" + ex);
-
-            }
-            finally
-            {
-                if (wb != null)
-                {
-                    wb.Save();
-                    System.Runtime.InteropServices.Marshal.ReleaseComObject(wb);
-                    app.Quit();
-                    System.Runtime.InteropServices.Marshal.ReleaseComObject(app);
-
-                }
-                Console.WriteLine("读取结束");
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-
     }
+
+
 }

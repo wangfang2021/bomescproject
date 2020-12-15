@@ -35,9 +35,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.vcPart_id,convert(varchar(10),t1.dTimeFrom,120) as dTimeFrom,  \n");
-                strSql.Append("convert(varchar(10),t1.dTimeTo,120) as dTimeTo,t1.vcBZPlant,  \n");
-                strSql.Append("t4.vcBigPM,t3.vcSmallPM,t5.vcStandardTime,t1.vcBZQF,t1.vcBZUnit,t1.vcRHQF,'1' as vcflag  \n");
+                strSql.Append("select t1.iAutoId,t1.vcPart_id,t1.dTimeFrom,t1.dTimeTo,t1.vcBZPlant,t2.vcBCPartsNo,t1.vcSR,  \n");
+                strSql.Append("t4.vcBigPM,t3.vcSmallPM,t5.vcStandardTime,t1.vcBZQF,t1.vcBZUnit,t1.vcRHQF,'0' as vcModFlag  \n");
                 strSql.Append("from TPackageMaster t1  \n");
                 strSql.Append("left join tBCPartsGC t2 on t1.vcPart_id=t2.vcPartsNo  \n");
                 strSql.Append("left join TPMSmall t3 on left(t1.vcPart_id,5)=t3.vcPartsNoBefore5 and t1.vcSR=t3.vcSR   \n");
@@ -58,18 +57,30 @@ namespace DataAccess
         #endregion
 
         #region 保存
-        public void Save(DataTable dt, string strUserId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for(int i=0;i<dt.Rows.Count;i++)
+                for(int i=0;i< listInfoData.Count;i++)
                 {
-                    DataRow dr = dt.Rows[i];
-                    sql.Append("update TPackageMaster set vcBZPlant='" + dr["vcBZPlant"].ToString()+ "',vcBZQF='" + dr["vcBZQF"].ToString() + "',   \n");
-                    sql.Append("vcBZUnit='" + dr["vcBZUnit"].ToString() + "',vcRHQF='" + dr["vcRHQF"].ToString() + "'  \n");
-                    sql.Append("where vcPart_id='" + dr["vcPart_id"].ToString() + "' and dTimeFrom='" + dr["dTimeFrom"].ToString() + "'   \n");
-                    sql.Append("and dTimeTo='" + dr["dTimeTo"].ToString() + "'  \n");
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    string strBZPlant = listInfoData[i]["vcBZPlant"].ToString();
+                    string strBZQF = listInfoData[i]["vcBZQF"].ToString();
+                    string strBZUnit = listInfoData[i]["vcBZUnit"].ToString();
+                    string strRHQF = listInfoData[i]["vcRHQF"].ToString();
+
+                    //标识说明
+                    //默认  bmodflag:false  
+                    //修改  bmodflag:true   
+
+                    if(bmodflag == true)
+                    {//修改
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("update TPackageMaster set vcBZPlant='" + strBZPlant + "',vcBZQF='" + strBZQF + "',   \n");
+                        sql.Append("vcBZUnit='" + strBZUnit + "',vcRHQF='" + strRHQF + "'  \n");
+                        sql.Append("where iAutoId="+iAutoId+"  \n");
+                    }
                 }
                 if(sql.Length>0)
                 {

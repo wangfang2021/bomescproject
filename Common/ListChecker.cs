@@ -37,7 +37,10 @@ namespace Common
                     {
                         if (err_mes.Length > 0)
                             err_mes.Append(",");
-                        err_mes.Append("长度小于设定长度" + Convert.ToInt32(strField[3, j]));
+                        if (Convert.ToInt32(strField[4, j]) == 1)
+                            err_mes.Append("内容不能为空");
+                        else
+                            err_mes.Append("长度小于设定长度" + Convert.ToInt32(strField[4, j]));
                     }
                     //固定类型验证
                     switch (strField[2, j])

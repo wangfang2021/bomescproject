@@ -74,6 +74,13 @@ namespace Logic
         }
         #endregion
 
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0309_DataAccess.importSave(dt, strUserId);
+        }
+        #endregion
+
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -81,6 +88,11 @@ namespace Logic
         }
         #endregion
 
-
+        #region 检索所有的公式
+        public DataTable getAllGS()
+        {
+            return fs0309_DataAccess.getAllGS();
+        }
+        #endregion
     }
 }

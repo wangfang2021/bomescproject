@@ -152,28 +152,67 @@ namespace SPPSApi.Controllers.G12
         #endregion
 
         #region 绑定生产部署
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string GetPorType()
-        //{
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    try
-        //    {
-        //        DataTable dt = logic.dllPorType(;
-        //        List<Object> dataList = ComFunction.convertAllToResult(dt);
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = dataList;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, "");
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "检索失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
+        [HttpPost]
+        [EnableCors("any")]
+        public string GetPorType()
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                string[] userPorType = null;
+                DataTable dt = logic.dllPorType(loginInfo.UserId, ref userPorType);
+                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, "");
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 取得打印机名称
+        [HttpPost]
+        [EnableCors("any")]
+        public string GetPrintName()
+        {
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                //验证是否登录
+                string strToken = Request.Headers["X-Token"];
+                if (!isLogin(strToken))
+                {
+                    return error_login();
+                }
+                LoginInfo loginInfo = getLoginByToken(strToken);
+                string vcPrintName = logic.PrintMess(loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = vcPrintName;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, "");
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         #endregion
         #endregion
     }

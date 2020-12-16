@@ -455,7 +455,6 @@ namespace DataAccess
                 return "0";
             }
         }
-
         public string resKBSerialend(string vcKBorderno)
         {
             StringBuilder strSQL = new StringBuilder();
@@ -581,6 +580,18 @@ namespace DataAccess
             {
                 cmd.Connection.Close();
             }
+        }
+        public string getRoleTip(string vcUserId)
+        {
+            string ssql = "  ";
+            ssql += "select top (1) vcUserID, vcUserName, vcSpecial from sUser ";
+            ssql += "where vcUserID='" + vcUserId + "'";
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(ssql);
+            if (dt.Rows.Count == 0)
+            {
+                return "admin";
+            }
+            return dt.Rows[0]["vcSpecial"].ToString();
         }
     }
 }

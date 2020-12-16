@@ -52,7 +52,7 @@ namespace Logic
             //    byte[] vcPhotoPath = print.PhotoToArray(redt.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
             //    string reCode = print.reCode(redt.Rows[0]["vcSupplierCode"].ToString(), redt.Rows[0]["vcSupplierPlant"].ToString(), redt.Rows[0]["vcDock"].ToString(), redt.Rows[0]["vcPartsNo"].ToString(), redt.Rows[0]["iQuantityPerContainer"].ToString(), redt.Rows[0]["vcKBSerial"].ToString(), redt.Rows[0]["vcEDflag"].ToString(), redt.Rows[0]["vcKBorderno"].ToString());
             //    byte[] vcQRCodeImge = print.GenGenerateQRCode(reCode, ls_savePath);
-                
+
             //    string gud;
             //    if (vctype == "3")
             //    {
@@ -276,7 +276,7 @@ namespace Logic
             //print.insertTableExcel(exdt);//插入看板确认单Excel
             //print.insertTableKBSerial(dtHis);//插入连番记录表
             //dtPorType = QueryGroup(dtPrint);//用订单号 生产部署 生产日期 生产班值分组,修改不在数据库中取值vcorderno,vcPorType,vcComDate01,vcBanZhi01
-            
+
             //print.insertTableCRMain(dtPrint, dtPorType);//插入打印临时主表
             //string printDay = KanBIfPrintDay();//获取班值信息
             //string reportPath = HttpContext.Current.Server.MapPath("~/CrReport.rpt");
@@ -425,27 +425,25 @@ namespace Logic
         #endregion
 
         #region 检索信息栏绑定生产部署 str2是权限部署
-        public DataTable dllPorType(string userId,ref string[] userPorType)
+        public DataTable dllPorType(string userId, ref string[] userPorType)
         {
-            //FS0000_Logic fS0000_Logic = new FS0000_Logic();
-            //string RolePorType;
-            //if (userId.Equals("admin"))
-            //{
-            //    RolePorType = "admin";
-            //}
-            //else
-            //{
-            //    RolePorType = fS0000_Logic.getRoleTip(userId);
-            //}
-            //userPorType = RolePorType.Split('*');
-            //return dataAccess.dllPorType(userPorType);
-            return null;
+            string RolePorType;
+            if (userId.Equals("admin"))
+            {
+                RolePorType = "admin";
+            }
+            else
+            {
+                RolePorType = getRoleTip(userId);
+            }
+            userPorType = RolePorType.Split('*');
+            return dataAccess.dllPorType(userPorType);
         }
         #endregion
 
         #region 绑定工场 1 2 3 厂
         public DataTable dllPorPlant()
-        {          
+        {
             return dataAccess.dllPorPlant();
         }
         #endregion
@@ -460,13 +458,13 @@ namespace Logic
         #region 获取所属打印机的名称
         public string PrintMess(string userid)
         {
-            return dataAccess.PrintMess(userid);            
+            return dataAccess.PrintMess(userid);
         }
         #endregion
 
         #region 检索看板打印信息 检索的是非秦丰和秦丰ED的看板数据
         public DataTable searchPrint(string vcPrintPartNo, string vcType, string vcKbOrderId, string vcLianFan, string vcPorType, string vcPlant, DataTable dtflag)
-        {            
+        {
             return dataAccess.searchPrint(vcPrintPartNo, vcType, vcKbOrderId, vcLianFan, vcPorType, vcPlant, dtflag);
         }
         #endregion
@@ -490,7 +488,7 @@ namespace Logic
         }
 
         public bool InsertPrint(DataTable dt)
-        {            
+        {
             return dataAccess.InsertPrint(dt);
         }
 
@@ -526,7 +524,7 @@ namespace Logic
 
         public DataTable ceshi()
         {
-            return dataAccess.ceshi(); 
+            return dataAccess.ceshi();
         }
 
         public void DeleteprinterCREX(string vcPorType, string vcorderno, string vcComDate01, string vcBanZhi01)
@@ -536,7 +534,7 @@ namespace Logic
 
         public void InsertInto(string vcorderno, string vcPorType)
         {
-            dataAccess.InsertInto( vcorderno, vcPorType);
+            dataAccess.InsertInto(vcorderno, vcPorType);
         }
 
         public void DeleteprinterCREX1(string vcPorType, string vcorderno, string vcComDate01, string vcBanZhi01)
@@ -556,8 +554,13 @@ namespace Logic
         }
 
         public DataTable check(string vcorderno, string vcPorType)
-        {           
+        {
             return dataAccess.check(vcorderno, vcPorType);
+        }
+
+        public string getRoleTip(string vcUserId)
+        {
+            return dataAccess.getRoleTip(vcUserId);
         }
     }
 }

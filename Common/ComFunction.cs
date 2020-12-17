@@ -333,68 +333,68 @@ namespace Common
                     data.Columns[i].DataType = typeof(string);
                 }
 
-                //#region 校验格式
+                #region 校验格式
 
-                //for (int i = 0; i < data.Rows.Count; i++)
-                //{
-                //    DataRow dr = data.Rows[i];
-                //    for (int j = 0; j < Header.GetLength(1); j++)
-                //    {
-                //        if (Convert.ToInt32(Header[3, j]) > 0 &&
-                //            dr[Header[1, j]].ToString().Length > Convert.ToInt32(Header[3, j]))
-                //        {
-                //            RetMsg = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
-                //            return null;
-                //        }
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    DataRow dr = data.Rows[i];
+                    for (int j = 0; j < Header.GetLength(1); j++)
+                    {
+                        if (Convert.ToInt32(Header[3, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length > Convert.ToInt32(Header[3, j]))
+                        {
+                            RetMsg = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
+                            return null;
+                        }
 
-                //        if (Convert.ToInt32(Header[4, j]) > 0 &&
-                //            dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
-                //        {
-                //            RetMsg = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
-                //            return null;
-                //        }
+                        if (Convert.ToInt32(Header[4, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
+                        {
+                            RetMsg = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
+                            return null;
+                        }
 
-                //        switch (Header[2, j])
-                //        {
-                //            case "decimal":
-                //                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDecimal(dr[Header[1, j]].ToString()))
-                //                {
-                //                    RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
-                //                    return null;
-                //                }
+                        switch (Header[2, j])
+                        {
+                            case "decimal":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDecimal(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
+                                    return null;
+                                }
 
-                //                break;
-                //            case "d":
-                //                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDate(dr[Header[1, j]].ToString()))
-                //                {
-                //                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
-                //                    return null;
-                //                }
+                                break;
+                            case "d":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDate(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    return null;
+                                }
 
-                //                break;
-                //            case "ym":
-                //                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckYearMonth(dr[Header[1, j]].ToString()))
-                //                {
-                //                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
-                //                    return null;
-                //                }
+                                break;
+                            case "ym":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckYearMonth(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    return null;
+                                }
 
-                //                break;
-                //            default:
-                //                if (Header[2, j].Length > 0 && Regex.Match(dr[Header[1, j]].ToString(), Header[2, j],
-                //                    RegexOptions.None).Success)
-                //                {
-                //                    RetMsg = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
-                //                    return null;
-                //                }
+                                break;
+                            default:
+                                if (Header[2, j].Length > 0 && Regex.Match(dr[Header[1, j]].ToString(), Header[2, j],
+                                    RegexOptions.None).Success)
+                                {
+                                    RetMsg = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
+                                    return null;
+                                }
 
-                //                break;
-                //        }
-                //    }
-                //}
+                                break;
+                        }
+                    }
+                }
 
 
-                //#endregion
+                #endregion
 
 
                 return data;

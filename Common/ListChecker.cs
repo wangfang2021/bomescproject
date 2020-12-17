@@ -15,7 +15,7 @@ namespace Common
         /// <param name="strField">验证字段定义</param>
         /// <param name="validToTheEnd"></param>
         /// <returns></returns>
-        public static List<Object> validateList(List<Dictionary<string, Object>> listInfoData, string[,] strField, bool validToTheEnd)
+        public static List<Object> validateList(List<Dictionary<string, Object>> listInfoData, string[,] strField, string[,] strDateRegion, bool validToTheEnd)
         {
             List<Object> res = new List<Object>();
             for (int i = 0; i < listInfoData.Count; i++)
@@ -119,7 +119,27 @@ namespace Common
                             err_mes.Append(",");
                         err_mes.Append("必须是英数+'/'+'_'+'-'类型");
                     }
-
+                    for (int k = 0; k < strDateRegion.GetLength(0); k++)
+                    {
+                        string temp_start=strDateRegion[k, 0];//时间起字段
+                        string temp_end = strDateRegion[k, 1];//时间止字段
+                        if(strField[1, j].ToString()== temp_start|| strField[1, j].ToString() == temp_end)//当前遍历的字段等于需要验证的时间字段
+                        {
+                            string strValue_start = listInfoData[i][temp_start] == null ? "" : listInfoData[i][temp_start].ToString();
+                            string strValue_end = listInfoData[i][temp_end] == null ? "" : listInfoData[i][temp_end].ToString();
+                            if (strValue_start != ""&& strValue_end!="")
+                            {
+                                DateTime dStart=DateTime.Parse(strValue_start);
+                                DateTime dEnd = DateTime.Parse(strValue_end);
+                                if (dStart > dEnd)
+                                {
+                                    if (err_mes.Length > 0)
+                                        err_mes.Append(",");
+                                    err_mes.Append("时间区间必须满足起<止");
+                                }
+                            }
+                        }
+                    }
                     if (err_mes.Length > 0)
                     {
                         DriverRes driverRes = new DriverRes();
@@ -130,25 +150,14 @@ namespace Common
                         driverPopover.description = err_mes.ToString();
                         driverPopover.position = "bottom";
                         driverRes.popover = driverPopover;
-
-                        //string lineNo = listInfoData[i]["iAPILineNo"].ToString();
-                        //Console.WriteLine(".cell-find" + lineNo + "-" + columnNum);
-
-                        //DriverRes driverRes = new DriverRes();
-                        //driverRes.element = ".cell-find2-4";
-                        //DriverPopover driverPopover = new DriverPopover();
-                        //driverPopover.title = "Hamburger2";
-                        //driverPopover.description = "Open && Close sidebar2";
-                        //driverPopover.position = "bottom";
-                        //driverRes.popover = driverPopover;
-
-
+ 
 
                         res.Add(driverRes);
                         if (!validToTheEnd)
                             return res;
                     }
                 }
+
             }
             if (res.Count == 0)
                 return null;

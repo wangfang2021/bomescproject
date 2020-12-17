@@ -14,6 +14,10 @@ namespace Common
         public static int SUCCESS_CODE = 20000;//服务器处理正常返回代码
         public static int ERROR_CODE = 30000;//服务器处理异常或者判断有问题返回代码(后台捕获的问题都用该代码)
         public static int TIME_OUT_CODE = 40000;//登录超时或者没登陆代码
+        /// <summary>批处理执行结果：成功</summary>
+        public const int OK_CODE = 0;
+        /// <summary>批处理执行结果：失败</summary>
+        public const int NG_CODE = -1;
 
 
     }

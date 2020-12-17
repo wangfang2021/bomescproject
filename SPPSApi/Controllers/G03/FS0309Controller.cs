@@ -238,6 +238,12 @@ namespace SPPSApi.Controllers.G03
                         hasFind = true;
                     }
                 }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少有一个编辑行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 //开始数据验证
                 if (hasFind)
                 {
@@ -248,22 +254,28 @@ namespace SPPSApi.Controllers.G03
                                                 {"1","10","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, true);
+                    //需要判断时间区间先后关系的字段
+                    string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion,true);
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = checkRes;
-                        apiResult.flag = 1;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                if (!hasFind)
+
+                string strErrorPartId = "";
+                fs0309_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
+                if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
+                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>"+ strErrorPartId;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0309_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -398,6 +410,7 @@ namespace SPPSApi.Controllers.G03
 
 
 
+
                 fs0309_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
@@ -409,6 +422,52 @@ namespace SPPSApi.Controllers.G03
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败"+ ex.Message;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+
+
+        #region 销售展开
+        [HttpPost]
+        [EnableCors("any")]
+        public string sendMailApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                Object multipleSelection=dataForm.multipleSelection;
+                if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
+                {
+
+
+                }
+                else
+                { 
+                    
+                    
+                }
+                //发送邮件
+                //发件人邮箱，对方邮箱，邮件标题、内容、附件需要确认
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0906", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "销售展开失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

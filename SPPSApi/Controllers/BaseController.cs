@@ -109,4 +109,10 @@ namespace SPPSApi.Controllers
 
 
     }
+
+    public enum ERROR_FLAG
+    {
+        单元格定位提示 = 1,
+        弹窗提示 = 2
+    }
 }

@@ -12,6 +12,10 @@ namespace Logic
     {
         FS0314_DataAccess fs0314_dataAccess = new FS0314_DataAccess();
 
+        public DataTable searchSupplier(string vcSupplier_id, string vcSupplier_name)
+        {
+            return fs0314_dataAccess.searchSupplier(vcSupplier_id, vcSupplier_name);
+        }
 
     }
 }

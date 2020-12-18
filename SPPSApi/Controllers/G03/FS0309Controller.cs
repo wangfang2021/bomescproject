@@ -136,7 +136,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
                 dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
                 dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dPriceSendDate", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy-MM-dd");
                 dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy-MM-dd");
                 dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
@@ -187,11 +187,17 @@ namespace SPPSApi.Controllers.G03
                    );
                 string[] fields = { "vcChange", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType", "vcSupplier_id"
                 ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState","dPriceSendDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
+                ,"vcPriceState","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver"
                 ,"vcOriginCompany"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309.xlsx", 2,loginInfo.UserId,FunctionID  );
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -67,6 +67,8 @@ namespace SPPSApi.Controllers.G03
                 //设变履历是否下拉待确定
                 List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
 
+                DataTable task=fs0309_Logic.getAllTask();
+
                 res.Add("C002", dataList_C002);
                 res.Add("C004", dataList_C004);
                 res.Add("C003", dataList_C003);
@@ -76,6 +78,7 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C006", dataList_C006);
                 List<Object> dataList_GS = ComFunction.convertAllToResult(fs0309_Logic.getAllGS());//公式
                 res.Add("optionGS", dataList_GS);
+                res.Add("taskNum", task.Rows.Count);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -191,7 +194,7 @@ namespace SPPSApi.Controllers.G03
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver"
                 ,"vcOriginCompany"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

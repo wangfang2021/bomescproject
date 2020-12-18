@@ -444,5 +444,21 @@ namespace DataAccess
         #endregion
 
 
+        #region 检索所有待处理的数据
+        public DataTable getAllTask()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("     select  * from TPrice where vcPriceState='0'      \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
 }

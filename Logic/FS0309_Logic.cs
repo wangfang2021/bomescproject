@@ -115,5 +115,12 @@ namespace Logic
             fs0309_DataAccess.Del_GS(listInfoData, strUserId);
         }
         #endregion
+
+        #region 检索所有待处理的数据
+        public DataTable getAllTask()
+        {
+            return fs0309_DataAccess.getAllTask();
+        }
+        #endregion
     }
 }

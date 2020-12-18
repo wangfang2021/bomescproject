@@ -15,7 +15,7 @@ namespace Common
         /// <param name="strField">验证字段定义</param>
         /// <param name="validToTheEnd"></param>
         /// <returns></returns>
-        public static List<Object> validateList(List<Dictionary<string, Object>> listInfoData, string[,] strField, string[,] strDateRegion, bool validToTheEnd)
+        public static List<Object> validateList(List<Dictionary<string, Object>> listInfoData, string[,] strField, string[,] strDateRegion, bool validToTheEnd,string strKey)
         {
             List<Object> res = new List<Object>();
             for (int i = 0; i < listInfoData.Count; i++)
@@ -144,7 +144,7 @@ namespace Common
                     {
                         DriverRes driverRes = new DriverRes();
                         string lineNo = listInfoData[i]["iAPILineNo"].ToString();
-                        driverRes.element = ".cell_find" + lineNo + "_" + columnNum + "_";
+                        driverRes.element = "."+ strKey + "cell_find" + lineNo + "_" + columnNum + "_";
                         DriverPopover driverPopover = new DriverPopover();
                         driverPopover.title = strField[0, j] + "格式验证";
                         driverPopover.description = err_mes.ToString();

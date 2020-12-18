@@ -264,8 +264,20 @@ namespace SPPSApi.Controllers.G03
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
+                    string[,] strSpecialCheck = { 
+                        { "变更事项","vcChange", "新设","1", "号旧","vcHaoJiu","1", "号口", "H" },
+                        { "变更事项","vcChange", "旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
+                        { "变更事项","vcChange", "新设","1", "旧型开始","dJiuBegin","0", "空","" },
+                        { "变更事项","vcChange", "新设","1", "旧型结束","dJiuEnd","0", "空","" },
+                        { "变更事项","vcChange", "新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型开始","dJiuBegin","1", "空","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型结束","dJiuEnd","1", "空","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型持续开始","dJiuBeginSustain","1", "空","" }
+                    };
 
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion,true,"FS0309");
+
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck,true, "FS0309");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

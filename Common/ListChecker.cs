@@ -15,7 +15,7 @@ namespace Common
         /// <param name="strField">验证字段定义</param>
         /// <param name="validToTheEnd"></param>
         /// <returns></returns>
-        public static List<Object> validateList(List<Dictionary<string, Object>> listInfoData, string[,] strField, string[,] strDateRegion, bool validToTheEnd,string strKey)
+        public static List<Object> validateList(List<Dictionary<string, Object>> listInfoData, string[,] strField, string[,] strDateRegion,string[,] strSpecialCheck, bool validToTheEnd,string strKey)
         {
             List<Object> res = new List<Object>();
             for (int i = 0; i < listInfoData.Count; i++)
@@ -119,7 +119,8 @@ namespace Common
                             err_mes.Append(",");
                         err_mes.Append("必须是英数+'/'+'_'+'-'类型");
                     }
-                    for (int k = 0; k < strDateRegion.GetLength(0); k++)
+                    //时间起始校验
+                    for (int k = 0; strDateRegion!=null&&k < strDateRegion.GetLength(0); k++)
                     {
                         string temp_start=strDateRegion[k, 0];//时间起字段
                         string temp_end = strDateRegion[k, 1];//时间止字段
@@ -140,6 +141,55 @@ namespace Common
                             }
                         }
                     }
+                    //特殊字段值校验
+                    for (int k = 0; strSpecialCheck != null && k < strSpecialCheck.GetLength(0); k++)
+                    {
+                        string temp_fieldName_A = strSpecialCheck[k, 0];//校验字段名字
+                        string temp_field_A = strSpecialCheck[k, 1];//校验字段
+                        string temp_checkValueName_A = strSpecialCheck[k, 2];//值对应的中文名
+                        string temp_checkValue_A = strSpecialCheck[k, 3];//当该字段值为这个值时触发后续校验
+                        string temp_checkfieldName_B = strSpecialCheck[k, 4];//验证check字段
+                        string temp_checkfield_B = strSpecialCheck[k, 5];//验证check字段
+                        string temp_mustHasValue_B = strSpecialCheck[k, 6];//check字段是否必须有值，有值则校验最后一个内容
+                        string temp_mustValueName_B = strSpecialCheck[k, 7];//值对应的中文名
+                        string temp_mustValue_B = strSpecialCheck[k, 8];//如果mustHasValue=1且mustValue有值，验证该字段值是否相等
+
+                        if (strField[1, j].ToString() == temp_field_A)
+                        {
+                            string strTempValue_A = listInfoData[i][temp_field_A] == null ? "" : listInfoData[i][temp_field_A].ToString();
+
+                            string strTempValue_B = listInfoData[i][temp_checkfield_B] == null ? "" : listInfoData[i][temp_checkfield_B].ToString();
+                            if (strTempValue_A == temp_checkValue_A)//当前check字段值=要校验的值
+                            {
+                                if (temp_mustHasValue_B == "0")
+                                {
+                                    if (strTempValue_B.Trim() != "")
+                                    {
+                                        if (err_mes.Length > 0)
+                                            err_mes.Append(",");
+                                        err_mes.Append(temp_fieldName_A+"是"+ temp_checkValueName_A+"时"+ temp_checkfieldName_B+"必须为空");
+                                    }
+                                }
+                                else if (temp_mustHasValue_B == "1")
+                                {
+                                    if (strTempValue_B.Trim() == "")
+                                    {
+                                        if (err_mes.Length > 0)
+                                            err_mes.Append(",");
+                                        err_mes.Append(temp_fieldName_A + "是" + temp_checkValueName_A + "时" + temp_checkfieldName_B + "不能为空");
+                                    }
+                                    else
+                                    {
+                                        if (temp_mustValue_B != strTempValue_B)
+                                        {
+                                            err_mes.Append(temp_fieldName_A + "是" + temp_checkValueName_A + "时" + temp_checkfieldName_B + "必须为"+ temp_mustValueName_B);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                     if (err_mes.Length > 0)
                     {
                         DriverRes driverRes = new DriverRes();

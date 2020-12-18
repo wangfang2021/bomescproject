@@ -95,7 +95,7 @@ namespace DataAccess
                         sql.Append(getSqlValue(listInfoData[i]["decPriceOrigin"], true) + ",  \r\n");
 
                         //以下两个字段计算
-                        if (listInfoData[i]["decPriceOrigin"] == System.DBNull.Value)
+                        if (listInfoData[i]["decPriceOrigin"] == System.DBNull.Value || listInfoData[i]["decPriceOrigin"] == null || listInfoData[i]["decPriceOrigin"].ToString()=="")
                             sql.Append("   null,   \r\n");
                         else
                             sql.Append(listInfoData[i]["decPriceOrigin"].ToString() + "*" + decPriceXS + ",   \r\n");
@@ -127,7 +127,7 @@ namespace DataAccess
                         sql.Append("  ,decPriceOrigin=" + getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
 
                         //以下两个字段计算
-                        if(listInfoData[i]["decPriceOrigin"]==System.DBNull.Value)
+                        if(listInfoData[i]["decPriceOrigin"] == System.DBNull.Value || listInfoData[i]["decPriceOrigin"] ==null|| listInfoData[i]["decPriceOrigin"].ToString() == "")
                             sql.Append("  ,decPriceAfter=null   \r\n");
                         else
                             sql.Append("  ,decPriceAfter="+ listInfoData[i]["decPriceOrigin"].ToString() + "*" + decPriceXS + "   \r\n");
@@ -190,7 +190,7 @@ namespace DataAccess
         #region 根据公式返回计算语句
         public string getJSSql(Object decPriceOrigin, Object strGSName,DataTable gsdt)
         {
-            if (strGSName == DBNull.Value|| decPriceOrigin == DBNull.Value)
+            if (strGSName == DBNull.Value || strGSName == null || strGSName.ToString().Trim() == "" || decPriceOrigin == DBNull.Value || decPriceOrigin == null || decPriceOrigin.ToString().Trim() == "")
                 return "null";
             string strGS = "";
             for (int i = 0; i < gsdt.Rows.Count; i++)

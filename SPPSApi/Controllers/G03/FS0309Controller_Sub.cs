@@ -130,7 +130,7 @@ namespace SPPSApi.Controllers.G03
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dBegin", "dEnd" }};
 
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion,true,"FS0309_Sub");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion,null,true,"FS0309_Sub");
 
 
 

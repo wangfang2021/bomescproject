@@ -183,37 +183,6 @@ namespace SPPSApi.Controllers.G12
             }
         }
         #endregion
-
-        #region 取得打印机名称
-        [HttpPost]
-        [EnableCors("any")]
-        public string GetPrintName()
-        {
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                //验证是否登录
-                string strToken = Request.Headers["X-Token"];
-                if (!isLogin(strToken))
-                {
-                    return error_login();
-                }
-                LoginInfo loginInfo = getLoginByToken(strToken);
-                string vcPrintName = logic.PrintMess(loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = vcPrintName;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, "");
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
         #endregion
     }
 }

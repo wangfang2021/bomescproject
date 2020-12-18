@@ -428,9 +428,9 @@ namespace Logic
         public DataTable dllPorType(string userId, ref string[] userPorType)
         {
             string RolePorType;
-            if (userId.Equals("admin"))
+            if (userId.Equals("000000"))
             {
-                RolePorType = "admin";
+                RolePorType = "000000";
             }
             else
             {

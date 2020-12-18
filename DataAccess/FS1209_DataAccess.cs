@@ -20,7 +20,7 @@ namespace DataAccess
             StringBuilder strSQL = new StringBuilder();
             if (str2.Length != 0)
             {
-                if (str2[0] != "admin")
+                if (str2[0] != "000000")
                 {
                     string ProType = "";
                     if (str2.Length != 0)

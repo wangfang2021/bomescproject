@@ -25,7 +25,7 @@ namespace DataAccess
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
                 if(strChange!="")
-                    strSql.Append("       and vcPriceChangeInfo='" + strChange + "'         \n");
+                    strSql.Append("       and vcChange='" + strChange + "'         \n");
                 if (strPart_id != "")
                     strSql.Append("       and vcPart_id like '%" + strPart_id + "%'         \n");
                 if (strOriginCompany != "")

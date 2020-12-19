@@ -75,24 +75,24 @@ namespace DataAccess
                         sql.Append("  ,dPricebegin,dPriceEnd,vcCarTypeDev,vcCarTypeDesign,vcPart_Name,vcOE,vcPart_id_HK,vcStateFX,vcFXNO,vcSumLater,vcReceiver,vcOriginCompany,vcOperatorID,dOperatorTime   \r\n");
                         sql.Append("  )   \r\n");
                         sql.Append(" values (  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcChange"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcPart_id"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dUseBegin"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dUseEnd"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcProjectType"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcSupplier_Name"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dProjectBegin"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dProjectEnd"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcHaoJiu"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dJiuBegin"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dJiuEnd"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dJiuBeginSustain"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcPriceState"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dUseBegin"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dUseEnd"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcProjectType"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSupplier_Name"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dProjectBegin"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dProjectEnd"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcHaoJiu"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBeginSustain"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceState"], false) + ",  \r\n");
                         sql.Append("getDate(),  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcPriceGS"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["decPriceOrigin"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + ",  \r\n");
 
                         //以下两个字段计算
                         if (listInfoData[i]["decPriceOrigin"] == System.DBNull.Value || listInfoData[i]["decPriceOrigin"] == null || listInfoData[i]["decPriceOrigin"].ToString()=="")
@@ -101,18 +101,18 @@ namespace DataAccess
                             sql.Append(listInfoData[i]["decPriceOrigin"].ToString() + "*" + decPriceXS + ",   \r\n");
                         sql.Append(getJSSql(listInfoData[i]["decPriceOrigin"], listInfoData[i]["vcPriceGS"], dtGS) + ",   \r\n");
 
-                        sql.Append(getSqlValue(listInfoData[i]["dPricebegin"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dPriceEnd"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcPart_Name"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcOE"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcPart_id_HK"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcStateFX"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcFXNO"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcSumLater"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcReceiver"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcOriginCompany"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dPricebegin"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dPriceEnd"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_Name"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id_HK"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcStateFX"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcFXNO"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSumLater"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + ",  \r\n");
                         sql.Append("'"+ strUserId + "',  \r\n");
                         sql.Append("getdate()  \r\n");
                         sql.Append(" );  \r\n");
@@ -122,9 +122,9 @@ namespace DataAccess
                         int iAutoId =Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
                         sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  vcPriceChangeInfo="+ getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
-                        sql.Append("  ,vcPriceGS=" + getSqlValue(listInfoData[i]["vcPriceGS"], false) + "   \r\n");
-                        sql.Append("  ,decPriceOrigin=" + getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
+                        sql.Append("  vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                        sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], false) + "   \r\n");
+                        sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
 
                         //以下两个字段计算
                         if(listInfoData[i]["decPriceOrigin"] == System.DBNull.Value || listInfoData[i]["decPriceOrigin"] ==null|| listInfoData[i]["decPriceOrigin"].ToString() == "")
@@ -134,8 +134,8 @@ namespace DataAccess
                         sql.Append("  ,decPriceTNPWithTax=" + getJSSql(listInfoData[i]["decPriceOrigin"],listInfoData[i]["vcPriceGS"],dtGS) + "   \r\n");
 
 
-                        sql.Append("  ,dPricebegin=" + getSqlValue(listInfoData[i]["dPricebegin"], true) + "   \r\n");
-                        sql.Append("  ,dPriceEnd=" + getSqlValue(listInfoData[i]["dPriceEnd"], true) + "   \r\n");
+                        sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(listInfoData[i]["dPricebegin"], true) + "   \r\n");
+                        sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(listInfoData[i]["dPriceEnd"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                         sql.Append("  ,dOperatorTime=getdate()   \r\n");
                         sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
@@ -229,23 +229,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 返回insert语句值
-        /// <summary>
-        /// 返回insert语句值
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="isObject">如果insert时间、金额或者其他对象类型数据，为true</param>
-        /// <returns></returns>
-        private string getSqlValue(Object obj,bool isObject)
-        {
-            if (obj == null)
-                return "null";
-            else if(obj.ToString().Trim()==""&& isObject)
-                return "null";
-            else
-                return "'" + obj .ToString()+ "'";
-        }
-        #endregion
+        
 
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)
@@ -263,9 +247,9 @@ namespace DataAccess
                     string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
 
                     sql.Append("  update TPrice set    \r\n");
-                    sql.Append("  vcPriceChangeInfo=" + getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
-                    sql.Append("  ,vcPriceGS=" + getSqlValue(dt.Rows[i]["vcPriceGS"], false) + "   \r\n");
-                    sql.Append("  ,decPriceOrigin=" + getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+                    sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                    sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS"], false) + "   \r\n");
+                    sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
 
 
                     //以下两个字段计算
@@ -276,8 +260,8 @@ namespace DataAccess
                     sql.Append("  ,decPriceTNPWithTax=" + getJSSql(dt.Rows[i]["decPriceOrigin"], dt.Rows[i]["vcPriceGS"], dtGS) + "   \r\n");
 
 
-                    sql.Append("  ,dPricebegin=" + getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
-                    sql.Append("  ,dPriceEnd=" + getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
+                    sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
+                    sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
                     sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                     sql.Append("  ,dOperatorTime=getdate()   \r\n");
                     sql.Append("  where vcPart_id='" + vcPart_id + "'  and dUseBegin='"+ dUseBegin + "' and  dUseEnd='"+ dUseEnd + "' ; \r\n");
@@ -348,12 +332,12 @@ namespace DataAccess
                         sql.Append("  insert into TPrice_GS(vcName,vcGs,vcArea,dBegin,dEnd,vcReason,vcOperatorID,dOperatorTime   \r\n");
                         sql.Append("  )   \r\n");
                         sql.Append(" values (  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcName"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcGs"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcArea"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dBegin"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["dEnd"], true) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcReason"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcName"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcGs"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcArea"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dBegin"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dEnd"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcReason"], false) + ",  \r\n");
                         sql.Append("'" + strUserId + "',  \r\n");
                         sql.Append("getdate()  \r\n");
                         sql.Append(" );  \r\n");
@@ -363,12 +347,12 @@ namespace DataAccess
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
                         sql.Append("  update TPrice_GS set    \r\n");
-                        sql.Append("  vcName=" + getSqlValue(listInfoData[i]["vcName"], false) + "   \r\n");
-                        sql.Append("  ,vcGs=" + getSqlValue(listInfoData[i]["vcGs"], false) + "   \r\n");
-                        sql.Append("  ,vcArea=" + getSqlValue(listInfoData[i]["vcArea"], false) + "   \r\n");
-                        sql.Append("  ,dBegin=" + getSqlValue(listInfoData[i]["dBegin"], true) + "   \r\n");
-                        sql.Append("  ,dEnd=" + getSqlValue(listInfoData[i]["dEnd"], true) + "   \r\n");
-                        sql.Append("  ,vcReason=" + getSqlValue(listInfoData[i]["vcReason"], false) + "   \r\n");
+                        sql.Append("  vcName=" + ComFunction.getSqlValue(listInfoData[i]["vcName"], false) + "   \r\n");
+                        sql.Append("  ,vcGs=" + ComFunction.getSqlValue(listInfoData[i]["vcGs"], false) + "   \r\n");
+                        sql.Append("  ,vcArea=" + ComFunction.getSqlValue(listInfoData[i]["vcArea"], false) + "   \r\n");
+                        sql.Append("  ,dBegin=" + ComFunction.getSqlValue(listInfoData[i]["dBegin"], true) + "   \r\n");
+                        sql.Append("  ,dEnd=" + ComFunction.getSqlValue(listInfoData[i]["dEnd"], true) + "   \r\n");
+                        sql.Append("  ,vcReason=" + ComFunction.getSqlValue(listInfoData[i]["vcReason"], false) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                         sql.Append("  ,dOperatorTime=getdate()   \r\n");
                         sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");

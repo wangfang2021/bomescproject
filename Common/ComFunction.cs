@@ -704,6 +704,24 @@ namespace Common
         }
         #endregion
 
+        #region 返回insert语句值
+        /// <summary>
+        /// 返回insert语句值
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="isObject">如果insert时间、金额或者其他对象类型数据，为true</param>
+        /// <returns></returns>
+        public static string getSqlValue(Object obj, bool isObject)
+        {
+            if (obj == null)
+                return "null";
+            else if (obj.ToString().Trim() == "" && isObject)
+                return "null";
+            else
+                return "'" + obj.ToString() + "'";
+        }
+        #endregion
+
     }
 
 

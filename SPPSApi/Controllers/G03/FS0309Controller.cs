@@ -268,8 +268,19 @@ namespace SPPSApi.Controllers.G03
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
-                    string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
-                        { "变更事项","vcChange", "新设","1", "号旧","vcHaoJiu","1", "号口", "H" },
+                    string[,] strSpecialCheck = {
+                        //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
+                        //vcChange=1时，vcHaoJiu如果为1，如果内容列不为空(H)，则内容必须为H，如果内容为空，则对具体内容不做判断
+                        { "变更事项",
+                            "vcChange",//验证vcChange字段
+                            "新设"
+                            ,"1",//当vcChange=1时
+                            "号旧",
+                            "vcHaoJiu",//判断字段
+                            "1", //1:该字段不能为空 0:该字段必须为空
+                            "号口",
+                            "H" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                        },
                         { "变更事项","vcChange", "旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
                         { "变更事项","vcChange", "新设","1", "旧型开始","dJiuBegin","0", "空","" },
                         { "变更事项","vcChange", "新设","1", "旧型结束","dJiuEnd","0", "空","" },

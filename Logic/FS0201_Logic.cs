@@ -30,206 +30,9 @@ namespace Logic
 
             return dt;
         }
-
-        //判断状态
-        public DataTable RulesCheck(DataTable dt)
-        {
-            dt.Columns.Add("State");
-            dt.Columns.Add("ErrorInfo");
-            dt.Columns.Add("PartError");
-            dt.Columns.Add("BJDiffError");
-            dt.Columns.Add("DTDiffError");
-            dt.Columns.Add("DTPartError");
-            dt.Columns.Add("PartNameError");
-            dt.Columns.Add("FXError");
-            dt.Columns.Add("FXNoError");
-            dt.Columns.Add("ChangeError");
-            dt.Columns.Add("NewProjError");
-            //判断画面显示样式
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                string vcPart_Id_old = dt.Rows[i]["vcPart_Id_old"].ToString();
-                string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString();
-                string vcBJDiff = dt.Rows[i]["vcBJDiff"].ToString();
-                string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
-                string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
-                string vcPartName = dt.Rows[i]["vcPartName"].ToString();
-                string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
-                string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
-                string vcChange = dt.Rows[i]["vcChange"].ToString();
-                string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
-
-                int State = 0;
-                string ErrorInfo = "";
-                bool PartError = false;
-                bool BJDiffError = false;
-                bool DTDiffError = false;
-                bool DTPartError = false;
-                bool PartNameError = false;
-                bool FXError = false;
-                bool FXNoError = false;
-                bool ChangeError = false;
-                bool NewProjError = false;
-                List<string> errorlist = new List<string>();
-                //新旧品番都为空
-                if ((string.IsNullOrWhiteSpace(vcPart_Id_old) && string.IsNullOrWhiteSpace(vcPart_Id_new)) || (!string.IsNullOrWhiteSpace(vcPart_Id_old) && !string.IsNullOrWhiteSpace(vcPart_Id_new)))
-                {
-                    PartError = true;
-                    errorlist.Add("新旧品番必填一项");
-                }
-                //补给区分为空
-                if (string.IsNullOrWhiteSpace(vcBJDiff))
-                {
-                    BJDiffError = true;
-                    errorlist.Add("补给区分必填");
-
-                }
-                //代替区分为空
-                if (string.IsNullOrWhiteSpace(vcDTDiff))
-                {
-                    DTDiffError = true;
-                    errorlist.Add("代替区分必填");
-                }
-                //代替区分为HD/NR时代替品番为空
-                if ((vcDTDiff.Contains("HD") || vcDTDiff.Contains("NR")) && string.IsNullOrWhiteSpace(vcPart_id_DT))
-                {
-                    DTPartError = true;
-                    errorlist.Add("代替区分为HD/NR时,代替品番必填");
-                }
-                //品名为空
-                if (string.IsNullOrWhiteSpace(vcPartName))
-                {
-                    PartNameError = true;
-                    errorlist.Add("品名必填");
-                }
-                //防锈区分为空
-                if (string.IsNullOrWhiteSpace(vcFXDiff))
-                {
-                    FXError = true;
-                    errorlist.Add("防锈区分必填");
-                }
-                //防锈区分为R时，防锈指示书No为空
-                if (vcFXDiff.Equals("R") && string.IsNullOrWhiteSpace(vcFXNo))
-                {
-                    FXNoError = true;
-                    errorlist.Add("防锈区分为R时，防锈指示书No必填");
-                }
-                //变更事项为空
-                if (string.IsNullOrWhiteSpace(vcChange))
-                {
-                    ChangeError = true;
-                    errorlist.Add("变更事项必填");
-
-                }
-                //变更事项为新设，新工程为空
-                if ((vcChange.Contains("新設") || vcChange.Contains("新设")) && string.IsNullOrWhiteSpace(vcNewProj))
-                {
-                    NewProjError = true;
-                    errorlist.Add("变更事项为新设时，新工程必填");
-                }
-                //变更事项为新设，旧品番不为空
-                if ((vcChange.Contains("新設") || vcChange.Contains("新设")) && (!string.IsNullOrWhiteSpace(vcPart_Id_old)))
-                {
-                    PartError = true;
-                    errorlist.Add("变更事项为新设时，旧品番必须为空");
-                }
-
-                //汇总错误列表
-                if (errorlist.Count > 0)
-                {
-                    State = 1;
-                    for (int j = 0; j < errorlist.Count; j++)
-                    {
-                        ErrorInfo += errorlist[j] + ";";
-                    }
-                }
-
-                dt.Rows[i]["State"] = State;
-                dt.Rows[i]["ErrorInfo"] = ErrorInfo;
-                dt.Rows[i]["PartError"] = PartError;
-                dt.Rows[i]["BJDiffError"] = BJDiffError;
-                dt.Rows[i]["DTDiffError"] = DTDiffError;
-                dt.Rows[i]["DTPartError"] = DTPartError;
-                dt.Rows[i]["PartNameError"] = PartNameError;
-                dt.Rows[i]["FXError"] = FXError;
-                dt.Rows[i]["FXNoError"] = FXNoError;
-                dt.Rows[i]["ChangeError"] = ChangeError;
-                dt.Rows[i]["NewProjError"] = NewProjError;
-            }
-
-            return dt;
-        }
-        #endregion
-
-        #region 上传SPI
-
-        public void AddSPI(string path, string userId)
-        {
-            try
-            {
-                string fileName = "Result.xlsm";
-                CreatePath(path);
-                CopyFile(path, fileName);
-                ChangePath(path, fileName);
-                CreateList(path, fileName);
-                string reMsg = "";
-                string[,] header =
-                {
-                    {
-                        "SPI No", "旧品番", "新品番", "補給区分（新）", "代替区分", "代替品番（新）", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№（新）",
-                        "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名"
-                    },
-                    {
-                        "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT",
-                        "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj",
-                        "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName",
-                        "vcFileName"
-                    },
-                    {"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""},
-                    {"0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"},
-                    {"1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}
-                };
-                DataTable dt = new DataTable();
-                dt = ExcelToDataTable(path + Path.DirectorySeparatorChar + fileName, "list", header, ref reMsg);
-                if (dt.Rows.Count > 0)
-                {
-                    fs0201_DataAccess.addSPI(dt, userId);
-                }
-                else
-                {
-                    reMsg = "没有需要导入的数据。";
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-
-            }
-        }
-
-
         #endregion
 
         #region 传送
-        //判断是否全部为OK
-        public bool Check(DataTable dt)
-        {
-            bool flag = false;
-            DataTable dtR = RulesCheck(dt);
-            for (int i = 0; i < dtR.Rows.Count; i++)
-            {
-                if (dtR.Rows[i]["State"].ToString() == "1")
-                {
-                    flag = true;
-                }
-            }
-
-            return flag;
-        }
-
         //传送
         public bool transferSPI(string userId)
         {
@@ -237,10 +40,11 @@ namespace Logic
             {
                 DataTable dt = fs0201_DataAccess.searchSPI("", "", "");
 
-                if (Check(dt))
-                {
-                    return false;
-                }
+                //检测NG状态
+                //if (Check(dt))
+                //{
+                //    return false;
+                //}
 
                 dt.Columns.Add("vcCarType");
                 dt.Columns.Add("vcFileNameTJ");
@@ -295,7 +99,21 @@ namespace Logic
                 throw ex;
             }
         }
+        //判断是否全部为OK
+        public bool Check(DataTable dt)
+        {
+            bool flag = false;
+            DataTable dtR = RulesCheck(dt);
+            for (int i = 0; i < dtR.Rows.Count; i++)
+            {
+                if (dtR.Rows[i]["State"].ToString() == "1")
+                {
+                    flag = true;
+                }
+            }
 
+            return flag;
+        }
         // 获取车种
         public string getCarType(string SPINO, string CZYD)
         {
@@ -323,7 +141,6 @@ namespace Logic
             }
             return carType;
         }
-
         // 获取文件名
         public List<string> fileName(string oldPro, string newPro)
         {
@@ -389,10 +206,205 @@ namespace Logic
 
             return resList;
         }
-
         #endregion
 
-        #region 读取Excel
+        #region 删除
+        public void delSPI(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0201_DataAccess.delSPI(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0201_DataAccess.saveSPI(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 状态判断
+        public DataTable RulesCheck(DataTable dt)
+        {
+            dt.Columns.Add("State");
+            dt.Columns.Add("ErrorInfo");
+            dt.Columns.Add("PartError");
+            dt.Columns.Add("BJDiffError");
+            dt.Columns.Add("DTDiffError");
+            dt.Columns.Add("DTPartError");
+            dt.Columns.Add("PartNameError");
+            dt.Columns.Add("FXError");
+            dt.Columns.Add("FXNoError");
+            dt.Columns.Add("ChangeError");
+            dt.Columns.Add("NewProjError");
+            //判断画面显示样式
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string vcPart_Id_old = dt.Rows[i]["vcPart_Id_old"].ToString();
+                string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString();
+                string vcBJDiff = dt.Rows[i]["vcBJDiff"].ToString();
+                string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
+                string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
+                string vcPartName = dt.Rows[i]["vcPartName"].ToString();
+                string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
+                string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
+                string vcChange = dt.Rows[i]["vcChange"].ToString();
+                string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
+
+                int State = 0;
+                string ErrorInfo = "";
+                int PartError = 0;
+                int BJDiffError = 0;
+                int DTDiffError = 0;
+                int DTPartError = 0;
+                int PartNameError = 0;
+                int FXError = 0;
+                int FXNoError = 0;
+                int ChangeError = 0;
+                int NewProjError = 0;
+                List<string> errorlist = new List<string>();
+                //新旧品番都为空
+                if ((string.IsNullOrWhiteSpace(vcPart_Id_old) && string.IsNullOrWhiteSpace(vcPart_Id_new)) || (!string.IsNullOrWhiteSpace(vcPart_Id_old) && !string.IsNullOrWhiteSpace(vcPart_Id_new)))
+                {
+                    PartError = 1;
+                    errorlist.Add("新旧品番必填一项");
+                }
+                //补给区分为空
+                if (string.IsNullOrWhiteSpace(vcBJDiff))
+                {
+                    BJDiffError = 1;
+                    errorlist.Add("补给区分必填");
+
+                }
+                //代替区分为空
+                if (string.IsNullOrWhiteSpace(vcDTDiff))
+                {
+                    DTDiffError = 1;
+                    errorlist.Add("代替区分必填");
+                }
+                //代替区分为HD/NR时代替品番为空
+                if ((vcDTDiff.Contains("HD") || vcDTDiff.Contains("NR")) && string.IsNullOrWhiteSpace(vcPart_id_DT))
+                {
+                    DTPartError = 1;
+                    errorlist.Add("代替区分为HD/NR时,代替品番必填");
+                }
+                //品名为空
+                if (string.IsNullOrWhiteSpace(vcPartName))
+                {
+                    PartNameError = 1;
+                    errorlist.Add("品名必填");
+                }
+                //防锈区分为空
+                if (string.IsNullOrWhiteSpace(vcFXDiff))
+                {
+                    FXError = 1;
+                    errorlist.Add("防锈区分必填");
+                }
+                //防锈区分为R时，防锈指示书No为空
+                if (vcFXDiff.Equals("R") && string.IsNullOrWhiteSpace(vcFXNo))
+                {
+                    FXNoError = 1;
+                    errorlist.Add("防锈区分为R时，防锈指示书No必填");
+                }
+                //变更事项为空
+                if (string.IsNullOrWhiteSpace(vcChange))
+                {
+                    ChangeError = 1;
+                    errorlist.Add("变更事项必填");
+
+                }
+                //变更事项为新设，新工程为空
+                if ((vcChange.Contains("新設") || vcChange.Contains("新设")) && string.IsNullOrWhiteSpace(vcNewProj))
+                {
+                    NewProjError = 1;
+                    errorlist.Add("变更事项为新设时，新工程必填");
+                }
+                //变更事项为新设，旧品番不为空
+                if ((vcChange.Contains("新設") || vcChange.Contains("新设")) && (!string.IsNullOrWhiteSpace(vcPart_Id_old)))
+                {
+                    PartError = 1;
+                    errorlist.Add("变更事项为新设时，旧品番必须为空");
+                }
+
+                //汇总错误列表
+                if (errorlist.Count > 0)
+                {
+                    State = 1;
+                    for (int j = 0; j < errorlist.Count; j++)
+                    {
+                        ErrorInfo += errorlist[j] + ";";
+                    }
+                }
+
+                dt.Rows[i]["State"] = State;
+                dt.Rows[i]["ErrorInfo"] = ErrorInfo;
+                dt.Rows[i]["PartError"] = PartError;
+                dt.Rows[i]["BJDiffError"] = BJDiffError;
+                dt.Rows[i]["DTDiffError"] = DTDiffError;
+                dt.Rows[i]["DTPartError"] = DTPartError;
+                dt.Rows[i]["PartNameError"] = PartNameError;
+                dt.Rows[i]["FXError"] = FXError;
+                dt.Rows[i]["FXNoError"] = FXNoError;
+                dt.Rows[i]["ChangeError"] = ChangeError;
+                dt.Rows[i]["NewProjError"] = NewProjError;
+            }
+
+            return dt;
+        }
+        #endregion
+
+        #region 上传SPI
+        //上传
+        public void AddSPI(string path, string userId)
+        {
+            try
+            {
+                string fileName = "Result.xlsm";
+                CreatePath(path);
+                CopyFile(path, fileName);
+                ChangePath(path, fileName);
+                CreateList(path, fileName);
+
+                //TODO 记录上传列表
+
+
+                string reMsg = "";
+                string[,] header =
+                {
+                    {
+                        "SPI No", "旧品番", "新品番", "補給区分（新）", "代替区分", "代替品番（新）", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№（新）",
+                        "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名"
+                    },
+                    {
+                        "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT",
+                        "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj",
+                        "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName",
+                        "vcFileName"
+                    },
+                    {"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""},
+                    {"0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"},
+                    {"1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}
+                };
+                DataTable dt = new DataTable();
+                dt = ExcelToDataTable(path + Path.DirectorySeparatorChar + fileName, "list", header, ref reMsg);
+                if (dt.Rows.Count > 0)
+                {
+                    fs0201_DataAccess.addSPI(dt, userId);
+                }
+                else
+                {
+                    reMsg = "没有需要导入的数据。";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+
+            }
+        }
+        //读取Excel
         public DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, ref string RetMsg)
         {
             FileStream fs = null;
@@ -578,9 +590,7 @@ namespace Logic
                 }
             }
         }
-        #endregion
-
-        #region 创建路径
+        //创建路径
         public void CreatePath(string path)
         {
             try
@@ -596,9 +606,7 @@ namespace Logic
                 throw ex;
             }
         }
-        #endregion
-
-        #region 复制模板文件
+        //复制模板文件
         public void CopyFile(string path, string fileName)
         {
             try
@@ -615,9 +623,7 @@ namespace Logic
                 throw ex;
             }
         }
-        #endregion
-
-        #region 调用宏
+        //调用宏
         public void ChangePath(string path, string fileName)
         {
             Application app = new Application();
@@ -672,16 +678,6 @@ namespace Logic
                 }
             }
         }
-
-        #endregion
-
-        #region 清空文件夹
-
-        public void emptyFile(string path)
-        {
-
-        }
-
         #endregion
     }
 }

@@ -46,7 +46,7 @@ namespace SPPSApi.Controllers.G02
             {
                 DataTable dt = fs0203_logic.searchHistory(flag, UploadTime);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy-MM-dd");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;

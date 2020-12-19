@@ -180,8 +180,10 @@ namespace Common
                                     }
                                     else
                                     {
-                                        if (temp_mustValue_B != strTempValue_B)
+                                        if (temp_mustValue_B!=""&&temp_mustValue_B != strTempValue_B)//注意值判断有且当temp_mustValue_B不为空时才校验
                                         {
+                                            if (err_mes.Length > 0)
+                                                err_mes.Append(",");
                                             err_mes.Append(temp_fieldName_A + "是" + temp_checkValueName_A + "时" + temp_checkfieldName_B + "必须为"+ temp_mustValueName_B);
                                         }
                                     }

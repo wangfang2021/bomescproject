@@ -273,9 +273,9 @@ namespace SPPSApi.Controllers.G03
                         { "变更事项","vcChange", "新设","1", "旧型开始","dJiuBegin","0", "空","" },
                         { "变更事项","vcChange", "新设","1", "旧型结束","dJiuEnd","0", "空","" },
                         { "变更事项","vcChange", "新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
-                        { "变更事项","vcChange", "旧型","3", "旧型开始","dJiuBegin","1", "空","" },
-                        { "变更事项","vcChange", "旧型","3", "旧型结束","dJiuEnd","1", "空","" },
-                        { "变更事项","vcChange", "旧型","3", "旧型持续开始","dJiuBeginSustain","1", "空","" }
+                        { "变更事项","vcChange", "旧型","3", "旧型开始","dJiuBegin","1", "","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型结束","dJiuEnd","1", "","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型持续开始","dJiuBeginSustain","1", "","" }
                     };
 
 

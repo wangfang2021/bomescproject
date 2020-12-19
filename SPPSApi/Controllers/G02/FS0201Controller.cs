@@ -31,6 +31,7 @@ namespace SPPSApi.Controllers.G02
         [EnableCors("any")]
         public string searchSPI([FromBody]dynamic data)
         {
+
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
@@ -92,7 +93,47 @@ namespace SPPSApi.Controllers.G02
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "上传失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
+        [HttpPost]
+        [EnableCors("any")]
+        public string transferSPI()
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                bool flag = fs0201_logic.transferSPI(loginInfo.UserId);
+                if (flag == true)
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "传送成功";
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "传送失败,含有状态为NG的数据";
+                }
+
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "传送失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

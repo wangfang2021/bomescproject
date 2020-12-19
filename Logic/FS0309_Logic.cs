@@ -68,9 +68,16 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId)
         {
-            fs0309_DataAccess.Save(listInfoData, strUserId);
+            fs0309_DataAccess.Save(listInfoData, strUserId,ref strErrorPartId);
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0309_DataAccess.importSave(dt, strUserId);
         }
         #endregion
 
@@ -81,6 +88,39 @@ namespace Logic
         }
         #endregion
 
+        #region 检索所有的公式
+        public DataTable getAllGS()
+        {
+            return fs0309_DataAccess.getAllGS();
+        }
+        #endregion
 
+        #region 按检索条件检索,返回dt
+        public DataTable Search_GS(string strBegin, string strEnd )
+        {
+            return fs0309_DataAccess.Search_GS(strBegin, strEnd );
+        }
+        #endregion
+
+        #region 保存
+        public void Save_GS(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorName)
+        {
+            fs0309_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName);
+        }
+        #endregion
+
+        #region 删除
+        public void Del_GS(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0309_DataAccess.Del_GS(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 检索所有待处理的数据
+        public DataTable getAllTask()
+        {
+            return fs0309_DataAccess.getAllTask();
+        }
+        #endregion
     }
 }

@@ -234,7 +234,6 @@ namespace Common
             ISheet sheet = null;
             List<int> index = new List<int>();
             DataTable data = new DataTable();
-
             RetMsg = "";
             int startRow = 0;
 
@@ -313,10 +312,10 @@ namespace Common
                             ICell cell = row.GetCell(index[j]);
                             if (cell != null) //同理，没有数据的单元格都默认是null
                             {
+
                                 if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
                                 {
-                                    dataRow[j] = cell.DateCellValue.ToString();
-                                    ;
+                                    dataRow[j] = DateTime.FromOADate(cell.NumericCellValue);
                                 }
                                 else
                                 {
@@ -397,18 +396,25 @@ namespace Common
 
                 #endregion
 
+
                 return data;
             }
             catch (Exception ex)
             {
+
                 Console.WriteLine("Exception: " + ex.Message);
                 return null;
             }
             finally
             {
+                if (workbook != null)
+                {
+                    workbook.Close();
+                }
                 if (fs != null)
                 {
                     fs.Close();
+                    fs.Dispose();
                 }
             }
         }
@@ -426,14 +432,14 @@ namespace Common
         /// <param name="strFunctionName"></param>
         /// <param name="RetMsg"></param>
         /// <returns></returns>
-        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath, string responserid, string strFunctionName, ref string RetMsg)
+        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath, string strUserId, string strFunctionName, ref string RetMsg)
         {
             bool result = false;
             RetMsg = "";
             FileStream fs = null;
             int size = 1048576 - 1;
 
-            string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + responserid + ".xlsx";
+            string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
             string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
 
             string path = fileSavePath + strFileName;
@@ -544,16 +550,16 @@ namespace Common
         #endregion
 
         #region 导出带模板
-        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string responserid, string strFunctionName)
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
         {
             try
             {
-                HSSFWorkbook hssfworkbook = new HSSFWorkbook();
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
 
                 string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
                 using (FileStream fs = File.OpenRead(XltPath))
                 {
-                    hssfworkbook = new HSSFWorkbook(fs);
+                    hssfworkbook = new XSSFWorkbook(fs);
                     fs.Close();
                 }
 
@@ -568,7 +574,7 @@ namespace Common
                         cell.SetCellValue(dt.Rows[i][field[j]].ToString());
                     }
                 }
-                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + responserid + ".xls";
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
                 string path = fileSavePath + strFileName;
                 using (FileStream fs = File.OpenWrite(path))
@@ -653,6 +659,47 @@ namespace Common
             {
                 IFormatter formatter = new BinaryFormatter();
                 return formatter.Deserialize(ms);
+            }
+        }
+        #endregion
+
+        #region 文件夹删除
+        public static void DeleteFolder(string dir)
+        {
+            if (System.IO.Directory.Exists(dir))
+            {
+                string[] fileSystemEntries = System.IO.Directory.GetFileSystemEntries(dir);
+                for (int i = 0; i < fileSystemEntries.Length; i++)
+                {
+                    string text = fileSystemEntries[i];
+                    if (System.IO.File.Exists(text))
+                    {
+                        System.IO.File.Delete(text);
+                    }
+                    else
+                    {
+                        DeleteFolder(text);
+                    }
+                }
+                System.IO.Directory.Delete(dir);
+            }
+        }
+        #endregion
+
+        #region 获取数据字典
+        public static DataTable getTCode(string strCodeId)
+        {
+            try
+            {
+                MultiExcute excute = new MultiExcute();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

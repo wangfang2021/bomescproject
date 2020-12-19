@@ -3,12 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
@@ -33,6 +37,63 @@ namespace SPPSApi.Controllers.G03
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                if (loginInfo.Special == "财务用户")
+                    res.Add("caiWuBtnVisible", false);
+                else
+                    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
+                List<Object> dataList_C004 = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
+                List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
+                List<Object> dataList_C013 = ComFunction.convertAllToResult(ComFunction.getTCode("C013"));//状态
+                List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
+                //设变履历是否下拉待确定
+                List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
+
+                DataTable task=fs0309_Logic.getAllTask();
+
+                res.Add("C002", dataList_C002);
+                res.Add("C004", dataList_C004);
+                res.Add("C003", dataList_C003);
+                res.Add("C012", dataList_C012);
+                res.Add("C013", dataList_C013);
+                res.Add("C005", dataList_C005);
+                res.Add("C006", dataList_C006);
+                List<Object> dataList_GS = ComFunction.convertAllToResult(fs0309_Logic.getAllGS());//公式
+                res.Add("optionGS", dataList_GS);
+                res.Add("taskNum", task.Rows.Count);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -53,6 +114,9 @@ namespace SPPSApi.Controllers.G03
             string strOriginCompany = dataForm.OriginCompany;
             string strHaoJiu = dataForm.HaoJiu;
             string strProjectType = dataForm.ProjectType;
+            if (loginInfo.Special == "财务用户")
+                strProjectType = "内制";
+
             string strPriceChangeInfo = dataForm.PriceChangeInfo;
             string strCarTypeDev = dataForm.CarTypeDev;
             string strSupplier_id = dataForm.Supplier_id;
@@ -68,16 +132,16 @@ namespace SPPSApi.Controllers.G03
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dPriceSendDate", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -126,14 +190,17 @@ namespace SPPSApi.Controllers.G03
                    );
                 string[] fields = { "vcChange", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType", "vcSupplier_id"
                 ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState","dPriceSendDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
+                ,"vcPriceState","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver"
-                ,"vcOriginCompany" 
+                ,"vcOriginCompany"
                 };
-
-                string RetMsg = "";
-                //string filepath = ComFunction.DataTableToExcel(headers, fields, dt, _webHostEnvironment.ContentRootPath, "000000", "test", ref RetMsg);
-                string filepath = "test_导出信息_20201210153429_000000.xlsx";
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -182,32 +249,56 @@ namespace SPPSApi.Controllers.G03
                         hasFind = true;
                     }
                 }
-                //开始数据验证
-                if (hasFind)
-                {
-                    string[,] strField = new string[,] {{"品番","使用开始","使用结束"},
-                                                {"vcPart_id","dUseBegin","dUseEnd"},
-                                                {FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date },
-                                                {"12","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"10","1","1"},//最小长度设定,可以为空用0
-                                                {"2","3","4"}//前台显示列号，从0开始计算
-                    };
-                    List<Object> checkRes=ListChecker.validateList(listInfoData, strField, true);
-                    if (checkRes != null)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = checkRes;
-                        apiResult.flag = 1;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
                 if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0309_Logic.Save(listInfoData, loginInfo.UserId);
+                //开始数据验证
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧"},
+                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu"},
+                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"" },
+                                                {"25","12","0","0","0","4","50","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","10","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8","9","10"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    //需要判断时间区间先后关系的字段
+                    string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
+                    string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
+                        { "变更事项","vcChange", "新设","1", "号旧","vcHaoJiu","1", "号口", "H" },
+                        { "变更事项","vcChange", "旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
+                        { "变更事项","vcChange", "新设","1", "旧型开始","dJiuBegin","0", "空","" },
+                        { "变更事项","vcChange", "新设","1", "旧型结束","dJiuEnd","0", "空","" },
+                        { "变更事项","vcChange", "新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型开始","dJiuBegin","1", "空","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型结束","dJiuEnd","1", "空","" },
+                        { "变更事项","vcChange", "旧型","3", "旧型持续开始","dJiuBeginSustain","1", "空","" }
+                    };
+
+
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck,true, "FS0309");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                string strErrorPartId = "";
+                fs0309_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>"+ strErrorPartId;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -241,7 +332,7 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (listInfoData.Count==0)
+                if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少选择一条数据！";
@@ -257,6 +348,50 @@ namespace SPPSApi.Controllers.G03
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0903", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 销售展开
+        [HttpPost]
+        [EnableCors("any")]
+        public string sendMailApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                Object multipleSelection=dataForm.multipleSelection;
+                if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
+                {
+
+
+                }
+                else
+                { 
+                    
+                    
+                }
+                //发送邮件
+                //发件人邮箱，对方邮箱，邮件标题、内容、附件需要确认
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0906", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "销售展开失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

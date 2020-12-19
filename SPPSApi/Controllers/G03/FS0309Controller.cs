@@ -143,6 +143,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy-MM-dd");
                 dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -348,6 +349,36 @@ namespace SPPSApi.Controllers.G03
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0903", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 获取待办任务
+        [HttpPost]
+        [EnableCors("any")]
+        public string taskApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                DataTable task = fs0309_Logic.getAllTask();
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = task.Rows.Count;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0910", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "获取待办失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

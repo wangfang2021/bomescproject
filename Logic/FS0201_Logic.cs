@@ -30,8 +30,199 @@ namespace Logic
 
             return dt;
         }
+        #endregion
 
-        //判断状态
+        #region 传送
+        //传送
+        public bool transferSPI(string userId)
+        {
+            try
+            {
+                DataTable dt = fs0201_DataAccess.searchSPI("", "", "");
+
+                //检测NG状态
+                //if (Check(dt))
+                //{
+                //    return false;
+                //}
+
+                dt.Columns.Add("vcCarType");
+                dt.Columns.Add("vcFileNameTJ");
+                string time = DateTime.Now.ToString("yyyyMMddHHmmss");
+                string suffix = "_SPI" + time;
+                //添加车种担当
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i]["vcCarType"] = getCarType(dt.Rows[i]["vcSPINo"].ToString().Trim(), dt.Rows[i]["vcCZYD"].ToString().Trim());
+                }
+                //添加文件名
+                DataTable dtFileName = dt.Clone();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string oldPro = dt.Rows[i]["vcOldProj"].ToString();
+                    string newPro = dt.Rows[i]["vcNewProj"].ToString();
+                    List<string> fileName = this.fileName(oldPro, newPro);
+
+                    if (fileName.Count > 0)
+                    {
+                        for (int j = 0; j < fileName.Count; j++)
+                        {
+                            DataRow dr = dtFileName.NewRow();
+                            dr.ItemArray = dt.Rows[i].ItemArray;
+                            dr["vcFileNameTJ"] = fileName[j] + suffix;
+                            dtFileName.Rows.Add(dr);
+                        }
+                    }
+                    else
+                    {
+                        DataRow dr = dtFileName.NewRow();
+                        dr.ItemArray = dt.Rows[i].ItemArray;
+                        dtFileName.Rows.Add(dr);
+                    }
+                }
+                //排除文件名为空的项
+                DataTable dtImport = dtFileName.Clone();
+                for (int i = 0; i < dtFileName.Rows.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(dtFileName.Rows[i]["vcFileNameTJ"].ToString()))
+                    {
+                        dtImport.ImportRow(dtFileName.Rows[i]);
+                    }
+                }
+                fs0201_DataAccess.transferSB(dtImport, userId);
+                //传入设变
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //判断是否全部为OK
+        public bool Check(DataTable dt)
+        {
+            bool flag = false;
+            DataTable dtR = RulesCheck(dt);
+            for (int i = 0; i < dtR.Rows.Count; i++)
+            {
+                if (dtR.Rows[i]["State"].ToString() == "1")
+                {
+                    flag = true;
+                }
+            }
+
+            return flag;
+        }
+        // 获取车种
+        public string getCarType(string SPINO, string CZYD)
+        {
+            string carType = "";
+            if (SPINO.Length >= 4)
+            {
+                SPINO = SPINO.Substring(0, 4);
+                if (SPINO[3] == 'w' || SPINO[3] == 'W')
+                {
+                    carType = SPINO;
+                }
+            }
+            if (CZYD.Length >= 4)
+            {
+                CZYD = CZYD.Substring(0, 4);
+                if ((CZYD[3] == 'w' || CZYD[3] == 'W') && !CZYD.Equals(SPINO))
+                {
+                    if (!string.IsNullOrWhiteSpace(carType))
+                    {
+                        carType += "/";
+                    }
+
+                    carType += CZYD;
+                }
+            }
+            return carType;
+        }
+        // 获取文件名
+        public List<string> fileName(string oldPro, string newPro)
+        {
+            List<string> resList = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(oldPro) && (oldPro.Contains("WB") || oldPro.Contains("WF") || oldPro.Contains("WL") || oldPro.Contains("WD")))
+            {
+                if (oldPro.Contains("WD"))
+                {
+                    resList.Add("WB");
+                    resList.Add("WF");
+                    resList.Add("WL");
+                }
+                else
+                {
+                    if (oldPro.Contains("WB"))
+                    {
+                        resList.Add("WB");
+                    }
+                    else if (oldPro.Contains("WF"))
+                    {
+                        resList.Add("WF");
+
+                    }
+                    else if (oldPro.Contains("WL"))
+                    {
+                        resList.Add("WL");
+
+                    }
+                }
+
+            }
+            if (!string.IsNullOrWhiteSpace(newPro) && (newPro.Contains("WB") || newPro.Contains("WF") || newPro.Contains("WL") || newPro.Contains("WD")))
+            {
+                if (newPro.Contains("WD"))
+                {
+                    resList.Add("WB");
+                    resList.Add("WF");
+                    resList.Add("WL");
+                }
+                else
+                {
+
+                    if (newPro.Contains("WB"))
+                    {
+                        resList.Add("WB");
+                    }
+                    else if (newPro.Contains("WF"))
+                    {
+                        resList.Add("WF");
+
+                    }
+                    else if (newPro.Contains("WL"))
+                    {
+                        resList.Add("WL");
+
+                    }
+                }
+
+            }
+
+            resList = resList.Distinct().ToList();
+
+            return resList;
+        }
+        #endregion
+
+        #region 删除
+        public void delSPI(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0201_DataAccess.delSPI(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0201_DataAccess.saveSPI(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 状态判断
         public DataTable RulesCheck(DataTable dt)
         {
             dt.Columns.Add("State");
@@ -162,7 +353,7 @@ namespace Logic
         #endregion
 
         #region 上传SPI
-
+        //上传
         public void AddSPI(string path, string userId)
         {
             try
@@ -172,6 +363,10 @@ namespace Logic
                 CopyFile(path, fileName);
                 ChangePath(path, fileName);
                 CreateList(path, fileName);
+
+                //TODO 记录上传列表
+
+
                 string reMsg = "";
                 string[,] header =
                 {
@@ -209,190 +404,7 @@ namespace Logic
 
             }
         }
-
-
-        #endregion
-
-        #region 传送
-        //判断是否全部为OK
-        public bool Check(DataTable dt)
-        {
-            bool flag = false;
-            DataTable dtR = RulesCheck(dt);
-            for (int i = 0; i < dtR.Rows.Count; i++)
-            {
-                if (dtR.Rows[i]["State"].ToString() == "1")
-                {
-                    flag = true;
-                }
-            }
-
-            return flag;
-        }
-
-        //传送
-        public bool transferSPI(string userId)
-        {
-            try
-            {
-                DataTable dt = fs0201_DataAccess.searchSPI("", "", "");
-
-                if (Check(dt))
-                {
-                    return false;
-                }
-
-                dt.Columns.Add("vcCarType");
-                dt.Columns.Add("vcFileNameTJ");
-                string time = DateTime.Now.ToString("yyyyMMddHHmmss");
-                string suffix = "_SPI" + time;
-                //添加车种担当
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    dt.Rows[i]["vcCarType"] = getCarType(dt.Rows[i]["vcSPINo"].ToString().Trim(), dt.Rows[i]["vcCZYD"].ToString().Trim());
-                }
-                //添加文件名
-                DataTable dtFileName = dt.Clone();
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    string oldPro = dt.Rows[i]["vcOldProj"].ToString();
-                    string newPro = dt.Rows[i]["vcNewProj"].ToString();
-                    List<string> fileName = this.fileName(oldPro, newPro);
-
-                    if (fileName.Count > 0)
-                    {
-                        for (int j = 0; j < fileName.Count; j++)
-                        {
-                            DataRow dr = dtFileName.NewRow();
-                            dr.ItemArray = dt.Rows[i].ItemArray;
-                            dr["vcFileNameTJ"] = fileName[j] + suffix;
-                            dtFileName.Rows.Add(dr);
-                        }
-                    }
-                    else
-                    {
-                        DataRow dr = dtFileName.NewRow();
-                        dr.ItemArray = dt.Rows[i].ItemArray;
-                        dtFileName.Rows.Add(dr);
-                    }
-                }
-                //排除文件名为空的项
-                DataTable dtImport = dtFileName.Clone();
-                for (int i = 0; i < dtFileName.Rows.Count; i++)
-                {
-                    if (!string.IsNullOrWhiteSpace(dtFileName.Rows[i]["vcFileNameTJ"].ToString()))
-                    {
-                        dtImport.ImportRow(dtFileName.Rows[i]);
-                    }
-                }
-                fs0201_DataAccess.transferSB(dtImport, userId);
-                //传入设变
-                return true;
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        // 获取车种
-        public string getCarType(string SPINO, string CZYD)
-        {
-            string carType = "";
-            if (SPINO.Length >= 4)
-            {
-                SPINO = SPINO.Substring(0, 4);
-                if (SPINO[3] == 'w' || SPINO[3] == 'W')
-                {
-                    carType = SPINO;
-                }
-            }
-            if (CZYD.Length >= 4)
-            {
-                CZYD = CZYD.Substring(0, 4);
-                if ((CZYD[3] == 'w' || CZYD[3] == 'W') && !CZYD.Equals(SPINO))
-                {
-                    if (!string.IsNullOrWhiteSpace(carType))
-                    {
-                        carType += "/";
-                    }
-
-                    carType += CZYD;
-                }
-            }
-            return carType;
-        }
-
-        // 获取文件名
-        public List<string> fileName(string oldPro, string newPro)
-        {
-            List<string> resList = new List<string>();
-
-            if (!string.IsNullOrWhiteSpace(oldPro) && (oldPro.Contains("WB") || oldPro.Contains("WF") || oldPro.Contains("WL") || oldPro.Contains("WD")))
-            {
-                if (oldPro.Contains("WD"))
-                {
-                    resList.Add("WB");
-                    resList.Add("WF");
-                    resList.Add("WL");
-                }
-                else
-                {
-                    if (oldPro.Contains("WB"))
-                    {
-                        resList.Add("WB");
-                    }
-                    else if (oldPro.Contains("WF"))
-                    {
-                        resList.Add("WF");
-
-                    }
-                    else if (oldPro.Contains("WL"))
-                    {
-                        resList.Add("WL");
-
-                    }
-                }
-
-            }
-            if (!string.IsNullOrWhiteSpace(newPro) && (newPro.Contains("WB") || newPro.Contains("WF") || newPro.Contains("WL") || newPro.Contains("WD")))
-            {
-                if (newPro.Contains("WD"))
-                {
-                    resList.Add("WB");
-                    resList.Add("WF");
-                    resList.Add("WL");
-                }
-                else
-                {
-
-                    if (newPro.Contains("WB"))
-                    {
-                        resList.Add("WB");
-                    }
-                    else if (newPro.Contains("WF"))
-                    {
-                        resList.Add("WF");
-
-                    }
-                    else if (newPro.Contains("WL"))
-                    {
-                        resList.Add("WL");
-
-                    }
-                }
-
-            }
-
-            resList = resList.Distinct().ToList();
-
-            return resList;
-        }
-
-        #endregion
-
-        #region 读取Excel
+        //读取Excel
         public DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, ref string RetMsg)
         {
             FileStream fs = null;
@@ -578,9 +590,7 @@ namespace Logic
                 }
             }
         }
-        #endregion
-
-        #region 创建路径
+        //创建路径
         public void CreatePath(string path)
         {
             try
@@ -596,9 +606,7 @@ namespace Logic
                 throw ex;
             }
         }
-        #endregion
-
-        #region 复制模板文件
+        //复制模板文件
         public void CopyFile(string path, string fileName)
         {
             try
@@ -615,9 +623,7 @@ namespace Logic
                 throw ex;
             }
         }
-        #endregion
-
-        #region 调用宏
+        //调用宏
         public void ChangePath(string path, string fileName)
         {
             Application app = new Application();
@@ -672,16 +678,6 @@ namespace Logic
                 }
             }
         }
-
-        #endregion
-
-        #region 清空文件夹
-
-        public void emptyFile(string path)
-        {
-
-        }
-
         #endregion
     }
 }

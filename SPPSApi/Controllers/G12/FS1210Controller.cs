@@ -203,13 +203,13 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-        #region 特殊打印
+        #region 特殊打印录入
         /// <summary>
-        /// 特殊打印
+        /// 特殊打印录入
         /// </summary>
         [HttpPost]
         [EnableCors("any")]
-        public string SearchPrintTDB()
+        public string SearchPrintTDB([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -220,12 +220,14 @@ namespace SPPSApi.Controllers.G12
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPrint = dataForm.vcPrint;
             try
             {
                 FS1209_Logic logic_1 = new FS1209_Logic();
                 string[] userPorType = null;
                 DataTable dt1 = logic_1.dllPorType(loginInfo.UserId, ref userPorType);
-                DataTable tb = logic.SearchPrintTDB("", userPorType);
+                DataTable tb = logic.SearchPrintTDB(vcPrint, userPorType);
                 List<Object> dataList = ComFunction.convertAllToResult(tb);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -262,6 +264,56 @@ namespace SPPSApi.Controllers.G12
             {
                 FS1209_Logic logic_1 = new FS1209_Logic();
                 DataTable tb = logic.searchPrintT();
+                List<Object> dataList = ComFunction.convertAllToResult(tb);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 确认单再发行
+        /// <summary>
+        /// 确认单再发行
+        /// </summary>
+        [HttpPost]
+        [EnableCors("any")]
+        public string SearchRePrintKBQR([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcKbOrderId = dataForm.vcKbOrderId;
+            string vcPlanPrintDate = dataForm.vcPlanPrintDate;
+            string vcPlanProcDate = dataForm.vcPlanProcDate;
+            string vcPrintDate = dataForm.vcPrintDate;
+            string vcGC = dataForm.vcGC;
+            string vcPlanPrintBZ = dataForm.vcPlanPrintBZ;
+            string vcPlanProcBZ = dataForm.vcPlanProcBZ;
+            vcKbOrderId = vcKbOrderId == null ? "" : vcKbOrderId;
+            vcPlanPrintDate = vcPlanPrintDate == null ? "" : vcPlanPrintDate;
+            vcPlanProcDate = vcPlanProcDate == null ? "" : vcPlanProcDate;
+            vcPrintDate = vcPrintDate == null ? "" : vcPrintDate;
+            vcGC = vcGC == null ? "" : vcGC;
+            vcPlanPrintBZ = vcPlanPrintBZ == null ? "" : vcPlanPrintBZ;
+            vcPlanProcBZ = vcPlanProcBZ == null ? "" : vcPlanProcBZ;
+            try
+            {
+                DataTable tb = logic.SearchRePrintKBQR(vcKbOrderId, vcGC, vcPlanPrintDate, vcPlanPrintBZ, vcPlanProcDate, vcPlanProcBZ, vcPrintDate);
                 List<Object> dataList = ComFunction.convertAllToResult(tb);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

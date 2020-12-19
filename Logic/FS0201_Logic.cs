@@ -252,76 +252,76 @@ namespace Logic
 
                 int State = 0;
                 string ErrorInfo = "";
-                bool PartError = false;
-                bool BJDiffError = false;
-                bool DTDiffError = false;
-                bool DTPartError = false;
-                bool PartNameError = false;
-                bool FXError = false;
-                bool FXNoError = false;
-                bool ChangeError = false;
-                bool NewProjError = false;
+                int PartError = 0;
+                int BJDiffError = 0;
+                int DTDiffError = 0;
+                int DTPartError = 0;
+                int PartNameError = 0;
+                int FXError = 0;
+                int FXNoError = 0;
+                int ChangeError = 0;
+                int NewProjError = 0;
                 List<string> errorlist = new List<string>();
                 //新旧品番都为空
                 if ((string.IsNullOrWhiteSpace(vcPart_Id_old) && string.IsNullOrWhiteSpace(vcPart_Id_new)) || (!string.IsNullOrWhiteSpace(vcPart_Id_old) && !string.IsNullOrWhiteSpace(vcPart_Id_new)))
                 {
-                    PartError = true;
+                    PartError = 1;
                     errorlist.Add("新旧品番必填一项");
                 }
                 //补给区分为空
                 if (string.IsNullOrWhiteSpace(vcBJDiff))
                 {
-                    BJDiffError = true;
+                    BJDiffError = 1;
                     errorlist.Add("补给区分必填");
 
                 }
                 //代替区分为空
                 if (string.IsNullOrWhiteSpace(vcDTDiff))
                 {
-                    DTDiffError = true;
+                    DTDiffError = 1;
                     errorlist.Add("代替区分必填");
                 }
                 //代替区分为HD/NR时代替品番为空
                 if ((vcDTDiff.Contains("HD") || vcDTDiff.Contains("NR")) && string.IsNullOrWhiteSpace(vcPart_id_DT))
                 {
-                    DTPartError = true;
+                    DTPartError = 1;
                     errorlist.Add("代替区分为HD/NR时,代替品番必填");
                 }
                 //品名为空
                 if (string.IsNullOrWhiteSpace(vcPartName))
                 {
-                    PartNameError = true;
+                    PartNameError = 1;
                     errorlist.Add("品名必填");
                 }
                 //防锈区分为空
                 if (string.IsNullOrWhiteSpace(vcFXDiff))
                 {
-                    FXError = true;
+                    FXError = 1;
                     errorlist.Add("防锈区分必填");
                 }
                 //防锈区分为R时，防锈指示书No为空
                 if (vcFXDiff.Equals("R") && string.IsNullOrWhiteSpace(vcFXNo))
                 {
-                    FXNoError = true;
+                    FXNoError = 1;
                     errorlist.Add("防锈区分为R时，防锈指示书No必填");
                 }
                 //变更事项为空
                 if (string.IsNullOrWhiteSpace(vcChange))
                 {
-                    ChangeError = true;
+                    ChangeError = 1;
                     errorlist.Add("变更事项必填");
 
                 }
                 //变更事项为新设，新工程为空
                 if ((vcChange.Contains("新設") || vcChange.Contains("新设")) && string.IsNullOrWhiteSpace(vcNewProj))
                 {
-                    NewProjError = true;
+                    NewProjError = 1;
                     errorlist.Add("变更事项为新设时，新工程必填");
                 }
                 //变更事项为新设，旧品番不为空
                 if ((vcChange.Contains("新設") || vcChange.Contains("新设")) && (!string.IsNullOrWhiteSpace(vcPart_Id_old)))
                 {
-                    PartError = true;
+                    PartError = 1;
                     errorlist.Add("变更事项为新设时，旧品番必须为空");
                 }
 

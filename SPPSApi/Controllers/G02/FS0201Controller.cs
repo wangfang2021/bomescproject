@@ -52,6 +52,17 @@ namespace SPPSApi.Controllers.G02
                 DataTable dt = fs0201_logic.searchSPI(vcSPINo, vcPart_Id, vcCarType, vcState);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("PartError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("DTDiffError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("DTPartError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("PartNameError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("FXError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("FXNoError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("ChangeError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("NewProjError", ConvertFieldType.BoolType, null);
+
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

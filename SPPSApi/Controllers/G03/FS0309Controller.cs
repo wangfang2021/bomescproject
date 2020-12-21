@@ -132,17 +132,18 @@ namespace SPPSApi.Controllers.G03
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -188,11 +189,11 @@ namespace SPPSApi.Controllers.G03
                    , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                    , strReceiver, strPriceState
                    );
-                string[] fields = { "vcChange", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver"
-                ,"vcOriginCompany"
+                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
+                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
+                ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
+                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
+                ,"vcOriginCompany_Name"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
@@ -214,7 +215,7 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
-
+        //导出列值应该显示名字
 
         #region 保存
         [HttpPost]
@@ -267,8 +268,19 @@ namespace SPPSApi.Controllers.G03
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
-                    string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
-                        { "变更事项","vcChange", "新设","1", "号旧","vcHaoJiu","1", "号口", "H" },
+                    string[,] strSpecialCheck = {
+                        //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
+                        //vcChange=1时，vcHaoJiu如果为1，如果内容列不为空(H)，则内容必须为H，如果内容为空，则对具体内容不做判断
+                        { "变更事项",
+                            "vcChange",//验证vcChange字段
+                            "新设"
+                            ,"1",//当vcChange=1时
+                            "号旧",
+                            "vcHaoJiu",//判断字段
+                            "1", //1:该字段不能为空 0:该字段必须为空
+                            "号口",
+                            "H" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                        },
                         { "变更事项","vcChange", "旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
                         { "变更事项","vcChange", "新设","1", "旧型开始","dJiuBegin","0", "空","" },
                         { "变更事项","vcChange", "新设","1", "旧型结束","dJiuEnd","0", "空","" },
@@ -348,6 +360,36 @@ namespace SPPSApi.Controllers.G03
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0903", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 获取待办任务
+        [HttpPost]
+        [EnableCors("any")]
+        public string taskApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                DataTable task = fs0309_Logic.getAllTask();
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = task.Rows.Count;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0910", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "获取待办失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

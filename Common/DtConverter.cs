@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Common
@@ -49,7 +50,7 @@ namespace Common
                 }
                 else if (convert.strFieldType == ConvertFieldType.DateType)
                 {
-                    return DateTime.Parse(rowField.ToString()).ToString(convert.strDateFormat);
+                    return DateTime.Parse(rowField.ToString()).ToString(convert.strDateFormat,DateTimeFormatInfo.InvariantInfo);
                 }
                 else
                     return rowField;

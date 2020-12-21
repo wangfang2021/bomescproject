@@ -18,24 +18,10 @@ namespace Logic
             fs0807_DataAccess = new FS0807_DataAccess();
         }
 
-        #region 绑定工区
-        public DataTable bindGQ()
-        {
-            return fs0807_DataAccess.bindGQ();
-        }
-        #endregion
-
         #region 绑定供应商
-        public DataTable bindSupplier()
+        public DataTable getAllSupplier()
         {
-            return fs0807_DataAccess.bindSupplier();
-        }
-        #endregion
-
-        #region 绑定收货方
-        public DataTable bindSHF()
-        {
-            return fs0807_DataAccess.bindSHF();
+            return fs0807_DataAccess.getAllSupplier();
         }
         #endregion
 
@@ -60,11 +46,33 @@ namespace Logic
         }
         #endregion
 
-        #region 取出所有ED品番信息
-        public DataTable GetPartsInfo()
+        #region 品番+开始时间+收货方 不能重复
+        public bool RepeatCheck(string strPart_id,string strTimeFrom,string strSHF)
         {
-            return fs0807_DataAccess.GetPartsInfo();
+            int num = fs0807_DataAccess.RepeatCheck(strPart_id,strTimeFrom,strSHF);
+            if(num>0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        #endregion
+        #endregion 
+
+        public bool DateRegionCheck(string strPart_id, string strSHF, string strTimeFrom, string strTimeTo, string strMode, string strAutoId)
+        {
+            int num = fs0807_DataAccess.DateRegionCheck(strPart_id, strSHF, strTimeFrom, strTimeTo, strMode, strAutoId);
+            if (num > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
+
 }

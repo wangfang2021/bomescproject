@@ -13,51 +13,13 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        #region 绑定工区
-        public DataTable bindGQ()
+        #region 检索所有的供应商供下拉框选择
+        public DataTable getAllSupplier()
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select '1' as vcGQ_value,'工区1' as vcGQ_text   \n");
-                strSql.Append("union  \n");
-                strSql.Append("select '2' as vcGQ_value,'工区2' as vcGQ_text  \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 绑定供应商
-        public DataTable bindSupplier()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.Append("select '1' as vcSupplier_value,'供应商1' as vcSupplier_text  \n");
-                strSql.Append("union  \n");
-                strSql.Append("select '2' as vcSupplier_value,'供应商2' as vcSupplier_text  \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 绑定收货方
-        public DataTable bindSHF()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.Append("select '1' as vcSHF_value,'收货方1' as vcSHF_text   \n");
-                strSql.Append("union  \n");
-                strSql.Append("select '2' as vcSHF_value,'收货方2' as vcSHF_text \n");
+                strSql.Append("select vcSupplier_id as vcValue,vcSupplier_id+':'+vcSupplier_name as vcName from TSupplier  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -73,11 +35,28 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TEDTZPartsNoMaster  \n");
-                strSql.Append("where isnull(vcGQ,'') like '%" + vcGQ + "%' and isnull(vcSupplier_id,'') like '%" + vcSupplier_id + "%'  \n");
-                strSql.Append("and isnull(vcSHF,'') like '%" + vcSHF + "%' and isnull(vcPart_id,'') like '%" + vcPart_id + "%'  \n");
-                strSql.Append("and isnull(vcCarType,'') like '%" + vcCarType + "%'   \n");
-                strSql.Append("and vcTimeFrom >= '" + (vcTimeFrom==""?"20010101":vcTimeFrom) + "' and vcTimeTo <= '" + (vcTimeTo==""?"20991231":vcTimeTo) + "'  \n");
+                strSql.Append("select t1.*,t3.vcName as vcSHFName,t2.vcName as vcGQName,  \n");
+                strSql.Append("t1.vcSupplier_id+':'+t4.vcSupplier_name as vcSupplier_name,'0' as vcModFlag,'0' as vcAddFlag   \n");
+                strSql.Append("from TEDTZPartsNoMaster t1  \n");
+                strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C017') t2 on t1.vcGQ=t2.vcValue  \n");
+                strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C018') t3 on t1.vcSHF=t3.vcValue  \n");
+                strSql.Append("left join (select vcSupplier_id,vcSupplier_name from TSupplier) t4 on t1.vcSupplier_id=t4.vcSupplier_id  \n");
+                strSql.Append("where 1=1  \n");
+                if (vcGQ != "" && vcGQ!=null)
+                    strSql.Append("and isnull(t1.vcGQ,'') like '%" + vcGQ + "%'   \n");
+                if(vcSupplier_id!="" && vcSupplier_id!=null)
+                    strSql.Append("and isnull(t1.vcSupplier_id,'') like '%" + vcSupplier_id + "%'  \n");
+                if(vcSHF!="" && vcSHF!=null)
+                    strSql.Append("and isnull(t1.vcSHF,'') like '%" + vcSHF + "%'   \n");
+                if(vcPart_id!="" && vcPart_id!=null)
+                    strSql.Append("and isnull(t1.vcPart_id,'') like '%" + vcPart_id + "%'  \n");
+                if(vcCarType!="" && vcCarType!=null)
+                    strSql.Append("and isnull(t1.vcCarType,'') like '%" + vcCarType + "%'   \n");
+                if (vcTimeFrom == "" || vcTimeFrom == null)
+                    vcTimeFrom = "2001/01/01";
+                if (vcTimeTo == "" || vcTimeTo == null)
+                    vcTimeTo = "2099/12/31";
+                strSql.Append("and t1.dTimeFrom >= '" +vcTimeFrom + "' and t1.dTimeTo <= '" + vcTimeTo + "'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -103,13 +82,13 @@ namespace DataAccess
                     //新增  bmodflag:true   baddflag:true
                     //修改  bmodflag:true   baddflag:false
 
-                    if (baddflag == true && bmodflag == true)
+                    if (baddflag == true)
                     {//新增
                         #region insert sql
                         sql.Append("INSERT INTO [TEDTZPartsNoMaster]  \n");
                         sql.Append("           ([vcPart_id]  \n");
-                        sql.Append("           ,[vcTimeFrom]  \n");
-                        sql.Append("           ,[vcTimeTo]  \n");
+                        sql.Append("           ,[dTimeFrom]  \n");
+                        sql.Append("           ,[dTimeTo]  \n");
                         sql.Append("           ,[vcBZPlant]  \n");
                         sql.Append("           ,[vcSHF]  \n");
                         sql.Append("           ,[vcGQ]  \n");
@@ -132,8 +111,8 @@ namespace DataAccess
                         sql.Append("           ,[dOperatorTime])  \n");
                         sql.Append("     VALUES  \n");
                         sql.Append("           ('" + listInfoData[i]["vcPart_id"].ToString() + "'  \n");
-                        sql.Append("           ,'" + listInfoData[i]["vcTimeFrom"].ToString() + "'  \n");
-                        sql.Append("           ,'" + listInfoData[i]["vcTimeTo"].ToString() + "'  \n");
+                        sql.Append("           ,'" + listInfoData[i]["dTimeFrom"].ToString() + "'  \n");
+                        sql.Append("           ,'" + listInfoData[i]["dTimeTo"].ToString() + "'  \n");
                         sql.Append("           ,'" + listInfoData[i]["vcBZPlant"].ToString() + "'  \n");
                         sql.Append("           ,'" + listInfoData[i]["vcSHF"].ToString() + "'  \n");
                         sql.Append("           ,'" + listInfoData[i]["vcGQ"].ToString() + "'  \n");
@@ -163,8 +142,8 @@ namespace DataAccess
                         sql.Append("UPDATE [TEDTZPartsNoMaster]  \n");
                         sql.Append("   SET   \n");
                         //sql.Append("     [vcPart_id]  \n");
-                        //sql.Append("     [vcTimeFrom]  \n");
-                        sql.Append("       [vcTimeTo] = '" + listInfoData[i]["vcTimeTo"].ToString() + "'  \n");
+                        //sql.Append("     [dTimeFrom]  \n");
+                        sql.Append("       [dTimeTo] = '" + listInfoData[i]["dTimeTo"].ToString() + "'  \n");
                         sql.Append("      ,[vcBZPlant] = '" + listInfoData[i]["vcBZPlant"].ToString() + "'  \n");
                         //sql.Append("     [vcSHF]  \n");
                         sql.Append("      ,[vcGQ] = '" + listInfoData[i]["vcGQ"].ToString() + "'  \n");
@@ -224,13 +203,43 @@ namespace DataAccess
         }
         #endregion
 
-        #region 取出所有ED品番信息
-        public DataTable GetPartsInfo()
+        #region 品番+开始时间+收货方 不能重复
+        public int RepeatCheck(string strPart_id, string strTimeFrom, string strSHF)
         {
-            StringBuilder sql = new StringBuilder();
-            sql.Append("select * from TEDTZPartsNoMaster  \n");
-            return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select COUNT(1) from TEDTZPartsNoMaster   \n");
+                sql.Append("where vcPart_id='" + strPart_id + "' and dTimeFrom='" + strTimeFrom + "' and vcSHF='" + strSHF + "'   \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         #endregion
+
+        public int DateRegionCheck(string strPart_id, string strSHF, string strTimeFrom, string strTimeTo,string strMode,string strAutoId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select COUNT(1) from TEDTZPartsNoMaster   \n");
+                sql.Append("where vcPart_id='" + strPart_id + "' and vcSHF='" + strSHF + "'    \n");
+                sql.Append("and (('" + strTimeFrom + "'>=dTimeFrom and '" + strTimeFrom + "'<= dTimeTo) or  \n");
+                sql.Append("('" + strTimeTo + "'>= dTimeFrom and '" + strTimeTo + "'<= dTimeTo)  )  \n");
+                if(strMode=="mod")
+                {
+                    sql.Append("and iAutoId<>'" + strAutoId + "'  \n");
+                }
+                
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

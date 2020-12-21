@@ -12,6 +12,18 @@ namespace Logic
     {
         FS0302_DataAccess fs0302_dataAccess = new FS0302_DataAccess();
 
+        public DataTable getFinishState()
+        {
+            return fs0302_dataAccess.getFinishState();
+        }
+        public DataTable getChange()
+        {
+            return fs0302_dataAccess.getChange();
+        }
 
+        public DataTable getData(string fileNameTJ)
+        {
+            return fs0302_dataAccess.getData(fileNameTJ);
+        }
     }
 }

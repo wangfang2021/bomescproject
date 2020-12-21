@@ -21,7 +21,46 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("       select *,'0' as vcModFlag,'0' as vcAddFlag from TPrice         \n");
+                strSql.Append("       select *         \n");
+                strSql.Append("       ,b.vcName as 'vcChange_Name'     \n");
+                strSql.Append("       ,b2.vcName as 'vcHaoJiu_Name'      \n");
+                strSql.Append("       ,b3.vcName as 'vcProjectType_Name'      \n");
+                strSql.Append("       ,b4.vcName as 'vcOE_Name'      \n");
+                strSql.Append("       ,b5.vcName as 'vcPriceState_Name'      \n");
+                strSql.Append("       ,b6.vcName as 'vcOriginCompany_Name'      \n");
+                strSql.Append("       ,b7.vcName as 'vcReceiver_Name'      \n");
+                strSql.Append("       ,'0' as vcModFlag,'0' as vcAddFlag     \n");
+                strSql.Append("       from TPrice a     \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C002'      \n");
+                strSql.Append("       )b on a.vcChange=b.vcValue      \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C004'      \n");
+                strSql.Append("       )b2 on a.vcHaoJiu=b2.vcValue      \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C003'      \n");
+                strSql.Append("       )b3 on a.vcProjectType=b3.vcValue      \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C012'      \n");
+                strSql.Append("       )b4 on a.vcOE=b4.vcValue      \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C013'      \n");
+                strSql.Append("       )b5 on a.vcPriceState=b5.vcValue      \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C006'      \n");
+                strSql.Append("       )b6 on a.vcOriginCompany=b6.vcValue      \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C005'      \n");
+                strSql.Append("       )b7 on a.vcReceiver=b7.vcValue      \n");
+
+
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
                 if(strChange!="")

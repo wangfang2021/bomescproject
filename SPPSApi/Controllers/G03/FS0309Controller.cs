@@ -132,16 +132,16 @@ namespace SPPSApi.Controllers.G03
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -189,11 +189,11 @@ namespace SPPSApi.Controllers.G03
                    , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                    , strReceiver, strPriceState
                    );
-                string[] fields = { "vcChange", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver"
-                ,"vcOriginCompany"
+                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
+                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
+                ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
+                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
+                ,"vcOriginCompany_Name"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
@@ -215,7 +215,7 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
-
+        //导出列值应该显示名字
 
         #region 保存
         [HttpPost]

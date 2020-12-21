@@ -63,25 +63,25 @@ namespace DataAccess
 
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
-                if(strChange!="")
+                if(strChange!=null&&strChange != "")
                     strSql.Append("       and vcChange='" + strChange + "'         \n");
-                if (strPart_id != "")
+                if (strPart_id != null && strPart_id != "")
                     strSql.Append("       and vcPart_id like '%" + strPart_id + "%'         \n");
-                if (strOriginCompany != "")
+                if (strOriginCompany != null && strOriginCompany != "")
                     strSql.Append("       and vcOriginCompany like '%" + strOriginCompany + "%'         \n");
-                if (strHaoJiu != "")
+                if (strHaoJiu != null && strHaoJiu != "")
                     strSql.Append("       and vcHaoJiu='" + strHaoJiu + "'         \n");
-                if (strProjectType != "")
+                if (strProjectType != null && strProjectType != "")
                     strSql.Append("       and vcProjectType='"+ strProjectType + "'         \n");
-                if (strPriceChangeInfo != "")
+                if (strPriceChangeInfo != null && strPriceChangeInfo != "")
                     strSql.Append("       and vcPriceChangeInfo='" + strPriceChangeInfo + "'         \n");
-                if (strCarTypeDev != "")
+                if (strCarTypeDev != null && strCarTypeDev != "")
                     strSql.Append("       and vcCarTypeDev='" + strCarTypeDev + "'         \n");
-                if (strSupplier_id != "")
+                if (strSupplier_id != null && strSupplier_id != "")
                     strSql.Append("       and vcSupplier_id='" + strSupplier_id + "'         \n");
-                if (strReceiver != "")
+                if (strReceiver != null && strReceiver != "")
                     strSql.Append("       and vcReceiver like '%" + strReceiver + "%'         \n");
-                if (strPriceState != "")
+                if (strPriceState != null && strPriceState != "")
                     strSql.Append("       and vcPriceState='" + strPriceState + "'         \n");
                 strSql.Append("     order by  vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

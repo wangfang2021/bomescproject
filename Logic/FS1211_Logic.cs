@@ -648,9 +648,9 @@ namespace Logic
             return dataAccess.getPartListCount(mon, partNo, plant, GC, KbOrderId, packdiv, PlanProductionDateFrom, PlanProductionBZFrom, PlanPackDateFrom, PlanPackBZFrom, PlanProductionDateTo, PlanProductionBZTo, PlanPackDateTo, PlanPackBZTo, PlanProductionAB, PlanPackAB);
         }
 
-        public bool deletetKanbanPrintTbl(DataTable dt)
+        public void deletetKanbanPrintTbl(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            return dataAccess.deletetKanbanPrintTbl(dt);
+            dataAccess.deletetKanbanPrintTbl(listInfoData, strUserId);
         }
     }
 }

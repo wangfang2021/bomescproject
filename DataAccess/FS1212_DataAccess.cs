@@ -103,7 +103,7 @@ namespace DataAccess
             StringBuilder strSQL = new StringBuilder();
             //增加dTimeFrom、dTimeTo两个字段 - 刘刚
             //增加品番频度 - 李兴旺
-            strSQL.AppendLine(" select substring(vcPartsNo,0, 6) + '-' + substring(vcPartsNo,6, 5) + '-' + substring(vcPartsNo,11, 2)  as vcPartsNoName,vcPartsNo,dTimeFrom,dTimeTo,vcDock,vcCarFamilyCode,vcPartsNameEN,vcPartsNameCHN,vcQFflag as qinfengtz,iQuantityPerContainer,vcQJcontainer,vcPorType as shengchanbs,vcZB as zubie,vcPartPlant as leibie,'0' as iFlag,vcPartFrequence as pinfanpindu from tPartInfoMaster");
+            strSQL.AppendLine(" select substring(vcPartsNo,0, 6) + '-' + substring(vcPartsNo,6, 5) + '-' + substring(vcPartsNo,11, 2)  as vcPartsNo,dTimeFrom,dTimeTo,vcDock,vcCarFamilyCode,vcPartsNameEN,vcPartsNameCHN,vcQFflag,iQuantityPerContainer,vcQJcontainer,vcPorType,vcZB,vcPartPlant,'0' as iFlag,vcPartFrequence,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from tPartInfoMaster");
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
                 hasWhere = applendWhereIfNeed(strSQL, hasWhere);
@@ -129,7 +129,7 @@ namespace DataAccess
                 hasWhere = applendWhereIfNeed(strSQL, hasWhere);
                 strSQL.AppendLine(" vcPartPlant like '" + vcPartPlant + "'");
             }
-            if (vcPartFrequence != "全部")//增加品番频度 - 李兴旺
+            if (vcPartFrequence != "")//增加品番频度 - 李兴旺
             {
                 hasWhere = applendWhereIfNeed(strSQL, hasWhere);
                 strSQL.AppendLine(" vcPartFrequence = '" + vcPartFrequence + "'");
@@ -188,7 +188,7 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("  select distinct [vcData1] as [Text],[vcData1] as [Value]  from [ConstMst] where [vcDataId]='ProType'");
+            strSQL.AppendLine("  select distinct [vcData1] as [vcName],[vcData1] as [Value]  from [ConstMst] where [vcDataId]='ProType'");
             return SearchPartData(strSQL.ToString());
         }
 
@@ -196,7 +196,7 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("  select distinct [vcData3] as [Text],[vcData3] as [Value]  from [ConstMst] where [vcDataId]='ProType'");
+            strSQL.AppendLine("  select distinct [vcData3] as [vcName],[vcData3] as [vcValue]  from [ConstMst] where [vcDataId]='ProType'");
             return SearchPartData(strSQL.ToString());
         }
 
@@ -204,7 +204,7 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("  select distinct [vcData1] as [Value],[vcData2] as [Text]  from [ConstMst] where [vcDataId]='KBPlant'");
+            strSQL.AppendLine("  select distinct [vcData1] as [vcValue],[vcData2] as [vcName]  from [ConstMst] where [vcDataId]='KBPlant'");
             return SearchPartData(strSQL.ToString());
         }
 
@@ -216,9 +216,9 @@ namespace DataAccess
         public DataTable dllPorType(string vcZB)
         {
             DataTable dt = new DataTable();
-            StringBuilder strSQL = new StringBuilder();
+             StringBuilder strSQL = new StringBuilder();
 
-            strSQL.AppendLine(" select distinct [vcData1] as [Text],[vcData1] as [Value]  from [ConstMst] where [vcDataId]='ProType'");
+            strSQL.AppendLine(" select distinct [vcData1] as [vcName],[vcData1] as [vcValue]  from [ConstMst] where [vcDataId]='ProType'");
             if (vcZB == "")
             {
                 strSQL.AppendLine("  union all select '' as [Text],'' as [Value]  ");
@@ -241,7 +241,7 @@ namespace DataAccess
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
 
-            strSQL.AppendLine("select distinct [vcData3] as [Text],[vcData3] as [Value]  from [ConstMst] where [vcDataId]='ProType'");
+            strSQL.AppendLine("select distinct [vcData3] as [vcName],[vcData3] as [vcValue]  from [ConstMst] where [vcDataId]='ProType'");
             if (vcPorType == "")
             {
                 strSQL.AppendLine("  union all    select '' as [Text],'' as [Value]  ");
@@ -264,7 +264,7 @@ namespace DataAccess
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
 
-            strSQL.AppendLine("select distinct vcData1 as [Value],vcData2 as [Text]  from [ConstMst] where [vcDataId]='KBPlant'");
+            strSQL.AppendLine("select distinct vcData1 as [vcValue],vcData2 as [vcName]  from [ConstMst] where [vcDataId]='KBPlant'");
             if (vcPorType == "")
             {
                 strSQL.AppendLine("  union all    select  '' as [Value],'' as [Text]  ");
@@ -292,6 +292,101 @@ namespace DataAccess
                 return false;
             }
         }
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("  update tPartInfoMaster set    \r\n");
+                        sql.Append("  vcCarFamilyCode=" + getSqlValue(listInfoData[i]["vcCarFamilyCode"], false) + "   \r\n");
+                        sql.Append("  ,vcQFflag=" + getSqlValue(listInfoData[i]["vcQFflag"], false) + "   \r\n");
+                        sql.Append("  ,vcQJcontainer=" + getSqlValue(listInfoData[i]["vcQJcontainer"], true) + "   \r\n");
+                        sql.Append("  ,vcPorType=" + getSqlValue(listInfoData[i]["vcPorType"], true) + "   \r\n");
+                        sql.Append("  ,vcZB=" + getSqlValue(listInfoData[i]["vcZB"], true) + "   \r\n");
+                        sql.Append("  ,vcUpdataUser='" + strUserId + "'   \r\n");
+                        sql.Append("  ,dUpdataTime=getdate()   \r\n");
+                        sql.Append("  ,vcPartPlant=" + getSqlValue(listInfoData[i]["vcPartPlant"], true) + "   \r\n");
+                        sql.Append("  ,vcPartFrequence=" + getSqlValue(listInfoData[i]["vcPartFrequence"], true) + "   \r\n");
+                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
+                    sql.Append("  DECLARE @errorPart varchar(50)   \r\n");
+                    sql.Append("  set @errorPart=''   \r\n");
+                    sql.Append("  set @errorPart=(   \r\n");
+                    sql.Append("  	select a.vcPart_id+';' from   \r\n");
+                    sql.Append("  	(   \r\n");
+                    sql.Append("  		select distinct a.vcPart_id from TPrice a   \r\n");
+                    sql.Append("  		left join   \r\n");
+                    sql.Append("  		(   \r\n");
+                    sql.Append("  		   select * from TPrice   \r\n");
+                    sql.Append("  		)b on a.vcPart_id=b.vcPart_id and a.iAutoId<>b.iAutoId   \r\n");
+                    sql.Append("  		   and    \r\n");
+                    sql.Append("  		   (   \r\n");
+                    sql.Append("  			   (a.dUseBegin>=b.dUseBegin and a.dUseBegin<=b.dUseEnd)   \r\n");
+                    sql.Append("  			   or   \r\n");
+                    sql.Append("  			   (a.dUseEnd>=b.dUseBegin and a.dUseEnd<=b.dUseEnd)   \r\n");
+                    sql.Append("  		   )   \r\n");
+                    sql.Append("  		where b.iAutoId is not null   \r\n");
+                    sql.Append("  	)a for xml path('')   \r\n");
+                    sql.Append("  )   \r\n");
+                    sql.Append("      \r\n");
+                    sql.Append("  if @errorPart<>''   \r\n");
+                    sql.Append("  begin   \r\n");
+                    sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
+                    sql.Append("  end    \r\n");
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete tPartInfoMaster where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
 
         /// <summary>
         /// 更新内制品品番表
@@ -691,6 +786,69 @@ namespace DataAccess
                 }
             }
         }
+
+        #region 返回insert语句值
+        /// <summary>
+        /// 返回insert语句值
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="isObject">如果insert时间、金额或者其他对象类型数据，为true</param>
+        /// <returns></returns>
+        private string getSqlValue(Object obj, bool isObject)
+        {
+            if (obj == null)
+                return "null";
+            else if (obj.ToString().Trim() == "" && isObject)
+                return "null";
+            else
+                return "'" + obj.ToString() + "'";
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+                //StringBuilder sql = new StringBuilder();
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                //    string vcPart_id = dt.Rows[i]["vcPart_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPart_id"].ToString();
+                //    string dUseBegin = dt.Rows[i]["dUseBegin"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseBegin"].ToString();
+                //    string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
+
+                //    sql.Append("  insert into TPrice set    \r\n");
+                //    sql.Append("  vcPriceChangeInfo=" + getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                //    sql.Append("  ,vcPriceGS=" + getSqlValue(dt.Rows[i]["vcPriceGS"], false) + "   \r\n");
+                //    sql.Append("  ,decPriceOrigin=" + getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+
+
+                //    //以下两个字段计算
+                //    if (dt.Rows[i]["decPriceOrigin"] == System.DBNull.Value)
+                //        sql.Append("  ,decPriceAfter=null   \r\n");
+                //    else
+                //        sql.Append("  ,decPriceAfter=" + dt.Rows[i]["decPriceOrigin"].ToString() + "*" + decPriceXS + "   \r\n");
+                //    sql.Append("  ,decPriceTNPWithTax=" + getJSSql(dt.Rows[i]["decPriceOrigin"], dt.Rows[i]["vcPriceGS"], dtGS) + "   \r\n");
+
+
+                //    sql.Append("  ,dPricebegin=" + getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
+                //    sql.Append("  ,dPriceEnd=" + getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
+                //    sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
+                //    sql.Append("  ,dOperatorTime=getdate()   \r\n");
+                //    sql.Append("  where vcPart_id='" + vcPart_id + "'  and dUseBegin='" + dUseBegin + "' and  dUseEnd='" + dUseEnd + "' ; \r\n");
+
+                //}
+                //if (sql.Length > 0)
+                //{
+                //    excute.ExcuteSqlWithStringOper(sql.ToString());
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 
 }

@@ -543,6 +543,14 @@ namespace Logic
             return dataAccess.SearchPartDataEX(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcPartPlant, vcPartFrequence);
         }
 
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            dataAccess.importSave(dt, strUserId);
+        }
+        #endregion
+
         public DataTable dllPorType()
         {           
             return dataAccess.dllPorType();
@@ -603,5 +611,20 @@ namespace Logic
         {
             return dataAccess.InUpdeOldData(dt, useid);
         }
+
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            dataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
     }
 }

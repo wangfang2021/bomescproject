@@ -504,34 +504,25 @@ namespace DataAccess
             return dt;
         }
 
-        public bool deletetKanbanPrintTbl(DataTable dt)
+        public void deletetKanbanPrintTbl(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            using (SqlConnection connection = new SqlConnection(ComConnectionHelper.GetConnectionString()))
+            try
             {
-                connection.Open();
-                SqlTransaction trans = connection.BeginTransaction();
-                try
+                StringBuilder sql = new StringBuilder();
+                sql.Append(" delete from tKanbanPrintTbl where iNo in(  ");
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string strSql = "";
-                    string iNo;
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        iNo = dt.Rows[i]["iNo"].ToString();
-                        strSql = "delete from tKanbanPrintTbl where iNo='" + iNo + "'";
-                        SqlCommand cmd = new SqlCommand();
-                        cmd.Connection = connection;
-                        cmd.Transaction = trans;
-                        cmd.CommandText = strSql;
-                        cmd.ExecuteNonQuery();
-                    }
-                    trans.Commit();
-                    return true;
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iNo"]);
+                    sql.Append(iAutoId);
                 }
-                catch (Exception ex)
-                {
-                    trans.Rollback();
-                    throw ex;
-                }
+                sql.Append("  ) ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

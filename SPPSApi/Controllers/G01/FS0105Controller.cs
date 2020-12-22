@@ -87,15 +87,11 @@ namespace SPPSApi.Controllers.G00
             {
                 DataTable dt = fs0105_Logic.Search(vcCodeId);
                 // TypeCode, TypeName, KeyCode, KeyValue, Sort, Memo
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName", "vcValue", "vcName", "vcMeaning",
-                "vcmodflag","vcaddflag"});
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcmodflag"] = row["vcmodflag"].ToString() == "1" ? true : false;
-                    row["vcaddflag"] = row["vcaddflag"].ToString() == "1" ? true : false;
-                }
+               
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -105,6 +101,54 @@ namespace SPPSApi.Controllers.G00
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0502", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcCodeId = dataForm.vcCodeId == null ? "" : dataForm.vcCodeId;
+           
+            try
+            {
+                DataTable dt = fs0105_Logic.Search(vcCodeId);
+                string[] head = new string[] { };
+                string[] field = new string[] { };
+               
+
+                head = new string[] { "常量区分代码", "常量区分名称", "Key键", "Key值", "备注" };
+                field = new string[] { "vcCodeId", "vcCodeName", "vcValue", "vcName", "vcMeaning" };
+                string msg = string.Empty;
+                //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID,ref msg);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0503", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -127,160 +171,150 @@ namespace SPPSApi.Controllers.G00
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.list;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dtmod = new DataTable();
-                //[vcCodeId] ,[vcCodeName]  ,[vcValue] ,[vcName] ,[vcMeaning]
-                dtmod.Columns.Add("vcCodeId");
-                dtmod.Columns.Add("vcCodeName");
-                dtmod.Columns.Add("vcValue");
-                dtmod.Columns.Add("vcName");
-                dtmod.Columns.Add("vcMeaning");
-               
-                DataTable dtadd = dtmod.Clone();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bmodflag = (bool)listInfoData[i]["vcmodflag"];//false可编辑,true不可编辑
-                    bool baddflag = (bool)listInfoData[i]["vcaddflag"];//false可编辑,true不可编辑
-                    if (bmodflag == false && baddflag == false)
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
                     {//新增
-                        DataRow dr = dtadd.NewRow();
-                        dr["vcCodeId"] = listInfoData[i]["vcCodeId"].ToString();
-                        dr["vcCodeName"] = listInfoData[i]["vcCodeName"].ToString();
-                        dr["vcValue"] = listInfoData[i]["vcValue"].ToString();
-                        dr["vcName"] = listInfoData[i]["vcName"].ToString();
-                        dr["vcMeaning"] = listInfoData[i]["vcMeaning"].ToString();
-                        dtadd.Rows.Add(dr);
+                        hasFind = true;
                     }
-                    else if (bmodflag == false && baddflag == true)
+                    else if (bAddFlag == false && bModFlag == true)
                     {//修改
-                        DataRow dr = dtmod.NewRow();
-                        dr["vcCodeId"] = listInfoData[i]["vcCodeId"].ToString();
-                        dr["vcCodeName"] = listInfoData[i]["vcCodeName"].ToString();
-                        dr["vcValue"] = listInfoData[i]["vcValue"].ToString();
-                        dr["vcName"] = listInfoData[i]["vcName"].ToString();
-                        dr["vcMeaning"] = listInfoData[i]["vcMeaning"].ToString();
-                        dtmod.Rows.Add(dr);
+                        hasFind = true;
                     }
                 }
-                if (dtadd.Rows.Count == 0 && dtmod.Rows.Count == 0)
+                if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //判断空
-                for (int i = 0; i < dtadd.Rows.Count; i++)
+                #region 判断新增的数据本身是否有重复的 和数据库内部关键字是否有重复的
+
+                //本身判重
+                DataTable dtadd = new DataTable();
+                //vcCodeId ,vcCodeName  ,vcValue ,vcName 
+                dtadd.Columns.Add("vcCodeId");
+                dtadd.Columns.Add("vcCodeName");
+                dtadd.Columns.Add("vcValue");
+                dtadd.Columns.Add("vcName");
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    //[vcCodeId] ,[vcCodeName]  ,[vcValue] ,[vcName] ,[vcMeaning]
-                    string strvcCodeId = dtadd.Rows[i]["vcCodeId"].ToString();
-                    string strvcCodeName = dtadd.Rows[i]["vcCodeName"].ToString();
-                    string strvcValue = dtadd.Rows[i]["vcValue"].ToString();
-                    string strvcName = dtadd.Rows[i]["vcName"].ToString();
-                    if (strvcCodeId.Length == 0 || strvcCodeName.Length == 0 | strvcValue.Length == 0 | strvcName.Length == 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "新增的数据常量区分代码、常量区分名称、Key键、Key值都不能为空,请确认！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    if (listInfoData[i]["vcAddFlag"].ToString().ToLower() == "true") {
+                        DataRow dr = dtadd.NewRow();
+                        dr["vcCodeId"] = listInfoData[i]["vcCodeId"].ToString();
+                        dr["vcCodeName"] = listInfoData[i]["vcCodeName"].ToString();
+                        dr["vcValue"] = listInfoData[i]["vcValue"].ToString();
+                        dr["vcName"] = listInfoData[i]["vcName"].ToString();
+                        dtadd.Rows.Add(dr);
                     }
                 }
-                for (int i = 0; i < dtmod.Rows.Count; i++)
-                {
-                    //[vcCodeId] ,[vcCodeName]  ,[vcValue] ,[vcName] ,[vcMeaning]
-                    
-                    string strvcName = dtadd.Rows[i]["vcName"].ToString();
-                    if ( strvcName.Length == 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "修改的数据Key值不能为空,请确认！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-                //验证 是否有重复 数据
-                string[] columnArray = { "vcCodeId", "vcValue" };
-                if (dtadd.Rows.Count>0)
-                {
-                    DataView dtaddView = dtadd.DefaultView;
-                    DataTable dtaddNew = dtaddView.ToTable(true, columnArray);
-                    if (dtadd.Rows.Count != dtaddNew.Rows.Count)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "新增数据中有重复数据,请确认！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-                //if (dtmod.Rows.Count>0)
-                //{
-                //    DataView dtmodView = dtmod.DefaultView;
-                //    DataTable dtmodNew = dtmodView.ToTable(true, columnArray);
-                //    if (dtmod.Rows.Count != dtmodNew.Rows.Count)
-                //    {
-                //        apiResult.code = ComConstant.ERROR_CODE;
-                //        apiResult.data = "编辑的数据中在数据库中有重复数据,请确认！";
-                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //    }
-                //}
-                //DataTable dtHuiZong= dtadd.Clone();//
-                //if (dtadd.Rows.Count>0)
-                //{
-                //    dtHuiZong.Merge(dtadd);
-                //}
-                //if (dtmod.Rows.Count > 0)
-                //{
-                //    dtHuiZong.Merge(dtmod);
-                //}
                 
-                //DataView dtAllView = dtHuiZong.DefaultView;
-                //DataTable dtAllNew = dtAllView.ToTable(true, columnArray);
-                //if(dtadd.Rows.Count+dtmod.Rows.Count!=dtAllNew.Rows.Count)
-                //{
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = "保存数据中新增和编辑有重复数据,请确认！";
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //}
-                //验证新增的里面是否有重复数据
-                
-                if (dtadd.Rows.Count>0)
+                if (dtadd.Rows.Count > 0)
                 {
-                    
-                    Boolean isExistAddData = fs0105_Logic.isExistAddData(dtadd);
-                    if (isExistAddData)
+                    if(dtadd.Rows.Count>1)
+                    { 
+                        for (int i = 0; i < dtadd.Rows.Count; i++)
+                        {
+                            for (int j = i + 1; j < dtadd.Rows.Count; j++)
+                            {
+                                if (dtadd.Rows[i]["vcCodeId"].ToString() == dtadd.Rows[j]["vcCodeId"].ToString() &&
+                                    dtadd.Rows[i]["vcValue"].ToString() == dtadd.Rows[j]["vcValue"].ToString())
+                                {
+                                    apiResult.code = ComConstant.ERROR_CODE;
+                                    apiResult.data = "常量区代码" + dtadd.Rows[i]["vcCodeId"].ToString() + "、Key键" + dtadd.Rows[i]["vcValue"].ToString() + "存在重复项，请确认！";
+                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                }
+                            }
+                        }
+                    }
+                    #region
+                    //string[] columnArray = { "vcCodeId", "vcValue" };
+                    //DataView dtaddView = dtadd.DefaultView;
+                    //DataTable dtaddNew = dtaddView.ToTable(true, columnArray);
+                    //if (dtadd.Rows.Count != dtaddNew.Rows.Count)
+                    //{
+                    //    apiResult.code = ComConstant.ERROR_CODE;
+                    //    apiResult.data = "新增数据中有重复数据,请确认！";
+                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    //}
+                    #endregion
+                    //数据库验证  true  存在重复项
+                    DataTable dt = fs0105_Logic.CheckDistinctByTable(dtadd);
+                    if (dt.Rows.Count>0)
                     {
+                        string errMsg = string.Empty;
+                        for (int i=0;i<dt.Rows.Count;i++)
+                        {
+                            errMsg += "常量区代码" + dt.Rows[i]["vcCodeId"].ToString() + "、Key键" + dt.Rows[i]["vcValue"].ToString() + ",";
+                        }
+                        errMsg.Substring(0, errMsg.LastIndexOf(","));
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "新增的数据已存在数据库中,请确认！";
+                        apiResult.data = errMsg + "存在重复项，请确认！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                //验证修改的里面是否有重复数据
-                //if (dtmod.Rows.Count>0)
-                //{
-                //    Boolean isExistModData = fs0105_Logic.isExistModData(dtmod);
-                //    if (isExistModData)
-                //    {
-                //        apiResult.code = ComConstant.ERROR_CODE;
-                //        apiResult.data = "编辑的数据中在数据库中有重复数据,请确认！";
-                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //    }
-                //}
-                
-                fs0105_Logic.Save(dtadd, dtmod, loginInfo.UserId);
+
+                #endregion
+                //开始数据验证
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{"常量区分代码","常量区分名称","Key键","Key值"},
+                                                {"vcCodeId","vcCodeName","vcValue","vcName"},
+                                                {"","","","" },
+                                                {"50","100","40","200"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    //需要判断时间区间先后关系的字段
+                    string[,] strDateRegion = {  };
+                    string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
+                        
+                    };
+
+
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0105");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                string strErrorPartId = "";
+                fs0105_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败，以下常量区分代码和Key键区间存在重叠：<br/>" + strErrorPartId;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0503", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
+
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string deleteApi([FromBody] dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -295,38 +329,27 @@ namespace SPPSApi.Controllers.G00
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dtdel = new DataTable();
-                dtdel.Columns.Add("vcCodeId");
-                dtdel.Columns.Add("vcValue");
-              
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    DataRow dr = dtdel.NewRow();
-                    dr["vcCodeId"] = checkedInfoData[i]["vcCodeId"].ToString();
-                    dr["vcValue"] = checkedInfoData[i]["vcValue"].ToString();
-                    dtdel.Rows.Add(dr);
-
-                }
-                if (dtdel.Rows.Count == 0)
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0105_Logic.Del(dtdel, loginInfo.UserId);
+                fs0105_Logic.Del(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0903", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
+
     }
 }

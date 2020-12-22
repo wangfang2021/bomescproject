@@ -34,9 +34,9 @@ namespace Logic
             return fs0606_DataAccess.isExistModData(dtamod);
         }
 
-        public void Save(DataTable dtadd, DataTable dtmod, string userId)
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            fs0606_DataAccess.Save(dtadd, dtmod,userId);
+            fs0606_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
 
         public void Del(DataTable dtdel, string userId)
@@ -46,6 +46,16 @@ namespace Logic
         public void allInstall(DateTime dBeginDate, DateTime dEndDate, string userId)
         {
             fs0606_DataAccess.allInstall(dBeginDate, dEndDate, userId);
+        }
+
+        public DataTable CheckDistinctByTable(DataTable dtadd)
+        {
+            return fs0606_DataAccess.CheckDistinctByTable(dtadd);
+        }
+
+        public void importSave(DataTable importDt, string userId)
+        {
+            fs0606_DataAccess.importSave(importDt, userId);
         }
     }
 }

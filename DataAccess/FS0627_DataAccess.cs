@@ -43,29 +43,114 @@ namespace DataAccess
             }
         }
         /// <summary>
+        /// 绑定发注工厂
+        /// </summary>
+        /// <returns></returns>
+        public DataTable bindInjectionFactoryApi()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select iFZGC as vcCodeId, iFZGC as vcCodeName from ");
+                strSql.AppendLine("  ( ");
+                strSql.AppendLine("  select distinct iFZGC as iFZGC from SP_M_SITEM ");
+                strSql.AppendLine("  ) S ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// 检索数据
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataSet Search(string vcInjectionFactory, string vcProject, string vcTargetYear)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select iAutoId, vcSupplier_id, vcWorkArea, convert(varchar(20), dBeginDate,111) as dBeginDate, convert(varchar(20), dEndDate,111) as dEndDate, '1' as vcmodflag,'1' as vcaddflag, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier]    ");
-
-                if (vcSupplier_id.Length > 0)
+                strSql.AppendLine("   select A.*,  ");
+                strSql.AppendLine("   ([1月]+[2月]+[3月]+[4月]+[5月]+[6月]+[7月]+[8月]+[9月]+[10月]+[11月]+[12月]) as '合计'  ");
+                strSql.AppendLine("   from (  ");
+                strSql.AppendLine("   select * from [dbo].[VI_MonthSellDataManager] where 1=1  ");
+                if (vcTargetYear.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and vcYear='"+ vcTargetYear + "'    ");
                 }
-                if (vcWorkArea.Length > 0)
+                if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                    strSql.AppendLine("  and vcInjectionFactory='" + vcInjectionFactory + "'    ");
                 }
+                if (vcProject.Length > 0)
+                {
+                    strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
+                }
+                strSql.AppendLine("   union all   ");
+                strSql.AppendLine("  select '合计' as vcInjectionFactory,'' as vcSupplier_id,'' as vcYear,  ");
+                strSql.AppendLine("  sum([1月]) as [1月], sum([2月]) as [2月], sum([3月]) as [3月],  ");
+                strSql.AppendLine("  sum([4月]) as [4月], sum([5月]) as [5月], sum([6月]) as [6月],  ");
+                strSql.AppendLine("  sum([7月]) as [7月], sum([8月]) as [8月], sum([9月]) as [9月],  ");
+                strSql.AppendLine("  sum([10月]) as [10月],sum([11月]) as [11月], sum([12月]) as [12月]  ");
+                strSql.AppendLine("  from [dbo].[VI_MonthSellDataManager] where 1=1  ");
+                if (vcTargetYear.Length > 0)
+                {
+                    strSql.AppendLine("  and vcYear='" + vcTargetYear + "'    ");
+                }
+                if (vcInjectionFactory.Length > 0)
+                {
+                    strSql.AppendLine("  and vcInjectionFactory='" + vcInjectionFactory + "'    ");
+                }
+                if (vcProject.Length > 0)
+                {
+                    strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
+                }
+                strSql.AppendLine("  ) A  ");
+                strSql.AppendLine("  ;  ");
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                strSql.AppendLine("   select A.*,  ");
+                strSql.AppendLine("   ([1月]+[2月]+[3月]+[4月]+[5月]+[6月]+[7月]+[8月]+[9月]+[10月]+[11月]+[12月]) as '合计'  ");
+                strSql.AppendLine("   from (  ");
+                strSql.AppendLine("   select * from [dbo].[VI_MonthSellMoneyManager] where 1=1  ");
+                if (vcTargetYear.Length > 0)
+                {
+                    strSql.AppendLine("  and vcYear='" + vcTargetYear + "'    ");
+                }
+                if (vcInjectionFactory.Length > 0)
+                {
+                    strSql.AppendLine("  and vcInjectionFactory='" + vcInjectionFactory + "'    ");
+                }
+                if (vcProject.Length > 0)
+                {
+                    strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
+                }
+                strSql.AppendLine("   union all   ");
+                strSql.AppendLine("  select '合计' as vcInjectionFactory,'' as vcSupplier_id,'' as vcYear,  ");
+                strSql.AppendLine("  sum([1月]) as [1月], sum([2月]) as [2月], sum([3月]) as [3月],  ");
+                strSql.AppendLine("  sum([4月]) as [4月], sum([5月]) as [5月], sum([6月]) as [6月],  ");
+                strSql.AppendLine("  sum([7月]) as [7月], sum([8月]) as [8月], sum([9月]) as [9月],  ");
+                strSql.AppendLine("  sum([10月]) as [10月],sum([11月]) as [11月], sum([12月]) as [12月]  ");
+                strSql.AppendLine("  from [dbo].[VI_MonthSellMoneyManager] where 1=1  ");
+                if (vcTargetYear.Length > 0)
+                {
+                    strSql.AppendLine("  and vcYear='" + vcTargetYear + "'    ");
+                }
+                if (vcInjectionFactory.Length > 0)
+                {
+                    strSql.AppendLine("  and vcInjectionFactory='" + vcInjectionFactory + "'    ");
+                }
+                if (vcProject.Length > 0)
+                {
+                    strSql.AppendLine("  and vcSupplier_id='" + vcProject + "'    ");
+                }
+                strSql.AppendLine("  ) A  ");
+                strSql.AppendLine("  ;  ");
+                return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }
             catch (Exception ex)
             {

@@ -28,25 +28,20 @@ namespace Logic
         {
             return fs0105_DataAccess.Search(typeCode);
         }
-
-        public bool isExistAddData(DataTable dtadd)
+   
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            return fs0105_DataAccess.isExistAddData(dtadd);
+            fs0105_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
 
-        public bool isExistModData(DataTable dtamod)
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            return fs0105_DataAccess.isExistModData(dtamod);
+            fs0105_DataAccess.Del(listInfoData, userId);
         }
 
-        public void Save(DataTable dtadd, DataTable dtmod, string userId)
+        public DataTable CheckDistinctByTable(DataTable dtadd)
         {
-            fs0105_DataAccess.Save(dtadd, dtmod,userId);
-        }
-
-        public void Del(DataTable dtdel, string userId)
-        {
-            fs0105_DataAccess.Del(dtdel,userId);
+            return fs0105_DataAccess.CheckDistinctByTable(dtadd);
         }
     }
 }

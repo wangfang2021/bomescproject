@@ -33,10 +33,10 @@ namespace SPPSApi.Controllers.G06
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 绑定 收货方
+        #region 绑定 发注工厂
         [HttpPost]
         [EnableCors("any")]
-        public string bindConsignee()
+        public string bindInjectionFactoryApi()
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -49,7 +49,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = fs0626_Logic.BindConsignee();
+                DataTable dt = fs0626_Logic.bindInjectionFactory();
                 List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -57,41 +57,9 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2101", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2601", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定收货方列表失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region 绑定内外
-        [HttpPost]
-        [EnableCors("any")]
-        public string bindInsideOutsideType()
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                DataTable dt = fs0626_Logic.BindInsideOutsideType();
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2102", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定内外列表失败";
+                apiResult.data = "绑定发注工厂列表失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -112,26 +80,34 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
-            string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
+        //vcInjectionFactory: "",
+        //  vcTargetMonth: "",
+        //  vcSupplier_id: "",
+        //  vcWorkArea: "",
+        //  vcDock: "",
+        //  vcOrderNo: "",
+        //  vcPartNo: "",
+        //  vcReceiveFlag: ""
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
-            string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
+            string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
             string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
-            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
+            string vcDock = dataForm.vcDock == null ? "" : dataForm.vcDock;
+            string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
+            string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
+            string vcReceiveFlag = dataForm.vcReceiveFlag == null ? "" : dataForm.vcReceiveFlag;
             try
             {
-                DataTable dt = fs0626_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+                DataTable dt = fs0626_Logic.Search(vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
                 // "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType",
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "iAutoId","vcDock","vcCarType", "dBeginDate", "dEndDate", 
-                "vcmodflag","vcaddflag"});
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcmodflag"] = row["vcmodflag"].ToString() == "1" ? true : false;
-                    row["vcaddflag"] = row["vcaddflag"].ToString() == "1" ? true : false;
-                }
+               
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcExpectRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+                dtConverter.addField("vcRealRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+               
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -145,7 +121,53 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
+            string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
+            string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
+            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
+            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+            string vcDock = dataForm.vcDock == null ? "" : dataForm.vcDock;
+            string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
+            string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
+            string vcReceiveFlag = dataForm.vcReceiveFlag == null ? "" : dataForm.vcReceiveFlag;
+            try
+            {
+                DataTable dt = fs0626_Logic.Search(vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
+                string[] fields = { "vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
+                                    "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason",
+                                    "vcExpectRedeemDate", "vcRealRedeemDate"
+                };
+
+                string RetMsg = "";
+                //string filepath = ComFunction.DataTableToExcel(headers, fields, dt, _webHostEnvironment.ContentRootPath, "000000", "test", ref RetMsg);
+                string filepath = "test_导出信息.xlsx";
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2602", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }
 

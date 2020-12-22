@@ -41,6 +41,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" and a.dCreateTime<'" + vcTimeTo + "' ");
                 }
+                strSql.AppendLine(" order by dCreateTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

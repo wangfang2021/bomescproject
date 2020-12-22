@@ -42,26 +42,50 @@ namespace DataAccess
                 throw ex;
             }
         }
-        /// <summary>
-        /// 检索数据
-        /// </summary>
-        /// <param name="typeCode"></param>
-        /// <returns></returns>
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+
+        public DataTable Search(string vcInjectionFactory, string vcTargetMonth, string vcSupplier_id, string vcWorkArea, string vcDock, string vcOrderNo, string vcPartNo, string vcReceiveFlag)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select iAutoId, vcSupplier_id, vcWorkArea, convert(varchar(20), dBeginDate,111) as dBeginDate, convert(varchar(20), dEndDate,111) as dEndDate, '1' as vcmodflag,'1' as vcaddflag, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier]    ");
+                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea], [vcDock],    ");
+                strSql.AppendLine("  [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber], [vcNoReceiveNumber], [vcNoReceiveReason],   ");
+                strSql.AppendLine("  [vcExpectRedeemDate], [vcRealRedeemDate], [vcReceiveFlag], [vcOperatorID], [dOperatorTime],1 as vcFlag    ");
+                strSql.AppendLine("  from [dbo].[TOutsidePurchaseManage] where 1=1   ");
+                strSql.AppendLine("     ");
 
+                if (vcInjectionFactory.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcInjectionFactory = '" + vcInjectionFactory + "' ");
+                }
+                if (vcTargetMonth.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcTargetMonth = '" + vcTargetMonth.Replace("-","") + "' ");
+                }
                 if (vcSupplier_id.Length > 0)
                 {
                     strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                    strSql.AppendLine("  and  vcWorkArea like '%" + vcWorkArea + "%' ");
+                }
+                if (vcDock.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcDock like '%" + vcDock + "%' ");
+                }
+                if (vcOrderNo.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcOrderNo like '%" + vcOrderNo + "%' ");
+                }
+                if (vcPartNo.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcPartNo like '%" + vcPartNo + "%' ");
+                }
+                if (vcReceiveFlag.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcReceiveFlag = '" + vcReceiveFlag + "' ");
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
@@ -72,6 +96,25 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable bindInjectionFactory()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select iFZGC as vcCodeId, iFZGC as vcCodeName from ");
+                strSql.AppendLine("  ( ");
+                strSql.AppendLine("  select distinct iFZGC as iFZGC from TOutsidePurchaseManage ");
+                strSql.AppendLine("  ) S ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 删除数据
         /// </summary>

@@ -33,10 +33,10 @@ namespace SPPSApi.Controllers.G06
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 绑定 收货方
+        #region 绑定 发注工厂直接从表中数据
         [HttpPost]
         [EnableCors("any")]
-        public string bindConsignee()
+        public string bindInjectionFactoryApi()
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -49,7 +49,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = fs0627_Logic.BindConsignee();
+                DataTable dt = fs0627_Logic.bindInjectionFactoryApi();
                 List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -112,33 +112,28 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
-            string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
-            string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
-            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
+            string vcProject = dataForm.vcProject == null ? "" : dataForm.vcProject;
+            string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
             try
             {
-                DataTable dt = fs0627_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+                DataSet ds = fs0627_Logic.Search(vcInjectionFactory, vcProject, vcTargetYear);
+                DataTable dtNum = ds.Tables[0];
+                DataTable dtMonty = ds.Tables[1];
                 // "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType",
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "iAutoId","vcDock","vcCarType", "dBeginDate", "dEndDate", 
-                "vcmodflag","vcaddflag"});
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["vcmodflag"] = row["vcmodflag"].ToString() == "1" ? true : false;
-                    row["vcaddflag"] = row["vcaddflag"].ToString() == "1" ? true : false;
-                }
+                List<Object> dataListNum = ComFunction.convertAllToResult(dtNum);
+                List<Object> dataListMoney = ComFunction.convertAllToResult(dtMonty);
+                var obbject = new object[] {
+                    new { listNum=dataListNum},
+                    new { listMoney=dataListMoney}
+                };
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = obbject;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2103", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2703", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -53,20 +53,6 @@ namespace Logic
         }
         #endregion
 
-        #region 取得关系表中所有大品目
-        public DataTable GetBigPM()
-        {
-            return fs0810_DataAccess.GetBigPM();
-        }
-        #endregion
-
-        #region 取得关系表中所有小品目
-        public DataTable GetSmallPM()
-        {
-            return fs0810_DataAccess.GetSmallPM();
-        }
-        #endregion
-
         #region 删除_品目
         public void Del_pm(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
@@ -102,13 +88,42 @@ namespace Logic
         }
         #endregion
 
-        #region 取得品目信息维护表中信息
-        public DataTable GetPMSmall()
+        #region 受入号+品番前5位+包材品番 不能重复
+        public bool RepeatCheck(string vcSR, string vcPartsNoBefore5, string vcBCPartsNo)
         {
-            return fs0810_DataAccess.GetPMSmall();
+            int num = fs0810_DataAccess.RepeatCheck(vcSR, vcPartsNoBefore5, vcBCPartsNo);
+            if (num > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion 
+
+        #region 小品目 不能重复
+        public bool RepeatCheckSmall(string vcSmallPM,string strMode,string strAutoId)
+        {
+            int num = fs0810_DataAccess.RepeatCheckSmall(vcSmallPM, strMode, strAutoId);
+            if (num > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion 
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0810_DataAccess.importSave(dt, strUserId);
         }
         #endregion
-
 
     }
 }

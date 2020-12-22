@@ -22,9 +22,13 @@ namespace DataAccess
                 strSql.Append("select t1.iAutoId,t1.vcSR,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t1.vcSmallPM,t2.vcBigPM,'0' as vcModFlag,'0' as vcAddFlag  \n");
                 strSql.Append("from TPMSmall t1  \n");
                 strSql.Append("left join TPMRelation t2 on t1.vcSmallPM=t2.vcSmallPM  \n");
-                strSql.Append("where ISNULL(t1.vcSmallPM,'') like '%" + smallpm + "%'  \n");
-                strSql.Append("and ISNULL(t1.vcSR,'') like '%" + sr + "%'  \n");
-                strSql.Append("and ISNULL(t1.vcPartsNoBefore5,'') like '%" + pfbefore5 + "%'  \n");
+                strSql.Append("where 1=1  \n");
+                if (smallpm != "" && smallpm != null)
+                    strSql.Append("and ISNULL(t1.vcSmallPM,'') like '%" + smallpm + "%'  \n");
+                if (sr != "" && sr != null)
+                    strSql.Append("and ISNULL(t1.vcSR,'') like '%" + sr + "%'  \n");
+                if (pfbefore5 != "" && pfbefore5 != null)
+                    strSql.Append("and ISNULL(t1.vcPartsNoBefore5,'') like '%" + pfbefore5 + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -44,6 +48,7 @@ namespace DataAccess
                 {
                     bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+
                     string strSR = listInfoData[i]["vcSR"].ToString();
                     string strPartsNoBefore5 = listInfoData[i]["vcPartsNoBefore5"].ToString();
                     string strBCPartsNo = listInfoData[i]["vcBCPartsNo"].ToString();
@@ -54,15 +59,16 @@ namespace DataAccess
                     //新增  bmodflag:true   baddflag:true
                     //修改  bmodflag:true   baddflag:false
 
-                    if (baddflag == true && bmodflag == true)
+                    if (baddflag == true)
                     {//新增
-                        sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM) values   \n");
-                        sql.Append("('" + strPartsNoBefore5 + "','" + strSR + "','" + strBCPartsNo + "','" + strSmallPM + "')  \n");
+                        sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM,vcOperatorID,dOperatorTime) values   \n");
+                        sql.Append("('" + strPartsNoBefore5 + "','" + strSR + "','" + strBCPartsNo + "','" + strSmallPM + "','" + strUserId + "',getdate())  \n");
                     }
                     else if (baddflag == false && bmodflag == true)
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "' where iAutoId=" + iAutoId + "   \n");
+                        sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "',vcOperatorID='" + strUserId + "',dOperatorTime=getdate() " +
+                            "where iAutoId=" + iAutoId + "   \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -107,8 +113,11 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcBigPM as vcBigPM_init,vcSmallPM as vcSmallPM_init  \n");
-                strSql.Append("from TPMRelation   \n");
-                strSql.Append("where isnull(vcBigPM,'') like '%" + bigpm + "%' and isnull(vcSmallPM,'') like '%" + smallpm + "%'  \n");
+                strSql.Append("from TPMRelation where 1=1  \n");
+                if(smallpm!="" && smallpm!=null)
+                    strSql.Append("and isnull(vcSmallPM,'') like '%" + smallpm + "%'  \n");
+                if(bigpm!="" && bigpm!=null)
+                    strSql.Append("and isnull(vcBigPM,'') like '%" + bigpm + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -150,40 +159,6 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
-            }
-        }
-        #endregion
-
-        #region 取得关系表中所有大品目
-        public DataTable GetBigPM()
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select distinct vcBigPM from TPMRelation  \n");
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-        }
-        #endregion
-
-        #region 取得关系表中所有小品目
-        public DataTable GetSmallPM()
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select distinct vcSmallPM from TPMRelation  \n");
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-
-                throw;
             }
         }
         #endregion
@@ -304,20 +279,76 @@ namespace DataAccess
         }
         #endregion
 
-
-        #region 取得品目信息维护表中信息
-        public DataTable GetPMSmall()
+        #region 受入号+品番前5位+包材品番 不能重复
+        public int RepeatCheck(string vcSR, string vcPartsNoBefore5, string vcBCPartsNo)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select distinct vcPartsNoBefore5,vcSR,vcBCPartsNo from TPMSmall   \n");
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                sql.Append("select COUNT(1) from TPMSmall   \n");
+                sql.Append("where vcSR='" + vcSR + "' and vcPartsNoBefore5='" + vcPartsNoBefore5 + "' and vcBCPartsNo='" + vcBCPartsNo + "'   \n");
+                return excute.ExecuteScalar(sql.ToString());
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+        #endregion
 
-                throw;
+        #region 小品目 不能重复
+        public int RepeatCheckSmall(string vcSmallPM, string strMode, string strAutoId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select COUNT(1) from TPMSmall where vcSmallPM='" + vcSmallPM + "'  \n");
+                if (strMode == "mod")
+                {
+                    sql.Append("and iAutoId!=" + strAutoId + "  \n");
+                }
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM [TPMRelation_Temp] where vcOperatorID='" + strUserId + "' \n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql.Append("INSERT INTO [TPMRelation_Temp] \n");
+                    sql.Append("           ([vcBigPM] \n");
+                    sql.Append("           ,[vcSmallPM] \n");
+                    sql.Append("           ,[vcOperatorID] \n");
+                    sql.Append("           ,[dOperatorTime]) \n");
+                    sql.Append("     VALUES \n");
+                    sql.Append("           ('" + dt.Rows[i]["vcBigPM"].ToString() + "' \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSmallPM"].ToString() + "' \n");
+                    sql.Append("           ,'" + strUserId + "' \n");
+                    sql.Append("           ,getdate()) \n");
+                }
+                sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM,vcOperatorID,dOperatorTime) \n");
+                sql.Append("select t1.vcBigPM,t1.vcSmallPM,t1.vcOperatorID,t1.dOperatorTime from TPMRelation_Temp t1 \n");
+                sql.Append("left join TPMRelation t2 on t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM \n");
+                sql.Append("where t2.vcBigPM is null \n");
+
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

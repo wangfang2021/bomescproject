@@ -77,7 +77,7 @@ namespace SPPSApi.Controllers.G06
 
             FS0602_DataEntity searchForm = new FS0602_DataEntity();
 
-            searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+            searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
             searchForm.varDyzt = dataForm.varDyzt == null ? "" : dataForm.varDyzt;
             searchForm.varHyzt = dataForm.varHyzt == null ? "" : dataForm.varHyzt;
             searchForm.PARTSNO = dataForm.PARTSNO == null ? "" : dataForm.PARTSNO;
@@ -147,7 +147,7 @@ namespace SPPSApi.Controllers.G06
 
                 FS0602_DataEntity searchForm = new FS0602_DataEntity();
 
-                searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+                searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
                 searchForm.varDyzt = dataForm.varDyzt == null ? "" : dataForm.varDyzt;
                 searchForm.varHyzt = dataForm.varHyzt == null ? "" : dataForm.varHyzt;
                 searchForm.PARTSNO = dataForm.PARTSNO == null ? "" : dataForm.PARTSNO;
@@ -216,7 +216,7 @@ namespace SPPSApi.Controllers.G06
 
                 FS0602_DataEntity searchForm = new FS0602_DataEntity();
 
-                searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+                searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
                 searchForm.varDyzt = dataForm.varDyzt == null ? "" : dataForm.varDyzt;
                 searchForm.varHyzt = dataForm.varHyzt == null ? "" : dataForm.varHyzt;
                 searchForm.PARTSNO = dataForm.PARTSNO == null ? "" : dataForm.PARTSNO;
@@ -284,7 +284,7 @@ namespace SPPSApi.Controllers.G06
 
                 FS0602_DataEntity searchForm = new FS0602_DataEntity();
 
-                searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+                searchForm.varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
                 
                 int count = fs0602_Logic.thns(searchForm);
 

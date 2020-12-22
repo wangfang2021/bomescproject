@@ -74,7 +74,7 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string varDxny = dataForm.varDxny==null?"": Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+            string varDxny = dataForm.varDxny==null?"": Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
             string varDyzt = dataForm.varDyzt==null?"": dataForm.varDyzt;
             string varHyzt = dataForm.varHyzt==null?"": dataForm.varHyzt;
             string PARTSNO = dataForm.PARTSNO == null ? "" : dataForm.PARTSNO;
@@ -116,7 +116,7 @@ namespace SPPSApi.Controllers.G04
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-                string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+                string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
                 string varDyzt = dataForm.varDyzt == null ? "" : dataForm.varDyzt;
                 string varHyzt = dataForm.varHyzt == null ? "" : dataForm.varHyzt;
                 string PARTSNO = dataForm.PARTSNO == null ? "" : dataForm.PARTSNO;

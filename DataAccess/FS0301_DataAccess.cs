@@ -16,11 +16,11 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT iAutoId,'0' as vcModFlag,vcFileNameTJ,case iState WHEN 0 THEN '未开封' WHEN 1 THEN '已开封' WHEN 2 THEN '已完成' END AS State ,vcRemark,dOperatorTime FROM TSBFile \r\n");
+                sbr.Append(" SELECT iAutoId,'0' as vcModFlag,vcFileNameTJ,case vcState WHEN 0 THEN '未开封' WHEN 1 THEN '已开封' WHEN 2 THEN '已完成' END AS State ,vcRemark,dOperatorTime FROM TSBFile \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
                 if (!string.IsNullOrWhiteSpace(iState))
                 {
-                    sbr.Append(" AND iState = '" + iState + "' \r\n");
+                    sbr.Append(" AND vcState = '" + iState + "' \r\n");
                 }
                 if (!string.IsNullOrWhiteSpace(dOperatorTime))
                 {
@@ -40,7 +40,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append("UPDATE TSBFile SET iState = 1 WHERE iState = 0 AND vcFileNameTJ = '" + fileName + "' \r\n");
+                sbr.Append("UPDATE TSBFile SET vcState = 1 WHERE vcState = 0 AND vcFileNameTJ = '" + fileName + "' \r\n");
                 excute.ExcuteSqlWithStringOper(sbr.ToString());
             }
             catch (Exception ex)

@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 using Common;
 using DataAccess;
@@ -20,7 +22,7 @@ namespace Logic
         FS0201_DataAccess fs0201_DataAccess = new FS0201_DataAccess();
 
         #region 检索SPI
-        public DataTable searchSPI(string vcSPINO, string vcPart_Id, string vcCarType, string vcState)
+        public DataTable searchSPI(string vcSPINO, string vcPart_Id, string vcCarType, string State)
         {
             DataTable dt = fs0201_DataAccess.searchSPI(vcSPINO, vcPart_Id, vcCarType);
             if (dt.Rows.Count > 0)
@@ -28,7 +30,19 @@ namespace Logic
                 dt = RulesCheck(dt);
             }
 
+            if (!string.IsNullOrWhiteSpace(State))
+            {
+                DataRow[] dr = dt.Select("State = '" + State + "'");
+                if (dr.Length > 0)
+                {
+                    DataTable res = dr.CopyToDataTable();
+                    return res;
+                }
+                return new DataTable();
+            }
+
             return dt;
+
         }
         #endregion
 
@@ -216,9 +230,9 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            fs0201_DataAccess.saveSPI(listInfoData, strUserId);
+            fs0201_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
 
@@ -352,22 +366,42 @@ namespace Logic
         }
         #endregion
 
-        #region 上传SPI
-        //上传
-        public void AddSPI(string path, string userId)
+        #region 导入
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0201_DataAccess.importSave(dt, strUserId);
+        }
+        #endregion
+
+        #region SPI导入
+
+        public void importSPI(string fileSavePath, string strUserId, ref string reMsg)
         {
             try
             {
-                string fileName = "Result.xlsm";
-                CreatePath(path);
-                CopyFile(path, fileName);
-                ChangePath(path, fileName);
-                CreateList(path, fileName);
+                //获取路径下文件名
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
 
-                //TODO 记录上传列表
+                string fileName = "Result_" + System.Guid.NewGuid().ToString("N") + ".xlsm";
+                string pLocalFilePath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0201.xlsm";//要复制的文件路径
+                string pSaveFilePath = fileSavePath + Path.DirectorySeparatorChar + fileName;//指定存储的路径
+                //复制模板文件
+                if (File.Exists(pLocalFilePath))//必须判断要复制的文件是否存在
+                {
+                    File.Copy(pLocalFilePath, pSaveFilePath, true);//三个参数分别是源文件路径，存储路径，若存储路径有相同文件是否替换
+                }
 
+                CreateList(fileSavePath, fileName);
 
-                string reMsg = "";
+                //TODO 复制该文件夹至远程服务器
+
+                //
+
+                //TODO 将已上传文件名存储至lock表
+
+                //
                 string[,] header =
                 {
                     {
@@ -385,26 +419,39 @@ namespace Logic
                     {"1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}
                 };
                 DataTable dt = new DataTable();
-                dt = ExcelToDataTable(path + Path.DirectorySeparatorChar + fileName, "list", header, ref reMsg);
+                dt = ExcelToDataTable(fileSavePath + Path.DirectorySeparatorChar + fileName, "list", header, ref reMsg);
                 if (dt.Rows.Count > 0)
                 {
-                    fs0201_DataAccess.addSPI(dt, userId);
+                    fs0201_DataAccess.importSPI(dt, strUserId);
                 }
                 else
                 {
                     reMsg = "没有需要导入的数据。";
                 }
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-            finally
-            {
 
-            }
         }
-        //读取Excel
+
+        #endregion
+
+        #endregion
+
+        #region 上传SPI
+
+        #region 导入
+        /// <summary>
+        /// 导入标准Excel，第一行为列头
+        /// </summary>
+        /// <param name="FileFullName">文件完整路径</param>
+        /// <param name="sheetName">指定sheet页名称，如未匹配则默认选择第一个sheet</param>
+        /// <param name="Header">5个数组,第一个为文件中列头，第二个为对应DataTable列头，第三个对应校验数据类型，第四个为最大长度限定（为0不校验），第五个为最小长度限定（为0不校验）</param>
+        /// <param name="RetMsg">返回信息</param>
+        /// <returns></returns>
         public DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, ref string RetMsg)
         {
             FileStream fs = null;
@@ -412,7 +459,6 @@ namespace Logic
             ISheet sheet = null;
             List<int> index = new List<int>();
             DataTable data = new DataTable();
-
             RetMsg = "";
             int startRow = 4;
 
@@ -440,7 +486,7 @@ namespace Logic
 
                 if (sheet != null)
                 {
-                    IRow firstRow = sheet.GetRow(4);
+                    IRow firstRow = sheet.GetRow(startRow);
                     int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
 
                     //对应索引
@@ -476,11 +522,10 @@ namespace Logic
                     }
 
                     //获取数据首尾行
-                    startRow = startRow + 1;
                     int rowCount = sheet.LastRowNum;
 
                     //读取数据
-                    for (int i = startRow; i <= rowCount; ++i)
+                    for (int i = startRow + 1; i <= rowCount; ++i)
                     {
                         IRow row = sheet.GetRow(i);
                         if (row == null) continue; //没有数据的行默认是null　　　　　　　
@@ -491,10 +536,10 @@ namespace Logic
                             ICell cell = row.GetCell(index[j]);
                             if (cell != null) //同理，没有数据的单元格都默认是null
                             {
+
                                 if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
                                 {
-                                    dataRow[j] = cell.DateCellValue.ToString();
-                                    ;
+                                    dataRow[j] = DateTime.FromOADate(cell.NumericCellValue);
                                 }
                                 else
                                 {
@@ -533,98 +578,41 @@ namespace Logic
                             return null;
                         }
 
-                        switch (Header[2, j])
-                        {
-                            case "decimal":
-                                if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDecimal(dr[Header[1, j]].ToString()))
-                                {
-                                    RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
-                                    return null;
-                                }
-
-                                break;
-                            case "d":
-                                if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDate(dr[Header[1, j]].ToString()))
-                                {
-                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
-                                    return null;
-                                }
-
-                                break;
-                            case "ym":
-                                if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckYearMonth(dr[Header[1, j]].ToString()))
-                                {
-                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
-                                    return null;
-                                }
-
-                                break;
-                            default:
-                                if (Header[2, j].Length > 0 && Regex.Match(dr[Header[1, j]].ToString(), Header[2, j],
-                                    RegexOptions.None).Success)
-                                {
-                                    RetMsg = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
-                                    return null;
-                                }
-
-                                break;
-                        }
                     }
                 }
 
 
                 #endregion
 
+                if (workbook != null)
+                {
+                    workbook.Close();
+                }
+                if (fs != null)
+                {
+                    fs.Close();
+                    fs.Dispose();
+                }
                 return data;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception: " + ex.Message);
-                return null;
-            }
-            finally
-            {
+                if (workbook != null)
+                {
+                    workbook.Close();
+                }
                 if (fs != null)
                 {
                     fs.Close();
+                    fs.Dispose();
                 }
+                return null;
             }
         }
-        //创建路径
-        public void CreatePath(string path)
-        {
-            try
-            {
-                if (Directory.GetFiles(path).Length == 0)
-                {
-                    DirectoryInfo di = new DirectoryInfo(path);
-                    di.Create();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        //复制模板文件
-        public void CopyFile(string path, string fileName)
-        {
-            try
-            {
-                string pLocalFilePath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0201.xlsm";//要复制的文件路径
-                string pSaveFilePath = path + Path.DirectorySeparatorChar + fileName;//指定存储的路径
-                if (File.Exists(pLocalFilePath))//必须判断要复制的文件是否存在
-                {
-                    File.Copy(pLocalFilePath, pSaveFilePath, true);//三个参数分别是源文件路径，存储路径，若存储路径有相同文件是否替换
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        #endregion
+
         //调用宏
-        public void ChangePath(string path, string fileName)
+        public void CreateList(string path, string fileName)
         {
             Application app = new Application();
             app.Visible = false;
@@ -634,34 +622,8 @@ namespace Logic
             {
                 object objRtn = new object();
                 ComFunction.RunExcelMacro(app, "getPath", new Object[] { path }, out objRtn);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (wb != null)
-                {
-                    wb.Save();
-                    Marshal.ReleaseComObject(wb);
-                    app.Quit();
-                    Marshal.ReleaseComObject(app);
-
-                }
-            }
-        }
-        public void CreateList(string path, string fileName)
-        {
-            Application app = new Application();
-            app.Visible = false;
-            string filePath = path + Path.DirectorySeparatorChar + fileName;
-
-            Workbook wb = app.Workbooks.Open(filePath);
-            try
-            {
-                object objRtn = new object();
                 ComFunction.RunExcelMacro(app, "MakeList", new Object[] { }, out objRtn);
+                wb.Close(true);
             }
             catch (Exception ex)
             {
@@ -670,14 +632,15 @@ namespace Logic
             finally
             {
                 if (wb != null)
-                {
-                    wb.Save();
                     Marshal.ReleaseComObject(wb);
-                    app.Quit();
-                    Marshal.ReleaseComObject(app);
-                }
+                app.Quit();
+                Marshal.ReleaseComObject(app);
             }
+
         }
+
+
         #endregion
+
     }
 }

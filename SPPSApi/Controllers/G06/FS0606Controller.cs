@@ -87,6 +87,8 @@ namespace SPPSApi.Controllers.G06
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dBeginDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dEndDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -304,26 +306,14 @@ namespace SPPSApi.Controllers.G06
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dtdel = new DataTable();
-                dtdel.Columns.Add("vcSupplier_id");
-                dtdel.Columns.Add("vcWorkArea");
-
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    DataRow dr = dtdel.NewRow();
-                    dr["vcSupplier_id"] = checkedInfoData[i]["vcSupplier_id"].ToString();
-                    dr["vcWorkArea"] = checkedInfoData[i]["vcWorkArea"].ToString();
-                    dtdel.Rows.Add(dr);
-
-                }
-                if (dtdel.Rows.Count == 0)
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0606_Logic.Del(dtdel, loginInfo.UserId);
+                fs0606_Logic.Del(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -354,18 +344,26 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string dBeginDate = dataForm.dBeginDate == null ? "" : dataForm.dBeginDate;
-            string dEndDate = dataForm.dEndDate == null ? "" : dataForm.dEndDate;
+            JArray listInfo = dataForm.parentFormSelectItem.multipleSelection;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            string dBeginDate = dataForm.allInstallForm.dBeginDate == null ? "" : dataForm.allInstallForm.dBeginDate;
+            string dEndDate = dataForm.allInstallForm.dEndDate == null ? "" : dataForm.allInstallForm.dEndDate;
             try
             {
-                if (dataForm.length==0|| dBeginDate.Length == 0)
+                if (dBeginDate.Length==0|| dEndDate.Length == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "一括赋予开始日、结束日都不能为空,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                if (listInfoData.Count==0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一条数据,进行一括赋予，请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
-                fs0606_Logic.allInstall (Convert.ToDateTime(dBeginDate), Convert.ToDateTime(dEndDate), loginInfo.UserId);
+                fs0606_Logic.allInstall (listInfoData,Convert.ToDateTime(dBeginDate), Convert.ToDateTime(dEndDate), loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

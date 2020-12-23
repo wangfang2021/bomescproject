@@ -67,7 +67,7 @@ namespace DataAccess
                     strSql.AppendLine("     ");
                     strSql.AppendLine("  if @isExist>0   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		update TSpecialPartNo set dBeginDate = " + dBeginDate + ",dEndDate=" + dEndDate + ",  ");
+                    strSql.AppendLine("  		update TSpecialPartNo set dBeginDate = '" + dBeginDate + "',dEndDate='" + dEndDate + "',  ");
                     strSql.AppendLine("  		vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE() where vcPartNo='" + vcPartNo + "' ;  ");
                     strSql.AppendLine("  end   ");
                     strSql.AppendLine("  else   ");
@@ -75,7 +75,7 @@ namespace DataAccess
                     strSql.AppendLine("  		insert into dbo.TSpecialPartNo (vcPartNo, dBeginDate, dEndDate,");
                     strSql.AppendLine("  		 vcOperatorID, dOperatorTime )    ");
                     strSql.AppendLine("  		values   ");
-                    strSql.AppendLine("  		('" + vcPartNo + "'," + dBeginDate + "," + dEndDate + ",'" + strUserId + "',GETDATE()) ;   ");
+                    strSql.AppendLine("  		('" + vcPartNo + "','" + dBeginDate + "','" + dEndDate + "','" + strUserId + "',GETDATE()) ;   ");
                     strSql.AppendLine("  end ;  ");
                     strSql.AppendLine("     ");
 
@@ -124,7 +124,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select vcPartNo, dBeginDate,  dEndDate, '0' as vcModFlag,'0' as vcAddFlag from [dbo].[TSpecialPartNo]   ");
+                strSql.AppendLine("   select iAutoId,vcPartNo, dBeginDate,  dEndDate, '0' as vcModFlag,'0' as vcAddFlag from [dbo].[TSpecialPartNo] where 1=1   ");
 
                 if (vcPartNo.Length > 0)
                 {
@@ -144,19 +144,25 @@ namespace DataAccess
         /// </summary>
         /// <param name="dtdel"></param>
         /// <param name="userId"></param>
-        public void Del(DataTable dtdel, string userId)
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            StringBuilder sql = new StringBuilder();
-            for (int i = 0; i < dtdel.Rows.Count; i++)
+            try
             {
-                DataRow dr = dtdel.Rows[i];
-                sql.Append("delete from [TSpecialPartNo]   \n");
-                sql.Append("where vcPartNo='" + dr["vcPartNo"].ToString() + "'  \n");
-
-            }
-            if (sql.Length > 0)
-            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete [TSpecialPartNo] where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         /// <summary>
@@ -226,17 +232,22 @@ namespace DataAccess
         /// 一括赋予
         /// </summary>
         /// <returns></returns>
-        public void allInstall(DateTime dBeginDate,DateTime dEndDate,string userId) {
+        public void allInstall(List<Dictionary<string, object>> listInfoData, DateTime dBeginDate,DateTime dEndDate,string userId) {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 
-                sql.Append("update TSpecialPartNo set dBeginDate='" + dBeginDate + "', dEndDate='" + dEndDate + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
+                sql.Append("update TSpecialPartNo set dBeginDate='" + dBeginDate + "', dEndDate='" + dEndDate + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
 
-                if (sql.Length > 0)
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
                 }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {

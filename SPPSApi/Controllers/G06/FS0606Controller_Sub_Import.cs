@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番", "开始日", "结束日 "},
+                string[,] headers = new string[,] {{"品番", "开始日", "结束日"},
                                                 { "vcPartNo", "dBeginDate", "dEndDate"},
                                                 {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date},
                                                 {"12","0","0"},//最大长度设定,不校验最大长度用0

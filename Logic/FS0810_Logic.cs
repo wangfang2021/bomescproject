@@ -67,13 +67,6 @@ namespace Logic
         }
         #endregion
 
-        #region 大品目、基准时间是否重复，返回true存在，false不存在
-        public DataTable GetStandardTime()
-        {
-            return fs0810_DataAccess.GetStandardTime();
-        }
-        #endregion
-
         #region 保存_基准时间
         public void Save_Standardtime(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -122,6 +115,28 @@ namespace Logic
         public void importSave(DataTable dt, string strUserId)
         {
             fs0810_DataAccess.importSave(dt, strUserId);
+        }
+        #endregion
+
+        #region 大品目 不能重复
+        public bool RepeatCheckStandardTime(string vcBigPM)
+        {
+            int num = fs0810_DataAccess.RepeatCheckStandardTime(vcBigPM);
+            if (num > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion 
+
+        #region 导入后保存-基准时间
+        public void importSave_StandardTime(DataTable dt, string strUserId)
+        {
+            fs0810_DataAccess.importSave_StandardTime(dt, strUserId);
         }
         #endregion
 

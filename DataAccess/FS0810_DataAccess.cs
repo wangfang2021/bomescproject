@@ -204,22 +204,6 @@ namespace DataAccess
         }
         #endregion
 
-        #region 取得大品目和基准时间关系
-        public DataTable GetStandardTime()
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select distinct vcBigPM from TPMStandardTime  \n");
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
         #region 保存_品目
         public void Save_Standardtime(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -339,7 +323,68 @@ namespace DataAccess
                 sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM,vcOperatorID,dOperatorTime) \n");
                 sql.Append("select t1.vcBigPM,t1.vcSmallPM,t1.vcOperatorID,t1.dOperatorTime from TPMRelation_Temp t1 \n");
                 sql.Append("left join TPMRelation t2 on t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM \n");
-                sql.Append("where t2.vcBigPM is null \n");
+                sql.Append("where t2.iAutoId is null and t1.vcOperatorID='"+strUserId+"' \n");
+
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 大品目 不能重复
+        public int RepeatCheckStandardTime(string vcBigPM)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select COUNT(1) from TPMStandardTime where vcBigPM='" + vcBigPM + "'  \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入后保存-基准时间
+        public void importSave_StandardTime(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM [TPMStandardTime_Temp] where vcOperatorID='" + strUserId + "' \n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql.Append("INSERT INTO [TPMStandardTime_Temp] \n");
+                    sql.Append("           ([vcBigPM] \n");
+                    sql.Append("           ,[vcStandardTime] \n");
+                    sql.Append("           ,[vcOperatorID] \n");
+                    sql.Append("           ,[dOperatorTime]) \n");
+                    sql.Append("     VALUES \n");
+                    sql.Append("           ('" + dt.Rows[i]["vcBigPM"].ToString() + "' \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcStandardTime"].ToString() + "' \n");
+                    sql.Append("           ,'" + strUserId + "' \n");
+                    sql.Append("           ,getdate()) \n");
+                }
+                sql.Append("insert into TPMStandardTime (vcBigPM,vcStandardTime,vcOperatorID,dOperatorTime)  \n");
+                sql.Append("select t1.vcBigPM,t1.vcStandardTime,t1.vcOperatorID,t1.dOperatorTime from TPMStandardTime_Temp t1  \n");
+                sql.Append("left join TPMStandardTime t2 on t1.vcBigPM=t2.vcBigPM  \n");
+                sql.Append("where t2.iAutoId is null and t1.vcOperatorID='"+strUserId+"'  \n");
+              
+                sql.Append("update t2 set t2.vcStandardTime=t1.vcStandardTime,  \n");
+                sql.Append("t2.vcOperatorID=t1.vcOperatorID,t2.dOperatorTime=t1.dOperatorTime  \n");
+                sql.Append("from  \n");
+                sql.Append("(select * from TPMStandardTime_Temp) t1  \n");
+                sql.Append("left join TPMStandardTime t2 on t1.vcBigPM=t2.vcBigPM  \n");
+                sql.Append("where t2.iAutoId is not null and t1.vcStandardTime!=t2.vcStandardTime  \n");
+                sql.Append("and t1.vcOperatorID='"+strUserId+"'  \n");
 
                 if (sql.Length > 0)
                 {

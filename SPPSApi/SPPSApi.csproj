@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Doc\Import\FS0201\**" />
+    <Content Remove="Doc\Import\FS0201\**" />
+    <EmbeddedResource Remove="Doc\Import\FS0201\**" />
+    <None Remove="Doc\Import\FS0201\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Doc\Import\No.1_000GF9MDL.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT07.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT11.xlsx" />
@@ -40,8 +47,8 @@
 
   <ItemGroup>
     <Folder Include="Controllers\G08\" />
-    <Folder Include="Doc\Import\FS0201\" />
     <Folder Include="Doc\Export\" />
+    <Folder Include="Doc\Import\" />
   </ItemGroup>
 
 

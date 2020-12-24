@@ -19,6 +19,10 @@ using System.Net.Http.Headers;
 using System.Web;
 using DataAccess;
 using System.Collections;
+using System;
+using System.Linq;
+using System.Text;
+
 
 namespace Logic
 {
@@ -31,11 +35,24 @@ namespace Logic
             return dataAccess.dt_GetSearch(ddlpro, ddlgroup);
         }
 
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            dataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
         public DataTable bindProType()
         {
             return dataAccess.bindProType();
         }
-
 
         public DataTable bindZB()
         {

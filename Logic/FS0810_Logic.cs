@@ -140,5 +140,12 @@ namespace Logic
         }
         #endregion
 
+        #region 导入后保存
+        public void importSave_Sub(DataTable dt, string strUserId)
+        {
+            fs0810_DataAccess.importSave_Sub(dt, strUserId);
+        }
+        #endregion
+
     }
 }

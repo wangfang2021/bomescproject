@@ -27,19 +27,19 @@ namespace DataAccess
 
         public DataTable GetDataName()
         {
-            string ssql = "select ' ' as vcDataName union all select distinct vcDataName from ConstMst";
+            string ssql = "select '' as vcValue,'' as vcName union all select distinct vcDataId,vcDataName from ConstMst";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 
         public DataTable GetSearchAll(string strDataName, string data1, string data2, string data3)
         {
-            string ssql = " select vcDataId,vcDataName,vcData1,vcData2,vcData3,vcData4,vcData5,vcData6,vcData7,vcData8,vcData9,vcData10,'0'as iflag,iAutoId ";
+            string ssql = " select vcDataId,vcDataName,vcData1,vcData2,vcData3,vcData4,vcData5,vcData6,vcData7,vcData8,vcData9,vcData10,'0'as iflag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId ";
             ssql += " from ConstMst";
             ssql += " where 1=1   ";
 
             if (data1.Trim() != "")
             {
-                ssql += " and  vcData1='" + data1 + "'   ";
+                ssql += " and vcData1='" + data1 + "'   ";
             }
             if (data2.Trim() != "")
             {
@@ -48,12 +48,12 @@ namespace DataAccess
             }
             if (data3.Trim() != "")
             {
-                ssql += " and  vcData3='" + data3 + "'   ";
+                ssql += " and vcData3='" + data3 + "'   ";
             }
-            if (strDataName == " ")
+            if (strDataName == "")
             {
                 ssql = "";
-                ssql += " select * from (select TOP 100 PERCENT vcDataId,vcDataName,vcData1,vcData2,vcData3,vcData4,vcData5,vcData6,vcData7,vcData8,vcData9,vcData10,'0'as iflag,iAutoId ";
+                ssql += " select * from (select TOP 100 PERCENT vcDataId,vcDataName,vcData1,vcData2,vcData3,vcData4,vcData5,vcData6,vcData7,vcData8,vcData9,vcData10,'0'as iflag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId ";
                 ssql += " from ConstMst";
                 ssql += " where ( vcDataName = '厂家联系人' or vcDataName = '车种' ) ";
 
@@ -73,7 +73,7 @@ namespace DataAccess
 
                 ssql += " order by vcDataName,vcData3) as table1";
                 ssql += " union all";
-                ssql += " select * from (select TOP 100 PERCENT vcDataId,vcDataName,vcData1,vcData2,vcData3,vcData4,vcData5,vcData6,vcData7,vcData8,vcData9,vcData10,'0'as iflag,iAutoId ";
+                ssql += " select * from (select TOP 100 PERCENT vcDataId,vcDataName,vcData1,vcData2,vcData3,vcData4,vcData5,vcData6,vcData7,vcData8,vcData9,vcData10,'0'as iflag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId ";
                 ssql += " from ConstMst ";
                 ssql += " where ( vcDataName != '厂家联系人' and vcDataName != '车种' )";
 
@@ -112,11 +112,6 @@ namespace DataAccess
             return dt;
         }
 
-        public DataTable SearchDataName()
-        {
-            string ssql = " select ' ' as vcDataName union all select distinct vcDataName from ConstMst ";
-            return excute.ExcuteSqlWithSelectToDT(ssql);
-        }
         public string UpdateTable(DataTable dt, string user)
         {
             string msg = "";

@@ -20,7 +20,8 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster  \n");
-                strSql.Append("where isnull(vcBoxNo,'') like '%" + vcBox_id + "%' \n");
+                if(vcBox_id!="" & vcBox_id!=null)
+                    strSql.Append("where isnull(vcBoxNo,'') like '%" + vcBox_id + "%' \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

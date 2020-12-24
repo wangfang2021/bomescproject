@@ -122,5 +122,13 @@ namespace Logic
             return fs0309_DataAccess.getAllTask();
         }
         #endregion
+
+
+        #region 测试10万
+        public DataTable test10W()
+        {
+            return fs0309_DataAccess.test10W();
+        }
+        #endregion
     }
 }

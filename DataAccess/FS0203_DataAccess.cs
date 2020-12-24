@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索上传列表
-        public DataTable searchHistory(int flag, string UploadTime)
+        public DataTable searchApi(int flag, string UploadTime)
         {
             string TableName = flag == 0 ? "TPartHistory" : "TSPIHistory";
             StringBuilder sbr = new StringBuilder();
@@ -34,13 +34,11 @@ namespace DataAccess
 
         #endregion
 
-        #region 添加部品表，并记录上传历史
-        public void addPartList(string path, string fileName, string userId)
+        #region 添加部品表
+        public void importPartList(List<Hashtable> list, string fileName, string userId)
         {
             try
             {
-                List<Hashtable> list = GetPartFromFile(path + fileName);
-
                 StringBuilder sbr = new StringBuilder();
 
                 for (int i = 0; i < list.Count; i++)

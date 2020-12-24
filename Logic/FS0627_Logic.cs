@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataSet Search(string vcInjectionFactory, string vcProject, string vcTargetYear)
         {
-            return fs0627_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+            return fs0627_DataAccess.Search(vcInjectionFactory, vcProject, vcTargetYear);
         }
 
         public bool isExistAddData(DataTable dtadd)
@@ -39,9 +39,9 @@ namespace Logic
             throw new NotImplementedException();
         }
 
-        public DataTable BindConsignee()
+        public DataTable bindInjectionFactoryApi()
         {
-            throw new NotImplementedException();
+            return fs0627_DataAccess.bindInjectionFactoryApi();
         }
     }
 }

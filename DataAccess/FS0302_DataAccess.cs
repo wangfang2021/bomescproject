@@ -36,7 +36,7 @@ namespace DataAccess
                 sbr.Append(" a.vcNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName  \r\n");
                 sbr.Append(" FROM \r\n");
                 sbr.Append(" ( \r\n");
-                sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcUnit,vcDiff,vcCarType,iTHChange, \r\n");
+                sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcOriginCompany,vcDiff,vcCarType,vcTHChange, \r\n");
                 sbr.Append(" vcRemark,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff, \r\n");
                 sbr.Append(" vcFXNo,vcOldProj,vcOldProjTime,vcNewProj,vcNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName \r\n");
                 sbr.Append(" FROM TSBManager WHERE vcFileNameTJ = '" + fileNameTJ + "' \r\n");
@@ -52,11 +52,11 @@ namespace DataAccess
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C015' \r\n");
-                sbr.Append(" ) d ON a.iTHChange = d.vcValue \r\n");
+                sbr.Append(" ) d ON a.vcTHChange = d.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
-                sbr.Append(" ) e ON a.vcUnit = e.vcValue \r\n");
+                sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

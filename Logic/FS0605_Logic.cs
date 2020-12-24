@@ -34,14 +34,23 @@ namespace Logic
             return fs0605_DataAccess.isExistModData(dtamod);
         }
 
-        public void Save(DataTable dtadd, DataTable dtmod, string userId)
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            fs0605_DataAccess.Save(dtadd, dtmod,userId);
+            fs0605_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
 
-        public void Del(DataTable dtdel, string userId)
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            fs0605_DataAccess.Del(dtdel,userId);
+            fs0605_DataAccess.Del(listInfoData, userId);
+        }
+        public DataTable CheckDistinctByTable(DataTable dtadd)
+        {
+            return fs0605_DataAccess.CheckDistinctByTable(dtadd);
+        }
+
+        public void importSave(DataTable importDt, string userId)
+        {
+            fs0605_DataAccess.importSave(importDt, userId);
         }
     }
 }

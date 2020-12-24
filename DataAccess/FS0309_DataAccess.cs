@@ -483,5 +483,21 @@ namespace DataAccess
         }
         #endregion
 
+
+        #region 测试10万
+        public DataTable test10W()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      select top 100 '0' as selected,vcPart_Id,vcPartName,vcSupplier_Id,vccnName,iPackIngqtYout from TestABC      \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

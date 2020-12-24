@@ -160,7 +160,7 @@ namespace SPPSApi.Controllers.G08
                 };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
-                if (strMsg == "")
+                if (strMsg != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strMsg;
@@ -242,7 +242,7 @@ namespace SPPSApi.Controllers.G08
                          "0","0","0","0","0","0"},//最小长度设定,可以为空用0
                         {"1","2","3","4","5","6","7",
                          "8","9","10","11","12","13","14",
-                         "15","16","17","18","19","20"},//前台显示列号，从0开始计算,注意有选择框的是0
+                         "15","16","17","18","20","21"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dTimeFrom", "dTimeTo" } };

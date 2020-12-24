@@ -25,9 +25,10 @@ namespace SPPSApi.Controllers.G02
         {
             _webHostEnvironment = webHostEnvironment;
         }
+
         [HttpPost]
         [EnableCors("any")]
-        public string searchHistory([FromBody]dynamic data)
+        public string searchApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -44,7 +45,7 @@ namespace SPPSApi.Controllers.G02
             string UploadTime = dataForm.uploadDate == null ? "" : dataForm.uploadDate;
             try
             {
-                DataTable dt = fs0203_logic.searchHistory(flag, UploadTime);
+                DataTable dt = fs0203_logic.searchApi(flag, UploadTime);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy-MM-dd");
 
@@ -62,38 +63,51 @@ namespace SPPSApi.Controllers.G02
             }
         }
 
-
+        #region 导出
         [HttpPost]
         [EnableCors("any")]
-        public string AddPart([FromBody] dynamic data)
+        public string exportApi([FromBody] dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
                 return error_login();
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
-
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string path = @"D:\";
-            string fileName = "test.txt";
+            int flag = dataForm.fileType;
+            string UploadTime = dataForm.uploadDate == null ? "" : dataForm.uploadDate;
             try
             {
-                fs0203_logic.addPartList(path, fileName, "123");
-                return null;
+                DataTable dt = fs0203_logic.searchApi(flag, UploadTime);
+                string resMsg = "";
+                string[] head = { "文件名", "上传人", "上传时间" };
+                string[] fields = { "vcFileName", "vcOperatorID", "dOperatorTime" };
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0302", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导入失败";
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        #endregion
+
 
     }
 }

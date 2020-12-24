@@ -148,7 +148,9 @@ namespace DataAccess
                 }
 
                 fileList = fileList.Distinct().ToList();
-                //匹配原单位
+
+                //TODO
+                ////匹配原单位
                 string list = "";
                 foreach (string fileName in fileList)
                 {
@@ -160,7 +162,7 @@ namespace DataAccess
                     list = list + "'" + fileName + "'";
                 }
                 sbr.Length = 0;
-                sbr.Append(" UPDATE TSBManager SET vcDiff = b.vcDiff,vcUnit = b.vcUnit \r\n");
+                sbr.Append(" UPDATE TSBManager SET vcDiff = b.vcDiff,vcOriginCompany = b.vcOriginCompany \r\n");
                 sbr.Append(" from TSBManager a  \r\n");
                 sbr.Append(" LEFT JOIN TUnit B ON a.vcPart_Id_old = b.vcPart_id OR a.vcPart_Id_new = b.vcPart_id \r\n");
                 sbr.Append(" WHERE a.vcFileNameTJ IN (" + list + ") \r\n");

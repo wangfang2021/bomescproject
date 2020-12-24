@@ -16,27 +16,27 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G08
 {
-    [Route("api/FS0812/[action]")]
+    [Route("api/FS0810_Sub_StandardTime/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0812Controller : BaseController
+    public class FS0810Controller_Sub_StandardTime : BaseController
     {
-        FS0812_Logic fs0812_Logic = new FS0812_Logic();
-        private readonly string FunctionID = "FS0812";
-
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FS0812Controller(IWebHostEnvironment webHostEnvironment)
+        FS0810_Logic fs0810_Logic = new FS0810_Logic();
+        private readonly string FunctionID = "FS0810";
+
+        public FS0810Controller_Sub_StandardTime(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
 
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]
-        public string searchApi([FromBody]dynamic data)
+        public string searchApi([FromBody] dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -46,17 +46,15 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
+            string vcBigPM = dataForm.vcBigPM;
+            string vcStandardTime = dataForm.vcStandardTime;
 
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id);
-
+                DataTable dt = fs0810_Logic.Search_StandardTime(vcBigPM, vcStandardTime);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dBZTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
-                dtConverter.addField("dZXTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -65,9 +63,9 @@ namespace SPPSApi.Controllers.G08
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1005", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "检索基准时间失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -87,15 +85,13 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
-
+            string vcBigPM = dataForm.vcBigPM;
+            string vcStandardTime = dataForm.vcStandardTime;
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id);
-                string[] heads = { "状态", "箱号", "入库指示书号", "品番", "订单号", "连番号", "数量",
-                "包装时间","包装者","装箱时间","装箱者"};
-                string[] fields = { "vcStatus", "vcBoxNo", "vcInstructionNo", "vcPart_id", "vcOrderNo", "vcLianFanNo", "iQuantity",
-                "dBZTime","dBZID","dZXTime","dZXID"};
+                DataTable dt = fs0810_Logic.Search_StandardTime(vcBigPM, vcStandardTime);
+                string[] heads = {"大品目", "基准时间(秒)" };
+                string[] fields = { "vcBigPM", "vcStandardTime" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -110,9 +106,9 @@ namespace SPPSApi.Controllers.G08
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1002", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
+                apiResult.data = "导出基准时间失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -160,17 +156,14 @@ namespace SPPSApi.Controllers.G08
                 //开始数据验证
                 if (hasFind)
                 {
-                    #region 数据格式校验
-                    string[,] strField = new string[,]
-                    {
-                        {"数量"},//中文字段名
-                        {"iQuantity"},//英文字段名
-                        {FieldCheck.Num},//数据类型校验
-                        {"0"},//最大长度设定,不校验最大长度用0
-                        {"1"},//最小长度设定,可以为空用0
-                        {"7"},//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"大品目","基准时间(秒)"},
+                                                {"vcBigPM","vcStandardTime"},
+                                                {"",""},
+                                                {"25","25"},//最大长度设定,不校验最大长度用0
+                                                {"1","1"},//最小长度设定,可以为空用0
+                                                {"1","2"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0812");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0810_Sub_StandardTime");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -178,18 +171,38 @@ namespace SPPSApi.Controllers.G08
                         apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    #endregion                    
+                    #region 与DB交互校验
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                        bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                        string vcBigPM = listInfoData[i]["vcBigPM"].ToString();
+                        
+                        if (bAddFlag == true)
+                        {//新增
+                            //校验：大品目不能重复
+                            bool isRepeat = fs0810_Logic.RepeatCheckStandardTime(vcBigPM);
+                            if (isRepeat)
+                            {//有重复数据  
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = string.Format("保存失败，大品目不能重复：{0}", vcBigPM);
+                                apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                    }
+                    #endregion
                 }
-                fs0812_Logic.Save(listInfoData, loginInfo.UserId);
+                fs0810_Logic.Save_Standardtime(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1007", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "保存基准时间失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -213,26 +226,27 @@ namespace SPPSApi.Controllers.G08
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (checkedInfoData.Count == 0)
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0812_Logic.Del(checkedInfoData, loginInfo.UserId);
+                fs0810_Logic.Del_Standardtime(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1008", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "删除基准时间失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
+
     }
 }

@@ -22,7 +22,22 @@ namespace DataAccess
                 sbr.Append(" vcFXDiff,vcFXNo,vcChange,vcOldProj,vcOldProjTime,vcNewProj, ");
                 sbr.Append(" vcNewProjTime,vcCZYD,dHandleTime,vcSheetName, ");
                 sbr.Append(" vcFileName,'0' as vcModFlag,'0' as vcAddFlag FROM TSPIList ");
-                sbr.Append("  WHERE vcSPINo LIKE '" + vcSPINO + "%' AND (vcPart_Id_old LIKE '" + vcPart_Id + "%' OR vcPart_Id_new LIKE '" + vcPart_Id + "%') AND SUBSTRING(vcSPINo,1,4) LIKE '" + vcCarType + "%' ");
+                sbr.Append("  WHERE 1=1  ");
+                if (!string.IsNullOrWhiteSpace(vcSPINO))
+                {
+                    sbr.Append(" AND isnull(vcSPINo,'') LIKE '" + vcSPINO.Trim() + "%' ");
+                }
+
+                if (!string.IsNullOrWhiteSpace(vcPart_Id))
+                {
+                    sbr.Append(" AND (isnull(vcPart_Id_old,'') LIKE '" + vcPart_Id.Trim() + "%' OR isnull(vcPart_Id_new,'') LIKE '" + vcPart_Id + "%')");
+                }
+
+                if (!string.IsNullOrWhiteSpace(vcCarType))
+                {
+                    sbr.Append(" AND SUBSTRING(vcSPINo,1,4) LIKE '" + vcCarType.Trim() + "%' ");
+                }
+
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

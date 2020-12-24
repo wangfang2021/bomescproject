@@ -48,16 +48,16 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strSellNo = dataForm.vcSellNo == null ? "" : dataForm.vcSellNo;
-            string strStartTime = dataForm.StartTime == null ? "" : dataForm.StartTime;
-            string strEndTime= dataForm.EndTime == null ? "" : dataForm.EndTime;
+            string strSellNo = dataForm.vcSellNo;
+            string strStartTime = dataForm.StartTime;
+            string strEndTime= dataForm.EndTime;
 
             try
             {
                 DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime);
 
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -69,6 +69,51 @@ namespace SPPSApi.Controllers.G08
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strSellNo = dataForm.vcSellNo;
+            string strStartTime = dataForm.StartTime;
+            string strEndTime = dataForm.EndTime;
+
+            try
+            {
+                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime);
+                string[] heads = { "便次", "销售单号", "卡车号", "生成时间"};
+                string[] fields = { "vcBianCi", "vcSellNo", "vcTruckNo", "dOperatorTime"};
+                string strMsg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1002", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -89,14 +134,14 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strSellNo = dataForm.vcSellNo == null ? "" : dataForm.vcSellNo;
+            string strSellNo = dataForm.vcSellNo;
 
             try
             {
                 DataTable dt = fs0813_Logic.initSubApi(strSellNo);
 
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;

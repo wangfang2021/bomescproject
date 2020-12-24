@@ -46,7 +46,7 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
+            string vcBox_id = dataForm.vcBoxNo;
 
             try
             {

@@ -53,8 +53,39 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select iAutoId, vcSupplier_id, vcWorkArea, convert(varchar(20), dBeginDate,111) as dBeginDate, convert(varchar(20), dEndDate,111) as dEndDate, '1' as vcmodflag,'1' as vcaddflag, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier]    ");
+                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory],   ");
+                strSql.AppendLine("  [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], [vcAcceptNum],  ");
+                strSql.AppendLine("  [vcJanuary], [vcFebruary], [vcMarch], [vcApril], [vcMay], [vcJune], [vcJuly],   ");
+                strSql.AppendLine("  [vcAugust], [vcSeptember], [vcOctober], [vcNovember], [vcDecember],   ");
 
+                strSql.AppendLine("  cast(a.vcJanuary as decimal(18,6))+cast(a.[vcFebruary] as decimal(18,6))+cast(a.vcMarch as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(a.vcApril as decimal(18,6))+cast(a.vcMay as decimal(18,6))+cast(a.vcJune as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(a.vcJuly as decimal(18,6))+cast(a.vcAugust as decimal(18,6))+cast(a.vcSeptember as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(a.vcOctober as decimal(18,6))+cast(a.vcNovember as decimal(18,6))+cast(a.vcDecember as decimal(18,6))as vcSum,  ");
+
+                strSql.AppendLine("  [vcNextOneYear],[vcNextTwoYear], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
+                strSql.AppendLine("  from TAnnualManagement a  ");
+                //strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C000') b on a.vcInjectionFactory=b.vcValue  ");
+                strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C003') c on a.vcInsideOutsideType=c.vcName  ");
+                strSql.AppendLine("  where 1=1  ");
+                strSql.AppendLine("    ");
+
+                if (vcTargetYear.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcTargetYear = '" + vcTargetYear + "' ");
+                }
+                if (vcPartNo.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcPartNo = '" + vcPartNo + "' ");
+                }
+                if (vcInjectionFactory.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcInjectionFactory = '" + vcInjectionFactory + "' ");
+                }
+                if (vcInsideOutsideType.Length > 0)
+                {
+                    strSql.AppendLine("  and  c.vcValue = '" + vcInsideOutsideType + "' ");
+                }
                 if (vcSupplier_id.Length > 0)
                 {
                     strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
@@ -62,6 +93,10 @@ namespace DataAccess
                 if (vcWorkArea.Length > 0)
                 {
                     strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                }
+                if (vcCarType.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
@@ -170,6 +205,60 @@ namespace DataAccess
                 {
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void importSave(DataTable dt, object strUserId)
+        {
+            try
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    StringBuilder strSql = new StringBuilder();
+                    
+                    string vcPackPlant = dt.Rows[i]["vcPackPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackPlant"].ToString();
+                    string vcTargetYear = dt.Rows[i]["vcTargetYear"] == System.DBNull.Value ? "" : dt.Rows[i]["vcTargetYear"].ToString();
+                    string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
+                    string vcInjectionFactory = dt.Rows[i]["vcInjectionFactory"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInjectionFactory"].ToString();
+                    string vcInsideOutsideType = dt.Rows[i]["vcInsideOutsideType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInsideOutsideType"].ToString();
+                    string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
+                    string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
+                    string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString();
+                    string vcAcceptNum = dt.Rows[i]["vcAcceptNum"] == System.DBNull.Value ? "" : dt.Rows[i]["vcAcceptNum"].ToString();
+                    string vcJanuary = dt.Rows[i]["vcJanuary"] == System.DBNull.Value ? "" : dt.Rows[i]["vcJanuary"].ToString();
+                    string vcFebruary = dt.Rows[i]["vcFebruary"] == System.DBNull.Value ? "" : dt.Rows[i]["vcFebruary"].ToString();
+                    string vcMarch = dt.Rows[i]["vcMarch"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMarch"].ToString();
+                    string vcApril = dt.Rows[i]["vcApril"] == System.DBNull.Value ? "" : dt.Rows[i]["vcApril"].ToString();
+                    string vcMay = dt.Rows[i]["vcMay"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMay"].ToString();
+                    string vcJune = dt.Rows[i]["vcJune"] == System.DBNull.Value ? "" : dt.Rows[i]["vcJune"].ToString();
+                    string vcJuly = dt.Rows[i]["vcJuly"] == System.DBNull.Value ? "" : dt.Rows[i]["vcJuly"].ToString();
+                    string vcAugust = dt.Rows[i]["vcAugust"] == System.DBNull.Value ? "" : dt.Rows[i]["vcAugust"].ToString();
+                    string vcSeptember = dt.Rows[i]["vcSeptember"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSeptember"].ToString();
+                    string vcOctober = dt.Rows[i]["vcOctober"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOctober"].ToString();
+                    string vcNovember = dt.Rows[i]["vcNovember"] == System.DBNull.Value ? "" : dt.Rows[i]["vcNovember"].ToString();
+                    string vcDecember = dt.Rows[i]["vcDecember"] == System.DBNull.Value ? "" : dt.Rows[i]["vcDecember"].ToString();
+                    string vcNextOneYear = dt.Rows[i]["vcNextOneYear"] == System.DBNull.Value ? "" : dt.Rows[i]["vcNextOneYear"].ToString();
+                    string vcNextTwoYear = dt.Rows[i]["vcNextTwoYear"] == System.DBNull.Value ? "" : dt.Rows[i]["vcNextTwoYear"].ToString();
+                    
+                    strSql.AppendLine("  		insert into dbo.TAnnualManagement (vcPackPlant, vcTargetYear, vcPartNo, vcInjectionFactory,  ");
+                    strSql.AppendLine("  		 vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType,   ");
+                    strSql.AppendLine("  		 vcAcceptNum, vcJanuary, vcFebruary, vcMarch, vcApril, vcMay, vcJune,   ");
+                    strSql.AppendLine("  		 vcJuly, vcAugust, vcSeptember, vcOctober, vcNovember, vcDecember,    ");
+                    strSql.AppendLine("  		 vcNextOneYear, vcNextTwoYear, vcOperatorID, dOperatorTime   ");
+                    strSql.AppendLine("  		values   ");
+                    strSql.AppendLine("  		('" + vcPackPlant + "','" + vcTargetYear + "','" + vcPartNo + "','" + vcInjectionFactory + "','" + vcInsideOutsideType + "',    ");
+                    strSql.AppendLine("  		('" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCarType + "','" + vcAcceptNum + "','" + vcJanuary + "',   ");
+                    strSql.AppendLine("  		('" + vcFebruary + "','" + vcMarch + "','" + vcApril + "','" + vcMay + "','" + vcJune + "',   ");
+                    strSql.AppendLine("  		('" + vcJuly + "','" + vcAugust + "','" + vcSeptember + "','" + vcOctober + "','" + vcNovember + "',   ");
+                    strSql.AppendLine("  		('" + vcDecember + "','" + vcNextOneYear + "','" + vcNextTwoYear + "','" + strUserId + "',GETDATE()) ;   ");
+
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+
             }
             catch (Exception ex)
             {

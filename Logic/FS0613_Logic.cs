@@ -23,25 +23,19 @@ namespace Logic
             return fs0613_DataAccess.Search(vcDock, vcCarType);
         }
 
-        public bool isExistAddData(DataTable dtadd)
+        public DataTable CheckDistinctByTable(DataTable dtadd)
         {
-            return fs0613_DataAccess.isExistAddData(dtadd);
+            return fs0613_DataAccess.CheckDistinctByTable(dtadd);
         }
 
-        public bool isExistModData(DataTable dtamod)
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            return fs0613_DataAccess.isExistModData(dtamod);
+            fs0613_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
 
-        public void Save(DataTable dtadd, DataTable dtmod, string userId)
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            fs0613_DataAccess.Save(dtadd, dtmod,userId);
+            fs0613_DataAccess.Del(listInfoData, userId);
         }
-
-        public void Del(DataTable dtdel, string userId)
-        {
-            fs0613_DataAccess.Del(dtdel,userId);
-        }
-       
     }
 }

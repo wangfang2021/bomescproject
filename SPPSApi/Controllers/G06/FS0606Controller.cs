@@ -269,7 +269,7 @@ namespace SPPSApi.Controllers.G06
                         if (strErrorPartId != "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "保存失败，以下常量区分代码和Key键区间存在重叠：<br/>" + strErrorPartId;
+                            apiResult.data = "保存失败，以下品番存在重叠：<br/>" + strErrorPartId;
                             apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
@@ -279,7 +279,7 @@ namespace SPPSApi.Controllers.G06
                     }
                     catch (Exception ex)
                     {
-                        ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0503", ex, loginInfo.UserId);
+                        ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0603", ex, loginInfo.UserId);
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "保存失败";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -320,7 +320,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0603", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0604", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -370,7 +370,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0604", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0605", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "一括赋予失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

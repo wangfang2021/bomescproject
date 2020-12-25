@@ -22,9 +22,9 @@ namespace Logic
         FS0201_DataAccess fs0201_DataAccess = new FS0201_DataAccess();
 
         #region 检索SPI
-        public DataTable searchSPI(string vcSPINO, string vcPart_Id, string vcCarType, string State)
+        public DataTable searchApi(string vcSPINO, string vcPart_Id, string vcCarType, string State)
         {
-            DataTable dt = fs0201_DataAccess.searchSPI(vcSPINO, vcPart_Id, vcCarType);
+            DataTable dt = fs0201_DataAccess.searchApi(vcSPINO, vcPart_Id, vcCarType);
             if (dt.Rows.Count > 0)
             {
                 dt = RulesCheck(dt);
@@ -48,11 +48,11 @@ namespace Logic
 
         #region 传送
         //传送
-        public bool transferSPI(string userId)
+        public bool transferApi(string userId)
         {
             try
             {
-                DataTable dt = fs0201_DataAccess.searchSPI("", "", "");
+                DataTable dt = fs0201_DataAccess.searchApi("", "", "");
 
                 //检测NG状态
                 //if (Check(dt))

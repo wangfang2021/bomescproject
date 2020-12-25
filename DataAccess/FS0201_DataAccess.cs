@@ -12,7 +12,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索SPI
-        public DataTable searchSPI(string vcSPINO, string vcPart_Id, string vcCarType)
+        public DataTable searchApi(string vcSPINO, string vcPart_Id, string vcCarType)
         {
             try
             {
@@ -139,16 +139,16 @@ namespace DataAccess
                     string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
                     string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
                     string vcOldProj = dt.Rows[i]["vcOldProj"].ToString();
-                    string vcOldProjTime = dt.Rows[i]["vcOldProjTime"].ToString();
+                    string dOldProjTime = dt.Rows[i]["vcOldProjTime"].ToString() == "" ? "null" : "'" + dt.Rows[i]["vcOldProjTime"].ToString() + "/01'";
                     string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
-                    string vcNewProjTime = dt.Rows[i]["vcNewProjTime"].ToString();
+                    string dNewProjTime = dt.Rows[i]["vcNewProjTime"].ToString() == "" ? "null" : "'" + dt.Rows[i]["vcNewProjTime"].ToString() + "/01'";
                     string vcCZYD = dt.Rows[i]["vcCZYD"].ToString();
                     string dHandleTime = dt.Rows[i]["dHandleTime"].ToString();
                     string vcSheetName = dt.Rows[i]["vcSheetName"].ToString();
                     string vcFileName = dt.Rows[i]["vcFileName"].ToString();
                     string vcFileNameTJ = dt.Rows[i]["vcFileNameTJ"].ToString();
-                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,vcOldProjTime,vcNewProj,vcNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime) values ");
-                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "',0,'" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "','" + vcOldProjTime + "','" + vcNewProj + "','" + vcNewProjTime + "','" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE() ) \r\n");
+                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime) values ");
+                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "',0,'" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE() ) \r\n");
 
                     fileList.Add(vcFileNameTJ);
                     if (i % 1000 == 0)

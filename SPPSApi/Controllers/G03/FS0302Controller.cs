@@ -62,7 +62,9 @@ namespace SPPSApi.Controllers.G03
                 DataTable dtSource = fs0302_logic.getData(fileName);
                 //  DataTable dtSource = fs0302_logic.getData(fileName);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dOldProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dNewProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dtSource, dtConverter);
 
 

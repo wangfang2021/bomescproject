@@ -14,8 +14,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-
-
 namespace SPPSApi.Controllers.G08
 {
     [Route("api/FS0812/[action]")]
@@ -48,7 +46,7 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
+            string vcBox_id = dataForm.vcBoxNo;
 
             try
             {
@@ -57,8 +55,8 @@ namespace SPPSApi.Controllers.G08
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dBZTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm");
-                dtConverter.addField("dZXTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm");
+                dtConverter.addField("dBZTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
+                dtConverter.addField("dZXTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -70,6 +68,51 @@ namespace SPPSApi.Controllers.G08
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
+
+            try
+            {
+                DataTable dt = fs0812_Logic.Search(vcBox_id);
+                string[] heads = { "状态", "箱号", "入库指示书号", "品番", "订单号", "连番号", "数量",
+                "包装时间","包装者","装箱时间","装箱者"};
+                string[] fields = { "vcStatus", "vcBoxNo", "vcInstructionNo", "vcPart_id", "vcOrderNo", "vcLianFanNo", "iQuantity",
+                "dBZTime","dBZID","dZXTime","dZXID"};
+                string strMsg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1002", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -94,35 +137,48 @@ namespace SPPSApi.Controllers.G08
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                int ieditRows = 0;
+                bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//编辑标识,取false的
-                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//编辑标识,取false的
-                    //标识说明
-                    //默认  bmodflag:false  baddflag:false
-                    //新增  bmodflag:true   baddflag:true
-                    //修改  bmodflag:true   baddflag:false
-                    if (bmodflag == true)
-                    {
-                        ieditRows++;
-                        string strPart_id = listInfoData[i]["vcPart_id"].ToString();
-                        string strQuantity = listInfoData[i]["iQuantity"].ToString();
-                        //校验 非空校验
-                        if (strQuantity == "")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = string.Format("品番{0}数量不能为空",
-                                strPart_id);
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        hasFind = true;
                     }
                 }
-                if (ieditRows == 0)
+                if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+                    #region 数据格式校验
+                    string[,] strField = new string[,]
+                    {
+                        {"数量"},//中文字段名
+                        {"iQuantity"},//英文字段名
+                        {FieldCheck.Num},//数据类型校验
+                        {"0"},//最大长度设定,不校验最大长度用0
+                        {"1"},//最小长度设定,可以为空用0
+                        {"7"},//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0812");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion                    
                 }
                 fs0812_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

@@ -32,13 +32,13 @@ namespace DataAccess
                 sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
                 sbr.Append(" WHEN (ISNULL(a.vcDTDiff,'') <> '' AND  ISNULL(a.vcPart_id_DT,'') <> '') THEN a.vcDTDiff+'/'+a.vcPart_id_DT  \r\n");
                 sbr.Append(" WHEN ISNULL(a.vcDTDiff,'') <> '' THEN a.vcDTDiff WHEN ISNULL(a.vcPart_id_DT,'') <> '' THEN a.vcPart_id_DT END AS vcDT, \r\n");
-                sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.vcOldProj,a.vcOldProjTime,a.vcNewProj, \r\n");
-                sbr.Append(" a.vcNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName  \r\n");
+                sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.dOldProjTime,a.dOldProjTime,a.vcNewProj, \r\n");
+                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName  \r\n");
                 sbr.Append(" FROM \r\n");
                 sbr.Append(" ( \r\n");
-                sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcUnit,vcDiff,vcCarType,iTHChange, \r\n");
+                sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcOriginCompany,vcDiff,vcCarType,vcTHChange, \r\n");
                 sbr.Append(" vcRemark,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff, \r\n");
-                sbr.Append(" vcFXNo,vcOldProj,vcOldProjTime,vcNewProj,vcNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName \r\n");
+                sbr.Append(" vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName \r\n");
                 sbr.Append(" FROM TSBManager WHERE vcFileNameTJ = '" + fileNameTJ + "' \r\n");
                 sbr.Append(" ) a \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
@@ -52,11 +52,11 @@ namespace DataAccess
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C015' \r\n");
-                sbr.Append(" ) d ON a.iTHChange = d.vcValue \r\n");
+                sbr.Append(" ) d ON a.vcTHChange = d.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
-                sbr.Append(" ) e ON a.vcUnit = e.vcValue \r\n");
+                sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

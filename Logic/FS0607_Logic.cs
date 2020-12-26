@@ -24,28 +24,27 @@ namespace Logic
             return fs0607_DataAccess.Search(vcSupplier_id, vcWorkArea);
         }
 
-        public bool isExistAddData(DataTable dtadd)
+        public DataTable CheckDistinctByTable(DataTable dtadd)
         {
-            return fs0607_DataAccess.isExistAddData(dtadd);
+            return fs0607_DataAccess.CheckDistinctByTable(dtadd);
         }
 
-        public bool isExistModData(DataTable dtamod)
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            return fs0607_DataAccess.isExistModData(dtamod);
+            fs0607_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
 
-        public void Save(DataTable dtadd, DataTable dtmod, string userId)
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            fs0607_DataAccess.Save(dtadd, dtmod,userId);
+            fs0607_DataAccess.Del(listInfoData, userId);
         }
-
-        public void Del(DataTable dtdel, string userId)
+        public void allInstall(List<Dictionary<string, object>> listInfoData, DateTime dBeginDate, DateTime dEndDate, string userId)
         {
-            fs0607_DataAccess.Del(dtdel,userId);
+            fs0607_DataAccess.allInstall(listInfoData, dBeginDate, dEndDate, userId);
         }
-        public void allInstall(DateTime dBeginDate, DateTime dEndDate, string userId)
+        public void importSave(DataTable importDt, string userId)
         {
-            fs0607_DataAccess.allInstall(dBeginDate, dEndDate, userId);
+            fs0607_DataAccess.importSave(importDt, userId);
         }
     }
 }

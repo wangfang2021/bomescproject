@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索上传列表
-        public DataTable searchHistory(int flag, string UploadTime)
+        public DataTable searchApi(int flag, string UploadTime)
         {
             string TableName = flag == 0 ? "TPartHistory" : "TSPIHistory";
             StringBuilder sbr = new StringBuilder();
@@ -34,13 +34,11 @@ namespace DataAccess
 
         #endregion
 
-        #region 添加部品表，并记录上传历史
-        public void addPartList(string path, string fileName, string userId)
+        #region 添加部品表
+        public void importPartList(List<Hashtable> list, string fileName, string userId)
         {
             try
             {
-                List<Hashtable> list = GetPartFromFile(path + fileName);
-
                 StringBuilder sbr = new StringBuilder();
 
                 for (int i = 0; i < list.Count; i++)
@@ -51,9 +49,9 @@ namespace DataAccess
                     string vcPart_Id = list[i]["Part No."].ToString();
                     string vcPart_Name = list[i]["Part Name"].ToString();
                     string vcParent = list[i]["Parent RTG"].ToString();
-
-                    sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Name,vcParent,vcFileName,dOperatorTime,vcOperatorID) VALUES \r\n");
-                    sbr.Append(" ('" + vcCarType + "','" + vcUseLocation + "'," + iLV + ",'" + vcPart_Id + "','" + vcPart_Name + "','" + vcParent + "','" + fileName + "',GETDATE(),'" + userId + "') \r\n");
+                    string vcFather = list[i]["FatherPart_Id"].ToString();
+                    sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Id_Father,vcPart_Name,vcParent,vcFileName,dOperatorTime,vcOperatorID) VALUES \r\n");
+                    sbr.Append(" ('" + vcCarType + "','" + vcUseLocation + "'," + iLV + ",'" + vcPart_Id.Replace("-", "") + "','" + vcFather.Trim().Replace("-", "") + "','" + vcPart_Name + "','" + vcParent + "','" + fileName + "',GETDATE(),'" + userId + "') \r\n");
 
                     if (i % 1000 == 0)
                     {
@@ -93,10 +91,12 @@ namespace DataAccess
                 "Self RTG 10", "Self RTG 11", "Self RTG 12", "Self RTG 13", "Self RTG 14", "Parent RTG", "C", "11=",
                 "12=", "15=", "16=", "18=", "19=", "Prod. Comment"
             };
+            string Father = "";
             foreach (string str in strs)
             {
                 if (str.Contains(startFlag))
                 {
+                    Father = "";
                     flag = true;
                     continue;
                 }
@@ -109,11 +109,25 @@ namespace DataAccess
                         if (i % 2 == 1)
                             tempList.Add(temp[i]);
                     }
+                    //9,13  lv  partid
+
+                    if (temp[9].ToString().Trim().Equals("01") || temp[9].ToString().Trim().Equals("1"))
+                    {
+                        Father = temp[13].ToString().Trim();
+                    }
 
                     Hashtable tempHashtable = new Hashtable();
                     for (int i = 0; i < title.Count; i++)
                     {
                         tempHashtable.Add(title[i], tempList.Count - 1 > i ? tempList[i] : "");
+                    }
+                    if (temp[9].ToString().Trim().Equals("01") || temp[9].ToString().Trim().Equals("1"))
+                    {
+                        tempHashtable.Add("FatherPart_Id", "");
+                    }
+                    else
+                    {
+                        tempHashtable.Add("FatherPart_Id", Father);
                     }
                     list.Add(tempHashtable);
                 }

@@ -300,7 +300,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 导入后保存
+        #region 导入后保存-品目关系
         public void importSave(DataTable dt, string strUserId)
         {
             try
@@ -385,6 +385,58 @@ namespace DataAccess
                 sql.Append("left join TPMStandardTime t2 on t1.vcBigPM=t2.vcBigPM  \n");
                 sql.Append("where t2.iAutoId is not null and t1.vcStandardTime!=t2.vcStandardTime  \n");
                 sql.Append("and t1.vcOperatorID='"+strUserId+"'  \n");
+
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave_Sub(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM [TPMSmall_Temp] where vcOperatorID='" + strUserId + "' \n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql.Append("INSERT INTO [TPMSmall_Temp]  \n");
+                    sql.Append("           ([vcPartsNoBefore5]  \n");
+                    sql.Append("           ,[vcSR]  \n");
+                    sql.Append("           ,[vcBCPartsNo]  \n");
+                    sql.Append("           ,[vcSmallPM]  \n");
+                    sql.Append("           ,[vcOperatorID]  \n");
+                    sql.Append("           ,[dOperatorTime])  \n");
+                    sql.Append("     VALUES  \n");
+                    sql.Append("           ('"+ dt.Rows[i]["vcPartsNoBefore5"].ToString() + "'   \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSR"].ToString() + "'  \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcBCPartsNo"].ToString() + "' \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSmallPM"].ToString() + "' \n"); 
+                    sql.Append("           ,'"+strUserId+"'  \n");
+                    sql.Append("           ,getdate())  \n");
+                   
+                }
+                sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM,vcOperatorID,dOperatorTime)  \n");
+                sql.Append("select t1.vcPartsNoBefore5,t1.vcSR,t1.vcBCPartsNo,t1.vcSmallPM,t1.vcOperatorID,t1.dOperatorTime from TPMSmall_Temp t1  \n");
+                sql.Append("left join TPMSmall t2 on isnull(t1.vcPartsNoBefore5,'')=isnull(t2.vcPartsNoBefore5,'') and isnull(t1.vcSR,'')=isnull(t2.vcSR,'') " +
+                    "and isnull(t1.vcBCPartsNo,'')=isnull(t2.vcBCPartsNo,'')  \n");
+                sql.Append("where t2.iAutoId is null and t1.vcOperatorID='" + strUserId + "'  \n");
+
+                sql.Append("update t2 set t2.vcSmallPM=t1.vcSmallPM,  \n");
+                sql.Append("t2.vcOperatorID=t1.vcOperatorID,t2.dOperatorTime=t1.dOperatorTime  \n");
+                sql.Append("from  \n");
+                sql.Append("(select * from TPMSmall_Temp) t1  \n");
+                sql.Append("left join TPMSmall t2 on isnull(t1.vcPartsNoBefore5,'')=isnull(t2.vcPartsNoBefore5,'') and isnull(t1.vcSR,'')=isnull(t2.vcSR,'') " +
+                    "and isnull(t1.vcBCPartsNo,'')=isnull(t2.vcBCPartsNo,'')  \n");
+                sql.Append("where t2.iAutoId is not null and t1.vcSmallPM!=t2.vcSmallPM  \n");
+                sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
 
                 if (sql.Length > 0)
                 {

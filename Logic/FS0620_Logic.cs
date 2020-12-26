@@ -34,14 +34,9 @@ namespace Logic
             return fs0620_DataAccess.isExistModData(dtamod);
         }
 
-        public DataTable BindInsideOutsideType()
+        public void importSave(DataTable importDt, string userId)
         {
-            throw new NotImplementedException();
-        }
-
-        public DataTable BindInjectionFactory()
-        {
-            throw new NotImplementedException();
+            fs0620_DataAccess.importSave(importDt, userId);
         }
     }
 }

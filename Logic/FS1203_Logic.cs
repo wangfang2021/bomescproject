@@ -89,5 +89,125 @@ namespace Logic
             //}
             return dtNz;
         }
+
+        public DataTable getPlantype()
+        {
+            return dataAccess.getPlantype();
+        }
+        public DataTable bindplant()
+        {
+            return dataAccess.bindplant();
+        }
+
+        public DataTable serchData(string mon, string plan, string type, string plant, string plantname)//检索方法
+        {
+            DataTable dt = new DataTable();
+            switch (plan)
+            {
+                case "1"://生产计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = dataAccess.getMonProALL2(mon, "MonthProdPlanTbl", "EDMonthProdPlanTbl", plant);
+                            dt.TableName = "ALLPro1" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = dataAccess.getMonPackPlanTMP(mon, "MonthProdPlanTbl", plant);
+                            addEDflag(ref dt, "通常");
+                            dt.TableName = "MonPro1" + "-" + plantname;
+                        }
+                        break;
+                    }
+                case "0"://包装计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = dataAccess.getMonProALL2(mon, "MonthPackPlanTbl", "EDMonthPackPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            dt.TableName = "ALLPro4" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = dataAccess.getMonPackPlanTMP(mon, "MonthPackPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            addEDflag(ref dt, "通常");
+                            dt.TableName = "MonPro4" + "-" + plantname;
+                        }
+                        break;
+                    }
+                case "2"://看板打印计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = dataAccess.getMonProALL2(mon, "MonthKanBanPlanTbl", "EDMonthKanBanPlanTbl", plant);
+                            dt.TableName = "ALLPro0" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = dataAccess.getMonPackPlanTMP(mon, "MonthKanBanPlanTbl", plant);
+                            dt.TableName = "MonPro0" + "-" + plantname;
+                            addEDflag(ref dt, "通常");
+                        }
+                        break;
+                    }
+                case "3"://丰铁看板涂装计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = dataAccess.getMonProALL2(mon, "MonthTZPlanTbl", "dbo.EDMonthTZPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            dt.TableName = "ALLPro2" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = dataAccess.getMonPackPlanTMP(mon, "MonthTZPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            addEDflag(ref dt, "通常");
+                        }
+                        break;
+                    }
+                case "4"://P3计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = dataAccess.getMonProALL2(mon, "MonthP3PlanTbl", "EDMonthP3PlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            dt.TableName = "ALLPro3" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = dataAccess.getMonPackPlanTMP(mon, "MonthP3PlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            addEDflag(ref dt, "通常");
+                        }
+                        break;
+                    }
+                case "Importpack":
+                    {
+                        dt = dataAccess.getMonPackPlanTMPcur(mon, "MonthPackPlanTblTMP", plant);
+                        addEDflag(ref dt, "通常"); ;
+                        //   dt = tranNZtoWZ(dt);
+                        break;
+                    }
+                case "Importpro":
+                    {
+                        dt = dataAccess.getMonPackPlanTMPcur(mon, "MonthProPlanTblTMP", plant);
+                        addEDflag(ref dt, "通常");
+                        break;
+                    }
+            }
+            dt.Columns["vcEDflag"].SetOrdinal(5);
+            return dt;
+        }
+
+        public void addEDflag(ref DataTable dt, string flag)//加列
+        {
+            DataColumn col = new DataColumn();
+            col.ColumnName = "vcEDflag";
+            col.DataType = typeof(string);
+            col.DefaultValue = flag;
+            dt.Columns.Add(col);
+        }
     }
 }

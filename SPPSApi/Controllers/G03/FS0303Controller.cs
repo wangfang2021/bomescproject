@@ -37,7 +37,7 @@ namespace SPPSApi.Controllers.G03
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 检索
+        #region 检索（分页缓存）
         [HttpPost] 
         [EnableCors("any")]
         public string searchApi([FromBody] dynamic data)
@@ -53,10 +53,26 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strIsShowAll = dataForm.isShowAll;
+            string strSearchKey = dataForm.searchKey;
+            int iPage = dataForm.page == null ? 0 : dataForm.page;
+            int iPageSize = dataForm.pageSize;
+
 
             try
             {
-                DataTable dt = fs0303_Logic.Search(strIsShowAll);
+                DataTable dt = null;
+                int pageTotal = 0;//总页数
+                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                {
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize,ref pageTotal);
+                }
+                else
+                {
+                    DataTable dtAll = fs0303_Logic.Search(strIsShowAll);
+                    initSearchCash(strSearchKey, dtAll);
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
+                }
+                
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -77,6 +93,7 @@ namespace SPPSApi.Controllers.G03
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
+                apiResult.field1 = pageTotal;//这块需要把总页数返回
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

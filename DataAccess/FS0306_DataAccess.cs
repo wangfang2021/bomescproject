@@ -28,14 +28,15 @@ namespace DataAccess
                 {
                     sbr.Append(" AND ISNULL(vcCarTypeDesign,'') LIKE '" + vcCarType.Trim() + "%' \r\n");
                 }
-
+                //已完成
                 if (vcState == "0")
                 {
-
+                    sbr.Append(" AND (ISNULL(vcNum1,'') <> '' AND ISNULL(vcNum2,'') <> '' AND ISNULL(vcNum3,'') <> '' AND ISNULL(vcNum4,'') <> '' AND ISNULL(vcNum1,'') <> '' AND ISNULL(vcNum5,'') <> '' AND ISNULL(vcNum6,'') <> '' AND ISNULL(vcNum7,'') <> '' AND ISNULL(vcNum8,'') <> '' AND ISNULL(vcNum9,'') <> '' AND ISNULL(vcNum10,'') <> '')");
                 }
+                //未完成
                 else if (vcState == "1")
                 {
-
+                    sbr.Append(" AND (ISNULL(vcNum1,'') = '' OR ISNULL(vcNum2,'') = '' OR ISNULL(vcNum3,'') = '' OR ISNULL(vcNum4,'') = '' OR ISNULL(vcNum1,'') = '' OR ISNULL(vcNum5,'') = '' OR ISNULL(vcNum6,'') = '' OR ISNULL(vcNum7,'') = '' OR ISNULL(vcNum8,'') = '' OR ISNULL(vcNum9,'') = '' OR ISNULL(vcNum10,'') = '')");
                 }
 
                 sbr.Append(" ) a \r\n");

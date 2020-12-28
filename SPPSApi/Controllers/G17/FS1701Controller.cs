@@ -16,22 +16,59 @@ using Newtonsoft.Json.Linq;
 
 
 
-namespace SPPSApi.Controllers.G15
+namespace SPPSApi.Controllers.G17
 {
-    [Route("api/FS1501/[action]")]
+    [Route("api/FS1701/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS1501Controller : BaseController
+    public class FS1701Controller : BaseController
     {
-        FS1501_Logic fs1501_Logic = new FS1501_Logic();
-        private readonly string FunctionID = "FS1501";
+        FS1701_Logic fs1701_Logic = new FS1701_Logic();
+        private readonly string FunctionID = "FS1701";
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FS1501Controller(IWebHostEnvironment webHostEnvironment)
+        public FS1701Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //if (loginInfo.Special == "财务用户")
+                //    res.Add("caiWuBtnVisible", false);
+                //else
+                //    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_C021 = ComFunction.convertAllToResult(ComFunction.getTCode("C021"));//是否
+                res.Add("C021", dataList_C021);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
         #region 检索
         [HttpPost]
@@ -48,17 +85,14 @@ namespace SPPSApi.Controllers.G15
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSupplier_id = dataForm.vcSupplier_id;
-            string vcGQ = dataForm.vcGQ;
-            string vcSR = dataForm.vcSR;
-            string vcOrderNo = dataForm.vcOrderNo;
-            string vcNRBianCi = dataForm.vcNRBianCi;
-            string vcNRBJSK = dataForm.vcNRBJSK;
+            string vcIsDQ = dataForm.vcIsDQ;
+            string vcTicketNo = dataForm.vcTicketNo;
+            string vcLJNo = dataForm.vcLJNo;
+            string vcOldOrderNo = dataForm.vcOldOrderNo;
 
             try
             {
-                DataTable dt = fs1501_Logic.Search(vcSupplier_id, vcGQ, vcSR, vcOrderNo, vcNRBianCi, vcNRBJSK);
-
+                DataTable dt = fs1701_Logic.Search(vcIsDQ, vcTicketNo, vcLJNo, vcOldOrderNo);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
@@ -92,18 +126,16 @@ namespace SPPSApi.Controllers.G15
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSupplier_id = dataForm.vcSupplier_id;
-            string vcGQ = dataForm.vcGQ;
-            string vcSR = dataForm.vcSR;
-            string vcOrderNo = dataForm.vcOrderNo;
-            string vcNRBianCi = dataForm.vcNRBianCi;
-            string vcNRBJSK = dataForm.vcNRBJSK;
+            string vcIsDQ = dataForm.vcIsDQ;
+            string vcTicketNo = dataForm.vcTicketNo;
+            string vcLJNo = dataForm.vcLJNo;
+            string vcOldOrderNo = dataForm.vcOldOrderNo;
 
             try
             {
-                DataTable dt = fs1501_Logic.Search(vcSupplier_id, vcGQ, vcSR, vcOrderNo, vcNRBianCi, vcNRBJSK);
-                string[] heads = { "供应商代码", "工区", "受入", "订单号", "纳入便次", "纳入补给时刻" };
-                string[] fields = { "vcSupplier_id", "vcGQ", "vcSR", "vcOrderNo", "vcNRBianCi" , "vcNRBJSK" };
+                DataTable dt = fs1701_Logic.Search(vcIsDQ, vcTicketNo, vcLJNo, vcOldOrderNo);
+                string[] heads = { "票号", "零件号码", "原订单号", "数量", "是否到齐" };
+                string[] fields = { "vcTicketNo", "vcLJNo", "vcOldOrderNo", "iQuantity", "vcIsDQ" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -171,14 +203,14 @@ namespace SPPSApi.Controllers.G15
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"纳入便次","纳入补给时刻"},//中文字段名
-                        {"vcNRBianCi","vcNRBJSK"},//英文字段名
-                        {"",""},//数据类型校验
-                        {"25","25"},//最大长度设定,不校验最大长度用0
-                        {"0","0"},//最小长度设定,可以为空用0
-                        {"5","6"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"数量","是否到齐"},//中文字段名
+                        {"iQuantity","vcIsDQ"},//英文字段名
+                        {FieldCheck.Num,""},//数据类型校验
+                        {"0","1"},//最大长度设定,不校验最大长度用0
+                        {"1","0"},//最小长度设定,可以为空用0
+                        {"4","5"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1501");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1701");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -187,8 +219,21 @@ namespace SPPSApi.Controllers.G15
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     #endregion
+
+                    #region 内容校验 
+                    for(int i=0;i<listInfoData.Count;i++)
+                    {
+                        string vcIsDQ = listInfoData[i]["vcIsDQ"].ToString();
+                        if (vcIsDQ != "" && Array.IndexOf(new string[] { "是", "否" }, vcIsDQ) == -1)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "[是否到齐]列只能填写是/否";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    #endregion
                 }
-                fs1501_Logic.Save(listInfoData, loginInfo.UserId);
+                fs1701_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -228,7 +273,7 @@ namespace SPPSApi.Controllers.G15
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1501_Logic.Del(checkedInfoData, loginInfo.UserId);
+                fs1701_Logic.Del(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

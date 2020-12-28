@@ -9,40 +9,40 @@ using System.Collections;
 
 namespace Logic
 {
-    public class FS1501_Logic
+    public class FS1701_Logic
     {
-        FS1501_DataAccess fs1501_DataAccess;
+        FS1701_DataAccess fs1701_DataAccess;
 
-        public FS1501_Logic()
+        public FS1701_Logic()
         {
-            fs1501_DataAccess = new FS1501_DataAccess();
+            fs1701_DataAccess = new FS1701_DataAccess();
         }
 
         #region 检索
-        public DataTable Search(string vcSupplier_id, string vcGQ, string vcSR, string vcOrderNo, string vcNRBianCi, string vcNRBJSK)
+        public DataTable Search(string vcIsDQ, string vcTicketNo, string vcLJNo, string vcOldOrderNo)
         {
-            return fs1501_DataAccess.Search(vcSupplier_id, vcGQ, vcSR, vcOrderNo, vcNRBianCi, vcNRBJSK);
+            return fs1701_DataAccess.Search(vcIsDQ, vcTicketNo, vcLJNo, vcOldOrderNo);
         }
         #endregion
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs1501_DataAccess.Save(listInfoData, strUserId);
+            fs1701_DataAccess.Save(listInfoData, strUserId);
         }
         #endregion
 
         #region 删除
         public void Del(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
-            fs1501_DataAccess.Del(checkedInfoData, strUserId);
+            fs1701_DataAccess.Del(checkedInfoData, strUserId);
         }
         #endregion
 
         #region 导入后保存
         public void importSave_Sub(DataTable dt, string strUserId)
         {
-            fs1501_DataAccess.importSave_Sub(dt, strUserId);
+            fs1701_DataAccess.importSave_Sub(dt, strUserId);
         }
         #endregion
 

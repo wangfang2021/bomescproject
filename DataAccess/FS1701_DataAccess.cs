@@ -9,29 +9,25 @@ using System.Collections;
 
 namespace DataAccess
 {
-    public class FS1501_DataAccess
+    public class FS1701_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
-        public DataTable Search(string vcSupplier_id, string vcGQ, string vcSR, string vcOrderNo, string vcNRBianCi, string vcNRBJSK)
+        public DataTable Search(string vcIsDQ, string vcTicketNo, string vcLJNo, string vcOldOrderNo)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TNRBJSKBianCi where 1=1  \n");
-                if(vcSupplier_id!="" && vcSupplier_id!=null)
-                    strSql.Append("and isnull(vcSupplier_id,'') like '%" + vcSupplier_id + "%'  \n");
-                if(vcGQ!="" && vcGQ!=null)
-                    strSql.Append("and isnull(vcGQ,'') like '%" + vcGQ + "%'  \n");
-                if(vcSR!="" && vcSR!=null)
-                    strSql.Append("and isnull(vcSR,'') like '%" + vcSR + "%'  \n");
-                if(vcOrderNo!="" && vcOrderNo!=null)
-                    strSql.Append("and isnull(vcOrderNo,'') like '%" + vcOrderNo + "%'  \n");
-                if(vcNRBianCi!="" && vcNRBianCi!=null)
-                    strSql.Append("and isnull(vcNRBianCi,'') like '%" + vcNRBianCi + "%'  \n");
-                if(vcNRBJSK!="" && vcNRBJSK!=null)
-                    strSql.Append("and isnull(vcNRBJSK,'') like '%" + vcNRBJSK + "%'  \n");
+                strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TXCSSPlan where 1=1  \n");
+                if(vcIsDQ != "" && vcIsDQ != null)
+                    strSql.Append("and isnull(vcIsDQ,'') like '%" + vcIsDQ + "%'  \n");
+                if(vcTicketNo != "" && vcTicketNo != null)
+                    strSql.Append("and isnull(vcTicketNo,'') like '%" + vcTicketNo + "%'  \n");
+                if(vcLJNo != "" && vcLJNo != null)
+                    strSql.Append("and isnull(vcLJNo,'') like '%" + vcLJNo + "%'  \n");
+                if(vcOldOrderNo != "" && vcOldOrderNo != null)
+                    strSql.Append("and isnull(vcOldOrderNo,'') like '%" + vcOldOrderNo + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -60,10 +56,11 @@ namespace DataAccess
                    if (baddflag == false && bmodflag == true)
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("UPDATE [TNRBJSKBianCi]  \n");
+                        string vcIsDQ= listInfoData[i]["vcIsDQ"].ToString()==""?"是": listInfoData[i]["vcIsDQ"].ToString();
+                        sql.Append("UPDATE [TXCSSPlan]  \n");
                         sql.Append("   SET   \n");
-                        sql.Append("       [vcNRBianCi] = '" + listInfoData[i]["vcNRBianCi"].ToString() + "'  \n");
-                        sql.Append("      ,[vcNRBJSK] = '" + listInfoData[i]["vcNRBJSK"].ToString() + "'  \n");
+                        sql.Append("       [iQuantity] = " + listInfoData[i]["iQuantity"].ToString() + "  \n");
+                        sql.Append("      ,[vcIsDQ] = '" + vcIsDQ + "'  \n");
                         sql.Append("      ,[vcOperatorID] = '" + strUserId + "'  \n");
                         sql.Append("      ,[dOperatorTime] = getdate()  \n");
                         sql.Append(" WHERE iAutoId=" + iAutoId + "  \n");
@@ -90,7 +87,7 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from TNRBJSKBianCi where iAutoId=" + iAutoId + "   \n");
+                    sql.Append("delete from TXCSSPlan where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -110,39 +107,38 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("DELETE FROM [TNRBJSKBianCi_Temp] where vcOperatorID='" + strUserId + "' \n");
+                sql.Append("DELETE FROM [TXCSSPlan_Temp] where vcOperatorID='" + strUserId + "' \n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql.Append("INSERT INTO [TNRBJSKBianCi_Temp]  \n");
-                    sql.Append("           ([vcSupplier_id]  \n");
-                    sql.Append("           ,[vcGQ]  \n");
-                    sql.Append("           ,[vcSR]  \n");
-                    sql.Append("           ,[vcOrderNo]  \n");
-                    sql.Append("           ,[vcNRBianCi]  \n");
-                    sql.Append("           ,[vcNRBJSK]  \n");
+                    string vcIsDQ = dt.Rows[i]["vcIsDQ"].ToString() == "" ? "是" : dt.Rows[i]["vcIsDQ"].ToString();
+                    sql.Append("INSERT INTO [TXCSSPlan_Temp]  \n");
+                    sql.Append("           ([vcTicketNo]  \n");
+                    sql.Append("           ,[vcLJNo]  \n");
+                    sql.Append("           ,[vcOldOrderNo]  \n");
+                    sql.Append("           ,[iQuantity]  \n");
+                    sql.Append("           ,[vcIsDQ]  \n");
                     sql.Append("           ,[vcOperatorID]  \n");
                     sql.Append("           ,[dOperatorTime])  \n");
                     sql.Append("     VALUES  \n");
-                    sql.Append("           ('"+dt.Rows[i]["vcSupplier_id"].ToString()+"'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcGQ"].ToString() + "'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcSR"].ToString() + "'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcOrderNo"].ToString() + "'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcNRBianCi"].ToString() + "'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcNRBJSK"].ToString() + "'  \n");
+                    sql.Append("           ('"+dt.Rows[i]["vcTicketNo"].ToString()+"'  \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcLJNo"].ToString() + "'  \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcOldOrderNo"].ToString() + "'  \n");
+                    sql.Append("           ," + dt.Rows[i]["iQuantity"].ToString() + "  \n");
+                    sql.Append("           ,'" + vcIsDQ + "'  \n");
                     sql.Append("           ,'"+strUserId+"'  \n");
                     sql.Append("           ,getdate())  \n");
                 }
-                sql.Append("insert into TNRBJSKBianCi (vcSupplier_id,vcGQ,vcSR,vcOrderNo,vcNRBianCi,vcNRBJSK,vcOperatorID,dOperatorTime)  \n");
-                sql.Append("select t1.vcSupplier_id,t1.vcGQ,t1.vcSR,t1.vcOrderNo,t1.vcNRBianCi,t1.vcNRBJSK,t1.vcOperatorID,t1.dOperatorTime from TNRBJSKBianCi_Temp t1  \n");
-                sql.Append("left join TNRBJSKBianCi t2 on t1.vcSupplier_id=t2.vcSupplier_id and t1.vcGQ=t2.vcGQ and t1.vcSR=t2.vcSR and t1.vcOrderNo=t2.vcOrderNo \n");
+                sql.Append("insert into TXCSSPlan (vcTicketNo,vcLJNo,vcOldOrderNo,iQuantity,vcIsDQ,vcOperatorID,dOperatorTime)  \n");
+                sql.Append("select t1.vcTicketNo,t1.vcLJNo,t1.vcOldOrderNo,t1.iQuantity,t1.vcIsDQ,t1.vcOperatorID,t1.dOperatorTime from TXCSSPlan_Temp t1  \n");
+                sql.Append("left join TXCSSPlan t2 on t1.vcTicketNo=t2.vcTicketNo and t1.vcLJNo=t2.vcLJNo and t1.vcOldOrderNo=t2.vcOldOrderNo \n");
                 sql.Append("where t2.iAutoId is null and t1.vcOperatorID='" + strUserId + "'  \n");
 
-                sql.Append("update t2 set t2.vcNRBianCi=t1.vcNRBianCi,t2.vcNRBJSK=t1.vcNRBJSK,  \n");
+                sql.Append("update t2 set t2.iQuantity=t1.iQuantity,t2.vcIsDQ=t1.vcIsDQ,  \n");
                 sql.Append("t2.vcOperatorID=t1.vcOperatorID,t2.dOperatorTime=t1.dOperatorTime  \n");
                 sql.Append("from  \n");
-                sql.Append("(select * from TNRBJSKBianCi_Temp) t1  \n");
-                sql.Append("left join TNRBJSKBianCi t2 on t1.vcSupplier_id=t2.vcSupplier_id and t1.vcGQ=t2.vcGQ and t1.vcSR=t2.vcSR and t1.vcOrderNo=t2.vcOrderNo \n");
-                sql.Append("where t2.iAutoId is not null and (t1.vcNRBianCi!=t2.vcNRBianCi or t1.vcNRBJSK!=t2.vcNRBJSK) \n");
+                sql.Append("(select * from TXCSSPlan_Temp) t1  \n");
+                sql.Append("left join TXCSSPlan t2 on t1.vcTicketNo=t2.vcTicketNo and t1.vcLJNo=t2.vcLJNo and t1.vcOldOrderNo=t2.vcOldOrderNo \n");
+                sql.Append("where t2.iAutoId is not null and (t1.iQuantity!=t2.iQuantity or t1.vcIsDQ!=t2.vcIsDQ) \n");
                 sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
 
                 if (sql.Length > 0)

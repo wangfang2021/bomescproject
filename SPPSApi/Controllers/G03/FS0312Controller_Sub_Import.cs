@@ -100,22 +100,22 @@ namespace SPPSApi.Controllers.G03
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
 
-                //var result = from r in importDt.AsEnumerable()
-                //             group r by new { r2 = r.Field<string>("vcPart_id"), r3 = r.Field<string>("dUseBegin"), r4 = r.Field<string>("dUseEnd") } into g
-                //             where g.Count() > 1
-                //             select g;
-                //if (result.Count() > 0)
-                //{
-                //    StringBuilder sbr = new StringBuilder();
-                //    sbr.Append("导入数据重复:<br/>");
-                //    foreach (var item in result)
-                //    {
-                //        sbr.Append("品番:" + item.Key.r2 + " 使用开始:" + item.Key.r3 + " 使用结束:" + item.Key.r4 + "<br/>");
-                //    }
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = sbr.ToString();
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //}
+                var result = from r in importDt.AsEnumerable()
+                             group r by new { r2 = r.Field<string>("vcPart_id"), r3 = r.Field<string>("vcHaoJiu"), r4 = r.Field<string>("vcCarTypeDesign") } into g
+                             where g.Count() > 1
+                             select g;
+                if (result.Count() > 0)
+                {
+                    StringBuilder sbr = new StringBuilder();
+                    sbr.Append("导入数据重复:<br/>");
+                    foreach (var item in result)
+                    {
+                        sbr.Append("品番:" + item.Key.r2 + " 号旧:" + item.Key.r3 + " 车型(开发代码):" + item.Key.r4 + "<br/>");
+                    }
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
 
 

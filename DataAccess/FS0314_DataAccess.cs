@@ -18,13 +18,21 @@ namespace DataAccess
             sbr.Append(" SELECT iAutoId,vcSupplier_id,vcSupplier_name,vcProduct_name, \r\n");
             sbr.Append(" vcAddress,vcLXR1,vcPhone1,vcEmail1,vcLXR2,vcPhone2,vcEmail2, \r\n");
             sbr.Append(" vcLXR3,vcPhone3,vcEmail3,dOperatorTime,vcOperatorID,'0' as vcModFlag,'0' as vcAddFlag FROM dbo.TSupplier \r\n");
-            sbr.Append(" WHERE vcSupplier_id LIKE '" + vcSupplier_id + "%' AND vcSupplier_name LIKE '" + vcSupplier_name + "%' \r\n");
+            sbr.Append(" WHERE 1=1 ");
+            if (!string.IsNullOrWhiteSpace(vcSupplier_id))
+            {
+                sbr.Append("  AND vcSupplier_id LIKE '" + vcSupplier_id.Trim() + "%' ");
+            }
+            if (!string.IsNullOrWhiteSpace(vcSupplier_name))
+            {
+                sbr.Append("  AND vcSupplier_name LIKE '" + vcSupplier_name.Trim() + "%'  ");
+            }
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
         }
 
         #endregion
 
-        #region 删除S
+        #region 删除
         public void delSPI(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try

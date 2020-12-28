@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\G03\FS0309Controller_Sub - 复制.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Doc\Import\No.1_000GF9MDL.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT07.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT11.xlsx" />

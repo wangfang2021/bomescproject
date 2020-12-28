@@ -287,5 +287,50 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
+        #region 调达送信
+        [HttpPost]
+        [EnableCors("any")]
+        public string sendMailApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                Object multipleSelection = dataForm.multipleSelection;
+                if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
+                {
+
+
+                }
+                else
+                {
+
+
+                }
+                //发送邮件
+                //发件人邮箱，对方邮箱，邮件标题、内容、附件需要确认
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0906", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "销售展开失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+
     }
 }

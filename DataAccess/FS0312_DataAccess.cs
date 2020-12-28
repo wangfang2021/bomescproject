@@ -18,15 +18,15 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("      select *,'0' as vcModFlag,'0' as vcAddFlag from TPart_JX         \n");
+                strSql.Append("      select '0' as vcModFlag,'0' as vcAddFlag,vcPart_id,vcHaoJiu,dJiuBegin,vcSupplier_id,vcSupplier_Name,vcCarTypeDesign,vcPartName,vcSumLater,vcInput_No,dSendTime from TPart_JX         \n");
                 strSql.Append("      where 1=1   ");
                 if (!string.IsNullOrEmpty(strPart_id))
                 {
-                    strSql.Append("      and vcPart_id = '"+strPart_id+"'  ");
+                    strSql.Append("      and vcPart_id like '"+strPart_id+"%'  ");
                 }
                 if (!string.IsNullOrEmpty(strSupplier_id))
                 {
-                    strSql.Append("      and vcSupplier_id = '"+strSupplier_id+"'   ");
+                    strSql.Append("      and vcSupplier_id like '"+strSupplier_id+"%'   ");
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

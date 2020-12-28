@@ -49,7 +49,6 @@ namespace DataAccess
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAuto_Id"]);
 
                         sbr.Append(" UPDATE TtagMaster SET \r\n");
-                        sbr.Append(" vcCPDCompany = " + ComFunction.getSqlValue(listInfoData[i]["vcCPDCompany"], false) + ", ");
                         sbr.Append(" vcCarTypeName= " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeName"], false) + ", ");
                         sbr.Append(" vcPartNameCN= " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCN"], false) + ", ");
                         sbr.Append(" vcZXBZNo= " + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + ", ");

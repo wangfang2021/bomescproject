@@ -59,7 +59,7 @@ namespace SPPSApi.Controllers.G03
                 }
 
 
-                DataTable dtSource = fs0302_logic.getData(fileName);
+                DataTable dtSource = fs0302_logic.SearchApi(fileName);
                 //  DataTable dtSource = fs0302_logic.getData(fileName);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy/MM/dd");

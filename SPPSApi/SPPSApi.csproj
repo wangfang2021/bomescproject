@@ -5,6 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Doc\Import\FS0201\**" />
+    <Content Remove="Doc\Import\FS0201\**" />
+    <EmbeddedResource Remove="Doc\Import\FS0201\**" />
+    <None Remove="Doc\Import\FS0201\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\G03\FS0309Controller_Sub - 复制.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Doc\Import\No.1_000GF9MDL.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT07.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT11.xlsx" />
@@ -40,8 +51,9 @@
 
   <ItemGroup>
     <Folder Include="Controllers\G08\" />
-    <Folder Include="Doc\Import\FS0201\" />
+    <Folder Include="Controllers\G17\" />
     <Folder Include="Doc\Export\" />
+    <Folder Include="Doc\Import\" />
   </ItemGroup>
 
 

@@ -14,6 +14,8 @@ using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using DataTable = System.Data.DataTable;
+using System.Collections;
+using DataEntity;
 
 namespace Logic
 {
@@ -22,9 +24,9 @@ namespace Logic
         FS0201_DataAccess fs0201_DataAccess = new FS0201_DataAccess();
 
         #region 检索SPI
-        public DataTable searchSPI(string vcSPINO, string vcPart_Id, string vcCarType, string State)
+        public DataTable searchApi(string vcSPINO, string vcPart_Id, string vcCarType, string State)
         {
-            DataTable dt = fs0201_DataAccess.searchSPI(vcSPINO, vcPart_Id, vcCarType);
+            DataTable dt = fs0201_DataAccess.searchApi(vcSPINO, vcPart_Id, vcCarType);
             if (dt.Rows.Count > 0)
             {
                 dt = RulesCheck(dt);
@@ -48,11 +50,11 @@ namespace Logic
 
         #region 传送
         //传送
-        public bool transferSPI(string userId)
+        public bool transferApi(string userId)
         {
             try
             {
-                DataTable dt = fs0201_DataAccess.searchSPI("", "", "");
+                DataTable dt = fs0201_DataAccess.searchApi("", "", "");
 
                 //检测NG状态
                 //if (Check(dt))
@@ -381,53 +383,8 @@ namespace Logic
         {
             try
             {
-                //获取路径下文件名
-                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-
-                string fileName = "Result_" + System.Guid.NewGuid().ToString("N") + ".xlsm";
-                string pLocalFilePath = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0201.xlsm";//要复制的文件路径
-                string pSaveFilePath = fileSavePath + Path.DirectorySeparatorChar + fileName;//指定存储的路径
-                //复制模板文件
-                if (File.Exists(pLocalFilePath))//必须判断要复制的文件是否存在
-                {
-                    File.Copy(pLocalFilePath, pSaveFilePath, true);//三个参数分别是源文件路径，存储路径，若存储路径有相同文件是否替换
-                }
-
-                CreateList(fileSavePath, fileName);
-
-                //TODO 复制该文件夹至远程服务器
-
-                //
-
-                //TODO 将已上传文件名存储至lock表
-
-                //
-                string[,] header =
-                {
-                    {
-                        "SPI No", "旧品番", "新品番", "補給区分（新）", "代替区分", "代替品番（新）", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№（新）",
-                        "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名"
-                    },
-                    {
-                        "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT",
-                        "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj",
-                        "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName",
-                        "vcFileName"
-                    },
-                    {"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""},
-                    {"0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"},
-                    {"1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}
-                };
-                DataTable dt = new DataTable();
-                dt = ExcelToDataTable(fileSavePath + Path.DirectorySeparatorChar + fileName, "list", header, ref reMsg);
-                if (dt.Rows.Count > 0)
-                {
-                    fs0201_DataAccess.importSPI(dt, strUserId);
-                }
-                else
-                {
-                    reMsg = "没有需要导入的数据。";
-                }
+                DataTable dt = getData(fileSavePath);
+                fs0201_DataAccess.importSPI(dt, strUserId);
 
             }
             catch (Exception ex)
@@ -441,206 +398,1181 @@ namespace Logic
 
         #endregion
 
-        #region 上传SPI
 
-        #region 导入
-        /// <summary>
-        /// 导入标准Excel，第一行为列头
-        /// </summary>
-        /// <param name="FileFullName">文件完整路径</param>
-        /// <param name="sheetName">指定sheet页名称，如未匹配则默认选择第一个sheet</param>
-        /// <param name="Header">5个数组,第一个为文件中列头，第二个为对应DataTable列头，第三个对应校验数据类型，第四个为最大长度限定（为0不校验），第五个为最小长度限定（为0不校验）</param>
-        /// <param name="RetMsg">返回信息</param>
-        /// <returns></returns>
-        public DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, ref string RetMsg)
+        #region 读取数据
+        #region  
+        private int TT = 15;
+        private int TS = 45;
+
+        private int ST = 51;
+        private int SS = 81;
+        #endregion
+        public DataTable getData(string fileSavePath)
         {
-            FileStream fs = null;
-            IWorkbook workbook = null;
-            ISheet sheet = null;
-            List<int> index = new List<int>();
-            DataTable data = new DataTable();
-            RetMsg = "";
-            int startRow = 4;
-
             try
             {
-                fs = new FileStream(FileFullName, FileMode.Open, FileAccess.Read);
-
-                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0) // 2007版本
-                    workbook = new XSSFWorkbook(fs);
-                else if (FileFullName.IndexOf(".xls") > 0) // 2003版本
-                    workbook = new HSSFWorkbook(fs);
-
-                if (sheetName != null)
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+                ArrayList list1 = new ArrayList();
+                foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    sheet = workbook.GetSheet(sheetName);
-                    if (sheet == null) //如果没有找到指定的sheetName对应的sheet，则尝试获取第一个sheet
+                    if (info.Extension.ToUpper() == ".XLSX")
                     {
-                        sheet = workbook.GetSheetAt(0);
+                        list1.Add(fileSavePath + info.Name);
                     }
+                }
+                FS0201_DataEntity.Entity en = new FS0201_DataEntity.Entity();
+                List<FS0201_DataEntity.Part> list = new List<FS0201_DataEntity.Part>();
+                DataTable dt = new DataTable();
+                DataTable tempNew = new DataTable();
+                DataSet ds = new DataSet();
+                List<DataRow> rows = new List<DataRow>();
+                for (int i = 0; i < list1.Count; i++)
+                {
+                    en = ReadFromExcelFile((string)list1[i]);
+                    list = ReadFromExcelFile((String)list1[i]).parts;
+                    dt = ListToDataTable1(list, en);
+                    //ds.Tables.Add(dt);
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        rows.Add(row);
+                    }
+                }
+                DataTable temp1 = new DataTable();
+                temp1 = ListToDataTable1(rows);
+
+                DataRow[] arrayDR = temp1.Select("vcOldProj like '%WD%' or vcOldProj like '%WB%' or vcOldProj like '%WL%'or vcOldProj like '%WF%'OR vcNewProj like '%WD%' or vcNewProj like '%WB%' or vcNewProj like '%WL%'or vcNewProj like '%WF%'", "vcFileName");
+
+                DataTable tmp = temp1.Clone(); // 复制DataRow的表结构
+                foreach (DataRow row in arrayDR)
+                {
+
+                    tmp.ImportRow(row); // 将DataRow添加到DataTable中
+                }
+                return tmp;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public FS0201_DataEntity.Entity ReadFromExcelFile(string filePath)
+        {
+            FS0201_DataEntity.Entity res = new FS0201_DataEntity.Entity();
+            IWorkbook wk = null;
+            string extension = System.IO.Path.GetExtension(filePath);
+            try
+            {
+                FileStream fs = File.OpenRead(filePath);
+
+                string fileName = fs.Name.Substring(fs.Name.LastIndexOf("\\") + 1);
+
+                if (extension.Equals(".xls"))
+                {
+                    //把xls文件中的数据写入wk中
+                    wk = new HSSFWorkbook(fs);
                 }
                 else
                 {
-                    sheet = workbook.GetSheetAt(0);
+                    //把xlsx文件中的数据写入wk中
+                    wk = new XSSFWorkbook(fs);
                 }
 
-                if (sheet != null)
+                fs.Close();
+
+                int sheetIndex = wk.NumberOfSheets;
+                ISheet sheet = wk.GetSheetAt(0);
+
+                string sheetName = sheet.SheetName;
+                res.vcFileName = fileName;
+
+                //读取当前表数据
+                IRow row = sheet.GetRow(5);  //读取设变号
+                string vcSPINo = row.GetCell(4).ToString();
+                res.vcSPINo = vcSPINo;
+
+                row = sheet.GetRow(4);//读取处理日
+                string dHandleTime = row.GetCell(66).ToString();
+                res.dHandleTime = dHandleTime;
+                String prePart_idS = "";
+                for (int sheetI = 0; sheetI < sheetIndex; sheetI++)
                 {
-                    IRow firstRow = sheet.GetRow(startRow);
-                    int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
 
-                    //对应索引
-                    for (int i = 0; i < Header.GetLength(1); i++)
-                    {
-                        bool bFound = false;
-                        for (int j = 0; j < cellCount; j++)
-                        {
-                            ICell cell = firstRow.GetCell(j);
-                            string cellValue = cell.StringCellValue;
-                            if (!string.IsNullOrEmpty(cellValue))
-                            {
-                                if (Header[0, i] == cellValue)
-                                {
-                                    bFound = true;
-                                    index.Add(j);
-                                    break;
-                                }
-                            }
-                        }
+                    sheet = wk.GetSheetAt(sheetI);
 
-                        if (bFound == false)
-                        {
-                            RetMsg = Header[0, i] + "列不存在";
-                            return null;
-                        }
-                    }
-
-                    //创建Datatable的列
-                    for (int i = 0; i < Header.GetLength(1); i++)
-                    {
-                        data.Columns.Add(Header[1, i].ToString().Trim());
-                    }
-
-                    //获取数据首尾行
-                    int rowCount = sheet.LastRowNum;
-
-                    //读取数据
-                    for (int i = startRow + 1; i <= rowCount; ++i)
-                    {
-                        IRow row = sheet.GetRow(i);
-                        if (row == null) continue; //没有数据的行默认是null　　　　　　　
-
-                        DataRow dataRow = data.NewRow();
-                        for (int j = 0; j < Header.GetLength(1); j++)
-                        {
-                            ICell cell = row.GetCell(index[j]);
-                            if (cell != null) //同理，没有数据的单元格都默认是null
-                            {
-
-                                if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
-                                {
-                                    dataRow[j] = DateTime.FromOADate(cell.NumericCellValue);
-                                }
-                                else
-                                {
-                                    dataRow[j] = cell.ToString();
-                                }
-                            }
-                        }
-
-                        data.Rows.Add(dataRow);
-                    }
+                    GetEntity(sheet, ref res.parts, ref prePart_idS);
                 }
 
-                for (int i = 0; i < data.Columns.Count; i++)
+                return res;
+            }
+
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        private void GetEntity(ISheet sheet, ref List<FS0201_DataEntity.Part> temp, ref String prePart_idS)
+        {
+
+            IRow row;
+            IRow row1;
+
+            #region 获取上半部分数据
+
+            for (int i = TT; i < TS; i += 2)
+            {
+                row = sheet.GetRow(i);
+                row1 = sheet.GetRow(i + 1);
+                //新增一条Old
+                if (!string.IsNullOrWhiteSpace(row.GetCell(0).ToString()))
                 {
-                    data.Columns[i].DataType = typeof(string);
-                }
 
-                #region 校验格式
+                    int flag = 0;
+                    int flagN = 1;
+                    FS0201_DataEntity.Part part = new FS0201_DataEntity.Part();
 
-                for (int i = 0; i < data.Rows.Count; i++)
-                {
-                    DataRow dr = data.Rows[i];
-                    for (int j = 0; j < Header.GetLength(1); j++)
+                    part.vcSheetName = sheet.SheetName;
+
+                    part.flag = flag;
+                    part.vcPart_Id_old = row.GetCell(0 + flag).ToString();
+                    part.BJQF = row.GetCell(6 + flag).ToString();
+                    part.PFSSFrom = row.GetCell(9 + flag).ToString();
+                    part.PFSSTo = row.GetCell(13 + flag).ToString();
+                    part.FXQF = row.GetCell(47 + flag).ToString();
+                    part.FXNO = row.GetCell(49 + flag).ToString();
+                    part.vcPartName = row.GetCell(54).ToString();
+                    part.vcChange = row.GetCell(63).ToString();
+                    if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
                     {
-                        if (Convert.ToInt32(Header[3, j]) > 0 &&
-                            dr[Header[1, j]].ToString().Length > Convert.ToInt32(Header[3, j]))
+                        if (!string.IsNullOrWhiteSpace(part.vcChange))
                         {
-                            RetMsg = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
-                            return null;
+                            part.vcChange += ",";
                         }
-
-                        if (Convert.ToInt32(Header[4, j]) > 0 &&
-                            dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
-                        {
-                            RetMsg = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
-                            return null;
-                        }
-
                     }
+                    part.vcChange += row1.GetCell(63).ToString();
+                    //-----------------------代替区分-CHENYING
+                    part.DTQF = row.GetCell(18 + flag).ToString();
+                    part.DTPart_Id = row.GetCell(21 + flag).ToString();
+                    //-------------------------
+                    /*----------------------flag+1(新)------*/
+                    part.vcPart_Id_new = row.GetCell(0 + flagN).ToString();
+                    part.vcBJDiff = row.GetCell(6 + flagN).ToString();
+                    part.vcStartYearMonth = row.GetCell(9 + flagN).ToString();
+                    part.NPFSSTo = row.GetCell(13 + flagN).ToString();
+                    part.vcFXDiff = row.GetCell(47 + flagN).ToString();
+                    part.vcFXNo = row.GetCell(49 + flagN).ToString();
+                    part.vcDTDiff = row.GetCell(18 + flagN).ToString();
+                    part.vcPart_id_DT = row.GetCell(21 + flagN).ToString();
+                    /*----------------------END------*/
+
+                    temp.Add(part);
+
                 }
+                #region 
+                //新增一条New
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(1).ToString()))
+                {
 
+                    int flag = 1;
+                    FS0201_DataEntity.Part part = new FS0201_DataEntity.Part();
 
+                    part.vcSheetName = sheet.SheetName;
+
+                    part.flag = flag;
+                    part.vcPart_Id_new = row.GetCell(0 + flag).ToString();
+                    part.vcBJDiff = row.GetCell(6 + flag).ToString();
+                    part.vcStartYearMonth = row.GetCell(9 + flag).ToString();
+                    part.NPFSSTo = row.GetCell(13 + flag).ToString();
+                    part.vcFXDiff = row.GetCell(47 + flag).ToString();
+                    part.vcFXNo = row.GetCell(49 + flag).ToString();
+                    part.vcPartName = row.GetCell(54).ToString();
+
+                    //--------------代替区分-CHENYING
+                    part.DTQF = row.GetCell(18 + flag).ToString();
+                    part.DTPart_Id = row.GetCell(21 + flag).ToString();
+                    //-------------------------
+                    part.vcChange = row.GetCell(63).ToString();
+                    if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(part.vcChange))
+                        {
+                            part.vcChange += ",";
+                        }
+                    }
+                    part.vcChange += row1.GetCell(63).ToString();
+                    temp.Add(part);
+                }
                 #endregion
 
-                if (workbook != null)
+                //修改最后一条
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(6).ToString()))
                 {
-                    workbook.Close();
-                }
-                if (fs != null)
-                {
-                    fs.Close();
-                    fs.Dispose();
-                }
-                return data;
-            }
-            catch (Exception ex)
-            {
-                if (workbook != null)
-                {
-                    workbook.Close();
-                }
-                if (fs != null)
-                {
-                    fs.Close();
-                    fs.Dispose();
-                }
-                return null;
-            }
-        }
-        #endregion
 
-        //调用宏
-        public void CreateList(string path, string fileName)
+                    int flag = 0;
+                    int flagN = 1;
+                    int index = temp.Count - 1;
+                    temp[index].flag = flag;
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(6 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].BJQF))
+                        {
+                            temp[index].BJQF += ",";
+                        }
+                    }
+                    temp[index].BJQF += row.GetCell(6 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(9 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].PFSSFrom))
+                        {
+                            temp[index].PFSSFrom += ",";
+                        }
+                    }
+                    temp[index].PFSSFrom += row.GetCell(9 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(13 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].PFSSTo))
+                        {
+                            temp[index].PFSSTo += ",";
+                        }
+                    }
+                    temp[index].PFSSTo += row.GetCell(13 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(47 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].FXQF))
+                        {
+                            temp[index].FXQF += ",";
+                        }
+                    }
+                    temp[index].FXQF += row.GetCell(47 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(49 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].FXNO))
+                        {
+                            temp[index].FXNO += ",";
+                        }
+                    }
+                    temp[index].FXNO += row.GetCell(49 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(18 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].DTQF))
+                        {
+                            temp[index].DTQF += ",";
+                        }
+                    }
+                    temp[index].DTQF += row.GetCell(18 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(21 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].DTPart_Id))
+                        {
+                            temp[index].DTPart_Id += ",";
+                        }
+                    }
+                    temp[index].DTPart_Id += row.GetCell(21 + flag).ToString();
+
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                        {
+                            temp[index].vcChange += ",";
+                        }
+                    }
+                    temp[index].vcChange += row.GetCell(63).ToString();
+                    if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                        {
+                            temp[index].vcChange += ",";
+                        }
+                    }
+                    temp[index].vcChange += row1.GetCell(63).ToString();
+
+                }
+                #region 修改最后一条(新)
+                //修改最后一条
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(7).ToString()))
+                {
+                    int flag = 1;
+                    int index = temp.Count - 1;
+                    temp[index].flag = flag;
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(6 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcBJDiff))
+                        {
+                            temp[index].vcBJDiff += ",";
+                        }
+                    }
+                    temp[index].vcBJDiff += row.GetCell(6 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(9 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcStartYearMonth))
+                        {
+                            temp[index].vcStartYearMonth += ",";
+                        }
+                    }
+                    temp[index].vcStartYearMonth += row.GetCell(9 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(13 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].NPFSSTo))
+                        {
+                            temp[index].NPFSSTo += ",";
+                        }
+                    }
+                    temp[index].NPFSSTo += row.GetCell(13 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(47 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcFXDiff))
+                        {
+                            temp[index].vcFXDiff += ",";
+                        }
+                    }
+                    temp[index].vcFXDiff += row.GetCell(47 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(49 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcFXNo))
+                        {
+                            temp[index].vcFXNo += ",";
+                        }
+                    }
+                    temp[index].vcFXNo += row.GetCell(49 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(18 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcDTDiff))
+                        {
+                            temp[index].vcDTDiff += ",";
+                        }
+                    }
+                    temp[index].vcDTDiff += row.GetCell(18 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(21 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcPart_id_DT))
+                        {
+                            temp[index].vcPart_id_DT += ",";
+                        }
+                    }
+                    temp[index].vcPart_id_DT += row.GetCell(21 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                        {
+                            temp[index].vcChange += ",";
+                        }
+                    }
+                    temp[index].vcChange += row.GetCell(63).ToString();
+                    if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                        {
+                            temp[index].vcChange += ",";
+                        }
+                    }
+                    temp[index].vcChange += row1.GetCell(63).ToString();
+
+                }
+                #endregion
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(10).ToString()))
+                {
+                    int flag = 1;
+                    int index = temp.Count - 1;
+                    temp[index].flag = flag;
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(6 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcBJDiff))
+                        {
+                            temp[index].vcBJDiff += ",";
+                        }
+                    }
+                    temp[index].vcBJDiff += row.GetCell(6 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(9 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcStartYearMonth))
+                        {
+                            temp[index].vcStartYearMonth += ",";
+                        }
+                    }
+                    temp[index].vcStartYearMonth += row.GetCell(9 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(13 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].NPFSSTo))
+                        {
+                            temp[index].NPFSSTo += ",";
+                        }
+                    }
+                    temp[index].NPFSSTo += row.GetCell(13 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(47 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcFXDiff))
+                        {
+                            temp[index].vcFXDiff += ",";
+                        }
+                    }
+                    temp[index].vcFXDiff += row.GetCell(47 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(49 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcFXNo))
+                        {
+                            temp[index].vcFXNo += ",";
+                        }
+                    }
+                    temp[index].vcFXNo += row.GetCell(49 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(18 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcDTDiff))
+                        {
+                            temp[index].vcDTDiff += ",";
+                        }
+                    }
+                    temp[index].vcDTDiff += row.GetCell(18 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(21 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcPart_id_DT))
+                        {
+                            temp[index].vcPart_id_DT += ",";
+                        }
+                    }
+                    temp[index].vcPart_id_DT += row.GetCell(21 + flag).ToString();
+                    //----------
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                        {
+                            temp[index].vcChange += ",";
+                        }
+                    }
+                    temp[index].vcChange += row.GetCell(63).ToString();
+                    if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                        {
+                            temp[index].vcChange += ",";
+                        }
+                    }
+                    temp[index].vcChange += row1.GetCell(63).ToString();
+
+                }
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(48).ToString()))
+                {
+                    int flag = 1;
+                    int index = temp.Count - 1;
+                    if (index < 0)
+                    {
+                        if (!string.IsNullOrWhiteSpace(row.GetCell(0 + flag).ToString()) || !string.IsNullOrWhiteSpace(row.GetCell(0).ToString()))
+                        {
+                            temp[index].flag = flag;
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(6 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcBJDiff))
+                                {
+                                    temp[index].vcBJDiff += ",";
+                                }
+                            }
+                            temp[index].vcBJDiff += row.GetCell(6 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(9 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcStartYearMonth))
+                                {
+                                    temp[index].vcStartYearMonth += ",";
+                                }
+                            }
+                            temp[index].vcStartYearMonth += row.GetCell(9 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(13 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].NPFSSTo))
+                                {
+                                    temp[index].NPFSSTo += ",";
+                                }
+                            }
+                            temp[index].NPFSSTo += row.GetCell(13 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(47 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXDiff))
+                                {
+                                    temp[index].vcFXDiff += ",";
+                                }
+                            }
+                            temp[index].vcFXDiff += row.GetCell(47 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(49 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXNo))
+                                {
+                                    temp[index].vcFXNo += ",";
+                                }
+                            }
+                            temp[index].vcFXNo += row.GetCell(49 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(18 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcDTDiff))
+                                {
+                                    temp[index].vcDTDiff += ",";
+                                }
+                            }
+                            temp[index].vcDTDiff += row.GetCell(18 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(21 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcPart_id_DT))
+                                {
+                                    temp[index].vcPart_id_DT += ",";
+                                }
+                            }
+                            temp[index].vcPart_id_DT += row.GetCell(21 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row.GetCell(63).ToString();
+                            if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row1.GetCell(63).ToString();
+
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcPart_Id_new) || !string.IsNullOrWhiteSpace(temp[index].vcPart_Id_old))
+                        {
+                            temp[index].flag = flag;
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(6 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcBJDiff))
+                                {
+                                    temp[index].vcBJDiff += ",";
+                                }
+                            }
+                            temp[index].vcBJDiff += row.GetCell(6 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(9 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcStartYearMonth))
+                                {
+                                    temp[index].vcStartYearMonth += ",";
+                                }
+                            }
+                            temp[index].vcStartYearMonth += row.GetCell(9 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(13 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].NPFSSTo))
+                                {
+                                    temp[index].NPFSSTo += ",";
+                                }
+                            }
+                            temp[index].NPFSSTo += row.GetCell(13 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(47 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXDiff))
+                                {
+                                    temp[index].vcFXDiff += ",";
+                                }
+                            }
+                            temp[index].vcFXDiff += row.GetCell(47 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(49 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXNo))
+                                {
+                                    temp[index].vcFXNo += ",";
+                                }
+                            }
+                            temp[index].vcFXNo += row.GetCell(49 + flag).ToString();
+                            //----------------------代替区分
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(18 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcDTDiff))
+                                {
+                                    temp[index].vcDTDiff += ",";
+                                }
+                            }
+                            temp[index].vcDTDiff += row.GetCell(18 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(21 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcPart_id_DT))
+                                {
+                                    temp[index].vcPart_id_DT += ",";
+                                }
+                            }
+                            temp[index].vcPart_id_DT += row.GetCell(21 + flag).ToString();
+                            //-----------------------
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row.GetCell(63).ToString();
+                            if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row1.GetCell(63).ToString();
+
+                        }
+                    }
+                }
+                //修改最后一条------------CHENYING
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                {
+                    int flag = 1;
+                    int index = temp.Count - 1;
+                    if (index < 0)
+                    {
+                        if (!string.IsNullOrWhiteSpace(row.GetCell(0 + flag).ToString()) || !string.IsNullOrWhiteSpace(row.GetCell(0).ToString()))
+                        {
+                            temp[index].flag = flag;
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(6 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcBJDiff))
+                                {
+                                    temp[index].vcBJDiff += ",";
+                                }
+                            }
+                            temp[index].vcBJDiff += row.GetCell(6 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(9 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcStartYearMonth))
+                                {
+                                    temp[index].vcStartYearMonth += ",";
+                                }
+                            }
+                            temp[index].vcStartYearMonth += row.GetCell(9 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(13 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].NPFSSTo))
+                                {
+                                    temp[index].NPFSSTo += ",";
+                                }
+                            }
+                            temp[index].NPFSSTo += row.GetCell(13 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(47 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXDiff))
+                                {
+                                    temp[index].vcFXDiff += ",";
+                                }
+                            }
+                            temp[index].vcFXDiff += row.GetCell(47 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(49 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXNo))
+                                {
+                                    temp[index].vcFXNo += ",";
+                                }
+                            }
+                            temp[index].vcFXNo += row.GetCell(49 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(18 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcDTDiff))
+                                {
+                                    temp[index].vcDTDiff += ",";
+                                }
+                            }
+                            temp[index].vcDTDiff += row.GetCell(18 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(21 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcPart_id_DT))
+                                {
+                                    temp[index].vcPart_id_DT += ",";
+                                }
+                            }
+                            temp[index].vcPart_id_DT += row.GetCell(21 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row.GetCell(63).ToString();
+                            if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row1.GetCell(63).ToString();
+
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcPart_Id_new) || !string.IsNullOrWhiteSpace(temp[index].vcPart_Id_old))
+                        {
+                            temp[index].flag = flag;
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(6 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcBJDiff))
+                                {
+                                    temp[index].vcBJDiff += ",";
+                                }
+                            }
+                            temp[index].vcBJDiff += row.GetCell(6 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(9 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcStartYearMonth))
+                                {
+                                    temp[index].vcStartYearMonth += ",";
+                                }
+                            }
+                            temp[index].vcStartYearMonth += row.GetCell(9 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(13 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].NPFSSTo))
+                                {
+                                    temp[index].NPFSSTo += ",";
+                                }
+                            }
+                            temp[index].NPFSSTo += row.GetCell(13 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(47 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXDiff))
+                                {
+                                    temp[index].vcFXDiff += ",";
+                                }
+                            }
+                            temp[index].vcFXDiff += row.GetCell(47 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(49 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcFXNo))
+                                {
+                                    temp[index].vcFXNo += ",";
+                                }
+                            }
+                            temp[index].vcFXNo += row.GetCell(49 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(18 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcDTDiff))
+                                {
+                                    temp[index].vcDTDiff += ",";
+                                }
+                            }
+                            temp[index].vcDTDiff += row.GetCell(18 + flag).ToString();
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(21 + flag).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcPart_id_DT))
+                                {
+                                    temp[index].vcPart_id_DT += ",";
+                                }
+                            }
+                            temp[index].vcPart_id_DT += row.GetCell(21 + flag).ToString();
+
+                            if (!string.IsNullOrWhiteSpace(row.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row.GetCell(63).ToString();
+                            if (!string.IsNullOrWhiteSpace(row1.GetCell(63).ToString()))
+                            {
+                                if (!string.IsNullOrWhiteSpace(temp[index].vcChange))
+                                {
+                                    temp[index].vcChange += ",";
+                                }
+                            }
+                            temp[index].vcChange += row1.GetCell(63).ToString();
+
+                        }
+                    }
+
+                }
+
+
+
+            }
+
+            #endregion
+
+            #region 获取下半部分数据
+            string tempPart_id = "";
+
+            for (int i = ST; i < SS; i += 2)
+            {
+                tempPart_id = prePart_idS;
+
+                row = sheet.GetRow(i);
+                IRow rowtemp = sheet.GetRow(i + 1);
+
+                //根据品番添加
+                if (!string.IsNullOrWhiteSpace(row.GetCell(0).ToString()))
+                {
+                    int flag = 0;
+                    int flagN = 1;
+                    if (row.GetCell(0 + flag).ToString() == "")
+                    {
+                        tempPart_id = row.GetCell(0 + flagN).ToString();
+                    }
+                    else
+                    {
+                        tempPart_id = row.GetCell(0 + flag).ToString();
+                    }
+                    int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old));
+
+                    temp[index].vcOldProj = row.GetCell(15 + flag).ToString();
+                    temp[index].ZSPF = row.GetCell(50 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].ZSPF))
+                        {
+                            temp[index].ZSPF += ",";
+                        }
+                    }
+                    temp[index].ZSPF += rowtemp.GetCell(50 + flag).ToString();
+
+                    temp[index].OGCSSFrom = row.GetCell(57 + flag).ToString();
+                    temp[index].vcOldProjTime = row.GetCell(61 + flag).ToString();
+
+                    //---------------------(新)
+                    temp[index].vcNewProj = row.GetCell(15 + flagN).ToString();
+                    temp[index].vcCZYD = row.GetCell(50 + flagN).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flagN).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+                        {
+                            temp[index].vcCZYD += ",";
+                        }
+                    }
+                    temp[index].vcCZYD += rowtemp.GetCell(50 + flagN).ToString();
+
+                    temp[index].vcNewProjTime = row.GetCell(57 + flagN).ToString();
+                    temp[index].NGCSSTo = row.GetCell(61 + flagN).ToString();
+                    //----------------------
+                    prePart_idS = tempPart_id;
+                }
+                #region flag=1
+                //根据品番添加
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(1).ToString()))
+                {
+                    int flag = 1;
+                    tempPart_id = row.GetCell(0 + flag).ToString();
+                    int n = temp.Count();
+                    int index = temp.FindIndex(item => item.vcPart_Id_new.Equals(tempPart_id));
+                    temp[index].vcNewProj = row.GetCell(15 + flag).ToString();
+                    temp[index].vcCZYD = row.GetCell(50 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+                        {
+                            temp[index].vcCZYD += ",";
+                        }
+                    }
+
+                    temp[index].vcCZYD += rowtemp.GetCell(50 + flag).ToString();
+
+                    temp[index].vcNewProjTime = row.GetCell(57 + flag).ToString();
+                    temp[index].NGCSSTo = row.GetCell(61 + flag).ToString();
+                    prePart_idS = tempPart_id;
+                }
+                #endregion
+
+                //根据品番修改
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(6).ToString()))
+                {
+                    int flag = 0;
+                    int flagN = 1;
+                    int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old) || tempPart_id.Equals(item.vcPart_Id_new));
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(15 + flag).ToString()))
+                    {
+                        //工程含有两个及以上的第二个除了含有WB，WL,WF,WD，其余的不显示
+                        if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
+                        {
+                            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+                            {
+                                temp[index].vcOldProj += ",";
+                                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+
+                            }
+                            else
+                            {
+                                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                            }
+                        }
+
+
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(temp[index].ZSPF))
+                    {
+                        temp[index].ZSPF += ",";
+                    }
+                    temp[index].ZSPF += row.GetCell(50 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].ZSPF))
+                        {
+                            temp[index].ZSPF += ",";
+                        }
+                    }
+
+                    temp[index].ZSPF += rowtemp.GetCell(50 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(temp[index].OGCSSFrom))
+                    {
+                        temp[index].OGCSSFrom += ",";
+                    }
+                    temp[index].OGCSSFrom += row.GetCell(57 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+                        {
+                            temp[index].vcOldProjTime += ",";
+                        }
+                    }
+
+                    temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+                }
+                #region flag=1
+                //根据品番修改
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(7).ToString()))
+                {
+                    int flag = 1;
+
+                    int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old) || tempPart_id.Equals(item.vcPart_Id_new));
+                    if (!string.IsNullOrWhiteSpace(temp[index].vcNewProj))
+                    {
+                        temp[index].vcNewProj += ",";
+                    }
+                    temp[index].vcNewProj += row.GetCell(15 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+                    {
+                        temp[index].vcCZYD += ",";
+                    }
+                    temp[index].vcCZYD += row.GetCell(50 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+                        {
+                            temp[index].vcCZYD += ",";
+                        }
+                    }
+
+                    temp[index].vcCZYD += rowtemp.GetCell(50 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(temp[index].vcNewProjTime))
+                    {
+                        temp[index].vcNewProjTime += ",";
+                    }
+                    temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].NGCSSTo))
+                        {
+                            temp[index].NGCSSTo += ",";
+                        }
+                    }
+
+                    temp[index].NGCSSTo += row.GetCell(61 + flag).ToString();
+                }
+                #endregion
+
+                //根据品番修改------------CHENYING
+                else if (!string.IsNullOrWhiteSpace(row.GetCell(58).ToString()))
+                {
+                    int flag = 1;
+
+                    int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old) || tempPart_id.Equals(item.vcPart_Id_new));
+                    if (!string.IsNullOrWhiteSpace(temp[index].vcNewProj))
+                    {
+                        temp[index].vcNewProj += ",";
+                    }
+                    temp[index].vcNewProj += row.GetCell(15 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+                    {
+                        temp[index].vcCZYD += ",";
+                    }
+                    temp[index].vcCZYD += row.GetCell(50 + flag).ToString();
+                    if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+                        {
+                            temp[index].vcCZYD += ",";
+                        }
+                    }
+
+                    temp[index].vcCZYD += rowtemp.GetCell(50 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(temp[index].vcNewProjTime))
+                    {
+                        temp[index].vcNewProjTime += ",";
+                    }
+                    temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+
+                    if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(temp[index].NGCSSTo))
+                        {
+                            temp[index].NGCSSTo += ",";
+                        }
+                    }
+
+                    temp[index].NGCSSTo += row.GetCell(61 + flag).ToString();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            #endregion
+
+        }
+
+        public static DataTable ListToDataTable1(List<FS0201_DataEntity.Part> list, FS0201_DataEntity.Entity en)
         {
-            Application app = new Application();
-            app.Visible = false;
-            string filePath = path + Path.DirectorySeparatorChar + fileName;
-            Workbook wb = app.Workbooks.Open(filePath);
-            try
-            {
-                object objRtn = new object();
-                ComFunction.RunExcelMacro(app, "getPath", new Object[] { path }, out objRtn);
-                ComFunction.RunExcelMacro(app, "MakeList", new Object[] { }, out objRtn);
-                wb.Close(true);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (wb != null)
-                    Marshal.ReleaseComObject(wb);
-                app.Quit();
-                Marshal.ReleaseComObject(app);
-            }
+            //创建一个名为"tableName"的空表
+            //DataTable dt = new DataTable("tableName");
+            DataTable dt = new DataTable();
+            FS0201_DataEntity.Part part = new FS0201_DataEntity.Part();
+            //创建传入对象名称的列
+            string name = list.FirstOrDefault().GetType().ToString();
+            FS0201_DataEntity.Part p = list.FirstOrDefault();
+            dt.Columns.Add("vcPart_Id_old");
+            dt.Columns.Add("vcPart_Id_new");
+            dt.Columns.Add("vcBJDiff");
+            dt.Columns.Add("vcDTDiff");
+            dt.Columns.Add("vcPart_id_DT");
+            dt.Columns.Add("vcPartName");
+            dt.Columns.Add("vcStartYearMonth");
+            dt.Columns.Add("vcFXDiff");
+            dt.Columns.Add("vcFXNo");
+            dt.Columns.Add("vcChange");
+            dt.Columns.Add("vcNewProj");
+            dt.Columns.Add("vcNewProjTime");
+            dt.Columns.Add("vcOldProj");
+            dt.Columns.Add("vcOldProjTime");
+            dt.Columns.Add("vcCZYD");
+            dt.Columns.Add("vcSheetName");
+            dt.Columns.Add("vcSPINo");
+            dt.Columns.Add("vcFileName");
+            dt.Columns.Add("dHandleTime");
 
+            for (int i = 0; i < list.Count; i++)
+            {
+                DataRow dr = dt.NewRow();
+                dr["vcPart_Id_old"] = list[i].vcPart_Id_old;
+                dr["vcPart_Id_new"] = list[i].vcPart_Id_new;
+                dr["vcBJDiff"] = list[i].vcBJDiff;
+                dr["vcDTDiff"] = list[i].vcDTDiff;
+                dr["vcPart_id_DT"] = list[i].vcPart_id_DT;
+                dr["vcPartName"] = list[i].vcPartName;
+                dr["vcStartYearMonth"] = list[i].vcStartYearMonth;
+                dr["vcFXDiff"] = list[i].vcFXDiff;
+                dr["vcFXNo"] = list[i].vcFXNo;
+                dr["vcChange"] = list[i].vcChange;
+                dr["vcNewProj"] = list[i].vcNewProj;
+                dr["vcNewProjTime"] = list[i].vcNewProjTime;
+                dr["vcOldProj"] = list[i].vcOldProj;
+                dr["vcOldProjTime"] = list[i].vcOldProjTime;
+                dr["vcCZYD"] = list[i].vcCZYD;
+                dr["vcSheetName"] = list[i].vcSheetName;
+                dr["vcSPINo"] = en.vcSPINo;
+                dr["vcFileName"] = en.vcFileName;
+                dr["dHandleTime"] = en.dHandleTime;
+                dt.Rows.Add(dr);
+            }
+            return dt;
         }
 
+        public static DataTable ListToDataTable1(List<DataRow> list)
+        {
+            //创建一个名为"tableName"的空表
+            //DataTable dt = new DataTable("tableName");
+            DataTable dt = new DataTable();
+            FS0201_DataEntity.Part part = new FS0201_DataEntity.Part();
+            dt.Columns.Add("vcPart_Id_old");
+            dt.Columns.Add("vcPart_Id_new");
+            dt.Columns.Add("vcBJDiff");
+            dt.Columns.Add("vcDTDiff");
+            dt.Columns.Add("vcPart_id_DT");
+            dt.Columns.Add("vcPartName");
+            dt.Columns.Add("vcStartYearMonth");
+            dt.Columns.Add("vcFXDiff");
+            dt.Columns.Add("vcFXNo");
+            dt.Columns.Add("vcChange");
+            dt.Columns.Add("vcNewProj");
+            dt.Columns.Add("vcNewProjTime");
+            dt.Columns.Add("vcOldProj");
+            dt.Columns.Add("vcOldProjTime");
+            dt.Columns.Add("vcCZYD");
+            dt.Columns.Add("vcSheetName");
+            dt.Columns.Add("vcSPINo");
+            dt.Columns.Add("vcFileName");
+            dt.Columns.Add("dHandleTime");
 
+            for (int i = 0; i < list.Count; i++)
+            {
+                DataRow dr = dt.NewRow();
+
+                dr["vcPart_Id_old"] = list[i].ItemArray[0];
+                dr["vcPart_Id_new"] = list[i].ItemArray[1];
+                dr["vcBJDiff"] = list[i].ItemArray[2];
+                dr["vcDTDiff"] = list[i].ItemArray[3];
+                dr["vcPart_id_DT"] = list[i].ItemArray[4];
+                dr["vcPartName"] = list[i].ItemArray[5];
+                dr["vcStartYearMonth"] = list[i].ItemArray[6];
+                dr["vcFXDiff"] = list[i].ItemArray[7];
+                dr["vcFXNo"] = list[i].ItemArray[8];
+                dr["vcChange"] = list[i].ItemArray[9];
+                dr["vcNewProj"] = list[i].ItemArray[10];
+                dr["vcNewProjTime"] = list[i].ItemArray[11];
+                dr["vcOldProj"] = list[i].ItemArray[12];
+                dr["vcOldProjTime"] = list[i].ItemArray[13];
+                dr["vcCZYD"] = list[i].ItemArray[14];
+                dr["vcSheetName"] = list[i].ItemArray[15];
+                dr["vcSPINo"] = list[i].ItemArray[16];
+                dr["vcFileName"] = list[i].ItemArray[17];
+                dr["dHandleTime"] = list[i].ItemArray[18];
+                dt.Rows.Add(dr);
+            }
+            return dt;
+        }
         #endregion
+
+
+
+
 
     }
 }

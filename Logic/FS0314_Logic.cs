@@ -12,10 +12,24 @@ namespace Logic
     {
         FS0314_DataAccess fs0314_dataAccess = new FS0314_DataAccess();
 
-        public DataTable searchSupplier(string vcSupplier_id, string vcSupplier_name)
+        public DataTable searchApi(string vcSupplier_id, string vcSupplier_name)
         {
-            return fs0314_dataAccess.searchSupplier(vcSupplier_id, vcSupplier_name);
+            return fs0314_dataAccess.searchApi(vcSupplier_id, vcSupplier_name);
         }
+
+        #region 删除
+        public void delSPI(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0314_dataAccess.delSPI(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0314_dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
 
     }
 }

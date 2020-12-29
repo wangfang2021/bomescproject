@@ -21,24 +21,24 @@ namespace DataAccess
                     new SqlParameter("@ddlpro", ddlpro),
                     new SqlParameter("@ddlgroup", ddlgroup)
                 };
-                sql.AppendLine(" select  a.vcPorType, a.vcZB, a.KBpartType,a.LogicType, a.vcProName0, a.vcLT0, ");
+                sql.AppendLine(" select a.vcPorType, a.vcZB, a.KBpartType, a.LogicType, a.vcProName0, a.vcLT0, ");
                 sql.AppendLine("a.vcCalendar0, a.vcProName1, a.vcLT1, a.vcCalendar1, a.vcProName2, a.vcLT2, a.vcCalendar2, a.vcProName3,");
                 sql.AppendLine(" a.vcLT3, a.vcCalendar3, a.vcProName4, a.vcLT4, a.vcCalendar4 ");
-                sql.AppendLine(", '0' as iflag from ProRuleMst as a");
-                sql.AppendLine(" left join (select distinct vcData1 ,vcData3 from ConstMst where vcDataId = 'ProType') b ");
+                sql.AppendLine(",'0' as vcModFlag,'0' as vcAddFlag, iAutoId from ProRuleMst as a");
+                sql.AppendLine(" left join (select distinct vcData1 ,vcData3 from ConstMst where vcDataId='ProType') b ");
                 sql.AppendLine("on a.vcPorType=b.vcData1 and a.vcZB=b.vcData3 where 1=1");
 
                 if (ddlpro != "")
                 {
-                    sql.AppendLine(" and vcPorType = @ddlpro");
+                    sql.AppendLine(" and vcPorType=@ddlpro");
                 }
                 if (ddlgroup != "")
                 {
-                    sql.AppendLine(" and vcZB =@ddlgroup");
+                    sql.AppendLine(" and vcZB=@ddlgroup");
                 }
                 sql.AppendLine(" order by vcPorType ");
 
-                DataTable dt = new DataTable();
+                //DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString(), paras);
             }
             catch (Exception ex)
@@ -46,11 +46,119 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete ProRuleMst where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        sql.Append("  INSERT INTO ProRuleMst(vcPorType,vcZB,KBpartType,vcProName0,vcLT0,vcCalendar0,vcProName1,vcLT1");
+                        sql.Append("  ,vcCalendar1,vcProName2,vcLT2,vcCalendar2,vcProName3,vcLT3,vcCalendar3   \r\n");
+                        sql.Append("  ,vcProName4,vcLT4,vcCalendar4,LogicType,DADDTIME,CUPDUSER)   \r\n");
+                        sql.Append(" values (  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPorType"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcZB"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["KBpartType"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcProName0"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcLT0"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCalendar0"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcProName1"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcLT1"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCalendar1"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcProName2"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcLT2"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCalendar2"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcProName3"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcLT3"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCalendar3"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcProName4"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcLT4"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCalendar4"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["LogicType"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["DADDTIME"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["CUPDUSER"], false) + "  \r\n");
+                        sql.Append(" );  \r\n");
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("  update ProRuleMst set    \r\n");
+                        sql.Append("  KBpartType=" + ComFunction.getSqlValue(listInfoData[i]["KBpartType"], false) + "   \r\n");
+                        sql.Append("  ,vcProName0=" + ComFunction.getSqlValue(listInfoData[i]["vcProName0"], false) + "   \r\n");
+                        sql.Append("  ,vcLT0=" + ComFunction.getSqlValue(listInfoData[i]["vcLT0"], true) + "   \r\n");
+                        sql.Append("  ,vcCalendar0=" + ComFunction.getSqlValue(listInfoData[i]["vcCalendar0"], true) + "   \r\n");
+                        sql.Append("  ,vcProName1=" + ComFunction.getSqlValue(listInfoData[i]["vcProName1"], false) + "   \r\n");
+                        sql.Append("  ,vcLT1=" + ComFunction.getSqlValue(listInfoData[i]["vcLT1"], true) + "   \r\n");
+                        sql.Append("  ,vcCalendar1=" + ComFunction.getSqlValue(listInfoData[i]["vcCalendar1"], true) + "   \r\n");
+                        sql.Append("  ,vcProName2=" + ComFunction.getSqlValue(listInfoData[i]["vcProName2"], false) + "   \r\n");
+                        sql.Append("  ,vcLT2=" + ComFunction.getSqlValue(listInfoData[i]["vcLT2"], true) + "   \r\n");
+                        sql.Append("  ,vcCalendar2=" + ComFunction.getSqlValue(listInfoData[i]["vcCalendar2"], true) + "   \r\n");
+                        sql.Append("  ,vcProName3=" + ComFunction.getSqlValue(listInfoData[i]["vcProName3"], false) + "   \r\n");
+                        sql.Append("  ,vcLT3=" + ComFunction.getSqlValue(listInfoData[i]["vcLT3"], true) + "   \r\n");
+                        sql.Append("  ,vcCalendar3=" + ComFunction.getSqlValue(listInfoData[i]["vcCalendar3"], true) + "   \r\n");
+                        sql.Append("  ,vcProName4=" + ComFunction.getSqlValue(listInfoData[i]["vcProName4"], false) + "   \r\n");
+                        sql.Append("  ,vcLT4=" + ComFunction.getSqlValue(listInfoData[i]["vcLT4"], true) + "   \r\n");
+                        sql.Append("  ,vcCalendar4=" + ComFunction.getSqlValue(listInfoData[i]["vcCalendar4"], true) + "   \r\n");
+                        sql.Append("  ,LogicType=" + ComFunction.getSqlValue(listInfoData[i]["LogicType"], false) + "   \r\n");
+                        sql.Append("  ,DUPDTIME=getdate()   \r\n");
+                        sql.Append("  ,CUPDUSER='" + strUserId + "'   \r\n");
+                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                       
+                    }
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
+
+
         public DataTable bindProType()
         {
             try
             {
-                string ssql = "select ' ' as vcData1 union all select distinct vcData1 from dbo.ConstMst where vcDataID ='ProType'";
+                string ssql = "select '' as vcValue,'' as vcName union all select distinct vcData1 as vcValue,vcData1 as vcName from ConstMst where vcDataID='ProType'";
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql);
             }
@@ -63,7 +171,7 @@ namespace DataAccess
         {
             try
             {
-                string ssql = " select ' ' as vcData3 union all select distinct vcData3 from dbo.ConstMst where vcDataID ='ProType'";
+                string ssql = " select '' as vcValue,'' as vcName union all select distinct vcData3 as vcValue,vcData3 as vcName from ConstMst where vcDataID='ProType'";
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql);
             }
@@ -78,14 +186,14 @@ namespace DataAccess
             {
                 DataTable dt = new DataTable();
                 StringBuilder ssql = new StringBuilder();
-                if (zb == " ")
+                if (zb == "")
                 {
-                    ssql.AppendLine("select ' ' as vcData1 union all");
+                    ssql.AppendLine("select '' as vcValue,'' as vcName union all ");
                 }
-                ssql.AppendLine(" select distinct vcData1 from dbo.ConstMst where vcDataID ='ProType'");
-                if (zb != " ")
+                ssql.AppendLine(" select distinct vcData1 as vcValue,vcData1 as vcName from ConstMst where vcDataID='ProType'");
+                if (zb != "")
                 {
-                    ssql.AppendLine(" and vcData3 = '" + zb + "'");
+                    ssql.AppendLine(" and vcData3='" + zb + "'");
                 }
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());
             }
@@ -99,15 +207,15 @@ namespace DataAccess
             try
             {
                 StringBuilder ssql = new StringBuilder();
-                if (Protype == " ")
+                if (Protype == "")
                 {
-                    ssql.AppendLine("select ' ' as vcData3 union all");
+                    ssql.AppendLine("select '' as vcValue,'' as vcName union all");
                 }
-                ssql.AppendLine(" select distinct vcData3 from dbo.ConstMst where vcDataID ='ProType'");
-                if (Protype != " ")
+                ssql.AppendLine(" select distinct vcData3 as vcValue,vcData3 as vcName from ConstMst where vcDataID='ProType'");
+                if (Protype != "")
                 {
-                    ssql.AppendLine(" and vcData1 = '" + Protype + "'");
-                    ssql.AppendLine(" union all select distinct ' ' as vcData3 from dbo.ConstMst");
+                    ssql.AppendLine(" and vcData1='" + Protype + "'");
+                    ssql.AppendLine(" union all select distinct '' as vcValue,'' as vcName from ConstMst");
                 }
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());
@@ -123,7 +231,7 @@ namespace DataAccess
             {
                 DataTable dt = new DataTable();
                 string ssql = "";
-                ssql += " select ' ' as state union";
+                ssql += " select '' as state union";
                 ssql += " select vcData1+'-'+vcData3 as state from ConstMst ";
                 ssql += " where vcDataId='ProType' or vcDataId='CalendarType' ";
                 ssql += " and vcData10 is null ";

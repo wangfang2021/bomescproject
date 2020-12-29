@@ -17,7 +17,7 @@ namespace DataAccess
             sbr.Append(" SELECT vcFileName,vcOperatorID,dOperatorTime FROM TSPIHistory \r\n");
             sbr.Append(" WHERE vcType = '0'  \r\n");
             if (!string.IsNullOrWhiteSpace(filename))
-                sbr.Append(" and vcFileName LIKE '" + filename + "%' \r\n");
+                sbr.Append(" and isnull(vcFileName,'') LIKE '" + filename.Trim() + "%' \r\n");
             if (!string.IsNullOrWhiteSpace(TimeFrom))
                 sbr.Append(" and dOperatorTime>= '" + TimeFrom + "'  \r\n");
             if (!string.IsNullOrWhiteSpace(TimeTo))

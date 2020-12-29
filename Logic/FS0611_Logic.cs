@@ -128,5 +128,12 @@ namespace Logic
             return fs0611_DataAccess.zk(varDxny, userId);
         }
         #endregion
+
+        #region 下载SOQReply（检索内容）
+        public DataTable search(string varDxny)
+        {
+            return fs0611_DataAccess.search(varDxny);
+        }
+        #endregion
     }
 }

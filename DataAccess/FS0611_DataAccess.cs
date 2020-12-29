@@ -245,5 +245,109 @@ namespace DataAccess
         }
         #endregion
 
+
+        #region 下载SOQReply（检索内容）
+        public DataTable search(string varDxny)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                System.Data.SqlClient.SqlParameter[] parameters = {
+                    new SqlParameter("@varDxny", SqlDbType.VarChar),
+                };
+                parameters[0].Value = varDxny;
+
+                strSql.AppendLine(" SELECT tn.*,tn1.[N+1 O/L],tn1.[N+1 Units],tn1.[N+1 PCS], ");
+                strSql.AppendLine(" tn2.[N+2 O/L],tn2.[N+2 Units],tn2.[N+2 PCS] ");
+                strSql.AppendLine(" FROM ");
+
+                strSql.AppendLine(" (SELECT ");
+                strSql.AppendLine(" PARTSNO as 'PartsNo',");
+                //发注工厂
+                strSql.AppendLine(" iFZGC as '发注工厂',");
+                //订货频度
+                strSql.AppendLine(" varMakingOrderType as '订货频度',");
+                strSql.AppendLine(" CARFAMILYCODE as 'CFC',");
+                strSql.AppendLine(" QUANTITYPERCONTAINER as 'OrdLot',");
+                strSql.AppendLine(" iUnits as 'N Units',");
+                strSql.AppendLine(" iPCS as 'N PCS',");
+                strSql.AppendLine(" D1,");
+                strSql.AppendLine(" D2,");
+                strSql.AppendLine(" D3,");
+                strSql.AppendLine(" D4,");
+                strSql.AppendLine(" D5,");
+                strSql.AppendLine(" D6,");
+                strSql.AppendLine(" D7,");
+                strSql.AppendLine(" D8,");
+                strSql.AppendLine(" D9,");
+                strSql.AppendLine(" D10,");
+                strSql.AppendLine(" D11,");
+                strSql.AppendLine(" D12,");
+                strSql.AppendLine(" D13,");
+                strSql.AppendLine(" D14,");
+                strSql.AppendLine(" D15,");
+                strSql.AppendLine(" D16,");
+                strSql.AppendLine(" D17,");
+                strSql.AppendLine(" D18,");
+                strSql.AppendLine(" D19,");
+                strSql.AppendLine(" D20,");
+                strSql.AppendLine(" D21,");
+                strSql.AppendLine(" D22,");
+                strSql.AppendLine(" D23,");
+                strSql.AppendLine(" D24,");
+                strSql.AppendLine(" D25,");
+                strSql.AppendLine(" D26,");
+                strSql.AppendLine(" D27,");
+                strSql.AppendLine(" D28,");
+                strSql.AppendLine(" D29,");
+                strSql.AppendLine(" D30,");
+                strSql.AppendLine(" D31");
+
+                strSql.AppendLine(" FROM TSOQReply ");
+
+                strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
+                //外注
+                strSql.AppendLine(" AND INOUTFLAG='1' ");
+                //对象月
+                strSql.AppendLine(" AND iMonthFlag=0) tn ");
+
+                strSql.AppendLine(" LEFT JOIN (");
+                strSql.AppendLine(" SELECT PARTSNO, ");
+                strSql.AppendLine(" QUANTITYPERCONTAINER as 'N+1 O/L',");
+                strSql.AppendLine(" iUnits as 'N+1 Units',");
+                strSql.AppendLine(" iPCS as 'N+1 PCS'");
+                strSql.AppendLine(" FROM TSOQReply ");
+                strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
+                //外注
+                strSql.AppendLine(" AND INOUTFLAG='1' ");
+                //内示月
+                strSql.AppendLine(" AND iMonthFlag=1) tn1 ");
+
+                strSql.AppendLine(" ON tn.PartsNo=tn1.PARTSNO ");
+
+
+                strSql.AppendLine(" LEFT JOIN (");
+                strSql.AppendLine(" SELECT PARTSNO, ");
+                strSql.AppendLine(" QUANTITYPERCONTAINER as 'N+2 O/L',");
+                strSql.AppendLine(" iUnits as 'N+2 Units',");
+                strSql.AppendLine(" iPCS as 'N+2 PCS'");
+                strSql.AppendLine(" FROM TSOQReply ");
+                strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
+                //外注
+                strSql.AppendLine(" AND INOUTFLAG='1' ");
+                //内内示月
+                strSql.AppendLine(" AND iMonthFlag=2) tn2 ");
+
+                strSql.AppendLine(" ON tn.PartsNo=tn2.PARTSNO ");
+
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

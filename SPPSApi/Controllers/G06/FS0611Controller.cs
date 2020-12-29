@@ -5,72 +5,31 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
 
 namespace SPPSApi.Controllers.G06
 {
-    [Route("api/FS0608/[action]")]
+    [Route("api/FS0611/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0608Controller : BaseController
+    public class FS0611Controller : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly string FunctionID = "FS0608";
-        FS0608_Logic fs0608_Logic = new FS0608_Logic();
+        private readonly string FunctionID = "FS0611";
+        FS0611_Logic fs0611_Logic = new FS0611_Logic();
 
-        public FS0608Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0611Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
 
 
-        #region 页面初始化
+        #region 获取对象年月
         [HttpPost]
         [EnableCors("any")]
-        public string pageloadApi()
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                Dictionary<string, object> res = new Dictionary<string, object>();
-
-                //获取对象年月
-                DateTime varDxny = DateTime.Now.AddMonths(1);
-
-                //发注工厂
-                List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
-
-                res.Add("C000", dataList_C000);
-                res.Add("varDxny", varDxny);
-
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "初始化失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region 检索数据
-        [HttpPost]
-        [EnableCors("any")]
-        public string searchApi([FromBody] dynamic data)
+        public string getDxnyApi()
         {
 
             string strToken = Request.Headers["X-Token"];
@@ -81,17 +40,13 @@ namespace SPPSApi.Controllers.G06
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            DateTime varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny);
-            string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
 
             try
             {
-                JObject dt = fs0608_Logic.Search(varDxny, varFZGC);
-                //List<Object> dataList = ComFunction.convertAllToResult(dt);
+                string varDxny = DateTime.Now.AddMonths(1).ToString("yyyy/MM");
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dt;
+                apiResult.data = varDxny;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -104,50 +59,82 @@ namespace SPPSApi.Controllers.G06
         }
         #endregion
 
-        #region 保存数据
+        #region 生成SOQReply
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody] dynamic data)
+        public string createApi([FromBody] dynamic data)
         {
-
+            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
-                //return error_login();
+                return error_login();
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            //单、双、非
-            List<string> dayTypeVals = dataForm.dayTypeVals.ToObject<List<string>>();
-
-            //属于第几周（0、1、2、3、4）
-            List<string> weekTypeVals = dataForm.weekTypeVals.ToObject<List<string>>();
-
-            //对象年月
-            string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
-            //发注工厂
-            string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
-            //总稼动日
-            decimal TOTALWORKDAYS = dataForm.TOTALWORKDAYS == null ? 0 : Convert.ToDecimal(dataForm.TOTALWORKDAYS);
-
             try
             {
-                fs0608_Logic.save(dayTypeVals, weekTypeVals, varDxny, varFZGC, TOTALWORKDAYS, loginInfo.UserId);
 
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+                string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
+                
+                fs0611_Logic.create(varDxny, loginInfo.UserId);
+
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
+                //apiResult.data = count;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0104", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 展开SOQReply
+        [HttpPost]
+        [EnableCors("any")]
+        public string zkApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+                string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
+
+                fs0611_Logic.zk(varDxny, loginInfo.UserId);
+
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                //apiResult.data = count;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
     }
+
 }

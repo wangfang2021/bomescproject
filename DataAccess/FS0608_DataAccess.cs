@@ -17,7 +17,7 @@ namespace DataAccess
         /// 保存
         /// </summary>
         /// <returns></returns>
-        public void save(List<string> re, string varDxny,string varFZGC,decimal TOTALWORKDAYS, string strUserId)
+        public void save(List<string> re, string varDxny, string varFZGC, decimal TOTALWORKDAYS, string strUserId)
         {
             try
             {
@@ -81,8 +81,12 @@ namespace DataAccess
                 strSql.AppendLine(" VALUES( ");
                 strSql.AppendLine(" @varFZGC, ");
                 strSql.AppendLine(" @varDxny, ");
-                for (int i = 0; i < re.Count; i++) {
-                    strSql.AppendLine("'"+re[i]+"',");
+                for (int i = 0; i < 31; i++)
+                {
+                    if (!string.IsNullOrEmpty(re[i]))
+                        strSql.AppendLine("'" + re[i] + "',");
+                    else
+                        strSql.AppendLine("NULL,");
                 }
 
                 strSql.AppendLine(" @TOTALWORKDAYS, ");
@@ -145,21 +149,25 @@ namespace DataAccess
                 strSql.AppendLine(" TARGETDAY29, ");
                 strSql.AppendLine(" TARGETDAY30, ");
                 strSql.AppendLine(" TARGETDAY31, ");
+                strSql.AppendLine(" TARGETMONTH, ");
                 strSql.AppendLine(" TOTALWORKDAYS ");
                 strSql.AppendLine(" FROM SP_M_SOQCLDAR ");
 
                 strSql.AppendLine(" WHERE varFZGC=@varFZGC ");
                 strSql.AppendLine(string.Format(" AND TARGETMONTH in ('{0}','{1}','{2}')", varDxny.ToString("yyyy/MM"), varDxny.AddMonths(1).ToString("yyyy/MM"), varDxny.AddMonths(2).ToString("yyyy/MM")));
-                
+
                 strSql.AppendLine(" ORDER BY TARGETMONTH; ");
 
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),parameters);
+
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        
+
+
     }
 }

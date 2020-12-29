@@ -22,37 +22,55 @@ namespace Logic
 
         public JObject Search(DateTime varDxny, string varFZGC)
         {
-            JObject data = new JObject {};
+            JObject data = new JObject { };
 
             DataTable re = fs0608_DataAccess.Search(varDxny, varFZGC);
 
-            for (int i = 0; i < re.Rows.Count; i++)
+            string[] dxnyArray = new string[]
+                { varDxny.ToString("yyyy/MM"),
+                  varDxny.AddMonths(1).ToString("yyyy/MM"),
+                  varDxny.AddMonths(2).ToString("yyyy/MM")
+                };
+
+            for (int i = 0; i < dxnyArray.Length; i++)
             {
-                string[] dayTempalte = new string[31];
-                string[] weekTempalte = new string[31];
-                for (int j = 0; j < re.Columns.Count - 1; j++)
+                for (int j = 0; j < re.Rows.Count; j++)
                 {
-                    //单值
-                    if (re.Rows[i][j].ToString().Contains("*"))
+                    if (dxnyArray[i] == re.Rows[j]["TARGETMONTH"].ToString())
                     {
-                        dayTempalte[j] = "单";
+
+                        string[] dayTempalte = new string[31];
+                        string[] weekTempalte = new string[31];
+                        for (int k = 0; k < re.Columns.Count - 2; k++)
+                        {
+                            if (!string.IsNullOrEmpty(re.Rows[j][k].ToString()))
+                            {
+                                //单值
+                                if (re.Rows[j][k].ToString().Contains("*"))
+                                {
+                                    dayTempalte[k] = "单";
+                                }
+                                //休
+                                else if (re.Rows[j][k].ToString() == "0")
+                                {
+                                    dayTempalte[k] = "休";
+                                }
+                                //双值
+                                else
+                                {
+                                    dayTempalte[k] = "双";
+                                }
+                                //周数（取第一位数字）
+                                weekTempalte[k] = re.Rows[j][k].ToString()[0].ToString();
+                            }
+                        }
+                        data["dayTypeValsN" + (i == 0 ? "" : i.ToString())] = new JArray(dayTempalte);
+                        data["weekTypeValsN" + (i == 0 ? "" : i.ToString())] = new JArray(weekTempalte);
+                        data["totalWorkDaysN" + (i == 0 ? "" : i.ToString())] = re.Rows[j]["TOTALWORKDAYS"].ToString();
                     }
-                    //休
-                    else if (re.Rows[i][j].ToString() == "0")
-                    {
-                        dayTempalte[j] = "休";
-                    }
-                    //双值
-                    else {
-                        dayTempalte[j] = "双";
-                    }
-                    //周数（取第一位数字）
-                    weekTempalte[j] = re.Rows[i][j].ToString()[0].ToString();
                 }
-                data["dayTypeValsN"+(i==0?"":i.ToString())] = new JArray(dayTempalte);
-                data["weekTypeValsN" + (i == 0 ? "" : i.ToString())] = new JArray(weekTempalte);
-                data["totalWorkDaysN" + (i == 0 ? "" : i.ToString())] = re.Rows[i]["TOTALWORKDAYS"].ToString();
             }
+
 
             return data;
         }
@@ -69,11 +87,24 @@ namespace Logic
                     case "单":
                         re.Add(weekTypeVals[i] + "*");
                         break;
+                    case null:
+                        re.Add(null);
+                        break;
                     default:
                         re.Add(weekTypeVals[i]);
                         break;
                 }
             }
+
+            //如果不够31，则补齐
+            if (re.Count < 31)
+            {
+                for (int i = 0; i < 31 - re.Count; i++)
+                {
+                    re.Add(null);
+                }
+            }
+
 
             fs0608_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);
         }

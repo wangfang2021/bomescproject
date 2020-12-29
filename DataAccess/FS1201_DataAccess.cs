@@ -232,15 +232,15 @@ namespace DataAccess
                 DataTable dt = new DataTable();
                 ss.Fill(dt);
                 DataTable dtupdate = dt.Clone();
-                for (int j = 1; j < dtrel.Rows.Count; j++)
+                for (int j = 0; j < dtrel.Rows.Count; j++)
                 {
                     int num = 0;
                     if (dtrel.Rows[j][0].ToString().Trim().Length == 0 && dtrel.Rows[j][1].ToString().Trim().Length == 0 && dtrel.Rows[j][2].ToString().Trim().Length == 0)
                         continue;
                     dtupdate.Rows.Add(dtupdate.NewRow());
-                    dtupdate.Rows[j - 1][1] = dtplant.Select("vcData2='" + dtrel.Rows[j][1].ToString() + "'")[0]["vcData1"].ToString();
-                    dtupdate.Rows[j - 1][2] = year;
-                    dtupdate.Rows[j - 1][3] = month;
+                    dtupdate.Rows[j][1] = dtplant.Select("vcData2='" + dtrel.Rows[j][1].ToString() + "'")[0]["vcData1"].ToString();
+                    dtupdate.Rows[j][2] = year;
+                    dtupdate.Rows[j][3] = month;
                     if (dtrel.Rows[j][2].ToString().Trim().Length == 0)
                     {
                         dtrel.Rows[j][2] = dtrel.Rows[j][0];
@@ -249,11 +249,11 @@ namespace DataAccess
                     for (int i = 4; i < dtupdate.Columns.Count - 1; i++)
                     {
 
-                        dtupdate.Rows[j - 1][i] = dtrel.Rows[j][i - 2].ToString().Trim();
+                        dtupdate.Rows[j][i] = dtrel.Rows[j][i - 2].ToString().Trim();
                         if (Regex.IsMatch(dtrel.Rows[j][i - 2].ToString().Trim(), "(M|N)(A|B)") && i > 5)//刘刚
                             num++;
                     }
-                    dtupdate.Rows[j - 1]["total"] = num;
+                    dtupdate.Rows[j]["total"] = num;
                 }
                 dtupdate.PrimaryKey = new DataColumn[] { dtupdate.Columns["vcYear"], dtupdate.Columns["vcMonth"], dtupdate.Columns["vcGC"], dtupdate.Columns["vcZB"] };
                 for (int i = 0; i < dtupdate.Rows.Count; i++)

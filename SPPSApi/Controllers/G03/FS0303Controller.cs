@@ -37,7 +37,58 @@ namespace SPPSApi.Controllers.G03
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 检索
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                
+                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
+                List<Object> dataList_C004 = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
+                List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
+                List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
+                List<Object> dataList_C009 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//车型(设计)
+                List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
+                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
+                List<Object> dataList_C019 = ComFunction.convertAllToResult(ComFunction.getTCode("C019"));//生确
+
+                res.Add("C002", dataList_C002);
+                res.Add("C003", dataList_C003);
+                res.Add("C004", dataList_C004);
+                res.Add("C005", dataList_C005);
+                res.Add("C006", dataList_C006);
+                res.Add("C009", dataList_C009);
+                res.Add("C012", dataList_C012);
+                res.Add("C016", dataList_C016);
+                res.Add("C019", dataList_C019);
+                
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 检索（分页缓存）
         [HttpPost] 
         [EnableCors("any")]
         public string searchApi([FromBody] dynamic data)
@@ -53,10 +104,26 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strIsShowAll = dataForm.isShowAll;
+            string strSearchKey = dataForm.searchKey;
+            int iPage = dataForm.page == null ? 0 : dataForm.page;
+            int iPageSize = dataForm.pageSize;
+
 
             try
             {
-                DataTable dt = fs0303_Logic.Search(strIsShowAll);
+                DataTable dt = null;
+                int pageTotal = 0;//总页数
+                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                {
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize,ref pageTotal);
+                }
+                else
+                {
+                    DataTable dtAll = fs0303_Logic.Search(strIsShowAll);
+                    initSearchCash(strSearchKey, dtAll);
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
+                }
+                
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -77,11 +144,12 @@ namespace SPPSApi.Controllers.G03
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
+                apiResult.field1 = pageTotal;//这块需要把总页数返回
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0303", ex, "0000");   //loginInfo.UserId
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -178,7 +246,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0303", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -218,7 +286,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0303", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0903", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

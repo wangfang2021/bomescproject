@@ -18,30 +18,57 @@ namespace Logic
             fs0622_DataAccess = new FS0622_DataAccess();
 
         }
-
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataTable GetGroupDt()
         {
-            return fs0622_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+            return fs0622_DataAccess.GetGroupDt();
         }
 
-        public bool isExistAddData(DataTable dtadd)
+        public DataTable Search(string vcGroup, string vcPartNo, string vcFluctuationRange)
         {
-            return fs0622_DataAccess.isExistAddData(dtadd);
+            return fs0622_DataAccess.Search(vcGroup, vcPartNo, vcFluctuationRange);
         }
 
-        public bool isExistModData(DataTable dtamod)
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            return fs0622_DataAccess.isExistModData(dtamod);
+            fs0622_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
 
-        public DataTable BindInsideOutsideType()
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            throw new NotImplementedException();
+            fs0622_DataAccess.Del(listInfoData, userId);
+        }
+        public void allInstall(string vcGroupId, string vcFluctuationRange, string userId)
+        {
+            fs0622_DataAccess.allInstall(vcGroupId, vcFluctuationRange, userId);
+        }
+        public void importSave(DataTable importDt, string userId)
+        {
+            fs0622_DataAccess.importSave(importDt, userId);
         }
 
-        public DataTable BindConsignee()
+        public void addZbConfirm(string vcGroupName, string vcDefinition, string userId)
         {
-            throw new NotImplementedException();
+            fs0622_DataAccess.addZbConfirm(vcGroupName, vcDefinition, userId);
+        }
+
+        public void addConfirm(string vcGroupId, string vcPartNo, string vcFluctuationRange, string userId)
+        {
+             fs0622_DataAccess.addConfirm(vcGroupId, vcPartNo, vcFluctuationRange, userId);
+        }
+
+        public DataTable GetGroupNameDt()
+        {
+            return fs0622_DataAccess.GetGroupNameDt();
+        }
+
+        public bool CheckGroup(string vcGroupName)
+        {
+            return fs0622_DataAccess.CheckGroup(vcGroupName);
+        }
+
+        public bool CheckGroupbyGroupIdAndvcPartNo(string vcGroupId, string vcPartNo)
+        {
+            return fs0622_DataAccess.CheckGroupbyGroupIdAndvcPartNo(vcGroupId, vcPartNo);
         }
     }
 }

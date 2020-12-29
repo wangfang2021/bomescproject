@@ -1,16 +1,4 @@
-﻿/*******************************************************************
-* 	项目名称			:	TPCS								   	
-* 	模块名称			:	部署组别生产条件维护					
-* 	创建者			    :	GAOLEI								
-* 	创建日期			:	2020/08/24							
-* 	类名			    :	FS1202_Logic					    
-* 	修改者			    :						
-* 	修改时间			:						
-* 	修改内容			:											
-* 					
-* 	(C)2020-TJQM INFORMATION TECHNOLOGY CO.,LTD All Rights Reserved.
-*******************************************************************/
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Net;
@@ -22,7 +10,6 @@ using System.Collections;
 using System;
 using System.Linq;
 using System.Text;
-
 
 namespace Logic
 {

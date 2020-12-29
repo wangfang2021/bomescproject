@@ -24,24 +24,24 @@ namespace Logic
             return fs0623_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
         }
 
-        public bool isExistAddData(DataTable dtadd)
+        public DataTable Search_Sub()
         {
-            return fs0623_DataAccess.isExistAddData(dtadd);
+            return fs0623_DataAccess.Search_Sub();
         }
 
-        public bool isExistModData(DataTable dtamod)
+        public DataTable CheckDistinctByTable(DataTable dtadd)
         {
-            return fs0623_DataAccess.isExistModData(dtamod);
+            return fs0623_DataAccess.CheckDistinctByTable(dtadd);
         }
 
-        public DataTable BindInsideOutsideType()
+        public void Save_Sub(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorName)
         {
-            throw new NotImplementedException();
+            fs0623_DataAccess.Save_Sub(listInfoData,userId, strErrorName);
         }
 
-        public DataTable BindConsignee()
+        public void Del_Sub(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            throw new NotImplementedException();
+            fs0623_DataAccess.Del_Sub(listInfoData, userId);
         }
     }
 }

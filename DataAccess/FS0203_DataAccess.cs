@@ -49,9 +49,9 @@ namespace DataAccess
                     string vcPart_Id = list[i]["Part No."].ToString();
                     string vcPart_Name = list[i]["Part Name"].ToString();
                     string vcParent = list[i]["Parent RTG"].ToString();
-
-                    sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Name,vcParent,vcFileName,dOperatorTime,vcOperatorID) VALUES \r\n");
-                    sbr.Append(" ('" + vcCarType + "','" + vcUseLocation + "'," + iLV + ",'" + vcPart_Id + "','" + vcPart_Name + "','" + vcParent + "','" + fileName + "',GETDATE(),'" + userId + "') \r\n");
+                    string vcFather = list[i]["FatherPart_Id"].ToString();
+                    sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Id_Father,vcPart_Name,vcParent,vcFileName,dOperatorTime,vcOperatorID) VALUES \r\n");
+                    sbr.Append(" ('" + vcCarType + "','" + vcUseLocation + "'," + iLV + ",'" + vcPart_Id.Replace("-", "") + "','" + vcFather.Trim().Replace("-", "") + "','" + vcPart_Name + "','" + vcParent + "','" + fileName + "',GETDATE(),'" + userId + "') \r\n");
 
                     if (i % 1000 == 0)
                     {
@@ -91,10 +91,12 @@ namespace DataAccess
                 "Self RTG 10", "Self RTG 11", "Self RTG 12", "Self RTG 13", "Self RTG 14", "Parent RTG", "C", "11=",
                 "12=", "15=", "16=", "18=", "19=", "Prod. Comment"
             };
+            string Father = "";
             foreach (string str in strs)
             {
                 if (str.Contains(startFlag))
                 {
+                    Father = "";
                     flag = true;
                     continue;
                 }
@@ -107,11 +109,25 @@ namespace DataAccess
                         if (i % 2 == 1)
                             tempList.Add(temp[i]);
                     }
+                    //9,13  lv  partid
+
+                    if (temp[9].ToString().Trim().Equals("01") || temp[9].ToString().Trim().Equals("1"))
+                    {
+                        Father = temp[13].ToString().Trim();
+                    }
 
                     Hashtable tempHashtable = new Hashtable();
                     for (int i = 0; i < title.Count; i++)
                     {
                         tempHashtable.Add(title[i], tempList.Count - 1 > i ? tempList[i] : "");
+                    }
+                    if (temp[9].ToString().Trim().Equals("01") || temp[9].ToString().Trim().Equals("1"))
+                    {
+                        tempHashtable.Add("FatherPart_Id", "");
+                    }
+                    else
+                    {
+                        tempHashtable.Add("FatherPart_Id", Father);
                     }
                     list.Add(tempHashtable);
                 }
@@ -124,5 +140,78 @@ namespace DataAccess
             return list;
         }
         #endregion
+
+        public void importSPRL(DataTable dt, string fileName, string userId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                string carType = fileName.Substring(0, 4);
+                string vcPlant = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(dt.Rows[i]["vcPlant"].ToString()))
+                    {
+                        vcPlant = dt.Rows[i]["vcPlant"].ToString();
+                        break;
+                    }
+                }
+                string FileNameTJ = vcPlant + "_" + "SPRL" + carType;
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime) \r\n");
+                    sbr.Append(" values ( \r\n");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"].ToString().Trim(), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_new"].ToString().Replace("-", "").Trim(), false) + ",");
+                    sbr.Append("'0',");
+                    sbr.Append("'" + carType + "',");
+                    sbr.Append("'新车新设',");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcBJDiff"].ToString().Trim(), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPartName"].ToString().Trim(), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("*", "").Replace("/", "").Trim(), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"].ToString().Trim(), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"].ToString().Trim(), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcNewProj"].ToString().Trim(), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("**", "/01").Replace("/", "").Trim(), true) + ",");
+                    sbr.Append("'" + fileName + "',");
+                    sbr.Append("'" + FileNameTJ + "',");
+                    sbr.Append("'" + userId + "',");
+                    sbr.Append(" GETDATE() ");
+                    sbr.Append(" ) \r\n");
+                }
+
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                }
+
+                sbr.Length = 0;
+                sbr.Append(" INSERT INTO TSPIHistory (vcFileName,vcRemark,vcType,vcOperatorID,dOperatorTime) \r\n");
+                sbr.Append(" values ( \r\n");
+                sbr.Append(" '" + fileName + "',");
+                sbr.Append("'',");
+                sbr.Append("'1',");
+                sbr.Append("'" + userId + "',");
+                sbr.Append(" GETDATE() ) \r\n");
+
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                }
+
+                sbr.Length = 0;
+                sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcRemark,vcOperatorId,dOperatorTime) \r\n");
+                sbr.Append(" values ( \r\n");
+                sbr.Append(" '" + FileNameTJ + "','0','','" + userId + "',GETDATE()) \r\n ");
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

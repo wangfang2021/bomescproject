@@ -33,6 +33,9 @@ namespace Logic
             return fs0203_dataAccess.GetPartFromFile(path);
         }
 
-
+        public void importSPRL(DataTable dt, string fileName, string userId)
+        {
+            fs0203_dataAccess.importSPRL(dt, fileName, userId);
+        }
     }
 }

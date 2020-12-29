@@ -32,7 +32,7 @@ namespace SPPSApi.Controllers.G02
 
         [HttpPost]
         [EnableCors("any")]
-        public string searchSPI([FromBody]dynamic data)
+        public string searchApi([FromBody]dynamic data)
         {
 
             //验证是否登录
@@ -52,7 +52,7 @@ namespace SPPSApi.Controllers.G02
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             try
             {
-                DataTable dt = fs0201_logic.searchSPI(vcSPINo, vcPart_Id, vcCarType, vcState);
+                DataTable dt = fs0201_logic.searchApi(vcSPINo, vcPart_Id, vcCarType, vcState);
 
 
                 DtConverter dtConverter = new DtConverter();
@@ -107,7 +107,7 @@ namespace SPPSApi.Controllers.G02
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             try
             {
-                DataTable dt = fs0201_logic.searchSPI(vcSPINo, vcPart_Id, vcCarType, vcState);
+                DataTable dt = fs0201_logic.searchApi(vcSPINo, vcPart_Id, vcCarType, vcState);
                 string resMsg = "";
                 string[] head = { "SPI NO", "旧品番", "新品番", "補給区分(新)", "代替区分", "代替品番(新)", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№(新)", "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名" };
                 string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj", "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
@@ -266,7 +266,7 @@ namespace SPPSApi.Controllers.G02
 
         [HttpPost]
         [EnableCors("any")]
-        public string transferSPI()
+        public string transferApi()
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -280,7 +280,7 @@ namespace SPPSApi.Controllers.G02
             ApiResult apiResult = new ApiResult();
             try
             {
-                bool flag = fs0201_logic.transferSPI(loginInfo.UserId);
+                bool flag = fs0201_logic.transferApi(loginInfo.UserId);
                 if (flag == true)
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;

@@ -48,12 +48,12 @@ namespace SPPSApi.Controllers.G15
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcGQ = dataForm.vcGQ == null ? "" : dataForm.vcGQ;
-            string vcSR = dataForm.vcSR == null ? "" : dataForm.vcSR;
-            string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
-            string vcNRBianCi = dataForm.vcNRBianCi == null ? "" : dataForm.vcNRBianCi;
-            string vcNRBJSK = dataForm.vcNRBJSK == null ? "" : dataForm.vcNRBJSK;
+            string vcSupplier_id = dataForm.vcSupplier_id;
+            string vcGQ = dataForm.vcGQ;
+            string vcSR = dataForm.vcSR;
+            string vcOrderNo = dataForm.vcOrderNo;
+            string vcNRBianCi = dataForm.vcNRBianCi;
+            string vcNRBJSK = dataForm.vcNRBJSK;
 
             try
             {
@@ -78,6 +78,54 @@ namespace SPPSApi.Controllers.G15
         }
         #endregion
 
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcSupplier_id = dataForm.vcSupplier_id;
+            string vcGQ = dataForm.vcGQ;
+            string vcSR = dataForm.vcSR;
+            string vcOrderNo = dataForm.vcOrderNo;
+            string vcNRBianCi = dataForm.vcNRBianCi;
+            string vcNRBJSK = dataForm.vcNRBJSK;
+
+            try
+            {
+                DataTable dt = fs1501_Logic.Search(vcSupplier_id, vcGQ, vcSR, vcOrderNo, vcNRBianCi, vcNRBJSK);
+                string[] heads = { "供应商代码", "工区", "受入", "订单号", "纳入便次", "纳入补给时刻" };
+                string[] fields = { "vcSupplier_id", "vcGQ", "vcSR", "vcOrderNo", "vcNRBianCi" , "vcNRBJSK" };
+                string strMsg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1002", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 保存
         [HttpPost]
         [EnableCors("any")]
@@ -97,69 +145,48 @@ namespace SPPSApi.Controllers.G15
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dt = fs1501_Logic.GetNRBJSKBianCiInfo();
-                int ieditRows = 0;
+                bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//编辑标识,取false的
-                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//编辑标识,取false的
-                    //标识说明
-                    //默认  bmodflag:false  baddflag:false
-                    //新增  bmodflag:true   baddflag:true
-                    //修改  bmodflag:true   baddflag:false
-                    if (bmodflag == true)
-                    {
-                        ieditRows++;
-
-                        string vcSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
-                        string vcGQ = listInfoData[i]["vcGQ"].ToString();
-                        string vcSR = listInfoData[i]["vcSR"].ToString();
-                        string vcOrderNo = listInfoData[i]["vcOrderNo"].ToString();
-                        //校验 非空校验
-                        if (vcSupplier_id == "")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = string.Format("供应商代码不能为空");
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        if (vcGQ == "")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = string.Format("工区不能为空");
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        if (vcSR == "")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = string.Format("受入不能为空");
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        if (vcOrderNo == "")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = string.Format("订单号不能为空");
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        DataRow[] drs = null;
-                        //校验 供应商代码+工区+受入 不能重复
-                        if (baddflag)
-                        {
-                            drs = dt.Select("vcSupplier_id='" + vcSupplier_id + "' and vcGQ='" + vcGQ + "' and vcSR='" + vcSR + "' ");
-                            if (drs.Length > 0)
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = string.Format("[供应商代码-工区-受入]不能重复：{0}-{1}-{2}",
-                                    vcSupplier_id, vcGQ, vcSR);
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                        }
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        hasFind = true;
                     }
                 }
-                if (ieditRows == 0)
+                if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+                    #region 数据格式校验
+                    string[,] strField = new string[,]
+                    {
+                        {"纳入便次","纳入补给时刻"},//中文字段名
+                        {"vcNRBianCi","vcNRBJSK"},//英文字段名
+                        {"",""},//数据类型校验
+                        {"25","25"},//最大长度设定,不校验最大长度用0
+                        {"0","0"},//最小长度设定,可以为空用0
+                        {"5","6"},//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1501");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
                 }
                 fs1501_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

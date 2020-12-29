@@ -137,6 +137,11 @@ namespace DataAccess
 
                 sql.AppendLine("WHERE TSoq.varDxny=@varDxny;");
 
+                //在SOQprocess表中插入状态
+                sql.AppendLine("DELETE TSOQProcess WHERE varDxny=@varDxny;");
+                sql.AppendLine("INSERT INTO TSOQProcess(INOUTFLAG,varDxny,iStatus) ");
+                sql.AppendLine("VALUES('0',@varDxny,0),");
+                sql.AppendLine("('1',@varDxny,0);");
 
                 if (sql.Length > 0)
                 {

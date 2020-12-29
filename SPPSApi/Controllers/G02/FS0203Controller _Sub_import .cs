@@ -78,11 +78,11 @@ namespace SPPSApi.Controllers.G02
                 {
                     string strMsg = "";
 
-                    string[,] headers = new string[,] {{"SPI NO","旧品番","新品番","補給区分(新)","代替区分","代替品番(新)","品名","品番実施時期(新/ｶﾗ)","防錆区分","防錆指示書№(新)","変更事項","旧工程","工程実施時期旧/ﾏﾃﾞ","新工程","工程実施時期新/ｶﾗ","工程参照引当(直上品番)(新)","処理日","シート名","ファイル名"},
-                        {"vcSPINo","vcPart_Id_old","vcPart_Id_new","vcBJDiff","vcDTDiff","vcPart_id_DT","vcPartName","vcStartYearMonth","vcFXDiff","vcFXNo","vcChange","vcOldProj","vcOldProjTime","vcNewProj","vcNewProjTime","vcCZYD","dHandleTime","vcSheetName","vcFileName"},
-                        {"","","","","","","","","","","","","","","","","","",""},
-                        {"0","12","12","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                        {"1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                    string[,] headers = new string[,] {{"工場区分","補給区分","品番－類別","品名","設変ＮＯカラ","適用期間カラ","防錆区分","防錆指示書ＮＯ","補給出荷場所"},
+                        {"vcPlant","vcBJDiff","vcPart_Id_new","vcPartName","vcSPINo","vcStartYearMonth","vcFXDiff","vcFXNo","vcNewProj"},
+                        {"","","","","","","","",""},
+                        {"0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                        {"0","1","1","0","1","0","0","0","0"},//最小长度设定,可以为空用0
                     };
 
                     DataTable importDt = new DataTable();
@@ -109,11 +109,10 @@ namespace SPPSApi.Controllers.G02
                         {
                             importDt.ImportRow(row);
                         }
+                        fs0203_logic.importSPRL(importDt, info.Name, loginInfo.UserId);
                     }
                     ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-
-                    //fs0201_logic.importSave(importDt, loginInfo.UserId);
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

@@ -51,6 +51,7 @@
 
   <ItemGroup>
     <Folder Include="Controllers\G08\" />
+    <Folder Include="Controllers\G17\" />
     <Folder Include="Doc\Export\" />
     <Folder Include="Doc\Import\" />
   </ItemGroup>

@@ -57,10 +57,10 @@ namespace Logic
                 DataTable dt = fs0201_DataAccess.searchApi("", "", "");
 
                 //检测NG状态
-                //if (Check(dt))
-                //{
-                //    return false;
-                //}
+                if (Check(dt))
+                {
+                    //return false;
+                }
 
                 dt.Columns.Add("vcCarType");
                 dt.Columns.Add("vcFileNameTJ");
@@ -252,6 +252,9 @@ namespace Logic
             dt.Columns.Add("FXNoError");
             dt.Columns.Add("ChangeError");
             dt.Columns.Add("NewProjError");
+
+            dt.Columns.Add("OldProjTimeError");
+            dt.Columns.Add("NewProjTimeError");
             //判断画面显示样式
             for (int i = 0; i < dt.Rows.Count; i++)
             {
@@ -265,6 +268,8 @@ namespace Logic
                 string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
                 string vcChange = dt.Rows[i]["vcChange"].ToString();
                 string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
+                string vcOldProjTime = dt.Rows[i]["vcOldProjTime"].ToString();
+                string vcNewProjTime = dt.Rows[i]["vcNewProjTime"].ToString();
 
                 int State = 0;
                 string ErrorInfo = "";
@@ -277,7 +282,19 @@ namespace Logic
                 int FXNoError = 0;
                 int ChangeError = 0;
                 int NewProjError = 0;
+                int OldProjTimeError = 0;
+                int NewProjTimeError = 0;
                 List<string> errorlist = new List<string>();
+                if (!string.IsNullOrWhiteSpace(vcOldProjTime) && !IsDate(vcOldProjTime))
+                {
+                    OldProjTimeError = 1;
+                    errorlist.Add("工程実施時期旧/ﾏﾃﾞ格式不正确");
+                }
+                if (!string.IsNullOrWhiteSpace(vcNewProjTime) && !IsDate(vcNewProjTime))
+                {
+                    NewProjTimeError = 1;
+                    errorlist.Add("工程実施時期新/ｶﾗ格式不正确");
+                }
                 //新旧品番都为空
                 if ((string.IsNullOrWhiteSpace(vcPart_Id_old) && string.IsNullOrWhiteSpace(vcPart_Id_new)) || (!string.IsNullOrWhiteSpace(vcPart_Id_old) && !string.IsNullOrWhiteSpace(vcPart_Id_new)))
                 {
@@ -362,6 +379,8 @@ namespace Logic
                 dt.Rows[i]["FXNoError"] = FXNoError;
                 dt.Rows[i]["ChangeError"] = ChangeError;
                 dt.Rows[i]["NewProjError"] = NewProjError;
+                dt.Rows[i]["OldProjTimeError"] = OldProjTimeError;
+                dt.Rows[i]["NewProjTimeError"] = NewProjTimeError;
             }
 
             return dt;
@@ -446,10 +465,19 @@ namespace Logic
                 DataTable tmp = temp1.Clone(); // 复制DataRow的表结构
                 foreach (DataRow row in arrayDR)
                 {
-
                     tmp.ImportRow(row); // 将DataRow添加到DataTable中
                 }
-                return tmp;
+
+                DataRow[] arrDR = tmp.Select("vcChange not in('代替時期変更/Sub. Effective Period Change','工程参照引当変更/Routing Address Change','補給生産区分変更') ");
+                DataTable tempTable = tmp.Clone();
+                foreach (DataRow row1 in arrDR)
+                {
+
+                    tempTable.ImportRow(row1); // 将DataRow添加到DataTable中
+                }
+
+                return tempTable;
+
             }
             catch (Exception ex)
             {
@@ -1571,7 +1599,18 @@ namespace Logic
         #endregion
 
 
-
+        public bool IsDate(string strDate)
+        {
+            try
+            {
+                DateTime.Parse(strDate);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
 
     }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using Common;
+using Microsoft.Office.Interop.Excel;
+using DataTable = System.Data.DataTable;
 
 namespace DataAccess
 {
@@ -123,6 +124,8 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 List<string> fileList = new List<string>();
+
+                DataTable change = getChange();
                 //将spi表传到设变表
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -131,6 +134,7 @@ namespace DataAccess
                     string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
                     string vcChange = dt.Rows[i]["vcChange"].ToString();
+                    //string vcChange = getChangString(change, dt.Rows[i]["vcChange"].ToString());
                     string vcBJDiff = dt.Rows[i]["vcBJDiff"].ToString();
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
                     string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
@@ -192,9 +196,9 @@ namespace DataAccess
                 excute.ExcuteSqlWithStringOper(sbr.ToString());
 
                 //清空SPI
-                //sbr.Length = 0;
-                //sbr.Append(" TRUNCATE TABLE TSPIList\r\n");
-                //excute.ExcuteSqlWithStringOper(sbr.ToString());
+                sbr.Length = 0;
+                sbr.Append(" TRUNCATE TABLE TSPIList\r\n");
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
 
             }
             catch (Exception ex)
@@ -205,6 +209,45 @@ namespace DataAccess
         }
 
         #endregion
+
+
+        #region 获取变更事项
+
+        public DataTable getChange()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.Append("SELECT vcName,vcValue FROM  TCode WHERE vcCodeId = 'C025'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string getChangString(DataTable dt, string change)
+        {
+            try
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcValue"].ToString().Trim().Equals(change.Trim()))
+                    {
+                        return dt.Rows[i]["vcName"].ToString().Trim();
+                    }
+                }
+
+                return change;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
 
         #region 保存SPI
         public void saveSPI(List<Dictionary<string, Object>> listInfoData, string strUserId)

@@ -20,9 +20,9 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G03
+namespace SPPSApi.Controllers.G12
 {
-    [Route("api/FS1201_editCalendarData/[action]")]
+    [Route("api/FS1201_Sub_editCalendarData/[action]")]
     [EnableCors("any")]
     [ApiController]
     public class FS1201Controller_Sub_editCalendarData : BaseController
@@ -36,7 +36,7 @@ namespace SPPSApi.Controllers.G03
             _webHostEnvironment = webHostEnvironment;
         }
 
-       #region 检索
+        #region 检索
         [HttpPost]
         [EnableCors("any")]
         public string searchApi([FromBody] dynamic data)
@@ -53,21 +53,22 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcPartType = dataForm.vcPartType;
             string vcPlant = dataForm.vcPlant;
-            string vcYear = dataForm.vcYear;
+            string vcYearMonth = dataForm.vcMonth;
             string vcPorType = dataForm.vcPorType;
             string vcZB = dataForm.vcZB;
             vcPartType = vcPartType == null ? "" : vcPartType;
             vcPlant = vcPlant == null ? "" : vcPlant;
-            vcYear = (vcYear == null || vcYear.Length < 1) ? DateTime.Now.Year.ToString() : vcYear;
+            vcYearMonth = (vcYearMonth == null || vcYearMonth.Length < 1) ? DateTime.Now.Year.ToString() : vcYearMonth;
+            string vcYear = vcYearMonth.Split('-')[0];
+            string vcMonth = vcYearMonth.Split('-')[1];
             vcPorType = vcPorType == null ? "" : vcPorType;
             vcZB = vcZB == null ? "" : vcZB;
-
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> calendarData1 = ComFunction.convertAllToResult(fs1201_Logic.getRenders(vcYear, "1", vcPorType, vcZB, vcPlant, "#5DAD64"));
-                res.Add("calendarData1", calendarData1);
-                res.Add("current_Year", vcYear);
+                List<Object> calendarData = ComFunction.convertAllToResult(fs1201_Logic.getRenders(vcYear, vcMonth, vcPorType, vcZB, vcPlant, "#5DAD64"));
+                res.Add("calendarData", calendarData);
+                res.Add("current_Year", vcMonth);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -82,5 +83,54 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
+        /// <summary>
+        /// 更新稼动日数据
+        /// </summary>
+        [HttpPost]
+        [EnableCors("any")]
+        public string UpdateCalendar([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string vcPartType = dataForm.vcPartType;
+                string vcPlant = dataForm.vcPlant;
+                string vcYearMonth = dataForm.vcMonth;
+                string vcPorType = dataForm.vcPorType;
+                string vcZB = dataForm.vcZB;
+                vcPartType = vcPartType == null ? "" : vcPartType;
+                vcPlant = vcPlant == null ? "" : vcPlant;
+                vcYearMonth = (vcYearMonth == null || vcYearMonth.Length < 1) ? DateTime.Now.Year.ToString() : vcYearMonth;
+                string vcYear = vcYearMonth.Split('-')[0];
+                string vcMonth = vcYearMonth.Split('-')[1].Length == 1 ? "0" + vcYearMonth.Split('-')[1] : vcYearMonth.Split('-')[1];
+                vcPorType = vcPorType == null ? "" : vcPorType;
+                vcZB = vcZB == null ? "" : vcZB;
+
+                byte[] rep = { 194, 160 };
+                string Add_data = dataForm.vcData;
+                string[] Udata = Add_data.Replace(System.Text.Encoding.GetEncoding("UTF-8").GetString(rep), "").Split('|');
+
+                fs1201_Logic.UpdateCalendar(vcPlant, vcPorType, vcZB, vcYear, vcMonth, Udata);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "更新成功";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "更新失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
     }
 }

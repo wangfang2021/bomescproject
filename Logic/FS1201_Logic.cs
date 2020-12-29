@@ -162,14 +162,10 @@ namespace Logic
         /// 数据更新
         /// </summary>
         /// <param name="fS1201_ViewModel"></param>
-        //public void UpdateCalendar(FS1201_ViewModel fS1201_ViewModel)
-        //{
-        //    byte[] rep = { 194, 160 };
-        //    string Add_data = fS1201_ViewModel.vcData;
-        //    string[] Udata = Add_data.Replace(System.Text.Encoding.GetEncoding("UTF-8").GetString(rep), "").Split('|');
-
-        //    dataAccess.UpdateCalendar(plant, gc, zb, year, month, Udata);
-        //}
+        public void UpdateCalendar(string vcPlant, string vcGC, string vcZB, string vcYear, string vcMonth, string[] Udata)
+        {
+            dataAccess.UpdateCalendar(vcPlant, vcGC, vcZB, vcYear, vcMonth, Udata);
+        }
 
         public void UpdateTable(DataTable dt, string Month)
         {

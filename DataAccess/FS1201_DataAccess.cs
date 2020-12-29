@@ -298,44 +298,51 @@ namespace DataAccess
 
         public void UpdateCalendar(string plant, string gc, string zb, string year, string month, string[] data)
         {
-            string UpTable = MonSQL(month);
-            SqlCommand cmd = new SqlCommand(" select * from " + UpTable, new SqlConnection(ComConnectionHelper.GetConnectionString()));
-            SqlDataAdapter ss = new SqlDataAdapter(cmd);
-            DataTable dt = new DataTable();
-            ss.Fill(dt);
-            if (dt.Rows.Count > 0)
+            try
             {
-                if (dt.Select(" vcYear='" + year + "' and vcMonth='" + month + "' and vcGC='" + gc + "' and vcZB='" + zb + "' ").Length > 0)
-                    dt = dt.Select(" vcYear='" + year + "' and vcMonth='" + month + "' and vcGC='" + gc + "' and vcZB='" + zb + "' ").CopyToDataTable();
-                else
+                string UpTable = MonSQL(month);
+                SqlCommand cmd = new SqlCommand(" select * from " + UpTable, new SqlConnection(ComConnectionHelper.GetConnectionString()));
+                SqlDataAdapter ss = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                ss.Fill(dt);
+                if (dt.Rows.Count > 0)
                 {
-                    dt.Rows.Add(dt.NewRow());
+                    if (dt.Select(" vcYear='" + year + "' and vcMonth='" + month + "' and vcGC='" + gc + "' and vcZB='" + zb + "' ").Length > 0)
+                        dt = dt.Select(" vcYear='" + year + "' and vcMonth='" + month + "' and vcGC='" + gc + "' and vcZB='" + zb + "' ").CopyToDataTable();
+                    else
+                    {
+                        dt.Rows.Add(dt.NewRow());
+                    }
                 }
+                else dt.Rows.Add(dt.NewRow());
+                for (int i = 1; i < dt.Columns.Count; i++)
+                {
+                    dt.Rows[dt.Rows.Count - 1][i] = DBNull.Value;
+                }
+                SqlCommandBuilder cmdBud = new SqlCommandBuilder(ss);
+                dt.Rows[dt.Rows.Count - 1]["vcPlant"] = plant;
+                dt.Rows[dt.Rows.Count - 1]["vcYear"] = year;
+                dt.Rows[dt.Rows.Count - 1]["vcMonth"] = month;
+                dt.Rows[dt.Rows.Count - 1]["vcGC"] = gc;
+                dt.Rows[dt.Rows.Count - 1]["vcZB"] = zb;
+                dt.Rows[dt.Rows.Count - 1]["total"] = data.Length - 1;
+                for (int i = 0; i < data.Length - 1; i++)
+                {
+                    string col = data[i].Split('~')[1].ToString().Trim();
+                    string value = data[i].Split('~')[0].ToString().Trim();
+                    byte[] b = System.Text.Encoding.UTF8.GetBytes(value);
+                    dt.Rows[dt.Rows.Count - 1][col] = value;
+                }
+                dt.PrimaryKey = new DataColumn[] { dt.Columns["vcYear"], dt.Columns["vcMonth"], dt.Columns["vcGC"], dt.Columns["vcZB"] }; //设置主键
+                ss.Update(dt);
+                dt.AcceptChanges();
+                ss.Dispose();
+                cmdBud.Dispose();
             }
-            else dt.Rows.Add(dt.NewRow());
-            for (int i = 1; i < dt.Columns.Count; i++)
+            catch(Exception ex)
             {
-                dt.Rows[dt.Rows.Count - 1][i] = DBNull.Value;
+                throw ex;
             }
-            SqlCommandBuilder cmdBud = new SqlCommandBuilder(ss);
-            dt.Rows[dt.Rows.Count - 1]["vcPlant"] = plant;
-            dt.Rows[dt.Rows.Count - 1]["vcYear"] = year;
-            dt.Rows[dt.Rows.Count - 1]["vcMonth"] = month;
-            dt.Rows[dt.Rows.Count - 1]["vcGC"] = gc;
-            dt.Rows[dt.Rows.Count - 1]["vcZB"] = zb;
-            dt.Rows[dt.Rows.Count - 1]["total"] = data.Length - 1;
-            for (int i = 0; i < data.Length - 1; i++)
-            {
-                string col = data[i].Split('~')[1].ToString().Trim();
-                string value = data[i].Split('~')[0].ToString().Trim();
-                byte[] b = System.Text.Encoding.UTF8.GetBytes(value);
-                dt.Rows[dt.Rows.Count - 1][col] = value;
-            }
-            dt.PrimaryKey = new DataColumn[] { dt.Columns["vcYear"], dt.Columns["vcMonth"], dt.Columns["vcGC"], dt.Columns["vcZB"] }; //设置主键
-            ss.Update(dt);
-            dt.AcceptChanges();
-            ss.Dispose();
-            cmdBud.Dispose();
         }
         public string MonSQL(string Mon)
         {

@@ -257,8 +257,8 @@ namespace DataAccess
                             strWeekCount += dtrel.Rows[j][i - 2].ToString().Trim();
                         }
                     }
-                    dtupdate.Rows[j - 1]["vcTotal"] = num.ToString();
-                    dtupdate.Rows[j - 1]["vcWeekCount"] = StringItemCount(strWeekCount).ToString();
+                    dtupdate.Rows[j]["vcTotal"] = num.ToString();
+                    dtupdate.Rows[j]["vcWeekCount"] = StringItemCount(strWeekCount).ToString();
                 }
                 //设置主键
                 dtupdate.PrimaryKey = new DataColumn[]

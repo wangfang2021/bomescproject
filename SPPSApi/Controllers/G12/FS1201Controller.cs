@@ -157,7 +157,11 @@ namespace SPPSApi.Controllers.G12
             vcYear = (vcYear == null || vcYear.Length < 1) ? DateTime.Now.Year.ToString() : vcYear;
             vcPorType = vcPorType == null ? "" : vcPorType;
             vcZB = vcZB == null ? "" : vcZB;
-
+            if (vcPartType == "1")
+            {
+                vcPorType = "非指定";
+                vcZB = "#" + vcPlant;
+            }
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();

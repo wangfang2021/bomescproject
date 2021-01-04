@@ -18,7 +18,14 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("      select '0' as vcModFlag,'0' as vcAddFlag,vcPart_id,vcHaoJiu,dJiuBegin,vcSupplier_id,vcSupplier_Name,vcCarTypeDesign,vcPartName,vcSumLater,vcInput_No,dSendTime from TPart_JX         \n");
+                strSql.Append("     select *    \n");
+                strSql.Append("     ,b.vcName as 'vcHaoJiu_Name'    \n");
+                strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     from TPart_JX a    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue, vcName from TCode where vcCodeId = 'C004'    \n");
+                strSql.Append("     ) b on a.vcHaoJiu = b.vcValue    \n");
                 strSql.Append("      where 1=1   ");
                 if (!string.IsNullOrEmpty(strPart_id))
                 {

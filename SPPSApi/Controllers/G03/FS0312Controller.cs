@@ -263,7 +263,7 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 DataTable dt = fs0312_Logic.Search(strPart_id,strSupplier_id);
-                string[] fields = { "vcPart_id", "vcHaoJiu", "dJiuBegin", "vcSupplier_id", "vcSupplier_Name", "vcCarTypeDesign"
+                string[] fields = { "vcPart_id", "vcHaoJiu_Name", "dJiuBegin", "vcSupplier_id", "vcSupplier_Name", "vcCarTypeDesign"
                 ,"vcPartName","vcSumLater","vcInput_No","dSendTime"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0312_Export.xlsx", 2, loginInfo.UserId, FunctionID);

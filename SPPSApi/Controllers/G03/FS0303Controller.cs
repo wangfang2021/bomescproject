@@ -53,16 +53,16 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                
-                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
-                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-                List<Object> dataList_C004 = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
-                List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
-                List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
-                List<Object> dataList_C009 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//车型(设计)
-                List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
-                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
-                List<Object> dataList_C019 = ComFunction.convertAllToResult(ComFunction.getTCode("C019"));//生确
+
+                List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
+                List<string> dataList_C003 = convertTCodeToResult(getTCode("C003"));//内外区分
+                List<string> dataList_C004 = convertTCodeToResult(getTCode("C004"));//号旧区分
+                List<string> dataList_C005 = convertTCodeToResult(getTCode("C005"));//收货方
+                List<string> dataList_C006 = convertTCodeToResult(getTCode("C006"));//原单位
+                List<string> dataList_C009 = convertTCodeToResult(getTCode("C009"));//车型(设计)
+                List<string> dataList_C012 = convertTCodeToResult(getTCode("C012"));//OE=SP
+                List<string> dataList_C016 = convertTCodeToResult(getTCode("C016"));//包装事业体
+                List<string> dataList_C019 = convertTCodeToResult(getTCode("C019"));//生确
 
                 res.Add("C002", dataList_C002);
                 res.Add("C003", dataList_C003);
@@ -326,7 +326,7 @@ namespace SPPSApi.Controllers.G03
                                     ,"vcNum9","vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                                     ,"vcZXBZNo","vcReceiver","vcOriginCompany"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -346,5 +346,33 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
+
+        #region 获取数据字典--只取名字
+        public static DataTable getTCode(string strCodeId)
+        {
+            try
+            {
+                MultiExcute excute = new MultiExcute();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("   select vcName from TCode where vcCodeId='" + strCodeId + "'     \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        public static List<string> convertTCodeToResult(DataTable dt)
+        {
+            List<string> res = new List<string>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                res.Add(dt.Rows[i]["vcName"].ToString());
+            }
+            return res;
+        }
     }
 }

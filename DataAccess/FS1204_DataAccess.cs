@@ -78,7 +78,6 @@ namespace DataAccess
         {
             if (vcProType == "" || vcZB == "" || vcProType == null || vcZB == null)
                 return new DataTable();
-
             if (vcMonth == null || vcMonth.ToString() == "")
                 vcMonth = DateTime.Now.Month.ToString().Replace("'", "");
             vcMonth = vcMonth.Length > 1 ? vcMonth : "0" + vcMonth;

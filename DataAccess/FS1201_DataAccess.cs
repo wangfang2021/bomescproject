@@ -76,6 +76,8 @@ namespace DataAccess
         /// <param name="fS1201_ViewModel"></param>
         public DataTable PlanSource(string vcYear, string vcMonth, string vcProType, string vcZB, string vcPlant)
         {
+            if (vcProType == "" || vcZB == "" || vcProType == null || vcZB == null)
+                return new DataTable();
             if (vcMonth == null || vcMonth.ToString() == "")
                 vcMonth = DateTime.Now.Month.ToString().Replace("'", "");
             DateTime mon1 = Convert.ToDateTime((vcYear + "-" + vcMonth + "-1").Replace("'", ""));

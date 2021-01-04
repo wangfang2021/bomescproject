@@ -313,6 +313,7 @@ namespace SPPSApi.Controllers.G03
             
             try
             {
+                /*2020-01-04*/
                 DataTable dt = fs0303_Logic.Search(strIsShowAll);
                 string[] fields = { "dSyncTime", "vcChange_Name", "vcSPINo", "vcSQState_Name", "vcDiff"
                                     ,"vcPart_id","vcCarTypeDev_Name","vcCarTypeDesign","vcCarTypeName"

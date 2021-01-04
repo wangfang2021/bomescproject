@@ -256,6 +256,13 @@ namespace DataAccess
                     strSql.Append("   insert into SUserRole     \n");
                     strSql.Append("   select '" + strUserId + "',vcRoleID from SRole where vcRoleID='" + roleList[i] + "';     \n");
                 }
+                strSql.Append("  insert into tPointPower     \n");
+                strSql.Append("  (vcUserId,vcPlant)      \n");
+                strSql.Append("  values      \n");
+                strSql.Append("  (      \n");
+                strSql.Append("   '" + strUserId + "',     \n");
+                strSql.Append("   '" + strPalnt + "'     \n");
+                strSql.Append("  );      \n");
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)

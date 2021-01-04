@@ -95,6 +95,7 @@ namespace DataAccess
                 {
                     strSql.Append(" delete SUSer where vcUserID='" + delList[i].ToString() + "';    \n");
                     strSql.Append(" delete SUserRole where vcUserID='" + delList[i].ToString() + "';    \n");
+                    strSql.Append(" delete tPointPower where vcUserID='" + delList[i].ToString() + "';    \n");
                 }
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }

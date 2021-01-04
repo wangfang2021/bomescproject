@@ -37,5 +37,12 @@ namespace Logic
             fs0303_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0303_DataAccess.importSave(dt, strUserId);
+        }
+        #endregion
     }
 }

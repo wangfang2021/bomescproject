@@ -22,16 +22,16 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G12
 {
-    [Route("api/FS1201_Sub_editCalendarData/[action]")]
+    [Route("api/FS1204_Sub_editCalendarData/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS1201Controller_Sub_editCalendarData : BaseController
+    public class FS1204Controller_Sub_editCalendarData : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        FS1201_Logic fs1201_Logic = new FS1201_Logic();
-        private readonly string FunctionID = "FS1201";
+        FS1204_Logic fs1204_Logic = new FS1204_Logic();
+        private readonly string FunctionID = "FS1204";
 
-        public FS1201Controller_Sub_editCalendarData(IWebHostEnvironment webHostEnvironment)
+        public FS1204Controller_Sub_editCalendarData(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -66,7 +66,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> calendarData = ComFunction.convertAllToResult(fs1201_Logic.getRenders(vcYear, vcMonth, vcPorType, vcZB, vcPlant, "#5DAD64"));
+                List<Object> calendarData = ComFunction.convertAllToResult(fs1204_Logic.getRenders(vcYear, vcMonth, vcPorType, vcZB, vcPlant, "#5DAD64"));
                 res.Add("calendarData", calendarData);
                 res.Add("current_Year", vcMonth);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -123,7 +123,7 @@ namespace SPPSApi.Controllers.G12
                 string Add_data = dataForm.vcData;
                 string[] Udata = Add_data.Replace(System.Text.Encoding.GetEncoding("UTF-8").GetString(rep), "").Split('|');
 
-                fs1201_Logic.UpdateCalendar(vcPlant, vcPorType, vcZB, vcYear, vcMonth, Udata);
+                fs1204_Logic.UpdateCalendar(vcPlant, vcPorType, vcZB, vcYear, vcMonth, Udata);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "更新成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

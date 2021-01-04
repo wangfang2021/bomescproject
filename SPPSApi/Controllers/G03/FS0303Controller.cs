@@ -293,5 +293,58 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strIsShowAll = dataForm.isShowAll;
+            
+            try
+            {
+                DataTable dt = fs0303_Logic.Search(strIsShowAll);
+                string[] fields = { "dSyncTime", "vcChange", "vcSPINo", "vcSQState", "vcDiff"
+                                    ,"vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName"
+                                    ,"dTimeFrom","dTimeTo","dTimeFromSJ","vcBJDiff","vcPartReplace"
+                                    ,"vcPartNameEn","vcPartNameCn","vcHKGC","vcBJGC","vcInOutflag"
+                                    ,"vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace"
+                                    ,"vcSYTCode","vcSCSName","vcSCSAdress","dGYSTimeFrom","dGYSTimeTo"
+                                    ,"vcOE","vcHKPart_id","vcHaoJiu","dJiuBegin","dJiuEnd","vcJiuYear"
+                                    ,"vcNXQF","dSSDateMonth","vcMeno","vcFXDiff","vcFXNo","vcNum1"
+                                    ,"vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8"
+                                    ,"vcNum9","vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
+                                    ,"vcZXBZNo","vcReceiver","vcOriginCompany"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

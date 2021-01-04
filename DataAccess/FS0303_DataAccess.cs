@@ -113,6 +113,7 @@ namespace DataAccess
                         sql.Append("      ,vcReceiver = " + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "      \r\n");
                         sql.Append("      ,vcOperator = " + strUserId + "      \r\n");
                         sql.Append("      ,dOperatorTime = GETDATE()      \r\n");
+                        sql.Append("      where iAutoId ="+iAutoId+"  ");
                     }
                 }
             }
@@ -146,6 +147,42 @@ namespace DataAccess
                 }
                 sql.Append("  )   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string vcPart_id = dt.Rows[i]["vcPart_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPart_id"].ToString();
+                    string dUseBegin = dt.Rows[i]["dUseBegin"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseBegin"].ToString();
+                    string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
+
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                    sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS"], false) + "   \r\n");
+                    sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+
+                    sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
+                    sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
+                    sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
+                    sql.Append("  ,dOperatorTime=getdate()   \r\n");
+                    sql.Append("  where vcPart_id='" + vcPart_id + "'  and dUseBegin='" + dUseBegin + "' and  dUseEnd='" + dUseEnd + "' ; \r\n");
+                    /******************需要明确主键*****************/
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
             }
             catch (Exception ex)
             {

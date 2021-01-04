@@ -119,7 +119,7 @@ namespace Logic
                         }
                         else
                         {
-                            dw["backColorLeft"] = cellcolor;
+                            dw["backColorLeft"] = "#ff9bff";
                         }
                         dw["left"] = daySingle.Substring(1, daySingle.Length - 1);
                         dw["leftValue"] = string.Format("~D{0}b", curNum);
@@ -135,7 +135,7 @@ namespace Logic
                         }
                         else
                         {
-                            dw["backColorRight"] = cellcolor;
+                            dw["backColorRight"] = "#ff9bff";
                         }
                         dw["right"] = daySingle.Substring(1, daySingle.Length - 1);
                         dw["rightValue"] = string.Format("~D{0}y", curNum);

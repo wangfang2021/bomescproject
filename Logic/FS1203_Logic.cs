@@ -10,6 +10,7 @@
 * 					
 * 	(C)2020-TJQM INFORMATION TECHNOLOGY CO.,LTD All Rights Reserved.
 *******************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -209,5 +210,22 @@ namespace Logic
             col.DefaultValue = flag;
             dt.Columns.Add(col);
         }
+
+
+        /// <summary>
+        /// 弹出的编辑界面点击检索按钮获取列表数据
+        /// </summary>
+        /// <param name="mon"></param>
+        public DataTable getCutPlan(string mon)
+        {
+            return dataAccess.getCutPlan(mon);
+        }
+        #region 删除
+        public void Del_Plan(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            dataAccess.Del_Plan(listInfoData, strUserId);
+        }
+        #endregion
+
     }
 }

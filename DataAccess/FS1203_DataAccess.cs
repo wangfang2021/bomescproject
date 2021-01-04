@@ -2194,10 +2194,13 @@ namespace DataAccess
             string ssql = "select vcPartsNo,vcDock,vcInOutFlag,vcQFflag from tPartInfoMaster where dTimeFrom<='" + tmpmon + "' and dTimeTo>='" + tmpmon + "'";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
+
+        #region 子页面
+        #region 检索
         public DataTable getCutPlan(string mon)
         {
             DataTable dt = new DataTable();
-            string ssql = " SELECT [vcMonth],[vcPartsno],[vcDock],[vcKBorderno] ,[vcKBSerial] ,[vcEDflag],'0' as iFlag FROM [tPlanCut] where updateFlag='0' ";
+            string ssql = " SELECT vcMonth,vcPartsno,vcDock,vcKBorderno,vcKBSerial,vcEDflag,'0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId FROM tPlanCut where updateFlag='0' ";
             if (mon.Length > 0)
             {
                 ssql += " and vcMonth='" + mon + "'";
@@ -2209,6 +2212,34 @@ namespace DataAccess
             }
             return dt;
         }
+        #endregion
+
+        #region 删除
+        public void Del_Plan (List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete tPlanCut where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+        #endregion
+
+
 
         public string UpdateCutPlanTMP(DataTable dt, string user)
         {

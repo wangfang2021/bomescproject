@@ -58,10 +58,10 @@ namespace DataAccess
                 strSql.AppendLine("  [vcJanuary], [vcFebruary], [vcMarch], [vcApril], [vcMay], [vcJune], [vcJuly],   ");
                 strSql.AppendLine("  [vcAugust], [vcSeptember], [vcOctober], [vcNovember], [vcDecember],   ");
 
-                strSql.AppendLine("  cast(a.vcJanuary as decimal(18,6))+cast(a.[vcFebruary] as decimal(18,6))+cast(a.vcMarch as decimal(18,6))  ");
-                strSql.AppendLine("  +cast(a.vcApril as decimal(18,6))+cast(a.vcMay as decimal(18,6))+cast(a.vcJune as decimal(18,6))  ");
-                strSql.AppendLine("  +cast(a.vcJuly as decimal(18,6))+cast(a.vcAugust as decimal(18,6))+cast(a.vcSeptember as decimal(18,6))  ");
-                strSql.AppendLine("  +cast(a.vcOctober as decimal(18,6))+cast(a.vcNovember as decimal(18,6))+cast(a.vcDecember as decimal(18,6))as vcSum,  ");
+                strSql.AppendLine("  cast(isnull(a.vcJanuary,0) as decimal(18,6))+cast(isnull(a.[vcFebruary],0) as decimal(18,6))+cast(isnull(a.vcMarch,0) as decimal(18,6))    ");
+                strSql.AppendLine("  +cast(isnull(a.vcApril,0) as decimal(18,6))+cast(isnull(a.vcMay,0) as decimal(18,6))+cast(isnull(a.vcJune,0) as decimal(18,6))    ");
+                strSql.AppendLine("  +cast(isnull(a.vcJuly,0) as decimal(18,6))+cast(isnull(a.vcAugust,0) as decimal(18,6))+cast(isnull(a.vcSeptember,0) as decimal(18,6))    ");
+                strSql.AppendLine("  +cast(isnull(a.vcOctober,0) as decimal(18,6))+cast(isnull(a.vcNovember,0) as decimal(18,6))+cast(isnull(a.vcDecember,0) as decimal(18,6))as vcSum,    ");
 
                 strSql.AppendLine("  [vcNextOneYear],[vcNextTwoYear], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("  from TAnnualManagement a  ");
@@ -225,6 +225,16 @@ namespace DataAccess
                     string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
                     string vcInjectionFactory = dt.Rows[i]["vcInjectionFactory"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInjectionFactory"].ToString();
                     string vcInsideOutsideType = dt.Rows[i]["vcInsideOutsideType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInsideOutsideType"].ToString();
+                    if (vcInsideOutsideType == "内制")
+                    {
+                        vcInsideOutsideType = "0";
+                    }
+                    else if (vcInsideOutsideType == "外注")
+                    {
+                        vcInsideOutsideType = "1";
+                    }
+                    else
+                    { }
                     string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
                     string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString();
@@ -248,13 +258,13 @@ namespace DataAccess
                     strSql.AppendLine("  		 vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType,   ");
                     strSql.AppendLine("  		 vcAcceptNum, vcJanuary, vcFebruary, vcMarch, vcApril, vcMay, vcJune,   ");
                     strSql.AppendLine("  		 vcJuly, vcAugust, vcSeptember, vcOctober, vcNovember, vcDecember,    ");
-                    strSql.AppendLine("  		 vcNextOneYear, vcNextTwoYear, vcOperatorID, dOperatorTime   ");
+                    strSql.AppendLine("  		 vcNextOneYear, vcNextTwoYear, vcOperatorID, dOperatorTime)   ");
                     strSql.AppendLine("  		values   ");
                     strSql.AppendLine("  		('" + vcPackPlant + "','" + vcTargetYear + "','" + vcPartNo + "','" + vcInjectionFactory + "','" + vcInsideOutsideType + "',    ");
-                    strSql.AppendLine("  		('" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCarType + "','" + vcAcceptNum + "','" + vcJanuary + "',   ");
-                    strSql.AppendLine("  		('" + vcFebruary + "','" + vcMarch + "','" + vcApril + "','" + vcMay + "','" + vcJune + "',   ");
-                    strSql.AppendLine("  		('" + vcJuly + "','" + vcAugust + "','" + vcSeptember + "','" + vcOctober + "','" + vcNovember + "',   ");
-                    strSql.AppendLine("  		('" + vcDecember + "','" + vcNextOneYear + "','" + vcNextTwoYear + "','" + strUserId + "',GETDATE()) ;   ");
+                    strSql.AppendLine("  		'" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCarType + "'," + getSqlValue(vcAcceptNum,false) + "," + getSqlValue(vcJanuary, true) + ",   ");
+                    strSql.AppendLine("  		" + getSqlValue(vcFebruary, true) + "," + getSqlValue(vcMarch, true) + "," + getSqlValue(vcApril, true) + "," + getSqlValue(vcMay, true) + "," + getSqlValue(vcJune, true) + ",   ");
+                    strSql.AppendLine("  		" + getSqlValue(vcJuly, true) + "," + getSqlValue(vcAugust, true) + "," + getSqlValue(vcSeptember, true) + "," + getSqlValue(vcOctober, true) + "," + getSqlValue(vcNovember, true) + ",   ");
+                    strSql.AppendLine("  		" + getSqlValue(vcDecember, true) + "," + getSqlValue(vcNextOneYear, true) + "," + vcNextTwoYear + ",'" + strUserId + "',GETDATE()) ;   ");
 
                     excute.ExcuteSqlWithStringOper(strSql.ToString());
                 }
@@ -265,5 +275,22 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #region 返回insert语句值
+        /// <summary>
+        /// 返回insert语句值
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="isObject">如果insert时间、金额或者其他对象类型数据，为true</param>
+        /// <returns></returns>
+        private string getSqlValue(Object obj, bool isObject)
+        {
+            if (obj == null)
+                return "null";
+            else if (obj.ToString().Trim() == "" && isObject)
+                return "null";
+            else
+                return "'" + obj.ToString() + "'";
+        }
+        #endregion
     }
 }

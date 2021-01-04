@@ -19,11 +19,6 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
-        {
-            return fs0623_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
-        }
-
         public DataTable Search_Sub()
         {
             return fs0623_DataAccess.Search_Sub();
@@ -42,6 +37,47 @@ namespace Logic
         public void Del_Sub(List<Dictionary<string, object>> listInfoData, string userId)
         {
             fs0623_DataAccess.Del_Sub(listInfoData, userId);
+        }
+
+        public DataSet Search()
+        {
+            return fs0623_DataAccess.Search();
+        }
+
+        public DataTable CheckDistinctByTableOrderGoods(DataTable dtadd)
+        {
+            return fs0623_DataAccess.CheckDistinctByTableOrderGoods(dtadd);
+        }
+
+        public string GetOrderDifferentiation()
+        {
+            DataTable dt = fs0623_DataAccess.GetOrderDifferentiation();
+            string str = string.Empty;
+            for (int i=0;i< dt.Rows.Count;i++)
+            {
+                str += dt.Rows[i]["vcOrderDifferentiation"].ToString()+",";
+            }
+            return str.Substring(0, str.LastIndexOf(','));
+        }
+
+        public bool AddOrderGoods(DataTable dtadd, String userId)
+        {
+            return fs0623_DataAccess.AddOrderGoods(dtadd, userId);
+        }
+
+        public void AddOrderGoodsAndDifferentiation(DataTable dtaddZJB, string userId)
+        {
+             fs0623_DataAccess.AddOrderGoodsAndDifferentiation(dtaddZJB, userId);
+        }
+
+        public void UpdateOrderGoodsAndDifferentiation(DataTable dtamodify, DataTable dtamodifyZJB, string userId)
+        {
+            fs0623_DataAccess.UpdateOrderGoodsAndDifferentiation(dtamodify, dtamodifyZJB, userId);
+        }
+
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
+        {
+            fs0623_DataAccess.Del(listInfoData, userId);
         }
     }
 }

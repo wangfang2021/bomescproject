@@ -19,29 +19,30 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes)
         {
-            return fs0625_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+            return fs0625_DataAccess.Search(dExportDate, vcCarType, vcPartNo, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcIsNewRulesFlag, vcPurposes);
         }
 
-        public bool isExistAddData(DataTable dtadd)
+        public DataTable GetPurposes()
         {
-            return fs0625_DataAccess.isExistAddData(dtadd);
+            return fs0625_DataAccess.GetPurposes();
         }
-
-        public bool isExistModData(DataTable dtamod)
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            return fs0625_DataAccess.isExistModData(dtamod);
+            fs0625_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
-
-        public DataTable BindInsideOutsideType()
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            throw new NotImplementedException();
+            fs0625_DataAccess.Del(listInfoData, userId);
         }
-
-        public DataTable BindConsignee()
+        public void allInstall(List<Dictionary<string, object>> listInfoData, string dAccountOrderReceiveDate, string vcAccountOrderNo, string userId)
         {
-            throw new NotImplementedException();
+            fs0625_DataAccess.allInstall(listInfoData, dAccountOrderReceiveDate, vcAccountOrderNo, userId);
+        }
+        public void importSave(DataTable importDt, string userId)
+        {
+            fs0625_DataAccess.importSave(importDt, userId);
         }
     }
 }

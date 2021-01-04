@@ -8,32 +8,63 @@ using System.Data.SqlClient;
 using System.Collections;
 namespace DataAccess
 {
-    public class FS0312_DataAccess
+    public class FS0304_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strPart_id, string strSupplier_id)
+        public DataTable Search(string strJD, string strInOutFlag,string strSupplier_id,string strCarType,string strPart_id)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select *    \n");
-                strSql.Append("     ,b.vcName as 'vcHaoJiu_Name'    \n");
-                strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
-                strSql.Append("     from TPart_JX a    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     	select vcValue, vcName from TCode where vcCodeId = 'C004'    \n");
-                strSql.Append("     ) b on a.vcHaoJiu = b.vcValue    \n");
-                strSql.Append("      where 1=1   ");
-                if (!string.IsNullOrEmpty(strPart_id))
+                strSql.Append("   select   \n");
+                strSql.Append("   '0' as vcModFlag,      ");
+                strSql.Append("   '0' as vcAddFlag,      ");
+                strSql.Append("   iAutoId,  \n");
+                strSql.Append("   dSSDateMonth,  \n");
+                strSql.Append("   vcJD,				  \n");
+                strSql.Append("   vcPart_id,			  \n");
+                strSql.Append("   vcSPINo,				  \n");
+                strSql.Append("   vcChange,				  \n");
+                strSql.Append("   vcCarType,				  \n");
+                strSql.Append("   vcInOutflag,			  \n");
+                strSql.Append("   vcPartName,			  \n");
+                strSql.Append("   vcOE,					  \n");
+                strSql.Append("   vcSupplier_id,			  \n");
+                strSql.Append("   vcFXDiff,				  \n");
+                strSql.Append("   vcFXNo,				  \n");
+                strSql.Append("   vcSumLater,			  \n");
+                strSql.Append("   vcIsDY,	  \n");
+                strSql.Append("   vcYQorNG,				  \n");
+                strSql.Append("   vcSCPlace_City,		  \n");
+                strSql.Append("   vcSCPlace_Province,	  \n");
+                strSql.Append("   vcCHPlace_City,		  \n");
+                strSql.Append("   vcCHPlace_Province,	  \n");
+                strSql.Append("   vcPackFactory,		  \n");
+                strSql.Append("   vcSCSPlace,			  \n");
+                strSql.Append("   dSupplier_BJ,			  \n");
+                strSql.Append("   dSupplier_HK,			  \n");
+                strSql.Append("   dTFTM_BJ,				  \n");
+                strSql.Append("   vcZXBZDiff,			  \n");
+                strSql.Append("   vcZXBZNo  \n");
+                strSql.Append("   from tSQ  \n");
+                strSql.Append("   where 1=1  \n");
+                if (!string.IsNullOrEmpty(strJD))
                 {
-                    strSql.Append("      and vcPart_id like '"+strPart_id+"%'  ");
+                    strSql.Append("      and vcJD = '" + strJD + "'  ");
+                }
+                if (!string.IsNullOrEmpty(strInOutFlag))
+                {
+                    strSql.Append("      and vcInOutflag = '" + strInOutFlag + "'   ");
                 }
                 if (!string.IsNullOrEmpty(strSupplier_id))
                 {
-                    strSql.Append("      and vcSupplier_id like '"+strSupplier_id+"%'   ");
+                    strSql.Append("      and vcSupplier_id = '" + strSupplier_id + "'   ");
+                }
+                if (!string.IsNullOrEmpty(strCarType))
+                {
+                    strSql.Append("      and vcCarType = '" + strCarType + "'   ");
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -73,7 +104,7 @@ namespace DataAccess
                         sql.Append("      )       \n");
                         sql.Append("      values      \n");
                         sql.Append("      (      \n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false)+",   \n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",   \n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcHaoJiu"], false) + ",     \n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false) + ",    \n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",    \n");
@@ -91,7 +122,7 @@ namespace DataAccess
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("      update TPart_JX set       \r\n");
-                        sql.Append("      vcPart_id = "+ComFunction.getSqlValue(listInfoData[i]["vcPart_id"],false)+"      \r\n");
+                        sql.Append("      vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "      \r\n");
                         sql.Append("      ,vcHaoJiu = " + ComFunction.getSqlValue(listInfoData[i]["vcHaoJiu"], false) + "      \r\n");
                         sql.Append("      ,dJiuBegin = " + ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false) + "      \r\n");
                         sql.Append("      ,vcSupplier_id = " + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "      \r\n");
@@ -101,9 +132,9 @@ namespace DataAccess
                         sql.Append("      ,vcSumLater = " + ComFunction.getSqlValue(listInfoData[i]["vcSumLater"], false) + "      \r\n");
                         sql.Append("      ,vcInput_No = " + ComFunction.getSqlValue(listInfoData[i]["vcInput_No"], false) + "      \r\n");
                         sql.Append("      ,dSendTime = " + ComFunction.getSqlValue(listInfoData[i]["dSendTime"], false) + "      \r\n");
-                        sql.Append("      ,vcOperatorID = " + strUserId+ "      \r\n");
+                        sql.Append("      ,vcOperatorID = " + strUserId + "      \r\n");
                         sql.Append("      ,dOperatorTime = getdate()      \r\n");
-                        sql.Append("      where iAutoId = "+iAutoId+"      \r\n");
+                        sql.Append("      where iAutoId = " + iAutoId + "      \r\n");
                     }
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());

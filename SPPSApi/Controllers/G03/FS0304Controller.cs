@@ -29,7 +29,7 @@ namespace SPPSApi.Controllers.G03
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        //FS0304_Logic FS0304_Logic = new FS0304_Logic();
+        FS0304_Logic FS0304_Logic = new FS0304_Logic();
         private readonly string FunctionID = "FS0304";
 
         public FS0304Controller(IWebHostEnvironment webHostEnvironment)
@@ -54,10 +54,10 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-                List<object> dataList_JD = new List<object> { "已联络", "已回复", "已退回", "已织入原单位" };
+                List<object> dataList_C026 = ComFunction.convertAllToResult(ComFunction.getTCode("C026"));//生确进度
                 
-                res.Add("C004", dataList_C003);
-                res.Add("JD", dataList_JD);
+                res.Add("C003", dataList_C003);
+                res.Add("C026", dataList_C026);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -73,51 +73,53 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-        //#region 检索
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string searchApi([FromBody] dynamic data)
-        //{
-        //    string strToken = Request.Headers["X-Token"];
-        //    if (!isLogin(strToken))
-        //    {
-        //        return error_login();
-        //    }
-        //    LoginInfo loginInfo = getLoginByToken(strToken);
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        #region 检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-        //    string strPart_id = dataForm.vcPart_id;
-        //    string strSupplier_id = dataForm.vcSupplier_id;
+            string strJD = dataForm.vcJD;
+            string strInOutflag = dataForm.strInOutflag;
+            string strSupplier_id = dataForm.vcSupplier_id;
+            string strCarType = dataForm.vcCarType;
+            string strPart_id = dataForm.vcPart_id;
 
-        //    try
-        //    {
-        //        DataTable dt = FS0304_Logic.Search(strPart_id, strSupplier_id);
-        //        DtConverter dtConverter = new DtConverter();
+            try
+            {
+                DataTable dt = FS0304_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id);
+                DtConverter dtConverter = new DtConverter();
 
-        //        dtConverter.addField("selected", ConvertFieldType.BoolType, null);
-        //        dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-        //        dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-        //        dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-        //        dtConverter.addField("dSendTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-        //        dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
 
-        //        List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = dataList;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0312", ex, loginInfo.UserId);
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "检索失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
-        //#endregion
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0312", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
         //#region 保存
         //[HttpPost]
@@ -205,45 +207,45 @@ namespace SPPSApi.Controllers.G03
         //}
         //#endregion
 
-        //#region 删除
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string delApi([FromBody] dynamic data)
-        //{
-        //    //验证是否登录
-        //    string strToken = Request.Headers["X-Token"];
-        //    if (!isLogin(strToken))
-        //    {
-        //        return error_login();
-        //    }
-        //    LoginInfo loginInfo = getLoginByToken(strToken);
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    try
-        //    {
-        //        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-        //        JArray checkedInfo = dataForm.multipleSelection;
-        //        List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-        //        if (listInfoData.Count == 0)
-        //        {
-        //            apiResult.code = ComConstant.ERROR_CODE;
-        //            apiResult.data = "最少选择一条数据！";
-        //            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //        }
-        //        FS0304_Logic.Del(listInfoData, loginInfo.UserId);
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = null;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0312", ex, loginInfo.UserId);
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "删除失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
-        //#endregion
+        #region 删除
+        [HttpPost]
+        [EnableCors("any")]
+        public string delApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                FS0304_Logic.Del(listInfoData, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0312", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
         //#region 导出
         //[HttpPost]
@@ -289,49 +291,49 @@ namespace SPPSApi.Controllers.G03
         //}
         //#endregion
 
-        //#region 调达送信
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string sendMailApi([FromBody] dynamic data)
-        //{
-        //    //验证是否登录
-        //    string strToken = Request.Headers["X-Token"];
-        //    if (!isLogin(strToken))
-        //    {
-        //        return error_login();
-        //    }
-        //    LoginInfo loginInfo = getLoginByToken(strToken);
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    try
-        //    {
-        //        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-        //        Object multipleSelection = dataForm.multipleSelection;
-        //        if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
-        //        {
+        #region 调达送信
+        [HttpPost]
+        [EnableCors("any")]
+        public string sendMailApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                Object multipleSelection = dataForm.multipleSelection;
+                if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
+                {
 
 
-        //        }
-        //        else
-        //        {
+                }
+                else
+                {
 
 
-        //        }
-        //        //发送邮件
-        //        //发件人邮箱，对方邮箱，邮件标题、内容、附件需要确认
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = null;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0906", ex, loginInfo.UserId);
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "销售展开失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
-        //#endregion
+                }
+                //发送邮件
+                //发件人邮箱，对方邮箱，邮件标题、内容、附件需要确认
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0906", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "销售展开失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
 
     }

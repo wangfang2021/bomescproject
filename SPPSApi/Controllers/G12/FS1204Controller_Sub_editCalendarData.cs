@@ -114,7 +114,11 @@ namespace SPPSApi.Controllers.G12
                 string vcMonth = vcYearMonth.Split('-')[1].Length == 1 ? "0" + vcYearMonth.Split('-')[1] : vcYearMonth.Split('-')[1];
                 vcPorType = vcPorType == null ? "" : vcPorType;
                 vcZB = vcZB == null ? "" : vcZB;
-
+                if (vcPartType == "1")
+                {
+                    vcPorType = "非指定";
+                    vcZB = "#" + vcPlant;
+                }
                 byte[] rep = { 194, 160 };
                 string Add_data = dataForm.vcData;
                 string[] Udata = Add_data.Replace(System.Text.Encoding.GetEncoding("UTF-8").GetString(rep), "").Split('|');

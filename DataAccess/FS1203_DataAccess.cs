@@ -2201,7 +2201,7 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             string ssql = " SELECT vcMonth,vcPartsno,vcDock,vcKBorderno,vcKBSerial,vcEDflag,'0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId FROM tPlanCut where updateFlag='0' ";
-            if (mon!= null && mon.Length > 0)
+            if (mon != null && mon.Length > 0)
             {
                 ssql += " and vcMonth='" + mon + "'";
                 dt = excute.ExcuteSqlWithSelectToDT(ssql);
@@ -2396,6 +2396,198 @@ namespace DataAccess
             return msg;
         }
         #endregion
+
+        public string checkExcel(DataTable dt, ref DataTable dtre)
+        {
+            string msg = "";
+            msg = checkExcelData(ref dt);//校验数据
+            dtre = dt;
+            return msg;
+        }
+        public string checkExcelData(ref DataTable dt)
+        {
+            string msg = "";
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i][0].ToString().Trim().Length == 0 || dt.Rows[i][1].ToString().Trim().Length == 0 || dt.Rows[i][2].ToString().Trim().Length == 0 || dt.Rows[i][3].ToString().Trim().Length == 0 || dt.Rows[i][4].ToString().Trim().Length == 0)
+                {
+                    msg = "第" + (i + 2) + "行，信息填写不完整。";
+                    return msg;
+                }
+            }
+
+            dt.Columns[0].ColumnName = "vcMonth";
+            dt.Columns[1].ColumnName = "vcPartsno";
+            dt.Columns[2].ColumnName = "vcDock";
+            dt.Columns[3].ColumnName = "vcKBorderno";
+            dt.Columns[4].ColumnName = "vcKBSerial";
+            dt.Columns[5].ColumnName = "vcEDflag";
+            DataTable dt1 = new DataTable();
+            if (dt.Select("vcKBorderno<>'ALL' and vcKBSerial<>'ALL'").Length > 0)
+                dt1 = dt.Select("vcKBorderno<>'ALL' and vcKBSerial<>'ALL'").CopyToDataTable();
+            else
+                dt1 = dt.Clone();
+            DataTable dt2 = new DataTable();
+            if (dt.Select("vcKBorderno='ALL' or vcKBSerial='ALL'").Length > 0)
+                dt2 = dt.Select("vcKBorderno='ALL' or vcKBSerial='ALL'").CopyToDataTable();
+            else
+                dt2 = dt.Clone();
+            for (int i = 0; i < dt1.Rows.Count; i++)
+            {
+                string mon = dt1.Rows[i]["vcMonth"].ToString().Trim();
+                string part = dt1.Rows[i]["vcPartsno"].ToString().Trim().Replace("-", "");
+                string dock = dt1.Rows[i]["vcDock"].ToString().Trim();
+                string order = dt1.Rows[i]["vcKBorderno"].ToString().Trim();
+                string serial = dt1.Rows[i]["vcKBSerial"].ToString().Trim();
+                if (dt1.Rows[i]["vcEDflag"].ToString().Trim() != "通常" && dt1.Rows[i]["vcEDflag"].ToString().Trim() != "紧急" && dt1.Rows[i]["vcEDflag"].ToString().Trim() != "S" && dt1.Rows[i]["vcEDflag"].ToString().Trim() != "E" && dt1.Rows[i]["vcEDflag"].ToString().Trim() != "S：通常" && dt1.Rows[i]["vcEDflag"].ToString().Trim() != "E：紧急")
+                {
+                    msg = "品番：" + part + ",受入：" + dock + ",订单号：" + order + ",连番：" + serial + ",紧急区分输入非法。";
+                    break;
+                }
+                string ed = (dt1.Rows[i]["vcEDflag"].ToString().Trim() == "通常" || dt1.Rows[i]["vcEDflag"].ToString().Trim() == "S" || dt1.Rows[i]["vcEDflag"].ToString().Trim() == "S:通常") ? "S" : "E";
+                if (mon.Length == 0 && part.Length == 0 && order.Length == 0 && serial.Length == 0 && ed.Length == 0)
+                {
+                    break;
+                }
+                string tmpsql = "select * from tKanbanPrintTbl where vcPartsNo='" + part + "'  and vcKBorderno='" + order + "' and vcKBSerial='" + serial + "' and vcPlanMonth='" + mon + "' and vcEDflag='" + ed + "'  and vcDock='" + dock + "'";
+                DataTable dttmp = excute.ExcuteSqlWithSelectToDT(tmpsql);
+                if (dttmp.Rows.Count == 0)
+                {
+                    msg = "品番：" + part + ",受入：" + dock + ",订单号：" + order + ",连番：" + serial + ",订单信息不存在。";
+                    break;
+                }
+                else
+                {
+                    dt1.Rows[i]["vcEDflag"] = ed;
+                }
+            }
+            // DataTable dt2_tmp = dt2.Clone();
+            for (int i = 0; i < dt2.Rows.Count; i++)
+            {
+                string mon = dt2.Rows[i]["vcMonth"].ToString().Trim();
+                string part = dt2.Rows[i]["vcPartsno"].ToString().Trim().Replace("-", "");
+                string dock = dt2.Rows[i]["vcDock"].ToString().Trim();
+                string order = dt2.Rows[i]["vcKBorderno"].ToString().Trim();
+                string serial = dt2.Rows[i]["vcKBSerial"].ToString().Trim();
+                string ed = (dt2.Rows[i]["vcEDflag"].ToString().Trim() == "通常" || dt2.Rows[i]["vcEDflag"].ToString().Trim() == "S") ? "S" : "E";
+                if (order == "ALL" && serial == "ALL")
+                {
+                    string ssql = " select vcPlanMonth, vcPartsNo, vcDock,vcKBorderno, vcKBSerial, vcEDflag from tKanbanPrintTbl where vcPartsNo='" + part + "' and vcPlanMonth='" + mon + "' and vcEDflag='" + ed + "' and vcDock='" + dock + "'";
+                    DataTable tmp = excute.ExcuteSqlWithSelectToDT(ssql);
+                    if (tmp.Rows.Count == 0)
+                    {
+                        msg = "品番：" + part + ",受入：" + dock + ",订单号：" + order + ",连番：" + serial + ",订单信息不存在。";
+                        break;
+                    }
+                    for (int j = 0; j < tmp.Rows.Count; j++)
+                    {
+                        DataRow dr = dt1.NewRow();
+                        dr["vcMonth"] = tmp.Rows[j]["vcPlanMonth"];
+                        dr["vcPartsno"] = tmp.Rows[j]["vcPartsNo"];
+                        dr["vcDock"] = tmp.Rows[j]["vcDock"];
+                        dr["vcKBorderno"] = tmp.Rows[j]["vcKBorderno"];
+                        dr["vcKBSerial"] = tmp.Rows[j]["vcKBSerial"];
+                        dr["vcEDflag"] = tmp.Rows[j]["vcEDflag"];
+                        dt1.Rows.Add(dr);
+                    }
+                }
+                else if (order != "ALL" && serial == "ALL")
+                {
+                    string ssql = " select vcPlanMonth, vcPartsNo, vcDock, vcKBorderno, vcKBSerial, vcEDflag from tKanbanPrintTbl where vcPartsNo='" + part + "' and  vcPlanMonth='" + mon + "' and vcKBorderno='" + order + "' and vcDock='" + dock + "' ";
+                    DataTable tmp = excute.ExcuteSqlWithSelectToDT(ssql);
+                    if (tmp.Rows.Count == 0)
+                    {
+                        msg = "品番：" + part + ",受入：" + dock + ",订单号：" + order + ",连番：" + serial + ",订单信息不存在。";
+                        break;
+                    }
+                    for (int j = 0; j < tmp.Rows.Count; j++)
+                    {
+                        DataRow dr = dt1.NewRow();
+                        dr["vcMonth"] = tmp.Rows[j]["vcPlanMonth"];
+                        dr["vcPartsno"] = tmp.Rows[j]["vcPartsNo"];
+                        dr["vcDock"] = tmp.Rows[j]["vcDock"];
+                        dr["vcKBorderno"] = tmp.Rows[j]["vcKBorderno"];
+                        dr["vcKBSerial"] = tmp.Rows[j]["vcKBSerial"];
+                        dr["vcEDflag"] = tmp.Rows[j]["vcEDflag"];
+                        dt1.Rows.Add(dr);
+                    }
+                }
+                else if (order == "ALL" && serial != "ALL")
+                {
+                    string ssql = " select vcPlanMonth, vcPartsNo,vcDock,vcKBorderno,vcKBSerial, vcEDflag from tKanbanPrintTbl where vcPartsNo='" + part + "' and  vcPlanMonth='" + mon + "' and vcKBSerial='" + serial + "' and vcEDflag='" + ed + "' and vcDock='" + dock + "'";
+                    DataTable tmp = excute.ExcuteSqlWithSelectToDT(ssql);
+                    if (tmp.Rows.Count == 0)
+                    {
+                        msg = "品番：" + part + ",受入：" + dock + ",订单号：" + order + ",连番：" + serial + ",订单信息不存在。";
+                        break;
+                    }
+                    for (int j = 0; j < tmp.Rows.Count; j++)
+                    {
+                        DataRow dr = dt1.NewRow();
+                        dr["vcMonth"] = tmp.Rows[j]["vcPlanMonth"];
+                        dr["vcPartsno"] = tmp.Rows[j]["vcPartsNo"];
+                        dr["vcDock"] = tmp.Rows[j]["vcDock"];
+                        dr["vcKBorderno"] = tmp.Rows[j]["vcKBorderno"];
+                        dr["vcKBSerial"] = tmp.Rows[j]["vcKBSerial"];
+                        dr["vcEDflag"] = tmp.Rows[j]["vcEDflag"];
+                        dt1.Rows.Add(dr);
+                    }
+                }
+            }
+            dt = dt1.Copy();
+            return msg;
+        }
+        public string checkExcelHeadpos(DataTable dt, DataTable dtTmplate)
+        {
+            string msg = "";
+            if (dt.Columns.Count != dtTmplate.Columns.Count)
+            {
+                return msg = "使用模板错误！";
+            }
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                if (dt.Columns[i].ColumnName.ToString().Trim() != dtTmplate.Columns[i].ColumnName.ToString().Trim())
+                {
+                    if (ExcelPos(i) != "error")
+                        return msg = "模板" + ExcelPos(i) + "列错误！";
+                }
+            }
+            return msg;
+        }
+        public string ExcelPos(int i)//取得列位置
+        {
+            string re = "error";
+            List<string> A = new List<string>();
+            A.Add("A");
+            A.Add("B");
+            A.Add("C");
+            A.Add("D");
+            A.Add("E");
+            A.Add("F");
+            A.Add("G");
+            A.Add("H");
+            A.Add("I");
+            A.Add("J");
+            A.Add("K");
+            A.Add("L");
+            A.Add("M");
+            A.Add("N");
+            A.Add("O");
+            A.Add("P");
+            A.Add("Q");
+            A.Add("R");
+            A.Add("S");
+            A.Add("T");
+            A.Add("U");
+            A.Add("V");
+            A.Add("W");
+            A.Add("X");
+            A.Add("Y");
+            A.Add("Z");
+            if (i < 26) re = A[i];
+            if (i >= 26) re = A[(i / 26) - 1] + A[i % 26];
+            return re;
+        }
         public DataTable getCutPlan(string mon, SqlCommand cmd, SqlDataAdapter apt)
         {
             DataTable dt = new DataTable();

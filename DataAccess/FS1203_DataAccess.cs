@@ -2215,7 +2215,7 @@ namespace DataAccess
         #endregion
 
         #region 删除
-        public void Del_Plan (List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void Del_Plan(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
@@ -2279,7 +2279,7 @@ namespace DataAccess
                     }
                     else
                     {
-                        string tmpsql = "select * from dbo.tKanbanPrintTbl where vcDock ='" + dt.Rows[i]["vcDock"].ToString() + "' and vcPartsNo ='" + dt.Rows[i]["vcPartsno"].ToString() + "'  and vcKBorderno ='" + dt.Rows[i]["vcKBorderno"].ToString() + "' and vcKBSerial ='" + dt.Rows[i]["vcKBSerial"].ToString() + "' and vcPlanMonth ='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcEDflag ='" + dt.Rows[i]["vcEDflag"].ToString() + "'";
+                        string tmpsql = "select * from tKanbanPrintTbl where vcDock='" + dt.Rows[i]["vcDock"].ToString() + "' and vcPartsNo='" + dt.Rows[i]["vcPartsno"].ToString() + "'  and vcKBorderno='" + dt.Rows[i]["vcKBorderno"].ToString() + "' and vcKBSerial='" + dt.Rows[i]["vcKBSerial"].ToString() + "' and vcPlanMonth='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcEDflag='" + dt.Rows[i]["vcEDflag"].ToString() + "'";
                         cmd.CommandText = tmpsql;
                         DataTable dttmp = new DataTable();
                         apt.Fill(dttmp);
@@ -2292,40 +2292,29 @@ namespace DataAccess
                 }
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (dt.Rows[i]["iFlag"].ToString() == "1")//新增
+                    string ssql = "select top(1) * from tPlanCut where vcPartsno='" + dt.Rows[i]["vcPartsno"].ToString() + "' and vcMonth='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcKBorderno='" + dt.Rows[i]["vcKBorderno"].ToString() + "' and vcKBSerial='" + dt.Rows[i]["vcKBSerial"].ToString() + "' and updateFlag<>'1'";
+                    cmd.CommandText = ssql;
+                    DataTable dtExist = new DataTable();
+                    apt.Fill(dtExist);
+                    if (dtExist.Rows.Count > 0)
                     {
-                        string ssql = "select top(1) *  from tPlanCut where  vcPartsno ='" + dt.Rows[i]["vcPartsno"].ToString() + "' and vcMonth ='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcKBorderno ='" + dt.Rows[i]["vcKBorderno"].ToString() + "' and vcKBSerial ='" + dt.Rows[i]["vcKBSerial"].ToString() + "' and updateFlag<>'1'";
-                        cmd.CommandText = ssql;
-                        DataTable dtExist = new DataTable();
-                        apt.Fill(dtExist);
-                        if (dtExist.Rows.Count > 0)
-                        {
-                            msg = "品番：" + dt.Rows[i]["vcPartsno"].ToString() + ",受入：" + dt.Rows[i]["vcDock"].ToString() + ",订单号：" + dt.Rows[i]["vcKBorderno"].ToString() + ",连番：" + dt.Rows[i]["vcKBSerial"].ToString() + ",订单信息已经存在。";
-                            return msg;
-                        }
-                        StringBuilder sb = new StringBuilder();
-                        sb.Length = 0;
-                        sb.AppendLine(" INSERT INTO [tPlanCut] ([vcMonth],[vcPartsno],[vcKBorderno],[vcKBSerial],[vcEDflag],[updateFlag],[dCreatTime],[vcUpdateID],vcDock)");
-                        sb.AppendFormat(" VALUES ('{0}'", dt.Rows[i]["vcMonth"].ToString());
-                        sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcPartsno"].ToString());
-                        sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcKBorderno"].ToString());
-                        sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcKBSerial"].ToString());
-                        sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcEDflag"].ToString());
-                        sb.AppendFormat(" ,'{0}' ", "0");
-                        sb.AppendLine(" ,getdate() ");
-                        sb.AppendFormat(" ,'{0}' ", user);
-                        sb.AppendFormat(" ,'{0}') ", dt.Rows[i]["vcDock"].ToString());
-                        cmd.CommandText = sb.ToString();
-                        cmd.ExecuteNonQuery();
+                        msg = "品番：" + dt.Rows[i]["vcPartsno"].ToString() + ",受入：" + dt.Rows[i]["vcDock"].ToString() + ",订单号：" + dt.Rows[i]["vcKBorderno"].ToString() + ",连番：" + dt.Rows[i]["vcKBSerial"].ToString() + ",订单信息已经存在。";
+                        return msg;
                     }
-                    if (dt.Rows[i]["iFlag"].ToString() == "3")//删除
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        sb.AppendLine(" DELETE FROM  tPlanCut ");
-                        sb.AppendFormat("  WHERE [vcKBorderno] ='{0}' and vcKBSerial ='{1}' and vcPartsno='{2}' and vcDock ='{3}' ", dt.Rows[i]["vcKBorderno"].ToString(), dt.Rows[i]["vcKBSerial"].ToString(), dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcDock"].ToString());
-                        cmd.CommandText = sb.ToString();
-                        cmd.ExecuteNonQuery();
-                    }
+                    StringBuilder sb = new StringBuilder();
+                    sb.Length = 0;
+                    sb.AppendLine(" INSERT INTO tPlanCut (vcMonth,vcPartsno, vcKBorderno,vcKBSerial,vcEDflag,updateFlag,dCreatTime,vcUpdateID,vcDock)");
+                    sb.AppendFormat(" VALUES ('{0}'", dt.Rows[i]["vcMonth"].ToString());
+                    sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcPartsno"].ToString());
+                    sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcKBorderno"].ToString());
+                    sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcKBSerial"].ToString());
+                    sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcEDflag"].ToString());
+                    sb.AppendFormat(" ,'{0}' ", "0");
+                    sb.AppendLine(" ,getdate() ");
+                    sb.AppendFormat(" ,'{0}' ", user);
+                    sb.AppendFormat(" ,'{0}') ", dt.Rows[i]["vcDock"].ToString());
+                    cmd.CommandText = sb.ToString();
+                    cmd.ExecuteNonQuery();
                 }
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
@@ -2364,8 +2353,8 @@ namespace DataAccess
                     return msg;
                 }
                 //分类：紧急计划削减，月度计划削减
-                DataTable dtCut_S = dtCut.Select(" vcEDflag ='S'").Length == 0 ? new DataTable() : dtCut.Select(" vcEDflag ='S'").CopyToDataTable();
-                DataTable dtCut_E = dtCut.Select(" vcEDflag ='E'").Length == 0 ? new DataTable() : dtCut.Select(" vcEDflag ='E'").CopyToDataTable();
+                DataTable dtCut_S = dtCut.Select(" vcEDflag='S'").Length == 0 ? new DataTable() : dtCut.Select(" vcEDflag='S'").CopyToDataTable();
+                DataTable dtCut_E = dtCut.Select(" vcEDflag='E'").Length == 0 ? new DataTable() : dtCut.Select(" vcEDflag='E'").CopyToDataTable();
                 //月度计划削减处理
                 if (dtCut_S.Rows.Count > 0)
                 {
@@ -2383,7 +2372,7 @@ namespace DataAccess
                 //PlanDelIs0(mon, cmd, apt);
 
                 //更新削减临时表
-                cmd.CommandText = " update tPlanCut set updateFlag ='1' ,dUpdateTime =getdate(),vcUpdateID ='" + user + "' where vcMonth ='" + mon + "'";
+                cmd.CommandText = " update tPlanCut set updateFlag='1',dUpdateTime=getdate(),vcUpdateID='" + user + "' where vcMonth='" + mon + "'";
                 cmd.ExecuteNonQuery();
                 //更新SOQ导出表 ？？？
                 if (msg.Length > 0)
@@ -2418,7 +2407,7 @@ namespace DataAccess
             ssql += " t2.vcComDate00, t2.vcComDate01,t2.vcComDate02,t2.vcComDate03,t2.vcComDate04 ,";
             ssql += " t2.vcBanZhi00, t2.vcBanZhi01, t2.vcBanZhi02, t2.vcBanZhi03, t2.vcBanZhi04,t2.vcQuantityPerContainer as srs";
             ssql += " FROM tPlanCut t1";
-            ssql += " left join dbo.tKanbanPrintTbl t2";
+            ssql += " left join tKanbanPrintTbl t2";
             ssql += " on t1.vcPartsno=t2.vcPartsNo and t1.vcKBorderno = t2.vcKBorderno and t1.vcKBSerial = t2.vcKBSerial and t1.vcDock = t2.vcDock ";
             ssql += " where vcMonth='" + mon + "' and t1.updateFlag='0' order by vcEDflag ";
 

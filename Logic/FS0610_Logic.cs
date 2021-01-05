@@ -6,29 +6,30 @@ using System.IO;
 using Common;
 using DataAccess;
 using DataEntity;
+using Newtonsoft.Json.Linq;
 
 namespace Logic
 {
-    public class FS0611_Logic
+    public class FS0610_Logic
     {
-        FS0611_DataAccess fs0611_DataAccess = new FS0611_DataAccess();
+        FS0610_DataAccess fs0610_DataAccess = new FS0610_DataAccess();
 
         #region 生成SOQReply
-        public int create(string varDxny, string userId)
+        public int create(string varDxny, string userId, JArray iFZGCarray)
         {
             try
             {
                 //从soq表中获取soq，然后获取稼动日历，再生成平准化结果
-                //#1厂
+                //暂时只写了#1厂
                 //获取稼动日历数据
-                DataTable calendarRe = fs0611_DataAccess.getJdrlData(varDxny, "1");
+                DataTable calendarRe = fs0610_DataAccess.getJdrlData(varDxny, "1");
 
                 //计算月前半稼动日大小
                 decimal halfWorkDaysCount = Math.Ceiling(Convert.ToDecimal(calendarRe.Rows[0]["TOTALWORKDAYS"].ToString()) / 2);
 
 
-                //获取品番箱数为1的所有soq品番
-                DataTable re = fs0611_DataAccess.getParts(varDxny, "1", 1);
+                //获取品番箱数为1的所有内制soq品番
+                DataTable re = fs0610_DataAccess.getParts(varDxny, "1", 1);
 
 
                 //开始平准
@@ -110,10 +111,8 @@ namespace Logic
                 }
 
 
-                if (pzRe.Rows.Count > 0)
-                    return fs0611_DataAccess.save(pzRe, userId, varDxny, 0);
-                else
-                    return 0;
+
+                return fs0610_DataAccess.save(pzRe, userId, varDxny, 0);
 
             }
             catch (Exception ex)
@@ -127,21 +126,21 @@ namespace Logic
         #region 展开SOQReply
         public int zk(string varDxny, string userId)
         {
-            return fs0611_DataAccess.zk(varDxny, userId);
+            return fs0610_DataAccess.zk(varDxny, userId);
         }
         #endregion
 
         #region 下载SOQReply（检索内容）
         public DataTable search(string varDxny)
         {
-            return fs0611_DataAccess.search(varDxny);
+            return fs0610_DataAccess.search(varDxny);
         }
         #endregion
 
         #region 导入后保存
         public void importSave(DataTable dt, string varDxny)
         {
-            fs0611_DataAccess.importSave(dt, varDxny);
+            fs0610_DataAccess.importSave(dt, varDxny);
         }
         #endregion
     }

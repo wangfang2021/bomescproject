@@ -19,6 +19,12 @@ namespace Common
         /// <summary>批处理执行结果：失败</summary>
         public const int NG_CODE = -1;
 
+        /// <summary>邮件发送服务器</summary>
+        public const string strSmtp = "apl.aplmail.local";
+        /// <summary>公共邮箱</summary>
+        public const string strComEmail = "maps@tftm.com.cn";
+        /// <summary>公共邮箱密码</summary>
+        public const string strComEmailPwd = "";
 
     }
 }

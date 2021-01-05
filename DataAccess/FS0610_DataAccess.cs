@@ -7,7 +7,7 @@ using DataEntity;
 
 namespace DataAccess
 {
-    public class FS0611_DataAccess
+    public class FS0610_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
@@ -47,8 +47,8 @@ namespace DataAccess
 
                 strSql.Append("  FROM TSoq");
                 strSql.Append("  WHERE varDxny=@varDxny");
-                //外注
-                strSql.Append("  AND INOUTFLAG='1'");
+                //内制
+                strSql.Append("  AND INOUTFLAG='0'");
                 strSql.Append("  AND iFZGC=@iFZGC");
                 strSql.Append("  AND iHySOQN/QUANTITYPERCONTAINER=@unitCount");
 
@@ -109,7 +109,7 @@ namespace DataAccess
                 strSql.AppendLine(" TARGETDAY31,");
                 strSql.AppendLine(" TOTALWORKDAYS");
 
-                strSql.AppendLine(" FROM SP_M_SOQCLDAR ");
+                strSql.AppendLine(" FROM SP_M_SOQCLDAR_N ");
 
                 strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
 
@@ -149,8 +149,8 @@ namespace DataAccess
                 strSql.AppendLine(" DELETE TSOQReply ");
                 strSql.AppendLine(" WHERE ");
                 strSql.AppendLine(" TARGETMONTH=@TARGETMONTH ");
-                //外注
-                strSql.AppendLine(" AND INOUTFLAG='1'; ");
+                //内制
+                strSql.AppendLine(" AND INOUTFLAG='0'; ");
 
 
 
@@ -238,8 +238,8 @@ namespace DataAccess
                 strSql.AppendLine(" dZhanKaiTime=@dZhanKaiTime ");
                 strSql.AppendLine(" WHERE ");
                 strSql.AppendLine(" varDxny=@varDxny ");
-                //1:外注
-                strSql.AppendLine(" AND INOUTFLAG=1; ");
+                //0:内制
+                strSql.AppendLine(" AND INOUTFLAG=0; ");
 
                 return excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
             }
@@ -311,8 +311,8 @@ namespace DataAccess
                 strSql.AppendLine(" FROM TSOQReply ");
 
                 strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
-                //外注
-                strSql.AppendLine(" AND INOUTFLAG='1' ");
+                //内制
+                strSql.AppendLine(" AND INOUTFLAG='0' ");
                 //对象月
                 strSql.AppendLine(" AND iMonthFlag=0) tn ");
 
@@ -323,8 +323,8 @@ namespace DataAccess
                 strSql.AppendLine(" iPCS as 'N+1 PCS'");
                 strSql.AppendLine(" FROM TSOQReply ");
                 strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
-                //外注
-                strSql.AppendLine(" AND INOUTFLAG='1' ");
+                //内制
+                strSql.AppendLine(" AND INOUTFLAG='0' ");
                 //内示月
                 strSql.AppendLine(" AND iMonthFlag=1) tn1 ");
 
@@ -338,8 +338,8 @@ namespace DataAccess
                 strSql.AppendLine(" iPCS as 'N+2 PCS'");
                 strSql.AppendLine(" FROM TSOQReply ");
                 strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
-                //外注
-                strSql.AppendLine(" AND INOUTFLAG='1' ");
+                //内制
+                strSql.AppendLine(" AND INOUTFLAG='0' ");
                 //内内示月
                 strSql.AppendLine(" AND iMonthFlag=2) tn2 ");
 
@@ -384,8 +384,8 @@ namespace DataAccess
 
                     sql.AppendLine(" WHERE PARTSNO='"+ dt.Rows[i]["PARTSNO"]+"'");
                     sql.AppendLine(" AND TARGETMONTH=@varDxny ");
-                    //外注
-                    sql.AppendLine(" AND INOUTFLAG='1' ");
+                    //内制
+                    sql.AppendLine(" AND INOUTFLAG='0' ");
                     //对象月
                     sql.AppendLine(" AND iMonthFlag=0; ");
                 }

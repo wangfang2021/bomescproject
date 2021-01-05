@@ -2195,7 +2195,7 @@ namespace DataAccess
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 
-        #region 子页面
+        #region 订单删减子页面
         #region 检索
         public DataTable getCutPlan(string mon)
         {
@@ -2237,10 +2237,8 @@ namespace DataAccess
             }
         }
         #endregion
-        #endregion
 
-
-
+        #region 保存
         public string UpdateCutPlanTMP(DataTable dt, string user)
         {
             string msg = "";
@@ -2305,7 +2303,6 @@ namespace DataAccess
                             msg = "品番：" + dt.Rows[i]["vcPartsno"].ToString() + ",受入：" + dt.Rows[i]["vcDock"].ToString() + ",订单号：" + dt.Rows[i]["vcKBorderno"].ToString() + ",连番：" + dt.Rows[i]["vcKBSerial"].ToString() + ",订单信息已经存在。";
                             return msg;
                         }
-
                         StringBuilder sb = new StringBuilder();
                         sb.Length = 0;
                         sb.AppendLine(" INSERT INTO [tPlanCut] ([vcMonth],[vcPartsno],[vcKBorderno],[vcKBSerial],[vcEDflag],[updateFlag],[dCreatTime],[vcUpdateID],vcDock)");
@@ -2341,10 +2338,12 @@ namespace DataAccess
                     cmd.Transaction.Rollback();
                     cmd.Connection.Close();
                 }
-                //LogHelper.ErrorLog(ex.Message);
             }
             return msg;
         }
+        #endregion
+        #endregion
+
 
         public string UpdatePlan(string mon, string user)//从临时表更新到计划
         {

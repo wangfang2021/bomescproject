@@ -211,15 +211,14 @@ namespace Logic
             dt.Columns.Add(col);
         }
 
-
-        /// <summary>
-        /// 弹出的编辑界面点击检索按钮获取列表数据
-        /// </summary>
-        /// <param name="mon"></param>
+        #region 订单删减子页面
+        #region 检索
         public DataTable getCutPlan(string mon)
         {
             return dataAccess.getCutPlan(mon);
         }
+        #endregion
+
         #region 删除
         public void Del_Plan(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -227,5 +226,12 @@ namespace Logic
         }
         #endregion
 
+        #region 保存
+        public string UpdateCutPlanTMP(DataTable dt, string user)
+        {
+            return dataAccess.UpdateCutPlanTMP(dt, user);
+        }
+        #endregion
+        #endregion
     }
 }

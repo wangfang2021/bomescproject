@@ -20,7 +20,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G03
+namespace SPPSApi.Controllers.G12
 {
     [Route("api/FS1201_Sub_Import/[action]")]
     [EnableCors("any")]

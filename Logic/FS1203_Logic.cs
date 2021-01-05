@@ -232,6 +232,14 @@ namespace Logic
             return dataAccess.UpdateCutPlanTMP(dt, user);
         }
         #endregion
+
+        #region 更新到计划
+        public string UpdatePlan(string mon, string user)//从临时表更新到计划
+        {
+            return dataAccess.UpdatePlan(mon, user);
+        }
+        #endregion
+
         #endregion
     }
 }

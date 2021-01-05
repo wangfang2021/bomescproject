@@ -2201,7 +2201,7 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             string ssql = " SELECT vcMonth,vcPartsno,vcDock,vcKBorderno,vcKBSerial,vcEDflag,'0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId FROM tPlanCut where updateFlag='0' ";
-            if (mon.Length > 0)
+            if (mon!= null && mon.Length > 0)
             {
                 ssql += " and vcMonth='" + mon + "'";
                 dt = excute.ExcuteSqlWithSelectToDT(ssql);
@@ -2331,9 +2331,8 @@ namespace DataAccess
             return msg;
         }
         #endregion
-        #endregion
 
-
+        #region 更新到计划
         public string UpdatePlan(string mon, string user)//从临时表更新到计划
         {
             string msg = "";
@@ -2346,7 +2345,7 @@ namespace DataAccess
             {
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);
                 //获取该月要削减的计划
-                DataTable dtCut = getCutPlanByMon(mon);
+                DataTable dtCut = getCutPlan(mon, cmd, apt);
                 if (dtCut.Rows.Count == 0)
                 {
                     msg = "无可删除的订单数据，请新增。";
@@ -2368,9 +2367,7 @@ namespace DataAccess
                     CutEDMonthPlanTMP(mon, dtCut_E, cmd, apt);
                 }
                 //删除削减到0的计划。
-
                 //PlanDelIs0(mon, cmd, apt);
-
                 //更新削减临时表
                 cmd.CommandText = " update tPlanCut set updateFlag='1',dUpdateTime=getdate(),vcUpdateID='" + user + "' where vcMonth='" + mon + "'";
                 cmd.ExecuteNonQuery();
@@ -2389,7 +2386,6 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                //LogHelper.ErrorLog(ex.Message);
                 if (cmd.Connection.State == ConnectionState.Open)
                 {
                     cmd.Transaction.Rollback();
@@ -2399,6 +2395,23 @@ namespace DataAccess
             }
             return msg;
         }
+        #endregion
+        public DataTable getCutPlan(string mon, SqlCommand cmd, SqlDataAdapter apt)
+        {
+            DataTable dt = new DataTable();
+            string ssql = "  ";
+            ssql += " SELECT t1.vcMonth , t1.vcPartsno ,t1.vcDock,t1.vcKBorderno , t1.vcKBSerial , t1.vcEDflag ,";
+            ssql += " t2.vcComDate00 , t2.vcComDate01,t2.vcComDate02,t2.vcComDate03,t2.vcComDate04 ,";
+            ssql += " t2.vcBanZhi00, t2.vcBanZhi01, t2.vcBanZhi02, t2.vcBanZhi03, t2.vcBanZhi04,t2.vcQuantityPerContainer as srs";
+            ssql += "  FROM tPlanCut  t1";
+            ssql += " left join dbo.tKanbanPrintTbl t2";
+            ssql += " on t1.vcPartsno = t2.vcPartsNo and t1.vcKBorderno = t2.vcKBorderno and t1.vcKBSerial = t2.vcKBSerial and t1.vcDock = t2.vcDock ";
+            ssql += " where vcMonth='" + mon + "' and t1.updateFlag ='0' order by vcEDflag ";
+            cmd.CommandText = ssql;
+            apt.Fill(dt);
+            return dt;
+        }
+        #endregion
 
         public DataTable getCutPlanByMon(string mon)
         {

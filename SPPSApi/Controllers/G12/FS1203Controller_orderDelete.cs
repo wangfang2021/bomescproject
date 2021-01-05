@@ -58,7 +58,6 @@ namespace SPPSApi.Controllers.G12
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -156,10 +155,10 @@ namespace SPPSApi.Controllers.G12
                                                 {"1","2","3","4","5","6"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 }
-
-                string strMsg = "";
+  
                 DataTable tb = ListToDataTable(listInfoData);
                 tb.Columns.RemoveAt(0);
+                string strMsg = "";
                 strMsg = logic.UpdateCutPlanTMP(tb, loginInfo.UserId);
                 if (strMsg != "")
                 {
@@ -176,7 +175,47 @@ namespace SPPSApi.Controllers.G12
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0908", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存公式失败";
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 更新到计划
+        [HttpPost]
+        [EnableCors("any")]
+        public string updatePlan([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strMon = dataForm.vcMon;
+            try
+            {
+                string strMsg = "";
+                strMsg = logic.UpdatePlan(strMon, loginInfo.UserId);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "计划削减成功！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "计划削减失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -198,14 +237,11 @@ namespace SPPSApi.Controllers.G12
                 {
                     DataRow r = tb.NewRow();
                     for (int j = 0; j < tb.Columns.Count; j++)
-                    {
                         r[j] = li1[tb.Columns[j].ColumnName].ToString();
-                    }
                     tb.Rows.Add(r);
                 }
             }
             return tb;
         }
-
     }
 }

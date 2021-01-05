@@ -66,6 +66,31 @@ namespace DataAccess
             }
         }
 
+
+        public DataTable CheckDistinctByTableOrderGoods(DataTable dtadd)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                for (int i = 0; i < dtadd.Rows.Count; i++)
+                {
+                    if (strSql.Length > 0)
+                    {
+                        strSql.AppendLine("  union all SELECT * FROM [dbo].[TOrderGoods] where vcOrderGoods='"+ dtadd.Rows[i]["vcOrderGoods"] + "'  ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  SELECT * FROM [dbo].[TOrderGoods] where vcOrderGoods='"+ dtadd.Rows[i]["vcOrderGoods"] + "'  ");
+                    }
+                }
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+          }
+
         /// <summary>
         /// 子页面保存
         /// </summary>
@@ -166,24 +191,39 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataSet Search()
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select iAutoId, vcSupplier_id, vcWorkArea, convert(varchar(20), dBeginDate,111) as dBeginDate, convert(varchar(20), dEndDate,111) as dEndDate, '1' as vcmodflag,'1' as vcaddflag, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier]    ");
+                strSql.AppendLine("   select  [iAutoId], [vcOrderGoods] as dhfs, '0' as show,'0' as vcModFlag,'0' as vcAddFlag from [dbo].[TOrderGoods];    ");
+                strSql.AppendLine("   select  [vcOrderDifferentiation] from [dbo].[TOrderDifferentiation] order by iAutoId asc;    ");
+                strSql.AppendLine("   select  b.vcOrderGoods,c.vcOrderDifferentiation from [dbo].[TOrderGoodsAndDifferentiation] a    ");
+                strSql.AppendLine("   left join [dbo].[TOrderGoods] b on a.vcOrderGoodsId=b.iAutoId    ");
+                strSql.AppendLine("   left join [dbo].[TOrderDifferentiation] c on a.vcOrderDifferentiationId=c.iAutoId ;   ");
+                strSql.AppendLine("   select  vcOrderDifferentiation as prop,vcOrderDifferentiation as label,vcOrderInitials as ddszm from [dbo].[TOrderDifferentiation] order by iAutoId asc    ");
 
-                if (vcSupplier_id.Length > 0)
-                {
-                    strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
-                }
-                if (vcWorkArea.Length > 0)
-                {
-                    strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
-                }
+                return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
+        /// <summary>
+        /// 获取订单区分
+        /// </summary>
+        /// <returns></returns>
+        public DataTable GetOrderDifferentiation()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
+                strSql.AppendLine("   Select iAutoId,vcOrderDifferentiation from [dbo].[TOrderDifferentiation]    ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -191,32 +231,13 @@ namespace DataAccess
                 throw ex;
             }
         }
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="dtdel"></param>
-        /// <param name="userId"></param>
-        public void Del(DataTable dtdel, string userId)
-        {
-            StringBuilder sql = new StringBuilder();
-            for (int i = 0; i < dtdel.Rows.Count; i++)
-            {
-                DataRow dr = dtdel.Rows[i];
-                sql.Append("delete from [TSpecialSupplier]  \n");
-                sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "'  and vcWorkArea='" + dr["vcWorkArea"].ToString() + "' \n");
 
-            }
-            if (sql.Length > 0)
-            {
-                excute.ExcuteSqlWithStringOper(sql.ToString());
-            }
-        }
         /// <summary>
-        /// 保存
+        /// 增加订单方式
         /// </summary>
         /// <param name="dtadd"></param>
-        /// <param name="userId"></param>
-        public void Save(DataTable dtadd, DataTable dtmod, string userId)
+        /// <returns></returns>
+        public bool AddOrderGoods(DataTable dtadd,String userId)
         {
             try
             {
@@ -224,15 +245,37 @@ namespace DataAccess
                 for (int i = 0; i < dtadd.Rows.Count; i++)
                 {
                     DataRow dr = dtadd.Rows[i];
-                    sql.Append("insert into [TSpecialSupplier] (vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime)  \n");
-                    sql.Append(" values('" + dr["vcSupplier_id"].ToString() + "','" + dr["vcWorkArea"].ToString() + "','" + dr["dBeginDate"].ToString() + "','" + dr["dEndDate"].ToString() + "','" + userId + "',GETDATE()) \n");
+                    sql.Append(" insert into [dbo].[TOrderGoods] (vcOrderGoods,vcOperatorID,dOperatorTime)  \n");
+                    sql.Append(" values('" + dr["vcOrderGoods"].ToString() + "','" + userId + "',GETDATE()) \n");
                 }
-                for (int i = 0; i < dtmod.Rows.Count; i++)
+               
+                if (sql.Length > 0)
                 {
-                    DataRow dr = dtmod.Rows[i];
-                    sql.Append("update TSpecialSupplier set dBeginDate='" + Convert.ToDateTime(dr["dBeginDate"].ToString()) + "', dEndDate='" + Convert.ToDateTime(dr["dEndDate"].ToString()) + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
-                    sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "' and vcWorkArea ='" + dr["vcWorkArea"].ToString() + "' \n");
+                    return excute.ExcuteSqlWithStringOper(sql.ToString())>0;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// <summary>
+        /// 增加中间表的数据
+        /// </summary>
+        /// <param name="dtaddZJB"></param>
+        /// <param name="userId"></param>
+        public void AddOrderGoodsAndDifferentiation(DataTable dtaddZJB, string userId)
+        {
 
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < dtaddZJB.Rows.Count; i++)
+                {
+                    DataRow dr = dtaddZJB.Rows[i];
+                    sql.Append("insert into [dbo].[TOrderGoodsAndDifferentiation] (vcOrderGoodsId,vcOrderDifferentiationId,vcOperatorID,dOperatorTime)  \n");
+                    sql.Append(" values((select iAutoId from [dbo].[TOrderGoods] where vcOrderGoods='" + dr["vcOrderGoods"].ToString() + "' ),(select iAutoId from [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='" + dr["vcOrderDifferentiation"].ToString() + "'),'000000',getdate()); \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -245,7 +288,68 @@ namespace DataAccess
             }
         }
 
-       
+        public void UpdateOrderGoodsAndDifferentiation(DataTable dtamodify, DataTable dtamodifyZJB, string userId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < dtamodify.Rows.Count; i++)
+                {
+                    DataRow dr = dtamodify.Rows[i];
+                    sql.Append("delete from [dbo].[TOrderGoodsAndDifferentiation] where vcOrderGoodsId=( select iAutoId from [dbo].[TOrderGoods] where vcOrderGoods='" + dr["vcOrderGoods"].ToString() + "');  \n");
+                }
+                for (int i = 0; i < dtamodifyZJB.Rows.Count; i++)
+                {
+                    DataRow dr = dtamodifyZJB.Rows[i];
+                    sql.Append("insert into [dbo].[TOrderGoodsAndDifferentiation] (vcOrderGoodsId,vcOrderDifferentiationId,vcOperatorID,dOperatorTime)  \n");
+                    sql.Append(" values((select iAutoId from [dbo].[TOrderGoods] where vcOrderGoods='" + dr["vcOrderGoods"].ToString() + "' ),(select iAutoId from [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='" + dr["vcOrderDifferentiation"].ToString() + "'),'000000',getdate()); \n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 子页面删除
+        /// </summary>
+        /// <param name="listInfoData"></param>
+        /// <param name="userId"></param>
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete [TOrderGoods] where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  );   \r\n ");
+                sql.Append("  delete [TOrderGoodsAndDifferentiation] where vcOrderGoodsId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #region 返回insert语句值
         /// <summary>
         /// 返回insert语句值

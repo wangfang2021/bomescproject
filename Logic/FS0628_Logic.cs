@@ -19,29 +19,23 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataTable Search(string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcWorkArea, string dExpectReceiveDate)
         {
-            return fs0628_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+            return fs0628_DataAccess.Search(vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcWorkArea, dExpectReceiveDate);
         }
 
-        public bool isExistAddData(DataTable dtadd)
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
         {
-            return fs0628_DataAccess.isExistAddData(dtadd);
+            fs0628_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
         }
 
-        public bool isExistModData(DataTable dtamod)
+        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
         {
-            return fs0628_DataAccess.isExistModData(dtamod);
+            fs0628_DataAccess.Del(listInfoData, userId);
         }
-
-        public DataTable BindInsideOutsideType()
+        public void importSave(DataTable importDt, string userId)
         {
-            throw new NotImplementedException();
-        }
-
-        public DataTable BindConsignee()
-        {
-            throw new NotImplementedException();
+            fs0628_DataAccess.importSave(importDt, userId);
         }
     }
 }

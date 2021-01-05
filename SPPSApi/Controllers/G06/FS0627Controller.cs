@@ -49,17 +49,18 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = fs0627_Logic.bindInjectionFactoryApi();
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
+                res.Add("C000", dataList_C000);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2101", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定收货方列表失败";
+                apiResult.data = "绑定发注工厂列表失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

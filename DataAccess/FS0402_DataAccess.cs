@@ -121,7 +121,7 @@ namespace DataAccess
                 sql.AppendLine("CARFAMILYCODE=SP_M_SITEM.CARFAMILYCODE,");
                 sql.AppendLine("CURRENTPASTCODE=SP_M_SITEM.CURRENTPASTCODE,");
                 sql.AppendLine("varMakingOrderType=SP_M_SITEM.vcPackingFactory,");
-                sql.AppendLine("iFZGC=SP_M_SITEM.iFZGC,");
+                sql.AppendLine("iFZGC=SP_M_SITEM.vcPlantCode,");
                 sql.AppendLine("INOUTFLAG=SP_M_SITEM.INOUTFLAG,");
                 sql.AppendLine("SUPPLIERCODE=SP_M_SITEM.SUPPLIERCODE,");
                 sql.AppendLine("iSupplierPlant=SP_M_SITEM.iSupplierPlant,");

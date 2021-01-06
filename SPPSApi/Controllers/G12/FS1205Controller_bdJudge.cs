@@ -167,6 +167,53 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMonth = dataForm.vcMonth;
+            string vcWeek = dataForm.vcWeek;
+            string vcPlant = dataForm.vcPlant;
+            DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
+            try
+            {
+                string exlName = "";
+                string msg = "";
+                DataTable tb = fS1205_Logic.BdpdFileExport(dt, ref exlName, ref msg);
+                string[] fields = {
+                       "vcMonth", "vcWeek", "vcPartsno", "vcWeekTotal", "vcWeekOrderingCount", "vcWeekLevelPercentage","vcFlag","vcQuantityPerContainer","vcAdjust","vcMonTotal","vcRealTotal"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(tb, fields, _webHostEnvironment.ContentRootPath, "FS1205_Exp.xlsx", 2, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         public DataTable ListToDataTable(List<Dictionary<string, Object>> listInfoData)
         {
             DataTable tb = new DataTable();

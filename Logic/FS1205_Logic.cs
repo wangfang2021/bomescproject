@@ -76,6 +76,60 @@ namespace Logic
         }
         #endregion
 
+        public DataTable BdpdFileExport(DataTable dt, ref string exlName,ref string msg)
+        {
+            DataTable dtResult = new DataTable();//生成表格，导出到Excel
+            dtResult.Columns.Add("vcMonth");//对象月
+            dtResult.Columns.Add("vcWeek");//周数
+            dtResult.Columns.Add("vcPartsno");//品番
+            dtResult.Columns.Add("vcWeekTotal");//本周内示数
+            dtResult.Columns.Add("vcWeekOrderingCount");//本周订货数
+            dtResult.Columns.Add("vcWeekLevelPercentage");//波动率
+            dtResult.Columns.Add("vcFlag");//判定
+            dtResult.Columns.Add("vcQuantityPerContainer");//收容数
+            dtResult.Columns.Add("vcAdjust");//调整数（为空，用户自己填写）
+            dtResult.Columns.Add("vcMonTotal");//月度内示
+            dtResult.Columns.Add("vcRealTotal");//本月实际订货数（实际订货数累加，第一周为0）
+
+            //生成要导出的数据表，只要判定为NG的（作废，OK、NG都要导出来）
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = dtResult.NewRow();
+                dr["vcMonth"] = dt.Rows[i]["vcMonth"];
+                dr["vcWeek"] = NumberToText(dt.Rows[i]["vcWeek"].ToString());
+                dr["vcPartsno"] = dt.Rows[i]["vcPartsno"];
+                dr["vcWeekTotal"] = dt.Rows[i]["vcWeekTotal"];
+                dr["vcWeekOrderingCount"] = dt.Rows[i]["vcWeekOrderingCount"];
+                dr["vcWeekLevelPercentage"] = dt.Rows[i]["vcWeekLevelPercentage"];
+                dr["vcFlag"] = dt.Rows[i]["vcFlag"].ToString() == "Y" ? "OK" : "NG";
+                dr["vcQuantityPerContainer"] = TXTQuantity(dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcMonth"].ToString());
+                dr["vcMonTotal"] = dt.Rows[i]["vcMonTotal"];
+                dr["vcRealTotal"] = TXTRealTotal(dt.Rows[i]["vcMonth"].ToString(), dt.Rows[i]["vcWeek"].ToString(),
+                    dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcPlant"].ToString());//本月实际订货数
+                dtResult.Rows.Add(dr);
+            }
+            if (dtResult.Rows.Count == 0)
+            {
+                msg = "没有需要导出的数据！";
+                return null;
+            }
+            string Month = dt.Rows[0]["vcMonth"].ToString();//获取数据源中的对象月
+            string OrderNo = dt.Rows[0]["vcOrderNo"].ToString();//获取数据源中的订单号
+            string Week = dt.Rows[0]["vcWeek"].ToString();//获取数据源中的对象周
+            string Plant = dt.Rows[0]["vcPlant"].ToString();//获取数据源中的厂区
+
+            TXTUpdateTableDetermine(dt, Month, OrderNo, Week, Plant);
+            //导出到Excel
+            string strOrderNo = dt.Rows[0]["vcOrderNo"].ToString();
+            exlName = "周订单：" + strOrderNo + "确认文件" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
+
+            //QMExcel oQMExcel = new QMExcel();
+            //string tmplatePath = System.Web.HttpContext.Current.Server.MapPath("~/Templates/FS1205_Exp.xlt");
+            //string path = System.Web.HttpContext.Current.Server.MapPath("~/Temps/" + exlName);
+            //oQMExcel.ExportFromTemplate(dtResult, tmplatePath, path, 2, 1, true);//将表格写入Excel文件
+            return dtResult;
+        }
+
         #region 初始化计划类别 - 李兴旺整理
         public DataTable getPlantype()
         {

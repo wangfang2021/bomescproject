@@ -18,30 +18,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strJD, string strInOutFlag, string strSupplier_id, string strCarType, string strPart_id)
+        public DataTable Search(string strJD, string strInOutFlag, string strSupplier_id, string strCarType, string strPart_id,string strIsDYJG,string strIsDYFX)
         {
-            return FS0304_DataAccess.Search(strJD, strInOutFlag, strSupplier_id, strCarType, strPart_id);
-        }
-        #endregion
-
-        #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
-        {
-            FS0304_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
-        }
-        #endregion
-
-        #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
-        {
-            FS0304_DataAccess.importSave(dt, strUserId);
-        }
-        #endregion
-
-        #region 删除
-        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
-        {
-            FS0304_DataAccess.Del(listInfoData, strUserId);
+            return FS0304_DataAccess.Search(strJD, strInOutFlag, strSupplier_id, strCarType, strPart_id, strIsDYJG, strIsDYFX);
         }
         #endregion
 

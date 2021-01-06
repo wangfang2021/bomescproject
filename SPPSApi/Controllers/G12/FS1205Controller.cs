@@ -213,5 +213,61 @@ namespace SPPSApi.Controllers.G12
             }
         }
         #endregion
+
+        #region 生成计划
+        [HttpPost]
+        [EnableCors("any")]
+        public string txtScheduleToPlan([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMonth = dataForm.vcMonth;
+            string vcWeek = dataForm.vcWeek;
+            string vcPlant = dataForm.vcPlant;
+            string msg = "";
+            try
+            {
+                DataTable dt = fS1205_Logic.TXTSearchWeekLevelSchedule(vcMonth, vcWeek, vcPlant);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    //生成计划
+                    msg = fS1205_Logic.TXTScheduleToPlan(dt, vcMonth, vcWeek, vcPlant, loginInfo.UserId);
+                    if (msg.Length > 0)
+                    {
+                        //大于0，意思是数据中有错误
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = msg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    else
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "生成计划成功！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未检索数据不能生成！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成计划失败！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

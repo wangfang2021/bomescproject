@@ -79,7 +79,7 @@ namespace Logic
         #region 初始化计划类别 - 李兴旺整理
         public DataTable getPlantype()
         {
-            string ssql = " select '<-请选择->' as planType ,'' as value union all select planType,value from dbo.sPlanType where enable ='1'";
+            string ssql = " select '' as planType ,'' as value union all select planType,value from sPlanType where enable='1'";
             DataTable dt = excute.ExcuteSqlWithSelectToDT(ssql);
             return dt;
         }

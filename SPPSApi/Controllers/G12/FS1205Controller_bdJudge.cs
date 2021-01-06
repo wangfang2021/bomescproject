@@ -2,13 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -16,16 +22,16 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G12
 {
-    [Route("api/FS1205/[action]")]
+    [Route("api/FS1205_bdJudge/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS1205Controller : BaseController
+    public class FS1205Controller_bdJudge : BaseController
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
         FS1205_Logic fS1205_Logic = new FS1205_Logic();
         private readonly string FunctionID = "FS1205";
-        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FS1205Controller(IWebHostEnvironment webHostEnvironment)
+        public FS1205Controller_bdJudge(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -47,9 +53,7 @@ namespace SPPSApi.Controllers.G12
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
                 List<Object> dataList_PlantSource = ComFunction.convertAllToResult(fS1205_Logic.bindplant());
-                List<Object> dataList_TypeSource = ComFunction.convertAllToResult(fS1205_Logic.getPlantype());
                 res.Add("PlantSource", dataList_PlantSource);
-                res.Add("TypeSource", dataList_TypeSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -81,14 +85,11 @@ namespace SPPSApi.Controllers.G12
             string vcMonth = dataForm.vcMonth;
             string vcWeek = dataForm.vcWeek;
             string vcPlant = dataForm.vcPlant;
-            string vcType = dataForm.vcType;
-
             try
             {
-                DataTable dt = fS1205_Logic.TXTSearchWeekLevelSchedule(vcMonth, vcWeek, vcPlant);
+                DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -102,6 +103,9 @@ namespace SPPSApi.Controllers.G12
             }
         }
         #endregion
+
+
+
 
     }
 }

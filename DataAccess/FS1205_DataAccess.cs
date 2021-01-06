@@ -106,7 +106,7 @@ namespace DataAccess
 
         public DataTable bindplant()
         {
-            string ssql = " select '<-请选择->' as vcData1,'<-请选择->' as vcData2 union all select distinct vcData1,vcData2 from ConstMst where vcDataID='KBPlant' ";
+            string ssql = " select '' as vcData1,'' as vcData2 union all select distinct vcData1,vcData2 from ConstMst where vcDataID='KBPlant' ";
             DataTable dt = new DataTable();
             try
             {

@@ -1459,6 +1459,9 @@ namespace Logic
         /// <param name="strPlant">厂区</param>
         public void TXTUpdateTableDetermine(DataTable dt, string strMonth, string strOrderNo, string strWeek, string strPlant)
         {
+            dt.Columns.Remove("vcModFlag");
+            dt.Columns.Remove("vcAddFlag");
+
             string strSQLSearch = " select * from WeekLevelPercentage ";
             StringBuilder strSQL = new StringBuilder();
             //删周计划变动幅度管理表
@@ -1512,7 +1515,64 @@ namespace Logic
                 throw ex;
             }
         }
+
+        public string TXTUpdateTableDetermine(DataTable dt)
+        {
+            //更新操作
+            try
+            {
+                string Month = dt.Rows[0]["vcMonth"].ToString();//获取数据源中的对象月
+                string OrderNo = dt.Rows[0]["vcOrderNo"].ToString();//获取数据源中的订单号
+                string Week = dt.Rows[0]["vcWeek"].ToString();//获取数据源中的对象周
+                string Plant = dt.Rows[0]["vcPlant"].ToString();//获取数据源中的厂区
+
+                string ColumnName = string.Empty;//对应周的实际订货数量的列名
+
+                switch (Week)
+                {
+                    case "1": ColumnName = "vc1stWeekTotal"; break;
+                    case "2": ColumnName = "vc2ndWeekTotal"; break;
+                    case "3": ColumnName = "vc3rdWeekTotal"; break;
+                    case "4": ColumnName = "vc4thWeekTotal"; break;
+                    case "5": ColumnName = "vc5thWeekTotal"; break;
+                }
+                for (int k = 0; k < dt.Rows.Count; k++)
+                {
+                    //将本周实际订货数放到对应的周总数中
+
+                    dt.Rows[k][ColumnName] = dt.Rows[k]["vcWeekOrderingCount"];
+                    //合计更新
+                    dt.Rows[k]["vcTotal"] = (Convert.ToInt32(dt.Rows[k]["vc1stWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc2ndWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc3rdWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc4thWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc5thWeekTotal"].ToString())).ToString();
+                }
+                //设置主键
+                dt.PrimaryKey = new DataColumn[]
+                {
+                        dt.Columns["vcMonth"],
+                        dt.Columns["vcOrderNo"],
+                        dt.Columns["vcWeek"],
+                        dt.Columns["vcPlant"],
+                        dt.Columns["vcGC"],
+                        dt.Columns["vcZB"],
+                        dt.Columns["vcPartsno"]
+                };
+                TXTUpdateTableDetermine(dt, Month, OrderNo, Week, Plant);
+                //全部设定为OK后，开始进行平准化操作
+                string msg = TXTInsertToWeekLevelSchedule(dt);
+                if (msg.Length > 0)
+                {
+                    //大于0，意思是有异常情况
+                    return msg;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return "";
+        }
         #endregion
+
 
         #region 根据对象月和对象周检索周计划变动幅度管理表WeekLevelPercentage - 李兴旺
 
@@ -1529,7 +1589,7 @@ namespace Logic
             StringBuilder strSQL1 = new StringBuilder();
             StringBuilder strSQL2 = new StringBuilder();
             //先检索确定有没有数据
-            strSQL1.AppendLine(" select * from WeekLevelPercentage where vcMonth='" + strMonth + "' and vcWeek='" + strWeek + "' and vcPlant='" + strPlant + "' order by vcFlag ");//【201812103】把NG放前面
+            strSQL1.AppendLine(" select *,'0' as vcModFlag,'0' as vcAddFlag from WeekLevelPercentage where vcMonth='" + strMonth + "' and vcWeek='" + strWeek + "' and vcPlant='" + strPlant + "' order by vcFlag ");//【201812103】把NG放前面
 
             dt = excute.ExcuteSqlWithSelectToDT(strSQL1.ToString());
             return dt;

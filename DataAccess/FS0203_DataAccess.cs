@@ -91,12 +91,12 @@ namespace DataAccess
                 "Self RTG 10", "Self RTG 11", "Self RTG 12", "Self RTG 13", "Self RTG 14", "Parent RTG", "C", "11=",
                 "12=", "15=", "16=", "18=", "19=", "Prod. Comment"
             };
-            string Father = "";
+            string[] Father = new String[4];
             foreach (string str in strs)
             {
                 if (str.Contains(startFlag))
                 {
-                    Father = "";
+                    Father = new String[4];
                     flag = true;
                     continue;
                 }
@@ -109,26 +109,54 @@ namespace DataAccess
                         if (i % 2 == 1)
                             tempList.Add(temp[i]);
                     }
-                    //9,13  lv  partid
+
 
                     if (temp[9].ToString().Trim().Equals("01") || temp[9].ToString().Trim().Equals("1"))
                     {
-                        Father = temp[13].ToString().Trim();
+                        Father[0] = temp[13].ToString().Trim();
                     }
+                    else if (temp[9].ToString().Trim().Equals("02") || temp[9].ToString().Trim().Equals("2"))
+                    {
+                        Father[1] = temp[13].ToString().Trim();
+                    }
+                    else if (temp[9].ToString().Trim().Equals("03") || temp[9].ToString().Trim().Equals("3"))
+                    {
+                        Father[2] = temp[13].ToString().Trim();
+                    }
+                    else if (temp[9].ToString().Trim().Equals("04") || temp[9].ToString().Trim().Equals("4"))
+                    {
+                        Father[3] = temp[13].ToString().Trim();
+                    }
+
+
 
                     Hashtable tempHashtable = new Hashtable();
                     for (int i = 0; i < title.Count; i++)
                     {
                         tempHashtable.Add(title[i], tempList.Count - 1 > i ? tempList[i] : "");
                     }
+
                     if (temp[9].ToString().Trim().Equals("01") || temp[9].ToString().Trim().Equals("1"))
                     {
                         tempHashtable.Add("FatherPart_Id", "");
                     }
-                    else
+                    else if (temp[9].ToString().Trim().Equals("02") || temp[9].ToString().Trim().Equals("2"))
                     {
-                        tempHashtable.Add("FatherPart_Id", Father);
+                        tempHashtable.Add("FatherPart_Id", Father[0]);
                     }
+                    else if (temp[9].ToString().Trim().Equals("03") || temp[9].ToString().Trim().Equals("3"))
+                    {
+                        tempHashtable.Add("FatherPart_Id", Father[1]);
+                    }
+                    else if (temp[9].ToString().Trim().Equals("04") || temp[9].ToString().Trim().Equals("4"))
+                    {
+                        tempHashtable.Add("FatherPart_Id", Father[2]);
+                    }
+                    else if (temp[9].ToString().Trim().Equals("05") || temp[9].ToString().Trim().Equals("5"))
+                    {
+                        tempHashtable.Add("FatherPart_Id", Father[3]);
+                    }
+
                     list.Add(tempHashtable);
                 }
                 else if (flag == true && str.Equals("\"\""))

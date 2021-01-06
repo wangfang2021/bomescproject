@@ -35,14 +35,15 @@ namespace DataAccess
                 sbr.Append("  SET @9B=@10Year+'/09/01';  \r\n");
                 sbr.Append("  SET @9E=@9Year+'/08/31';  \r\n");
                 sbr.Append("  SET @10E=@10Year+'/08/31';  \r\n");
+                sbr.Append("  DELETE TOldYearManager WHERE vcYear = @Year \r\n");
                 sbr.Append("  IF EXISTS (SELECT *  \r\n");
                 sbr.Append("             FROM tempdb.dbo.sysobjects  \r\n");
                 sbr.Append("             WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')  \r\n");
                 sbr.Append("      DROP TABLE #temp;  \r\n");
-                sbr.Append("  SELECT vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcNXQF, vcCarTypeDev, dJiuBegin  \r\n");
+                sbr.Append("  SELECT vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcNXQF, vcCarTypeDev, dJiuBegin,vcSYTCode,vcReceiver  \r\n");
                 sbr.Append("  INTO #temp  \r\n");
                 sbr.Append("  FROM TUnit  \r\n");
-                sbr.Append("  WHERE vcChange=(SELECT vcValue FROM TCode WHERE vcName='旧型' AND vcCodeId='C002');  \r\n");
+                sbr.Append("  WHERE vcChange=(SELECT vcValue FROM TCode WHERE vcName like'%旧型%' AND vcCodeId='C002');  \r\n");
                 sbr.Append("  INSERT INTO TOldYearManager(vcYear, vcFinish, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7, vcFlag, vcOperatorID, dOperatorTime)  \r\n");
                 sbr.Append("  SELECT @Year AS vcYear, '0' AS vcFinish, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, CASE vcNXQF WHEN '1' THEN '往年持续生产' ELSE '' END AS vcRemark, vcOld10, vcOld9, vcOld7, '0' AS vcFlag, '" + strUserId + "' AS vcOperatorID, GETDATE() AS dOperatorTime  \r\n");
                 sbr.Append("  FROM(SELECT vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcNXQF, vcCarTypeDev, dJiuBegin, '1' AS vcOld7, '0' AS vcOld9, '0' AS vcOld10  \r\n");
@@ -54,8 +55,8 @@ namespace DataAccess
                 sbr.Append("       WHERE CONVERT(VARCHAR(12), dJiuBegin, 111)>=@9B AND CONVERT(VARCHAR(12), dJiuBegin, 111)<=@9E  \r\n");
                 sbr.Append("       UNION ALL  \r\n");
                 sbr.Append("       SELECT vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcNXQF, vcCarTypeDev, dJiuBegin, '0' AS vcOld7, '0' AS vcOld9, '1' AS vcOld10  \r\n");
-                sbr.Append("       FROM #temp  \r\n");
-                sbr.Append("       WHERE CONVERT(VARCHAR(12), dJiuBegin, 111)<=@10E) a;  \r\n");
+                sbr.Append("       FROM #temp \r\n");
+                sbr.Append("       WHERE CONVERT(VARCHAR(12), dJiuBegin, 111)<=@10E  AND vcNXQF = '继续生产') a;  \r\n");
                 sbr.Append("  IF EXISTS (SELECT *  \r\n");
                 sbr.Append("             FROM tempdb.dbo.sysobjects  \r\n");
                 sbr.Append("             WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')  \r\n");
@@ -98,17 +99,60 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
 
                 sbr.Append(" SELECT a.vcYear,b.vcName AS vcFinish, a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn,d.vcName AS vcInOutflag, a.vcCarTypeDev, \r\n");
-                sbr.Append(" a.dJiuBegin, a.vcRemark, a.vcOld10, a.vcOld9, a.vcOld7,c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3, a.vcYearDiff, \r\n");
+                sbr.Append(" a.dJiuBegin, a.vcRemark, a.vcOld10, a.vcOld9, a.vcOld7,c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3, a.vcNXQF, \r\n");
                 sbr.Append(" a.dTimeFrom, a.vcDY, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21,'0' as vcModFlag \r\n");
                 sbr.Append(" FROM TOldYearManager a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C024') b ON a.vcFinish = b.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C003') d ON a.vcInOutflag = d.vcValue \r\n");
                 sbr.Append(" WHERE a.vcYear = '" + strYear + "'  \r\n");
-                sbr.Append(" AND a.vcFinish = '" + FinishFlag + "' \r\n");
+                if (!string.IsNullOrWhiteSpace(FinishFlag))
+                {
+                    sbr.Append(" AND a.vcFinish = '" + FinishFlag + "' \r\n");
+                }
 
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete TOldYearManager where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //保存
+
+        //展开账票
+        public void ZKZP(int id, string strUserId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.Append(" UPDATE TOldYearManager SET vcFinish = '3',vcOperatorID = '" + strUserId + "',dOperatorTime = GETDATE() \r\n");
+                sbr.Append(" WHERE iAuto_id = " + id + " \r\n");
+
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
             }
             catch (Exception ex)
             {

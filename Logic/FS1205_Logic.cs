@@ -305,7 +305,7 @@ namespace Logic
 
         #region 转换成10位品番-去00
         //转换成10位品番-去00
-        public static DataTable PartsNoFomatTo10(ref DataTable dt)
+        public DataTable PartsNoFomatTo10(ref DataTable dt)
         {
             foreach (var row in dt.AsEnumerable())
             {

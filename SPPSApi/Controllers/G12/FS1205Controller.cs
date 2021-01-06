@@ -2,8 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Text.Json;
-using System.Threading;
+using System.Text;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace SPPSApi.Controllers.G12
 {
@@ -265,6 +265,189 @@ namespace SPPSApi.Controllers.G12
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "生成计划失败！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 生成订单
+        [HttpPost]
+        [EnableCors("any")]
+        public string csvFileExport([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMonth = dataForm.vcMonth;
+            string vcWeek = dataForm.vcWeek;
+            string vcPlant = dataForm.vcPlant;
+            string msg;
+            try
+            {
+                DataTable dtSource = new DataTable();
+                msg = fS1205_Logic.TXTCSVInfoTableMaker(vcMonth, vcWeek, vcPlant, ref dtSource); //检索CSV用的数据，包装计划为基础;
+                if (msg.Length > 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    DataTable dtCol = dtSource.Clone();
+                    if (dtSource.Rows.Count > 0)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        //获取列名信息（不用）
+                        //string[] strColumnNames = dtSource.Columns.Cast<DataColumn>().Select(column => column.ColumnName).ToArray();
+                        //sb.AppendLine(string.Join(",", strColumnNames));
+                        //获取每行数据信息
+                        foreach (DataRow dtRow in dtSource.Rows)
+                        {
+                            for (int j = 0; j < dtCol.Columns.Count; j++)
+                            {
+                                if (j != dtCol.Columns.Count - 1)
+                                {
+                                    sb.Append(dtRow[j].ToString() + ",");
+                                }
+                                else
+                                {
+                                    sb.Append(dtRow[j].ToString());
+                                    sb.AppendLine();
+                                }
+                            }
+                        }
+                        //文件名：EMERGENCY_4_201810_20181025133627
+                        string name = "";
+                        switch (vcPlant)
+                        {
+                            case "1": name = "0"; break;
+                            case "2": name = "4"; break;
+                            case "3": name = "8"; break;
+                        }
+                        string CSVName = "EMERGENCY_" + name + "_" + vcMonth.Replace("-", "") + "_" + vcWeek + "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                        string path = System.IO.Directory.GetCurrentDirectory() + "\\Doc\\Export\\" + CSVName + ".csv";
+                        string pathupdate = CSVName + ".csv";
+                        //生成CSV文件
+                        System.IO.File.WriteAllText(path, sb.ToString());
+                        if (System.IO.File.Exists(path))
+                        {
+                            //string strtmp = this.gvMonPlan.Rows[0].Cells[0].Text;
+                            //if (strtmp == "初始化状态没有数据，请进行检索！")
+                            //{
+                            //}
+                            //下载窗口
+                            //ScriptManager.RegisterStartupScript(this.Page, this.Page.GetType(), "", "window.open('../tmp/" + pathupdate + "');", true);
+                            //ShowMessage("导出CSV文件成功: (" + CSVName + ")！", MessageType.Information);
+                            apiResult.code = ComConstant.SUCCESS_CODE;
+                            apiResult.data = path;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        else
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = msg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    else
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "无可导出的数据！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成计划失败！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出计划
+        [HttpPost]
+        [EnableCors("any")]
+        public string planFileExport([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMonth = dataForm.vcMonth;
+            string vcWeek = dataForm.vcWeek;
+            string vcPlant = dataForm.vcPlant;
+            string vcType = dataForm.vcType;
+            try
+            {
+                DataTable dtSource = fS1205_Logic.TXTExportPlan(vcMonth, vcWeek, vcPlant, vcType); //检索数据
+                if (dtSource.Rows.Count > 0)
+                {
+                    fS1205_Logic.PartsNoFomatTo10(ref dtSource);
+                    string name = "";
+                    switch (vcType)
+                    {
+                        case "0": name = "包装周度计划"; break;
+                        case "2": name = "看板打印周度计划"; break;
+                        case "1": name = "生产周度计划"; break;
+                        case "3": name = "涂装周度计划"; break;
+                        case "4": name = "工程3周度计划"; break;
+                    }
+                    string[] fields = { "vcMonth", "vcPlant", "vcPartsno", "vcDock", "vcCarType", "vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4"
+                        ,"vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal"
+                        ,"TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y"
+                        ,"TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y","TD11b","TD11y","TD12b","TD12y"
+                        ,"TD13b","TD13y","TD14b","TD14y","TD15b","TD15y","TD16b","TD16y","TD17b","TD17y","TD18b","TD18y"
+                        ,"TD19b","TD19y","TD20b","TD20y","TD21b","TD21y","TD22b","TD22y","TD23b","TD23y","TD24b","TD24y"
+                        ,"TD25b","TD25y","TD26b","TD26y","TD27b","TD27y","TD28b","TD28y","TD29b","TD29y","TD30b","TD30y"
+                        ,"TD31b","TD31y"
+                        ,"ED1b","ED1y","ED2b","ED2y","ED3b","ED3y","ED4b","ED4y","ED5b","ED5y","ED6b","ED6y"
+                        ,"ED7b","ED7y","ED8b","ED8y","ED9b","ED9y","ED10b","ED10y","ED11b","ED11y","ED12b","ED12y"
+                        ,"ED13b","ED13y","ED14b","ED14y","ED15b","ED15y","ED16b","ED16y","ED17b","ED17y","ED18b","ED18y"
+                        ,"ED19b","ED19y","ED20b","ED20y","ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y"
+                        ,"ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y"
+                        ,"ED31b","ED31y"
+                    };
+                    string filepath = ComFunction.generateExcelWithXlt(dtSource, fields, _webHostEnvironment.ContentRootPath, "FS1205_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID);
+                    if (filepath == "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导出生成文件失败";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = filepath;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    //ShowMessage("无可导出的数据！", MessageType.Information);
+                    //InitGrid();
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无可导出的数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -102,6 +102,9 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strIsShowAll = dataForm.isShowAll;
+            string strOriginCompany = dataForm.OriginCompany;
+
+
             string strSearchKey = dataForm.searchKey;
             int iPage = dataForm.page == null ? 0 : dataForm.page;
             int iPageSize = dataForm.pageSize;
@@ -117,7 +120,7 @@ namespace SPPSApi.Controllers.G03
                 }
                 else
                 {
-                    DataTable dtAll = fs0303_Logic.Search(strIsShowAll);
+                    DataTable dtAll = fs0303_Logic.Search(strIsShowAll, strOriginCompany);
                     initSearchCash(strSearchKey, dtAll);
                     dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
                 }
@@ -309,11 +312,12 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strIsShowAll = dataForm.isShowAll;
-            
+            string strOriginCompany = dataForm.OriginCompany;
+
             try
             {
                 /*2020-01-04*/
-                DataTable dt = fs0303_Logic.Search(strIsShowAll);
+                DataTable dt = fs0303_Logic.Search(strIsShowAll, strOriginCompany);
                 string[] fields = { "dSyncTime", "vcChange_Name", "vcSPINo", "vcSQState_Name", "vcDiff"
                                     ,"vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName"
                                     ,"dTimeFrom","dTimeTo","dTimeFromSJ","vcBJDiff","vcPartReplace"

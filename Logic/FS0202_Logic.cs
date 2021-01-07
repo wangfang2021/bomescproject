@@ -23,11 +23,6 @@ namespace Logic
 
         #endregion
 
-        public string getPartId(string vcCarType, string vcPart_Id, string vcParent)
-        {
-            FS0302_DataAccess dataAccess = new FS0302_DataAccess();
-            return dataAccess.getPartId(vcCarType, vcPart_Id, vcParent);
-        }
     }
 
 }

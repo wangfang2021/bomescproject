@@ -29,7 +29,6 @@ namespace SPPSApi.Controllers.G02
         [EnableCors("any")]
         public string searchHistory([FromBody]dynamic data)
         {
-            fs0202_logic.getPartId("843W", "2320924060", "ABC");
 
             //验证是否登录
             string strToken = Request.Headers["X-Token"];

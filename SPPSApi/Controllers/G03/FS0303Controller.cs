@@ -59,7 +59,6 @@ namespace SPPSApi.Controllers.G03
                 List<string> dataList_C004 = convertTCodeToResult(getTCode("C004"));//号旧区分
                 List<string> dataList_C005 = convertTCodeToResult(getTCode("C005"));//收货方
                 List<string> dataList_C006 = convertTCodeToResult(getTCode("C006"));//原单位
-                List<string> dataList_C009 = convertTCodeToResult(getTCode("C009"));//车型(设计)
                 List<string> dataList_C012 = convertTCodeToResult(getTCode("C012"));//OE=SP
                 List<string> dataList_C016 = convertTCodeToResult(getTCode("C016"));//包装事业体
                 List<string> dataList_C019 = convertTCodeToResult(getTCode("C019"));//生确
@@ -69,7 +68,6 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C004", dataList_C004);
                 res.Add("C005", dataList_C005);
                 res.Add("C006", dataList_C006);
-                res.Add("C009", dataList_C009);
                 res.Add("C012", dataList_C012);
                 res.Add("C016", dataList_C016);
                 res.Add("C019", dataList_C019);
@@ -199,12 +197,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"变更事项","设变号" , "生确"    ,"区分"  ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"使用开始"     ,"使用结束"     ,"SD"      ,"英文品名"    ,"OE=SP","号旧"    ,"防錆"    ,"收货方"    ,"所属单位"},
-                                                        {"vcChange","vcSPINo","vcSQState","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","dTimeFrom"    ,"dTimeTo"      ,"vcBJDiff","vcPartNameEn","vcOE" ,"vcHaoJiu","vcFXDiff","vcReceiver","vcOriginCompany"},
-                                                        {""        ,""       ,""         ,""      ,""         ,""            ,""               ,FieldCheck.Date,FieldCheck.Date,""        ,""            ,""     ,""        ,""        ,""          ,FieldCheck.Date},
-                                                        {"1"       ,"20"     ,"1"        ,"1"     ,"12"       ,"4"           ,"4"              ,"0"            ,"0"            ,"4"       ,"100"         ,"1"    ,"1"       ,"2"       ,"10"        ,"0",},//最大长度设定,不校验最大长度用0
-                                                        {"1"       ,"1"      ,"1"        ,"1"     , "1"       ,"1"           , "1"             ,"1"            ,"1"            ,"1"       ,"1"           ,"1"    ,"1"       ,"1"       ,"1"         ,"1"},//最小长度设定,可以为空用0
-                                                        {"1"       ,"2"      ,"3"        ,"4"     , "5"       ,"6"           , "7"             ,"8"            ,"9"            ,"10"      ,"11"          ,"12"   ,"13"      ,"14"      ,"15"        ,"16"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"变更事项","设变号" , "生确"    ,"区分"  ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"使用开始"     ,"使用结束"     ,"SD"      ,"英文品名"    ,"OE=SP","号旧"    ,"旧型开始"      ,"防錆"    ,"收货方"    ,"所属单位"},
+                                                        {"vcChange_Name","vcSPINo","vcSQState_Name","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","dTimeFrom"    ,"dTimeTo"      ,"vcBJDiff","vcPartNameEn","vcOE_Name" ,"vcHaoJiu_Name","dJiuBegin" ,"vcFXDiff","vcReceiver_Name","vcOriginCompany_Name"},
+                                                        {""        ,""       ,""         ,""      ,""         ,""            ,""               ,FieldCheck.Date,FieldCheck.Date,""        ,""            ,""     ,""        , FieldCheck.Date,""        ,""          ,""},
+                                                        {"0"       ,"20"     ,"0"        ,"1"     ,"12"       ,"4"           ,"4"              ,"0"            ,"0"            ,"4"       ,"100"         ,"1"    ,"0"       , "0"             ,"2"       ,"0"        ,"0",},//最大长度设定,不校验最大长度用0
+                                                        {"1"       ,"1"      ,"1"        ,"1"     , "1"       ,"1"           , "1"             ,"1"            ,"1"            ,"1"       ,"1"           ,"1"    ,"1"       , "0"             ,"1"       ,"1"         ,"1"},//最小长度设定,可以为空用0
+                                                        {"2"       ,"3"      ,"4"        ,"5"     , "6"       ,"7"           , "8"             ,"10"           ,"11"           ,"13"      ,"15"          ,"29"   ,"31"      , "32"            ,"38"      ,"56"        ,"57"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dTimeFrom", "dTimeTo" }, { "dGYSTimeFrom", "dGYSTimeTo" }, { "dJiuBegin", "dJiuEnd" }};
@@ -212,21 +210,22 @@ namespace SPPSApi.Controllers.G03
                         //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
                         //vcChange=1时，vcHaoJiu如果为1，如果内容列不为空(H)，则内容必须为H，如果内容为空，则对具体内容不做判断
                         { "号旧",
-                            "vcHaoJiu",//验证vcHaoJiu字段
-                            "旧型"
-                            ,"Q",//当vcHaoJiu=Q时
+                            "vcHaoJiu_Name",//验证vcHaoJiu字段
+                            "旧型", //填验证值对应的中文名
+                            "旧型",//填验证值，当vcHaoJiu=Q时
                             "旧型开始",
                             "dJiuBegin",//判断字段
-                            "1" //1:该字段不能为空 0:该字段必须为空
-                        },{"防錆","vcFXDiff","R","R","防錆指示书号","vcFXNo","1" }
+                            "1", //1:该字段不能为空 0:该字段必须为空
+                            "",
+                            ""
+                        },{"防錆","vcFXDiff","R","R","防錆指示书号","vcFXNo","1","","" }
                     };
 
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0309");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0303");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = checkRes;
-                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        apiResult.data = ListChecker.listToString(checkRes);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -316,7 +315,7 @@ namespace SPPSApi.Controllers.G03
                 /*2020-01-04*/
                 DataTable dt = fs0303_Logic.Search(strIsShowAll);
                 string[] fields = { "dSyncTime", "vcChange_Name", "vcSPINo", "vcSQState_Name", "vcDiff"
-                                    ,"vcPart_id","vcCarTypeDev_Name","vcCarTypeDesign","vcCarTypeName"
+                                    ,"vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName"
                                     ,"dTimeFrom","dTimeTo","dTimeFromSJ","vcBJDiff","vcPartReplace"
                                     ,"vcPartNameEn","vcPartNameCn","vcHKGC","vcBJGC","vcInOutflag_Name"
                                     ,"vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace"

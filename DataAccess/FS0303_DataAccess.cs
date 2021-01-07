@@ -154,16 +154,14 @@ namespace DataAccess
                         sql.Append("      ,vcInOutflag = " + ComFunction.getSqlValue(listInfoData[i]["vcInOutflag"], false) + "      \r\n");
                         sql.Append("      ,vcOE = " + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "      \r\n");
                         sql.Append("      ,vcHaoJiu = " + ComFunction.getSqlValue(listInfoData[i]["vcHaoJiu"], false) + "      \r\n");
-                        if (listInfoData[i]["vcHaoJiu"].ToString()=="旧型")
-                        {
-                            sql.Append("      ,dJiuBegin = " + ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false) + "      \r\n");
-                        }
+                        sql.Append("      ,dJiuBegin = " + ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false) + "      \r\n");
                         sql.Append("      ,vcMeno = " + ComFunction.getSqlValue(listInfoData[i]["vcMeno"], false) + "      \r\n");
                         sql.Append("      ,vcReceiver = " + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "      \r\n");
                         sql.Append("      ,vcOperator = " + strUserId + "      \r\n");
                         sql.Append("      ,dOperatorTime = GETDATE()      \r\n");
                         sql.Append("      where iAutoId ="+iAutoId+"  ");
                     }
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
             }
             catch (Exception ex)

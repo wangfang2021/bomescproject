@@ -105,7 +105,7 @@ namespace SPPSApi.Controllers.G12
             {
                 DataTable dt = logic.Search(vcPartsNo, vcMon);
                 string[] fields = { "vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum", "iCONum" };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1206.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1206_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -212,7 +212,7 @@ namespace SPPSApi.Controllers.G12
                                                 {"vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum"},
                                                 {"","","","","","" },
                                                 {"12","14","3","20","3","10"},//最大长度设定,不校验最大长度用0
-                                                {"12","14","3","0","0","1"},//最小长度设定,可以为空用0
+                                                {"12","1","1","0","0","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1206");
@@ -247,7 +247,5 @@ namespace SPPSApi.Controllers.G12
             }
         }
         #endregion
-
-
     }
 }

@@ -121,12 +121,10 @@ namespace DataAccess
         }
         #endregion
 
-
-
+        #region 导入后保存
         public string UpdateTable(DataTable dt, string user)
         {
             SqlCommand cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(ComConnectionHelper.GetConnectionString());
             try
             {
                 DataTable dttmp = new DataTable();
@@ -167,18 +165,21 @@ namespace DataAccess
                     }
                 }
                 SqlCommandBuilder cmdbuild = new SqlCommandBuilder(apt);
-                // apt.UpdateCommand = cmdbuild.GetUpdateCommand();
+                //apt.UpdateCommand = cmdbuild.GetUpdateCommand();
                 apt.Update(dttmp);
             }
-            catch
+            catch (Exception ex)
             {
-                cmd.Transaction.Rollback();
+                //cmd.Transaction.Rollback();
                 cmd.Connection.Close();
                 return "更新失败！";
             }
             cmd.Dispose();
             return "";
+
         }
+        #endregion
+
         public string InUpdeOldData(DataTable dt, string useid)
         {
             using (SqlConnection connection = new SqlConnection(ComConnectionHelper.GetConnectionString()))

@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select * from (    \n");
+                strSql.Append("select t1.* from (    \n");
                 strSql.Append("	select t1.vcCLYM,LEFT(vcCLYM,4)+'/'+RIGHT(vcCLYM,2) as vcCLYMFormat,t1.vcPlant,t1.iTimes,    \n");
                 strSql.Append("	t1.vcDXYM,LEFT(vcDXYM,4)+'/'+RIGHT(vcDXYM,2) as vcDXYMFormat,    \n");
                 strSql.Append("	t2.vcName as vcPlantName,t1.vcStatus,t1.dRequestTime,t1.dWCTime      \n");

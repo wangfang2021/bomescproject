@@ -68,11 +68,11 @@ namespace SPPSApi.Controllers.G03
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
                 string[,] headers = new string[,] {{"变更事项","设变号" , "生确"    ,"区分"  ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"使用开始"     ,"使用结束"     ,"SD"      ,"英文品名"    ,"OE=SP","号旧"    ,"防錆"    ,"收货方"    ,"所属单位"},
-                                                        {"vcChange","vcSPINo","vcSQState","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","dTimeFrom"    ,"dTimeTo"      ,"vcBJDiff","vcPartNameEn","vcOE" ,"vcHaoJiu","vcFXDiff","vcReceiver","vcOriginCompany"},
-                                                        {""        ,""       ,""         ,""      ,""         ,""            ,""               ,FieldCheck.Date,FieldCheck.Date,""        ,""            ,""     ,""        ,""        ,""          ,FieldCheck.Date},
-                                                        {"1"       ,"20"     ,"1"        ,"1"     ,"12"       ,"4"           ,"4"              ,"0"            ,"0"            ,"4"       ,"100"         ,"1"    ,"1"       ,"2"       ,"10"        ,"0",},//最大长度设定,不校验最大长度用0
-                                                        {"1"       ,"1"      ,"1"        ,"1"     , "1"       ,"1"           , "1"             ,"1"            ,"1"            ,"1"       ,"1"           ,"1"    ,"1"       ,"1"       ,"1"         ,"1"},//最小长度设定,可以为空用0
-                                                        {"1"       ,"2"      ,"3"        ,"4"     , "5"       ,"6"           , "7"             ,"8"            ,"9"            ,"10"      ,"11"          ,"12"   ,"13"      ,"14"      ,"15"        ,"16"}//前台显示列号，从0开始计算,注意有选择框的是0
+                                                   {"vcChange","vcSPINo","vcSQState","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","dTimeFrom"    ,"dTimeTo"      ,"vcBJDiff","vcPartNameEn","vcOE" ,"vcHaoJiu","vcFXDiff","vcReceiver","vcOriginCompany"},
+                                                   {""        ,""       ,""         ,""      ,""         ,""            ,""               ,FieldCheck.Date,FieldCheck.Date,""        ,""            ,""     ,""        ,""        ,""          ,FieldCheck.Date},
+                                                   {"1"       ,"20"     ,"1"        ,"1"     ,"12"       ,"4"           ,"4"              ,"0"            ,"0"            ,"4"       ,"100"         ,"1"    ,"1"       ,"2"       ,"10"        ,"0",},//最大长度设定,不校验最大长度用0
+                                                   {"1"       ,"1"      ,"1"        ,"1"     , "1"       ,"1"           , "1"             ,"1"            ,"1"            ,"1"       ,"1"           ,"1"    ,"1"       ,"1"       ,"1"         ,"1"},//最小长度设定,可以为空用0
+                                                   {"1"       ,"2"      ,"3"        ,"4"     , "5"       ,"6"           , "7"             ,"8"            ,"9"            ,"10"      ,"11"          ,"12"   ,"13"      ,"14"      ,"15"        ,"16"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())

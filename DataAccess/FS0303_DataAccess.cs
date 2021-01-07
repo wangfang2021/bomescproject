@@ -29,7 +29,7 @@ namespace DataAccess
                 strSql.Append("     ,b7.vcName as 'vcHaoJiu_Name'    \n");
                 strSql.Append("     ,b8.vcName as 'vcReceiver_Name'    \n");
                 strSql.Append("     ,b9.vcName as 'vcOriginCompany_Name'    \n");
-                strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     '0' as selected,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     from TUnit a    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");

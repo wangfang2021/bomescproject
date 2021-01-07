@@ -1,16 +1,4 @@
-﻿/*******************************************************************
-* 	项目名称			:	TPCS								   	
-* 	模块名称			:	构成件发注管理					
-* 	创建者			    :	GAOLEI								
-* 	创建日期			:	2020/08/29							
-* 	类名			    :	FS1206_Logic					    
-* 	修改者			    :						
-* 	修改时间			:						
-* 	修改内容			:											
-* 					
-* 	(C)2020-TJQM INFORMATION TECHNOLOGY CO.,LTD All Rights Reserved.
-*******************************************************************/
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Net;
@@ -19,6 +7,9 @@ using System.Net.Http.Headers;
 using System.Web;
 using DataAccess;
 using System.Collections;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace Logic
 {
@@ -28,8 +19,24 @@ namespace Logic
         public DataTable Search(string strPartsNo, string mon)
         {
             return dataAccess.Search(strPartsNo, mon);
-
         }
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            dataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+
+
         public string UpdateTable(DataTable dt, string userid)
         {
             return dataAccess.UpdateTable(dt, userid);

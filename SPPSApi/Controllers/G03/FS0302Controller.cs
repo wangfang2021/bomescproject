@@ -24,6 +24,8 @@ namespace SPPSApi.Controllers.G03
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 初始化页面
+
         [HttpPost]
         [EnableCors("any")]
         public string PageLoad([FromBody]dynamic data)
@@ -43,38 +45,19 @@ namespace SPPSApi.Controllers.G03
 
             try
             {
-                DataTable dtFinishState = fs0302_logic.getFinishState();
-                DataTable dtChange = fs0302_logic.getChange();
+                Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> resList = new List<object>();
-                List<string> finish = new List<string>();
-                for (int i = 0; i < dtFinishState.Rows.Count; i++)
-                {
-                    finish.Add(dtFinishState.Rows[i]["vcName"].ToString());
-                }
-                List<string> change = new List<string>();
-                for (int i = 0; i < dtChange.Rows.Count; i++)
-                {
-                    change.Add(dtChange.Rows[i]["vcName"].ToString());
-                }
+                List<Object> dataList_C014 = ComFunction.convertAllToResult(ComFunction.getTCode("C014"));//完成状态
+                List<Object> dataList_C015 = ComFunction.convertAllToResult(ComFunction.getTCode("C015"));//变更事项
 
 
-                DataTable dtSource = fs0302_logic.SearchApi(fileName);
-                //  DataTable dtSource = fs0302_logic.getData(fileName);
-                DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dOldProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dNewProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dtSource, dtConverter);
+                res.Add("C014", dataList_C014);
+                res.Add("C015", dataList_C015);
 
-
-                resList.Add(finish);
-                resList.Add(change);
-                resList.Add(dataList);
 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = resList;
+                apiResult.data = res;
 
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -86,6 +69,8 @@ namespace SPPSApi.Controllers.G03
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+
+        #endregion
 
 
     }

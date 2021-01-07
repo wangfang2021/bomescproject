@@ -14,14 +14,6 @@ namespace Logic
 
         #region 初始化
 
-        public DataTable getFinishState()
-        {
-            return fs0302_dataAccess.getFinishState();
-        }
-        public DataTable getChange()
-        {
-            return fs0302_dataAccess.getChange();
-        }
         public DataTable SearchApi(string fileNameTJ)
         {
             return fs0302_dataAccess.SearchApi(fileNameTJ);

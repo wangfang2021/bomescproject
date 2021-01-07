@@ -47,6 +47,7 @@ namespace SPPSApi.Controllers.G03
                 DataTable dt = fs0301_logic.getList(status, pickDate);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);

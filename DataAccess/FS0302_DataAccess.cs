@@ -13,18 +13,7 @@ namespace DataAccess
 
         #region 页面初始化
 
-        public DataTable getFinishState()
-        {
-            StringBuilder sbr = new StringBuilder();
-            sbr.Append(" SELECT vcName FROM TCode WHERE vcCodeId = 'C014' \r\n");
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
-        }
-        public DataTable getChange()
-        {
-            StringBuilder sbr = new StringBuilder();
-            sbr.Append(" SELECT vcName FROM TCode WHERE vcCodeId = 'C015' \r\n");
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
-        }
+
         public DataTable SearchApi(string fileNameTJ)
         {
             try
@@ -70,7 +59,8 @@ namespace DataAccess
 
         #endregion
 
-        //织入原单位
+        #region 织入原单位
+
         public void weaveUnit(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
@@ -209,7 +199,10 @@ namespace DataAccess
             }
         }
 
-        //获取纳入品番
+
+        #endregion
+
+        #region 获取纳入品番
         public string getPartId(string vcCarType, string vcPart_Id, string vcParent)
         {
             try
@@ -303,7 +296,6 @@ namespace DataAccess
                 throw ex;
             }
         }
-
         public class ParentEntity
         {
             public ParentEntity(string PartId, string Parent, int LV)
@@ -468,5 +460,7 @@ namespace DataAccess
 
             return -1;
         }
+
+        #endregion
     }
 }

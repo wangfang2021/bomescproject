@@ -44,7 +44,6 @@ namespace SPPSApi.Controllers.G03
             string Sale = dataForm.Sale == null ? "" : dataForm.Sale;
             string PartId = dataForm.PartId == null ? "" : dataForm.PartId;
 
-
             try
             {
                 DataTable dt = fs0311_logic.searchApi(PartId, Sale, allPartNo);

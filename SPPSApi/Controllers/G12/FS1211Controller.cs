@@ -102,12 +102,12 @@ namespace SPPSApi.Controllers.G12
             {
                 if ("PP".Equals(vcPorType))
                     return "没有生产部署权限，检索无数据";
-                DataTable dt;
+                DataTable dt = new DataTable();
                 if (vcType == "0")
                 {
                     dt = logic.SearchData(vcMon, vcTF, vcTO, vcType, vcPartsno, vcDock, vcPorType, vcOrder, vcPlant, vcED);
                 }
-                else
+                if (vcType == "1")
                 {
                     dt = logic.SearchItemData(vcMon, vcTF, vcTO, vcType, vcPartsno, vcDock, vcSerial, vcOrder, vcPorType, vcPlant, vcED);
                     if (dt.Rows.Count > 0)
@@ -118,9 +118,9 @@ namespace SPPSApi.Controllers.G12
                     }
                 }
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-
-
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -132,6 +132,5 @@ namespace SPPSApi.Controllers.G12
             }
         }
         #endregion
-
     }
 }

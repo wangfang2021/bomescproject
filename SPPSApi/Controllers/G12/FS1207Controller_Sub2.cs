@@ -199,12 +199,12 @@ namespace SPPSApi.Controllers.G12
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"修正数","发注数","本月CO数","对象月","品番"},
-                                                {"vcMonth", "vcPartsNo", "iFZNum", "vcPartsNoFZ", "vcSource"},
-                                                {"","",FieldCheck.Num,"",""},
-                                                {"20","20","10","20","20"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"对象月","品番","订购数量"},
+                                                {"vcMonth", "vcPartsNo", "iFZNum"},
+                                                {"","",FieldCheck.Num},
+                                                {"20","20","10"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1207_Sub2");
                     if (checkRes != null)

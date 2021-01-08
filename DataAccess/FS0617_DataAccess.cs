@@ -55,20 +55,13 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getRePartyInfo()
+        
+        public DataTable getSuPartyInfo()
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select '1' as repartycode,'一丰补给' as repartyname");//repartycode\repartyname
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
+                strSql.AppendLine("select vcSupplier_id as vcName,vcSupplier_id as vcValue from TSupplierInfo");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -76,12 +69,12 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getSuPartyInfo()
+        public DataTable getRePartyInfo()
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcSupplier_id as vcName,vcSupplier_id as vcValue from TSupplierInfo");
+                strSql.AppendLine("select vcValue,vcName from TCustomerInfo where vcDisting='C' and vcDisable='0'");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -138,6 +131,20 @@ namespace DataAccess
                     strSql.AppendLine("and t1.vcSuparty='"+ strSuparty + "'");
                 }
                 strSql.AppendLine("order by T3.vcFZGC,t2.vcDock,t1.vcPartId");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getPrintInfo(string strParameter)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select iAutoId as LinId,'' as Enum,* from [SP_M_SITEM] where iAutoId in (" + strParameter + ") ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

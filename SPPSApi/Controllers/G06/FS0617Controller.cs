@@ -100,8 +100,6 @@ namespace SPPSApi.Controllers.G06
             {
                 DataTable dt = fS0617_Logic.getSearchInfo(strPlantArea, strPlant, strPartId, strCarType, strReParty, strSuparty);
                 DtConverter dtConverter = new DtConverter();
-                //dtConverter.addField("vcFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //dtConverter.addField("vcToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -134,18 +132,32 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strplant = dataForm.Enum == null ? "" : dataForm.Enum;
-            string strpartid = dataForm.vcPlantArea == null ? "" : dataForm.vcPlantArea;
-            string strcartype = dataForm.vcFZPlant == null ? "" : dataForm.vcFZPlant;
-            string strreparty = dataForm.vcPartId == null ? "" : dataForm.vcPartId;
-            string strsuparty = dataForm.vcFromTime == null ? "" : dataForm.vcFromTime;
+            JArray listInfo = dataForm.multipleSelection;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             try
             {
-                string strFilesPath = "file:///E:/20200305%E6%A1%8C%E9%9D%A2/9.%E7%89%A9%E6%B5%81%E7%89%A9%E8%B5%84%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F.pdf";
-                //string strFilesPath = fS0617_Logic.getPrintFile(strplant, strpartid, strcartype, strreparty, strsuparty);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = strFilesPath;
+                if (listInfoData.Count != 0)
+                {
+                    //获取待打印的数据
+                    DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
+                    //执行打印操作
+                    //===========================================
+
+
+
+
+
+                    //===========================================
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "打印成功";
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未选择有效的打印数据";
+                }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
             }
             catch (Exception ex)
             {

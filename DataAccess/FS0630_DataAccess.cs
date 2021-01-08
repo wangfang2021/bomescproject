@@ -54,7 +54,7 @@ namespace DataAccess
             {
                 string sql = "select MAX(iTimes)+1 as iTimes from TNQCStatus where vcCLYM='" + vcCLYM + "' and vcPlant='" + strPlant + "' ";
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sql);
-                if (dt.Rows[0][0].ToString()!="")
+                if (dt.Rows[0][0].ToString() != "")
                 {
                     return dt.Rows[0][0].ToString();
                 }
@@ -71,7 +71,7 @@ namespace DataAccess
         #endregion
 
         #region 记录请求时间
-        public void CreateView(string vcCLYM, List<string> plantList, List<string> lsdxym,string strUserId)
+        public void CreateView(string vcCLYM, List<string> plantList, List<string> lsdxym, string strUserId)
         {
             SqlConnection conn_sql = Common.ComConnectionHelper.CreateSqlConnection();
             Common.ComConnectionHelper.OpenConection_SQL(ref conn_sql);
@@ -88,7 +88,7 @@ namespace DataAccess
                     {
                         string strdxym = lsdxym[j].ToString();
                         sql.Append("insert into TNQCStatus (vcCLYM,vcPlant,vcDXYM,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime) values     \n");
-                        sql.Append("('"+vcCLYM+"','"+strPlant+"','"+strdxym+ "','已请求',"+strMaxTimes+",getdate(),'"+strUserId+"',getdate())    \n");
+                        sql.Append("('" + vcCLYM + "','" + strPlant + "','" + strdxym + "','已请求'," + strMaxTimes + ",getdate(),'" + strUserId + "',getdate())    \n");
                     }
                 }
                 SqlCommand cd0 = new SqlCommand(sql.ToString(), conn_sql, st);
@@ -151,5 +151,6 @@ namespace DataAccess
             }
         }
         #endregion
+
     }
 }

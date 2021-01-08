@@ -397,9 +397,9 @@ namespace DataAccess
         #region  追加发注
         public DataTable searchAddFZ(string mon, string partsno)
         {
-            string str = "	select  vcMonth,t1.vcPartsNo,t1.iFZNum ,vcPartsNoFZ,vcSource ,'0' as iFlag  from 						\r\n";
-            str += "	(select vcMonth,vcPartsNo,iFZNum  from  tAddSSP where iFZFlag='0' ) t1						\r\n";
-            str += "	left join  tSSPMaster t2						\r\n";
+            string str = "	select  vcMonth,t1.vcPartsNo,t1.iFZNum ,vcPartsNoFZ,vcSource ,'0' as iFlag, t1.iAutoId,'0' as vcModFlag,'0' as vcAddFlag from \r\n";
+            str += "	(select vcMonth,vcPartsNo,iFZNum,iAutoId from tAddSSP where iFZFlag='0' ) t1						\r\n";
+            str += "	left join tSSPMaster t2						\r\n";
             str += "	on t1.vcPartsNo =t2.vcPartsNo 						\r\n";
             str += " where 1=1 ";
             if (mon != "")
@@ -417,9 +417,9 @@ namespace DataAccess
         public DataTable searchAddFinsh(string mon, string partsno)
         {
             string str = "";
-            str += "	 select vcMonth,t1.vcPartsNo,iFZNum,vcPartsNoFZ,vcSource,'2' as iFlag  from									\r\n";
+            str += "	 select vcMonth,t1.vcPartsNo,iFZNum,vcPartsNoFZ,vcSource,'2' as iFlag,t1.iAutoId,'0' as vcModFlag,'0' as vcAddFlag from \r\n";
             str += "	 (           									\r\n";
-            str += "	 select vcMonth,vcPartsNo,iFZNum  from  tAddSSP where iFZFlag='1' ) t1									\r\n";
+            str += "	 select vcMonth,vcPartsNo,iFZNum, iAutoId from tAddSSP where iFZFlag='1') t1									\r\n";
             str += "	 left join tSSPMaster t2									\r\n";
             str += "	 on t1.vcPartsNo=t2.vcPartsNo 									\r\n";
             str += "	 where 1=1";

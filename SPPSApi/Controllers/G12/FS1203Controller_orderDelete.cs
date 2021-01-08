@@ -221,6 +221,7 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
+        #region 通用方法
         public DataTable ListToDataTable(List<Dictionary<string, Object>> listInfoData)
         {
             DataTable tb = new DataTable();
@@ -243,5 +244,6 @@ namespace SPPSApi.Controllers.G12
             }
             return tb;
         }
+        #endregion
     }
 }

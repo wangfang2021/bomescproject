@@ -47,6 +47,8 @@ namespace DataAccess
 
                 strSql.Append("  FROM TSoq");
                 strSql.Append("  WHERE varDxny=@varDxny");
+                //外注
+                strSql.Append("  AND INOUTFLAG='1'");
                 strSql.Append("  AND iFZGC=@iFZGC");
                 strSql.Append("  AND iHySOQN/QUANTITYPERCONTAINER=@unitCount");
 
@@ -146,7 +148,10 @@ namespace DataAccess
                 //先删除，后插入
                 strSql.AppendLine(" DELETE TSOQReply ");
                 strSql.AppendLine(" WHERE ");
-                strSql.AppendLine(" TARGETMONTH=@TARGETMONTH; ");
+                strSql.AppendLine(" TARGETMONTH=@TARGETMONTH ");
+                //外注
+                strSql.AppendLine(" AND INOUTFLAG='1'; ");
+
 
 
                 strSql.AppendLine(" INSERT INTO TSOQReply( ");
@@ -342,6 +347,50 @@ namespace DataAccess
 
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string varDxny)
+        {
+            try
+            {
+                System.Data.SqlClient.SqlParameter[] parameters = {
+                    new SqlParameter("@varDxny", SqlDbType.VarChar,10),
+                };
+                parameters[0].Value = varDxny;
+
+
+                StringBuilder sql = new StringBuilder();
+
+                for (int i = 0; i < dt.Rows.Count; i++) {
+                    //如果为空则跳过
+                    if (string.IsNullOrEmpty(dt.Rows[i]["PARTSNO"].ToString()))
+                        continue;
+
+                    //更新对象月数据。（内示与内内示月不更新）
+                    sql.AppendLine("  UPDATE TSOQReply SET ");
+                    for (int j = 1; j < 32; j++) {
+                        sql.AppendLine(" D"+j+"=" + dt.Rows[i]["D"+j+""] + ",");
+                    }
+                    sql.AppendLine(" iPCS=" + dt.Rows[i]["iPCS"] + ",");
+                    sql.AppendLine(" iUnits=" + dt.Rows[i]["iUnits"] + ",");
+                    sql.AppendLine(" QUANTITYPERCONTAINER=" + dt.Rows[i]["QUANTITYPERCONTAINER"] );
+
+                    sql.AppendLine(" WHERE PARTSNO='"+ dt.Rows[i]["PARTSNO"]+"'");
+                    sql.AppendLine(" AND TARGETMONTH=@varDxny ");
+                    //外注
+                    sql.AppendLine(" AND INOUTFLAG='1' ");
+                    //对象月
+                    sql.AppendLine(" AND iMonthFlag=0; ");
+                }
+                
+                excute.ExcuteSqlWithStringOper(sql.ToString(), parameters);
             }
             catch (Exception ex)
             {

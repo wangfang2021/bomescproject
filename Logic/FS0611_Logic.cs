@@ -110,8 +110,10 @@ namespace Logic
                 }
 
 
-
-                return fs0611_DataAccess.save(pzRe, userId, varDxny, 0);
+                if (pzRe.Rows.Count > 0)
+                    return fs0611_DataAccess.save(pzRe, userId, varDxny, 0);
+                else
+                    return 0;
 
             }
             catch (Exception ex)
@@ -133,6 +135,13 @@ namespace Logic
         public DataTable search(string varDxny)
         {
             return fs0611_DataAccess.search(varDxny);
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string varDxny)
+        {
+            fs0611_DataAccess.importSave(dt, varDxny);
         }
         #endregion
     }

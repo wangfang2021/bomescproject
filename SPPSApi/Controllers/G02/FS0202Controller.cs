@@ -29,6 +29,7 @@ namespace SPPSApi.Controllers.G02
         [EnableCors("any")]
         public string searchHistory([FromBody]dynamic data)
         {
+
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))

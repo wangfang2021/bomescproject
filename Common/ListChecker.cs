@@ -46,7 +46,7 @@ namespace Common
                     switch (strField[2, j])
                     {
                         case "decimal":
-                            if (Convert.ToInt32(strField[4, j]) > 0 && !ComFunction.CheckDecimal(strValue))
+                            if (strValue.Length > 0 && !ComFunction.CheckDecimal(strValue))
                             {
                                 if (err_mes.Length > 0)
                                     err_mes.Append(",");
@@ -54,7 +54,7 @@ namespace Common
                             }
                             break;
                         case "d":
-                            if (Convert.ToInt32(strField[4, j]) > 0 && !ComFunction.CheckDate(strValue))
+                            if (strValue.Length > 0 && !ComFunction.CheckDate(strValue))
                             {
                                 if (err_mes.Length > 0)
                                     err_mes.Append(",");
@@ -62,7 +62,7 @@ namespace Common
                             }
                             break;
                         case "ym":
-                            if (Convert.ToInt32(strField[4, j]) > 0 && !ComFunction.CheckYearMonth(strValue))
+                            if (strValue.Length > 0 && !ComFunction.CheckYearMonth(strValue))
                             {
                                 if (err_mes.Length > 0)
                                     err_mes.Append(",");
@@ -217,6 +217,20 @@ namespace Common
                 return res;
         }
         #endregion
+
+        #region check结果转换成纯文本格式提示
+        public static string listToString(List<Object> checkRes)
+        {
+            StringBuilder sbr = new StringBuilder();
+            for (int i = 0; i < checkRes.Count; i++)
+            {
+                DriverRes driverRes=(DriverRes)checkRes[i];
+                sbr.Append(driverRes.popover.title +":"+ driverRes.popover.description+"<br/>");
+            }
+            return sbr.ToString();
+        }
+        #endregion
+
     }
     public class DriverRes
     {

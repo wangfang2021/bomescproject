@@ -103,7 +103,6 @@ namespace SPPSApi.Controllers.G12
             string vcPlanPackDateTo = dataForm.vcPlanPackDateTo;
             string vcPlantPackBZTo = dataForm.vcPlantPackBZTo;
             string vcPlanPackAB = dataForm.vcPlanPackAB;
-
             try
             {
                 DataTable dt = logic.getPartListCount(vcMon, vcPartNo, vcPlant, vcGC, vcKbOrderId,
@@ -167,6 +166,64 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPlant = dataForm.vcPlant;
+            string vcPartNo = dataForm.vcPartNo;
+            string vcGC = dataForm.vcGC;
+            string vcPlanProductionDateFrom = dataForm.vcPlanProductionDateFrom;
+            string vcPlanProductionBZFrom = dataForm.vcPlanProductionBZFrom;
+            string vcPlanProductionDateTo = dataForm.vcPlanProductionDateTo;
+            string vcPlanProductionBZTo = dataForm.vcPlanProductionBZTo;
+            string vcPlanProductAB = dataForm.vcPlanProductAB;
+            string vcMon = dataForm.vcMon;
+            string vcKbOrderId = dataForm.vcKbOrderId;
+            string vcPackdiv = dataForm.vcPackdiv;
+            string vcPlanPackDateFrom = dataForm.vcPlanPackDateFrom;
+            string vcPlantPackBZFrom = dataForm.vcPlantPackBZFrom;
+            string vcPlanPackDateTo = dataForm.vcPlanPackDateTo;
+            string vcPlantPackBZTo = dataForm.vcPlantPackBZTo;
+            string vcPlanPackAB = dataForm.vcPlanPackAB;
+            try
+            {
+                DataTable dt = logic.getPartListCount(vcMon, vcPartNo, vcPlant, vcGC, vcKbOrderId,
+                    vcPackdiv, vcPlanProductionDateFrom, vcPlanProductionBZFrom,
+                    vcPlanPackDateFrom, vcPlantPackBZFrom, vcPlanProductionDateTo, vcPlanProductionBZTo,
+                    vcPlanPackDateTo, vcPlantPackBZTo, vcPlanProductAB, vcPlanPackAB);
+                string[] fields = { "vcMonth","vcGC","vcPlant","vcPartNo","vcDock","vcOrderNo","vcSerial","vcRealPrintTime","vcPlanPrintAB","vcRealPrintTime",
+                                    "vcPlanProductionDate","vcPlanProductionAB","vcPlanProcDate","vcPlanProcAB","vcRealProcTime"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1211_PartList.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

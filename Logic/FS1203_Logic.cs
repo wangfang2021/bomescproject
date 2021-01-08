@@ -240,6 +240,13 @@ namespace Logic
         }
         #endregion
 
+        #region 导入
+        public string checkExcel(DataTable dt, ref DataTable dtre)
+        {
+            return dataAccess.checkExcel(dt, ref dtre);
+        }
+        #endregion
+
         #endregion
     }
 }

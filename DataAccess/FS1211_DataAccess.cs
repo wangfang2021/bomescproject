@@ -75,7 +75,7 @@ namespace DataAccess
             ocmd.CommandText += "   ) topr";
             ocmd.CommandText += "   left join ";
             ocmd.CommandText += "   (";
-            ocmd.CommandText += "   select partsno, inoutflag, dock ,'T0' as Otype from sp_m_sitem union all  select partsno,'0',dock,'T1' as Otype from sp_m_edsitem";
+            ocmd.CommandText += "   select partsno, inoutflag, vcDockCode as dock ,'T0' as Otype from sp_m_sitem union all  select partsno,'0',dock,'T1' as Otype from sp_m_edsitem";
             ocmd.CommandText += " )";
             ocmd.CommandText += "  titem on";
             ocmd.CommandText += " topr.partsno = titem.partsno and topr.dock = titem.dock ";
@@ -273,7 +273,7 @@ namespace DataAccess
             string tmpsql = " select partsno,cpdcompany,dock,inno,quantity,kanbanorderno,kanbanserial,";
             tmpsql += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
             tmpsql += " packingspot,convert(datetime,substring(left(scandatetimeht,8)+' ' + substring(scandatetimeht,9,2)+':' + substring(scandatetimeht,11,2)+':' + substring(scandatetimeht,13,2),1,17)) as scandatetimeht,htuser,htno,daddtime,cupduser,'T0' as otype,'紧急' as vcEDflag ";
-            tmpsql += " from sp_m_opr t  where dataid = 'S0' ";
+            tmpsql += " from sp_m_opr t where dataid = 'S0' ";
             tmpsql += " and (";
             for (int i = 0; i < dtEDorder.Rows.Count; i++)
             {
@@ -289,7 +289,7 @@ namespace DataAccess
             }
             if (vcDock.Length > 0)
             {
-                tmpsql += " and dock ='" + vcDock + "'";
+                tmpsql += " and vcDockCode ='" + vcDock + "'";
             }
             if (vcTF.Length > 0)
             {
@@ -308,8 +308,8 @@ namespace DataAccess
                 tmpsql += " and kanbanserial like '%" + vcSerial + "%' ";
             }
 
-            ssql = " select t2.vcPartsNo,t2.vcDock,t1.vcOrderNo from dbo.EDMonthPlanTMP t1 "; //外制品
-            ssql += "  left join dbo.tPartInfoMaster t2  on SUBSTRING(t1.vcPartsno,0,11) = SUBSTRING(t2.vcPartsNo ,0,11)  and    t2.dTimeFrom <='" + vcMon + "-01" + "' and t2.dTimeTo>= '" + vcMon + "-01" + "'";
+            ssql = " select t2.vcPartsNo,t2.vcDock,t1.vcOrderNo from EDMonthPlanTMP t1 "; //外制品
+            ssql += " left join tPartInfoMaster t2 on SUBSTRING(t1.vcPartsno,0,11) = SUBSTRING(t2.vcPartsNo ,0,11)  and    t2.dTimeFrom <='" + vcMon + "-01" + "' and t2.dTimeTo>= '" + vcMon + "-01" + "'";
             ssql += " where t1.UpdateFlag ='1' and t2.vcInOutFlag ='1' ";
             if (vcMon.Length > 0)
                 ssql += " and vcMonth ='" + vcMon + "'";
@@ -317,7 +317,7 @@ namespace DataAccess
             string tmpsql2 = " select partsno,cpdcompany,dock,inno,quantity,kanbanorderno,kanbanserial,";
             tmpsql2 += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
             tmpsql2 += " packingspot,convert(datetime,substring(left(scandatetimeht,8)+' ' + substring(scandatetimeht,9,2)+':' + substring(scandatetimeht,11,2)+':' + substring(scandatetimeht,13,2),1,17)) as scandatetimeht,htuser,htno,daddtime,cupduser,'T1' as otype ,'紧急' as vcEDflag ";
-            tmpsql2 += " from sp_m_opr t  where dataid = 'S0' ";
+            tmpsql2 += " from sp_m_opr t where dataid = 'S0' ";
             tmpsql2 += "  and ( ";
             for (int i = 0; i < dtEDorder2.Rows.Count; i++)
             {
@@ -426,7 +426,7 @@ namespace DataAccess
                 sb.AppendFormat("   and t1.kanbanserial like '%{0}%'", vcSerial.Trim());
             }
             sb.AppendLine("   )tall");
-            sb.AppendLine("   left join (select partsno, inoutflag, dock,'T0' as otype from sp_m_sitem union all  select partsno,'0',dock,'T1' as otype from sp_m_edsitem ) t2");
+            sb.AppendLine("   left join (select partsno, inoutflag, vcDockCode as dock,'T0' as otype from sp_m_sitem union all  select partsno,'0',dock,'T1' as otype from sp_m_edsitem ) t2");
             sb.AppendLine("   on tall.partsno = t2.partsno and tall.dock = t2.dock");
             sb.AppendLine("   where t2.inoutflag ='0'");
             if (dtEDorder.Rows.Count > 0)
@@ -459,8 +459,8 @@ namespace DataAccess
                 ssql = "";
                 if (otype == "T1")
                 {
-                    ssql = "   select top(1) vcPlanMonth  from dbo.tKanbanPrintTbl t1";
-                    ssql += "  left join (select *from  dbo.tPartInfoMaster where vcInOutFlag ='1' and dTimeFrom<='" + vcMon + "-01' and dTimeTo>='" + vcMon + "-01' ) t2";
+                    ssql = "   select top(1) vcPlanMonth from tKanbanPrintTbl t1";
+                    ssql += "  left join (select * from tPartInfoMaster where vcInOutFlag ='1' and dTimeFrom<='" + vcMon + "-01' and dTimeTo>='" + vcMon + "-01' ) t2";
                     ssql += "  on SUBSTRING(t1.vcPartsNo,0,11) = SUBSTRING(t2.vcPartsNo,0,11)";
                     ssql += "  where t2.vcPartsNo='" + partsno + "' and t2.vcDock ='" + dock + "' and  t1.vcKBorderno ='" + kborder + "' and t1.vcPlanMonth='" + vcMon + "' and t1.vcKBSerial='" + kbserial + "' ";
                     if (vcProType.Length > 0)
@@ -474,7 +474,7 @@ namespace DataAccess
                 }
                 else if (otype == "T0")
                 {
-                    ssql = " select top(1) vcPlanMonth from tKanbanPrintTbl t1 left join dbo.tPlanPartInfo t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock = t2.vcDock   where t1.vcKBorderno= '" + kborder + "' and t1.vcKBSerial='" + kbserial + "' and t1.vcPartsNo='" + partsno + "' and t1.vcDock ='" + dock + "' and t1.vcPlanMonth='" + vcMon + "' ";
+                    ssql = " select top(1) vcPlanMonth from tKanbanPrintTbl t1 left join tPlanPartInfo t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock = t2.vcDock where t1.vcKBorderno= '" + kborder + "' and t1.vcKBSerial='" + kbserial + "' and t1.vcPartsNo='" + partsno + "' and t1.vcDock ='" + dock + "' and t1.vcPlanMonth='" + vcMon + "' ";
                     if (vcProType.Length > 0)
                     {
                         ssql += " and t2.vcProType ='" + vcProType + "'";
@@ -491,7 +491,6 @@ namespace DataAccess
                     dt.Rows[i]["chkFlag"] = "1";
                 }
             }
-
             DataRow[] drs = dt.Select(" chkFlag='1' ");
             if (drs.Length > 0)
                 dt = drs.CopyToDataTable();

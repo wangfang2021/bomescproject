@@ -83,7 +83,7 @@ namespace DataAccess
                 strSql.AppendLine(" @varDxny, ");
                 for (int i = 0; i < 31; i++)
                 {
-                    if (!string.IsNullOrEmpty(re[i]))
+                    if (re.Count>i && !string.IsNullOrEmpty(re[i]))
                         strSql.AppendLine("'" + re[i] + "',");
                     else
                         strSql.AppendLine("NULL,");

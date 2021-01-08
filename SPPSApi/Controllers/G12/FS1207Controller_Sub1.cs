@@ -208,7 +208,7 @@ namespace SPPSApi.Controllers.G12
                                                 {"1","1","1","1","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0309_Sub");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1207_Sub1");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

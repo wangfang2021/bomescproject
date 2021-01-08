@@ -18,9 +18,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strIsShowAll)
+        public DataTable Search(string strIsShowAll,string strOriginCompany)
         {
-            return fs0303_DataAccess.Search(strIsShowAll);
+            return fs0303_DataAccess.Search(strIsShowAll, strOriginCompany);
         }
         #endregion
 

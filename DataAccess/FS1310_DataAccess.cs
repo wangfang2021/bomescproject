@@ -48,7 +48,7 @@ namespace DataAccess
                 strSql.AppendLine("left join");
                 strSql.AppendLine("(select * from TCode where vcCodeId='C023')d");
                 strSql.AppendLine("on a.vcBZPlant=d.vcValue");
-                strSql.AppendLine("where 1=1");
+                strSql.AppendLine("where 1=1");  
                 if (strPlant != "")
                 {
                     strSql.AppendLine("and a.vcBZPlant='" + strPlant + "' ");

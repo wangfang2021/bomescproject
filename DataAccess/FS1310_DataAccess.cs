@@ -46,7 +46,7 @@ namespace DataAccess
                 strSql.AppendLine("(select * from TPackOperImage)c");
                 strSql.AppendLine("on a.vcPart_id=c.vcPartId and a.vcBZPlant=c.vcPlant");
                 strSql.AppendLine("left join");
-                strSql.AppendLine("(select * from TCode where vcCodeId='C023')d");
+                strSql.AppendLine("(select * from TCode where vcCodeId='C023')d");     
                 strSql.AppendLine("on a.vcBZPlant=d.vcValue");
                 strSql.AppendLine("where 1=1");  
                 if (strPlant != "")

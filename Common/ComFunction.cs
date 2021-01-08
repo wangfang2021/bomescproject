@@ -866,7 +866,7 @@ namespace Common
         /// <param name="strFilePath">附件：需要发送附件就传入附件文件地址 不需要就空</param>
         /// <param name="delFileNameFlag">默认为false, 如果传入了附件之后，需要删除文件就传true,没有附件或者不需要删除附件的就false</param>
         /// <returns></returns>
-        public string SendEmailInfo(string strUserEmail, string strUserName, string strEmailBody, DataTable receiverDt, DataTable cCDt, string strSubject, string strFilePath, bool delFileNameFlag)
+        public static string SendEmailInfo(string strUserEmail, string strUserName, string strEmailBody, DataTable receiverDt, DataTable cCDt, string strSubject, string strFilePath, bool delFileNameFlag)
         {
             MailMessage MMge = new MailMessage();
             try
@@ -889,9 +889,12 @@ namespace Common
                     MMge.To.Add(new MailAddress(receiverDt.Rows[i]["address"].ToString(), receiverDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
                 }
                 //添加抄送
-                for (var i = 0; i < cCDt.Rows.Count; i++)
-                {
-                    MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
+                if(cCDt!=null)
+                { 
+                    for (var i = 0; i < cCDt.Rows.Count; i++)
+                    {
+                        MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
+                    }
                 }
                 if (strFilePath != "")
                     MMge.Attachments.Add(new Attachment(strFilePath));//添加附件

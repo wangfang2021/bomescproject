@@ -14,7 +14,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strIsShowAll)
+        public DataTable Search(string strIsShowAll, string strOriginCompany)
         {
             try
             {
@@ -75,6 +75,10 @@ namespace DataAccess
                 {
                     strSql.Append("     and dTimeFrom <= GETDATE()    \n");
                     strSql.Append("     and dTimeTo >= GETDATE()    \n");
+                }
+                if (!string.IsNullOrEmpty(strOriginCompany))
+                {
+                    strSql.Append("     and vcOriginCompany='" + strOriginCompany + "'   \n");
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

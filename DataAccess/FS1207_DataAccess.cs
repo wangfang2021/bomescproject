@@ -441,7 +441,6 @@ namespace DataAccess
                 connection.Open();
                 SqlTransaction trans = connection.BeginTransaction();
                 //SqlCommand cmd = new SqlCommand();
-                DataRow[] rows = dt.Select("iFlag='1'");
                 string msg = "";
                 try
                 {
@@ -463,17 +462,17 @@ namespace DataAccess
                             return msg;
                         }
                     }
-                    for (int i = 0; i < rows.Length; i++)
+                    for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        DataRow rowdselect = rows[i];
+                        DataRow rowdselect = dt.Rows[i];
                         string strSqlIn = "";
                         string mon = rowdselect["vcMonth"].ToString();
                         string partsno = rowdselect["vcPartsNo"].ToString();
                         int fznum = Convert.ToInt32(rowdselect["iFZNum"]);
                         //string fzflg = rowdselect["iFZFlag"].ToString();
-                        string iFlag = rowdselect["iFlag"].ToString();
-                        if (iFlag == "1")
-                        {
+                        //string iFlag = rowdselect["iFlag"].ToString();
+                        //if (iFlag == "1")
+                        //{
                             string str1 = "select vcPartsNo ,iSRNum from tSSPMaster where vcPartsNo='" + partsno + "' ";
                             DataTable dttmp = excute.ExcuteSqlWithSelectToDT(str1.ToString());
                             if (dttmp.Rows.Count == 0)
@@ -497,7 +496,7 @@ namespace DataAccess
                             strSqlIn = "INSERT INTO [tAddSSP]([vcMonth] ,[vcPartsNo],[iFZNum] ,[vcCreater] ,[dCreaterDate],[iFZFlag]) ";
                             strSqlIn += " VALUES('" + mon + "','" + partsno + "','" + fznum + "' ,'" + useid + "',GETDATE(),'0')";
                             excute.ExcuteSqlWithStringOper(strSqlIn);
-                        }
+                        //}
                     }
                     trans.Commit();
                     //return true;

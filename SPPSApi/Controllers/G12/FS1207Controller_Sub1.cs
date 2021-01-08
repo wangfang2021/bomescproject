@@ -219,7 +219,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 string strErrorName = "";
                 DataTable dt = ListToDataTable(listInfoData);
-                string _msg = logic.UpdateFZJSEdit(dt, loginInfo.UserId);
+                strErrorName = logic.UpdateFZJSEdit(dt, loginInfo.UserId);
                 if (strErrorName != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -47,11 +47,17 @@ namespace Common
         #region 获取数据库连接字符串 
         public static string GetConnectionString()
         {
-            return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =172.23.140.169";
+            //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =172.23.140.169";
+            return "Persist Security Info = False; User ID = sa; Password = Server2008; Initial Catalog = SPPSdb001; Data Source =TJQM-FY\\SQLEXPRESS";
         }
         #endregion
 
- 
+        #region 获取数据库连接字符串_NQC
+        public static string GetConnectionString_NQC()
+        {
+            return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = NQCdb; Data Source =172.23.140.169";
+        }
+        #endregion
 
 
         #region 创建数据连接,连接状态为Closed--FIFS
@@ -71,6 +77,23 @@ namespace Common
         }
         #endregion
 
-         
+        #region 创建数据连接,连接状态为Closed--NQC
+        public static SqlConnection CreateConnection_NQC()
+        {
+            try
+            {
+                SqlConnection conn_sql = new SqlConnection();
+                conn_sql.ConnectionString = GetConnectionString_NQC();
+                CloseConnection_SQL(ref conn_sql);
+                return conn_sql;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
     }
 }

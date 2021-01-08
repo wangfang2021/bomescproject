@@ -13,13 +13,14 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
+        #region 检索
         public DataTable Search(string strPartsNo, string mon)
         {
             try
             {
                 StringBuilder ssql = new StringBuilder();
                 ssql.AppendLine(" select t1.vcPartsNo,vcPartsNoFZ,vcSource,vcFactory,vcBF,iSRNum,");
-                ssql.AppendLine("isnull(t2.iCONum,0) as iCONum,'0' as iFlag from tSSPMaster t1");
+                ssql.AppendLine("isnull(t2.iCONum,0) as iCONum, '0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from tSSPMaster t1");
                 ssql.AppendLine(" left join (");
                 ssql.AppendLine("		select distinct C.vcPartsNo,C.iCONum from tSSP C");
                 ssql.AppendLine("		inner join 	(				");
@@ -40,11 +41,90 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #endregion
 
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM tSSPMaster where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        sql.Append("insert into tSSPMaster(vcPartsNo, vcPartsNoFZ, vcSource, vcFactory, vcBF, iSRNum, vcCreateUser, dCreateTime)  \r\n");
+                        sql.Append(" values (  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartsNoFZ"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSource"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcFactory"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcBF"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["iSRNum"], false) + ",  \r\n");
+                        sql.Append("'" + strUserId + "',  \r\n");
+                        sql.Append("getdate()  \r\n");
+                        sql.Append(" );  \r\n");
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("  update tSSPMaster set    \r\n");
+                        sql.Append("  vcPartsNoFZ=" + ComFunction.getSqlValue(listInfoData[i]["vcPartsNoFZ"], false) + "   \r\n");
+                        sql.Append("  ,vcSource=" + ComFunction.getSqlValue(listInfoData[i]["vcSource"], false) + "   \r\n");
+                        sql.Append("  ,vcFactory=" + ComFunction.getSqlValue(listInfoData[i]["vcFactory"], true) + "   \r\n");
+                        sql.Append("  ,vcBF=" + ComFunction.getSqlValue(listInfoData[i]["vcBF"], true) + "   \r\n");
+                        sql.Append("  ,iSRNum=" + ComFunction.getSqlValue(listInfoData[i]["iSRNum"], true) + "   \r\n");
+                        sql.Append("  ,vcUpdateUser='" + strUserId + "'  \r\n");
+                        sql.Append("  ,dUpdateTime=getdate()   \r\n");
+                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                    }
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入后保存
         public string UpdateTable(DataTable dt, string user)
         {
             SqlCommand cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(ComConnectionHelper.GetConnectionString());
             try
             {
                 DataTable dttmp = new DataTable();
@@ -52,8 +132,7 @@ namespace DataAccess
                 cmd.CommandTimeout = 0;
                 cmd.Connection.Open();
                 //cmd.Connection.BeginTransaction();
-                cmd.CommandText = "select vcPartsNo,vcPartsNoFZ,vcSource,vcFactory,vcBF,iSRNum,vcCreateUser," +
-                    "dCreateTime,vcUpdateUser,dUpdateTime from tSSPMaster";
+                cmd.CommandText = "select vcPartsNo,vcPartsNoFZ,vcSource,vcFactory,vcBF,iSRNum,vcCreateUser,dCreateTime,vcUpdateUser,dUpdateTime from tSSPMaster";
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);
                 apt.Fill(dttmp);
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -86,18 +165,21 @@ namespace DataAccess
                     }
                 }
                 SqlCommandBuilder cmdbuild = new SqlCommandBuilder(apt);
-                // apt.UpdateCommand = cmdbuild.GetUpdateCommand();
+                //apt.UpdateCommand = cmdbuild.GetUpdateCommand();
                 apt.Update(dttmp);
             }
-            catch
+            catch (Exception ex)
             {
-                cmd.Transaction.Rollback();
+                //cmd.Transaction.Rollback();
                 cmd.Connection.Close();
                 return "更新失败！";
             }
             cmd.Dispose();
             return "";
+
         }
+        #endregion
+
         public string InUpdeOldData(DataTable dt, string useid)
         {
             using (SqlConnection connection = new SqlConnection(ComConnectionHelper.GetConnectionString()))

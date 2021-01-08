@@ -76,10 +76,13 @@ namespace DataAccess
         /// <param name="fS1201_ViewModel"></param>
         public DataTable PlanSource(string vcYear, string vcMonth, string vcProType, string vcZB, string vcPlant)
         {
+            if (vcProType == "" || vcZB == "" || vcProType == null || vcZB == null)
+                return new DataTable();
             if (vcMonth == null || vcMonth.ToString() == "")
                 vcMonth = DateTime.Now.Month.ToString().Replace("'", "");
             vcMonth = vcMonth.Length > 1 ? vcMonth : "0" + vcMonth;
             DateTime mon1 = Convert.ToDateTime((vcYear + "-" + vcMonth + "-1").Replace("'", ""));
+
             double daynum = (mon1.AddMonths(1) - mon1).TotalDays;
             string sqltmp = "";
             for (double i = 1; i < daynum + 1; i++)
@@ -88,38 +91,30 @@ namespace DataAccess
                     sqltmp += "D" + i + "b,D" + i + "y";
                 else sqltmp += "D" + i + "b,D" + i + "y,";
             }
-            StringBuilder sql = new StringBuilder();
-            string tableName = getTableName(vcMonth);
-            SqlParameter[] paras = new SqlParameter[4];
-            sql.AppendLine(" select vcYear,vcMonth,vcGC,vcZB,dayall,daySingle from WeekCalendarTbl");
-            sql.AppendLine(" unpivot( daySingle for dayall in (" + sqltmp);
-            sql.AppendLine(" )) P where len(daysingle)>0 and vcMonth='"+ vcMonth + "' ");
-
+            string sql = "";
+            sql += " select vcYear,vcMonth,vcGC,vcZB,dayall,daySingle from WeekCalendarTbl  ";//专门查询周度履历WeekCalendarTbl
+            sql += " unpivot( daySingle for dayall in (" + sqltmp;
+            sql += " )) P where len(daysingle)>0 ";
             if (vcYear != null && vcYear != "")
-            {
-                sql.AppendLine(" and vcYear='" + vcYear + "'");
-            }
+                sql += "and vcYear='" + vcYear + "'";
+            if (vcMonth != null && vcMonth != "")//Month
+                sql += "and vcMonth='" + vcMonth + "'";
             if (vcProType != null && vcProType != "")
-            {
-                sql.AppendLine(" and vcGC='" + vcProType + "'");
-            }
+                sql += "and vcGC='" + vcProType + "'";
             if (vcZB != null && vcZB != "")
-            {
-                sql.AppendLine(" and vcZB='" + vcZB + "'");
-            }
+                sql += " and vcZB ='" + vcZB + "' ";
             if (vcPlant != null && vcPlant != "")
-            {
-                sql.AppendLine(" and vcPlant='" + vcPlant + "'");
-            }
+                sql += " and vcPlant ='" + vcPlant + "' ";
+            DataTable dt;
             try
             {
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                return dt;
+                dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            return dt;
         }
 
         public string getTableName(string month)

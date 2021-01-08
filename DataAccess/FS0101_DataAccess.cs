@@ -95,6 +95,7 @@ namespace DataAccess
                 {
                     strSql.Append(" delete SUSer where vcUserID='" + delList[i].ToString() + "';    \n");
                     strSql.Append(" delete SUserRole where vcUserID='" + delList[i].ToString() + "';    \n");
+                    strSql.Append(" delete tPointPower where vcUserID='" + delList[i].ToString() + "';    \n");
                 }
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
@@ -256,6 +257,13 @@ namespace DataAccess
                     strSql.Append("   insert into SUserRole     \n");
                     strSql.Append("   select '" + strUserId + "',vcRoleID from SRole where vcRoleID='" + roleList[i] + "';     \n");
                 }
+                strSql.Append("  insert into tPointPower     \n");
+                strSql.Append("  (vcUserId,vcPlant)      \n");
+                strSql.Append("  values      \n");
+                strSql.Append("  (      \n");
+                strSql.Append("   '" + strUserId + "',     \n");
+                strSql.Append("   '" + strPalnt + "'     \n");
+                strSql.Append("  );      \n");
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)

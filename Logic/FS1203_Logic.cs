@@ -10,6 +10,7 @@
 * 					
 * 	(C)2020-TJQM INFORMATION TECHNOLOGY CO.,LTD All Rights Reserved.
 *******************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -209,5 +210,43 @@ namespace Logic
             col.DefaultValue = flag;
             dt.Columns.Add(col);
         }
+
+        #region 订单删减子页面
+        #region 检索
+        public DataTable getCutPlan(string mon)
+        {
+            return dataAccess.getCutPlan(mon);
+        }
+        #endregion
+
+        #region 删除
+        public void Del_Plan(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            dataAccess.Del_Plan(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public string UpdateCutPlanTMP(DataTable dt, string user)
+        {
+            return dataAccess.UpdateCutPlanTMP(dt, user);
+        }
+        #endregion
+
+        #region 更新到计划
+        public string UpdatePlan(string mon, string user)//从临时表更新到计划
+        {
+            return dataAccess.UpdatePlan(mon, user);
+        }
+        #endregion
+
+        #region 导入
+        public string checkExcel(DataTable dt, ref DataTable dtre)
+        {
+            return dataAccess.checkExcel(dt, ref dtre);
+        }
+        #endregion
+
+        #endregion
     }
 }

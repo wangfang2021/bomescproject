@@ -19,34 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataTable Search(string vcConsignee, string vcTargetMonth, string vcPartNo, string vcCarType, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea)
         {
-            return fs0621_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
-        }
-
-        public bool isExistAddData(DataTable dtadd)
-        {
-            return fs0621_DataAccess.isExistAddData(dtadd);
-        }
-
-        public bool isExistModData(DataTable dtamod)
-        {
-            return fs0621_DataAccess.isExistModData(dtamod);
-        }
-
-        public DataTable BindInsideOutsideType()
-        {
-            throw new NotImplementedException();
-        }
-
-        public DataTable BindInjectionFactory()
-        {
-            throw new NotImplementedException();
-        }
-
-        public DataTable BindConsignee()
-        {
-            throw new NotImplementedException();
+            return fs0621_DataAccess.Search(vcConsignee, vcTargetMonth, vcPartNo, vcCarType, vcInsideOutsideType, vcSupplier_id, vcWorkArea);
         }
     }
 }

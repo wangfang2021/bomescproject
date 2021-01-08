@@ -116,7 +116,7 @@ namespace SPPSApi.Controllers.G12
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                fs1206_Logic.UpdateTable(importDt, loginInfo.UserId);
+                //fs1206_Logic.UpdateTable(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

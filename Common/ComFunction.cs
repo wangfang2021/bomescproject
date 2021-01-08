@@ -857,15 +857,16 @@ namespace Common
         /// <summary>
         /// 发送邮件的方法
         /// </summary>
-        /// <param name="strFromSenderTitle">发件人标题</param>
+        /// <param name="strUserEmail">用户邮箱</param>
+        /// /// <param name="strUserName">用户name</param>
         /// <param name="strEmailBody">邮件内容 支持html代码</param>
         /// <param name="receiverDt">发件人Datatable存在两列：address,displayName 必须一样, address->邮件地址, displayName-->显示名称</param>
         /// <param name="cCDt">抄送人Datatable存在两列：address,displayName 必须一样, address->邮件地址, displayName-->显示名称</param>
         /// <param name="strSubject">邮件主题</param>
-        /// <param name="strFileName">附件：需要发送附件就传入附件文件地址 不需要就空</param>
+        /// <param name="strFilePath">附件：需要发送附件就传入附件文件地址 不需要就空</param>
         /// <param name="delFileNameFlag">默认为false, 如果传入了附件之后，需要删除文件就传true,没有附件或者不需要删除附件的就false</param>
         /// <returns></returns>
-        public string SendEmailInfo(string strFromSenderTitle, string strEmailBody, DataTable receiverDt, DataTable cCDt, string strSubject, string strFileName, bool delFileNameFlag)
+        public static string SendEmailInfo(string strUserEmail, string strUserName, string strEmailBody, DataTable receiverDt, DataTable cCDt, string strSubject, string strFilePath, bool delFileNameFlag)
         {
             MailMessage MMge = new MailMessage();
             try
@@ -877,7 +878,7 @@ namespace Common
                 mailClient.Timeout = 3600000;
                 mailClient.Credentials = new NetworkCredential(ComConstant.strComEmail, ComConstant.strComEmailPwd);  //发送人邮箱登陆用户名和密码
 
-                MMge.From = new MailAddress(ComConstant.strComEmail, strFromSenderTitle, Encoding.UTF8);
+                MMge.From = new MailAddress(strUserEmail, strUserName, Encoding.UTF8);
 
                 //清除MMge
                 MMge.To.Clear();          //收件
@@ -888,12 +889,15 @@ namespace Common
                     MMge.To.Add(new MailAddress(receiverDt.Rows[i]["address"].ToString(), receiverDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
                 }
                 //添加抄送
-                for (var i = 0; i < cCDt.Rows.Count; i++)
-                {
-                    MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
+                if(cCDt!=null)
+                { 
+                    for (var i = 0; i < cCDt.Rows.Count; i++)
+                    {
+                        MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
+                    }
                 }
-                if (strFileName != "")
-                    MMge.Attachments.Add(new Attachment(strFileName));//添加附件
+                if (strFilePath != "")
+                    MMge.Attachments.Add(new Attachment(strFilePath));//添加附件
 
                 MMge.Subject = strSubject;//邮件主题
 
@@ -916,9 +920,9 @@ namespace Common
                 MMge.Dispose();
                 if (delFileNameFlag)
                 {
-                    if (System.IO.File.Exists(strFileName))
+                    if (System.IO.File.Exists(strFilePath))
                     {
-                        System.IO.File.Delete(strFileName);
+                        System.IO.File.Delete(strFilePath);
                     }
                 }
             }

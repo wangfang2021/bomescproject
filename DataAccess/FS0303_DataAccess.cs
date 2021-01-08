@@ -346,5 +346,41 @@ namespace DataAccess
             }
         }
         #endregion
+
+
+        #region 生确单发行
+        public void sqSend(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        sql.Append("      INSERT INTO  TUnit       \n");
+                        sql.Append("      (       \n");
+                        sql.Append("      )      \n");
+                        sql.Append("      VALUES      \n");
+                        sql.Append("      (      \n");
+                        sql.Append("      );      \n");
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("      update TUnit set       \r\n");
+                        sql.Append("      where iAutoId =" + iAutoId + "  ");
+                    }
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                    throw ex;
+            }
+        }
+        #endregion
     }
 }

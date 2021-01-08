@@ -16,30 +16,55 @@ namespace Logic
         {
             fs0617_DataAccess = new FS0617_DataAccess();
         }
-        public DataTable getPlantInfo()
+        public DataTable getSuPartyInfo()
         {
-            return fs0617_DataAccess.getPlantInfo();
-        }
-        public DataTable getCarTypeInfo()
-        {
-            return fs0617_DataAccess.getCarTypeInfo();
+            return fs0617_DataAccess.getSuPartyInfo();
         }
         public DataTable getRePartyInfo()
         {
             return fs0617_DataAccess.getRePartyInfo();
         }
-        public DataTable getSuPartyInfo()
+        public DataTable getSearchInfo(string strPlantArea, string strPlant, string strPartId, string strCarType, string strReParty, string strSuparty)
         {
-            return fs0617_DataAccess.getSuPartyInfo();
+            return fs0617_DataAccess.getSearchInfo(strPlantArea, strPlant, strPartId, strCarType, strReParty, strSuparty);
         }
-        public DataTable getSearchInfo(string strPlant, string strPartid, string strCarType, string strReParty, string strSuParty)
+        public DataTable getPrintInfo(List<Dictionary<string, Object>> listInfoData)
         {
-            return fs0617_DataAccess.getSearchInfo(strPlant, strPartid, strCarType, strReParty, strSuParty);
+            string strParameter = "";
+            if (listInfoData.Count != 0)
+            {
+                strParameter += "select '";
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    strParameter += listInfoData[i]["LinId"].ToString();
+                    if (i < listInfoData.Count - 1)
+                        strParameter += "' union select '";
+                    else
+                        strParameter += "'";
+                }
+                DataTable dataTable = fs0617_DataAccess.getPrintInfo(strParameter);
+                for (int i = 0; i < dataTable.Rows.Count; i++)
+                {
+                    string strLinId = dataTable.Rows[i]["LinId"].ToString();
+                    foreach (var item in listInfoData)
+                    {
+                        if(item["LinId"].ToString()== strLinId)
+                        {
+                            dataTable.Rows[i]["Enum"] = item["Enum"].ToString();
+                        }
+                    }
+                }
+                return dataTable;
+            }
+            else
+            {
+                return null;
+            }
         }
         public string getPrintFile(string strPlant, string strPartid, string strCarType, string strReParty, string strSuParty)
         {
             return "";
         }
-        
+
     }
 }

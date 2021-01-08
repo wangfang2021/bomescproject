@@ -16,9 +16,17 @@ namespace Logic
         {
             fs1401_DataAccess = new FS1401_DataAccess();
         }
-        public DataTable getDataInfo()
+        public DataSet getDllOptionsList()
         {
-            return fs1401_DataAccess.getDataInfo();
+            return fs1401_DataAccess.getDllOptionsList();
+        }
+        public DataTable getSearchInfo(string strPartNo, string strSuplier, string strHJ, string strInOut, string strPartArea, string strSPISqufen, string strCheckP,
+                   string strTimeFrom, string strTimeTo, string strCarFamily, string strSPISInPut,
+                   string strcboxnow, string strcboxtom, string strcboxyes)
+        {
+            return fs1401_DataAccess.getSearchInfo(strPartNo, strSuplier, strHJ, strInOut, strPartArea, strSPISqufen, strCheckP,
+                    strTimeFrom, strTimeTo, strCarFamily, strSPISInPut,
+                    strcboxnow, strcboxtom, strcboxyes);
         }
     }
 }

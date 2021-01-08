@@ -16,17 +16,15 @@ namespace Logic
         {
             fs1309_DataAccess = new FS1309_DataAccess();
         }
-        public DataTable getPlantInfo()
+        public DataSet getSearchInfo(string strPackPlant)
         {
-            return fs1309_DataAccess.getPlantInfo();
+            return fs1309_DataAccess.getSearchInfo(strPackPlant);
         }
-        public DataTable getSearchInfo(string strPlant)
+        public void setDisplayInfo(string strPackPlant, string strPageClientNum, string strGZTTongjiFre, string strBZLTongjiFre, string strGZTZhuangTaiFre, string strGZTQieHuanFre, string strGZTShowType
+                    , string strBFromTime, string strBCross, string strBToTime, string strYFromTime, string strYCross, string strYToTime, string strOperId)
         {
-            return fs1309_DataAccess.getSearchInfo(strPlant);
-        }
-        public void Save(DataTable dataTable, string strOperId)
-        {
-            fs1309_DataAccess.saveDataInfo(dataTable, strOperId);
+            fs1309_DataAccess.setDisplayInfo(strPackPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType
+                   , strBFromTime, strBCross, strBToTime, strYFromTime, strYCross, strYToTime, strOperId);
         }
     }
 }

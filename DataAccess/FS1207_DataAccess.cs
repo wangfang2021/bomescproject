@@ -211,7 +211,7 @@ namespace DataAccess
         {
             try
             {
-                string str = "	select A.vcMonth,A.vcPartsNo,iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,\r\n";
+                string str = "	select A.vcMonth, A.vcPartsNo, iSRNum, Total, iXZNum, Total+iXZNum as iBYNum,\r\n";
                 str += "	 CASE WHEN  syco-iXZNum- Total >0 THEN 0 \r\n";
                 str += "	 else CEILING( ABS(convert(numeric(5,0),syco-iXZNum- Total ))/CONVERT(numeric(5,0),iSRNum ))*iSRNum \r\n";
                 str += "	 END AS iFZNum ,\r\n";
@@ -220,27 +220,26 @@ namespace DataAccess
                 str += "	 case when syco-iXZNum- Total >0 then  syco-iXZNum- Total  \r\n";
                 str += "	 else syco+CEILING( ABS(convert(numeric(5,0),syco-iXZNum- Total ))/CONVERT(numeric(5,0),iSRNum ))*iSRNum -(Total+iXZNum) \r\n";
                 str += "	 end as iCONum ,\r\n";
-                str += "	 '0' as iFlag ,vcPartsNoFZ,vcSource from  \r\n";
-                str += "         (select vcMonth,t3.vcPartsNo,iSRNum ,Total,iXZNum,ISNULL( iCONum,0) as syco,vcPartsNoFZ,vcSource   from (\r\n";
+                str += "	 '0' as iFlag ,vcPartsNoFZ,vcSource, iAutoId, '0' as vcModFlag,'0' as vcAddFlag from \r\n";
+                str += "       (select vcMonth,t3.vcPartsNo,iSRNum ,Total,iXZNum,ISNULL( iCONum,0) as syco,vcPartsNoFZ,vcSource, t3.iAutoId from (\r\n";
                 //str += "	       (select vcMonth,vcPartsNo,Total,iXZNum,vcSource,vcDock from tSSP where iFZFlg='0' )t1 	\r\n";
                 //str += "	       join \r\n";
                 //str += "	      ( select vcData1,vcData2   from ConstMst where vcDataId='vcDockPj' and vcData3 in ('MSP构成','JSP构成'))t2 \r\n";
                 //str += "	      on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2 	\r\n";
                 //str += "	      left join ( \r\n";
-                str += "select A1.vcPartsNo,A1.vcMonth,B.iCONum,A1.Total,A1.iXZNum  from \r\n";
-                str += "	(  select vcMonth,vcPartsNo,iCONum,Total ,iXZNum from tSSP where vcMonth='" + mon + "' and iFZFlg='0'\r\n";
-                str += ")A1\r\n";
-                str += "left join \r\n";
-                str += "( select distinct C.vcPartsNo,C.iCONum from tSSP C \r\n";
-                str += "inner join \r\n";
-                str += "	(   select vcPartsNo,MAX(vcMonth) as vcMonth from tSSP where vcMonth<'" + mon + "'\r\n";
-                str += "group by vcPartsNo\r\n";
-                str += ")D on C.vcPartsNo=D.vcPartsNo and C.vcMonth=D.vcMonth\r\n";
-                str += ")B on A1.vcPartsNo=B.vcPartsNo\r\n";
-                str += ")t3 \r\n";
+                str += "           select A1.vcPartsNo,A1.vcMonth,B.iCONum,A1.Total,A1.iXZNum, A1.iAutoId from \r\n";
+                str += "	        (select vcMonth,vcPartsNo,iCONum,Total ,iXZNum, iAutoId from tSSP where vcMonth='" + mon + "' and iFZFlg='0') A1 \r\n";
+                str += "           left join \r\n";
+                str += "           (select distinct C.vcPartsNo,C.iCONum from tSSP C \r\n";
+                str += "            inner join \r\n";
+                str += "	        (select vcPartsNo,MAX(vcMonth) as vcMonth from tSSP where vcMonth<'" + mon + "' group by vcPartsNo) D \r\n";
+                str += "            on C.vcPartsNo=D.vcPartsNo and C.vcMonth=D.vcMonth \r\n";
+                str += "            ) B on A1.vcPartsNo=B.vcPartsNo \r\n";
+                str += "        ) t3 \r\n";
                 //str += "	      on t1.vcPartsNo=t3.vcPartsNo \r\n";
-                str += "	      left join tSSPMaster   t4 on t3.vcPartsNo=t4.vcPartsNo )A	\r\n";
-                str += "	      where A.vcMonth='" + mon + "' 	\r\n";
+                str += "	    left join tSSPMaster t4  \r\n";
+                str += "	    on t3.vcPartsNo=t4.vcPartsNo) A";
+                str += "	    where A.vcMonth='" + mon + "' 	\r\n";
                 //str += "	      and  iSRNum is  not null	\r\n";  //测试用
                 if (partsno != "")
                 {
@@ -256,7 +255,7 @@ namespace DataAccess
         public DataTable searchFZFinsh(string mon, string partsno)
         {
             string str = "";
-            str += "	select vcMonth,t1.vcPartsNo,iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource  from (															\r\n";
+            str += "	select vcMonth,t1.vcPartsNo,iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag  from (															\r\n";
             str += "	select *  from tSSP where iFZFlg='1') t1															\r\n";
             str += "	left join tSSPMaster t2															\r\n";
             str += "	on t1.vcPartsNo=t2.vcPartsNo 															\r\n";
@@ -342,27 +341,21 @@ namespace DataAccess
             SqlCommand cmd = new SqlCommand();
             try
             {
-                DataRow[] rows = dt.Select("iFlag='1'");
-                if (rows.Length == 0)
-                {
-                    msg = "没有可更新的数据";
-                    return msg;
-                }
                 cmd.Connection = new SqlConnection(ComConnectionHelper.GetConnectionString());
                 cmd.CommandTimeout = 0;
                 cmd.Connection.Open();
                 cmd.Transaction = cmd.Connection.BeginTransaction();
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);
-                for (int i = 0; i < rows.Length; i++)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     StringBuilder sb = new StringBuilder();
                     sb.Length = 0;
                     sb.AppendLine("update tSSP");
-                    sb.AppendFormat(" set iXZNum='{0}'", rows[i]["iXZNum"]);
-                    sb.AppendFormat(" ,iFZNum='{0}'", rows[i]["iFZNum"]);
-                    sb.AppendFormat(" ,iCONum='{0}'", rows[i]["iCONum"]);
-                    sb.AppendFormat(" where vcMonth='{0}'", rows[i]["vcMonth"]);
-                    sb.AppendFormat(" and vcPartsNo='{0}' ", rows[i]["vcPartsNo"]);
+                    sb.AppendFormat(" set iXZNum='{0}'", dt.Rows[i]["iXZNum"]);
+                    sb.AppendFormat(" ,iFZNum='{0}'", dt.Rows[i]["iFZNum"]);
+                    sb.AppendFormat(" ,iCONum='{0}'", dt.Rows[i]["iCONum"]);
+                    sb.AppendFormat(" where vcMonth='{0}'", dt.Rows[i]["vcMonth"]);
+                    sb.AppendFormat(" and vcPartsNo='{0}' ", dt.Rows[i]["vcPartsNo"]);
                     cmd.CommandText = sb.ToString();
                     cmd.ExecuteNonQuery();
                 }
@@ -390,7 +383,7 @@ namespace DataAccess
         }
         public DataTable ddlSaleuser()
         {
-            string str = "select vcData3  from ConstMst where vcDataId='SaleUser'";
+            string str = "select vcData3 from ConstMst where vcDataId='SaleUser'";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
         }
         public DataTable GetUser(string userid)

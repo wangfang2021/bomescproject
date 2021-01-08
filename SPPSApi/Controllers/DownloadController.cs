@@ -10,6 +10,7 @@ using Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
+using Newtonsoft.Json;
 
 namespace SPPSApi.Controllers
 {
@@ -156,6 +157,106 @@ namespace SPPSApi.Controllers
                 ComFunction.DeleteFolder(dellist[0]);
                 dellist.RemoveAt(0);
             }
+        }
+        #endregion
+
+        #region
+        [HttpPost]
+        public string uploadImageApi(IFormFile file)
+        {
+            try
+            {
+                string token = Request.Form["token"].ToString();
+                string hashCode = Request.Form["hashCode"].ToString();
+                if (!isLogin(token))
+                {
+                    return "error";
+                }
+                LoginInfo loginInfo = getLoginByToken(token);
+                //以下开始业务处理
+                ApiResult apiResult = new ApiResult();
+                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
+                var extName = filename.Substring(filename.LastIndexOf('.')).Replace("\"", "");// 扩展名
+                string ImageType = "jpg,png,gif,bmp,jpeg";
+                //判断上传格式是否合法
+                if (ImageType.IndexOf(extName.ToLower())<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "图片格式必须是jpg|png|gif|bmp|jpeg,请确认上传图片格式!";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //string shortfilename = $"{Guid.NewGuid()}{extName}";// 新文件名
+                string oldFileName = filename;
+
+                // 获取到要保存文件的名称 
+                String newFileName = getUUIDName(oldFileName);
+
+                
+                //获取到当前项目下products/3下的真实路径
+                //D:\tomcat\tomcat71_sz07\webapps\store_v5\products\3
+                String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar ;
+                String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
+                String path = realPath + dir; //D:\tomcat\tomcat71_sz07\webapps\store_v5\products\3/f/e/d/c/4/9/8/4
+
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+                if (!Directory.Exists(fileSavePath))
+                {
+                    Directory.CreateDirectory(fileSavePath);
+                }
+
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+
+                filename = fileSavePath + theFolder.GetFiles().Length + "_" + newFileName; // 新文件名（包括路径）
+                using (FileStream fs = System.IO.File.Create(filename)) // 创建新文件
+                {
+                    file.CopyTo(fs);// 复制文件
+                    fs.Flush();// 清空缓冲区数据
+                }
+                return newFileName;
+            }
+            catch (Exception ex)
+            {
+                return "error";
+            }
+        }
+        /**
+	    * 获取随机名称
+	    * @param realName 真实名称
+	    * @return uuid
+	    */
+        public static String getUUIDName(String realName)
+        {
+            //realname  可能是  1.jpg   也可能是  1
+            //获取后缀名
+            int index = realName.LastIndexOf(".");
+            if (index == -1)
+            {
+                return Guid.NewGuid().ToString().Replace("-", "").ToUpper();
+            }
+            else
+            {
+                return Guid.NewGuid().ToString().Replace("-", "").ToUpper() + realName.Substring(index);
+            }
+        }
+            /**
+	     * 获取文件目录
+	     * @param name 文件名称
+	     * @return 目录
+	     */
+        public static String getDir(String name)
+        {
+            //任意一个对象都有一个hash码   131313213
+            int i = name.GetHashCode();
+            //将hash码转成16禁止的字符串
+            //String hex = Integer.toHexString(i);
+            string hex = String.Format("{0:X}", i);
+            int j = hex.Length;
+            for (int k = 0; k < 8 - j; k++)
+            {
+                hex = "0" + hex;
+            }
+            return "/" + hex.Substring(0,1) + "/" + hex.Substring(1, 1) + "/" + hex.Substring(2, 1) + "/" + hex.Substring(3, 1) + "/" + hex.Substring(4, 1) + "/" + hex.Substring(5, 1) + "/" + hex.Substring(6, 1) + "/" + hex.Substring(7, 1);
         }
         #endregion
     }

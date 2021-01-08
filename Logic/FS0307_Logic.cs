@@ -14,18 +14,18 @@ namespace Logic
 
         #region 检索
 
-        public DataTable searchApi(string strYear, string FinishFlag)
+        public DataTable searchApi(string strYear, string FinishFlag, string SYT, string Receiver, List<string> origin)
         {
-            return fs0307_dataAccess.searchApi(strYear, FinishFlag);
+            return fs0307_dataAccess.searchApi(strYear, FinishFlag, SYT, Receiver, origin);
         }
 
         #endregion
 
         #region 年限抽取
 
-        public void extractPart(string strUserId)
+        public void extractPart(string strUserId, List<string> vcOriginCompany)
         {
-            fs0307_dataAccess.extractPart(strUserId);
+            fs0307_dataAccess.extractPart(strUserId, vcOriginCompany);
         }
 
         #endregion
@@ -64,5 +64,10 @@ namespace Logic
         }
 
         #endregion
+
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0307_dataAccess.importSave(dt, strUserId);
+        }
     }
 }

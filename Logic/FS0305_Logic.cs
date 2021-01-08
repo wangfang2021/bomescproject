@@ -18,18 +18,31 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strSSDateMonth, string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id)
+        public DataTable Search(string strJD, string strInOutFlag, string strSupplier_id, string strCarType, string strPart_id)
         {
-            return fs0305_DataAccess.Search(strSSDateMonth, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id);
+            return fs0305_DataAccess.Search(strJD, strInOutFlag, strSupplier_id, strCarType, strPart_id);
         }
         #endregion
 
-        #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        #region 生确回复
+        public void Send(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            fs0305_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+            fs0305_DataAccess.Send(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
 
+        #region 对应可否一括付与
+        public void IsDYJG(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strIsDYJG)
+        {
+            fs0305_DataAccess.IsDYJG(listInfoData, strUserId, ref strErrorPartId, strIsDYJG);
+        }
+        #endregion
+
+        #region 防锈区分一括付与
+        public void IsDYFX(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strIsDYFX)
+        {
+            fs0305_DataAccess.IsDYFX(listInfoData, strUserId, ref strErrorPartId,strIsDYFX);
+        }
+        #endregion
     }
 }

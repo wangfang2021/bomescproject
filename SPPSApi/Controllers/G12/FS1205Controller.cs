@@ -346,7 +346,7 @@ namespace SPPSApi.Controllers.G12
                             //ScriptManager.RegisterStartupScript(this.Page, this.Page.GetType(), "", "window.open('../tmp/" + pathupdate + "');", true);
                             //ShowMessage("导出CSV文件成功: (" + CSVName + ")！", MessageType.Information);
                             apiResult.code = ComConstant.SUCCESS_CODE;
-                            apiResult.data = path;
+                            apiResult.data = CSVName + ".csv";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                         else

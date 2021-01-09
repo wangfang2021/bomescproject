@@ -30,14 +30,13 @@ namespace SPPSApi.Controllers.G13
             _webHostEnvironment = webHostEnvironment;
         }
         /// <summary>
-        /// 绑定工厂信息
+        /// 页面初始化
         /// </summary>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string bindPlant()
+        public string pageloadApi()
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -48,50 +47,21 @@ namespace SPPSApi.Controllers.G13
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = fS1301_Logic.getPlantInfo();
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//工厂vcValue   vcName
+                List<Object> RolerList = ComFunction.convertAllToResult(fS1301_Logic.getRolerInfo());//角色vcValue   vcName
+                res.Add("PlantList", PlantList);
+                res.Add("RolerList", RolerList);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定工厂失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        /// <summary>
-        /// 绑定角色信息
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [EnableCors("any")]
-        public string bindRoler()
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                DataTable dt = fS1301_Logic.getRolerInfo();
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定角色失败";
+                apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -102,9 +72,8 @@ namespace SPPSApi.Controllers.G13
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string search_api([FromBody]dynamic data)
+        public string searchApi([FromBody]dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -115,16 +84,20 @@ namespace SPPSApi.Controllers.G13
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
-            string strUser = dataForm.User == null ? "" : dataForm.User;
+            string strUserId = dataForm.UserId == null ? "" : dataForm.UserId;
             string strRoler = dataForm.Roler == null ? "" : dataForm.Roler;
             try
             {
-                DataTable dt = fS1301_Logic.getSearchInfo(strPlant, strUser, strRoler);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                DataTable dt = fS1301_Logic.getSearchInfo(strPlant, strUserId, strRoler);
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "LinId", "vcUserId", "vcUserName", "vcPlant", "bChecker", "bUnLockChecker", "bPacker", "bUnLockPacker" });
                 for (int i = 0; i < dataList.Count; i++)
                 {
+                    //vcRead vcWrite字段需要从 0 1转换成false true
                     Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["eableflag"] = row["eableflag"].ToString() == "1" ? true : false;
+                    row["bChecker"] = row["bChecker"].ToString() == "1" ? true : false;
+                    row["bUnLockChecker"] = row["bUnLockChecker"].ToString() == "1" ? true : false;
+                    row["bPacker"] = row["bPacker"].ToString() == "1" ? true : false;
+                    row["bUnLockPacker"] = row["bUnLockPacker"].ToString() == "1" ? true : false;
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -139,13 +112,13 @@ namespace SPPSApi.Controllers.G13
             }
         }
         /// <summary>
-        /// 保存方法
+        /// 更新方法
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string save_api([FromBody]dynamic data)
+        public string saveApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -158,49 +131,26 @@ namespace SPPSApi.Controllers.G13
             ApiResult apiResult = new ApiResult();
             try
             {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.list;
+                dynamic temp = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = temp.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcPart_id");
-                dt.Columns.Add("dTimeFrom");
-                dt.Columns.Add("dTimeTo");
-                dt.Columns.Add("vcBZPlant");
-                dt.Columns.Add("vcBZQF");
-                dt.Columns.Add("vcBZUnit");
-                dt.Columns.Add("vcRHQF");
-                for (int i = 0; i < listInfoData.Count; i++)
+                bool bResult= fS1301_Logic.saveDataInfo(listInfoData, loginInfo.UserId);
+                if(bResult)
                 {
-                    bool bflag = (bool)listInfoData[i]["vcflag"];//编辑标识,取false的
-                    if (bflag == false)
-                    {
-                        DataRow dr = dt.NewRow();
-                        dr["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString();
-                        dr["dTimeFrom"] = listInfoData[i]["dTimeFrom"].ToString();
-                        dr["dTimeTo"] = listInfoData[i]["dTimeTo"].ToString();
-                        dr["vcBZPlant"] = listInfoData[i]["vcBZPlant"].ToString();
-                        dr["vcBZQF"] = listInfoData[i]["vcBZQF"].ToString();
-                        dr["vcBZUnit"] = listInfoData[i]["vcBZUnit"].ToString();
-                        dr["vcRHQF"] = listInfoData[i]["vcRHQF"].ToString();
-                        dt.Rows.Add(dr);
-                    }
-                }
-                if (dt.Rows.Count == 0)
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = null;
+                }else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    apiResult.data = "更新失败";
                 }
-                fS1301_Logic.Save(dt, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "更新失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

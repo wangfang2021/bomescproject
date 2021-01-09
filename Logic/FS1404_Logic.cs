@@ -16,9 +16,13 @@ namespace Logic
         {
             fs1404_DataAccess = new FS1404_DataAccess();
         }
-        public DataTable getDataInfo()
+        public DataTable getSearchInfo(string strPartNo, string strSuplier, string strSuplierPlant)
         {
-            return fs1404_DataAccess.getDataInfo();
+            return fs1404_DataAccess.getSearchInfo(strPartNo, strSuplier, strSuplierPlant);
+        }
+        public DataTable getSubInfo(string strLinid)
+        {
+            return fs1404_DataAccess.getSubInfo(strLinid);
         }
     }
 }

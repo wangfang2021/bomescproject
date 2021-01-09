@@ -30,14 +30,13 @@ namespace SPPSApi.Controllers.G13
             _webHostEnvironment = webHostEnvironment;
         }
         /// <summary>
-        /// 绑定工厂信息
+        /// 页面初始化
         /// </summary>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string bindPlant()
+        public string pageloadApi()
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -48,30 +47,32 @@ namespace SPPSApi.Controllers.G13
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = fS1309_Logic.getPlantInfo();
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //处理初始化
+                List<Object> PackPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装厂
+                res.Add("PackPlantList", PackPlantList);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定工厂失败";
+                apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         /// <summary>
-        /// 查询方法
+        /// 刷新方法
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string search_api([FromBody]dynamic data)
+        public string refreshApi([FromBody]dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -80,19 +81,44 @@ namespace SPPSApi.Controllers.G13
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            Dictionary<string, object> res = new Dictionary<string, object>();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
+
+            string strPackPlant = dataForm.PackPlant == null ? "" : dataForm.PackPlant;
             try
             {
-                DataTable dt = fS1309_Logic.getSearchInfo(strPlant);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                for (int i = 0; i < dataList.Count; i++)
+                if (strPackPlant == "")
                 {
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["eableflag"] = row["eableflag"].ToString() == "1" ? true : false;
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择有效的包装厂";
+                }
+                else
+                {
+                    DataSet dataSet = fS1309_Logic.getSearchInfo(strPackPlant);
+                    if (dataSet.Tables[0].Rows.Count != 0)
+                    {
+                        //班值信息
+                        res.Add("BFromTimeItem", (dataSet.Tables[0].Select("vcBanZhi='白'")).Length == 0 ? "08:30" : (dataSet.Tables[0].Select("vcBanZhi='白'"))[0]["tFromTime"].ToString());
+                        res.Add("BCrossItem", (dataSet.Tables[0].Select("vcBanZhi='白'")).Length == 0 ? "0" : (dataSet.Tables[0].Select("vcBanZhi='白'"))[0]["vcCross"].ToString());
+                        res.Add("BToTimeItem", (dataSet.Tables[0].Select("vcBanZhi='白'")).Length == 0 ? "17:15" : (dataSet.Tables[0].Select("vcBanZhi='白'"))[0]["tToTime"].ToString());
+                        res.Add("YFromTimeItem", (dataSet.Tables[0].Select("vcBanZhi='夜'")).Length == 0 ? "21:00" : (dataSet.Tables[0].Select("vcBanZhi='夜'"))[0]["tFromTime"].ToString());
+                        res.Add("YCrossItem", (dataSet.Tables[0].Select("vcBanZhi='夜'")).Length == 0 ? "1" : (dataSet.Tables[0].Select("vcBanZhi='夜'"))[0]["vcCross"].ToString());
+                        res.Add("YToTimeItem", (dataSet.Tables[0].Select("vcBanZhi='夜'")).Length == 0 ? "05:45" : (dataSet.Tables[0].Select("vcBanZhi='夜'"))[0]["tToTime"].ToString());
+
+                    }
+                    if (dataSet.Tables[1].Rows.Count != 0)
+                    {
+                        //显示信息
+                        res.Add("PageClientNumItem", dataSet.Tables[1].Rows[0]["vcPageClientNum"].ToString()==""?"30": dataSet.Tables[1].Rows[0]["vcPageClientNum"].ToString());
+                        res.Add("GZTTongjiFreItem", dataSet.Tables[1].Rows[0]["iGZTTongjiFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iGZTTongjiFre"].ToString());
+                        res.Add("BZLTongjiFreItem", dataSet.Tables[1].Rows[0]["iBZLTongjiFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iBZLTongjiFre"].ToString());
+                        res.Add("GZTZhuangTaiFreItem", dataSet.Tables[1].Rows[0]["iGZTZhuangTaiFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iGZTZhuangTaiFre"].ToString());
+                        res.Add("GZTQieHuanFreItem", dataSet.Tables[1].Rows[0]["iGZTQieHuanFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iGZTQieHuanFre"].ToString());
+                        res.Add("GZTShowTypeItem", dataSet.Tables[1].Rows[0]["iGZTShowType"].ToString()==""?"1" : dataSet.Tables[1].Rows[0]["iGZTShowType"].ToString());
+                    }
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -110,9 +136,8 @@ namespace SPPSApi.Controllers.G13
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string save_api([FromBody]dynamic data)
+        public string saveApi([FromBody]dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -121,51 +146,35 @@ namespace SPPSApi.Controllers.G13
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strPackPlant = dataForm.PackPlant == null ? "" : dataForm.PackPlant;
+            string strPageClientNum = dataForm.PageClientNum == null ? "" : dataForm.PageClientNum;
+            string strGZTTongjiFre = dataForm.GZTTongjiFre == null ? "" : dataForm.GZTTongjiFre;
+            string strBZLTongjiFre = dataForm.BZLTongjiFre == null ? "" : dataForm.BZLTongjiFre;
+            string strGZTZhuangTaiFre = dataForm.GZTZhuangTaiFre == null ? "" : dataForm.GZTZhuangTaiFre;
+            string strGZTQieHuanFre = dataForm.GZTQieHuanFre == null ? "" : dataForm.GZTQieHuanFre;
+            string strGZTShowType = dataForm.GZTShowType == null ? "" : dataForm.GZTShowType;
+            string strBFromTime = dataForm.BFromTime == null ? "" : dataForm.BFromTime;
+            string strBCross = dataForm.BCross == null ? "" : dataForm.BCross;
+            string strBToTime = dataForm.BToTime == null ? "" : dataForm.BToTime;
+            string strYFromTime = dataForm.YFromTime == null ? "" : dataForm.YFromTime;
+            string strYCross = dataForm.YCross == null ? "" : dataForm.YCross;
+            string strYToTime = dataForm.YToTime == null ? "" : dataForm.YToTime;
             try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.list;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcPart_id");
-                dt.Columns.Add("dTimeFrom");
-                dt.Columns.Add("dTimeTo");
-                dt.Columns.Add("vcBZPlant");
-                dt.Columns.Add("vcBZQF");
-                dt.Columns.Add("vcBZUnit");
-                dt.Columns.Add("vcRHQF");
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bflag = (bool)listInfoData[i]["vcflag"];//编辑标识,取false的
-                    if (bflag == false)
-                    {
-                        DataRow dr = dt.NewRow();
-                        dr["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString();
-                        dr["dTimeFrom"] = listInfoData[i]["dTimeFrom"].ToString();
-                        dr["dTimeTo"] = listInfoData[i]["dTimeTo"].ToString();
-                        dr["vcBZPlant"] = listInfoData[i]["vcBZPlant"].ToString();
-                        dr["vcBZQF"] = listInfoData[i]["vcBZQF"].ToString();
-                        dr["vcBZUnit"] = listInfoData[i]["vcBZUnit"].ToString();
-                        dr["vcRHQF"] = listInfoData[i]["vcRHQF"].ToString();
-                        dt.Rows.Add(dr);
-                    }
-                }
-                if (dt.Rows.Count == 0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                fS1309_Logic.Save(dt, loginInfo.UserId);
+            {   //保存
+                fS1309_Logic.setDisplayInfo(strPackPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType
+                    , strBFromTime, strBCross, strBToTime, strYFromTime, strYCross, strYToTime, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

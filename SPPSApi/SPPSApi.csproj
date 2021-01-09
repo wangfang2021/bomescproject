@@ -53,6 +53,8 @@
     <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G17\" />
     <Folder Include="Doc\Export\" />
+    <Folder Include="Doc\Image\PackingOper\" />
+    <Folder Include="Doc\Image\Checking\" />
     <Folder Include="Doc\Import\" />
     <Folder Include="Doc\upload\" />
   </ItemGroup>

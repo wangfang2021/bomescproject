@@ -349,25 +349,39 @@ namespace DataAccess
 
 
         #region 生确单发行
-        public void sqSend(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void sqSend(List<Dictionary<string, Object>> listInfoData,string strSqDate, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
+                    //根据 品番、供应商代码、包装工厂、收货方四个主键更新原单位纳期
+                    //vcPart_id,vcSupplier_id,vcSYTCode,vcReceiver
+                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                    string strSYTCode = listInfoData[i]["vcSYTCode"].ToString();
+                    string strReceiver = listInfoData[i]["vcReceiver"].ToString();
+                    string strChange = listInfoData[i]["vcChange"].ToString();
+                    sql.Append("   update TUnit set dNqDate='"+ strSqDate + "' where  vcPart_id='"+ strPart_id + "' and vcSupplier_id='"+ strSupplier_id + "' and vcSYTCode='"+ strSYTCode + "' and vcReceiver='"+ strReceiver + "'    ;   \n ");
+                    //更新生确单
+
+
+                    if (strChange == "1")//新设
                     {//新增
-                        sql.Append("      INSERT INTO  TUnit       \n");
+                        sql.Append("      INSERT INTO  TSQJD       \n");
                         sql.Append("      (       \n");
-                        sql.Append("      )      \n");
+                        sql.Append("        dSSDateMonth,vcJD,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE,vcSupplier_id,vcFXDiff,vcFXNo        \n");
+                        sql.Append("        ,vcSumLater,vcIsDYJG,vcIsDYFX,vcYQorNG,vcSCPlace_City,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace        \n");
+                        sql.Append("        ,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff,vcZXBZNo,vcReceiver,dNQDateMonth,vcOperatorId,dOperatorTime        \n");
+                        sql.Append("      )       \n");
                         sql.Append("      VALUES      \n");
                         sql.Append("      (      \n");
+                        sql.Append("        '" + listInfoData[i]["dSSDateMonth"] + "'           \n");
+
                         sql.Append("      );      \n");
                     }
-                    else if (bAddFlag == false && bModFlag == true)
+                    else
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("      update TUnit set       \r\n");
@@ -379,6 +393,40 @@ namespace DataAccess
             catch (Exception ex)
             {
                     throw ex;
+            }
+        }
+        #endregion
+
+
+
+        #region 按检索条件返回dt
+        public DataTable getSupplierEmail(string strSupplierId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='"+ strSupplierId + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 按检索条件返回dt
+        public DataTable getEmailSetting(string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select vcTitle,vcContent from TMailMessageSetting where vcUserId='"+ strUserId + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

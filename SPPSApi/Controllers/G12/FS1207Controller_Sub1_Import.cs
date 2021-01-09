@@ -65,12 +65,12 @@ namespace SPPSApi.Controllers.G12
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番", "发注品番", "SOURCE", "供应商", "背番", "收容数" },
-                        { "vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum" },
-                        { "", "", "", "", "", "" },
-                        { "12","14","3","20","3","10" },//最大长度设定,不校验最大长度用0
-                        { "12","1","1","0","0","1" },//最小长度设定,可以为空用0
-                        { "1","2","3","4","5","6" }//前台显示列号，从0开始计算,注意有选择框的是0
+                string[,] headers = new string[,] {{"对象月","品番","收容数","NQC总数","修正数","必要数","发注数","CO数量"},
+                                                {"vcMonth","vcPartsNo","iSRNum","Total","iXZNum","iBYNum","iFZNum","iCONum"},
+                                                {"","",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
+                                                {"7","12","10","10","10","10","10","10"},//最大长度设定,不校验最大长度用0
+                                                {"7","12","1","1","1","1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8"}//前台显示列号，从0开始计算,注意有选择框的是0
                 };
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -100,7 +100,7 @@ namespace SPPSApi.Controllers.G12
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcPartsNoFZ") } into g
+                             group r by new { r2 = r.Field<string>("vcPartsNo") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -109,14 +109,14 @@ namespace SPPSApi.Controllers.G12
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r2 + " 发注品番:" + item.Key.r3 + "<br/>");
+                        sbr.Append("品番:" + item.Key.r2 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                //fs1207_Logic.UpdateTable(importDt, loginInfo.UserId);
+                fs1207_Logic.UpdateFZJS(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

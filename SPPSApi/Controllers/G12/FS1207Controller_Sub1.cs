@@ -145,7 +145,7 @@ namespace SPPSApi.Controllers.G12
                 string[] fields = { "vcMonth", "vcPartsNo","iSRNum","Total","iXZNum","iBYNum",
                 "iFZNum","syco","iCONum","iFlag","vcPartsNoFZ", "vcSource"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub1.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub1_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

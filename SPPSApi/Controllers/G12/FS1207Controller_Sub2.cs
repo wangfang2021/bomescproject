@@ -278,7 +278,6 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-
         public DataTable ListToDataTable(List<Dictionary<string, Object>> listInfoData)
         {
             DataTable tb = new DataTable();

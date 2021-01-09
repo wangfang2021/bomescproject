@@ -137,7 +137,7 @@ namespace SPPSApi.Controllers.G12
                 "ED1b","ED1y","ED2b","ED2y","ED3b","ED3y","ED4b","ED4y","ED5b","ED5y","ED6b","ED6y","ED7b","ED7y","ED8b","ED8y","ED9b","ED9y","ED10b","ED10y",
                 "ED11b","ED11y","ED12b","ED12y","ED13b","ED13y","ED14b","ED14y","ED15b","ED15y","ED16b","ED16y","ED17b","ED17y","ED18b","ED18y","ED19b","ED19y",
                 "ED20b","ED20y","ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y",
-                "ED29b","ED29y","ED30b","ED30y","ED31b","ED31y",vcPlant
+                "ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1208_EDPlanExprot.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

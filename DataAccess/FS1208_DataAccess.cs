@@ -35,9 +35,9 @@ namespace DataAccess
             DataTable dt = new DataTable();
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(" SELECT iAutoId, t1.vcMonth,t1.vcPlant ,t1.vcPartsno, t1.vcDock, t1.vcCarType, vcNum as vcNum,vcOrderNo, vcPro0Day, vcPro0Zhi, vcPro1Day, vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, ");
-            sb.AppendLine(" vcPro4Day, vcPro4Zhi, '0' as iFlag, case when UpdateFlag IS NULL then '' else UpdateFlag end vcState, '0' as vcModFlag, '0' as vcAddFlag ");
+            sb.AppendLine(" vcPro4Day, vcPro4Zhi, case when UpdateFlag IS NULL then '' else UpdateFlag end vcState, '0' as vcModFlag, '0' as vcAddFlag ");
             sb.AppendLine(" FROM EDMonthPlanTMP t1");
-            sb.AppendLine(" left join tPlanPartInfo t2 on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock and t1.vcCarType = t2.vcCarType and t1.vcMonth = t2.vcMonth ");
+            sb.AppendLine(" left join tPlanPartInfo t2 on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock and t1.vcCarType=t2.vcCarType and t1.vcMonth = t2.vcMonth ");
             sb.AppendLine(" where t2.vcEDFlag='E' ");
             if (Mon.Length > 0)
             {

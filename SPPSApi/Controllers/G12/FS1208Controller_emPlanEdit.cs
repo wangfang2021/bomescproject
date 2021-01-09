@@ -165,29 +165,36 @@ namespace SPPSApi.Controllers.G12
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"iAutoId","状态","对象月","工厂","品番","受入","车型","数量","看板订单号","工程0日期","工程0值别","工程1日期","工程1值别","工程2日期","工程2值别","工程3日期","工程3值别","工程4日期","工程4值别"},
-                                                {"iAutoId","vcSate","vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcNum","vcOrderNo","vcPro0Day","vcPro0Zhi","vcPro1Day","vcPro1Zhi","vcPro2Day","vcPro2Zhi","vcPro3Day","vcPro3Zhi","vcPro4Day","vcPro4Zhi"},
-                                                {FieldCheck.Num,"","","","","","",FieldCheck.Num,"","","","","","","","","","",""},
-                                                {"0","3","7","7","12","2","5","10","12","10","2","10","2","10","2","10","2","10","2"},//最大长度设定,不校验最大长度用0
-                                                {"","2","7","1","12","2","1","1","1","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                    string[,] strField = new string[,] {{"iAutoId","对象月","工厂","品番","受入","车型","数量","看板订单号","工程0日期","工程0值别","工程1日期","工程1值别","工程2日期","工程2值别","工程3日期","工程3值别","工程4日期","工程4值别","状态"},
+                                                {"iAutoId","vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcNum","vcOrderNo","vcPro0Day","vcPro0Zhi","vcPro1Day","vcPro1Zhi","vcPro2Day","vcPro2Zhi","vcPro3Day","vcPro3Zhi","vcPro4Day","vcPro4Zhi","vcState"},
+                                                {"","","","","","",FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",""},
+                                                {"0","7","7","12","2","5","10","12","10","2","10","2","10","2","10","2","10","2","3"},//最大长度设定,不校验最大长度用0
+                                                {"0","7","1","12","2","1","1","1","0","0","0","0","0","0","0","0","0","0","2"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                }
 
+                }
                 DataTable tb = ListToDataTable(listInfoData);
-                //tb.Columns.RemoveAt(0);
-                string strMsg = "";
-                strMsg = logic.UpdateTable(tb, loginInfo.UserId);
-                if (strMsg != "")
+                if (tb != null && tb.Rows.Count > 0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
+                    string strMsg = logic.UpdateTable(tb, loginInfo.UserId);
+                    if (strMsg != "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strMsg;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = strMsg;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = strMsg;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无数据更新！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
             }
             catch (Exception ex)
             {
@@ -242,25 +249,39 @@ namespace SPPSApi.Controllers.G12
         #region 通用方法
         public DataTable ListToDataTable(List<Dictionary<string, Object>> listInfoData)
         {
-            DataTable tb = new DataTable();
-            if (listInfoData.Count > 0)
+            try
             {
-                Dictionary<string, object> li = listInfoData[0];
-                for (int i = 0; i < li.Count; i++)
+                DataTable tb = new DataTable();
+                if (listInfoData.Count > 0)
                 {
-                    string colName = li.ToList()[i].Key;
-                    string colType = li.ToList()[i].Value.GetType().Name;
-                    tb.Columns.Add(new DataColumn(colName, li.ToList()[i].Value.GetType()));
+                    Dictionary<string, object> li = listInfoData[0];
+                    for (int i = 0; i < li.Count; i++)
+                    {
+                        string colName = li.ToList()[i].Key;
+                        Type colType = li.ToList()[i].Value == null ? typeof(System.String) : li.ToList()[i].Value.GetType();
+                        tb.Columns.Add(new DataColumn(colName, colType));
+                    }
+                    foreach (Dictionary<string, object> li1 in listInfoData)
+                    {
+                        if ((li1["vcModFlag"] != null && Convert.ToBoolean(li1["vcModFlag"]) == true && li1["vcAddFlag"] != null && Convert.ToBoolean(li1["vcAddFlag"]) == false)
+                            ||
+                            (li1["vcModFlag"] != null && Convert.ToBoolean(li1["vcModFlag"]) == true && li1["vcAddFlag"] != null && Convert.ToBoolean(li1["vcAddFlag"]) == true))
+                        {
+                            DataRow r = tb.NewRow();
+                            for (int j = 0; j < tb.Columns.Count; j++)
+                            {
+                                r[j] = li1[tb.Columns[j].ColumnName] == null ? "" : li1[tb.Columns[j].ColumnName].ToString();
+                            }
+                            tb.Rows.Add(r);
+                        }
+                    }
                 }
-                foreach (Dictionary<string, object> li1 in listInfoData)
-                {
-                    DataRow r = tb.NewRow();
-                    for (int j = 0; j < tb.Columns.Count; j++)
-                        r[j] = li1[tb.Columns[j].ColumnName].ToString();
-                    tb.Rows.Add(r);
-                }
+                return tb;
             }
-            return tb;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         #endregion
     }

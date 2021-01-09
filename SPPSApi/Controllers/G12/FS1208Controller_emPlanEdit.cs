@@ -115,7 +115,7 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //logic.Del_Plan(listInfoData, loginInfo.UserId);
+                logic.Del_Order(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -165,19 +165,19 @@ namespace SPPSApi.Controllers.G12
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"对象月","品番","受入","看板订单号","连番","紧急区分"},
-                                                {"vcMonth","vcPartsno","vcDock","vcKBorderno","vcKBSerial","vcEDflag"},
-                                                {"","","","","",""},
-                                                {"7","12","2","12","4","2"},//最大长度设定,不校验最大长度用0
-                                                {"7","12","2","12","4","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"iAutoId","状态","对象月","工厂","品番","受入","车型","数量","看板订单号","工程0日期","工程0值别","工程1日期","工程1值别","工程2日期","工程2值别","工程3日期","工程3值别","工程4日期","工程4值别"},
+                                                {"iAutoId","vcSate","vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcNum","vcOrderNo","vcPro0Day","vcPro0Zhi","vcPro1Day","vcPro1Zhi","vcPro2Day","vcPro2Zhi","vcPro3Day","vcPro3Zhi","vcPro4Day","vcPro4Zhi"},
+                                                {FieldCheck.Num,"","","","","","",FieldCheck.Num,"","","","","","","","","","",""},
+                                                {"0","3","7","7","12","2","5","10","12","10","2","10","2","10","2","10","2","10","2"},//最大长度设定,不校验最大长度用0
+                                                {"","2","7","1","12","2","1","1","1","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 }
-  
+
                 DataTable tb = ListToDataTable(listInfoData);
-                tb.Columns.RemoveAt(0);
+                //tb.Columns.RemoveAt(0);
                 string strMsg = "";
-                //strMsg = logic.UpdateCutPlanTMP(tb, loginInfo.UserId);
+                strMsg = logic.UpdateTable(tb, loginInfo.UserId);
                 if (strMsg != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

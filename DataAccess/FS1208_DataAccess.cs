@@ -34,11 +34,11 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(" SELECT  iAutoID,   t1.vcMonth,t1.vcPlant ,t1.vcPartsno, t1.vcDock,  t1.vcCarType, vcNum as vcNum,vcOrderNo, vcPro0Day, vcPro0Zhi, vcPro1Day, vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, ");
-            sb.AppendLine(" vcPro4Day, vcPro4Zhi,'0' as iFlag,UpdateFlag as vcState     ");
-            sb.AppendLine(" FROM         EDMonthPlanTMP t1");
-            sb.AppendLine("  left join tPlanPartInfo t2 on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock and t1.vcCarType = t2.vcCarType   and t1.vcMonth = t2.vcMonth  ");
-            sb.AppendLine(" where t2.vcEDFlag ='E' ");
+            sb.AppendLine(" SELECT iAutoId, t1.vcMonth,t1.vcPlant ,t1.vcPartsno, t1.vcDock, t1.vcCarType, vcNum as vcNum,vcOrderNo, vcPro0Day, vcPro0Zhi, vcPro1Day, vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, ");
+            sb.AppendLine(" vcPro4Day, vcPro4Zhi, '0' as iFlag, UpdateFlag as vcState, '0' as vcModFlag, '0' as vcAddFlag ");
+            sb.AppendLine(" FROM EDMonthPlanTMP t1");
+            sb.AppendLine(" left join tPlanPartInfo t2 on t1.vcPartsno = t2.vcPartsNo and t1.vcDock = t2.vcDock and t1.vcCarType = t2.vcCarType and t1.vcMonth = t2.vcMonth ");
+            sb.AppendLine(" where t2.vcEDFlag='E' ");
             if (Mon.Length > 0)
             {
                 sb.AppendFormat(" and t1.vcMonth='{0}' ", Mon);
@@ -57,11 +57,11 @@ namespace DataAccess
             }
             if (type == "0")
             {
-                sb.AppendLine(" and (UpdateFlag is  null  or UpdateFlag <>'1' )");
+                sb.AppendLine(" and (UpdateFlag is null or UpdateFlag<>'1' )");
             }
             else if (type == "1")
             {
-                sb.AppendLine(" and UpdateFlag ='1' ");
+                sb.AppendLine(" and UpdateFlag='1' ");
             }
             if (pro != "")
             {
@@ -91,7 +91,7 @@ namespace DataAccess
         }
         public DataTable GetPlanType()
         {
-            string sql = " select '' as planType ,'' as value union all select planType,value from dbo.sPlanType where enable='1'";
+            string sql = " select '' as planType ,'' as value union all select planType,value from sPlanType where enable='1'";
             return excute.ExcuteSqlWithSelectToDT(sql);
         }
 
@@ -110,7 +110,7 @@ namespace DataAccess
                 cmd.Connection.Open();
                 cmd.Transaction = cmd.Connection.BeginTransaction();
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);
-                cmd.CommandText = "select vcPartsNo,vcDock,iQuantityPerContainer,dTimeFrom,dTimeTo,vcPorType,vcZB,vcPartPlant,vcCurrentPastCode,vcPartsNameCHN,vcQFflag from dbo.tPartInfoMaster where vcInOutFlag='0';select distinct vcPartsNo,vcDock,vcOrderNo from dbo.EDMonthPlanTMP;";
+                cmd.CommandText = "select vcPartsNo,vcDock,iQuantityPerContainer,dTimeFrom,dTimeTo,vcPorType,vcZB,vcPartPlant,vcCurrentPastCode,vcPartsNameCHN,vcQFflag from tPartInfoMaster where vcInOutFlag='0';select distinct vcPartsNo,vcDock,vcOrderNo from dbo.EDMonthPlanTMP;";
                 DataSet ds = new DataSet();
                 apt.Fill(ds);
                 dtInfo = ds.Tables[0];
@@ -239,7 +239,7 @@ namespace DataAccess
                         if (tmpdata.Rows.Count == 0)
                         {
                             sb.Length = 0;
-                            sb.AppendLine(" insert into dbo.tPlanPartInfo([vcMonth],[vcPartsNo],[vcCarType],[vcDock],[vcEDFlag],[vcPlant],[vcPartNameCN],[vcHJ],[vcProType],[vcZB],[vcSRS],[vcQFflag]) ");
+                            sb.AppendLine(" insert into tPlanPartInfo([vcMonth],[vcPartsNo],[vcCarType],[vcDock],[vcEDFlag],[vcPlant],[vcPartNameCN],[vcHJ],[vcProType],[vcZB],[vcSRS],[vcQFflag]) ");
                             sb.AppendFormat(" VALUES ('{0}'", dt.Rows[i]["vcMonth"].ToString());
                             sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcPartsno"].ToString());
                             sb.AppendFormat(" ,'{0}' ", dt.Rows[i]["vcCarType"].ToString());
@@ -260,7 +260,7 @@ namespace DataAccess
                     {
                         StringBuilder sb = new StringBuilder();
                         sb.Length = 0;
-                        sb.AppendLine(" UPDATE dbo.EDMonthPlanTMP");
+                        sb.AppendLine(" UPDATE EDMonthPlanTMP");
                         sb.AppendFormat("    SET [vcNum] = '{0}' ", dt.Rows[i]["vcNum"].ToString());
                         sb.AppendFormat("       ,[vcOrderNo] = '{0}' ", dt.Rows[i]["vcOrderNo"].ToString());
                         sb.AppendFormat("       ,[vcPro0Day] = '{0}' ", dt.Rows[i]["vcPro0Day"].ToString());
@@ -275,7 +275,7 @@ namespace DataAccess
                         sb.AppendFormat("       ,[vcPro4Zhi] = '{0}' ", dt.Rows[i]["vcPro4Zhi"].ToString());
                         sb.AppendFormat("       ,[vcUpdateID] = '{0}' ", user);
                         sb.AppendLine("       ,[dUpdateTime] = getdate() ");
-                        sb.AppendFormat("  WHERE [iAutoID] ='{0}' ", dt.Rows[i]["iAutoID"].ToString());
+                        sb.AppendFormat("  WHERE [iAutoId] ='{0}' ", dt.Rows[i]["iAutoId"].ToString());
                         cmd.CommandText = sb.ToString();
                         cmd.ExecuteNonQuery();
                     }
@@ -283,7 +283,7 @@ namespace DataAccess
                     {
                         StringBuilder sb = new StringBuilder();
                         sb.AppendLine(" DELETE FROM  dbo.EDMonthPlanTMP ");
-                        sb.AppendFormat("  WHERE [iAutoID] ='{0}' ", dt.Rows[i]["iAutoID"].ToString());
+                        sb.AppendFormat("  WHERE [iAutoId] ='{0}' ", dt.Rows[i]["iAutoId"].ToString());
                         cmd.CommandText = sb.ToString();
                         cmd.ExecuteNonQuery();
                     }

@@ -30,13 +30,11 @@ namespace SPPSApi.Controllers.G12
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 绑定下拉框
-        #region 绑定工厂
+        #region 页面初始化
         [HttpPost]
         [EnableCors("any")]
-        public string GetPlants()
+        public string pageloadApi()
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -47,61 +45,30 @@ namespace SPPSApi.Controllers.G12
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = logic.GetPlant();
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcData1", "vcData2" });
+                Dictionary<string, Object> res = new Dictionary<string, Object>();
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.GetPlant());
+                List<Object> dataList_PlanSource = ComFunction.convertAllToResult(logic.GetPlanType());
+                res.Add("PlantSource", dataList_PlantSource);
+                res.Add("PlanSource", dataList_PlanSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-        #endregion
-        #region 绑定类别
-        [HttpPost]
-        [EnableCors("any")]
-        public string GetPlanType()
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                DataTable dt = logic.GetPlanType();
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "planType", "value" });
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
         #endregion
 
         #region 检索
         [HttpPost]
         [EnableCors("any")]
-        public string GetRenders([FromBody] dynamic data)
+        public string searchApi([FromBody] dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -121,16 +88,73 @@ namespace SPPSApi.Controllers.G12
             {
                 Exception ex = new Exception();
                 DataTable dt = logic.serchData(vcMon, vcPlant, vcType, ref ex, "");
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                DtConverter dtConverter = new DtConverter();
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMon = dataForm.vcMon;
+            string vcPlant = dataForm.vcPlant;
+            string vcType = dataForm.vcType;
+            vcMon = vcMon == null ? "" : vcMon;
+            vcPlant = vcPlant == null ? "" : vcPlant;
+            vcType = vcType == null ? "" : vcType;
+            try
+            {
+                Exception ex = new Exception();
+                DataTable dt = logic.serchData(vcMon, vcPlant, vcType, ref ex, "");
+                string[] fields = { "vcMonth", "vcPlant", "vcPartsno", "vcDock", "vcCarType", "vcCalendar1", "vcCalendar2", "vcCalendar3", "vcCalendar4",
+                "vcPartsNameCHN","vcCurrentPastCode","vcMonTotal",
+                "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y","TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y",
+                "TD11b","TD11y","TD12b","TD12y","TD13b","TD13y","TD14b","TD14y","TD15b","TD15y","TD16b","TD16y","TD17b","TD17y","TD18b","TD18y","TD19b","TD19y",
+                "TD20b","TD20y","TD21b","TD21y","TD22b","TD22y","TD23b","TD23y","TD24b","TD24y","TD25b","TD25y","TD26b","TD26y","TD27b","TD27y","TD28b","TD28y",
+                "TD29b","TD29y","TD30b","TD30y","TD31b","TD31y",
+                "ED1b","ED1y","ED2b","ED2y","ED3b","ED3y","ED4b","ED4y","ED5b","ED5y","ED6b","ED6y","ED7b","ED7y","ED8b","ED8y","ED9b","ED9y","ED10b","ED10y",
+                "ED11b","ED11y","ED12b","ED12y","ED13b","ED13y","ED14b","ED14y","ED15b","ED15y","ED16b","ED16y","ED17b","ED17y","ED18b","ED18y","ED19b","ED19y",
+                "ED20b","ED20y","ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y",
+                "ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1208_EDPlanExprot.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -19,18 +19,19 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string vcDXYM,string vcPlant,string vcCLYM)
+        public DataTable Search(string vcDXYM, string vcPlant, string vcCLYM)
         {
             return fs0630_DataAccess.Search(vcDXYM, vcPlant, vcCLYM);
         }
         #endregion
 
         #region 记录请求时间
-        public void CreateView(string vcCLYM,List<string> plantList, List<string> lsdxym,string strUserId)
+        public void CreateView(string vcCLYM, List<string> plantList, List<string> lsdxym, string strUserId)
         {
-            fs0630_DataAccess.CreateView(vcCLYM,plantList,lsdxym,strUserId);
+            fs0630_DataAccess.CreateView(vcCLYM, plantList, lsdxym, strUserId);
         }
         #endregion
+
     }
 
 }

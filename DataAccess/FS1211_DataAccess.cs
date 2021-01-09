@@ -201,11 +201,11 @@ namespace DataAccess
                 sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcQFflag='2' ", mon);
             }
             sb.AppendLine(" union all");
-            sb.AppendLine("      select t2.vcMonth ,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4");
+            sb.AppendLine("   select t2.vcMonth ,t2.vcPartsno,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4");
             sb.AppendLine("  ,t3.vcPartNameCN as vcPartsNameCHN, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal ,t3.vcProType as bushu,'S' as EDflag ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendLine(" from ( select  * from   MonthPackPlanTbl where montouch is not null) t1   full join (select * from MonthPackPlanTbl where montouch is null) t2  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType ");
+            sb.AppendLine(" from ( select  * from MonthPackPlanTbl where montouch is not null) t1  full join (select * from MonthPackPlanTbl where montouch is null) t2  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType ");
             sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType from  dbo.tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='S' ) t3", mon);
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType");
             sb.AppendLine("  left join dbo.ProRuleMst t4");
@@ -232,7 +232,7 @@ namespace DataAccess
             sb.AppendFormat("  from ( select  * from   {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType,vcSRS from  dbo.tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='S' ) t3", mon);
+            sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType,vcSRS from tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='S' ) t3", mon);
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType");
             sb.AppendLine("  left join dbo.ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
@@ -245,7 +245,7 @@ namespace DataAccess
                 sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcQFflag ='1' ", mon);
             }
             sb.AppendLine(" ) tS ");
-            sb.AppendLine(" left join (select * from dbo.tPartInfoMaster where dTimeFrom <='" + mon + "-01' and dTimeTo>= '" + mon + "-01' and vcInOutFlag ='1') tQF ");
+            sb.AppendLine(" left join (select * from tPartInfoMaster where dTimeFrom <='" + mon + "-01' and dTimeTo>= '" + mon + "-01' and vcInOutFlag ='1') tQF ");
             sb.AppendLine(" on SUBSTRING (tS.vcPartsno,0,10) = SUBSTRING(tQF.vcPartsNo,0,10) ");
             try
             {
@@ -426,7 +426,7 @@ namespace DataAccess
                 sb.AppendFormat("   and t1.kanbanserial like '%{0}%'", vcSerial.Trim());
             }
             sb.AppendLine("   )tall");
-            sb.AppendLine("   left join (select partsno, inoutflag, vcDockCode as dock,'T0' as otype from sp_m_sitem union all  select partsno,'0',dock,'T1' as otype from sp_m_edsitem ) t2");
+            sb.AppendLine("   left join (select partsno, inoutflag, vcDockCode as dock,'T0' as otype from sp_m_sitem union all select partsno,'0',dock,'T1' as otype from sp_m_edsitem ) t2");
             sb.AppendLine("   on tall.partsno = t2.partsno and tall.dock = t2.dock");
             sb.AppendLine("   where t2.inoutflag ='0'");
             if (dtEDorder.Rows.Count > 0)
@@ -738,7 +738,7 @@ namespace DataAccess
                 DataTable tmp2 = new DataTable();
                 sbSQL.AppendLine(" select distinct t.PARTSNO, t.DOCK, t.KANBANORDERNO, t.KANBANSERIAL, t.DADDTIME ");
                 sbSQL.AppendLine("   from sp_m_opr t ");
-                sbSQL.AppendLine("   left join SP_M_SITEM t2 on t.partsno = t2.partsno and t.dock = t2.dock and t.cpdcompany = t2.cpdcompany ");
+                sbSQL.AppendLine("   left join SP_M_SITEM t2 on t.partsno = t2.partsno and t.dock = t2.vcDockCode and t.cpdcompany = t2.cpdcompany ");
                 sbSQL.AppendLine("  where 1=1 and dataid = 'S0' ");
                 if (mon.Trim() != "")
                 {

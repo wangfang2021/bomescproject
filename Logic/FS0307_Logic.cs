@@ -21,6 +21,13 @@ namespace Logic
 
         #endregion
 
+        #region 删除
+        public void DelApi(List<Dictionary<string, Object>> listInfoData)
+        {
+            fs0307_dataAccess.DelApi(listInfoData);
+        }
+        #endregion
+
         #region 年限抽取
 
         public void extractPart(string strUserId, List<string> vcOriginCompany)
@@ -65,9 +72,31 @@ namespace Logic
 
         #endregion
 
+        #region 导入后保存
+
         public void importSave(DataTable dt, string strUserId)
         {
             fs0307_dataAccess.importSave(dt, strUserId);
         }
+
+        #endregion
+
+        #region 保存
+
+        public void SaveApi(List<Dictionary<string, Object>> list, string strUserId)
+        {
+            fs0307_dataAccess.SaveApi(list, strUserId);
+        }
+
+        #endregion
+
+        #region 织入原单位
+
+        public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0307_dataAccess.InsertUnitApi(listInfoData, strUserId);
+        }
+
+        #endregion
     }
 }

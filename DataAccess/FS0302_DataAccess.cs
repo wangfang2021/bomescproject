@@ -11,32 +11,21 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        #region 页面初始化
+        #region 检索
 
-        public DataTable getFinishState()
-        {
-            StringBuilder sbr = new StringBuilder();
-            sbr.Append(" SELECT vcName FROM TCode WHERE vcCodeId = 'C014' \r\n");
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
-        }
-        public DataTable getChange()
-        {
-            StringBuilder sbr = new StringBuilder();
-            sbr.Append(" SELECT vcName FROM TCode WHERE vcCodeId = 'C015' \r\n");
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
-        }
+
         public DataTable SearchApi(string fileNameTJ)
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT a.iAutoId,'' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcDiff,a.vcCarType, \r\n");
+                sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcDiff,a.vcCarType, \r\n");
                 sbr.Append(" d.vcName AS THChange,c.vcName AS vcDD,a.vcRemark,a.vcChange,a.vcBJDiff, \r\n");
                 sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
                 sbr.Append(" WHEN (ISNULL(a.vcDTDiff,'') <> '' AND  ISNULL(a.vcPart_id_DT,'') <> '') THEN a.vcDTDiff+'/'+a.vcPart_id_DT  \r\n");
                 sbr.Append(" WHEN ISNULL(a.vcDTDiff,'') <> '' THEN a.vcDTDiff WHEN ISNULL(a.vcPart_id_DT,'') <> '' THEN a.vcPart_id_DT END AS vcDT, \r\n");
-                sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.dOldProjTime,a.dOldProjTime,a.vcNewProj, \r\n");
-                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName  \r\n");
+                sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.vcOldProj,a.dOldProjTime,a.vcNewProj, \r\n");
+                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag  \r\n");
                 sbr.Append(" FROM \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcOriginCompany,vcDiff,vcCarType,vcTHChange, \r\n");
@@ -61,6 +50,10 @@ namespace DataAccess
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
                 sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+
+
+
             }
             catch (Exception ex)
             {
@@ -70,7 +63,8 @@ namespace DataAccess
 
         #endregion
 
-        //织入原单位
+        #region 织入原单位
+
         public void weaveUnit(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
@@ -80,15 +74,18 @@ namespace DataAccess
                 {
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                    string change = listInfoData[i]["vcTHChange"].ToString().Trim();
+                    string change = getValue("C015", ObjToString(listInfoData[i]["THChange"]).Trim());
 
                     if (change.Equals("1"))//新设/新车新设
                     {
-                        string CarType = listInfoData[i]["vcCarType"].ToString().Trim();
-                        string vcPart_Id = listInfoData[i]["vcPart_Id_new"].ToString().Trim();
-                        string vcNewProj = listInfoData[i]["vcNewProj"].ToString().Trim();
-                        string vcStartYearMonth = listInfoData[i]["vcStartYearMonth"].ToString().Trim();
-                        vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
+                        string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
+                        string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
+                        string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
+                        string vcStartYearMonth = ObjToString(listInfoData[i]["vcStartYearMonth"]).Trim();
+                        if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
+                        {
+                            vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
+                        }
                         string partId = getPartId(CarType, vcPart_Id, vcNewProj);
                         sbr.Append(" INSERT INTO TUnit  \r\n");
                         sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcOperator,dOperatorTime) values\r\n");
@@ -202,14 +199,22 @@ namespace DataAccess
                 {
                     excute.ExcuteSqlWithStringOper(sbr.ToString());
                 }
+
+                if (listInfoData.Count > 0)
+                {
+                    int id = Convert.ToInt32(listInfoData[0]["iAutoId"]);
+                    changeFileState(id, strUserId);
+                }
+
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+        #endregion
 
-        //获取纳入品番
+        #region 获取纳入品番
         public string getPartId(string vcCarType, string vcPart_Id, string vcParent)
         {
             try
@@ -303,7 +308,6 @@ namespace DataAccess
                 throw ex;
             }
         }
-
         public class ParentEntity
         {
             public ParentEntity(string PartId, string Parent, int LV)
@@ -386,7 +390,11 @@ namespace DataAccess
         {
             List<List<ParentEntity>> list = new List<List<ParentEntity>>();
             List<ParentEntity> res = new List<ParentEntity>();
+            //定义栈
+            Stack<ParentEntity> stack = new Stack<ParentEntity>();
+
             res.Add(node.Entity);
+            stack.Push(node.Entity);
             if (node.childNodes.Count > 0)
             {
                 //LV2
@@ -395,8 +403,9 @@ namespace DataAccess
                 {
                     Node node2 = temp2[a];
                     List<ParentEntity> res2 = new List<ParentEntity>();
-                    res2 = res;
+                    //res2 = res;
                     res2.Add(node2.Entity);
+                    stack.Push(node2.Entity);
                     //有LV3
                     if (node2.childNodes.Count > 0)
                     {
@@ -405,56 +414,114 @@ namespace DataAccess
                         {
                             Node node3 = temp3[b];
                             List<ParentEntity> res3 = new List<ParentEntity>();
-                            res3 = res2;
+                            //res3 = res2;
                             res3.Add(node3.Entity);
+                            stack.Push(node3.Entity);
                             //有LV4
                             if (node3.childNodes.Count > 0)
                             {
                                 List<Node> temp4 = node3.childNodes;
                                 for (int c = 0; c < temp4.Count; c++)
                                 {
-                                    Node node4 = temp3[c];
+                                    Node node4 = temp4[c];
                                     List<ParentEntity> res4 = new List<ParentEntity>();
-                                    res4 = res3;
+                                    //res4 = res3;
                                     res4.Add(node4.Entity);
+                                    stack.Push(node4.Entity);
                                     //有LV5
                                     if (node4.childNodes.Count > 0)
                                     {
                                         List<Node> temp5 = node4.childNodes;
                                         for (int d = 0; d < temp5.Count; d++)
                                         {
-                                            Node node5 = temp4[d];
+                                            Node node5 = temp5[d];
                                             List<ParentEntity> res5 = res4;
                                             res5.Add(node5.Entity);
-                                            list.Add(res5);
+                                            stack.Push(node5.Entity);
+                                            //list.Add(res5);
+                                            List<ParentEntity> stack1 = new List<ParentEntity>();
+
+                                            foreach (var item in stack)
+                                            {
+                                                stack1.Add(item);
+                                            }
+                                            //正序输出
+                                            stack1.Reverse();
+                                            list.Add(stack1);
+                                            stack.Pop();
                                         }
+                                        //返回到上一节点
+                                        stack.Pop();
                                     }
                                     else
                                     {
-                                        list.Add(res4);
+                                        List<ParentEntity> stack1 = new List<ParentEntity>();
+                                        foreach (var item in stack)
+                                        {
+                                            stack1.Add(item);
+                                        }
+                                        //正序输出
+                                        stack1.Reverse();
+                                        list.Add(stack1);
+                                        stack.Pop();
+                                        //list.Add(res4);
                                     }
                                 }
+                                //返回到上一节点
+                                stack.Pop();
                             }
                             else
                             {
-                                list.Add(res3);
+                                List<ParentEntity> stack1 = new List<ParentEntity>();
+
+                                foreach (var item in stack)
+                                {
+                                    stack1.Add(item);
+                                }
+                                //正序输出
+                                stack1.Reverse();
+                                list.Add(stack1);
+                                stack.Pop();
                             }
                         }
+                        //返回到上一节点
+                        stack.Pop();
                     }
                     else
                     {
-                        list.Add(res2);
+                        //list.Add(res2);
+                        List<ParentEntity> stack1 = new List<ParentEntity>();
+                        foreach (var item in stack)
+                        {
+                            stack1.Add(item);
+                        }
+                        //正序输出
+                        stack1.Reverse();
+                        list.Add(stack1);
+                        stack.Pop();
+                        //list.Add(stack.Peek());
                     }
                 }
+                //返回到上一节点
+                stack.Pop();
             }
             else
             {
+                List<ParentEntity> stack1 = new List<ParentEntity>();
+                foreach (var item in stack)
+                {
+                    stack1.Add(item);
+                }
+                //正序输出
+                stack1.Reverse();
                 //只有LV1
-                list.Add(res);
+                list.Add(stack1);
             }
 
             return list;
         }
+
+
         //获取路径包含品番的
         public int getIndex(string partId, List<ParentEntity> list)
         {
@@ -468,5 +535,147 @@ namespace DataAccess
 
             return -1;
         }
+
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"]; //true可编辑,false不可编辑
+
+                    if (bModFlag == true)
+                    {
+                        //修改
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sbr.AppendLine(" UPDATE TSBManager SET ");
+                        sbr.AppendLine(" vcFinishState = " +
+                                       ComFunction.getSqlValue(
+                                           getValue("C014", listInfoData[i]["FinishState"].ToString()), false) + ",");
+                        sbr.AppendLine(" vcOriginCompany = " +
+                                       ComFunction.getSqlValue(getValue("C006", listInfoData[i]["vcUnit"].ToString()),
+                                           false) + ",");
+                        sbr.AppendLine(" vcDiff = " +
+                                       ComFunction.getSqlValue(listInfoData[i]["vcDiff"].ToString(), false) + ",");
+                        sbr.AppendLine(" vcCarType = " +
+                                       ComFunction.getSqlValue(listInfoData[i]["vcCarType"].ToString(), false) + ",");
+                        sbr.AppendLine(" vcTHChange = " +
+                                       ComFunction.getSqlValue(getValue("C015", listInfoData[i]["THChange"].ToString()),
+                                           false) + ",");
+                        sbr.AppendLine(" vcRemark = " +
+                                       ComFunction.getSqlValue(ObjToString(listInfoData[i]["vcRemark"]), false) + ",");
+                        sbr.AppendLine(" vcOperatorId = '" + strUserId + "',");
+                        sbr.AppendLine(" dOperatorTime = GETDATE()");
+                        sbr.AppendLine(" WHERE iAutoId = " + iAutoId + "");
+
+                    }
+
+
+                }
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                if (listInfoData.Count > 0)
+                {
+                    int id = Convert.ToInt32(listInfoData[0]["iAutoId"]);
+                    changeFileState(id, strUserId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 修改开包状态
+
+        public void changeFileState(int id, string strUserId)
+        {
+
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine(" SELECT distinct vcFinishState FROM ");
+            sbr.AppendLine(" TSBManager");
+            sbr.AppendLine(" WHERE vcFileNameTJ = ");
+            sbr.AppendLine(" (SELECT vcFileNameTJ FROM TSBManager");
+            sbr.AppendLine(" WHERE iAutoId = " + id);
+            sbr.AppendLine(" )");
+
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            List<string> list = new List<string>();
+            for (int j = 0; j < dt.Rows.Count; j++)
+            {
+                list.Add(dt.Rows[j][0].ToString().Trim());
+            }
+            sbr.Length = 0;
+
+            if (!list.Contains("0") && !list.Contains("2"))
+            {
+                sbr.AppendLine("UPDATE TSBFile");
+                sbr.AppendLine("SET vcState = '2',");
+                sbr.AppendLine("vcOperatorId = '" + strUserId + "',");
+                sbr.AppendLine("dOperatorTime = GETDATE()");
+                sbr.AppendLine("WHERE vcFileNameTJ = ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcFileNameTJ FROM TSBManager");
+                sbr.AppendLine("WHERE iAutoId = " + id + "");
+                sbr.AppendLine(")");
+            }
+            else
+            {
+                sbr.AppendLine("UPDATE TSBFile");
+                sbr.AppendLine("SET vcState = '1',");
+                sbr.AppendLine("vcOperatorId = '" + strUserId + "',");
+                sbr.AppendLine("dOperatorTime = GETDATE()");
+                sbr.AppendLine("WHERE vcFileNameTJ = ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcFileNameTJ FROM TSBManager");
+                sbr.AppendLine("WHERE iAutoId = " + id + "");
+                sbr.AppendLine(")");
+            }
+            excute.ExcuteSqlWithStringOper(sbr.ToString());
+        }
+
+
+        #endregion
+
+        #region 共同方法
+        public string getValue(string strCodeId, string vcName)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcName"].ToString().Equals(vcName))
+                    {
+                        return dt.Rows[i]["vcValue"].ToString();
+                    }
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string ObjToString(Object obj)
+        {
+            try
+            {
+                return obj.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "";
+                throw;
+            }
+        }
+        #endregion
     }
 }

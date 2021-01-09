@@ -48,6 +48,7 @@ namespace SPPSApi.Controllers.G03
                 List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
                 List<Object> dataList_C024 = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//包装事业体
 
+
                 res.Add("C005", dataList_C005);
                 res.Add("C006", dataList_C006);
                 res.Add("C016", dataList_C016);
@@ -249,8 +250,80 @@ namespace SPPSApi.Controllers.G03
         #endregion
 
         #region 保存
+        [HttpPost]
+        [EnableCors("any")]
+        public string saveApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    if (bModFlag == true)
+                    {//修改
+                        hasFind = true;
+                    }
+                }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少有一个编辑行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+                    //TODO
+                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧"},
+                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu"},
+                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"" },
+                                                {"25","12","0","0","0","4","50","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","10","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8","9","10"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    //需要判断时间区间先后关系的字段
+                    string[,] strDateRegion = { };
+                    string[,] strSpecialCheck = { };
 
 
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0309");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                fs0307_logic.SaveApi(listInfoData, loginInfo.UserId);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
 
         #endregion
 

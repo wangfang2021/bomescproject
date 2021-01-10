@@ -94,6 +94,8 @@ namespace SPPSApi.Controllers.G12
             vcPorType = vcPorType == null ? "" : vcPorType;
             try
             {
+                string[] userPorType = null;
+                DataTable dtportype = logic.dllPorType(loginInfo.UserId, ref userPorType);
                 if ("PP".Equals(vcPorType))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -103,11 +105,11 @@ namespace SPPSApi.Controllers.G12
                 DataTable resutPrint;
                 if (vcType == "3")
                 {
-                    resutPrint = logic.searchPrint(vcPrintPartNo, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, null);
+                    resutPrint = logic.searchPrint(vcPrintPartNo, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
                 }
                 else
                 {
-                    resutPrint = logic.searchPrint(vcPrintPartNo, vcType, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, null);
+                    resutPrint = logic.searchPrint(vcPrintPartNo, vcType, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
                 }
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);

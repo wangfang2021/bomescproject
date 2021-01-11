@@ -53,10 +53,17 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-             
-                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//包装场
 
-                res.Add("C002", dataList_C002);
+
+
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+
+                res.Add("C023", dataList_C023);
+
+                List<Object> dataList_C042 = ComFunction.convertAllToResult(ComFunction.getTCode("C042"));//发注逻辑
+
+                res.Add("C042", dataList_C042);
+
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0704_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 

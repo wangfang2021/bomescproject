@@ -983,7 +983,7 @@ namespace DataAccess
         {
             DataTable dtReturn = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.Append("SELECT  ROW_NUMBER() OVER(order by vcPrintDate desc) as rowIndex, [iautoid]       ,[vcOrderNo]");
+            strSQL.Append("SELECT [iautoid] ,[vcOrderNo]");
             strSQL.Append(",(Case when [vcGC] = '0' then '' else [vcGC] end) as vcGC");
             strSQL.Append(",Convert(varchar(20),[vcPlanPrintDate], 120) as vcPlanPrintDate");
             strSQL.Append(",(Case when [vcPlanPrintBZ] = '0' then '白值' when [vcPlanPrintBZ] = '1' then '夜值' else '' end) as vcPlanPrintBZ");
@@ -992,31 +992,31 @@ namespace DataAccess
             strSQL.Append(",Convert(varchar(20),[vcPrintDate], 120) as vcPrintDate");
             strSQL.Append("  FROM  [tKanBanQrTbl]");
             strSQL.Append("  where 1=1 ");
-            if (!string.IsNullOrEmpty(OrderNo))
+            if (OrderNo.Trim() != "")
             {
                 strSQL.Append("        and  vcOrderNo like '" + OrderNo + "%' ");
             }
-            if (!string.IsNullOrEmpty(GC) && GC.Trim() != "0")
+            if (GC.Trim() != "")
             {
                 strSQL.Append("        and vcGC = '" + GC + "' ");
             }
-            if (!string.IsNullOrEmpty(PlanPrintDate))
+            if (PlanPrintDate.Trim() != "")
             {
                 strSQL.Append("        and vcPlanPrintDate = '" + PlanPrintDate + "' ");
             }
-            if (!string.IsNullOrEmpty(PlanProcBZ) && PlanPrintBZ.Trim() != "2")
+            if (PlanPrintBZ.Trim() != "2")
             {
                 strSQL.Append("        and vcPlanPrintBZ = '" + PlanPrintBZ + "'");
             }
-            if (!string.IsNullOrEmpty(PlanProcDate))
+            if (PlanProcDate.Trim() != "")
             {
                 strSQL.Append("        and  vcPlanProcDate = '" + PlanProcDate + "' ");
             }
-            if (!string.IsNullOrEmpty(PlanProcBZ) && PlanProcBZ.Trim() != "2")
+            if (PlanProcBZ.Trim() != "2")
             {
                 strSQL.Append("        and  vcPlanProcBZ = '" + PlanProcBZ + "' ");
             }
-            if (!string.IsNullOrEmpty(PrintDate) && PrintDate.Trim() != "")
+            if (PrintDate.Trim() != "")
             {
                 strSQL.Append("        and  vcPrintDate = '" + PrintDate + "' ");
             }

@@ -30,6 +30,106 @@ namespace SPPSApi.Controllers.G12
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {  
+                FS1209_Logic logic_1 = new FS1209_Logic();
+                List<Object> dataList_PorPlant = ComFunction.convertAllToResult(logic_1.dllPorPlant());
+                string[] userPorType = null;
+                List<Object> dataList_PorType = ComFunction.convertAllToResult(logic_1.dllPorType(loginInfo.UserId, ref userPorType));
+                Dictionary<string, object> res = new Dictionary<string, object>();
+
+                res.Add("dataList_PorPlant", dataList_PorPlant);
+                res.Add("dataList_PorType", dataList_PorType);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcType = dataForm.vcType;
+            string vcKbOrderId = dataForm.vcKbOrderId;
+            string vcTF = dataForm.vcTF;
+            string vcFBZ = dataForm.vcFBZ;
+            string vcTT = dataForm.vcTT;
+            string vcTBZ = dataForm.vcTBZ;
+            string vcGC = dataForm.vcGC;
+            string vcPartsNo = dataForm.vcPartsNo;
+            string vcPartsNo_ = string.Empty;
+            string vcCarType = dataForm.vcCarType;
+            string vcPlant = dataForm.vcPlant;
+
+            vcType = vcType == null ? "" : vcType;
+            vcKbOrderId = vcKbOrderId == null ? "" : vcKbOrderId;
+            vcTF = vcTF == null ? "" : vcTF;
+            vcFBZ = vcFBZ == null ? "" : vcFBZ;
+            vcTT = vcTT == null ? "" : vcTT;
+            vcTBZ = vcTBZ == null ? "" : vcTBZ;
+            vcGC = vcGC == null ? "" : vcGC;
+            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
+            vcCarType = vcCarType == null ? "" : vcCarType;
+            vcPlant = vcPlant == null ? "" : vcPlant;
+            try
+            {
+                FS1209_Logic logic_1 = new FS1209_Logic();
+                string[] userPorType = null;
+                DataTable dt1 = logic_1.dllPorType(loginInfo.UserId, ref userPorType);
+                vcPartsNo_ = vcPartsNo.Replace("-", "").ToString();
+                DataTable dt = logic.PrintData(vcKbOrderId, vcTF, vcFBZ, vcTT, vcTBZ, vcPartsNo_, vcCarType, vcGC, vcType, vcPlant, dt1);
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+
         #region 绑定下拉框
         #region 绑定工厂
         [HttpPost]
@@ -111,7 +211,6 @@ namespace SPPSApi.Controllers.G12
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcType = dataForm.vcType;
-            string vcType_ = string.Empty;
             string vcKbOrderId = dataForm.vcKbOrderId;
             string vcTF = dataForm.vcTF;
             string vcFBZ = dataForm.vcFBZ;
@@ -135,23 +234,11 @@ namespace SPPSApi.Controllers.G12
             vcPlant = vcPlant == null ? "" : vcPlant;
             try
             {
-                switch (vcType)
-                {
-                    case "再发行":
-                        vcType_ = "A";
-                        break;
-                    case "提前打印":
-                        vcType_ = "B";
-                        break;
-                    case "延迟打印":
-                        vcType_ = "C";
-                        break;
-                }
                 FS1209_Logic logic_1 = new FS1209_Logic();
                 string[] userPorType = null;
                 DataTable dt1 = logic_1.dllPorType(loginInfo.UserId, ref userPorType);
                 vcPartsNo_ = vcPartsNo.Replace("-", "").ToString();
-                DataTable tb = logic.PrintData(vcKbOrderId, vcTF, vcFBZ, vcTT, vcTF, vcPartsNo_, vcCarType, vcGC, vcType_, vcPlant, dt1);
+                DataTable tb = logic.PrintData(vcKbOrderId, vcTF, vcFBZ, vcTT, vcTF, vcPartsNo_, vcCarType, vcGC, vcType, vcPlant, dt1);
                 List<Object> dataList = ComFunction.convertAllToResult(tb);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

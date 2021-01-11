@@ -560,14 +560,14 @@ namespace DataAccess
                                        ComFunction.getSqlValue(getValue("C006", listInfoData[i]["vcUnit"].ToString()),
                                            false) + ",");
                         sbr.AppendLine(" vcDiff = " +
-                                       ComFunction.getSqlValue(listInfoData[i]["vcDiff"].ToString(), false) + ",");
+                                       ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + ",");
                         sbr.AppendLine(" vcCarType = " +
-                                       ComFunction.getSqlValue(listInfoData[i]["vcCarType"].ToString(), false) + ",");
+                                       ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + ",");
                         sbr.AppendLine(" vcTHChange = " +
                                        ComFunction.getSqlValue(getValue("C015", listInfoData[i]["THChange"].ToString()),
                                            false) + ",");
                         sbr.AppendLine(" vcRemark = " +
-                                       ComFunction.getSqlValue(ObjToString(listInfoData[i]["vcRemark"]), false) + ",");
+                                       ComFunction.getSqlValue(listInfoData[i]["vcRemark"], false) + ",");
                         sbr.AppendLine(" vcOperatorId = '" + strUserId + "',");
                         sbr.AppendLine(" dOperatorTime = GETDATE()");
                         sbr.AppendLine(" WHERE iAutoId = " + iAutoId + "");

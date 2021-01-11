@@ -59,11 +59,15 @@ namespace SPPSApi.Controllers.G02
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+
                 string strMsg = "";
 
                 //0 SPI导入
                 if (flag == "0")
                 {
+                    //TODO 存储文件到共享文件夹
+
                     fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
                 }
                 //1 导出导入

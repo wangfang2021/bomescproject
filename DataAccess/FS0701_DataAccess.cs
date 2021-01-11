@@ -142,7 +142,6 @@ namespace DataAccess
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("     	); ");
 
-
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
@@ -173,8 +172,8 @@ namespace DataAccess
                         sql.AppendLine($"  WHERE");
                         sql.AppendLine($"  iAutoId='{iAutoId}';");
 
-
                     }
+
                     excute.ExcuteSqlWithStringOper(sql.ToString());
 
                 }

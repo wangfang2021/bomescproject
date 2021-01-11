@@ -12,41 +12,12 @@ namespace DataAccess
     public class FS1310_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getPlantInfo()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select '1' as Plantcode,'泰达' as Plantname");//Plantcode\Plantname
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         public DataTable getPinMuInfo()
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select '1' as PinMucode,'中小物' as PinMuname");//Plantcode\Plantname
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
+                strSql.AppendLine("select distinct vcBigPM as vcValue,vcBigPM as vcName from TPMRelation");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -54,20 +25,42 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strPlant, string strPinMu, string strPartNo)
+        public DataTable getSearchInfo(string strPlant, string strPinMu, string strPartId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select '' as dPlant,'' as dPartNo,'' as dPinMu");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
+                strSql.AppendLine("select c.LinId as LinId");
+                strSql.AppendLine(",d.vcName as vcPlant");
+                strSql.AppendLine(",a.vcPart_id as vcPartId");
+                strSql.AppendLine(",b.vcBigPM as vcPinMu");
+                strSql.AppendLine(",c.vcPicUrl_small as vcOperImage_samll");
+                strSql.AppendLine(",c.vcPicUrl as vcOperImage");
+                strSql.AppendLine(",c.vcOperatorID as vcOperator");
+                strSql.AppendLine(",c.dOperatorTime as vcOperatorTime from ");
+                strSql.AppendLine("(select * from TPackageMaster)a");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select * from TPMRelation)b");
+                strSql.AppendLine("on a.vcSmallPM=b.vcSmallPM");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select * from TPackOperImage)c");
+                strSql.AppendLine("on a.vcPart_id=c.vcPartId and a.vcBZPlant=c.vcPlant");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select * from TCode where vcCodeId='C023')d");     
+                strSql.AppendLine("on a.vcBZPlant=d.vcValue");
+                strSql.AppendLine("where 1=1");  
+                if (strPlant != "")
+                {
+                    strSql.AppendLine("and a.vcBZPlant='" + strPlant + "' ");
+                }
+                if (strPlant != "")
+                {
+                    strSql.AppendLine("and b.vcBigPM='" + strPinMu + "'");
+                }
+                if (strPlant != "")
+                {
+                    strSql.AppendLine("and a.vcPart_id like '" + strPartId + "%'");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

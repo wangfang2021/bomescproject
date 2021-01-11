@@ -16,17 +16,13 @@ namespace Logic
         {
             fs1310_DataAccess = new FS1310_DataAccess();
         }
-        public DataTable getPlantInfo()
-        {
-            return fs1310_DataAccess.getPlantInfo();
-        }
         public DataTable getPinMuInfo()
         {
             return fs1310_DataAccess.getPinMuInfo();
         }
-        public DataTable getSearchInfo(string strPlant, string strPinMu, string strPartNo)
+        public DataTable getSearchInfo(string strPlant, string strPinMu, string strPartId)
         {
-            return fs1310_DataAccess.getSearchInfo(strPlant, strPinMu, strPartNo);
+            return fs1310_DataAccess.getSearchInfo(strPlant, strPinMu, strPartId);
         }
         public bool setDeleteInfo(ArrayList delList)
         {

@@ -80,7 +80,7 @@ namespace SPPSApi.Controllers.G02
 
                     string[,] headers = new string[,] {{"工場区分","補給区分","品番－類別","品名","設変ＮＯカラ","適用期間カラ","防錆区分","防錆指示書ＮＯ","補給出荷場所"},
                         {"vcPlant","vcBJDiff","vcPart_Id_new","vcPartName","vcSPINo","vcStartYearMonth","vcFXDiff","vcFXNo","vcNewProj"},
-                        {"","","","","","","","",""},
+                        {"","","","","",FieldCheck.Date,"","",""},
                         {"0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
                         {"0","1","1","0","1","0","0","0","0"},//最小长度设定,可以为空用0
                     };

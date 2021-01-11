@@ -16,9 +16,9 @@ namespace Logic
         {
             fs1101_DataAccess = new FS1101_DataAccess();
         }
-        public DataTable getSearchInfo(string strDQuNo, string strTrolleyNo, string strPartId, string strOrderNo, string strLianFan)
+        public DataTable getSearchInfo(string strPackMaterNo, string strTrolleyNo, string strPartId, string strOrderNo, string strLianFan)
         {
-            return fs1101_DataAccess.getSearchInfo(strDQuNo, strTrolleyNo, strPartId, strOrderNo, strLianFan);
+            return fs1101_DataAccess.getSearchInfo(strPackMaterNo, strTrolleyNo, strPartId, strOrderNo, strLianFan);
         }
         public string getPrintFile()
         {

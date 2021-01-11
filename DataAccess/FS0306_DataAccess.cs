@@ -15,7 +15,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT a.*,b.vcName FROM ( \r\n");
+                sbr.Append(" SELECT a.*,b.vcName,'0' as vcModFlag,'0' as vcAddFlag FROM ( \r\n");
                 sbr.Append(" SELECT iAutoId,vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10 FROM TUnit  \r\n");
                 sbr.Append(" WHERE vcSYTCode = (SELECT vcValue FROM TCode WHERE vcCodeId = 'C016' AND vcName = '" + strUnitCode + "') \r\n");
                 sbr.Append(" AND vcChange IN (SELECT vcValue FROM TCode WHERE vcCodeId = 'C002' AND vcName LIKE '%旧型%')  \r\n");

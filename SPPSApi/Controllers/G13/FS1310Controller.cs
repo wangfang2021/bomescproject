@@ -30,14 +30,13 @@ namespace SPPSApi.Controllers.G13
             _webHostEnvironment = webHostEnvironment;
         }
         /// <summary>
-        /// 绑定工厂信息
+        /// 页面初始化
         /// </summary>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string bindPlant()
+        public string pageloadApi()
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -48,29 +47,34 @@ namespace SPPSApi.Controllers.G13
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = fS1310_Logic.getPlantInfo();
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //处理初始化
+                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//工厂
+                List<Object> PinMuList = ComFunction.convertAllToResult(fS1310_Logic.getPinMuInfo());//品目
+                res.Add("PlantList", PlantList);
+                res.Add("PinMuList", PinMuList);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定工厂失败";
+                apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         /// <summary>
-        /// 绑定品目信息
+        /// 查询方法
         /// </summary>
+        /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string bindPinMu()
+        public string searchApi([FromBody]dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -79,10 +83,16 @@ namespace SPPSApi.Controllers.G13
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
+            string strPinMu = dataForm.PinMu == null ? "" : dataForm.PinMu;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             try
             {
-                DataTable dt = fS1310_Logic.getPinMuInfo();
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                DataTable dataTable= fS1310_Logic.getSearchInfo(strPlant, strPinMu, strPartId);
+                DtConverter dtConverter = new DtConverter();
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -91,7 +101,7 @@ namespace SPPSApi.Controllers.G13
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "绑定品目失败";
+                apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -174,51 +184,6 @@ namespace SPPSApi.Controllers.G13
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0202", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        /// <summary>
-        /// 子页面初始化
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [EnableCors("any")]
-        public string init_api([FromBody] dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strPlant = dataForm.sPlant == null ? "" : dataForm.sPlant;
-            string strPinMu = dataForm.sPinMu == null ? "" : dataForm.sPinMu;
-            string strPartNo = dataForm.sPartNo == null ? "" : dataForm.sPartNo;
-
-            try
-            {
-                DataTable dtInfo = fS1310_Logic.getSearchInfo(strPlant, strPinMu, strPartNo);
-                DataTable dtPlants = fS1310_Logic.getPlantInfo();
-                List<Object> dataInfo = ComFunction.convertAllToResult(dtInfo);
-                List<Object> dataPlants = ComFunction.convertToResult(dtPlants, new string[] { "Plantcode", "Plantname" });//返回所有工厂代码
-
-                Dictionary<string, object> res = new Dictionary<string, object>();
-                res.Add("plantOptions", dataPlants);
-                res.Add("dataInfo", dataInfo);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "初始化修改子画面失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

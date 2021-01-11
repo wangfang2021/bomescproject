@@ -376,7 +376,10 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0303_Logic.sqSend(listInfoData, loginInfo.UserId,loginInfo.Email,loginInfo.UserName);
+                string strErr = "";
+                string strSqDate = "";
+
+                fs0303_Logic.sqSend(listInfoData, strSqDate, loginInfo.UserId,loginInfo.Email,loginInfo.UserName,ref strErr);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

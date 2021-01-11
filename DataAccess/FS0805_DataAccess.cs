@@ -17,15 +17,19 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
+                strSql.AppendLine("SELECT [iAutoId] as LinId");
+                strSql.AppendLine("      ,[vcSHF] as vcSHF");
+                strSql.AppendLine("      ,[vcPart_id] as vcPartId");
+                strSql.AppendLine("      ,[vcOrderNo] as vcOrderNo");
+                strSql.AppendLine("      ,[vcLianFanNo] as vcLianFanNo");
+                strSql.AppendLine("      ,[vcInvoiceNo] as vcInvoiceNo");
+                strSql.AppendLine("      ,[vcBoxNo] as vcBoxNo ");
+                strSql.AppendLine("      ,[vcPartsNameEN] as vcPartsNameEN");
+                strSql.AppendLine("      ,[iQuantity] as vcQuantity");
+                strSql.AppendLine("      ,[decPriceWithTax] as vcPriceWithTax");
+                strSql.AppendLine("      ,[decMoney] as vcMoney");
+                strSql.AppendLine("  FROM [TSell]");
+                strSql.AppendLine("  WHERE vcSellNo ='"+ strSaleno + "' ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

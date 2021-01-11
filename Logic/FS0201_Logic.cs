@@ -59,7 +59,7 @@ namespace Logic
                 //检测NG状态
                 if (Check(dt))
                 {
-                    //return false;
+                    return false;
                 }
 
                 dt.Columns.Add("vcCarType");

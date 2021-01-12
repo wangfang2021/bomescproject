@@ -213,79 +213,90 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 #region 创建临时表
-                /*表名规范、创建前判断是否存在*/
                 sql.Append("      select * into #TUnit_temp from       \n");
                 sql.Append("      (      \n");
                 sql.Append("      	select * from TUnit where 1=0      \n");
-                sql.Append("      ) a      \n");
+                sql.Append("      ) a      ;\n");
                 #endregion
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
 
                     #region 将所有的数据都插入临时表
                     sql.Append("            \n");
-                    sql.Append("      insert into #TUnittemp values       \n");
+                    sql.Append("      insert into #TUnit_temp       \n");
+                    sql.Append("       (         \n");
+                    sql.Append("       dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff,vcPart_id         \n");
+                    sql.Append("       ,vcCarTypeDev,vcCarTypeDesign,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ         \n");
+                    sql.Append("       ,vcBJDiff,vcPartReplace,vcPartNameEn,vcPartNameCn,vcHKGC,vcBJGC         \n");
+                    sql.Append("       ,vcInOutflag,vcSupplier_id,vcSupplier_Name,vcSCPlace,vcCHPlace,vcSYTCode         \n");
+                    sql.Append("       ,vcSCSName,vcSCSAdress,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id         \n");
+                    sql.Append("       ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDate         \n");
+                    sql.Append("       ,vcMeno,vcFXNo,vcNum1,vcNum2,vcNum3,vcNum4         \n");
+                    sql.Append("       ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10         \n");
+                    sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo         \n");
+                    sql.Append("       ,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime         \n");
+                    sql.Append("       ) values         \n");
+                    sql.Append("                ");
                     sql.Append("      (      \n");
-                    sql.Append("        '" + dt.Rows[i]["dSyncTime"] + "'           \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcChange"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSPINo"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSQState"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcDiff"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcPart_id"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcCarTypeDev"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcCarTypeDesign"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcCarTypeName"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dTimeFrom"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dTimeTo"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dTimeFromSJ"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcBJDiff"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcPartReplace"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcPartNameEn"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcPartNameCn"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcHKGC"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcBJGC"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcInOutflag"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSupplier_id"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSupplier_Name"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSCPlace"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcCHPlace"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSYTCode"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSCSName"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcSCSAdress"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dGYSTimeFrom"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dGYSTimeTo"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcOE"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcHKPart_id"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcHaoJiu"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dJiuBegin"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dJiuEnd"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcJiuYear"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNXQF"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["dSSDateMonth"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcMeno"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcFXDiff"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcFXNo"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum1"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum2"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum3"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum4"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum5"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum6"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum7"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum8"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum9"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum10"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum11"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum12"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum13"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum14"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcNum15"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcZXBZNo"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcReceiver"] + "'      \n");
-                    sql.Append("      , '" + dt.Rows[i]["vcOriginCompany"] + "'      \n");
-                    sql.Append("      , '" + strUserId + "'      \n");
-                    sql.Append("      , ETDATE()      \n");
-                    sql.Append("      )      \n");
+                    sql.Append("      '" + dt.Rows[i]["dSyncTime"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcChange_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSPINo"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSQState_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcDiff"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcPart_id"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcCarTypeDev"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcCarTypeDesign"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcCarTypeName"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dTimeFrom"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dTimeTo"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dTimeFromSJ"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcBJDiff"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcPartReplace"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcPartNameEn"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcPartNameCn"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcHKGC"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcBJGC"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcInOutflag_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSupplier_id"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSupplier_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSCPlace"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcCHPlace"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSYTCode_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSCSName"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcSCSAdress"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dGYSTimeFrom"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dGYSTimeTo"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcOE_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcHKPart_id"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcHaoJiu_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dJiuBegin"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dJiuEnd"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcJiuYear"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNXQF"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dSSDate"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcMeno"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcFXNo"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum1"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum2"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum3"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum4"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum5"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum6"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum7"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum8"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum9"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum10"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum11"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum12"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum13"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum14"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcNum15"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcZXBZNo"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcReceiver_Name"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["vcOriginCompany_Name"] + "'      \n");
+                    sql.Append("      ,'" + strUserId + "'      \n");
+                    sql.Append("      ,GETDATE()      \n");
+                    sql.Append("      );      \n");
                     #endregion
 
                 }
@@ -314,25 +325,27 @@ namespace DataAccess
                 sql.Append("      ,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ,vcBJDiff,vcPartReplace,vcPartNameEn      \n");
                 sql.Append("      ,vcPartNameCn,vcHKGC,vcBJGC,vcInOutflag,vcSupplier_id,vcSupplier_Name,vcSCPlace      \n");
                 sql.Append("      ,vcCHPlace,vcSYTCode,vcSCSName,vcSCSAdress,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id      \n");
-                sql.Append("      ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDateMonth,vcMeno,vcFXDiff,vcFXNo      \n");
+                sql.Append("      ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDate,vcMeno,vcFXDiff,vcFXNo      \n");
                 sql.Append("      ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11      \n");
                 sql.Append("      ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator      \n");
+                sql.Append("      ,dOperatorTime          \n");
                 sql.Append("      )      \n");
                 sql.Append("      select a.dSyncTime,a.vcChange,a.vcSPINo,a.vcSQState,a.vcDiff,a.vcPart_id,a.vcCarTypeDev,a.vcCarTypeDesign      \n");
                 sql.Append("      ,a.vcCarTypeName,a.dTimeFrom,a.dTimeTo,a.dTimeFromSJ,a.vcBJDiff,a.vcPartReplace,a.vcPartNameEn      \n");
                 sql.Append("      ,a.vcPartNameCn,a.vcHKGC,a.vcBJGC,a.vcInOutflag,a.vcSupplier_id,a.vcSupplier_Name,a.vcSCPlace      \n");
                 sql.Append("      ,a.vcCHPlace,a.vcSYTCode,a.vcSCSName,a.vcSCSAdress,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcOE,a.vcHKPart_id      \n");
-                sql.Append("      ,a.vcHaoJiu,a.dJiuBegin,a.dJiuEnd,a.vcJiuYear,a.vcNXQF,a.dSSDateMonth,a.vcMeno,a.vcFXDiff,a.vcFXNo      \n");
+                sql.Append("      ,a.vcHaoJiu,a.dJiuBegin,a.dJiuEnd,a.vcJiuYear,a.vcNXQF,a.dSSDate,a.vcMeno,a.vcFXDiff,a.vcFXNo      \n");
                 sql.Append("      ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcNum11      \n");
-                sql.Append("      ,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15,a.vcZXBZNo,a.vcReceiver,a.vcOriginCompany,a.vcOperator from #TUnit_temp a      \n");
+                sql.Append("      ,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15,a.vcZXBZNo,a.vcReceiver,a.vcOriginCompany,a.vcOperator,a.dOperatorTime      \n");
+                sql.Append("      from #TUnit_temp a          ");
                 sql.Append("      left join TUnit b on a.vcPart_id = b.vcPart_id      \n");
                 sql.Append("      and a.vcSupplier_id=b.vcSupplier_id      \n");
                 sql.Append("      and a.vcSYTCode=b.vcSYTCode      \n");
                 sql.Append("      and a.vcReceiver = b.vcReceiver      \n");
-                sql.Append("      where a.vcPart_id!=b.vcPart_id       \n");
-                sql.Append("      or a.vcSupplier_id!=b.vcSupplier_id      \n");
-                sql.Append("      or a.vcSYTCode!=b.vcSYTCode      \n");
-                sql.Append("      or a.vcReceiver!=b.vcReceiver      \n");
+                sql.Append("      where a.vcPart_id not in (select vcPart_id from TUnit)       \n");
+                sql.Append("      or a.vcSupplier_id not in (select vcSupplier_id from TUnit)      \n");
+                sql.Append("      or a.vcSYTCode not in (select vcSYTCode from TUnit)      \n");
+                sql.Append("      or a.vcReceiver not in (select vcReceiver from TUnit)    ;  \n");
 
                 #endregion
                 if (sql.Length > 0)
@@ -347,31 +360,77 @@ namespace DataAccess
         }
         #endregion
 
-
         #region 生确单发行
-        public void sqSend(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void sqSend(List<Dictionary<string, Object>> listInfoData,string strSqDate, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
+                    //根据 品番、供应商代码、包装工厂、收货方四个主键更新原单位纳期
+                    //vcPart_id,vcSupplier_id,vcSYTCode,vcReceiver
+                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                    string strSYTCode = listInfoData[i]["vcSYTCode"].ToString();
+                    string strReceiver = listInfoData[i]["vcReceiver"].ToString();
+                    string strChange = listInfoData[i]["vcChange"].ToString();
+                    sql.Append("   update TUnit set dNqDate='"+ strSqDate + "' where  vcPart_id='"+ strPart_id + "' and vcSupplier_id='"+ strSupplier_id + "' and vcSYTCode='"+ strSYTCode + "' and vcReceiver='"+ strReceiver + "'    ;   \n ");
+                    //更新生确单
+                    //旧型今后必要数
+                    decimal sumLater = Convert.ToDecimal(listInfoData[i]["vcNum1"]) + Convert.ToDecimal(listInfoData[i]["vcNum2"]) + Convert.ToDecimal(listInfoData[i]["vcNum3"]) + Convert.ToDecimal(listInfoData[i]["vcNum4"]) + Convert.ToDecimal(listInfoData[i]["vcNum5"]) + Convert.ToDecimal(listInfoData[i]["vcNum6"]) + Convert.ToDecimal(listInfoData[i]["vcNum7"]) + Convert.ToDecimal(listInfoData[i]["vcNum8"]) + Convert.ToDecimal(listInfoData[i]["vcNum9"]) + Convert.ToDecimal(listInfoData[i]["vcNum10"]);
+                    if (strChange == "1")//新设
                     {//新增
-                        sql.Append("      INSERT INTO  TUnit       \n");
+                        sql.Append("      INSERT INTO  TSQJD       \n");
                         sql.Append("      (       \n");
-                        sql.Append("      )      \n");
+                        sql.Append("        dSSDate,vcJD,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE,vcSupplier_id,vcFXDiff,vcFXNo        \n");
+                        sql.Append("        ,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcReceiver,dNqDate        \n");
+                        sql.Append("      )       \n");
                         sql.Append("      VALUES      \n");
                         sql.Append("      (      \n");
+                        sql.Append("        '" + listInfoData[i]["dSSDate"] + "',           \n");      //实施日期
+                        sql.Append("        '1',           \n");                                            //进度-初始状态位已联络
+                        sql.Append("        '" + listInfoData[i]["vcPart_id"] + "',           \n");         //品番
+                        sql.Append("        '" + listInfoData[i]["vcSPINo"] + "',           \n");           //设变号
+                        sql.Append("        '" + listInfoData[i]["vcChange"] + "',           \n");          //变更事项
+                        sql.Append("        '" + listInfoData[i]["vcCarTypeDesign "] + "',           \n");  //车种-原单位的车型开发
+                        sql.Append("        '" + listInfoData[i]["vcInOutflag"] + "',           \n");       //内外区分
+                        sql.Append("        '" + listInfoData[i]["vcPartName"] + "',           \n");        //品名
+                        sql.Append("        '" + listInfoData[i]["vcOE"] + "',           \n");              //OE=SP
+                        sql.Append("        '" + listInfoData[i]["vcSupplier_id"] + "',           \n");     //供应商代码
+                        sql.Append("        '" + listInfoData[i]["vcFXDiff"] + "',           \n");          //防锈指示
+                        sql.Append("        '" + listInfoData[i]["vcFXNo"] + "',           \n");            //防锈指示书
+                        sql.Append("        '"+sumLater+"',           \n");            //旧型今后必要数
+                        sql.Append("        '" + listInfoData[i]["vcNum1"] + "',           \n");            //旧型1年
+                        sql.Append("        '" + listInfoData[i]["vcNum2"] + "',           \n");            //旧型2年
+                        sql.Append("        '" + listInfoData[i]["vcNum3"] + "',           \n");            //旧型3年
+                        sql.Append("        '" + listInfoData[i]["vcNum4"] + "',           \n");            //旧型4年
+                        sql.Append("        '" + listInfoData[i]["vcNum5"] + "',           \n");            //旧型5年
+                        sql.Append("        '" + listInfoData[i]["vcNum6"] + "',           \n");            //旧型6年
+                        sql.Append("        '" + listInfoData[i]["vcNum7"] + "',           \n");            //旧型7年
+                        sql.Append("        '" + listInfoData[i]["vcNum8"] + "',           \n");            //旧型8年
+                        sql.Append("        '" + listInfoData[i]["vcNum9"] + "',           \n");            //旧型9年
+                        sql.Append("        '" + listInfoData[i]["vcNum10"] + "',           \n");           //旧型10年
+                        sql.Append("        '" + listInfoData[i]["vcSYTCode"] + "',           \n");         //包装工厂
+                        sql.Append("        '" + listInfoData[i]["vcReceiver"] + "',           \n");        //收货方
+                        sql.Append("        '" + listInfoData[i]["dNqDate"] + "',           \n");           //纳期
                         sql.Append("      );      \n");
                     }
-                    else if (bAddFlag == false && bModFlag == true)
+                    else
                     {//修改
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                        sql.Append("      update TUnit set       \r\n");
-                        sql.Append("      where iAutoId =" + iAutoId + "  ");
+                        #region 生确单发行需要更改的生确进度表
+                        sql.Append("      update TSQJD set           \n");
+                        sql.Append("      dSSDate= '" + listInfoData[i]["dSSDate"] + "',vcChange = '" + listInfoData[i]["vcChange"] + "',vcSPINo = '" + listInfoData[i]["vcSPINo"] + "',vcCarType = '" + listInfoData[i]["vcCarTypeDesign"] + "'          \n");
+                        sql.Append("      ,vcInOutflag = '" + listInfoData[i]["vcInOutflag"] + "',vcPartName = '" + listInfoData[i]["vcPartNameCn"] + "',vcOE = '" + listInfoData[i]["vcOE"] + "',vcSupplier_id = '" + listInfoData[i]["vcSupplier_id"] + "'          \n");
+                        sql.Append("      ,vcFXDiff = '" + listInfoData[i]["vcFXDiff"] + "',vcFXNo = '" + listInfoData[i]["vcFXNo"] + "',vcSumLater = '" + sumLater + "', vcNum1 = '" + listInfoData[i]["vcNum1"] + "'          \n");
+                        sql.Append("      ,vcNum2 = '" + listInfoData[i]["vcNum2"] + "',vcNum3 = '" + listInfoData[i]["vcNum3"] + "',vcNum4 = '" + listInfoData[i]["vcNum4"] + "',vcNum5 = '" + listInfoData[i]["vcNum5"] + "'          \n");
+                        sql.Append("      ,vcNum6 = '" + listInfoData[i]["vcNum6"] + "',vcNum7 = '" + listInfoData[i]["vcNum7"] + "', vcNum8 = '" + listInfoData[i]["vcNum8"] + "',vcNum9 = '" + listInfoData[i]["vcNum9"] + "'          \n");
+                        sql.Append("      ,vcNum10 = '" + listInfoData[i]["vcNum10"] + "',dNqDate = '" + listInfoData[i]["dNqDate"] + "'          \n");
+                        sql.Append("      where vcPart_id = '" + listInfoData[i]["vcPart_id"] + "'          \n");
+                        sql.Append("      and vcSupplier_id = '" + listInfoData[i]["vcSupplier_id"] + "'          \n");
+                        sql.Append("      and vcSYTCode = '" + listInfoData[i]["vcSYTCode"] + "'          \n");
+                        sql.Append("      and vcReceiver = '" + listInfoData[i]["vcReceiver"] + "';          \n");
+                        #endregion
                     }
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
@@ -379,6 +438,65 @@ namespace DataAccess
             catch (Exception ex)
             {
                     throw ex;
+            }
+        }
+        #endregion
+
+        #region 根据Name获取Value或者根据Value获取Name
+        /// <summary>
+        /// 根据Name获取Value或者根据Value获取Name
+        /// </summary>
+        /// <param name="codeId">Codeid</param>
+        /// <param name="strNameOrValue">Name或Value</param>
+        /// <param name="_bool">true:返回Value    false:返回Name</param>
+        /// <returns></returns>
+        public string Name2Value(string codeId, string strNameOrValue)
+        {
+            StringBuilder strSql = new StringBuilder();
+            try
+            {
+                strSql.Append("     select vcValue from TCode     \n");
+                strSql.Append("     where vcCodeid = '" + codeId + "'    \n");
+                strSql.Append("     and vcName = '" + strNameOrValue + "'    \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString()).Rows[0][0].ToString();
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+        #endregion
+
+        #region 按检索条件返回dt
+        public DataTable getSupplierEmail(string strSupplierId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='"+ strSupplierId + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 按检索条件返回dt
+        public DataTable getEmailSetting(string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select vcTitle,vcContent from TMailMessageSetting where vcUserId='"+ strUserId + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

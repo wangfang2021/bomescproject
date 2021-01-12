@@ -429,5 +429,15 @@ namespace Logic
         //{
         //    return dataAccess.PartsChange(fS1208_ViewModel);
         //}
+
+
+        #region 子画面
+        #region 删除
+        public void Del_Order(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            dataAccess.Del_Order(listInfoData, strUserId);
+        }
+        #endregion
+        #endregion
     }
 }

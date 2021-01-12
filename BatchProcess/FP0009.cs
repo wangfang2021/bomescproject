@@ -61,11 +61,12 @@ namespace BatchProcess
                     string strPlant = strname[0];
                     string strCLYM = strname[1];
                     string strTimes = strname[2];
-                    sql.Append("update TNQCStatus set vcStatus='已完成',dWCTime=GETDATE(),vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE() where vcCLYM='" + strCLYM + "' " +
-                        "and vcPlant=replace('" + strPlant + "','TFTM','') and iTimes=" + strTimes + "    \n");
                     sql.Append("delete from TNQCReceiveInfo where Process_Factory='" + strPlant + "' and Process_YYYYMM='" + strCLYM + "' and Process_Cycle_NO=" + strTimes + "   \n");
                     for (int j = 0; j < dt.Rows.Count; j++)
                     {
+                        string ExecuteTime = dt.Rows[j]["ExecuteTime"].ToString();
+                        sql.Append("update TNQCStatus set vcStatus='已完成',dWCTime=nullif('" + ExecuteTime + "',''),vcOperatorID='" + strUserId + "'," +
+                            "dOperatorTime=GETDATE() where vcCLYM='" + strCLYM + "' and vcPlant=replace('" + strPlant + "','TFTM','') and iTimes=" + strTimes + "    \n");
                         #region insert sql
                         sql.Append("INSERT INTO [TNQCReceiveInfo]    \n");
                         sql.Append("           ([Process_YYYYMM]    \n");
@@ -334,6 +335,7 @@ namespace BatchProcess
                     StringBuilder sql = new StringBuilder();
                     sql.Append("select * from NQCSRStatusInfo    \n");
                     sql.Append("where Process_Factory='" + vcPlant + "' and Process_YYYYMM='" + vcCLYM + "' and Process_Cycle_NO=" + iTimes + " and Process_Status='C' \n");
+                    //sql.Append("and Process_Name=''   \n");//按照处理ID来获取，前工程还未确定，暂时空着
                     DataTable dtNQCStatus = NQCSearch(sql.ToString());
                     if (dtNQCStatus.Rows.Count > 0)
                     {//有处理完成的数据

@@ -325,7 +325,7 @@ namespace SPPSApi.Controllers.G03
                                     ,"vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace"
                                     ,"vcSYTCode_Name","vcSCSName","vcSCSAdress","dGYSTimeFrom","dGYSTimeTo"
                                     ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin","dJiuEnd","vcJiuYear"
-                                    ,"vcNXQF","dSSDateMonth","vcMeno","vcFXDiff","vcFXNo","vcNum1"
+                                    ,"vcNXQF","dSSDate","vcMeno","vcFXDiff","vcFXNo","vcNum1"
                                     ,"vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8"
                                     ,"vcNum9","vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                                     ,"vcZXBZNo","vcReceiver_Name","vcOriginCompany_Name"
@@ -376,7 +376,14 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0303_Logic.sqSend(listInfoData, loginInfo.UserId,loginInfo.Email,loginInfo.UserName);
+
+
+                string strSqDate = "";
+                strSqDate = dataForm.dNqDate;
+                
+                string strErr = "";
+
+                fs0303_Logic.sqSend(listInfoData, strSqDate, loginInfo.UserId,loginInfo.Email,loginInfo.UserName,ref strErr);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

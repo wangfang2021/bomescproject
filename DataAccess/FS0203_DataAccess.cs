@@ -187,7 +187,7 @@ namespace DataAccess
                 string FileNameTJ = vcPlant + "_" + "SPRL" + carType;
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime) \r\n");
+                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType) \r\n");
                     sbr.Append(" values ( \r\n");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"].ToString().Trim(), false) + ",");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_new"].ToString().Replace("-", "").Trim(), false) + ",");
@@ -204,7 +204,7 @@ namespace DataAccess
                     sbr.Append("'" + fileName + "',");
                     sbr.Append("'" + FileNameTJ + "',");
                     sbr.Append("'" + userId + "',");
-                    sbr.Append(" GETDATE() ");
+                    sbr.Append(" GETDATE(),'SPRL' as vcType ");
                     sbr.Append(" ) \r\n");
                 }
 

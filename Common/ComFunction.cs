@@ -825,7 +825,7 @@ namespace Common
                 MultiExcute excute = new MultiExcute();
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'  ORDER BY iAutoId    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

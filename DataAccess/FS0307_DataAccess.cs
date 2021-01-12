@@ -172,6 +172,41 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable getFile(List<int> list)
+        {
+            try
+            {
+                string idList = "";
+                foreach (int i in list)
+                {
+                    if (!string.IsNullOrWhiteSpace(idList))
+                    {
+                        idList += ",";
+                    }
+
+                    idList += i.ToString();
+                }
+
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn, a.vcCarTypeDev, a.dJiuBegin,");
+                sbr.AppendLine(" CASE b.vcName WHEN '机能' THEN '1' WHEN '内外装' THEN '2' ELSE '' END AS vcPM, ");
+                sbr.AppendLine("a.vcNum1, a.vcNum2, a.vcNum3, CONVERT(DECIMAL(18, 2), ((CONVERT(DECIMAL(18, 2), ISNULL(a.vcNum1, 0))+CONVERT(DECIMAL(18, 2), ISNULL(a.vcNum2, 0))+CONVERT(DECIMAL(18, 2), ISNULL(a.vcNum3, 0)))/ 3)) AS vcNumAvg, ");
+                sbr.AppendLine(" a.vcNXQF, a.dTimeFrom, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 ");
+                sbr.AppendLine("FROM TOldYearManager a");
+                sbr.AppendLine("     LEFT JOIN(SELECT vcName, vcValue FROM TCode WHERE vcCodeId='C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
+                sbr.AppendLine("WHERE a.iAuto_id IN (" + idList + ");");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+
+        }
+
         //删除
         public void DelApi(List<Dictionary<string, Object>> listInfoData)
         {

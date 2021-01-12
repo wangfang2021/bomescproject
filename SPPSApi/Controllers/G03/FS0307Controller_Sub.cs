@@ -106,7 +106,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody);
+                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody, _webHostEnvironment.ContentRootPath);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

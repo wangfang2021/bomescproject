@@ -20,7 +20,7 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strIsShowAll,string strOriginCompany)
+        public DataTable Search(string strIsShowAll, string strOriginCompany)
         {
             return fs0303_DataAccess.Search(strIsShowAll, strOriginCompany);
         }
@@ -47,20 +47,151 @@ namespace Logic
         }
         #endregion
 
-        #region 生确单发行
-        public void sqSend(List<Dictionary<string, Object>> listInfoData, string strUserId,string strEmail,string strUserName)
+        #region 导入操作-根据Excel中的Name获取对应的Value，并添加到dt中
+        /// <summary>
+        /// 导入操作-根据Excel中的Name获取对应的Value，并添加到dt中
+        /// </summary>
+        /// <param name="dt">Excel表格转换的table</param>
+        /// <param name="lists">表格中需要Name转Value的列集合</param>
+        /// <param name="strErr">错误提示消息</param>
+        /// <returns></returns>
+        public DataTable ConverDT(DataTable dt, List<NameOrValue> lists, ref string strErr)
         {
-            //先更新生确单
-            fs0303_DataAccess.sqSend(listInfoData, strUserId);
-            //再向供应商发邮件
+            try
+            {
+                #region 先在dt中添加新列
+                foreach (var item in lists)
+                {
+                    dt.Columns.Add(item.strHeader + "_Name");
+                }
+                #endregion
 
+                for (int i = 0; i < dt.Rows.Count; i++) //循环table的所有行
+                {
+                    foreach (var item in lists)     //遍历lists
+                    {
 
+                        try
+                        {
+                            #region 获取table中需要name转value的列的name值
+                            string strName = dt.Rows[i][item.strHeader].ToString();
+                            #endregion
 
+                            #region 锁定到对应的列
+                            string strNewColumnsName = item.strHeader + "_Name";
+                            #endregion
 
-            //ComFunction.SendEmailInfo()
+                            //如果name值合法,进行获取value值，赋值value
+                            if (!string.IsNullOrEmpty(strName))
+                            {
+                                #region 获取Name对应的Value值
+                                string value = fs0303_DataAccess.Name2Value(item.strCodeid, strName);
+                                #endregion
 
+                                #region 给dt赋值value
+                                dt.Rows[i][strNewColumnsName] = value;
+                                #endregion
+                            }
+                            //如果Name值不合法，不获取value值，赋值null
+                            else
+                            {
+                                #region 给dt赋值null
+                                dt.Rows[i][strNewColumnsName] = null;
+                                #endregion
+                            }
+                        }
+                        //value获取失败,表示并未找到与其对应的Value值
+                        catch (Exception ex)
+                        {
+                            #region 提示第几行的数据不合法，提示消息赋值给strErr
+                            strErr = "第" + (i + 2) + "行的" + item.strTitle + "填写不合法";
+                            return null;
+                            #endregion
+                        }
+                    }
+                }
+                return dt;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
 
         }
         #endregion
+
+        public class NameOrValue 
+        {
+            /// <summary>
+            /// 列说明
+            /// </summary>
+            public string strTitle { get; set; }
+            /// <summary>
+            /// 列名
+            /// </summary>
+            public string strHeader { get; set; }
+            /// <summary>
+            /// 对应的CodeId
+            /// </summary>
+            public string strCodeid { get; set; }
+        }
+
+        #region 生确单发行
+        public void sqSend(List<Dictionary<string, Object>> listInfoData,string strSqDate, string strUserId,string strEmail,string strUserName,ref string strErr)
+        {
+            //1、更新原单位纳期 2、更新生确单
+            fs0303_DataAccess.sqSend(listInfoData, strSqDate, strUserId);
+
+            DataTable dtSetting=getEmailSetting(strUserId);
+            string strTitle = "";//邮件标题
+            string strContent = "";//邮件内容
+            if (dtSetting == null || dtSetting.Rows.Count == 0)
+            {
+                strErr = "数据发送成功，但用户"+ strUserId + "邮件内容没配置，邮件发送终止！";
+                return;
+            }
+            else
+            {
+                strTitle = dtSetting.Rows[0]["vcTitle"].ToString();
+                strContent = dtSetting.Rows[0]["vcContent"].ToString();
+                var dateTime = Convert.ToDateTime(strSqDate);
+                strSqDate = dateTime.ToString("yyyy年MM月");
+                strContent = strContent.Replace("##yearmonth##", strSqDate);
+                /*这里的年月要尽心特殊处理，发邮件时年月的格式要变成‘YYYY年MM月‘格式*/
+                /*但是生确单发行时的格式是’YYYY-MM‘*/
+            }
+            //再向供应商发邮件
+            StringBuilder strEmailBody = new StringBuilder();
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                DataTable receiverDt = getSupplierEmail(strSupplier_id);
+                ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
+            }
+        }
+        #endregion
+
+        #region 根据供应商获取邮箱地址
+        public DataTable getSupplierEmail(string strSupplierId) {
+            DataTable dt= fs0303_DataAccess.getSupplierEmail(strSupplierId);
+            if (dt == null || dt.Rows.Count == 0)
+                return null;
+            else
+                return dt;
+        }
+        #endregion
+
+        #region 获取发件人的邮件内容配置
+        public DataTable getEmailSetting(string strUserId)
+        {
+            DataTable dt = fs0303_DataAccess.getEmailSetting(strUserId);
+            if (dt == null || dt.Rows.Count == 0)
+                return null;
+            else
+                return dt;
+        }
+        #endregion
+
+
     }
 }

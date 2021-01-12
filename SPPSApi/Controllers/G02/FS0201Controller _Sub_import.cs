@@ -59,11 +59,15 @@ namespace SPPSApi.Controllers.G02
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+
                 string strMsg = "";
 
                 //0 SPI导入
                 if (flag == "0")
                 {
+                    //TODO 存储文件到共享文件夹
+
                     fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
                 }
                 //1 导出导入
@@ -115,7 +119,7 @@ namespace SPPSApi.Controllers.G02
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0105", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0106", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -59,7 +59,7 @@ namespace Logic
                 //检测NG状态
                 if (Check(dt))
                 {
-                    //return false;
+                    return false;
                 }
 
                 dt.Columns.Add("vcCarType");
@@ -1271,7 +1271,12 @@ namespace Logic
                     }
                     int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old));
 
-                    temp[index].vcOldProj = row.GetCell(15 + flag).ToString();
+                    //temp[index].vcOldProj = row.GetCell(15 + flag).ToString();
+                    temp[index].vcOldProj = "";
+                    if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
+                    {
+                        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                    }
                     temp[index].ZSPF = row.GetCell(50 + flag).ToString();
 
                     if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))

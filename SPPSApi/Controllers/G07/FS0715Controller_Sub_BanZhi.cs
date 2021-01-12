@@ -53,11 +53,14 @@ namespace SPPSApi.Controllers.G07
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
              
-                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//包装场
 
-                res.Add("C002", dataList_C002);
-               
+                List<Object> dataList_C041 = ComFunction.convertAllToResult(ComFunction.getTCode("C041"));//班值
 
+                res.Add("C041", dataList_C041);
+
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+
+                res.Add("C023", dataList_C023);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

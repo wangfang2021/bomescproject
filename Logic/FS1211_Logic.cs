@@ -190,14 +190,14 @@ namespace Logic
                     //判断该订单号属于哪个月的计划
                     if (type == "T0")//内制
                     {
-                        cmd.CommandText = " select vcPlanMonth from dbo.tKanbanPrintTbl where vcKBorderno ='" + order + "' and vcPartsNo ='" + partsno + "' and vcDock ='" + dock + "'";
+                        cmd.CommandText = " select vcPlanMonth from tKanbanPrintTbl where vcKBorderno ='" + order + "' and vcPartsNo='" + partsno + "' and vcDock ='" + dock + "'";
                     }
                     else if (type == "T1")//外注
                     {
-                        cmd.CommandText = "   select top(1) vcPlanMonth  from dbo.tKanbanPrintTbl t1";
-                        cmd.CommandText += "  left join (select *from  dbo.tPartInfoMaster where vcInOutFlag ='1') t2";
+                        cmd.CommandText = "   select top(1) vcPlanMonth from tKanbanPrintTbl t1";
+                        cmd.CommandText += "  left join (select * from tPartInfoMaster where vcInOutFlag ='1') t2";
                         cmd.CommandText += "  on SUBSTRING(t1.vcPartsNo,0,11) = SUBSTRING(t2.vcPartsNo,0,11)";
-                        cmd.CommandText += "  where t2.vcPartsNo='" + partsno + "' and t2.vcDock ='" + dock + "' and  t1.vcKBorderno ='" + order + "' and t2.dTimeFrom<= '" + vcMon + "-01" + "' and t2.dTimeTo >= '" + vcMon + "-01" + "' ";
+                        cmd.CommandText += "  where t2.vcPartsNo='" + partsno + "' and t2.vcDock ='" + dock + "' and t1.vcKBorderno ='" + order + "' and t2.dTimeFrom<= '" + vcMon + "-01" + "' and t2.dTimeTo >= '" + vcMon + "-01" + "' ";
                     }
                     DataTable tmp = new DataTable();
                     apt.Fill(tmp);

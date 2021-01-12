@@ -68,7 +68,7 @@ namespace SPPSApi.Controllers.G12
                 string strMsg = "";
                 string[,] headers = new string[,] {{"品番","开始时间","截止时间","受入","品番工场","车型","英文品名","中文品名","秦丰涂装","看板收容数","器具收容数","生产部署","组别","品番频度"},
                                                 {"vcPartsNo","dTimeFrom","dTimeTo","vcDock","vcPartPlant","vcCarFamilyCode","vcPartsNameEN","vcPartsNameCHN","vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcPartFrequence" },
-                                                {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,"","","",FieldCheck.Num,FieldCheck.Num,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char},
+                                                {"",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,"","","",FieldCheck.Num,FieldCheck.Num,"","",""},
                                                 {"14","0","0","50", "50", "0", "0", "0","0", "0" ,"0",  "0","0","0"},//最大长度设定,不校验最大长度用0
                                                 {"1", "1","1","0",  "0",  "0", "0", "0","0", "0", "0",  "0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
@@ -97,9 +97,8 @@ namespace SPPSApi.Controllers.G12
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
-
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPart_id"), r3 = r.Field<string>("dUseBegin"), r4 = r.Field<string>("dUseEnd") } into g
+                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("dTimeFrom"), r4 = r.Field<string>("dTimeTo"), r5 = r.Field<string>("vcDock"), r6 = r.Field<string>("vcPartPlant"), r7 = r.Field<string>("vcCarFamilyCode") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -115,10 +114,18 @@ namespace SPPSApi.Controllers.G12
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                fs1212_Logic.importSave(importDt, loginInfo.UserId);
+                string msg = fs1212_Logic.CheckRepeat_ExcelDBTypeZB(importDt);//检查生产部署和组别
+                if (!string.IsNullOrEmpty(msg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs1212_Logic.ImportStandTime(importDt, loginInfo.UserId);//将Excel的内容导入到数据库中
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
             }
             catch (Exception ex)
             {

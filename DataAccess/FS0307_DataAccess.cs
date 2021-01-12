@@ -213,12 +213,12 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  delete TOldYearManager where iAutoId in(   \r\n ");
+                sql.Append("  delete TOldYearManager where iAuto_id in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)
                         sql.Append(",");
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAuto_id"]);
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");

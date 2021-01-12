@@ -88,8 +88,8 @@ namespace DataAccess
                         }
                         string partId = getPartId(CarType, vcPart_Id, vcNewProj);
                         sbr.Append(" INSERT INTO TUnit  \r\n");
-                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcOperator,dOperatorTime) values\r\n");
-                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设','H','2','" + strUserId + "','" + strUserId + "', GETDATE())  \r\n");
+                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime) values\r\n");
+                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'"+getValue("C006", listInfoData[i]["vcUnit"].ToString()) +"'," + strUserId + "', GETDATE())  \r\n");
                     }
                     else if (change.Equals("2"))//废止
                     {

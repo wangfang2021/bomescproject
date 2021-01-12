@@ -19,9 +19,19 @@ namespace DataAccess
             if (!string.IsNullOrWhiteSpace(filename))
                 sbr.Append(" and isnull(vcFileName,'') LIKE '" + filename.Trim() + "%' \r\n");
             if (!string.IsNullOrWhiteSpace(TimeFrom))
-                sbr.Append(" and dOperatorTime>= '" + TimeFrom + "'  \r\n");
+            {
+                DateTime tf = DateTime.ParseExact(TimeFrom, "yyyy/MM/dd", System.Globalization.CultureInfo.CurrentCulture).AddSeconds(-1);
+
+                sbr.Append(" and dOperatorTime> " + ComFunction.getSqlValue(tf, true) + "  \r\n");
+            }
+
             if (!string.IsNullOrWhiteSpace(TimeTo))
-                sbr.Append(" and dOperatorTime<= '" + TimeTo + "'  \r\n");
+            {
+                DateTime tt = DateTime.ParseExact(TimeTo, "yyyy/MM/dd", System.Globalization.CultureInfo.CurrentCulture).AddDays(1);
+                sbr.Append(" and dOperatorTime<" + ComFunction.getSqlValue(tt, true) + "  \r\n");
+
+            }
+            sbr.Append(" order by dOperatorTime desc \r\n");
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
 
         }

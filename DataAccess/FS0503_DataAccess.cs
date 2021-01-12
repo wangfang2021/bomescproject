@@ -88,6 +88,35 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+
+        /// <summary>
+        /// 通过选中一条数据获取出荷信息
+        /// </summary>
+        /// <param name="strIAutoId"></param>
+        /// <returns></returns>
+        public DataTable SearchByIAutoId(string strIAutoId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select [iAutoId], [dSynchronizationDate], b.vcName as [vcState], [vcPartNo], [dUseStartDate], [vcPartName],   ");
+                strSql.AppendLine("  [vcCarType], [vcOEOrSP], [vcSupplier_id], [vcWorkArea], [dExpectDeliveryDate], [vcExpectIntake],   ");
+                strSql.AppendLine("  [vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],    ");
+                strSql.AppendLine("  [vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,    ");
+                strSql.AppendLine("  [vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],   ");
+                strSql.AppendLine("  [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a   ");
+                strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue  where iAutoId="+ strIAutoId + "   ");
+                
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 承认操作
         /// </summary>
@@ -425,5 +454,56 @@ namespace DataAccess
                 return "'" + obj.ToString() + "'";
         }
         #endregion
+
+        /// <summary>
+        /// 编辑确定按钮
+        /// </summary>
+        /// <param name="listInfo"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public bool editOk(dynamic dataForm, string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                //[vcSupplier_id], [vcWorkArea], [dBeginDate], [dEndDate],, 
+                
+                string iAutoId =  dataForm.iAutoId;
+                string vcIntake = dataForm.vcIntake;
+                string vcBoxMaxIntake =  dataForm.vcBoxMaxIntake;
+                string vcBoxType =  dataForm.vcBoxType;
+                string vcLength =  dataForm.vcLength;
+                string vcWide =  dataForm.vcWide;
+                string vcHeight =  dataForm.vcHeight;
+                string vcEmptyWeight =  dataForm.vcEmptyWeight;
+                string vcUnitNetWeight =  dataForm.vcUnitNetWeight;
+                string vcImageRoutes =  dataForm.vcImageRoutes;
+               
+                strSql.AppendLine("      update [dbo].[THeZiManage]          ");
+                strSql.AppendLine("      set vcIntake='" + vcIntake + "',          ");
+                strSql.AppendLine("      vcBoxMaxIntake='" + vcBoxMaxIntake + "',          ");
+                strSql.AppendLine("      vcBoxType='" + vcBoxType + "',          ");
+                strSql.AppendLine("      vcLength='" + vcLength + "',          ");
+                strSql.AppendLine("      vcWide='" + vcWide + "',          ");
+                strSql.AppendLine("      vcHeight='" + vcHeight + "',          ");
+                strSql.AppendLine("      vcEmptyWeight='" + vcEmptyWeight + "',          ");
+                strSql.AppendLine("      vcUnitNetWeight='" + vcUnitNetWeight + "',          ");
+                strSql.AppendLine("      vcImageRoutes='" + vcImageRoutes + "',          ");
+                strSql.AppendLine("      vcFactoryOperatorID='" + userId + "',          ");
+                strSql.AppendLine("      dFactoryOperatorTime=GETDATE(),          ");
+                strSql.AppendLine("      vcOperatorID='" + userId + "',          ");
+                strSql.AppendLine("      dOperatorTime=GETDATE()           ");
+                strSql.AppendLine("      where iAutoId=" + iAutoId + "        ");
+                strSql.AppendLine("                ");
+
+                return excute.ExcuteSqlWithStringOper(strSql.ToString())>0;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

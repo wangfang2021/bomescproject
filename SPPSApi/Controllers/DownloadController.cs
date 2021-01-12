@@ -176,10 +176,10 @@ namespace SPPSApi.Controllers
                 LoginInfo loginInfo = getLoginByToken(token);
                 //以下开始业务处理
                 var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
-                var extName = filename.Substring(filename.LastIndexOf('.')).Replace("\"", "");// 扩展名
-                string ImageType = ".jpg,.png,.gif,.bmp,.jpeg";
+                var extName = filename.Substring(filename.LastIndexOf('.')+1).Replace("\"", "");// 扩展名
+                string ImageType = "jpg,png,gif,bmp,jpeg";
                 //判断上传格式是否合法
-                if (ImageType.IndexOf(extName.ToLower())<=0)
+                if (!ImageType.Split(",").Contains(extName.ToLower()))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "图片格式必须是jpg|png|gif|bmp|jpeg,请确认上传图片格式!";
@@ -258,6 +258,34 @@ namespace SPPSApi.Controllers
                 hex = "0" + hex;
             }
             return "/" + hex.Substring(0,1) + "/" + hex.Substring(1, 1) + "/" + hex.Substring(2, 1) + "/" + hex.Substring(3, 1) + "/" + hex.Substring(4, 1) + "/" + hex.Substring(5, 1) + "/" + hex.Substring(6, 1) + "/" + hex.Substring(7, 1);
+        }
+        #endregion
+
+        #region 下载-Doc/Export,下载后会自动删除文件
+        [HttpGet]
+        [EnableCors("any")]
+        public IActionResult getImageApi(string path)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar +"Images";//文件临时目录，导入完成后 删除
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                //if (fileInfo.Exists)
+                //    fileInfo.Delete();
+                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                ContentResult result = new ContentResult();
+                result.Content = "<script>alert('导出失败,没有找到要导出的文件！')</script>";
+                result.ContentType = "text/html;charset=utf-8";
+                ComMessage.GetInstance().ProcessMessage("getImage", "M00UE0007", ex, "system");
+                return result;
+            }
         }
         #endregion
     }

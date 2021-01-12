@@ -25,10 +25,48 @@ namespace SPPSApi.Controllers.G04
         }
 
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+
+                List<Object> dataList_C036 = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//月度订单对应状态
+                List<Object> dataList_C037 = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//月度订单合意状态
+ 
+
+                res.Add("C036", dataList_C036);
+                res.Add("C037", dataList_C037);
+ 
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 获取对象年月
         [HttpPost]
         [EnableCors("any")]
-        public string getDxnyApi()
+        public string getYearMonthApi()
         {
 
             string strToken = Request.Headers["X-Token"];
@@ -42,15 +80,15 @@ namespace SPPSApi.Controllers.G04
             
             try
             {
-                DateTime varDxny = DateTime.Now.AddMonths(1);
+                DateTime dNow = DateTime.Now.AddMonths(1);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = varDxny;
+                apiResult.data = dNow;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0104", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -74,15 +112,15 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string varDxny = dataForm.varDxny==null?"": Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
-            string varDyzt = dataForm.varDyzt==null?"": dataForm.varDyzt;
-            string varHyzt = dataForm.varHyzt==null?"": dataForm.varHyzt;
-            string PARTSNO = dataForm.PARTSNO == null ? "" : dataForm.PARTSNO;
+            string strYearMonth = dataForm.YearMonth==null?"": Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strDyState = dataForm.DyState == null?"": dataForm.DyState;
+            string strHyState = dataForm.HyState == null?"": dataForm.HyState;
+            string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
 
 
             try
             {
-                DataTable dt = fs0402_Logic.Search(varDxny, varDyzt, varHyzt, PARTSNO);
+                DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
                 List<Object> dataList = ComFunction.convertAllToResult(dt);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -90,7 +128,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0104", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0202", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -116,14 +154,13 @@ namespace SPPSApi.Controllers.G04
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-                string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
-                string varDyzt = dataForm.varDyzt == null ? "" : dataForm.varDyzt;
-                string varHyzt = dataForm.varHyzt == null ? "" : dataForm.varHyzt;
-                string PARTSNO = dataForm.PARTSNO == null ? "" : dataForm.PARTSNO;
+                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+                string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
+                string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
+                string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
 
-                int count=fs0402_Logic.Cr(varDxny, varDyzt, varHyzt, PARTSNO);
+                int count=fs0402_Logic.Cr(strYearMonth, strDyState, strHyState, strPart_id);
 
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = count;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -131,9 +168,57 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
+            string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
+            string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+
+            try
+            {
+                DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
+                string[] fields = { "vcYearMonth", "vcDyState_Name", "vcHyState_Name", "vcPart_id", "iCbSOQN", "decCbBdl"
+                ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","iHySOQN","iHySOQN1","iHySOQN2"
+                ,"dHyTime"
+                };
+                string filepath = fs0402_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0402_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0205", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -36,40 +36,6 @@ namespace SPPSApi.Controllers.G12
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 页面初始化
-        [HttpPost]
-        [EnableCors("any")]
-        public string pageloadApi()
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                Dictionary<string, Object> res = new Dictionary<string, Object>();
-                FS1209_Logic logic_1 = new FS1209_Logic();
-                string[] userPorType = null;
-                List<Object> dataList_PorType = ComFunction.convertAllToResult(logic_1.dllPorType(loginInfo.UserId, ref userPorType));
-                res.Add("PorTypeSource", dataList_PorType);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "初始化失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
         #region 检索
         [HttpPost]
         [EnableCors("any")]

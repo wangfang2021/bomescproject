@@ -5,7 +5,7 @@ using System.Text;
 using System.Data;
 using DataAccess;
 using System.Collections;
-
+using Newtonsoft.Json.Linq;
 
 namespace Logic
 {
@@ -66,6 +66,16 @@ namespace Logic
         public void weaveHandle(List<Dictionary<string, object>> listInfoData, string userId)
         {
             fs0503_DataAccess.weaveHandle(listInfoData, userId);
+        }
+
+        public DataTable SearchByIAutoId(string strIAutoId)
+        {
+            return fs0503_DataAccess.SearchByIAutoId(strIAutoId); 
+        }
+
+        public bool editOk(dynamic dataForm, string userId)
+        {
+            return fs0503_DataAccess.editOk(dataForm, userId);
         }
     }
 }

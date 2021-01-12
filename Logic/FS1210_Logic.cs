@@ -1,17 +1,4 @@
-﻿/*******************************************************************
-* 	项目名称			:	TPCS								   	
-* 	模块名称			:	看板再发行					
-* 	创建者			    :	GAOLEI								
-* 	创建日期			:	2020/09/7							
-* 	类名			    :	FS1210_Logic					    
-* 	修改者			    :						
-* 	修改时间			:						
-* 	修改内容			:											
-* 					
-* 	(C)2020-TJQM INFORMATION TECHNOLOGY CO.,LTD All Rights Reserved.
-*******************************************************************/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;

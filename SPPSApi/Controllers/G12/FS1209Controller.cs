@@ -135,7 +135,7 @@ namespace SPPSApi.Controllers.G12
         [HttpPost]
         [EnableCors("any")]
         //public string BtnPrintAll(DataTable dt, string vcType, string printerName)
-        public string BtnPrintAll([FromBody] dynamic data)
+        public string printdataApi([FromBody] dynamic data)
         {
             //if (null == dt || null == vcType || null == printerName)
             //{
@@ -174,7 +174,7 @@ namespace SPPSApi.Controllers.G12
             //}
             //else
             //{
-            //    throw new Exception("请求数据格式错误");
+            //    throw new Exception("请求数据格式错误"); 
             //}
 
 

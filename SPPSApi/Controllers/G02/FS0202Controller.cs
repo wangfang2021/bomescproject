@@ -44,7 +44,6 @@ namespace SPPSApi.Controllers.G02
             string filename = dataForm.filename == null ? "" : dataForm.filename;
             string TimeFrom = dataForm.timeFrom == null ? "" : dataForm.timeFrom;
             string TimeTo = dataForm.timeTo == null ? "" : dataForm.timeTo;
-
             try
             {
                 DataTable dt = fs0202_logic.searchHistory(filename, TimeFrom, TimeTo);

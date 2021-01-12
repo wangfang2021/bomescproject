@@ -446,7 +446,7 @@ namespace DataAccess
             strSQL.AppendLine("      ,[vcBanZhi01] as vcBanZhi01");
             strSQL.AppendLine("      ,[vcBanZhi02] as vcBanZhi02");
             strSQL.AppendLine("      ,[vcBanZhi03] as vcBanZhi03");
-            strSQL.AppendLine("      ,[vcBanZhi04] as vcBanZhi04,'' as iFlag");
+            strSQL.AppendLine("      ,[vcBanZhi04] as vcBanZhi04,'' as iFlag, '0' as vcModFlag,'0' as vcAddFlag,iAutoId");
             strSQL.AppendLine("  FROM [tKanbanPrintTblExcep]");
             dt = getDataTableBySql(strSQL.ToString());
             return dt;
@@ -463,7 +463,8 @@ namespace DataAccess
                 cmd.Connection = connection;
                 cmd.Transaction = trans;
 
-                DataRow[] rows = dt.Select("iFlag='insert' or iFlag='update' or iFlag='delete'");
+                //DataRow[] rows = dt.Select("iFlag='insert' or iFlag='update' or iFlag='delete'");
+                DataRow[] rows = dt.Select("1=1");
                 string vcDateTime = System.DateTime.Now.ToString();
                 try
                 {
@@ -491,9 +492,9 @@ namespace DataAccess
                         string vcBanZhi03 = rowdselect["vcBanZhi03"].ToString();
                         string vcBanZhi04 = rowdselect["vcBanZhi04"].ToString();
                         string vcPrintflag = "";
-                        string flag = rowdselect["iFlag"].ToString();
-                        if (flag == "insert")
-                        {
+                        //string flag = rowdselect["iFlag"].ToString();
+                        //if (flag == "insert")
+                        //{
                             strSqlIn += "INSERT INTO [tKanbanPrintTblExcep]";
                             strSqlIn += "           ([vcPartsNo]";
                             strSqlIn += "           ,[vcDock]";
@@ -540,38 +541,38 @@ namespace DataAccess
                             strSqlIn += "            ,'" + useid + "'";
                             strSqlIn += "            ,getdate()";
                             strSqlIn += "            ,'" + useid + "')";
-                        }
-                        else
-                            if (flag == "update")
-                        {
-                            strSqlUp += "UPDATE [tKanbanPrintTblExcep]";
-                            strSqlUp += "   SET [vcQuantityPerContainer] ='" + vcQuantityPerContainer + "'";
-                            strSqlUp += "      ,[vcPorType] ='" + vcPorType + "'";
-                            strSqlUp += "      ,[vcCarType] ='" + vcCarType + "'";
-                            strSqlUp += "      ,[vcEDflag] ='" + vcEDflag + "'";
-                            strSqlUp += "      ,[vcTips] ='" + vcTips + "'";
-                            strSqlUp += "      ,[vcComDate01] ='" + vcComDate01 + "'";
-                            strSqlUp += "      ,[vcComDate02] ='" + vcComDate02 + "'";
-                            strSqlUp += "      ,[vcComDate03] ='" + vcComDate03 + "'";
-                            strSqlUp += "      ,[vcComDate04] ='" + vcComDate04 + "'";
-                            strSqlUp += "      ,[vcBanZhi01] ='" + vcBanZhi01 + "'";
-                            strSqlUp += "      ,[vcBanZhi02] ='" + vcBanZhi02 + "'";
-                            strSqlUp += "      ,[vcBanZhi03] ='" + vcBanZhi03 + "'";
-                            strSqlUp += "      ,[vcBanZhi04] ='" + vcBanZhi04 + "'";
-                            strSqlUp += "      ,[dUpdateTime] =getdate()";
-                            strSqlUp += "      ,[vcUpdater] = '" + useid + "'";
-                            strSqlUp += "WHERE [vcPartsNo] ='" + vcPartsNo + "'";
-                            strSqlUp += "      AND [vcDock] ='" + vcDock + "'";
-                            strSqlUp += "      AND [vcKBorderno] ='" + vcKBorderno + "'";
-                            strSqlUp += "      AND [vcKBSerial] ='" + vcKBSerial + "'";
-                            strSqlUp += "";
-                        }
-                        else
-                                if (flag == "delete")
-                        {
-                            strSqlDe += "DELETE FROM [tKanbanPrintTblExcep]";
-                            strSqlDe += "       WHERE  [vcPartsNo]='" + vcPartsNo + "' AND  [vcDock]='" + vcDock + "' AND [vcKBorderno]='" + vcKBorderno + "' AND [vcKBSerial]='" + vcKBSerial + "'";
-                        }
+                        //}
+                        //else
+                        //    if (flag == "update")
+                        //{
+                        //    strSqlUp += "UPDATE [tKanbanPrintTblExcep]";
+                        //    strSqlUp += "   SET [vcQuantityPerContainer] ='" + vcQuantityPerContainer + "'";
+                        //    strSqlUp += "      ,[vcPorType] ='" + vcPorType + "'";
+                        //    strSqlUp += "      ,[vcCarType] ='" + vcCarType + "'";
+                        //    strSqlUp += "      ,[vcEDflag] ='" + vcEDflag + "'";
+                        //    strSqlUp += "      ,[vcTips] ='" + vcTips + "'";
+                        //    strSqlUp += "      ,[vcComDate01] ='" + vcComDate01 + "'";
+                        //    strSqlUp += "      ,[vcComDate02] ='" + vcComDate02 + "'";
+                        //    strSqlUp += "      ,[vcComDate03] ='" + vcComDate03 + "'";
+                        //    strSqlUp += "      ,[vcComDate04] ='" + vcComDate04 + "'";
+                        //    strSqlUp += "      ,[vcBanZhi01] ='" + vcBanZhi01 + "'";
+                        //    strSqlUp += "      ,[vcBanZhi02] ='" + vcBanZhi02 + "'";
+                        //    strSqlUp += "      ,[vcBanZhi03] ='" + vcBanZhi03 + "'";
+                        //    strSqlUp += "      ,[vcBanZhi04] ='" + vcBanZhi04 + "'";
+                        //    strSqlUp += "      ,[dUpdateTime] =getdate()";
+                        //    strSqlUp += "      ,[vcUpdater] = '" + useid + "'";
+                        //    strSqlUp += "WHERE [vcPartsNo] ='" + vcPartsNo + "'";
+                        //    strSqlUp += "      AND [vcDock] ='" + vcDock + "'";
+                        //    strSqlUp += "      AND [vcKBorderno] ='" + vcKBorderno + "'";
+                        //    strSqlUp += "      AND [vcKBSerial] ='" + vcKBSerial + "'";
+                        //    strSqlUp += "";
+                        //}
+                        //else
+                        //        if (flag == "delete")
+                        //{
+                        //    strSqlDe += "DELETE FROM [tKanbanPrintTblExcep]";
+                        //    strSqlDe += "       WHERE  [vcPartsNo]='" + vcPartsNo + "' AND  [vcDock]='" + vcDock + "' AND [vcKBorderno]='" + vcKBorderno + "' AND [vcKBSerial]='" + vcKBSerial + "'";
+                        //}
                         if (strSqlIn != "")
                         {
                             cmd.CommandText = strSqlIn;
@@ -607,7 +608,8 @@ namespace DataAccess
         public bool partChongFu(DataTable dt)
         {
             StringBuilder strSQL = new StringBuilder();
-            DataRow[] rows = dt.Select("iFlag='insert'");
+            //DataRow[] rows = dt.Select("iFlag='insert'");
+            DataRow[] rows = dt.Select("1=1");
             if (rows.Length != 0)
             {
                 string partfrom = "";
@@ -615,17 +617,14 @@ namespace DataAccess
                 for (int i = 0; i < rows.Length; i++)
                 {
                     DataRow rowdelete = rows[i];
-                    if (rowdelete["iFlag"].ToString() == "insert")
+                    partfrom += rowdelete["vcPartsNo"].ToString() + rowdelete["vcDock"].ToString() + rowdelete["vcKBorderno"].ToString() + rowdelete["vcKBSerial"].ToString();
+                    if (i < rows.Length - 1)
                     {
-                        partfrom += rowdelete["vcPartsNo"].ToString() + rowdelete["vcDock"].ToString() + rowdelete["vcKBorderno"].ToString() + rowdelete["vcKBSerial"].ToString();
-                        if (i < rows.Length - 1)
-                        {
-                            partfrom += "','";
-                        }
-                        else
-                        {
-                            partfrom += "'";
-                        }
+                        partfrom += "','";
+                    }
+                    else
+                    {
+                        partfrom += "'";
                     }
                 }
                 strSQL.AppendLine("SELECT top(1) *  FROM [tKanbanPrintTblExcep] where [vcPartsNo]+[vcDock]+[vcKBorderno]+[vcKBSerial] in (" + partfrom + ")");
@@ -958,7 +957,7 @@ namespace DataAccess
             strSQL.AppendLine("       MAX(vcKBSerial) as maxal,");
             strSQL.AppendLine("       MIN(vcKBSerial) as minal from [testprinterExcel1] where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "'");
             strSQL.AppendLine("       group by vcpartsNo,vcCarFamlyCode,vcPartsNameCHN,vcPCB01");
-            strSQL.AppendLine("       )a order by vcKBSerial");
+            strSQL.AppendLine("       ) a order by vcKBSerial");
 
             strSQL.AppendLine("select B.vcPCB01,B.meishu AS meishu, B.minal+'-'+B.maxal AS vcKBSerial,ROW_NUMBER() over(order by  minal) as aaa  FROM ");
             strSQL.AppendLine("       (select vcPCB01, ");
@@ -966,7 +965,7 @@ namespace DataAccess
             strSQL.AppendLine("              MAX(vcKBSerial) as maxal, ");
             strSQL.AppendLine("              MIN(vcKBSerial) as minal ");
             strSQL.AppendLine("         from [testprinterExcel1]  where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "'");
-            strSQL.AppendLine("              group by vcPCB01 )B");
+            strSQL.AppendLine("              group by vcPCB01 ) B");
             strSQL.AppendLine("       UNION all");
             strSQL.AppendLine("       (");
             strSQL.AppendLine("select '合计' as vcPCB01,B.meishu AS meishu, B.minal+'-'+B.maxal AS vcKBSerial,''  FROM ");
@@ -975,7 +974,7 @@ namespace DataAccess
             strSQL.AppendLine("              MAX(vcKBSerial) as maxal, ");
             strSQL.AppendLine("              MIN(vcKBSerial) as minal   ");
             strSQL.AppendLine("         from [testprinterExcel1]   where vcKBorderno='" + vcorderno + "' and vcPorType='" + vcPorType + "' and vcPCB02='" + vcComDate01 + "' and vcPCB03='" + vcBanZhi01 + "' ");
-            strSQL.AppendLine("              )B  )");
+            strSQL.AppendLine("              ) B  )");
             return excute.ExcuteSqlWithSelectToDS(strSQL.ToString());
         }
 
@@ -1023,5 +1022,29 @@ namespace DataAccess
             dtReturn = getDataTableBySql(strSQL.ToString());
             return dtReturn;
         }
+
+        #region 删除（特殊打印录入）
+        public void Del(List<Dictionary<string, Object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM tKanbanPrintTblExcep where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

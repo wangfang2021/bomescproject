@@ -49,8 +49,10 @@ namespace SPPSApi.Controllers.G12
                 List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.dllPorPlant());
                 string[] userPorType = null;
                 List<Object> dataList_PorTypeSource = ComFunction.convertAllToResult(logic.dllPorType(loginInfo.UserId,ref userPorType));
+                string printerName = logic.PrintMess(loginInfo.UserId);
                 res.Add("dataList_PlantSource", dataList_PlantSource);
                 res.Add("dataList_PorTypeSource", dataList_PorTypeSource);
+                res.Add("printerName", printerName);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -126,6 +128,80 @@ namespace SPPSApi.Controllers.G12
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
+        }
+        #endregion
+
+        #region 打印
+        [HttpPost]
+        [EnableCors("any")]
+        //public string BtnPrintAll(DataTable dt, string vcType, string printerName)
+        public string BtnPrintAll([FromBody] dynamic data)
+        {
+            //if (null == dt || null == vcType || null == printerName)
+            //{
+            //    throw new Exception("参数不能为空");
+            //}
+            //if (ModelState.IsValid)
+            //{
+            //    if (dt.Rows.Count == 0)
+            //    {
+            //        throw new Exception("无检索数据,无法打印");
+            //    }
+            //    FS1209_Logic fS1209_Logic = new FS1209_Logic();
+            //    string userid = LoginInfo.;
+            //    DataTable dtPorType = new DataTable();
+            //    //if (ActionContext.Request.Properties.ContainsKey("userId") && ActionContext.Request.Properties["userId"] != null)
+            //    //{
+            //    //    userid = ActionContext.Request.Properties["userId"].ToString();
+            //    //}
+            //    //else
+            //    //{
+            //    //    userid = "admin";
+            //    //}
+            //    try
+            //    {
+            //        fS1209_Logic.BtnPrintAll(dt, vcType, printerName, userid, ref dtPorType);
+            //    }
+            //    catch (System.Exception e)
+            //    {
+            //        for (int i = 0; i < dtPorType.Rows.Count; i++)
+            //        {
+            //            fS1209_Logic.DeleteprinterCREX(dtPorType.Rows[i]["vcPorType"].ToString(), dtPorType.Rows[i]["vcorderno"].ToString(), dtPorType.Rows[i]["vcComDate01"].ToString(), dtPorType.Rows[i]["vcBanZhi01"].ToString());
+            //        }
+            //        throw new Exception("看板打印异常:" + e.Message);
+            //    }
+            //    return "打印成功";
+            //}
+            //else
+            //{
+            //    throw new Exception("请求数据格式错误");
+            //}
+
+
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+
         }
         #endregion
     }

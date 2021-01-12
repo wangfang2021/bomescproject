@@ -1786,12 +1786,12 @@ namespace Logic
         {
             try
             {
-                DataRow[] rowceck = dt.Select("iFlag='insert' or iFlag='delete'");
-                if (rowceck.Length == 0)
-                {
-                    return "不存在更新数据!";
-                }
-                DataRow[] row = dt.Select("iFlag='insert' or iFlag='update'");
+                //DataRow[] rowceck = dt.Select("iFlag='insert' or iFlag='delete'");
+                //if (rowceck.Length == 0)
+                //{
+                //    return "不存在更新数据!";
+                //}
+                DataRow[] row = dt.Select("1=1");
                 if (row.Length != 0)
                 {
                     for (int i = 0; i < row.Length; i++)
@@ -1814,7 +1814,7 @@ namespace Logic
                     else
                     {
                         bool ruturn = dataAccess.InUpdeOldData(dt, "");
-                        return  "更新数据库成功！";
+                        return  "";
                     }
                 }
                 else
@@ -1827,5 +1827,12 @@ namespace Logic
                 throw ex;
             }
         }
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData)
+        {
+            dataAccess.Del(listInfoData);
+        }
+        #endregion
     }
 }

@@ -88,8 +88,8 @@ namespace DataAccess
                         }
                         string partId = getPartId(CarType, vcPart_Id, vcNewProj);
                         sbr.Append(" INSERT INTO TUnit  \r\n");
-                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcOperator,dOperatorTime) values\r\n");
-                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设','H','2','" + strUserId + "','" + strUserId + "', GETDATE())  \r\n");
+                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcSYTCode,vcReceiver,vcOperator,dOperatorTime) values\r\n");
+                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'"+getValue("C006", listInfoData[i]["vcUnit"].ToString()) +"','','','" + strUserId + "', GETDATE())  \r\n");
                     }
                     else if (change.Equals("2"))//废止
                     {
@@ -98,7 +98,7 @@ namespace DataAccess
                         sbr.Append(" a.dSyncTime = NULL, \r\n");
                         sbr.Append(" a.dJiuEnd = b.vcStartYearMonth, \r\n");
                         sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
-                        sbr.Append(" a.vcMeno = vcMeno+'废止;', \r\n");
+                        sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'废止;', \r\n");
                         sbr.Append(" a.vcSQState = '0', \r\n");
                         sbr.Append(" a.vcDiff = '4', \r\n");
                         sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
@@ -120,7 +120,7 @@ namespace DataAccess
                         sbr.Append(" a.dSyncTime = NULL, \r\n");
                         sbr.Append(" a.vcHaoJiu = 'Q', \r\n");
                         sbr.Append(" a.dJiuBegin = b.vcStartYearMonth,  \r\n");
-                        sbr.Append(" a.vcMeno = vcMeno+'旧型;' , \r\n");
+                        sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'旧型;' , \r\n");
                         sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                         sbr.Append(" a.vcDiff = '9', \r\n");
                         sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
@@ -144,7 +144,7 @@ namespace DataAccess
                         sbr.Append(" a.dSyncTime = NULL, \r\n");
                         sbr.Append(" a.vcHaoJiu = 'H', \r\n");
                         sbr.Append(" a.dJiuEnd = b.vcStartYearMonth, \r\n");
-                        sbr.Append(" a.vcMeno = vcMeno+'旧型恢复现号;' , \r\n");
+                        sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'旧型恢复现号;' , \r\n");
                         sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                         sbr.Append(" a.vcDiff = '1', \r\n");
                         sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");
@@ -172,7 +172,7 @@ namespace DataAccess
                         sbr.Append(" a.dTimeFrom = b.vcStartYearMonth, \r\n");
                         sbr.Append(" a.dTimeTo = CONVERT(DATE,'99991231'), \r\n");
                         sbr.Append(" a.vcHaoJiu = 'H', \r\n");
-                        sbr.Append(" a.vcMeno = vcMeno+'复活;' , \r\n");
+                        sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'复活;' , \r\n");
                         sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                         sbr.Append(" a.vcDiff = '2', \r\n");
                         sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");

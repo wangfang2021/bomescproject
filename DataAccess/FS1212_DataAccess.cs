@@ -810,6 +810,11 @@ namespace DataAccess
         {
             try
             {
+
+
+
+
+
                 //StringBuilder sql = new StringBuilder();
                 //for (int i = 0; i < dt.Rows.Count; i++)
                 //{
@@ -849,6 +854,165 @@ namespace DataAccess
             }
         }
         #endregion
-    }
 
+        #region 检查生产部署和组别
+        /// <summary>
+        /// 检查生产部署和组别
+        /// </summary>
+        /// <param name="InputFile"></param>
+        /// <returns></returns>
+        public string CheckRepeat_ExcelDBTypeZB(DataTable dt)
+        {
+            int count = dt.Rows.Count;
+            StringBuilder strSQL = new StringBuilder();
+            dt.Columns[0].ColumnName = "vcPartsNo";
+            dt.Columns[1].ColumnName = "dTimeFrom";//20180908增加起止时间 - 李兴旺
+            dt.Columns[2].ColumnName = "dTimeTo";//20180908增加起止时间 - 李兴旺
+            dt.Columns[3].ColumnName = "vcDock";
+            dt.Columns[4].ColumnName = "vcPartPlant";
+            dt.Columns[5].ColumnName = "vcCarFamilyCode";
+            dt.Columns[6].ColumnName = "vcPartsNameEN";
+            dt.Columns[7].ColumnName = "vcPartsNameCHN";
+            dt.Columns[8].ColumnName = "vcQFflag";
+            dt.Columns[9].ColumnName = "iQuantityPerContainer";
+            dt.Columns[10].ColumnName = "vcQJcontainer";
+            dt.Columns[11].ColumnName = "vcPorType";
+            dt.Columns[12].ColumnName = "vcZB";
+            dt.Columns[13].ColumnName = "vcPartFrequence";//20180908增加品番频度 - 李兴旺
+            //dt.Columns.Remove("vcPartsNameEN");
+            //dt.Columns.Remove("vcPartsNameCHN");
+            //dt.Columns.Remove("iQuantityPerContainer");
+
+            DataTable dtt = dt.Clone();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                strSQL.AppendLine("select vcData1,vcData3 from ConstMst where vcDataId='ProType' and vcData1='" + dt.Rows[i]["vcPorType"].ToString() + "' and vcData3='" + dt.Rows[i]["vcZB"].ToString() + "' order by vcData1,vcData3");
+                DataTable ds = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
+                if (ds.Rows.Count == 0)
+                {
+                    return "Excel数据中存在生产部署、组别未在数据库中维护的数据";
+                }
+            }
+            return "";
+        }
+        #endregion
+
+        #region 将Excel的内容导入到数据库中
+        /// <summary>
+        /// 将Excel的内容导入到数据库中
+        /// </summary>
+        /// <param name="InputFile">导入Html控件</param>
+        /// <param name="vcCreaterId">创建者ID</param>
+        public int ImportStandTime(DataTable dt, string vcCreaterId)
+        {
+            try
+            {
+                int count = dt.Rows.Count;
+                dt.Columns[0].ColumnName = "vcPartsNo";
+                dt.Columns[1].ColumnName = "dTimeFrom";//20180908增加起止时间 - 李兴旺
+                dt.Columns[2].ColumnName = "dTimeTo";//20180908增加起止时间 - 李兴旺
+                dt.Columns[3].ColumnName = "vcDock";
+                dt.Columns[4].ColumnName = "vcPartPlant";
+                dt.Columns[5].ColumnName = "vcCarFamilyCode";
+                dt.Columns[6].ColumnName = "vcPartsNameEN";
+                dt.Columns[7].ColumnName = "vcPartsNameCHN";
+                dt.Columns[8].ColumnName = "vcQFflag";
+                dt.Columns[9].ColumnName = "iQuantityPerContainer";
+                dt.Columns[10].ColumnName = "vcQJcontainer";
+                dt.Columns[11].ColumnName = "vcPorType";
+                dt.Columns[12].ColumnName = "vcZB";
+                dt.Columns[13].ColumnName = "vcPartFrequence";//20180908增加品番频度 - 李兴旺
+                dt.Columns.Remove("vcPartsNameEN");
+                dt.Columns.Remove("vcPartsNameCHN");
+                dt.Columns.Remove("iQuantityPerContainer");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcQFflag"].ToString() == "○")
+                    {
+                        dt.Rows[i]["vcQFflag"] = "1";
+                    }
+                    if (dt.Rows[i]["vcQFflag"].ToString() == "×")
+                    {
+                        dt.Rows[i]["vcQFflag"] = "2";
+                    }
+                    if (dt.Rows[i]["vcPartPlant"].ToString() == "#1")
+                    {
+                        dt.Rows[i]["vcPartPlant"] = "1";
+                    }
+                    if (dt.Rows[i]["vcPartPlant"].ToString() == "#2")
+                    {
+                        dt.Rows[i]["vcPartPlant"] = "2";
+                    }
+                    if (dt.Rows[i]["vcPartPlant"].ToString() == "#3")
+                    {
+                        dt.Rows[i]["vcPartPlant"] = "3";
+                    }
+                    if (dt.Rows[i]["vcPartPlant"].ToString() == "#4")
+                    {
+                        dt.Rows[i]["vcPartPlant"] = "4";
+                    }
+                }
+                SqlTransaction tran = null;
+                using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
+                {
+                    try
+                    {
+                        conn.Open();
+                        SqlCommand cmd = new SqlCommand();
+                        cmd.Connection = conn;
+                        cmd.Transaction = tran = conn.BeginTransaction();
+                        //事务
+                        for (int j = 0; j < dt.Rows.Count; j++)
+                        {
+                            DoTransactionOfInsert(cmd, dt.Rows[j], vcCreaterId);//按照行来更新数据
+                        }
+                        tran.Commit();
+                        return 11;
+                    }
+                    catch (Exception ex)
+                    {
+                        //回滚
+                        tran.Rollback();
+                        throw ex;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 更新数据事务
+        /// <summary>
+        /// 更新数据事务2012-6-10
+        /// </summary>
+        /// <param name="cmd">SQL类</param>
+        /// <param name="dr">数据行</param>
+        /// <param name="vcCreater">创建人</param>
+        private void DoTransactionOfInsert(SqlCommand cmd, DataRow dr, string useid)
+        {
+            #region SQL
+            string strSql = "";
+            //UP数据
+            //UP数据
+            strSql += "UPDATE [tPartInfoMaster]";
+            strSql += "   SET [vcCarFamilyCode] = '" + dr["vcCarFamilyCode"].ToString() + "'";
+            strSql += "      ,[vcQFflag] = '" + dr["vcQFflag"].ToString() + "'";
+            strSql += "      ,[vcQJcontainer] = '" + dr["vcQJcontainer"].ToString() + "'";
+            strSql += "      ,[vcPorType] = '" + dr["vcPorType"].ToString() + "'";
+            strSql += "      ,[vcZB] = '" + dr["vcZB"].ToString() + "'";
+            strSql += "      ,[dUpdataTime] = getdate()";
+            strSql += "      ,[vcUpdataUser] = '" + useid + "'";
+            strSql += "      ,[vcPartPlant] = '" + dr["vcPartPlant"].ToString() + "'";
+            strSql += "      ,[vcPartFrequence] = '" + dr["vcPartFrequence"].ToString().Trim() + "'";//20180908增加品番频度 - 李兴旺
+            strSql += " WHERE  [vcPartsNo]='" + dr["vcPartsNo"].ToString() + "' AND  [vcDock]='" + dr["vcDock"].ToString() + "'";
+            // 执行SQL
+            cmd.CommandText = strSql;
+            cmd.ExecuteNonQuery();
+            #endregion
+        }
+        #endregion
+    }
 }

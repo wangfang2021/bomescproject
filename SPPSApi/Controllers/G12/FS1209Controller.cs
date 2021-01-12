@@ -137,47 +137,6 @@ namespace SPPSApi.Controllers.G12
         //public string BtnPrintAll(DataTable dt, string vcType, string printerName)
         public string printdataApi([FromBody] dynamic data)
         {
-            //if (null == dt || null == vcType || null == printerName)
-            //{
-            //    throw new Exception("参数不能为空");
-            //}
-            //if (ModelState.IsValid)
-            //{
-            //    if (dt.Rows.Count == 0)
-            //    {
-            //        throw new Exception("无检索数据,无法打印");
-            //    }
-            //    FS1209_Logic fS1209_Logic = new FS1209_Logic();
-            //    string userid = LoginInfo.;
-            //    DataTable dtPorType = new DataTable();
-            //    //if (ActionContext.Request.Properties.ContainsKey("userId") && ActionContext.Request.Properties["userId"] != null)
-            //    //{
-            //    //    userid = ActionContext.Request.Properties["userId"].ToString();
-            //    //}
-            //    //else
-            //    //{
-            //    //    userid = "admin";
-            //    //}
-            //    try
-            //    {
-            //        fS1209_Logic.BtnPrintAll(dt, vcType, printerName, userid, ref dtPorType);
-            //    }
-            //    catch (System.Exception e)
-            //    {
-            //        for (int i = 0; i < dtPorType.Rows.Count; i++)
-            //        {
-            //            fS1209_Logic.DeleteprinterCREX(dtPorType.Rows[i]["vcPorType"].ToString(), dtPorType.Rows[i]["vcorderno"].ToString(), dtPorType.Rows[i]["vcComDate01"].ToString(), dtPorType.Rows[i]["vcBanZhi01"].ToString());
-            //        }
-            //        throw new Exception("看板打印异常:" + e.Message);
-            //    }
-            //    return "打印成功";
-            //}
-            //else
-            //{
-            //    throw new Exception("请求数据格式错误"); 
-            //}
-
-
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
@@ -188,10 +147,76 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcType = dataForm.vcType;
+            string vcPrintPartNo = dataForm.vcPrintPartNo;
+            string vcLianFan = dataForm.vcLianFan;
+            string vcPorPlant = dataForm.vcPorPlant;
+            string vcKbOrderId = dataForm.vcKbOrderId;
+            string vcPorType = dataForm.vcPorType;    
+            string printerName = dataForm.printerName;
+            vcType = vcType == null ? "" : vcType;
+            vcPrintPartNo = vcPrintPartNo == null ? "" : vcPrintPartNo;
+            vcLianFan = vcLianFan == null ? "" : vcLianFan;
+            vcPorPlant = vcPorPlant == null ? "" : vcPorPlant;
+            vcKbOrderId = vcKbOrderId == null ? "" : vcKbOrderId;
+            vcPorType = vcPorType == null ? "" : vcPorType;
+            printerName = printerName == null ? "" : printerName;
             try
             {
+                string[] userPorType = null;
+                DataTable dtportype = logic.dllPorType(loginInfo.UserId, ref userPorType);
+                if ("PP".Equals(vcPorType))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有生产部署权限，检索无数据";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable printTable;
+                if (vcType == "3")
+                {
+                    printTable = logic.searchPrint(vcPrintPartNo, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
+                }
+                else
+                {
+                    printTable = logic.searchPrint(vcPrintPartNo, vcType, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
+                }
+                if (null == printTable || null == vcType || null == printerName)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "参数不能为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (printTable.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无检索数据,无法打印";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //FS1209_Logic fS1209_Logic = new FS1209_Logic();
+                string userid = loginInfo.UserId;
+                DataTable dtPorType = new DataTable();
+                //if (ActionContext.Request.Properties.ContainsKey("userId") && ActionContext.Request.Properties["userId"] != null)
+                //{
+                //    userid = ActionContext.Request.Properties["userId"].ToString();
+                //}
+                //else
+                //{
+                //    userid = "admin";
+                //}
+                try
+                {
+                    logic.BtnPrintAll(printTable, vcType, printerName, userid, ref dtPorType);
+                }
+                catch (System.Exception e)
+                {
+                    for (int i = 0; i < dtPorType.Rows.Count; i++)
+                    {
+                        //fS1209_Logic.DeleteprinterCREX(dtPorType.Rows[i]["vcPorType"].ToString(), dtPorType.Rows[i]["vcorderno"].ToString(), dtPorType.Rows[i]["vcComDate01"].ToString(), dtPorType.Rows[i]["vcBanZhi01"].ToString());
+                    }
+                    throw new Exception("看板打印异常:" + e.Message);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

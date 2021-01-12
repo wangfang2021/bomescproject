@@ -626,5 +626,29 @@ namespace Logic
             dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
+
+        #region 检查生产部署和组别
+        /// <summary>
+        /// 检查生产部署和组别
+        /// </summary>
+        /// <param name="InputFile"></param>
+        /// <returns></returns>
+        public string CheckRepeat_ExcelDBTypeZB(DataTable dt)
+        {
+            return dataAccess.CheckRepeat_ExcelDBTypeZB(dt);
+        }
+        #endregion
+
+        #region 将Excel的内容导入到数据库中
+        /// <summary>
+        /// 将Excel的内容导入到数据库中
+        /// </summary>
+        /// <param name="InputFile">导入Html控件</param>
+        /// <param name="vcCreaterId">创建者ID</param>
+        public int ImportStandTime(DataTable dt, string vcCreaterId)
+        {
+            return dataAccess.ImportStandTime(dt, vcCreaterId);
+        }
+        #endregion
     }
 }

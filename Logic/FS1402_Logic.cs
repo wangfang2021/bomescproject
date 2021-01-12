@@ -118,7 +118,7 @@ namespace Logic
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw ex; 
             }
         }
         public string checkDbInfo(DataTable dataTable, string strMessage)

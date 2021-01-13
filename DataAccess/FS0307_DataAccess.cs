@@ -420,6 +420,7 @@ namespace DataAccess
                     {
                         sbr.AppendLine("vcDiff = '4', ");
                     }
+                    sbr.AppendLine("vcMeno = isnull(vcMeno,'')+'年限区分;' , \r\n");
                     sbr.AppendLine("vcOperator = '" + strUserId + "', ");
                     sbr.AppendLine("dOperatorTime = GETDATE()");
                     sbr.AppendLine("WHERE ");

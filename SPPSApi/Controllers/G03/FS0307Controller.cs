@@ -126,8 +126,12 @@ namespace SPPSApi.Controllers.G03
             int iPage = dataForm.page == null ? 0 : dataForm.page;
             int iPageSize = dataForm.pageSize;
             string fileName = dataForm.fileName;
-            string strYear = dataForm.strYear == null ? "" : dataForm.strYear;
-            string FinishFlag = dataForm.FinishFlag == null ? "" : dataForm.FinishFlag; ;
+            string strYear = dataForm.vcYear == null ? "" : dataForm.vcYear;
+            if (!string.IsNullOrWhiteSpace(strYear))
+            {
+                strYear = Convert.ToDateTime(strYear).AddHours(8).ToString("yyyy");
+            }
+            string FinishFlag = dataForm.vcFinish == null ? "" : dataForm.vcFinish; ;
             string SYT = dataForm.vcSYTCode == null ? "" : dataForm.vcSYTCode;
             string Receiver = dataForm.vcReceiver == null ? "" : dataForm.vcReceiver;
             JArray listInfo = dataForm.vcOriginCompany;

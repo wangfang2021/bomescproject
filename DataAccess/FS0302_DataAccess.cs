@@ -78,6 +78,7 @@ namespace DataAccess
 
                     if (change.Equals("1"))//新设/新车新设
                     {
+                        //TODO 有变量来源未知
                         string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                         string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
                         string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();

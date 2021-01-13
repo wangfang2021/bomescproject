@@ -48,7 +48,7 @@ namespace DataAccess
                 strSql.Append("  WHERE 1=1");
 
                 if (!string.IsNullOrEmpty(strYearMonth)) {//对象年月
-                    strSql.Append(" and vcYearMonth='vcYearMonth'");
+                    strSql.Append(" and vcYearMonth='"+ strYearMonth + "'");
                 }
                 if (!string.IsNullOrEmpty(strDyState))//对应状态
                 {
@@ -80,6 +80,8 @@ namespace DataAccess
                 DateTime now = DateTime.Now;
 
                 StringBuilder sql = new StringBuilder();
+
+                sql.Append(" delete TSoq where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
 
                 //1、先插入
                 sql.AppendLine("  INSERT INTO TSoq( ");
@@ -116,37 +118,50 @@ namespace DataAccess
                     }
                 }
 
-                sql.Append(";");
+                sql.Append("; \r\n ");
                 //更新TSoqInput设定为导入成功，删除TSoqInputErrDetail
-                sql.Append(" delete TSoqInput where vcYearMonth='" + strYearMonth + "' ;  ");
-                sql.Append(" insert into TSoqInput(vcYearMonth,iState,vcOperator,dOperatorTime)values('" + strYearMonth + "',2,'"+ strUserId + "',getdate());  ");
-                sql.Append(" delete TSoqInputErrDetail where vcYearMonth='" + strYearMonth + "' ;  ");
+                sql.Append(" delete TSoqInput where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
+                sql.Append(" insert into TSoqInput(vcYearMonth,iState,vcOperator,dOperatorTime)values('" + strYearMonth + "',2,'"+ strUserId + "',getdate());  \r\n ");
+                sql.Append(" delete TSoqInputErrDetail where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
 
                 //2、再更新关联数据
-                sql.AppendLine("  UPDATE TSoq SET ");
-                sql.AppendLine("CARFAMILYCODE=SP_M_SITEM.CARFAMILYCODE,");
-                sql.AppendLine("CURRENTPASTCODE=SP_M_SITEM.CURRENTPASTCODE,");
-                sql.AppendLine("vcMakingOrderType=SP_M_SITEM.vcPackingFactory,");
-                sql.AppendLine("iFZGC=SP_M_SITEM.vcPlantCode,");
-                sql.AppendLine("INOUTFLAG=SP_M_SITEM.INOUTFLAG,");
-                sql.AppendLine("vcSupplier_id=SP_M_SITEM.SUPPLIERCODE,");
-                sql.AppendLine("iSupplierPlant=SP_M_SITEM.iSupplierPlant,");
-                sql.AppendLine("QUANTITYPERCONTAINER=SP_M_SITEM.QUANTITYPERCONTAINER");
-                //波动率需要用内示月-当前数据来计算。
-                //sql.AppendLine("decCbBdl=)");
-                sql.AppendLine(" FROM TSoq ");
+                sql.AppendLine("  UPDATE TSoq SET \r\n ");
+                sql.AppendLine("    vcCarFamilyCode=b.CARFAMILYCODE, \r\n ");
+                sql.AppendLine("    vcCurrentPastcode=b.CURRENTPASTCODE, \r\n ");
+                sql.AppendLine("    vcMakingOrderType=b.vcPackingFactory, \r\n ");
+                sql.AppendLine("    vcFZGC=b.vcPlantCode, \r\n ");
+                sql.AppendLine("    vcInOutFlag=b.INOUTFLAG, \r\n ");
+                sql.AppendLine("    vcSupplier_id=b.SUPPLIERCODE, \r\n ");
+                sql.AppendLine("    vcSupplierPlant=b.iSupplierPlant, \r\n ");
+                sql.AppendLine("    iQuantityPercontainer=b.QUANTITYPERCONTAINER \r\n ");
                 
-                sql.AppendLine(" LEFT JOIN SP_M_SITEM ");
-                //按照逻辑，需要按照品番、包装工厂、TC来连表查询
-                sql.AppendLine(" ON SP_M_SITEM.vcPart_id=TSoq.vcPart_id ");
+                sql.AppendLine(" FROM TSoq a  \r\n ");
+                sql.AppendLine(" LEFT JOIN    \r\n ");
+                sql.AppendLine(" (   \r\n ");
+                sql.AppendLine("    select PARTSNO,CARFAMILYCODE,CURRENTPASTCODE,vcPackingFactory,vcPlantCode,INOUTFLAG,SUPPLIERCODE,iSupplierPlant,QUANTITYPERCONTAINER from SP_M_SITEM    \r\n ");
+                sql.AppendLine(" )b  ON b.PARTSNO=a.vcPart_id  \r\n ");//按照逻辑，需要按照品番、包装工厂、TC来连表查询
+                sql.AppendLine("WHERE a.vcYearMonth='"+ strYearMonth + "'; \r\n ");
 
-                sql.AppendLine("WHERE TSoq.vcYearMonth='"+ strYearMonth + "';");
+
+                string strYear = strYearMonth.Substring(0, 4);
+                string strMonth = strYearMonth.Substring(4, 2);
+                DateTime dLastMonth = (DateTime.Parse(strYear + "-" + strMonth + "-01")).AddMonths(-1);
+                string strLastYearMonth = dLastMonth.ToString("yyyyMM");
+                //波动率计算
+                sql.AppendLine("  update TSoq set decCbBdl=100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2)))/cast(b.iHySOQN as decimal(18,2))  from TSoq a    \r\n ");
+                sql.AppendLine("  left join    \r\n ");
+                sql.AppendLine("  (    \r\n ");
+                sql.AppendLine("    select * from TSoq where vcYearMonth='"+ strLastYearMonth + "'    \r\n ");
+                sql.AppendLine("  )b on a.vcPart_id=b.vcPart_id    \r\n ");
+                sql.AppendLine("  where a.vcYearMonth='" + strYearMonth + "' and b.iHySOQN is not null    \r\n ");
+
+
 
                 //在SOQprocess表中插入状态
-                sql.AppendLine("DELETE TSOQProcess WHERE vcYearMonth="+ strYearMonth + ";");
-                sql.AppendLine("INSERT INTO TSOQProcess(INOUTFLAG,vcYearMonth,iStatus) ");
-                sql.AppendLine("VALUES('0','"+ strYearMonth + "',0),");
-                sql.AppendLine("('1','"+ strYearMonth + "',0);");
+                sql.AppendLine("DELETE TSOQProcess WHERE vcYearMonth='"+ strYearMonth + "'; \r\n ");
+                sql.AppendLine("INSERT INTO TSOQProcess(INOUTFLAG,vcYearMonth,iStatus)  \r\n ");
+                sql.AppendLine("VALUES('0','"+ strYearMonth + "',0), \r\n ");
+                sql.AppendLine("('1','"+ strYearMonth + "',0); \r\n ");
 
                 if (sql.Length > 0)
                 {
@@ -176,7 +191,7 @@ namespace DataAccess
                 for(int i=0;i< errMessageList.Count; i++)
                 {
                     string msg = errMessageList[i].ToString();
-                    strSql.AppendLine(" INSERT INTO TSoqInput ");
+                    strSql.AppendLine(" INSERT INTO TSoqInputErrDetail ");
                     strSql.AppendLine("      (vcYearMonth,");
                     strSql.AppendLine("       vcMessage");
                     strSql.AppendLine("      )     ");

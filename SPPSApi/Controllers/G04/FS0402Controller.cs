@@ -63,7 +63,7 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion
 
-        #region 获取对象年月
+        #region 获取对象年月 格式YYYY/MM
         [HttpPost]
         [EnableCors("any")]
         public string getYearMonthApi()
@@ -83,7 +83,7 @@ namespace SPPSApi.Controllers.G04
                 DateTime dNow = DateTime.Now.AddMonths(1);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dNow;
+                apiResult.data = dNow.ToString("yyyy/MM");
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strYearMonth = dataForm.YearMonth==null?"": Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strYearMonth = dataForm.YearMonth==null?"": Convert.ToDateTime(dataForm.YearMonth+"/01").ToString("yyyyMM");
             string strDyState = dataForm.DyState == null?"": dataForm.DyState;
             string strHyState = dataForm.HyState == null?"": dataForm.HyState;
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
@@ -121,7 +121,9 @@ namespace SPPSApi.Controllers.G04
             try
             {
                 DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("dHyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -154,7 +156,7 @@ namespace SPPSApi.Controllers.G04
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
                 string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
                 string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
                 string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
@@ -192,6 +194,12 @@ namespace SPPSApi.Controllers.G04
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
+            string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
+
+
+           
+
             string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
             string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
@@ -203,7 +211,7 @@ namespace SPPSApi.Controllers.G04
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","iHySOQN","iHySOQN1","iHySOQN2"
                 ,"dHyTime"
                 };
-                string filepath = fs0402_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0402_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = fs0402_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0402_Export.xlsx", 2, loginInfo.UserId, FunctionID, strYearMonth, strYearMonth_2, strYearMonth_3);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

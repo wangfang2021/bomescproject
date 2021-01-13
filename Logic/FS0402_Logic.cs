@@ -98,32 +98,7 @@ namespace Logic
                     IRow firstRow = sheet.GetRow(0);
                     int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
 
-                    //对应索引
-                    for (int i = 0; i < Header.GetLength(1); i++)
-                    {
-                        bool bFound = false;
-                        for (int j = 0; j < cellCount; j++)
-                        {
-                            ICell cell = firstRow.GetCell(j);
-                            string cellValue = cell.StringCellValue;
-                            if (!string.IsNullOrEmpty(cellValue))
-                            {
-                                if (Header[0, i] == cellValue)
-                                {
-                                    bFound = true;
-                                    index.Add(j);
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (bFound == false)
-                        {
-                            RetMsg = Header[0, i] + "列不存在";
-                            return null;
-                        }
-                    }
-
+                    
                     //创建Datatable的列
                     for (int i = 0; i < Header.GetLength(1); i++)
                     {
@@ -143,7 +118,7 @@ namespace Logic
                         DataRow dataRow = data.NewRow();
                         for (int j = 0; j < Header.GetLength(1); j++)
                         {
-                            ICell cell = row.GetCell(index[j]);
+                            ICell cell = row.GetCell(j);
                             if (cell != null) //同理，没有数据的单元格都默认是null
                             {
 
@@ -256,7 +231,7 @@ namespace Logic
 
 
         #region 导出带模板
-        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, string strYearMonth, string strYearMonth_2, string strYearMonth_3)
         {
             try
             {
@@ -281,11 +256,24 @@ namespace Logic
                         cell.SetCellValue(dt.Rows[i][field[j]].ToString());
                     }
                 }
-                sheet.GetRow(1).GetCell(1).SetCellValue("X月");
-                sheet.GetRow(1).GetCell(2).SetCellValue("X月");
-                sheet.GetRow(1).GetCell(3).SetCellValue("X月");
-                //sheet.CreateRow(1).CreateCell(2).SetCellValue("X月");
-                //sheet.GetRow(1).Cells[2].SetCellValue("X月");
+
+                //以下业务特别处理
+
+                int iMonth = Convert.ToInt32(strYearMonth.Substring(4,2));//对象月
+                int iMonth_2 = Convert.ToInt32(strYearMonth_2.Substring(4, 2));//内示月
+                int iMonth_3 = Convert.ToInt32(strYearMonth_3.Substring(4, 2));//内内示月
+
+                sheet.GetRow(1).GetCell(4).SetCellValue(iMonth + "月");
+                sheet.GetRow(1).GetCell(6).SetCellValue(iMonth_2 + "月");
+                sheet.GetRow(1).GetCell(7).SetCellValue(iMonth_3 + "月");
+                sheet.GetRow(1).GetCell(8).SetCellValue(iMonth + "月");
+                sheet.GetRow(1).GetCell(9).SetCellValue(iMonth_2 + "月");
+                sheet.GetRow(1).GetCell(10).SetCellValue(iMonth_3 + "月");
+                sheet.GetRow(1).GetCell(11).SetCellValue(iMonth + "月");
+                sheet.GetRow(1).GetCell(12).SetCellValue(iMonth_2 + "月");
+                sheet.GetRow(1).GetCell(13).SetCellValue(iMonth_3 + "月");
+
+
 
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除

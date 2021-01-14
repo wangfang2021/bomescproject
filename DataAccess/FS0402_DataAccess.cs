@@ -73,6 +73,166 @@ namespace DataAccess
         #endregion
 
         #region 导入后保存
+        public void importCheck(DataTable dt, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3, ref List<string> errMessageList)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append(" delete TSoq_temp where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
+
+                //1、先插入
+                sql.AppendLine("  INSERT INTO TSoq_temp( ");
+                sql.AppendLine("vcYearMonth,");
+                sql.AppendLine("vcDyState,");
+                sql.AppendLine("vcHyState,");
+                sql.AppendLine("vcPart_id,");
+                sql.AppendLine("iCbSOQN,");
+                sql.AppendLine("iCbSOQN1,");
+                sql.AppendLine("iCbSOQN2,");
+                sql.AppendLine("dDrTime,");
+                sql.AppendLine("vcOperator,");
+                sql.AppendLine("dOperatorTime");
+                sql.AppendLine(")");
+                sql.AppendLine("VALUES");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql.AppendLine("('" + strYearMonth + "',");
+                    sql.AppendLine("'0',");
+                    sql.AppendLine("'0',");
+                    sql.AppendLine("'" + dt.Rows[i]["vcPart_id"] + "',");
+                    sql.AppendLine("'" + dt.Rows[i]["iCbSOQN"] + "',");
+                    sql.AppendLine("'" + dt.Rows[i]["iCbSOQN1"] + "',");
+                    sql.AppendLine("'" + dt.Rows[i]["iCbSOQN2"] + "',");
+                    sql.AppendLine("getDate(),");
+                    sql.AppendLine("'" + strUserId + "',");
+                    sql.AppendLine("getDate()");
+                    sql.AppendLine(")");
+
+                    if (i < dt.Rows.Count - 1)
+                    {
+                        sql.Append(",");
+                    }
+                }
+                sql.Append("; \r\n ");
+
+                excute.ExcuteSqlWithStringOper(sql.ToString());//先导入临时表，然后check
+
+                //验证1：是否为TFTM品番（包装工厂）
+                sql.Length = 0;//清空
+                sql.Append("   select a.vcPart_id from    \r\n ");
+                sql.Append("   (    \r\n ");
+                sql.Append("      select * from TSoq_temp where vcYearMonth='"+ strYearMonth + "'    \r\n ");
+                sql.Append("   )a    \r\n ");
+                sql.Append("   left join    \r\n ");
+                sql.Append("   (    \r\n ");
+                sql.Append("      select * from SP_M_SITEM    \r\n ");
+                sql.Append("   )b on a.vcPart_id=b.PARTSNO    \r\n ");
+                sql.Append("   where b.PARTSNO is  null    \r\n ");
+                DataTable dt1=excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                for(int i = 0; i < dt1.Rows.Count; i++) 
+                {
+                    string strPart_id=dt1.Rows[i]["vcPart_id"].ToString();
+                    errMessageList.Add(strPart_id+ "在品番基础信息里不存在");
+                }
+                //验证2：N 月品番有效性  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
+                sql.Length = 0;//清空
+                sql.Append("    select a.vcPart_id from    \r\n ");
+                sql.Append("    (    \r\n ");
+                sql.Append("       select * from TSoq_temp where vcYearMonth='" + strYearMonth + "'    \r\n ");
+                sql.Append("    )a    \r\n ");
+                sql.Append("    inner join      \r\n ");
+                sql.Append("    (      \r\n ");
+                sql.Append("       select * from SP_M_SITEM       \r\n ");
+                sql.Append("    )a2 on a.vcPart_id=a2.PARTSNO      \r\n ");
+                sql.Append("    left join    \r\n ");
+                sql.Append("    (    \r\n ");
+                sql.Append("       select * from SP_M_SITEM where TIMEFROM<='" + strYearMonth + "' and TIMETO>='" + strYearMonth + "'    \r\n ");
+                sql.Append("    )b on a.vcPart_id=b.PARTSNO    \r\n ");
+                sql.Append("    where b.PARTSNO is  null      \r\n ");
+                DataTable dt2 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                for (int i = 0; i < dt2.Rows.Count; i++)
+                {
+                    string strPart_id = dt2.Rows[i]["vcPart_id"].ToString();
+                    errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足"+ strYearMonth + "月有效性条件");
+                }
+                //验证3：N+1 月品番有效性  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
+                sql.Length = 0;//清空
+                sql.Append("    select a.vcPart_id from    \r\n ");
+                sql.Append("    (    \r\n ");
+                sql.Append("       select * from TSoq_temp where vcYearMonth='" + strYearMonth_2 + "'    \r\n ");
+                sql.Append("    )a    \r\n ");
+                sql.Append("    inner join      \r\n ");
+                sql.Append("    (      \r\n ");
+                sql.Append("       select * from SP_M_SITEM       \r\n ");
+                sql.Append("    )a2 on a.vcPart_id=a2.PARTSNO      \r\n ");
+                sql.Append("    left join    \r\n ");
+                sql.Append("    (    \r\n ");
+                sql.Append("       select * from SP_M_SITEM where TIMEFROM<='" + strYearMonth_2 + "' and TIMETO>='" + strYearMonth_2 + "'    \r\n ");
+                sql.Append("    )b on a.vcPart_id=b.PARTSNO    \r\n ");
+                sql.Append("    where b.PARTSNO is  null      \r\n ");
+                DataTable dt3 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                for (int i = 0; i < dt3.Rows.Count; i++)
+                {
+                    string strPart_id = dt3.Rows[i]["vcPart_id"].ToString();
+                    errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足" + strYearMonth_2 + "月有效性条件");
+                }
+                //验证4：N+2 月品番有效性  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
+                sql.Length = 0;//清空
+                sql.Append("    select a.vcPart_id from    \r\n ");
+                sql.Append("    (    \r\n ");
+                sql.Append("       select * from TSoq_temp where vcYearMonth='" + strYearMonth_3 + "'    \r\n ");
+                sql.Append("    )a    \r\n ");
+                sql.Append("    inner join      \r\n ");
+                sql.Append("    (      \r\n ");
+                sql.Append("       select * from SP_M_SITEM       \r\n ");
+                sql.Append("    )a2 on a.vcPart_id=a2.PARTSNO      \r\n ");
+                sql.Append("    left join    \r\n ");
+                sql.Append("    (    \r\n ");
+                sql.Append("       select * from SP_M_SITEM where TIMEFROM<='" + strYearMonth_3 + "' and TIMETO>='" + strYearMonth_3 + "'    \r\n ");
+                sql.Append("    )b on a.vcPart_id=b.PARTSNO    \r\n ");
+                sql.Append("    where b.PARTSNO is  null      \r\n ");
+                DataTable dt4 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                for (int i = 0; i < dt4.Rows.Count; i++)
+                {
+                    string strPart_id = dt4.Rows[i]["vcPart_id"].ToString();
+                    errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足" + strYearMonth_3 + "月有效性条件");
+                }
+                //验证5：是否有价格，且在有效期内            TPrice  dUseBegin    dUseEnd ，品番在时间区间内有数据
+                sql.Length = 0;//清空
+                sql.Append("    select a.vcPart_id from     \r\n ");
+                sql.Append("    (     \r\n ");
+                sql.Append("       select * from TSoq_temp where vcYearMonth='"+ strYearMonth + "'     \r\n ");
+                sql.Append("    )a     \r\n ");
+                sql.Append("    left join     \r\n ");
+                sql.Append("    (     \r\n ");
+                sql.Append("       select vcPart_id from TPrice where  convert(varchar(6),dUseBegin,112)<='" + strYearMonth + "' and convert(varchar(6),dUseEnd,112)>='" + strYearMonth + "'     \r\n ");
+                sql.Append("    )b on a.vcPart_id=b.vcPart_id     \r\n ");
+                sql.Append("    where b.vcPart_id is  null       \r\n ");
+                DataTable dt5 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                for (int i = 0; i < dt5.Rows.Count; i++)
+                {
+                    string strPart_id = dt5.Rows[i]["vcPart_id"].ToString();
+                    errMessageList.Add(strPart_id + "在" + strYearMonth + "月没有维护价格");
+                }
+                //验证6：手配中是否有受入、收容数、发注工厂
+
+                //验证7：收容数整倍数
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+
+        #region 导入后保存
         public void importSave(DataTable dt, string strUserId,string strYearMonth)
         {
             try

@@ -58,7 +58,13 @@ namespace SPPSApi.Controllers.G04
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
+            string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
+
+
             string strMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("MM");
+            string strMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("MM");
+            string strMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("MM");
 
 
             JArray fileNameList = dataForm.fileNameList;
@@ -155,9 +161,11 @@ namespace SPPSApi.Controllers.G04
                     string strMonth_import = dt.Rows[0][1] == System.DBNull.Value ? "0" : dt.Rows[0][1].ToString().Replace("月","");
                     string strMonth_import_2 = dt.Rows[0][2] == System.DBNull.Value ? "0" : dt.Rows[0][2].ToString().Replace("月", "");
                     string strMonth_import_3 = dt.Rows[0][3] == System.DBNull.Value ? "0" : dt.Rows[0][3].ToString().Replace("月", "");
+
+ 
                     int iMonth = Convert.ToInt32(strMonth);
-                    int iMonth_2 = Convert.ToInt32(strMonth)+1;
-                    int iMonth_3 = Convert.ToInt32(strMonth)+2;
+                    int iMonth_2 = Convert.ToInt32(strMonth_2);
+                    int iMonth_3 = Convert.ToInt32(strMonth_3);
 
 
                     if (iMonth != Convert.ToInt32(strMonth_import))

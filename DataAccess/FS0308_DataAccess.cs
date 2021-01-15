@@ -11,24 +11,10 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
 
-        public DataTable searchApi(string strYear, string SYT, string Receiver, List<string> origin)
+        public DataTable searchApi(string strYear, string Receiver)
         {
             try
             {
-                string OriginCompany = "";
-                if (origin.Count > 0)
-                {
-                    OriginCompany = "";
-                    foreach (string str in origin)
-                    {
-                        if (!string.IsNullOrWhiteSpace(OriginCompany))
-                        {
-                            OriginCompany += ",";
-                        }
-
-                        OriginCompany += "'" + str + "'";
-                    }
-                }
                 StringBuilder sbr = new StringBuilder();
 
                 sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,e.vcName AS vcSYTCode,f.vcName AS vcReceiver,g.vcName AS vcOriginCompany,   \r\n");
@@ -36,8 +22,8 @@ namespace DataAccess
                 sbr.Append("  case a.vcOld10 when '0' then '' when '1' then '●' else '' end as vcOld10, \r\n");
                 sbr.Append("  case a.vcOld9 when '0' then '' when '1' then '●' else '' end as vcOld9, \r\n");
                 sbr.Append("  case a.vcOld7 when '0' then '' when '1' then '●' else '' end as vcOld7, \r\n");
-                sbr.Append("  c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3,CONVERT(DECIMAL(18,2),((CONVERT(DECIMAL(18,2),ISNULL(a.vcNum1,0))+CONVERT(DECIMAL(18,2),ISNULL(a.vcNum2,0))+CONVERT(DECIMAL(18,2),ISNULL(a.vcNum3,0)))/3)) AS vcNumAvg, a.vcNXQF,  \r\n");
-                sbr.Append(" a.dTimeFrom, a.vcDY, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 \r\n");
+                sbr.Append("  c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3, CAST((CAST((CASE isnull(A.vcNum1,'') WHEN '' THEN '0' END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum2,'') WHEN '' THEN '0' END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum3,'') WHEN '' THEN '0' END ) as decimal(18,2)))/3 AS decimal(18,2)) AS vcNumAvg,a.vcNXQF,  \r\n");
+                sbr.Append(" a.dSSDate, a.vcDY, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 \r\n");
                 sbr.Append(" FROM TOldYearManager a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C024') b ON a.vcFinish = b.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
@@ -46,22 +32,14 @@ namespace DataAccess
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
-                sbr.Append(" AND a.vcFinish in ('-1','2','3','4') \r\n");
-                sbr.Append(" AND a.vcReceiver = " + ComFunction.getSqlValue(getValue("C005", Receiver),false) + " \r\n");
+                sbr.Append(" AND a.vcFinish in ('-1','1','2','3','4') \r\n");
+                sbr.Append(" AND a.vcReceiver = " + ComFunction.getSqlValue(getValue("C005", Receiver), false) + " \r\n");
 
                 if (!string.IsNullOrWhiteSpace(strYear))
                 {
                     sbr.Append(" AND a.vcYear = '" + strYear + "' \r\n");
                 }
-                if (!string.IsNullOrWhiteSpace(SYT))
-                {
-                    sbr.Append(" AND a.vcSYTCode = '" + SYT + "' \r\n");
-                }
 
-                if (!string.IsNullOrWhiteSpace(OriginCompany))
-                {
-                    sbr.Append(" AND a.vcOriginCompany in (" + OriginCompany + ") \r\n");
-                }
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
@@ -73,7 +51,7 @@ namespace DataAccess
 
 
         #region 保存
-        public void importSave(DataTable dt,string receiver, string strUserId)
+        public void importSave(DataTable dt, string receiver, string strUserId)
         {
             try
             {
@@ -88,7 +66,7 @@ namespace DataAccess
                     sql.Append(" vcNum2 = " + ComFunction.getSqlValue(dt.Rows[i]["vcNum2"], false) + ", \r\n");
                     sql.Append(" vcNum3 = " + ComFunction.getSqlValue(dt.Rows[i]["vcNum3"], false) + ", \r\n");
                     sql.Append(" vcNXQF = " + ComFunction.getSqlValue(dt.Rows[i]["vcNXQF"], false) + ", \r\n");
-                    sql.Append(" dTimeFrom = " + ComFunction.getSqlValue(dt.Rows[i]["dTimeFrom"], true) + ", \r\n");
+                    sql.Append(" dSSDate = " + ComFunction.getSqlValue(dt.Rows[i]["dSSDate"], true) + ", \r\n");
                     sql.Append(" vcNum11=" + ComFunction.getSqlValue(dt.Rows[i]["vcNum11"], false) + ", \r\n");
                     sql.Append(" vcNum12=" + ComFunction.getSqlValue(dt.Rows[i]["vcNum12"], false) + ", \r\n");
                     sql.Append(" vcNum13=" + ComFunction.getSqlValue(dt.Rows[i]["vcNum13"], false) + ", \r\n");
@@ -106,12 +84,7 @@ namespace DataAccess
                     sql.Append(" WHERE \r\n");
                     sql.Append(" vcYear = " + ComFunction.getSqlValue(dt.Rows[i]["vcYear"], false) + " \r\n");
                     sql.Append(" AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " \r\n");
-                    sql.Append(" AND vcCarTypeDev = " + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDev"], false) + " \r\n");
-                    sql.Append(" AND vcSupplier_id =" + ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false) + " \r\n");
-                    sql.Append(" AND vcSYTCode = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
-                    sql.Append(" AND vcOriginCompany = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
                     sql.Append(" AND vcReceiver = '" + getValue("C005", receiver) + "' \r\n");
-                    sql.Append(" AND vcInOutflag = '" + getValue("C003", dt.Rows[i]["vcInOutflag"].ToString()) + "' \r\n");
 
                 }
                 if (sql.Length > 0)
@@ -139,7 +112,7 @@ namespace DataAccess
                     sql.Append(" vcNum2 = " + ComFunction.getSqlValue(list[i]["vcNum2"], false) + ", \r\n");
                     sql.Append(" vcNum3 = " + ComFunction.getSqlValue(list[i]["vcNum3"], false) + ", \r\n");
                     sql.Append(" vcNXQF = " + ComFunction.getSqlValue(list[i]["vcNXQF"], false) + ", \r\n");
-                    sql.Append(" dTimeFrom = " + ComFunction.getSqlValue(list[i]["dTimeFrom"], true) + ", \r\n");
+                    sql.Append(" dSSDate = " + ComFunction.getSqlValue(list[i]["dSSDate"], true) + ", \r\n");
                     sql.Append(" vcNum11=" + ComFunction.getSqlValue(list[i]["vcNum11"], false) + ", \r\n");
                     sql.Append(" vcNum12=" + ComFunction.getSqlValue(list[i]["vcNum12"], false) + ", \r\n");
                     sql.Append(" vcNum13=" + ComFunction.getSqlValue(list[i]["vcNum13"], false) + ", \r\n");

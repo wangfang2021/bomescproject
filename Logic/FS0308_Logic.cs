@@ -23,9 +23,9 @@ namespace Logic
 
         #region 检索
 
-        public DataTable searchApi(string strYear, string SYT, string Receiver, List<string> origin)
+        public DataTable searchApi(string strYear,string Receiver)
         {
-            return fs0308_dataAccess.searchApi(strYear, SYT, Receiver, origin);
+            return fs0308_dataAccess.searchApi(strYear,  Receiver);
         }
 
         #endregion

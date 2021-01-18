@@ -17,19 +17,19 @@ namespace DataAccess
         /// 保存
         /// </summary>
         /// <returns></returns>
-        public void save(List<string> re, string varDxny, string varFZGC, decimal TOTALWORKDAYS, string strUserId)
+        public void save(List<string> re, string varDxny, string vcFZGC, decimal TOTALWORKDAYS, string strUserId)
         {
             try
             {
                 System.Data.SqlClient.SqlParameter[] parameters = {
                     new SqlParameter("@varDxny", SqlDbType.VarChar),
-                    new SqlParameter("@varFZGC", SqlDbType.VarChar),
+                    new SqlParameter("@vcFZGC", SqlDbType.VarChar),
                     new SqlParameter("@TOTALWORKDAYS", SqlDbType.Decimal),
                     new SqlParameter("@DADDTIME", SqlDbType.DateTime),
                     new SqlParameter("@CUPDUSER", SqlDbType.VarChar),
                 };
                 parameters[0].Value = varDxny;
-                parameters[1].Value = varFZGC;
+                parameters[1].Value = vcFZGC;
                 parameters[2].Value = TOTALWORKDAYS;
                 parameters[3].Value = DateTime.Now;
                 parameters[4].Value = strUserId;
@@ -42,7 +42,7 @@ namespace DataAccess
 
                 //再新增
                 strSql.AppendLine(" INSERT INTO SP_M_SOQCLDAR_N( ");
-                strSql.AppendLine(" varFZGC, ");
+                strSql.AppendLine(" vcFZGC, ");
                 strSql.AppendLine(" TARGETMONTH, ");
                 strSql.AppendLine(" TARGETDAY1, ");
                 strSql.AppendLine(" TARGETDAY2, ");
@@ -79,7 +79,7 @@ namespace DataAccess
                 strSql.AppendLine(" DADDTIME, ");
                 strSql.AppendLine(" CUPDUSER) ");
                 strSql.AppendLine(" VALUES( ");
-                strSql.AppendLine(" @varFZGC, ");
+                strSql.AppendLine(" @vcFZGC, ");
                 strSql.AppendLine(" @varDxny, ");
                 for (int i = 0; i < 31; i++)
                 {
@@ -106,14 +106,14 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(DateTime varDxny, string varFZGC)
+        public DataTable Search(DateTime varDxny, string vcFZGC)
         {
             try
             {
                 System.Data.SqlClient.SqlParameter[] parameters = {
-                    new SqlParameter("@varFZGC", SqlDbType.VarChar),
+                    new SqlParameter("@vcFZGC", SqlDbType.VarChar),
                 };
-                parameters[0].Value = varFZGC;
+                parameters[0].Value = vcFZGC;
 
                 StringBuilder strSql = new StringBuilder();
 
@@ -153,7 +153,7 @@ namespace DataAccess
                 strSql.AppendLine(" TOTALWORKDAYS ");
                 strSql.AppendLine(" FROM SP_M_SOQCLDAR_N ");
 
-                strSql.AppendLine(" WHERE varFZGC=@varFZGC ");
+                strSql.AppendLine(" WHERE vcFZGC=@vcFZGC ");
                 strSql.AppendLine(string.Format(" AND TARGETMONTH in ('{0}','{1}','{2}')", varDxny.ToString("yyyy/MM"), varDxny.AddMonths(1).ToString("yyyy/MM"), varDxny.AddMonths(2).ToString("yyyy/MM")));
 
                 strSql.AppendLine(" ORDER BY TARGETMONTH; ");

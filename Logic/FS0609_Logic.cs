@@ -24,7 +24,7 @@ namespace Logic
         {
             JObject data = new JObject {};
 
-            DataTable re = fs0609_DataAccess.Search(varDxny, varFZGC);
+             DataTable re = fs0609_DataAccess.Search(varDxny, varFZGC);
 
             string[] dxnyArray = new string[]
                 { varDxny.ToString("yyyy/MM"),
@@ -55,6 +55,7 @@ namespace Logic
                                     dayTempalte[k] = "休";
                                 }
                                 //双值
+             
                                 else
                                 {
                                     dayTempalte[k] = "双";

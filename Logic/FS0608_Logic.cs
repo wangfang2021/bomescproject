@@ -109,5 +109,9 @@ namespace Logic
             fs0608_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);
         }
 
+        public DataTable bindplant()
+        {
+            return fs0608_DataAccess.bindplant();
+        }
     }
 }

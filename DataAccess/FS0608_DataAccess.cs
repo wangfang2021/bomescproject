@@ -37,11 +37,11 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 //先删除
-                strSql.AppendLine(" DELETE SP_M_SOQCLDAR ");
+                strSql.AppendLine(" DELETE TCalendar_PingZhun_Wai ");
                 strSql.AppendLine(" WHERE TARGETMONTH=@varDxny; ");
 
                 //再新增
-                strSql.AppendLine(" INSERT INTO SP_M_SOQCLDAR( ");
+                strSql.AppendLine(" INSERT INTO TCalendar_PingZhun_Wai( ");
                 strSql.AppendLine(" varFZGC, ");
                 strSql.AppendLine(" TARGETMONTH, ");
                 strSql.AppendLine(" TARGETDAY1, ");
@@ -151,7 +151,7 @@ namespace DataAccess
                 strSql.AppendLine(" TARGETDAY31, ");
                 strSql.AppendLine(" TARGETMONTH, ");
                 strSql.AppendLine(" TOTALWORKDAYS ");
-                strSql.AppendLine(" FROM SP_M_SOQCLDAR ");
+                strSql.AppendLine(" FROM TCalendar_PingZhun_Wai ");
 
                 strSql.AppendLine(" WHERE varFZGC=@varFZGC ");
                 strSql.AppendLine(string.Format(" AND TARGETMONTH in ('{0}','{1}','{2}')", varDxny.ToString("yyyy/MM"), varDxny.AddMonths(1).ToString("yyyy/MM"), varDxny.AddMonths(2).ToString("yyyy/MM")));
@@ -168,6 +168,19 @@ namespace DataAccess
             }
         }
 
-
+        public DataTable bindplant()
+        {
+            string ssql = " select '' as vcValue,'' as vcName union all select distinct vcData1,vcData2 from ConstMst where vcDataID='KBPlant' ";
+            DataTable dt = new DataTable();
+            try
+            {
+                dt = excute.ExcuteSqlWithSelectToDT(ssql);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return dt;
+        }
     }
 }

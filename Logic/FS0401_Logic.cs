@@ -14,9 +14,9 @@ namespace Logic
 
         #region 检索
 
-        public DataTable searchApi(string state, string TimeFrom, string TimeTo, string carType, string InOut, string DHFlag)
+        public DataTable searchApi(string PartId, string TimeFrom, string TimeTo, string carType, string InOut, string DHFlag)
         {
-            return fs0401_dataAccess.searchApi(state, TimeFrom, TimeTo, carType, InOut, DHFlag);
+            return fs0401_dataAccess.searchApi(PartId, TimeFrom, TimeTo, carType, InOut, DHFlag);
         }
 
 

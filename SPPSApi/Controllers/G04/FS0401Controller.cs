@@ -42,12 +42,12 @@ namespace SPPSApi.Controllers.G04
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> dataList_C036 = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//月度订单对应状态
-                List<Object> dataList_C037 = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//月度订单合意状态
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外
+                List<Object> dataList_C047 = ComFunction.convertAllToResult(ComFunction.getTCode("C047"));//订货方式
 
 
-                res.Add("C036", dataList_C036);
-                res.Add("C037", dataList_C037);
+                res.Add("C003", dataList_C003);
+                res.Add("C047", dataList_C047);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -79,25 +79,33 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
-            string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
-            string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
-            string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+            string Part_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+            string TimeFrom = dataForm.TimeFrom == null ? "" : dataForm.TimeFrom;
+            string TimeTo = dataForm.TimeTo == null ? "" : dataForm.TimeTo;
+            string carType = dataForm.carType == null ? "" : dataForm.carType;
+            string InOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string DHFlag = dataForm.DHFlag == null ? "" : dataForm.DHFlag;
 
 
             try
             {
-                //DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
+                DataTable dt = fs0401_Logic.searchApi(Part_id, TimeFrom, TimeTo, carType, InOut, DHFlag);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dHyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
-                //List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFromTimeQty", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dToTimeQty", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dDebugTime", ConvertFieldType.DateType, "yyyy/MM");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                //apiResult.data = dataList;
+                apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0202", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0101", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -120,38 +128,32 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
-            string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
-            string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
-
-
-
-
-            string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
-            string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
-            string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+            string Part_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+            string TimeFrom = dataForm.TimeFrom == null ? "" : dataForm.TimeFrom;
+            string TimeTo = dataForm.TimeTo == null ? "" : dataForm.TimeTo;
+            string carType = dataForm.carType == null ? "" : dataForm.carType;
+            string InOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string DHFlag = dataForm.DHFlag == null ? "" : dataForm.DHFlag;
 
             try
             {
-                //DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
-                //string[] fields = { "vcYearMonth", "vcDyState_Name", "vcHyState_Name", "vcPart_id", "iCbSOQN", "decCbBdl"
-                //,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","iHySOQN","iHySOQN1","iHySOQN2"
-                //,"dHyTime"
-                //};
-                //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0401.xlsx", 2, loginInfo.UserId, FunctionID, strYearMonth, strYearMonth_2, strYearMonth_3);
-                //if (filepath == "")
-                //{
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = "导出生成文件失败";
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //}
-                //apiResult.code = ComConstant.SUCCESS_CODE;
-                //apiResult.data = filepath;
+
+                DataTable dt = fs0401_Logic.searchApi(Part_id, TimeFrom, TimeTo, carType, InOut, DHFlag);
+                string[] fields = { "vcPackingPlant", "vcPartId", "dFromTime", "dToTime", "vcCarModel", "vcInOut", "vcHaoJiu", "vcOrderingMethod", "iPackingQty", "dFromTimeQty", "dToTimeQty", "vcOldProduction", "dDebugTime", "vcPartId_Replace" };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0401.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0205", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0102", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

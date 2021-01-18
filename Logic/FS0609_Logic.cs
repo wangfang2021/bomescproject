@@ -27,9 +27,9 @@ namespace Logic
              DataTable re = fs0609_DataAccess.Search(varDxny, varFZGC);
 
             string[] dxnyArray = new string[]
-                { varDxny.ToString("yyyy/MM"),
-                  varDxny.AddMonths(1).ToString("yyyy/MM"),
-                  varDxny.AddMonths(2).ToString("yyyy/MM")
+                { varDxny.ToString("yyyyMM"),
+                  varDxny.AddMonths(1).ToString("yyyyMM"),
+                  varDxny.AddMonths(2).ToString("yyyyMM")
                 };
 
             for (int i = 0; i < dxnyArray.Length; i++)
@@ -105,11 +105,6 @@ namespace Logic
 
 
             fs0609_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);
-        }
-
-        public DataTable bindplant()
-        {
-            return fs0609_DataAccess.bindplant();
         }
     }
 }

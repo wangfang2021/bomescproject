@@ -52,7 +52,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.bindplant());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 res.Add("dataList_PlantSource", dataList_PlantSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -67,6 +67,5 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
-
     }
 }

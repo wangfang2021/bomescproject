@@ -154,7 +154,7 @@ namespace DataAccess
                 strSql.AppendLine(" FROM TCalendar_PingZhun_Nei ");
 
                 strSql.AppendLine(" WHERE vcFZGC=@vcFZGC ");
-                strSql.AppendLine(string.Format(" AND TARGETMONTH in ('{0}','{1}','{2}')", varDxny.ToString("yyyy/MM"), varDxny.AddMonths(1).ToString("yyyy/MM"), varDxny.AddMonths(2).ToString("yyyy/MM")));
+                strSql.AppendLine(string.Format(" AND TARGETMONTH in ('{0}','{1}','{2}')", varDxny.ToString("yyyyMM"), varDxny.AddMonths(1).ToString("yyyyMM"), varDxny.AddMonths(2).ToString("yyyyMM")));
 
                 strSql.AppendLine(" ORDER BY TARGETMONTH; ");
 
@@ -166,21 +166,6 @@ namespace DataAccess
             {
                 throw ex;
             }
-        }
-
-        public DataTable bindplant()
-        {
-            string ssql = " select '' as vcValue,'' as vcName union all select distinct vcData1,vcData2 from ConstMst where vcDataID='KBPlant' ";
-            DataTable dt = new DataTable();
-            try
-            {
-                dt = excute.ExcuteSqlWithSelectToDT(ssql);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            return dt;
         }
     }
 }

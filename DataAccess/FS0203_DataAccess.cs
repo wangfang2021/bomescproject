@@ -28,6 +28,7 @@ namespace DataAccess
                 sbr.Append(" and dOperatorTime = '" + UploadTime + "' \r\n");
             }
 
+            sbr.Append(" order by dOperatorTime desc \r\n");
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
         }
 
@@ -167,6 +168,12 @@ namespace DataAccess
 
             return list;
         }
+
+
+
+
+
+
         #endregion
 
         public void importSPRL(DataTable dt, string fileName, string userId)

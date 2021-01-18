@@ -261,7 +261,7 @@ namespace Logic
                     row.GetCell(9).SetCellValue(ObjToString(dt.Rows[i]["vcNum3"]));
                     row.GetCell(10).SetCellValue(ObjToString(dt.Rows[i]["vcNumAvg"]));
                     row.GetCell(11).SetCellValue(ObjToString(dt.Rows[i]["vcNXQF"]));
-                    row.GetCell(12).SetCellValue(ObjToString(dt.Rows[i]["dTimeFrom"]));
+                    row.GetCell(12).SetCellValue(ObjToString(dt.Rows[i]["dSSDate"]));
                     row.GetCell(13).SetCellValue(ObjToString(dt.Rows[i]["vcNum11"]));
                     row.GetCell(14).SetCellValue(ObjToString(dt.Rows[i]["vcNum12"]));
                     row.GetCell(15).SetCellValue(ObjToString(dt.Rows[i]["vcNum13"]));

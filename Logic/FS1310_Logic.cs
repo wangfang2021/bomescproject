@@ -24,21 +24,20 @@ namespace Logic
         {
             return fs1310_DataAccess.getSearchInfo(strPlant, strPinMu, strPartId);
         }
-        public bool setDeleteInfo(ArrayList delList)
+        public void setDeleteInfo(List<Dictionary<string, Object>> listInfoData)
         {
             try
             {
-                //返回值定义，默认为失败false
-                bool bIsOK = false;
-                int count = fs1310_DataAccess.setDeleteInfo(delList);
-                if (count > 0)
-                    bIsOK = true;
-                return bIsOK;
+                fs1310_DataAccess.setDeleteInfo(listInfoData);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+        public DataTable getSubInfo(string strPlant, string strPartNo)
+        {
+            return fs1310_DataAccess.getSubInfo(strPlant, strPartNo);
         }
 
     }

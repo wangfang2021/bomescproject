@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -44,11 +45,12 @@ namespace SPPSApi.Controllers.G04
 
                 List<Object> dataList_C036 = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//月度订单对应状态
                 List<Object> dataList_C037 = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//月度订单合意状态
- 
 
                 res.Add("C036", dataList_C036);
                 res.Add("C037", dataList_C037);
- 
+                DateTime dNow = DateTime.Now.AddMonths(1);
+                res.Add("yearMonth", dNow.ToString("yyyy/MM"));
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -63,7 +65,7 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion
 
-        #region 获取对象年月
+        #region 获取对象年月 格式YYYY/MM
         [HttpPost]
         [EnableCors("any")]
         public string getYearMonthApi()
@@ -83,7 +85,7 @@ namespace SPPSApi.Controllers.G04
                 DateTime dNow = DateTime.Now.AddMonths(1);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dNow;
+                apiResult.data = dNow.ToString("yyyy/MM");
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -112,7 +114,7 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strYearMonth = dataForm.YearMonth==null?"": Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strYearMonth = dataForm.YearMonth==null?"": Convert.ToDateTime(dataForm.YearMonth+"/01").ToString("yyyyMM");
             string strDyState = dataForm.DyState == null?"": dataForm.DyState;
             string strHyState = dataForm.HyState == null?"": dataForm.HyState;
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
@@ -121,7 +123,9 @@ namespace SPPSApi.Controllers.G04
             try
             {
                 DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("dHyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -139,7 +143,7 @@ namespace SPPSApi.Controllers.G04
         #region 承认
         [HttpPost]
         [EnableCors("any")]
-        public string crApi([FromBody] dynamic data)
+        public string okApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -154,13 +158,28 @@ namespace SPPSApi.Controllers.G04
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
                 string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
                 string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
                 string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                int count=fs0402_Logic.Cr(strYearMonth, strDyState, strHyState, strPart_id);
-
+                if (strYearMonth == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "对象年月不能为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                int count = 0;//影响行数，没啥用
+                if (listInfoData.Count != 0)//选中了数据操作
+                {
+                    count = fs0402_Logic.ok(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                }
+                else//按检索条件
+                {
+                    count = fs0402_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = count;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -175,6 +194,63 @@ namespace SPPSApi.Controllers.G04
             }
         }
         #endregion
+
+        #region 退回
+        [HttpPost]
+        [EnableCors("any")]
+        public string ngApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
+                string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
+                string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
+                string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                if (strYearMonth == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "对象年月不能为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                int count = 0;//影响行数，没啥用
+                if (listInfoData.Count != 0)//选中了数据操作
+                {
+                    count = fs0402_Logic.ng(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                }
+                else//按检索条件
+                {
+                    count = fs0402_Logic.ng(strYearMonth, listInfoData, loginInfo.UserId);
+                }
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = count;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0206", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
 
         #region 导出
         [HttpPost]
@@ -192,6 +268,12 @@ namespace SPPSApi.Controllers.G04
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
+            string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
+
+
+           
+
             string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
             string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
@@ -203,7 +285,7 @@ namespace SPPSApi.Controllers.G04
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","iHySOQN","iHySOQN1","iHySOQN2"
                 ,"dHyTime"
                 };
-                string filepath = fs0402_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0402_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = fs0402_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0402_Export.xlsx", 2, loginInfo.UserId, FunctionID, strYearMonth, strYearMonth_2, strYearMonth_3);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

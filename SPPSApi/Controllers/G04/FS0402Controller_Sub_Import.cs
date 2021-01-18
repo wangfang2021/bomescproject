@@ -57,8 +57,14 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyy/MM");
+            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
+            string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
+
+
             string strMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("MM");
+            string strMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("MM");
+            string strMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("MM");
 
 
             JArray fileNameList = dataForm.fileNameList;
@@ -152,10 +158,27 @@ namespace SPPSApi.Controllers.G04
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //验证对象月是否是选择的月份
-                    string strMonth_import = dt.Rows[0][1] == System.DBNull.Value ? "" : importDt.Rows[0][1].ToString();
-                    if (strMonth != strMonth_import)
+                    string strMonth_import = dt.Rows[0][1] == System.DBNull.Value ? "0" : dt.Rows[0][1].ToString().Replace("月","");
+                    string strMonth_import_2 = dt.Rows[0][2] == System.DBNull.Value ? "0" : dt.Rows[0][2].ToString().Replace("月", "");
+                    string strMonth_import_3 = dt.Rows[0][3] == System.DBNull.Value ? "0" : dt.Rows[0][3].ToString().Replace("月", "");
+
+ 
+                    int iMonth = Convert.ToInt32(strMonth);
+                    int iMonth_2 = Convert.ToInt32(strMonth_2);
+                    int iMonth_3 = Convert.ToInt32(strMonth_3);
+
+
+                    if (iMonth != Convert.ToInt32(strMonth_import))
                     {
-                        errMessageList.Add("文件中的对象年月" + strMonth_import + "与页面输入的对象年月" + strMonth + "不相符！");
+                        errMessageList.Add("文件中的对象月" + strMonth_import + "与页面输入的对象年月" + iMonth + "不相符！");
+                    }
+                    if (iMonth_2 != Convert.ToInt32(strMonth_import_2))
+                    {
+                        errMessageList.Add("文件中的内示月" + strMonth_import_2 + "与页面输入的对象年月" + iMonth_2 + "不相符！");
+                    }
+                    if (iMonth_3 != Convert.ToInt32(strMonth_import_3))
+                    {
+                        errMessageList.Add("文件中的内内示月" + strMonth_import_3 + "与页面输入的对象年月" + iMonth_3 + "不相符！");
                     }
                     for ( int i=1;i< dt.Rows.Count;i++)//跳过列头
                     {
@@ -167,6 +190,7 @@ namespace SPPSApi.Controllers.G04
  
 
                 List<string> errMonthList = new List<string>();//记录年月错误的品番
+                //check:品番行数是否唯一
                 var result = from r in importDt.AsEnumerable()
                              group r by new { r2 = r.Field<string>("vcPart_id") } into g
                              where g.Count() > 1
@@ -181,6 +205,21 @@ namespace SPPSApi.Controllers.G04
                     }
                     errMessageList.Add(sbr.ToString());
                 }
+                //check:三个月品番数量不能同时为0
+
+
+                //   是否为TFTM品番（包装工厂）                           SP_M_SITEM    是否有改品番
+                //    N、N + 1、N + 2月品番有效性                         SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据
+                //    是否有价格，且在有效期内                            TPrice  dUseBegin    dUseEnd ，品番在时间区间内有数据
+                //    手配中是否有受入、收容数、发注工厂
+                //    收容数整倍数                                        SP_M_SITEM QUANTITYPERCONTAINER
+                //   if一括生产 校验： 对象月 > 实施年月时间 不能订货
+                //  如果是强制订货，没有价格也可以定。
+
+
+
+
+
                 if (errMessageList.Count > 0)
                 {
                     fs0402_Logic.importHistory(strYearMonth, errMessageList);

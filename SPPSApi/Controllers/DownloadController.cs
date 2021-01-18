@@ -79,7 +79,29 @@ namespace SPPSApi.Controllers
             }
         }
         #endregion
-
+        [HttpGet]
+        [EnableCors("any")]
+        public IActionResult imageListApi(string path)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar;//模板目录，读取模板供用户下载
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                ContentResult result = new ContentResult();
+                result.Content = "<script>alert('导出失败,没有找到要导出的文件！')</script>";
+                result.ContentType = "text/html;charset=utf-8";
+                ComMessage.GetInstance().ProcessMessage("download", "M00UE0007", ex, "system");
+                return result;
+            }
+        }
 
         #region 导入
         [HttpPost]
@@ -176,7 +198,7 @@ namespace SPPSApi.Controllers
                 LoginInfo loginInfo = getLoginByToken(token);
                 //以下开始业务处理
                 var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
-                var extName = filename.Substring(filename.LastIndexOf('.')).Replace("\"", "");// 扩展名
+                var extName = filename.Substring(filename.LastIndexOf('.')+1).Replace("\"", "");// 扩展名
                 string ImageType = ".jpg,.png,.gif,.bmp,.jpeg";
                 //判断上传格式是否合法
                 if (ImageType.IndexOf(extName.ToLower())<=0)
@@ -189,10 +211,18 @@ namespace SPPSApi.Controllers
 
                 // 获取到要保存文件的名称 
                 String newFileName = getUUIDName(oldFileName);
-                
+
                 //获取到当前项目下products/3下的真实路径
                 //D:\tomcat\tomcat71_sz07\webapps\store_v5\products\3
-                String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar+"Images" ;
+                String realPath = string.Empty;
+                if (Directory.Exists(ComConstant.strImagePath))
+                {
+                    realPath = ComConstant.strImagePath;
+                }
+                else
+                {
+                    realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar+ "Doc" + Path.DirectorySeparatorChar+ "Image" + Path.DirectorySeparatorChar + "HeZiImages";
+                }
                 String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
                 String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
                 string fileSavePath = path;
@@ -283,6 +313,110 @@ namespace SPPSApi.Controllers
                 result.ContentType = "text/html;charset=utf-8";
                 ComMessage.GetInstance().ProcessMessage("download", "M00UE0007", ex, "system");
                 return result;
+            }
+        }
+        #endregion
+
+        #region 下载Image
+        [HttpGet]
+        [EnableCors("any")]
+        public IActionResult getImageApi(string path)
+        {
+            try
+            {
+                string fileSavePath =  _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar +"Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";//文件临时目录，导入完成后 删除
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                //if (fileInfo.Exists)
+                //    fileInfo.Delete();
+                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                ContentResult result = new ContentResult();
+                result.Content = "<script>alert('导出失败,没有找到要导出的图片！')</script>";
+                result.ContentType = "text/html;charset=utf-8";
+                ComMessage.GetInstance().ProcessMessage("getImage", "M00UE0008", ex, "system");
+                return result;
+            }
+        }
+        #endregion
+
+        #region 上传订单API
+        [HttpPost]
+        public string uploadOrderApi(IFormFile file)
+        {
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                string token = Request.Form["token"].ToString();
+                string hashCode = Request.Form["hashCode"].ToString();
+                if (!isLogin(token))
+                {
+                    return "error";
+                }
+                LoginInfo loginInfo = getLoginByToken(token);
+                //以下开始业务处理
+                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
+                var lastFileName = filename;
+                var extName = filename.Substring(filename.LastIndexOf('.') + 1).Replace("\"", "");// 扩展名
+                string ImageType = ".txt";
+                //判断上传格式是否合法
+                if (ImageType.IndexOf(extName.ToLower()) <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "上传文件必须是txt文件,请确认上传文件格式!";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string oldFileName = filename;
+
+                // 获取到要保存文件的名称 
+                String newFileName = getUUIDName(oldFileName);
+
+                //获取到当前项目下products/3下的真实路径
+                //D:\tomcat\tomcat71_sz07\webapps\store_v5\products\3
+                String realPath = string.Empty;
+                if (Directory.Exists(ComConstant.strOrderPath))
+                {
+                    realPath = ComConstant.strOrderPath;
+                }
+                else
+                {
+                    realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
+                }
+                String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
+                String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
+                string fileSavePath = path;
+                //string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+                if (!Directory.Exists(fileSavePath))
+                {
+                    Directory.CreateDirectory(fileSavePath);
+                }
+
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+                filename = fileSavePath + newFileName; // 新文件名（包括路径）
+                using (FileStream fs = System.IO.File.Create(filename)) // 创建新文件
+                {
+                    file.CopyTo(fs);// 复制文件
+                    fs.Flush();// 清空缓冲区数据
+                }
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                res.Add("fileName", lastFileName);
+                res.Add("filePath", dir + newFileName);
+                
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "文件上传失败!";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion

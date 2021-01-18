@@ -168,6 +168,19 @@ namespace DataAccess
             }
         }
 
-
+        public DataTable bindplant()
+        {
+            string ssql = " select '' as vcValue,'' as vcName union all select distinct vcData1,vcData2 from ConstMst where vcDataID='KBPlant' ";
+            DataTable dt = new DataTable();
+            try
+            {
+                dt = excute.ExcuteSqlWithSelectToDT(ssql);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return dt;
+        }
     }
 }

@@ -156,7 +156,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dTimeFrom", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dFinishYMD", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
 
@@ -202,7 +202,7 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag, SYT, Receiver, origin);
 
-                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcSupplier_id", "vcSYTCode", "vcReceiver", "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dTimeFrom", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
+                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcSupplier_id", "vcSYTCode", "vcReceiver", "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0307.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -313,7 +313,7 @@ namespace SPPSApi.Controllers.G03
                 if (hasFind)
                 {
                     string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
-                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dTimeFrom","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
+                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
                                                 {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num },
                                                 {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
                                                 {"1","0","0","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
@@ -387,7 +387,7 @@ namespace SPPSApi.Controllers.G03
                 if (hasFind)
                 {
                     string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
-                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dTimeFrom","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
+                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
                                                 {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num },
                                                 {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
                                                 {"1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0

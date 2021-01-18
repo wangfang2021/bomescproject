@@ -43,15 +43,6 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
-                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
-                List<string> dataList_C024_Excel = convertTCodeToResult(getTCode("C024"));//变更事项
-
-
-                res.Add("C006", dataList_C006);
-                res.Add("C016", dataList_C016);
-                res.Add("C024_E", dataList_C024_Excel);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -93,13 +84,8 @@ namespace SPPSApi.Controllers.G03
                 strYear = Convert.ToDateTime(strYear).AddHours(8).ToString("yyyy");
             }
 
-            string SYT = dataForm.vcSYTCode == null ? "" : dataForm.vcSYTCode;
-
-
             string Receiver = loginInfo.UnitCode;
 
-            JArray listInfo = dataForm.vcOriginCompany;
-            List<string> origin = listInfo.ToObject<List<string>>();
             try
             {
                 DataTable dt = null;
@@ -110,7 +96,7 @@ namespace SPPSApi.Controllers.G03
                 }
                 else
                 {
-                    DataTable dtAll = fs0308_logic.searchApi(strYear, SYT, Receiver, origin);
+                    DataTable dtAll = fs0308_logic.searchApi(strYear, Receiver);
                     initSearchCash(strSearchKey, dtAll);
                     dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
                 }
@@ -120,8 +106,9 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dTimeFrom", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFinishYMD", ConvertFieldType.DateType, "yyyy/MM/dd");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -132,7 +119,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0802", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0801", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -160,16 +147,13 @@ namespace SPPSApi.Controllers.G03
             {
                 strYear = Convert.ToDateTime(strYear).AddHours(8).ToString("yyyy");
             }
-            string SYT = dataForm.vcSYTCode == null ? "" : dataForm.vcSYTCode;
 
             string Receiver = loginInfo.UnitCode;
-            JArray listInfo = dataForm.vcOriginCompany;
-            List<string> origin = listInfo.ToObject<List<string>>();
             try
             {
-                DataTable dt = fs0308_logic.searchApi(strYear, SYT, Receiver, origin);
+                DataTable dt = fs0308_logic.searchApi(strYear, Receiver);
 
-                string[] fields = { "vcYear", "vcSupplier_id", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dTimeFrom", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21", "vcSYTCode", "vcReceiver", "vcOriginCompany" };
+                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0308.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -183,7 +167,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0703", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0802", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -228,12 +212,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
-                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dTimeFrom","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
-                                                {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num },
-                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","0","0","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
-                                                {"2","14","15","16","18","19","20","21","22","23","24","25","26","27","28","29","30","31"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","实施时间","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
+                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
+                                                {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num },
+                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"2","14","15","16","18","19","21","22","23","24","25","26","27","28","29","30","31"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
@@ -258,7 +242,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0705", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0803", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

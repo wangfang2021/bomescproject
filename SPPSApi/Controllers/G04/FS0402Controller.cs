@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -44,11 +45,12 @@ namespace SPPSApi.Controllers.G04
 
                 List<Object> dataList_C036 = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//月度订单对应状态
                 List<Object> dataList_C037 = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//月度订单合意状态
- 
 
                 res.Add("C036", dataList_C036);
                 res.Add("C037", dataList_C037);
- 
+                DateTime dNow = DateTime.Now.AddMonths(1);
+                res.Add("yearMonth", dNow.ToString("yyyy/MM"));
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -141,7 +143,7 @@ namespace SPPSApi.Controllers.G04
         #region 承认
         [HttpPost]
         [EnableCors("any")]
-        public string crApi([FromBody] dynamic data)
+        public string okApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -160,9 +162,24 @@ namespace SPPSApi.Controllers.G04
                 string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
                 string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
                 string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                int count=fs0402_Logic.Cr(strYearMonth, strDyState, strHyState, strPart_id);
-
+                if (strYearMonth == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "对象年月不能为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                int count = 0;//影响行数，没啥用
+                if (listInfoData.Count != 0)//选中了数据操作
+                {
+                    count = fs0402_Logic.ok(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                }
+                else//按检索条件
+                {
+                    count = fs0402_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = count;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -177,6 +194,63 @@ namespace SPPSApi.Controllers.G04
             }
         }
         #endregion
+
+        #region 退回
+        [HttpPost]
+        [EnableCors("any")]
+        public string ngApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
+                string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
+                string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
+                string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                if (strYearMonth == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "对象年月不能为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                int count = 0;//影响行数，没啥用
+                if (listInfoData.Count != 0)//选中了数据操作
+                {
+                    count = fs0402_Logic.ng(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                }
+                else//按检索条件
+                {
+                    count = fs0402_Logic.ng(strYearMonth, listInfoData, loginInfo.UserId);
+                }
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = count;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0206", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
 
         #region 导出
         [HttpPost]

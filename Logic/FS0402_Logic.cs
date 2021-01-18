@@ -29,20 +29,35 @@ namespace Logic
             fs0402_DataAccess.importSave(dt, strUserId, strYearMonth);
         }
         #endregion
-
-        //#region 向SOQ导入履历中新增数据
-        //public void importHistory(string strYearMonth, string strFileName, int iState, string strErrorUrl, string strUserId)
-        //{
-        //    fs0402_DataAccess.importHistory(strYearMonth, strFileName, iState, strErrorUrl, strUserId);
-        //}
-        //#endregion
-
-        #region 承认。将合意后SOQ数据复制到合意SOQ，并改变合意状态，赋予合意时间
-        public int Cr(string strYearMonth, string strDyState, string strHyState, string strPart_id)
+ 
+        #region 承认
+        public int ok(string strYearMonth, string strDyState, string strHyState, string strPart_id, string strUserId)
         {
-            return fs0402_DataAccess.Cr(strYearMonth, strDyState, strHyState, strPart_id);
+            return fs0402_DataAccess.ok(strYearMonth, strDyState, strHyState, strPart_id, strUserId);
         }
         #endregion
+
+        #region 承认
+        public int ok(string strYearMonth, List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            return fs0402_DataAccess.ok(strYearMonth, listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 退回
+        public int ng(string strYearMonth, string strDyState, string strHyState, string strPart_id, string strUserId)
+        {
+            return fs0402_DataAccess.ng(strYearMonth, strDyState, strHyState, strPart_id, strUserId);
+        }
+        #endregion
+
+        #region 退回
+        public int ng(string strYearMonth, List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            return fs0402_DataAccess.ng(strYearMonth, listInfoData, strUserId);
+        }
+        #endregion
+
 
         #region 插入导入履历
         public void importHistory(string strYearMonth, List<string> errMessageList)

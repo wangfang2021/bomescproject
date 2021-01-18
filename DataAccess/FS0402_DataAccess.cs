@@ -134,7 +134,7 @@ namespace DataAccess
                     string strPart_id=dt1.Rows[i]["vcPart_id"].ToString();
                     errMessageList.Add(strPart_id+ "在品番基础信息里不存在");
                 }
-                //验证2：N 月品番有效性  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
+                //验证2：N 月品番有效性(N月得有数量)  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
                 sql.Length = 0;//清空
                 sql.Append("    select a.vcPart_id from    \r\n ");
                 sql.Append("    (    \r\n ");
@@ -155,7 +155,7 @@ namespace DataAccess
                     string strPart_id = dt2.Rows[i]["vcPart_id"].ToString();
                     errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足"+ strYearMonth + "月有效性条件");
                 }
-                //验证3：N+1 月品番有效性  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
+                //验证3：N+1 月品番有效性(N+1月得有数量)  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
                 sql.Length = 0;//清空
                 sql.Append("    select a.vcPart_id from    \r\n ");
                 sql.Append("    (    \r\n ");
@@ -176,7 +176,7 @@ namespace DataAccess
                     string strPart_id = dt3.Rows[i]["vcPart_id"].ToString();
                     errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足" + strYearMonth_2 + "月有效性条件");
                 }
-                //验证4：N+2 月品番有效性  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
+                //验证4：N+2 月品番有效性(N+2月得有数量)  SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据     
                 sql.Length = 0;//清空
                 sql.Append("    select a.vcPart_id from    \r\n ");
                 sql.Append("    (    \r\n ");
@@ -197,7 +197,7 @@ namespace DataAccess
                     string strPart_id = dt4.Rows[i]["vcPart_id"].ToString();
                     errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足" + strYearMonth_3 + "月有效性条件");
                 }
-                //验证5：是否有价格，且在有效期内            TPrice  dUseBegin    dUseEnd ，品番在时间区间内有数据
+                //验证5：是否有价格，且在有效期内(只判断N月)            TPrice  dUseBegin    dUseEnd ，品番在时间区间内有数据
                 sql.Length = 0;//清空
                 sql.Append("    select a.vcPart_id from     \r\n ");
                 sql.Append("    (     \r\n ");
@@ -214,7 +214,7 @@ namespace DataAccess
                     string strPart_id = dt5.Rows[i]["vcPart_id"].ToString();
                     errMessageList.Add(strPart_id + "在" + strYearMonth + "月没有维护价格");
                 }
-                //验证6：手配中是否有受入、收容数、发注工厂
+                //验证6：手配中是否有受入、收容数、发注工厂（N、N+1、N+2都判断）
 
                 //验证7：收容数整倍数
 
@@ -222,8 +222,10 @@ namespace DataAccess
 
                 //验证9：如果是强制订货，没有价格也可以定。
 
+                //验证10：品番3个月数量不能全为0(N月可以为)
 
-
+                //验证11：品番3个月数量是否为整数，不能是小数
+ 
             }
             catch (Exception ex)
             {
@@ -239,6 +241,8 @@ namespace DataAccess
         {
             try
             {
+                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+
                 DateTime now = DateTime.Now;
 
                 StringBuilder sql = new StringBuilder();
@@ -256,7 +260,8 @@ namespace DataAccess
                 sql.AppendLine("iCbSOQN2,");
                 sql.AppendLine("dDrTime,");
                 sql.AppendLine("vcOperator,");
-                sql.AppendLine("dOperatorTime");
+                sql.AppendLine("dOperatorTime,");
+                sql.AppendLine("vcLastTimeFlag");
                 sql.AppendLine(")");
 
                 sql.AppendLine("VALUES");
@@ -272,14 +277,14 @@ namespace DataAccess
                     sql.AppendLine("'" + dt.Rows[i]["iCbSOQN2"] + "',");
                     sql.AppendLine("getDate(),");
                     sql.AppendLine("'"+ strUserId + "',");
-                    sql.AppendLine("getDate()");
+                    sql.AppendLine("getDate(),");
+                    sql.AppendLine("'" + strLastTimeFlag + "'");
                     sql.AppendLine(")");
 
                     if (i < dt.Rows.Count - 1) {
                         sql.Append(",");
                     }
                 }
-
                 sql.Append("; \r\n ");
                 //更新TSoqInput设定为导入成功，删除TSoqInputErrDetail
                 sql.Append(" delete TSoqInput where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
@@ -317,20 +322,18 @@ namespace DataAccess
                 sql.AppendLine("  )b on a.vcPart_id=b.vcPart_id    \r\n ");
                 sql.AppendLine("  where a.vcYearMonth='" + strYearMonth + "' and b.iHySOQN is not null    \r\n ");
 
-
-
                 //在SOQprocess表中插入状态
                 sql.AppendLine("DELETE TSOQProcess WHERE vcYearMonth='"+ strYearMonth + "'; \r\n ");
                 sql.AppendLine("INSERT INTO TSOQProcess(INOUTFLAG,vcYearMonth,iStatus)  \r\n ");
                 sql.AppendLine("VALUES('0','"+ strYearMonth + "',0), \r\n ");
                 sql.AppendLine("('1','"+ strYearMonth + "',0); \r\n ");
 
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
 
+                //记录日志
+                sql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
+                sql.AppendLine("  select vcYearMonth,vcPart_id,'FTMS导入成功','" + strUserId + "',getDate() from TSoq  where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "' ");
 
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
@@ -372,10 +375,11 @@ namespace DataAccess
         #endregion
 
         #region 承认。将合意后SOQ数据复制到合意SOQ，并改变合意状态，赋予合意时间
-        public int Cr(string strYearMonth, string strDyState, string strHyState, string strPart_id)
+        public int ok(string strYearMonth, string strDyState, string strHyState, string strPart_id,string strUserId)
         {
             try
             {
+                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine(" UPDATE TSoq SET ");
@@ -384,6 +388,9 @@ namespace DataAccess
                 strSql.AppendLine("      iHySOQN2=iTzhSOQN2,");
                 strSql.AppendLine("      vcHyState='2', ");
                 strSql.AppendLine("      dHyTime=getdate() ");
+                strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
+                strSql.AppendLine("      ,dOperatorTime=getDate() ");
+                strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
                 strSql.AppendLine(" WHERE 1=1 ");
                 //筛选条件：对象年月
                 if (!string.IsNullOrEmpty(strYearMonth))
@@ -405,7 +412,171 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" AND vcPart_id like '%"+ strPart_id + "%' ");
                 }
-                
+                strSql.Append("; \r\n ");
+
+                //记录日志
+                strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
+                strSql.AppendLine("  select vcYearMonth,vcPart_id,'FTMS承认','"+ strUserId + "',getDate() from TSoq  where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "' ");
+                return excute.ExcuteSqlWithStringOper(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 承认。将合意后SOQ数据复制到合意SOQ，并改变合意状态，赋予合意时间
+        public int ok(string strYearMonth, List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      if object_id('tempdb..#TSoq_temp_cr') is not null       \n");
+                strSql.Append("      Begin      \n");
+                strSql.Append("      drop  table #TSoq_temp_cr       \n");
+                strSql.Append("      End      \n");
+                strSql.Append("      select * into #TSoq_temp_cr from       \n");
+                strSql.Append("      (      \n");
+                strSql.Append("      	select * from TSoq where 1=0      \n");
+                strSql.Append("      ) a      ;\n");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    #region 将所有的数据都插入临时表
+                    strSql.Append("      insert into #TSoq_temp_cr       \n");
+                    strSql.Append("       (         \n");
+                    strSql.Append("       vcPart_id        \n");
+                    strSql.Append("       ) values         \n");
+                    strSql.Append("      (      \n");
+                    strSql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",   \n");
+                    strSql.Append("      );      \n");
+                    #endregion
+                }
+
+                strSql.AppendLine(" UPDATE TSoq SET ");
+                strSql.AppendLine("      iHySOQN=iTzhSOQN,");
+                strSql.AppendLine("      iHySOQN1=iTzhSOQN1,");
+                strSql.AppendLine("      iHySOQN2=iTzhSOQN2,");
+                strSql.AppendLine("      vcHyState='2', ");
+                strSql.AppendLine("      dHyTime=getdate() ");
+                strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
+                strSql.AppendLine("      ,dOperatorTime=getDate() ");
+                strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                strSql.AppendLine(" from TSoq a  \n ");
+                strSql.AppendLine(" inner join  \n ");
+                strSql.AppendLine(" (  \n ");
+                strSql.AppendLine("    select vcPart_id from #TSoq_temp_cr  \n ");
+                strSql.AppendLine(" )b on a.vcPart_id=b.vcPart_id  \n ");
+                strSql.Append(";  \n ");
+
+                //记录日志
+                strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
+                strSql.AppendLine("  select '"+ strYearMonth + "' as vcYearMonth,vcPart_id,'FTMS承认','" + strUserId + "',getDate() from TSoq where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "'  ");
+                strSql.Append(";  \n ");
+                return excute.ExcuteSqlWithStringOper(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 退回
+        public int ng(string strYearMonth, string strDyState, string strHyState, string strPart_id,string strUserId)
+        {
+            try
+            {
+                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine(" UPDATE TSoq SET ");
+                strSql.AppendLine("      vcHyState='3' ");
+                strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
+                strSql.AppendLine("      ,dOperatorTime=getDate() ");
+                strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                strSql.AppendLine(" WHERE 1=1 ");
+                //筛选条件：对象年月
+                if (!string.IsNullOrEmpty(strYearMonth))
+                {
+                    strSql.AppendLine(" AND vcYearMonth='" + strYearMonth + "' ");
+                }
+                //筛选条件：对应状态
+                if (!string.IsNullOrEmpty(strDyState))
+                {
+                    strSql.AppendLine(" AND vcDyState='" + strDyState + "' ");
+                }
+                //筛选条件：合意状态
+                if (!string.IsNullOrEmpty(strHyState))
+                {
+                    strSql.AppendLine(" AND vcHyState='" + strHyState + "' ");
+                }
+                //筛选条件：品番
+                if (!string.IsNullOrEmpty(strPart_id))
+                {
+                    strSql.AppendLine(" AND vcPart_id like '%" + strPart_id + "%' ");
+                }
+                strSql.Append("; \r\n ");
+
+                //本次修改的数据记录日志
+                strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
+                strSql.AppendLine("  select vcYearMonth,vcPart_id,'FTMS退回','" + strUserId + "',getDate() from TSoq  ");
+                strSql.AppendLine("  where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "' ");
+
+                return excute.ExcuteSqlWithStringOper(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 承认。将合意后SOQ数据复制到合意SOQ，并改变合意状态，赋予合意时间
+        public int ng(string strYearMonth, List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      if object_id('tempdb..#TSoq_temp_back') is not null       \n");
+                strSql.Append("      Begin      \n");
+                strSql.Append("      drop  table #TSoq_temp_back       \n");
+                strSql.Append("      End      \n");
+                strSql.Append("      select * into #TSoq_temp_back from       \n");
+                strSql.Append("      (      \n");
+                strSql.Append("      	select * from TSoq where 1=0      \n");
+                strSql.Append("      ) a      ;\n");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    #region 将所有的数据都插入临时表
+                    strSql.Append("      insert into #TSoq_temp_back       \n");
+                    strSql.Append("       (         \n");
+                    strSql.Append("       vcPart_id        \n");
+                    strSql.Append("       ) values         \n");
+                    strSql.Append("      (      \n");
+                    strSql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",   \n");
+                    strSql.Append("      );      \n");
+                    #endregion
+                }
+
+                strSql.AppendLine(" UPDATE TSoq SET ");
+                strSql.AppendLine("      vcHyState='3'  ");
+                strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
+                strSql.AppendLine("      ,dOperatorTime=getDate() ");
+                strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                strSql.AppendLine(" from TSoq a  \n ");
+                strSql.AppendLine(" inner join  \n ");
+                strSql.AppendLine(" (  \n ");
+                strSql.AppendLine("    select vcPart_id from #TSoq_temp_back  \n ");
+                strSql.AppendLine(" )b on a.vcPart_id=b.vcPart_id  \n ");
+                strSql.Append(";  \n ");
+
+                //本次修改的数据记录日志
+                strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
+                strSql.AppendLine("  select '" + strYearMonth + "' as vcYearMonth,vcPart_id,'FTMS退回','" + strUserId + "',getDate() from TSoq where vcLastTimeFlag='"+ strLastTimeFlag + "' and vcOperator='" + strUserId + "'  ");
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)

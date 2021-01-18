@@ -61,9 +61,9 @@ namespace SPPSApi.Controllers.G05
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable task = fs0503_Logic.GetTaskNum();//待回复的数据
 
-                List<Object> dataList_C033 = ComFunction.convertAllToResult(ComFunction.getTCode("C034"));//荷姿状态
+                List<Object> dataList_C034 = ComFunction.convertAllToResult(ComFunction.getTCode("C034"));//荷姿状态
 
-                res.Add("C034", dataList_C033);
+                res.Add("C034", dataList_C034);
                 res.Add("taskNum", task.Rows.Count);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -95,8 +95,8 @@ namespace SPPSApi.Controllers.G05
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+            string vcSupplier_id = loginInfo.UserId.Substring(0,4);
+            string vcWorkArea = loginInfo.UserId.Substring(4);
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
 
@@ -105,7 +105,8 @@ namespace SPPSApi.Controllers.G05
 
             try
             {
-                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate);
+
+                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate,loginInfo.UserId);
                 #region delete 
 
                 //if (dt.Rows.Count > 0)
@@ -172,20 +173,17 @@ namespace SPPSApi.Controllers.G05
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string dSynchronizationDate = dataForm.dSynchronizationDate == null ? "" : dataForm.dSynchronizationDate;
+            string vcSupplier_id = loginInfo.UserId.Substring(0, 4);
+            string vcWorkArea = loginInfo.UserId.Substring(4);
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             string dExpectDeliveryDate = dataForm.dExpectDeliveryDate == null ? "" : dataForm.dExpectDeliveryDate;
-            string vcOEOrSP = dataForm.vcOEOrSP == null ? "" : dataForm.vcOEOrSP;
-            string vcBoxType = dataForm.vcBoxType == null ? "" : dataForm.vcBoxType;
 
             try
             {
-                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate);
+                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate, loginInfo.UserId);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
@@ -298,7 +296,7 @@ namespace SPPSApi.Controllers.G05
                             string[] imsges = dataForm.vcDelImageRoutes.Split(",");
                             for (int i = 0; i < imsges.Length; i++)
                             {
-                                String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Images";
+                                String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
                                 if (System.IO.File.Exists(realPath + imsges[i]))
                                 {
                                     System.IO.File.Delete(realPath + imsges[i]);
@@ -307,7 +305,7 @@ namespace SPPSApi.Controllers.G05
                         }
                         else
                         {
-                            String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Images";
+                            String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
                             if (System.IO.File.Exists(realPath + vcDelImageRoutes))
                             {
                                 System.IO.File.Delete(realPath + vcDelImageRoutes);
@@ -435,6 +433,56 @@ namespace SPPSApi.Controllers.G05
                 return result;
             }
 
+        }
+
+        [HttpPost]
+        [EnableCors("any")]
+        public string replyApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                //以下开始业务处理
+                //以下开始业务处理
+
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.parentFormSelectItem;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先选中数据，再进行回复操作！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "已退回")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] +"状态不正确,必须是待回复或已退回，才能进行回复操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                fs0503_Logic.reply(listInfoData, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0405", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
         }
     }
 }

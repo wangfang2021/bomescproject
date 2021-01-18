@@ -122,7 +122,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2502", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0402", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -291,16 +291,13 @@ namespace SPPSApi.Controllers.G06
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
             ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            JArray listInfo = dataForm.parentFormSelectItem.multipleSelection;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            string dExpectDeliveryDate = dataForm.hzzkForm.dExpectDeliveryDate == null ? "" : dataForm.hzzkForm.dExpectDeliveryDate;
             try
             {
                 //以下开始业务处理
-                //以下开始业务处理
-               
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.parentFormSelectItem;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-
-                string dExpectDeliveryDate = dataForm.allInstallForm.dExpectDeliveryDate == null ? "" : dataForm.allInstallForm.dExpectDeliveryDate;
                
                 if (dExpectDeliveryDate.Length == 0)
                 {
@@ -314,6 +311,15 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "请先进行数据检索，再进行一括赋予操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcState"].ToString() != "未发送")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是未发送，才能进行荷姿展开操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 fs0604_Logic.hZZK(listInfoData, dExpectDeliveryDate, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -323,7 +329,7 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0405", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "荷姿展开操作失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -351,13 +357,20 @@ namespace SPPSApi.Controllers.G06
                 JArray listInfo = dataForm.parentFormSelectItem;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                string dExpectDeliveryDate = dataForm.allInstallForm.dExpectDeliveryDate == null ? "" : dataForm.allInstallForm.dExpectDeliveryDate;
-
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请先选中数据，再进行承认操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcState"].ToString() != "已回复")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是已回复，才能进行承认操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 fs0604_Logic.admit(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -366,9 +379,9 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0405", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0406", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "承认操作失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -395,13 +408,20 @@ namespace SPPSApi.Controllers.G06
                 JArray listInfo = dataForm.parentFormSelectItem;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                string dExpectDeliveryDate = dataForm.allInstallForm.dExpectDeliveryDate == null ? "" : dataForm.allInstallForm.dExpectDeliveryDate;
-
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请先选中数据，再进行承认操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcState"].ToString() != "已回复")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是已回复，才能进行退回操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 fs0604_Logic.returnHandle(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -410,7 +430,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0406", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0407", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -455,7 +475,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0407", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0408", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -507,7 +527,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0406", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0409", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "一括赋予失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

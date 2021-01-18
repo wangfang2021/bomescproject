@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState,  string vcPartNo, string vcCarType, string dExpectDeliveryDate)
+        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState,  string vcPartNo, string vcCarType, string dExpectDeliveryDate,string UserId)
         {
-            return fs0503_DataAccess.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate);
+            return fs0503_DataAccess.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate, UserId);
         }
 
         public DataTable GetBoxType()
@@ -76,6 +76,11 @@ namespace Logic
         public bool editOk(dynamic dataForm, string userId)
         {
             return fs0503_DataAccess.editOk(dataForm, userId);
+        }
+
+        public void reply(List<Dictionary<string, object>> listInfoData, string userId)
+        {
+            fs0503_DataAccess.reply(listInfoData, userId);
         }
     }
 }

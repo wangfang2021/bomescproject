@@ -78,6 +78,7 @@ namespace DataAccess
 
                     if (change.Equals("1"))//新设/新车新设
                     {
+                        //TODO 有变量来源未知
                         string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                         string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
                         string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
@@ -88,8 +89,8 @@ namespace DataAccess
                         }
                         string partId = getPartId(CarType, vcPart_Id, vcNewProj);
                         sbr.Append(" INSERT INTO TUnit  \r\n");
-                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcSYTCode,vcReceiver,vcOperator,dOperatorTime) values\r\n");
-                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'"+getValue("C006", listInfoData[i]["vcUnit"].ToString()) +"','','','" + strUserId + "', GETDATE())  \r\n");
+                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime) values\r\n");
+                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE())  \r\n");
                     }
                     else if (change.Equals("2"))//废止
                     {

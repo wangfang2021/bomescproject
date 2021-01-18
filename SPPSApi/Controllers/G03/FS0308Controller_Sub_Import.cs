@@ -22,17 +22,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G03
 {
-    [Route("api/FS0307_Sub_Import/[action]")]
+    [Route("api/FS0308_Sub_Import/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0307Controller_Sub_Import : BaseController
+    public class FS0308Controller_Sub_Import : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS0307_Logic fs0307_Logic = new FS0307_Logic();
-        private readonly string FunctionID = "FS0307";
+        FS0308_Logic fs0308_Logic = new FS0308_Logic();
+        private readonly string FunctionID = "FS0308";
 
-        public FS0307Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
+        public FS0308Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -68,11 +68,11 @@ namespace SPPSApi.Controllers.G03
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"年度","进度","厂家编码","品番","车种","内外区分","1年", "2年", "3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年","事业体","收货方","所属原单位"},
-                                                {"vcYear","vcFinish","vcSupplier_id","vcPart_id","vcCarTypeDev","vcInOutflag","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21","vcSYTCode","vcReceiver","vcOriginCompany"},
-                                                {"","","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Date,"",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"","",""},
-                                                {"4","0","4","12","10","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"4","0","4","1","1","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","1","1","1"}
+                string[,] headers = new string[,] {{"年度","品番","车种","内外区分","1年", "2年", "3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
+                                                {"vcYear","vcPart_id","vcCarTypeDev","vcInOutflag","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
+                                                {"",FieldCheck.NumCharLLL,"","",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Date,"",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar},
+                                                {"4","12","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"4","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}
 
                 };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
@@ -104,7 +104,7 @@ namespace SPPSApi.Controllers.G03
 
 
 
-                fs0307_Logic.importSave(importDt, loginInfo.UserId);
+                fs0308_Logic.importSave(importDt, loginInfo.UnitCode, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -112,7 +112,7 @@ namespace SPPSApi.Controllers.G03
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0710", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0804", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

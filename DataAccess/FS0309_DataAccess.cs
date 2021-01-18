@@ -183,7 +183,7 @@ namespace DataAccess
                 if (sql.Length > 0)
                 {
                     //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-                    sql.Append("  DECLARE @errorPart varchar(50)   \r\n");
+                    sql.Append("  DECLARE @errorPart varchar(4000)   \r\n");
                     sql.Append("  set @errorPart=''   \r\n");
                     sql.Append("  set @errorPart=(   \r\n");
                     sql.Append("  	select a.vcPart_id+';' from   \r\n");

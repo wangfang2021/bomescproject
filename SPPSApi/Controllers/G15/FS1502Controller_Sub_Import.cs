@@ -20,23 +20,60 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G03
+namespace SPPSApi.Controllers.G15
 {
-    [Route("api/FS0307_Sub_Import/[action]")]
+    [Route("api/FS1502_Sub_Import/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0307Controller_Sub_Import : BaseController
+    public class FS1502Controller_Sub_Import : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS0307_Logic fs0307_Logic = new FS0307_Logic();
-        private readonly string FunctionID = "FS0307";
+        FS1502_Logic fs1502_Logic = new FS1502_Logic();
+        private readonly string FunctionID = "FS1502";
 
-        public FS0307Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
+        public FS1502Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //if (loginInfo.Special == "财务用户")
+                //    res.Add("caiWuBtnVisible", false);
+                //else
+                //    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//工厂
+                res.Add("C000", dataList_C000);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
         #region 导入之后点保存
         [HttpPost]
@@ -58,27 +95,36 @@ namespace SPPSApi.Controllers.G03
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             try
             {
+                string dBZDate = dataForm.dBZDate == null ? "" : dataForm.dBZDate;
+                string vcFZPlant = dataForm.vcFZPlant == null ? "" : dataForm.vcFZPlant;
+                if (dBZDate == "")
+                {
+                    ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择包装日期！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if(vcFZPlant == "")
+                {
+                    ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择发注工厂！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 if (!Directory.Exists(fileSavePath))
                 {
                     ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                     apiResult.code = ComConstant.ERROR_CODE;
-
                     apiResult.data = "没有要导入的文件，请重新上传！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"年度","进度","厂家编码","品番","车种","内外区分","1年", "2年", "3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年","事业体","收货方","所属原单位"},
-                                                {"vcYear","vcFinish","vcSupplier_id","vcPart_id","vcCarTypeDev","vcInOutflag","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21","vcSYTCode","vcReceiver","vcOriginCompany"},
-                                                {"","","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Date,"",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"","",""},
-                                                {"4","0","4","12","10","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"4","0","4","1","1","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","1","1","1"}
-
-                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                    DataTable dt = fs1502_Logic.ReadTxtFile(fileSavePath+info.Name,ref strMsg);
                     if (strMsg != "")
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
@@ -102,9 +148,24 @@ namespace SPPSApi.Controllers.G03
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
+                //var result = from r in importDt.AsEnumerable()
+                //             group r by new { r2 = r.Field<string>("vcSR"), r3 = r.Field<string>("vcPartsNoBefore5"), r4 = r.Field<string>("vcBCPartsNo") } into g
+                //             where g.Count() > 1
+                //             select g;
+                //if (result.Count() > 0)
+                //{
+                //    StringBuilder sbr = new StringBuilder();
+                //    sbr.Append("导入数据重复:<br/>");
+                //    foreach (var item in result)
+                //    {
+                //        sbr.Append("受入号:" + item.Key.r2 + " 品番前5位:" + item.Key.r3 + " 包材品番:" + item.Key.r4 + "<br/>");
+                //    }
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = sbr.ToString();
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
-
-                fs0307_Logic.importSave(importDt, loginInfo.UserId);
+                fs1502_Logic.importSave_Sub(importDt,vcFZPlant,dBZDate, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -112,7 +173,7 @@ namespace SPPSApi.Controllers.G03
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0710", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

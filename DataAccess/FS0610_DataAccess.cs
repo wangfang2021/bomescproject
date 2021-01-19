@@ -4,6 +4,7 @@ using System.Data;
 using System.Text;
 using System.Data.SqlClient;
 using DataEntity;
+using System.Collections;
 
 namespace DataAccess
 {
@@ -11,48 +12,14 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        #region 获取品番箱数
-        public DataTable getParts(string varDxny, string iFZGC, int parts_Count)
+        #region 取日历
+        public DataTable GetCalendar(string strPlant, string vcDXYM)
         {
             try
             {
-                StringBuilder strSql = new StringBuilder();
-                System.Data.SqlClient.SqlParameter[] parameters = {
-                    new SqlParameter("@varDxny", SqlDbType.VarChar),
-                    new SqlParameter("@iFZGC", SqlDbType.VarChar),
-                    new SqlParameter("@unitCount", SqlDbType.Int),
-                };
-                parameters[0].Value = varDxny;
-                parameters[1].Value = iFZGC;
-                parameters[2].Value = parts_Count;
-
-
-                strSql.Append("SELECT iAutoId");
-                strSql.Append("      ,PARTSNO");
-                //发注工厂列
-                strSql.Append("      ,iFZGC");
-                //订货频度列
-                strSql.Append("      ,varMakingOrderType");
-                //内外区分列
-                strSql.Append("      ,INOUTFLAG");
-                //车型编号列
-                strSql.Append("      ,CARFAMILYCODE");
-                //收容数列
-                strSql.Append("      ,QUANTITYPERCONTAINER");
-                //箱数列
-                strSql.Append("      ,@unitCount as 'iUnits'");
-                //品番数列
-                strSql.Append("      ,iHySOQN as 'iPCS'");
-
-
-                strSql.Append("  FROM TSoq");
-                strSql.Append("  WHERE varDxny=@varDxny");
-                //内制
-                strSql.Append("  AND INOUTFLAG='0'");
-                strSql.Append("  AND iFZGC=@iFZGC");
-                strSql.Append("  AND iHySOQN/QUANTITYPERCONTAINER=@unitCount");
-
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select * from TCalendar_PingZhun_Nei where vcFZGC='"+strPlant+"' and TARGETMONTH='"+vcDXYM+"'    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
             {
@@ -61,71 +28,247 @@ namespace DataAccess
         }
         #endregion
 
-
-        #region 获取稼动日历数据
-        public DataTable getJdrlData(string varDxny, string varFZGC)
+        #region 取soq数据
+        public DataTable GetSoq(string strPlant, string strDXYM,string strType)
         {
+            StringBuilder sql = new StringBuilder();
+            string strhycolumn = "";
+            if (strType == "dxym")
+                strhycolumn = "iHySOQN";
+            else if (strType == "nsym")
+                strhycolumn = "iHySOQN1";
+            else if (strType == "nnsym")
+                strhycolumn = "iHySOQN2";
+            sql.Append("select vcPart_id, "+strhycolumn+",iQuantityPercontainer from TSoq     \n");
+            sql.Append("where vcYearMonth='"+strDXYM+"' and vcFZGC='"+strPlant+"' and vcInOutFlag='0' and vcHyState='2'    \n");
+            return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        }
+        #endregion
+
+        #region 更新平准化结果
+        public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM,string strUserId)
+        {
+            SqlCommand cmd;
+            SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString());//对账平台
+            ComConnectionHelper.OpenConection_SQL(ref conn);
+            cmd = new SqlCommand();
+            SqlTransaction st = conn.BeginTransaction();
             try
             {
-                StringBuilder strSql = new StringBuilder();
-                System.Data.SqlClient.SqlParameter[] parameters = {
-                    new SqlParameter("@varDxny", SqlDbType.VarChar),
-                    new SqlParameter("@varFZGC", SqlDbType.VarChar),
-                };
-                parameters[0].Value = varDxny;
-                parameters[1].Value = varFZGC;
+                StringBuilder sql = new StringBuilder();
+                sql.Append("delete from TSoqReply where vcCLYM='"+strCLYM+"' and vcDXYM in ('"+ strDXYM + "','"+ strNSYM + "','"+ strNNSYM + "') " +
+                    "and vcFZGC='" + strPlant+"' and vcInOutFlag='0'    \n");
+                #region 更新arrResult_DXYM
+                for (int i = 0; i < arrResult_DXYM.Count; i++)
+                {
+                    string[] arr = (string[])arrResult_DXYM[i];
+                    sql.Append(Resultsql(arr, strPlant, strCLYM, strDXYM, strUserId));
+                    if (i % 2000 == 0)
+                    {
+                        cmd.Connection = conn;
+                        cmd.Transaction = st;
+                        cmd.CommandText = sql.ToString();
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandTimeout = 0;
+                        cmd.ExecuteNonQuery();
+                        sql.Length = 0;
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    cmd.Connection = conn;
+                    cmd.Transaction = st;
+                    cmd.CommandText = sql.ToString();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 0;
+                    cmd.ExecuteNonQuery();
+                    sql.Length = 0;
+                }
+                #endregion
+                #region 更新arrResult_NSYM
+                for (int i = 0; i < arrResult_NSYM.Count; i++)
+                {
+                    string[] arr = (string[])arrResult_NSYM[i];
+                    sql.Append(Resultsql(arr, strPlant, strCLYM, strNSYM, strUserId));
+                    if (i % 2000 == 0)
+                    {
+                        cmd.Connection = conn;
+                        cmd.Transaction = st;
+                        cmd.CommandText = sql.ToString();
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandTimeout = 0;
+                        cmd.ExecuteNonQuery();
+                        sql.Length = 0;
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    cmd.Connection = conn;
+                    cmd.Transaction = st;
+                    cmd.CommandText = sql.ToString();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 0;
+                    cmd.ExecuteNonQuery();
+                    sql.Length = 0;
+                }
+                #endregion
+                #region 更新arrResult_NNSYM
+                for (int i = 0; i < arrResult_NNSYM.Count; i++)
+                {
+                    string[] arr = (string[])arrResult_NNSYM[i];
+                    sql.Append(Resultsql(arr, strPlant, strCLYM, strNNSYM, strUserId));
+                    if (i % 2000 == 0)
+                    {
+                        cmd.Connection = conn;
+                        cmd.Transaction = st;
+                        cmd.CommandText = sql.ToString();
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandTimeout = 0;
+                        cmd.ExecuteNonQuery();
+                        sql.Length = 0;
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    cmd.Connection = conn;
+                    cmd.Transaction = st;
+                    cmd.CommandText = sql.ToString();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 0;
+                    cmd.ExecuteNonQuery();
+                    sql.Length = 0;
+                }
+                #endregion
+                #region 统一更新需要关联字段：订货频度vcMakingOrderType,车型编码vcCarType
+                sql.Append("update t1 set t1.vcMakingOrderType=t2.vcOrderingMethod,t1.vcCarType=t2.vcCarfamilyCode     \n");
+                sql.Append("from    \n");
+                sql.Append("(    \n");
+                sql.Append("	select * from TSoqReply     \n");
+                sql.Append("	where vcCLYM='"+ strCLYM + "' and vcDXYM in ('" + strDXYM + "','" + strNSYM + "','" + strNNSYM + "') and vcFZGC='"+ strPlant + "' " +
+                    "and vcInOutFlag='0')t1    \n");
+                sql.Append("left join(    \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
+                sql.Append("	where vcPackingPlant='TFTM' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
+                sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
-                strSql.AppendLine(" SELECT ");
-                strSql.AppendLine(" TARGETDAY1,");
-                strSql.AppendLine(" TARGETDAY2,");
-                strSql.AppendLine(" TARGETDAY3,");
-                strSql.AppendLine(" TARGETDAY4,");
-                strSql.AppendLine(" TARGETDAY5,");
-                strSql.AppendLine(" TARGETDAY6,");
-                strSql.AppendLine(" TARGETDAY7,");
-                strSql.AppendLine(" TARGETDAY8,");
-                strSql.AppendLine(" TARGETDAY9,");
-                strSql.AppendLine(" TARGETDAY10,");
-                strSql.AppendLine(" TARGETDAY11,");
-                strSql.AppendLine(" TARGETDAY12,");
-                strSql.AppendLine(" TARGETDAY13,");
-                strSql.AppendLine(" TARGETDAY14,");
-                strSql.AppendLine(" TARGETDAY15,");
-                strSql.AppendLine(" TARGETDAY16,");
-                strSql.AppendLine(" TARGETDAY17,");
-                strSql.AppendLine(" TARGETDAY18,");
-                strSql.AppendLine(" TARGETDAY19,");
-                strSql.AppendLine(" TARGETDAY20,");
-                strSql.AppendLine(" TARGETDAY21,");
-                strSql.AppendLine(" TARGETDAY22,");
-                strSql.AppendLine(" TARGETDAY23,");
-                strSql.AppendLine(" TARGETDAY24,");
-                strSql.AppendLine(" TARGETDAY25,");
-                strSql.AppendLine(" TARGETDAY26,");
-                strSql.AppendLine(" TARGETDAY27,");
-                strSql.AppendLine(" TARGETDAY28,");
-                strSql.AppendLine(" TARGETDAY29,");
-                strSql.AppendLine(" TARGETDAY30,");
-                strSql.AppendLine(" TARGETDAY31,");
-                strSql.AppendLine(" TOTALWORKDAYS");
+                cmd.Connection = conn;
+                cmd.Transaction = st;
+                cmd.CommandText = sql.ToString();
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = 0;
+                cmd.ExecuteNonQuery();
+                #endregion
 
-                strSql.AppendLine(" FROM SP_M_SOQCLDAR_N ");
-
-                strSql.AppendLine(" WHERE TARGETMONTH=@varDxny ");
-
-                //发注工厂
-                strSql.AppendLine(" AND varFZGC=@varFZGC ");
-
-
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
+                st.Commit();
+                ComConnectionHelper.CloseConnection_SQL(ref conn);
             }
             catch (Exception ex)
             {
+                st.Rollback();
+                ComConnectionHelper.CloseConnection_SQL(ref conn);
                 throw ex;
             }
         }
         #endregion
 
+        #region 生成insert的sql语句
+        public StringBuilder Resultsql(string[] arr,string strPlant,string strCLYM,string strDXYM,string strUserId)
+        {
+            StringBuilder sql = new StringBuilder();
+            #region insert sql
+                sql.Append("INSERT INTO [TSoqReply]    \n");
+                sql.Append("           ([vcFZGC]    \n");
+                sql.Append("           ,[vcMakingOrderType]    \n");
+                sql.Append("           ,[vcInOutFlag]    \n");
+                sql.Append("           ,[vcCLYM]    \n");
+                sql.Append("           ,[vcDXYM]    \n");
+                sql.Append("           ,[vcPart_id]    \n");
+                sql.Append("           ,[vcCarType]    \n");
+                sql.Append("           ,[iQuantityPercontainer]    \n");
+                sql.Append("           ,[iBoxes]    \n");
+                sql.Append("           ,[iPartNums]    \n");
+                sql.Append("           ,[iD1]    \n");
+                sql.Append("           ,[iD2]    \n");
+                sql.Append("           ,[iD3]    \n");
+                sql.Append("           ,[iD4]    \n");
+                sql.Append("           ,[iD5]    \n");
+                sql.Append("           ,[iD6]    \n");
+                sql.Append("           ,[iD7]    \n");
+                sql.Append("           ,[iD8]    \n");
+                sql.Append("           ,[iD9]    \n");
+                sql.Append("           ,[iD10]    \n");
+                sql.Append("           ,[iD11]    \n");
+                sql.Append("           ,[iD12]    \n");
+                sql.Append("           ,[iD13]    \n");
+                sql.Append("           ,[iD14]    \n");
+                sql.Append("           ,[iD15]    \n");
+                sql.Append("           ,[iD16]    \n");
+                sql.Append("           ,[iD17]    \n");
+                sql.Append("           ,[iD18]    \n");
+                sql.Append("           ,[iD19]    \n");
+                sql.Append("           ,[iD20]    \n");
+                sql.Append("           ,[iD21]    \n");
+                sql.Append("           ,[iD22]    \n");
+                sql.Append("           ,[iD23]    \n");
+                sql.Append("           ,[iD24]    \n");
+                sql.Append("           ,[iD25]    \n");
+                sql.Append("           ,[iD26]    \n");
+                sql.Append("           ,[iD27]    \n");
+                sql.Append("           ,[iD28]    \n");
+                sql.Append("           ,[iD29]    \n");
+                sql.Append("           ,[iD30]    \n");
+                sql.Append("           ,[iD31]    \n");
+                sql.Append("           ,[vcOperatorID]    \n");
+                sql.Append("           ,[dOperatorTime])    \n");
+                sql.Append("     VALUES    \n");
+                sql.Append("           ('"+strPlant+"'    \n");//工厂
+                sql.Append("           ,''    \n");//vcMakingOrderType 品番表关联
+                sql.Append("           ,'0'    \n");//内制/外注
+                sql.Append("           ,'"+strCLYM+"'    \n");//处理年月
+                sql.Append("           ,'"+strDXYM+"'    \n");//对象年月
+                sql.Append("           ,'"+ arr[0] + "'    \n");//品番
+                sql.Append("           ,''    \n");//vcCarType 品番表关联
+                sql.Append("           ,nullif("+arr[2]+",'')    \n");//收容数
+                sql.Append("           ,nullif("+arr[3]+",'')    \n");//箱数
+                sql.Append("           ,nullif("+arr[1]+",'')    \n");//订单数
+                sql.Append("           ,nullif("+arr[4]+",'')    \n");//D1
+                sql.Append("           ,nullif(" + arr[5] + ",'')    \n");//D2
+                sql.Append("           ,nullif(" + arr[6] + ",'')    \n");//D3
+                sql.Append("           ,nullif(" + arr[7] + ",'')    \n");//D4
+                sql.Append("           ,nullif(" + arr[8] + ",'')    \n");//D5
+                sql.Append("           ,nullif(" + arr[9] + ",'')    \n");//D6
+                sql.Append("           ,nullif(" + arr[10] + ",'')   \n");//D7
+                sql.Append("           ,nullif(" + arr[11] + ",'')   \n");//D8
+                sql.Append("           ,nullif(" + arr[12] + ",'')   \n");//D9
+                sql.Append("           ,nullif(" + arr[13] + ",'')    \n");//D10
+                sql.Append("           ,nullif(" + arr[14] + ",'')    \n");//D11
+                sql.Append("           ,nullif(" + arr[15] + ",'')    \n");//D12
+                sql.Append("           ,nullif(" + arr[16] + ",'')    \n");//D13
+                sql.Append("           ,nullif(" + arr[17] + ",'')    \n");//D14
+                sql.Append("           ,nullif(" + arr[18] + ",'')    \n");//D15
+                sql.Append("           ,nullif(" + arr[19] + ",'')    \n");//D16
+                sql.Append("           ,nullif(" + arr[20] + ",'')    \n");//D17
+                sql.Append("           ,nullif(" + arr[21] + ",'')    \n");//D18
+                sql.Append("           ,nullif(" + arr[22] + ",'')    \n");//D19
+                sql.Append("           ,nullif(" + arr[23] + ",'')    \n");//D20
+                sql.Append("           ,nullif(" + arr[24] + ",'')    \n");//D21
+                sql.Append("           ,nullif(" + arr[25] + ",'')    \n");//D22
+                sql.Append("           ,nullif(" + arr[26] + ",'')    \n");//D23
+                sql.Append("           ,nullif(" + arr[27] + ",'')    \n");//D24
+                sql.Append("           ,nullif(" + arr[28] + ",'')    \n");//D25
+                sql.Append("           ,nullif(" + arr[29] + ",'')    \n");//D26
+                sql.Append("           ,nullif(" + arr[30] + ",'')    \n");//D27
+                sql.Append("           ,nullif(" + arr[31] + ",'')    \n");//D28
+                sql.Append("           ,nullif(" + arr[32] + ",'')    \n");//D29
+                sql.Append("           ,nullif(" + arr[33] + ",'')    \n");//D30
+                sql.Append("           ,nullif(" + arr[34] + ",'')    \n");//D31
+                sql.Append("           ,'"+strUserId+"'    \n");//操作者
+                sql.Append("           ,getdate())    \n");//操作时间
+                #endregion
+            return sql;
+        }
+        #endregion
 
         #region 将平准结果存储进数据库
         public int save(DataTable saveTable, string userId,string varDxny,int iMonthFlag)
@@ -215,7 +358,6 @@ namespace DataAccess
         }
         #endregion
 
-
         #region 展开SOQReply
         public int zk(string varDxny, string userId)
         {
@@ -249,7 +391,6 @@ namespace DataAccess
             }
         }
         #endregion
-
 
         #region 下载SOQReply（检索内容）
         public DataTable search(string varDxny)

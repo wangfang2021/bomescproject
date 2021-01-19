@@ -151,8 +151,18 @@ namespace DataAccess
                     string vcSheetName = dt.Rows[i]["vcSheetName"].ToString();
                     string vcFileName = dt.Rows[i]["vcFileName"].ToString();
                     string vcFileNameTJ = dt.Rows[i]["vcFileNameTJ"].ToString();
-                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType) values ");
-                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "',0,'" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE(),'0' ) \r\n");
+                    string vcPartId = "";
+                    if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
+                    {
+                        vcPartId = vcPart_Id_old;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
+                    {
+                        vcPartId = vcPart_Id_new;
+                    }
+                    string[] tmp = getOrigin(vcPartId);
+                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType,vcDiff,vcOriginCompany) values ");
+                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "',0,'" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE(),'0','" + tmp[1] + "','" + tmp[0] + "' ) \r\n");
 
                     fileList.Add(vcFileNameTJ);
                     if (i % 1000 == 0)
@@ -467,6 +477,29 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #endregion
+
+        #region 获取原单位区分
+
+        public string[] getOrigin(string partId)
+        {
+            string[] res = new string[] { "", "" };
+
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine("SELECT TOP(1) vcPart_id,vcOriginCompany,vcDiff FROM Tunit ");
+            sbr.AppendLine("WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
+            sbr.AppendLine("AND vcPart_id = '" + partId + "'");
+
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            if (dt.Rows.Count > 0)
+            {
+                res[0] = dt.Rows[0]["vcOriginCompany"].ToString();
+                res[1] = dt.Rows[0]["vcDiff"].ToString();
+            }
+
+            return res;
+        }
+
         #endregion
     }
 }

@@ -191,7 +191,7 @@ namespace DataAccess
                         break;
                     }
                 }
-                string FileNameTJ = vcPlant + "_" + "SPRL" + carType;
+                string FileNameTJ = vcPlant + "_" + "SPRL" + "_" + carType;
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType) \r\n");
@@ -211,7 +211,7 @@ namespace DataAccess
                     sbr.Append("'" + fileName + "',");
                     sbr.Append("'" + FileNameTJ + "',");
                     sbr.Append("'" + userId + "',");
-                    sbr.Append(" GETDATE(),'SPRL' as vcType ");
+                    sbr.Append(" GETDATE(),'1'");
                     sbr.Append(" ) \r\n");
                 }
 

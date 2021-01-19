@@ -241,7 +241,7 @@ namespace DataAccess
         {
             try
             {
-                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+                string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
 
                 DateTime now = DateTime.Now;
 
@@ -286,9 +286,11 @@ namespace DataAccess
                     }
                 }
                 sql.Append("; \r\n ");
-                //更新TSoqInput设定为导入成功，删除TSoqInputErrDetail
-                sql.Append(" delete TSoqInput where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
-                sql.Append(" insert into TSoqInput(vcYearMonth,iState,vcOperator,dOperatorTime)values('" + strYearMonth + "',2,'"+ strUserId + "',getdate());  \r\n ");
+
+                //sql.Append(" delete TSoqInput where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
+                //sql.Append(" insert into TSoqInput(vcYearMonth,iState,vcOperator,dOperatorTime)values('" + strYearMonth + "',2,'"+ strUserId + "',getdate());  \r\n ");
+                
+                //走到保存，则异常信息肯定没有了，删除TSoqInputErrDetail
                 sql.Append(" delete TSoqInputErrDetail where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
 
                 //2、再更新关联数据
@@ -323,10 +325,10 @@ namespace DataAccess
                 sql.AppendLine("  where a.vcYearMonth='" + strYearMonth + "' and b.iHySOQN is not null    \r\n ");
 
                 //在SOQprocess表中插入状态
-                sql.AppendLine("DELETE TSOQProcess WHERE vcYearMonth='"+ strYearMonth + "'; \r\n ");
-                sql.AppendLine("INSERT INTO TSOQProcess(INOUTFLAG,vcYearMonth,iStatus)  \r\n ");
-                sql.AppendLine("VALUES('0','"+ strYearMonth + "',0), \r\n ");
-                sql.AppendLine("('1','"+ strYearMonth + "',0); \r\n ");
+                //sql.AppendLine("DELETE TSOQProcess WHERE vcYearMonth='"+ strYearMonth + "'; \r\n ");
+                //sql.AppendLine("INSERT INTO TSOQProcess(INOUTFLAG,vcYearMonth,iStatus)  \r\n ");
+                //sql.AppendLine("VALUES('0','"+ strYearMonth + "',0), \r\n ");
+                //sql.AppendLine("('1','"+ strYearMonth + "',0); \r\n ");
 
 
                 //记录日志
@@ -350,7 +352,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 //先删除本对象月再新增
-                strSql.AppendLine(" DELETE FROM TSoqInput  WHERE vcYearMonth='"+ strYearMonth + "'; ");
+                strSql.AppendLine(" DELETE FROM TSoqInputErrDetail  WHERE vcYearMonth='" + strYearMonth + "'; ");
                 strSql.AppendLine(" ");
 
                 for(int i=0;i< errMessageList.Count; i++)
@@ -379,7 +381,7 @@ namespace DataAccess
         {
             try
             {
-                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+                string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine(" UPDATE TSoq SET ");
@@ -431,7 +433,7 @@ namespace DataAccess
         {
             try
             {
-                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+                string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("      if object_id('tempdb..#TSoq_temp_cr') is not null       \n");
@@ -489,7 +491,7 @@ namespace DataAccess
         {
             try
             {
-                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+                string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" UPDATE TSoq SET ");
@@ -539,7 +541,7 @@ namespace DataAccess
         {
             try
             {
-                string strLastTimeFlag = DateTime.Now.ToString("YYYYMMDDHHmmss");
+                string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("      if object_id('tempdb..#TSoq_temp_back') is not null       \n");
                 strSql.Append("      Begin      \n");

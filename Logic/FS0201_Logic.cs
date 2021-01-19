@@ -164,56 +164,49 @@ namespace Logic
 
             if (!string.IsNullOrWhiteSpace(oldPro) && (oldPro.Contains("WB") || oldPro.Contains("WF") || oldPro.Contains("WL") || oldPro.Contains("WD")))
             {
-                if (oldPro.Contains("WD"))
+
+                if (oldPro.Contains("WB"))
                 {
                     resList.Add("WB");
-                    resList.Add("WF");
-                    resList.Add("WL");
                 }
-                else
+                else if (oldPro.Contains("WF"))
                 {
-                    if (oldPro.Contains("WB"))
-                    {
-                        resList.Add("WB");
-                    }
-                    else if (oldPro.Contains("WF"))
-                    {
-                        resList.Add("WF");
+                    resList.Add("WF");
 
-                    }
-                    else if (oldPro.Contains("WL"))
-                    {
-                        resList.Add("WL");
+                }
+                else if (oldPro.Contains("WL"))
+                {
+                    resList.Add("WL");
 
-                    }
+                }
+                else if (oldPro.Contains("WD"))
+                {
+                    resList.Add("WD");
+
                 }
 
             }
             if (!string.IsNullOrWhiteSpace(newPro) && (newPro.Contains("WB") || newPro.Contains("WF") || newPro.Contains("WL") || newPro.Contains("WD")))
             {
-                if (newPro.Contains("WD"))
+
+                if (newPro.Contains("WB"))
                 {
                     resList.Add("WB");
-                    resList.Add("WF");
-                    resList.Add("WL");
                 }
-                else
+                else if (newPro.Contains("WF"))
                 {
+                    resList.Add("WF");
 
-                    if (newPro.Contains("WB"))
-                    {
-                        resList.Add("WB");
-                    }
-                    else if (newPro.Contains("WF"))
-                    {
-                        resList.Add("WF");
+                }
+                else if (newPro.Contains("WL"))
+                {
+                    resList.Add("WL");
 
-                    }
-                    else if (newPro.Contains("WL"))
-                    {
-                        resList.Add("WL");
+                }
+                else if (newPro.Contains("WD"))
+                {
+                    resList.Add("WD");
 
-                    }
                 }
 
             }

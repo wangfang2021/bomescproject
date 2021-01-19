@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Collections;
 
 namespace SPPSApi.Controllers.G06
 {
@@ -44,10 +45,10 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                string varDxny = DateTime.Now.AddMonths(1).ToString("yyyy/MM");
+                string vcDXYM = DateTime.Now.AddMonths(1).ToString("yyyy/MM");
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = varDxny;
+                apiResult.data = vcDXYM;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -77,16 +78,67 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-                string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyy/MM");
+                string vcDXYM = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM).ToString("yyyyMM");
                 //用户选择的发注工厂
-                JArray iFZGCarray =  dataForm.iFZGCarray;
+                JArray vcPlants = dataForm.vcPlant;
+                List<string> plantList = null;
+                try
+                {
+                    plantList = vcPlants.ToObject<List<string>>();
+                }
+                catch (Exception ex)
+                {
 
-                fs0610_Logic.create(varDxny, loginInfo.UserId, iFZGCarray);
+                }
+                if (plantList == null || plantList.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择工厂。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                for (int i = 0; i < plantList.Count; i++)
+                {
+                    string strPlant = plantList[i];
+                    //取日历数据
+                    DataTable dtCalendar = fs0610_Logic.GetCalendar(strPlant, vcDXYM);
+                    if (dtCalendar.Rows.Count == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data =string.Format("没找到{0}厂{1}月日历。",strPlant,vcDXYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //取Soq数据
+                    DataTable dtSoq_dxym = fs0610_Logic.GetSoq(strPlant, vcDXYM, "dxym");
+                    DataTable dtSoq_nsym = fs0610_Logic.GetSoq(strPlant, vcDXYM, "nsym");
+                    DataTable dtSoq_nnsym = fs0610_Logic.GetSoq(strPlant, vcDXYM, "nnsym");
+                    if(dtSoq_dxym.Rows.Count==0 || dtSoq_nsym.Rows.Count==0 || dtSoq_nnsym.Rows.Count==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("没找到{0}厂{1}月soq数据(内制&已合意)。", strPlant, vcDXYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //调公共方法得到平准化结果
+                    //参数：dtCalendar(where工厂/对象月),dtSoQ(where工厂/对象月/计算月/内制或外注/已合意),dt特殊品番,dt特殊供应商
+                    ArrayList arrResult_DXYM = new ArrayList();//dtCalendar,dtSoq_dxym,null,null
+                    ArrayList arrResult_NSYM = new ArrayList();//dtCalendar,dtSoq_nsym,null,null
+                    ArrayList arrResult_NNSYM = new ArrayList();//dtCalendar,dtSoq_nnsym,null,null
+                    if(arrResult_DXYM.Count==0 || arrResult_NSYM.Count==0 || arrResult_NNSYM.Count==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("{0}厂{1}月平准化结果计算失败。", strPlant, vcDXYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //将平准化结果更新DB
+                    string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
+                    string vcNSYM = Convert.ToDateTime(vcDXYM.Substring(0, 4) + "-" + vcDXYM.Substring(4, 2) + "-01").ToString("yyyyMM");
+                    string vcNNSYM= Convert.ToDateTime(vcNSYM.Substring(0, 4) + "-" + vcNSYM.Substring(4, 2) + "-01").ToString("yyyyMM");
+                    fs0610_Logic.SaveResult(vcCLYM,vcDXYM,vcNSYM, vcNNSYM, strPlant, arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM,loginInfo.UserId);
+
+                }
 
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                //apiResult.data = count;
+                apiResult.data = "";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
             }
@@ -94,13 +146,13 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "";
+                apiResult.data = "请求失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
 
-        #region 展开SOQReply
+        #region 展开SOQReply   张德勤写的，还需要修改
         [HttpPost]
         [EnableCors("any")]
         public string zkApi([FromBody] dynamic data)
@@ -138,7 +190,7 @@ namespace SPPSApi.Controllers.G06
         }
         #endregion
 
-        #region 下载SOQReply
+        #region 下载SOQReply  张德勤写的，还需要修改
         [HttpPost]
         [EnableCors("any")]
         public string downloadApi([FromBody] dynamic data)

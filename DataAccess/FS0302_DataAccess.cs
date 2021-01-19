@@ -299,7 +299,7 @@ namespace DataAccess
                     int index = getIndex(vcPart_Id, listPath[i]);
                     if (index != -1)
                     {
-                        for (int j = index; j > 0; j--)
+                        for (int j = index; j >= 0; j--)
                         {
                             if (vcParent.Equals(listPath[i][j].Parent))
                             {

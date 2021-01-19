@@ -106,5 +106,10 @@ namespace Logic
 
             fs0609_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);
         }
+
+        public string CopyTo(string vcPlantFrom, List<string> vcPlantTo, string vcMon, string strUserId)
+        {
+            return fs0609_DataAccess.CopyTo(vcPlantFrom, vcPlantTo, vcMon, strUserId);
+        }
     }
 }

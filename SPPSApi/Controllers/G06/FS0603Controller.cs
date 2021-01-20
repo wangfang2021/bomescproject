@@ -1150,7 +1150,7 @@ namespace SPPSApi.Controllers.G06
             string strFromTime = string.Empty;
             string strToTime = string.Empty;
             string strHaoJiu = string.Empty;
-            string strOrderPlant = string.Empty;
+            string strOrderPlant = string.Empty; 
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut,

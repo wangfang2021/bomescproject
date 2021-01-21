@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcOrderState, string vcOrderNo, string dTargetDate,  string vcOrderType,string userID)
+        public DataTable Search(string vcOrderState,string vcInOutFlag, string vcOrderNo, string dTargetDate,  string vcOrderType,string userID)
         {
-            return fs0404_DataAccess.Search(vcOrderState, vcOrderNo, dTargetDate, vcOrderType, userID);
+            return fs0404_DataAccess.Search(vcOrderState, vcInOutFlag, vcOrderNo, dTargetDate, vcOrderType, userID);
         }
 
         public DataTable isCheckByOrderNo(string lastOrderNo)
@@ -29,14 +29,14 @@ namespace Logic
             return fs0404_DataAccess.isCheckByOrderNo(lastOrderNo);
         }
 
-        public void updateBylastOrderNo(string vcOrderType, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList,string UserId)
+        public void updateBylastOrderNo(string vcOrderType,string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList,string UserId)
         {
-            fs0404_DataAccess.updateBylastOrderNo(vcOrderType, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, UserId);
+            fs0404_DataAccess.updateBylastOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, UserId);
         }
 
-        public void addOrderNo(string vcOrderType, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId)
+        public void addOrderNo(string vcOrderType,string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId)
         {
-            fs0404_DataAccess.addOrderNo(vcOrderType, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId);
+            fs0404_DataAccess.addOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId);
         }
     }
 }

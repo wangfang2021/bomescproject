@@ -110,6 +110,8 @@ namespace SPPSApi.Controllers.G06
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dSynchronizationDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dExpectDeliveryDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dUseStartDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dUserEndDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOrderReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSendDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dReplyDate", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -162,8 +164,8 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "同步时间", "状态", "品番", "使用开始时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)",  "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
-                field = new string[] { "dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
+                head = new string[] { "包装工厂", "收货方", "同步时间", "状态", "品番", "使用开始时间", "使用结束时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)",  "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
+                field = new string[] { "vcPackingPlant", "vcReceiver", "dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "dUserEndDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -234,9 +236,9 @@ namespace SPPSApi.Controllers.G06
                 {
                     string[,] strField = new string[,] {{"同步时间", "状态", "品番", "使用开始时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "照片","发送时间","回复时间","承认时间","原单位织入时间","备注"},
                                                 {"dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcImageRoutes","dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo"},
-                                                {"","","","","","","","","",FieldCheck.Date,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,"",FieldCheck.Decimal, FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,"","","","","",""},
-                                                {"0","5","12","0","200","50","200","4","50","0","20","20","20","50","20","20","20","20","20","500","0","0","0","0","500"},//最大长度设定,不校验最大长度用0
-                                                {"0","1","1","0","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0","1","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"","","","","","","","","",FieldCheck.Date,FieldCheck.Num,"","","","", "","","","","","","","","",""},
+                                                {"0","5","12","0","200","50","200","4","50","0","20","20","20","50","20","20","20","20","20","0","0","0","0","0","500"},//最大长度设定,不校验最大长度用0
+                                                {"0","1","1","0","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段
@@ -319,6 +321,12 @@ namespace SPPSApi.Controllers.G06
                         apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是未发送，才能进行荷姿展开操作！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (listInfoData[i]["vcExpectIntake"].ToString().Trim().Length==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "请填写品番"+listInfoData[i]["vcPartNo"] + "的要望收容数，才能进行荷姿展开操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 fs0604_Logic.hZZK(listInfoData, dExpectDeliveryDate, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -354,7 +362,7 @@ namespace SPPSApi.Controllers.G06
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.parentFormSelectItem;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 if (listInfoData.Count == 0)
@@ -405,7 +413,7 @@ namespace SPPSApi.Controllers.G06
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.parentFormSelectItem;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 if (listInfoData.Count == 0)
@@ -432,7 +440,7 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0407", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "退回操作失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -457,16 +465,25 @@ namespace SPPSApi.Controllers.G06
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.parentFormSelectItem;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-
-                string dExpectDeliveryDate = dataForm.allInstallForm.dExpectDeliveryDate == null ? "" : dataForm.allInstallForm.dExpectDeliveryDate;
 
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请先选中数据，再进行承认操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //织入操作的前提是已承认状态
+                //vcValue vcName 0   未发送1 待回复2   已回复3 已承认4   已退回5 已织入
+                for (var i=0;i<listInfoData.Count;i++)
+                {
+                    if (listInfoData[i]["vcState"].ToString() != "已承认")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是已承认，才能进行织入操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 fs0604_Logic.weaveHandle(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -477,7 +494,7 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0408", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "织入操作失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -510,7 +527,7 @@ namespace SPPSApi.Controllers.G06
                 if (vcIntake.Length == 0 )
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "一括赋予收容数不能全为空！,请确认！";
+                    apiResult.data = "一括赋予要望收容数不能全为空！,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (listInfoData.Count == 0)
@@ -519,7 +536,15 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "请先进行数据检索，再进行一括赋予操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                for (var i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcState"].ToString() != "未发送")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是未发送，才能进行一括赋予操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 fs0604_Logic.allInstall(listInfoData, vcIntake, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

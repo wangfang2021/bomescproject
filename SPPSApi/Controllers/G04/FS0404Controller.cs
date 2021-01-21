@@ -53,9 +53,10 @@ namespace SPPSApi.Controllers.G04
 
                 List<Object> dataList_C045 = ComFunction.convertAllToResult(ComFunction.getTCode("C045"));//荷姿状态
                 List<Object> dataList_C046 = ComFunction.convertAllToResult(ComFunction.getTCode("C046"));//荷姿状态
-
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//荷姿状态
                 res.Add("C045", dataList_C045);
                 res.Add("C046", dataList_C046);
+                res.Add("C003", dataList_C003);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -86,12 +87,13 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcOrderState = dataForm.vcOrderState == null ? "" : dataForm.vcOrderState;
+            string vcInOutFlag = dataForm.vcInOutFlag == null ? "" : dataForm.vcInOutFlag;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
             string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
             try
             {
-                DataTable dt = fs0404_Logic.Search(vcOrderState, vcOrderNo, dTargetDate, vcOrderType,loginInfo.UserId);
+                DataTable dt = fs0404_Logic.Search(vcOrderState, vcInOutFlag,vcOrderNo, dTargetDate, vcOrderType,loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -126,18 +128,19 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcOrderState = dataForm.vcOrderState == null ? "" : dataForm.vcOrderState;
+            string vcInOutFlag = dataForm.vcInOutFlag == null ? "" : dataForm.vcInOutFlag;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
             string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
             try
             {
-                DataTable dt = fs0404_Logic.Search(vcOrderState, vcOrderNo, dTargetDate, vcOrderType, loginInfo.UserId);
+                DataTable dt = fs0404_Logic.Search(vcOrderState, vcInOutFlag, vcOrderNo, dTargetDate, vcOrderType, loginInfo.UserId);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcOrderNo], [dTargetDate], [vcOrderType] ,vcOrderState,[dUploadDate],[vcMemo]
-                head = new string[] { "订单编号", "对象年月日", "订单类型", "状态", "备注", "上传时间" };
+                head = new string[] { "订单编号", "对象年月日", "订单类型","内外", "状态", "备注", "上传时间" };
 
-                field = new string[] { "vcOrderNo", "dTargetDate", "vcOrderType", "vcOrderState", "vcMemo", "dUploadDate" };
+                field = new string[] { "vcOrderNo", "dTargetDate", "vcOrderType", "vcInOutFlag", "vcOrderState", "vcMemo", "dUploadDate" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -177,6 +180,7 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
+            string vcInOutFlag = dataForm.vcInOutFlag == null ? "" : dataForm.vcInOutFlag;
             string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
             string lastOrderNo = dataForm.lastOrdderNo == null ? "" : dataForm.lastOrdderNo;
             string newOrderNo = dataForm.newOrderNo == null ? "" : dataForm.newOrderNo;
@@ -198,6 +202,12 @@ namespace SPPSApi.Controllers.G04
                 } else
                 { 
                 
+                }
+                if (vcInOutFlag.Length==0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "内外选项不能为空,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                     #region 判断
                     #endregion
@@ -337,7 +347,7 @@ namespace SPPSApi.Controllers.G04
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
            
-                    fs0404_Logic.updateBylastOrderNo(vcOrderType, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList,loginInfo.UserId);
+                    fs0404_Logic.updateBylastOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList,loginInfo.UserId);
                     String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
                     if (System.IO.File.Exists(realPath + dt.Rows[0]["vcFilePath"]))
                     {
@@ -346,7 +356,7 @@ namespace SPPSApi.Controllers.G04
                 }
                 else
                 {
-                    fs0404_Logic.addOrderNo(vcOrderType, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, loginInfo.UserId);
+                    fs0404_Logic.addOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, loginInfo.UserId);
                 }
 
                 //删除误操作的上传订单

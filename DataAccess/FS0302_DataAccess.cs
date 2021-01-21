@@ -25,12 +25,12 @@ namespace DataAccess
                 sbr.Append(" WHEN (ISNULL(a.vcDTDiff,'') <> '' AND  ISNULL(a.vcPart_id_DT,'') <> '') THEN a.vcDTDiff+'/'+a.vcPart_id_DT  \r\n");
                 sbr.Append(" WHEN ISNULL(a.vcDTDiff,'') <> '' THEN a.vcDTDiff WHEN ISNULL(a.vcPart_id_DT,'') <> '' THEN a.vcPart_id_DT END AS vcDT, \r\n");
                 sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.vcOldProj,a.dOldProjTime,a.vcNewProj, \r\n");
-                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag  \r\n");
+                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag,a.vcType  \r\n");
                 sbr.Append(" FROM \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcOriginCompany,vcDiff,vcCarType,vcTHChange, \r\n");
                 sbr.Append(" vcRemark,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff, \r\n");
-                sbr.Append(" vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName \r\n");
+                sbr.Append(" vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcType \r\n");
                 sbr.Append(" FROM TSBManager WHERE vcFileNameTJ = '" + fileNameTJ + "' \r\n");
                 sbr.Append(" ) a \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
@@ -78,19 +78,32 @@ namespace DataAccess
 
                     if (change.Equals("1"))//新设/新车新设
                     {
-                        //TODO 有变量来源未知
                         string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                         string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
+                        string vcType = ObjToString(listInfoData[i]["vcType"]).Trim();
                         string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
                         string vcStartYearMonth = ObjToString(listInfoData[i]["vcStartYearMonth"]).Trim();
                         if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
                         {
                             vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
                         }
-                        string partId = getPartId(CarType, vcPart_Id, vcNewProj);
+
+                        string partId = vcPart_Id;
+
+                        if (vcType.Equals("1"))
+                        {
+                            partId = getPartId(CarType, vcPart_Id, vcNewProj);
+                        }
+
                         sbr.Append(" INSERT INTO TUnit  \r\n");
                         sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime) values\r\n");
                         sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE())  \r\n");
+
+                        sbr.Append(" UPDATE TSBManager \r\n");
+                        sbr.Append(" SET vcFinishState = '3', \r\n");
+                        sbr.Append("     vcOperatorId = '" + strUserId + "', \r\n");
+                        sbr.Append("     dOperatorTime = GETDATE() \r\n");
+                        sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
                     }
                     else if (change.Equals("2"))//废止
                     {
@@ -286,7 +299,7 @@ namespace DataAccess
                     int index = getIndex(vcPart_Id, listPath[i]);
                     if (index != -1)
                     {
-                        for (int j = index; j > 0; j--)
+                        for (int j = index; j >= 0; j--)
                         {
                             if (vcParent.Equals(listPath[i][j].Parent))
                             {

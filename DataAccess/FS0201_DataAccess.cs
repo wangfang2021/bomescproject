@@ -464,7 +464,7 @@ namespace DataAccess
                     sbr.Append(" vcFileName  = " + ComFunction.getSqlValue(dt.Rows[i]["vcFileName"], false) + ", ");
                     sbr.Append(" vcOperatorId  = '" + strUserId + "', ");
                     sbr.Append(" dOperatorTime  = GETDATE() ");
-                    sbr.Append(" where  vcSPINo = '" + vcSPINo + "' AND (vcPart_Id_old = '" + vcPart_Id_old + "' OR vcPart_Id_new = '" + vcPart_Id_new + "') \r\n");
+                    sbr.Append(" where  vcSPINo = '" + vcSPINo + "' AND vcPart_Id_old = '" + vcPart_Id_old + "' AND vcPart_Id_new = '" + vcPart_Id_new + "' \r\n");
 
                 }
                 if (sbr.Length > 0)

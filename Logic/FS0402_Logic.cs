@@ -16,6 +16,20 @@ namespace Logic
     {
         FS0402_DataAccess fs0402_DataAccess = new FS0402_DataAccess();
 
+        #region 获取数据字典
+        public DataTable getTCode(string strCodeId)
+        {
+            try
+            {
+                return fs0402_DataAccess.getTCode(strCodeId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 按检索条件检索,返回dt
         public DataTable Search(string strYearMonth, string strDyState, string strHyState, string strPart_id)
         {
@@ -23,13 +37,64 @@ namespace Logic
         }
         #endregion
 
-        #region 导入后保存
-        public void importSave(DataTable dt, string strUserId, string strYearMonth)
+
+        public DataTable SearchHistory()
         {
-            fs0402_DataAccess.importSave(dt, strUserId, strYearMonth);
+            return fs0402_DataAccess.SearchHistory();
+        }
+
+        #region 导入后校验
+        public void importCheck(DataTable dt, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3, 
+            ref List<string> errMessageList,string strUnit)
+        {
+            fs0402_DataAccess.importCheck(dt, strUserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, strUnit);
         }
         #endregion
- 
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3)
+        {
+            fs0402_DataAccess.importSave(dt, strUserId, strYearMonth,strYearMonth_2,strYearMonth_3);
+        }
+        #endregion
+
+        #region 是否为待确认
+        public bool IsDQR(string strYearMonth, string strDyState, string strHyState, string strPart_id,ref string strMsg)
+        {
+            DataTable dt= fs0402_DataAccess.IsDQR(strYearMonth, strDyState, strHyState, strPart_id);
+            if (dt.Rows.Count == 0)
+                return true;
+            else
+            {
+                for(int i=0;i<dt.Rows.Count;i++)
+                {
+                    strMsg += dt.Rows[i]["vcPart_id"].ToString();
+                }
+                strMsg = strMsg.Substring(0, strMsg.Length - 1);
+                return false;
+            }
+                
+        }
+        #endregion
+
+        #region 是否为待确认
+        public bool IsDQR(string strYearMonth, List<Dictionary<string, Object>> listInfoData,ref string strMsg)
+        {
+            DataTable dt= fs0402_DataAccess.IsDQR(strYearMonth, listInfoData);
+            if (dt.Rows.Count == 0)
+                return true;
+            else
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strMsg += dt.Rows[i]["vcPart_id"].ToString()+"/";
+                }
+                strMsg = strMsg.Substring(0, strMsg.Length-1);
+                return false;
+            }
+        }
+        #endregion
+
         #region 承认
         public int ok(string strYearMonth, string strDyState, string strHyState, string strPart_id, string strUserId)
         {
@@ -167,14 +232,14 @@ namespace Logic
                         if (Convert.ToInt32(Header[3, j]) > 0 &&
                             dr[Header[1, j]].ToString().Length > Convert.ToInt32(Header[3, j]))
                         {
-                            RetMsg = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
+                            RetMsg = string.Format("第{0}行{1}大于设定长度", i , Header[0, j]);
                             return null;
                         }
 
                         if (Convert.ToInt32(Header[4, j]) > 0 &&
                             dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
                         {
-                            RetMsg = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
+                            RetMsg = string.Format("第{0}行{1}小于设定长度", i , Header[0, j]);
                             return null;
                         }
 
@@ -183,7 +248,7 @@ namespace Logic
                             case "decimal":
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDecimal(dr[Header[1, j]].ToString()))
                                 {
-                                    RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
+                                    RetMsg = string.Format("第{0}行{1}不是合法数值", i, Header[0, j]);
                                     return null;
                                 }
 
@@ -191,7 +256,7 @@ namespace Logic
                             case "d":
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDate(dr[Header[1, j]].ToString()))
                                 {
-                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i, Header[0, j]);
                                     return null;
                                 }
 
@@ -199,7 +264,7 @@ namespace Logic
                             case "ym":
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckYearMonth(dr[Header[1, j]].ToString()))
                                 {
-                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i , Header[0, j]);
                                     return null;
                                 }
 
@@ -208,7 +273,7 @@ namespace Logic
                                 if (Header[2, j].Length > 0 && Regex.Match(dr[Header[1, j]].ToString(), Header[2, j],
                                     RegexOptions.None).Success)
                                 {
-                                    RetMsg = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
+                                    RetMsg = string.Format("第{0}行{1}有非法字符", i , Header[0, j]);
                                     return null;
                                 }
 
@@ -304,6 +369,28 @@ namespace Logic
             {
                 return "";
             }
+        }
+        #endregion
+
+        #region 返回用户邮箱
+        public string getEmail(string strSendUserId)
+        {
+            DataTable dt = fs0402_DataAccess.getEmail(strSendUserId);
+            if(dt.Rows.Count==1)
+            {
+                return dt.Rows[0][0].ToString();
+            }
+            else
+            {
+                return "";
+            }
+        }
+        #endregion
+
+        #region 返回接收人邮箱
+        public DataTable getReciveEmail()
+        {
+            return fs0402_DataAccess.getReciveEmail();
         }
         #endregion
     }

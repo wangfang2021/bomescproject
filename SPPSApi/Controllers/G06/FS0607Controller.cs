@@ -179,10 +179,26 @@ namespace SPPSApi.Controllers.G06
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
+                        string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
+                        string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
+                        if (dBeginDate!= dEndDate)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "新增供应商："+ listInfoData[i]["vcSupplier_id"] +"工区："+ listInfoData[i]["vcWorkArea"] +"纳入开始日和纳入结束日必须同一个月！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
+                        string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
+                        string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
+                        if (dBeginDate != dEndDate)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "修改供应商：" + listInfoData[i]["vcSupplier_id"] + "工区：" + listInfoData[i]["vcWorkArea"] + "纳入开始日和纳入结束日必须同一个月！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                     }
                 }
                 if (!hasFind)

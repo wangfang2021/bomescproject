@@ -20,7 +20,7 @@ namespace DataAccess
         }
         public DataTable getPlantype()
         {
-            string ssql = " select '' as vcName ,'' as vcValue union all select planType,value from sPlanType where enable='1'";
+            string ssql = " select '' as vcName ,'' as vcValue union all select planType,value from sPlanType where enable='1' order by vcValue";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 

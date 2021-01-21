@@ -26,6 +26,8 @@ namespace DataAccess
                 {
                     sbr.Append(" AND dOperatorTime = '" + dOperatorTime + "' \r\n");
                 }
+
+                sbr.Append(" ORDER BY dOperatorTime desc  \r\n");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception e)

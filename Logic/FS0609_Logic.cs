@@ -24,12 +24,12 @@ namespace Logic
         {
             JObject data = new JObject {};
 
-            DataTable re = fs0609_DataAccess.Search(varDxny, varFZGC);
+             DataTable re = fs0609_DataAccess.Search(varDxny, varFZGC);
 
             string[] dxnyArray = new string[]
-                { varDxny.ToString("yyyy/MM"),
-                  varDxny.AddMonths(1).ToString("yyyy/MM"),
-                  varDxny.AddMonths(2).ToString("yyyy/MM")
+                { varDxny.ToString("yyyyMM"),
+                  varDxny.AddMonths(1).ToString("yyyyMM"),
+                  varDxny.AddMonths(2).ToString("yyyyMM")
                 };
 
             for (int i = 0; i < dxnyArray.Length; i++)
@@ -55,6 +55,7 @@ namespace Logic
                                     dayTempalte[k] = "休";
                                 }
                                 //双值
+             
                                 else
                                 {
                                     dayTempalte[k] = "双";
@@ -106,5 +107,9 @@ namespace Logic
             fs0609_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);
         }
 
+        public string CopyTo(string vcPlantFrom, List<string> vcPlantTo, string vcMon, string strUserId)
+        {
+            return fs0609_DataAccess.CopyTo(vcPlantFrom, vcPlantTo, vcMon, strUserId);
+        }
     }
 }

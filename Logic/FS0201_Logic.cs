@@ -164,56 +164,49 @@ namespace Logic
 
             if (!string.IsNullOrWhiteSpace(oldPro) && (oldPro.Contains("WB") || oldPro.Contains("WF") || oldPro.Contains("WL") || oldPro.Contains("WD")))
             {
-                if (oldPro.Contains("WD"))
+
+                if (oldPro.Contains("WB"))
                 {
                     resList.Add("WB");
-                    resList.Add("WF");
-                    resList.Add("WL");
                 }
-                else
+                else if (oldPro.Contains("WF"))
                 {
-                    if (oldPro.Contains("WB"))
-                    {
-                        resList.Add("WB");
-                    }
-                    else if (oldPro.Contains("WF"))
-                    {
-                        resList.Add("WF");
+                    resList.Add("WF");
 
-                    }
-                    else if (oldPro.Contains("WL"))
-                    {
-                        resList.Add("WL");
+                }
+                else if (oldPro.Contains("WL"))
+                {
+                    resList.Add("WL");
 
-                    }
+                }
+                else if (oldPro.Contains("WD"))
+                {
+                    resList.Add("WD");
+
                 }
 
             }
             if (!string.IsNullOrWhiteSpace(newPro) && (newPro.Contains("WB") || newPro.Contains("WF") || newPro.Contains("WL") || newPro.Contains("WD")))
             {
-                if (newPro.Contains("WD"))
+
+                if (newPro.Contains("WB"))
                 {
                     resList.Add("WB");
-                    resList.Add("WF");
-                    resList.Add("WL");
                 }
-                else
+                else if (newPro.Contains("WF"))
                 {
+                    resList.Add("WF");
 
-                    if (newPro.Contains("WB"))
-                    {
-                        resList.Add("WB");
-                    }
-                    else if (newPro.Contains("WF"))
-                    {
-                        resList.Add("WF");
+                }
+                else if (newPro.Contains("WL"))
+                {
+                    resList.Add("WL");
 
-                    }
-                    else if (newPro.Contains("WL"))
-                    {
-                        resList.Add("WL");
+                }
+                else if (newPro.Contains("WD"))
+                {
+                    resList.Add("WD");
 
-                    }
                 }
 
             }
@@ -474,6 +467,13 @@ namespace Logic
                 {
 
                     tempTable.ImportRow(row1); // 将DataRow添加到DataTable中
+                }
+
+                DataRow[] arrDR1 = tmp.Select(" vcOldProj = 'WVG' or vcNewProj ='WVG' ");
+                foreach (DataRow row2 in arrDR1)
+                {
+
+                    tmp.Rows.Remove(row2);
                 }
 
                 return tempTable;
@@ -1272,11 +1272,21 @@ namespace Logic
                     int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old));
 
                     //temp[index].vcOldProj = row.GetCell(15 + flag).ToString();
+                    //temp[index].vcOldProj = "";
+                    //if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
+                    //{
+                    //    temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                    //}
                     temp[index].vcOldProj = "";
-                    if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
+                    if (!row.GetCell(15 + flag).ToString().Contains("("))
                     {
-                        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WV"))
+                        {
+                            temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        }
                     }
+
+
                     temp[index].ZSPF = row.GetCell(50 + flag).ToString();
 
                     if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
@@ -1345,19 +1355,46 @@ namespace Logic
                     if (!string.IsNullOrWhiteSpace(row.GetCell(15 + flag).ToString()))
                     {
                         //工程含有两个及以上的第二个除了含有WB，WL,WF,WD，其余的不显示
-                        if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
-                        {
-                            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
-                            {
-                                temp[index].vcOldProj += ",";
-                                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        //if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
+                        //{
+                        //    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+                        //    {
+                        //        temp[index].vcOldProj += ",";
+                        //        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
 
-                            }
-                            else
+                        //    }
+                        //    else
+                        //    {
+                        //        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        //    }
+                        //}
+                        if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WL"))
+                        {
+                            if (temp[index].vcOldProj != "" && !row.GetCell(15 + flag).ToString().Contains("("))
                             {
-                                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                                if (!row.GetCell(15 + flag).ToString().Contains("(WV"))
+                                {
+                                    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+                                    {
+                                        temp[index].vcOldProj += ",";
+                                        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                                        if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+                                            {
+                                                temp[index].vcOldProjTime += ",";
+                                            }
+                                        }
+                                        temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+                                    }
+                                    else
+                                    {
+                                        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                                    }
+                                }
                             }
                         }
+
 
 
                     }
@@ -1383,15 +1420,15 @@ namespace Logic
                     }
                     temp[index].OGCSSFrom += row.GetCell(57 + flag).ToString();
 
-                    if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
-                    {
-                        if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
-                        {
-                            temp[index].vcOldProjTime += ",";
-                        }
-                    }
+                    //if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+                    //{
+                    //    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+                    //    {
+                    //        temp[index].vcOldProjTime += ",";
+                    //    }
+                    //}
 
-                    temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+                    //temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
                 }
                 #region flag=1
                 //根据品番修改

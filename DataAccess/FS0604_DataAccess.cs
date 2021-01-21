@@ -44,54 +44,91 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select [iAutoId], [dSynchronizationDate], b.vcName as [vcState], [vcPartNo], [dUseStartDate], [vcPartName],   ");
-                strSql.AppendLine("  [vcCarType], [vcOEOrSP], [vcSupplier_id], [vcWorkArea], [dExpectDeliveryDate], [vcExpectIntake],   ");
-                strSql.AppendLine("  [vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],    ");
-                strSql.AppendLine("  [vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,    ");
-                strSql.AppendLine("  [vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],   ");
-                strSql.AppendLine("  [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a   ");
-                strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue  where 1=1   ");
-
+                //strSql.AppendLine("  select [iAutoId], [dSynchronizationDate], b.vcName as [vcState], [vcPartNo], [dUseStartDate], [vcPartName],   ");
+                //strSql.AppendLine("  [vcCarType], [vcOEOrSP], [vcSupplier_id], [vcWorkArea], [dExpectDeliveryDate], [vcExpectIntake],   ");
+                //strSql.AppendLine("  [vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],    ");
+                //strSql.AppendLine("  [vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,    ");
+                //strSql.AppendLine("  [vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],   ");
+                //strSql.AppendLine("  [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a   ");
+                //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue  where 1=1   ");
+                strSql.AppendLine("   select    ");
+                strSql.AppendLine("   n.[iAutoId], n.vcPackingPlant,n.vcReceiver, n.[dSynchronizationDate], o.vcName as [vcState], n.[vcPartNo],      ");
+                strSql.AppendLine("     	n.[dUseStartDate],n.[dUserEndDate], n.[vcPartName],         ");
+                strSql.AppendLine("     	n.[vcCarType], n.[vcOEOrSP], n.[vcSupplier_id], n.[vcWorkArea], n.[dExpectDeliveryDate], n.[vcExpectIntake],        ");
+                strSql.AppendLine("     	n.[vcIntake], n.[vcBoxMaxIntake], n.[vcBoxType], n.[vcLength], n.[vcWide], n.[vcHeight], n.[vcEmptyWeight],         ");
+                strSql.AppendLine("     	n.[vcUnitNetWeight], n.[dSendDate], n.[dReplyDate], n.[dAdmitDate], n.[dWeaveDate], n.[vcMemo], n.vcImageRoutes,         ");
+                strSql.AppendLine("     	n.[vcInserter], n.[vcInserterDate],n.[vcFactoryOperatorID], n.[dFactoryOperatorTime],        ");
+                strSql.AppendLine("     	n.[vcOperatorID], n.[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
+                strSql.AppendLine("   from (      ");
+                strSql.AppendLine("      select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,      ");
+                strSql.AppendLine("      a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,      ");
+                strSql.AppendLine("      a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,      ");
+                strSql.AppendLine("      '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],      ");
+                strSql.AppendLine("      '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],     ");
+                strSql.AppendLine("      '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],       ");
+                strSql.AppendLine("     null as [vcOperatorID], null as [dOperatorTime]   ");
+                strSql.AppendLine("      from [dbo].[TSPMaster] a      ");
+                strSql.AppendLine("      left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b      ");
+                strSql.AppendLine("      on a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartNo and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplier_id      ");
+                strSql.AppendLine("      left join (  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]       ");
+                strSql.AppendLine("      FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1' ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId      ");
+                strSql.AppendLine("      and a.vcReceiver=c.vcReceiver and a.dFromTime = c.dFromTime and a.dToTime=c.dToTime       ");
+                strSql.AppendLine("      where b.vcPartNo is null      ");
+                strSql.AppendLine("     union all      ");
+                strSql.AppendLine("       select * from (      ");
+                strSql.AppendLine("     	select [iAutoId], a.vcPackingPlant,a.vcReceiver, [dSynchronizationDate],  [vcState], [vcPartNo],      ");
+                strSql.AppendLine("     	[dUseStartDate],[dUserEndDate], [vcPartName],         ");
+                strSql.AppendLine("     	[vcCarType], [vcOEOrSP], [vcSupplier_id], [vcWorkArea], [dExpectDeliveryDate], [vcExpectIntake],        ");
+                strSql.AppendLine("     	[vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],         ");
+                strSql.AppendLine("     	[vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,         ");
+                strSql.AppendLine("     	[vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],        ");
+                strSql.AppendLine("     	[vcOperatorID], [dOperatorTime] as vcAddFlag from [dbo].[THeZiManage] a         ");
+                strSql.AppendLine("     	       ");
+                strSql.AppendLine("     	) m      ");
+                strSql.AppendLine("     	) n    ");
+                strSql.AppendLine("   	left join (select vcValue,vcName from TCode where vcCodeId='C033') o on n.vcState = o.vcValue    ");
+                strSql.AppendLine("   	where 1=1     ");
+                strSql.AppendLine("      ");
 
                 if (dSynchronizationDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dSynchronizationDate.Replace("-","") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) = '" + dSynchronizationDate.Replace("-","") + "' ");
                 }
                 if (vcState.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcState = '" + vcState + "' ");
+                    strSql.AppendLine("  and  n.vcState = '" + vcState + "' ");
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPartNo = '" + vcPartNo + "' ");
+                    strSql.AppendLine("  and  n.vcPartNo = '" + vcPartNo + "' ");
                 }
                 
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id  like  '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  n.vcSupplier_id  like  '%" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                    strSql.AppendLine("  and  n.vcWorkArea = '" + vcWorkArea + "' ");
                 }
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
+                    strSql.AppendLine("  and  n.vcCarType = '" + vcCarType + "' ");
                 }
                 if (dExpectDeliveryDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExpectDeliveryDate.Replace("-", "") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "") + "' ");
                 }
                 if (vcOEOrSP.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOEOrSP = '" + vcOEOrSP + "' ");
+                    strSql.AppendLine("  and  n.vcOEOrSP = '" + vcOEOrSP + "' ");
                 }
                 if (vcBoxType.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcBoxType = '" + vcBoxType + "' ");
+                    strSql.AppendLine("  and  n.vcBoxType = '" + vcBoxType + "' ");
                 }
 
-                strSql.AppendLine("  order by  iAutoId desc ");
+                strSql.AppendLine("  order by  n.[dOperatorTime] desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -110,7 +147,7 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
 
-                sql.Append("update [THeZiManage] set  vcState='3', \n");
+                sql.Append("update [THeZiManage] set  vcState='3',dAdmitDate=GETDATE(), \n");
                
                 sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -167,20 +204,56 @@ namespace DataAccess
         {
             try
             {
-                StringBuilder sql = new StringBuilder();
+                
+                for (var i=0; i<listInfoData.Count;i++)
+                {
+                    StringBuilder strSql = new StringBuilder();
+                    //[LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [vcSupplierPlant],
+                    //[dFromTime], [dToTime], [iPackingQty], [vcBoxType], [iLength], [iWidth], [iHeight], 
+                    //[iVolume], [vcOperatorType], [vcOperatorID], [dOperatorTime]
+                    string vcPackingPlant = listInfoData[i]["vcPackingPlant"].ToString();
+                    string vcReceiver = listInfoData[i]["vcReceiver"].ToString();
+                    string vcPartId = listInfoData[i]["vcPartNo"].ToString();
+                    string vcSupplierId = listInfoData[i]["vcSupplier_id"].ToString();
+                    string vcSupplierPlant = listInfoData[i]["vcWorkArea"].ToString();
 
-                //sql.Append("update [THeZiManage] set  vcState='3', \n");
+                    string dFromTime = listInfoData[i]["dUseStartDate"].ToString();
+                    string dToTime = listInfoData[i]["dUserEndDate"].ToString();
+                    string iPackingQty = listInfoData[i]["vcIntake"].ToString();
+                    string vcBoxType = listInfoData[i]["vcBoxType"].ToString();
+                    string iLength = listInfoData[i]["vcLength"].ToString();
+                    string iWidth = listInfoData[i]["vcWide"].ToString();
+                    string iHeight = listInfoData[i]["vcHeight"].ToString();
+                    string iVolume = (Convert.ToDecimal(iLength)* Convert.ToDecimal(iWidth) * Convert.ToDecimal(iHeight)).ToString();
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    strSql.AppendLine("  declare @isExist int =0;   ");
+                    strSql.AppendLine("  select @isExist=COUNT(*) from TSPMaster_Box where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartId='" + vcPartId + "' and vcSupplierId='" + vcSupplierId + "' and vcSupplierPlant='" + vcSupplierPlant + "'   ");
+                    strSql.AppendLine("     ");
+                    strSql.AppendLine("  if @isExist>0   ");
+                    strSql.AppendLine("  begin   ");
+                    strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_Box]   ");
+                    strSql.AppendLine("             ([vcPackingPlant],[vcPartId]  ,[vcReceiver],[vcSupplierId]   ");
+                    strSql.AppendLine("             ,[vcSupplierPlant],[dFromTime] ,[dToTime] ,[iPackingQty],[vcBoxType],[iLength]  ,[iWidth]   ");
+                    strSql.AppendLine("            ,[iHeight]  ,[iVolume] ,[vcOperatorType] ,[vcOperatorID] ,[dOperatorTime]) values (  ");
+                    strSql.AppendLine("  '" + vcPackingPlant + "','" + vcPartId + "','" + vcReceiver + "','" + vcSupplierId + "',   ");
+                    strSql.AppendLine("  '" + vcSupplierPlant + "','" + dFromTime + "','" + dToTime + "','" + iPackingQty + "','" + vcBoxType + "','" + iLength + "','" + iWidth + "',   ");
+                    strSql.AppendLine("   '" + iHeight + "','" + iVolume + "','0', '"+ userId + "',getdate()); ");
 
-                //sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
-                //for (int i = 0; i < listInfoData.Count; i++)
-                //{
-                //    if (i != 0)
-                //        sql.Append(",");
-                //    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                //    sql.Append(iAutoId);
-                //}
-                //sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                    strSql.AppendLine("  end   ");
+                    strSql.AppendLine("  else   ");
+                    strSql.AppendLine("  begin   ");
+                    strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_Box]   ");
+                    strSql.AppendLine("             ([vcPackingPlant],[vcPartId]  ,[vcReceiver],[vcSupplierId]   ");
+                    strSql.AppendLine("             ,[vcSupplierPlant],[dFromTime] ,[dToTime] ,[iPackingQty],[vcBoxType],[iLength]  ,[iWidth]   ");
+                    strSql.AppendLine("            ,[iHeight]  ,[iVolume] ,[vcOperatorType] ,[vcOperatorID] ,[dOperatorTime]) values (  ");
+                    strSql.AppendLine("  '" + vcPackingPlant + "','" + vcPartId + "','" + vcReceiver + "','" + vcSupplierId + "',   ");
+                    strSql.AppendLine("  '" + vcSupplierPlant + "','" + dFromTime + "','" + dToTime + "','" + iPackingQty + "','" + vcBoxType + "','" + iLength + "','" + iWidth + "',   ");
+                    strSql.AppendLine("   '" + iHeight + "','" + iVolume + "','1', '" + userId + "',getdate()); ");
+                    strSql.AppendLine("  end ;  ");
+                    strSql.AppendLine("    update [THeZiManage] set  vcState='5',dWeaveDate =GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId = "+ iAutoId + "  ; ");
+
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -200,12 +273,8 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
 
                 sql.Append("update [THeZiManage] set  \n");
-                if (dExpectDeliveryDate.Length > 0)
-                {
-                    sql.Append(" dExpectDeliveryDate='" + Convert.ToDateTime(dExpectDeliveryDate) + "', \n");
-                }
-               
-                sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
+                sql.Append(" dExpectDeliveryDate='" + Convert.ToDateTime(dExpectDeliveryDate) + "', \n");
+                sql.Append(" vcState='1',dSendDate=GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)
@@ -231,7 +300,34 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select * from [dbo].[THeZiManage] where vcState='0'  ");
+                strSql.AppendLine("  select * from (   ");
+                strSql.AppendLine("     select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,     ");
+                strSql.AppendLine("     a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,     ");
+                strSql.AppendLine("     a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,     ");
+                strSql.AppendLine("     '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],     ");
+                strSql.AppendLine("     '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],     ");
+                strSql.AppendLine("     '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],      ");
+                strSql.AppendLine("    null as [vcOperatorID], null as [dOperatorTime]  ");
+                strSql.AppendLine("     from [dbo].[TSPMaster] a     ");
+                strSql.AppendLine("     left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b     ");
+                strSql.AppendLine("     on a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartNo and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplier_id     ");
+                strSql.AppendLine("     left join (  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]      ");
+                strSql.AppendLine("     FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1' ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId     ");
+                strSql.AppendLine("     and a.vcReceiver=c.vcReceiver and a.dFromTime = c.dFromTime and a.dToTime=c.dToTime      ");
+                strSql.AppendLine("     where b.vcPartNo is null     ");
+                strSql.AppendLine("    union all     ");
+                strSql.AppendLine("      select * from (     ");
+                strSql.AppendLine("    	select [iAutoId], a.vcPackingPlant,a.vcReceiver, [dSynchronizationDate],  [vcState], [vcPartNo],     ");
+                strSql.AppendLine("    	[dUseStartDate],[dUserEndDate], [vcPartName],        ");
+                strSql.AppendLine("    	[vcCarType], [vcOEOrSP], [vcSupplier_id], [vcWorkArea], [dExpectDeliveryDate], [vcExpectIntake],       ");
+                strSql.AppendLine("    	[vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],        ");
+                strSql.AppendLine("    	[vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,        ");
+                strSql.AppendLine("    	[vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],       ");
+                strSql.AppendLine("    	[vcOperatorID], [dOperatorTime] as vcAddFlag from [dbo].[THeZiManage] a        ");
+                strSql.AppendLine("    	) m     ");
+                strSql.AppendLine("    	) n   ");
+                strSql.AppendLine("  	left join (select vcValue,vcName from TCode where vcCodeId='C033') o on n.vcState = o.vcValue   ");
+                strSql.AppendLine("  	where n.vcState='0'    ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -251,8 +347,6 @@ namespace DataAccess
         {
             try
             {
-                StringBuilder sql = new StringBuilder();
-
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
@@ -263,24 +357,50 @@ namespace DataAccess
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                        sql.Append("   UPDATE [dbo].[THeZiManage]   \r\n");
-                        sql.Append("      SET [vcExpectIntake] = " + getSqlValue(listInfoData[i]["vcExpectIntake"], false) + "   \r\n");
-                       
-                        sql.Append("         ,[dExpectDeliveryDate] = " + getSqlValue(listInfoData[i]["dExpectDeliveryDate"], true) + "   \r\n");
-                        
-                        sql.Append("         ,[vcMemo] =  " + getSqlValue(listInfoData[i]["vcMemo"], false) + "   \r\n");
-                        sql.Append("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() \r\n");
-                        sql.Append(" where iAutoId=" + iAutoId + " ;  \n");
+                        StringBuilder strSql = new StringBuilder();
+                        string vcPackingPlant = listInfoData[i]["vcPackingPlant"].ToString();
+                        string vcReceiver = listInfoData[i]["vcReceiver"].ToString();
+                        string dSynchronizationDate = listInfoData[i]["dSynchronizationDate"].ToString();
+                        string vcPartNo = listInfoData[i]["vcPartNo"].ToString();
 
+                        string dUseStartDate = listInfoData[i]["dUseStartDate"].ToString();
+                        string dUserEndDate = listInfoData[i]["dUserEndDate"].ToString();
+                        string vcPartName = listInfoData[i]["vcPartName"].ToString();
+                        //string vcCarType = listInfoData[i]["vcCarType"].ToString();
+                       // string vcOEOrSP = listInfoData[i]["vcOEOrSP"].ToString();
+                        string vcSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                        //string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();
+
+                        strSql.AppendLine("  declare @isExist int =0;   ");
+                        strSql.AppendLine("  select @isExist=COUNT(*) from THeZiManage where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "'  ");
+                        strSql.AppendLine("     ");
+                        strSql.AppendLine("  if @isExist>0   ");
+                        strSql.AppendLine("  begin   ");
+                        strSql.AppendLine("   UPDATE [dbo].[THeZiManage]   ");
+                        strSql.AppendLine("      SET [vcExpectIntake] = " + getSqlValue(listInfoData[i]["vcExpectIntake"], false) + "   ");
+                        strSql.AppendLine("         ,[dExpectDeliveryDate] = " + getSqlValue(listInfoData[i]["dExpectDeliveryDate"], true) + "   ");
+                        strSql.AppendLine("         ,[vcMemo] =  " + getSqlValue(listInfoData[i]["vcMemo"], false) + "   ");
+                        strSql.AppendLine("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() ");
+                        strSql.AppendLine("  where   vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "'  ;  \n");
+                        strSql.AppendLine("  end   ");
+                        strSql.AppendLine("  else   ");
+                        strSql.AppendLine("  begin   ");
+                        strSql.AppendLine("   INSERT INTO [dbo].[THeZiManage]   ");
+                        strSql.AppendLine("         ([vcPackingPlant] ,[vcReceiver],[dSynchronizationDate],[vcState] ,[vcPartNo] ,[dUseStartDate] ,[dUserEndDate]   ");
+                        strSql.AppendLine("         ,[vcPartName] ,[vcCarType] ,[vcOEOrSP] ,[vcSupplier_id]  ,[vcWorkArea]  ,[dExpectDeliveryDate]  ,[vcExpectIntake]   ");
+                        strSql.AppendLine("          ,[vcIntake]  ,[vcBoxMaxIntake]  ,[vcBoxType] ,[vcLength] ,[vcWide] ,[vcHeight]  ,[vcEmptyWeight]  ,[vcUnitNetWeight]   ");
+                        strSql.AppendLine("          ,[dSendDate] ,[dReplyDate]  ,[dAdmitDate],[dWeaveDate] ,[vcMemo]  ,[vcImageRoutes]   ");
+                        strSql.AppendLine("         ,[vcInserter]  ,[vcInserterDate] ,[vcFactoryOperatorID] ,[dFactoryOperatorTime]  ,[vcOperatorID] ,[dOperatorTime])  values (    ");
+                        strSql.AppendLine("   '" + vcPackingPlant + "','" + vcReceiver + "'," + getSqlValue(listInfoData[i]["dSynchronizationDate"], true) + " ,'0','" + vcPartNo + "'," + getSqlValue(listInfoData[i]["dUseStartDate"], true) + "," + getSqlValue(listInfoData[i]["dUserEndDate"], true) + ",   ");
+                        strSql.AppendLine("   " + getSqlValue(listInfoData[i]["vcPartName"], true) + "," + getSqlValue(listInfoData[i]["vcCarType"], true) + "," + getSqlValue(listInfoData[i]["vcOEOrSP"], true) + "," + getSqlValue(listInfoData[i]["vcSupplier_id"], true) + "," + getSqlValue(listInfoData[i]["vcWorkArea"], true) + " ," + getSqlValue(listInfoData[i]["dExpectDeliveryDate"], true) + " ," + getSqlValue(listInfoData[i]["vcExpectIntake"], true) + ",   ");
+                        strSql.AppendLine("   " + getSqlValue(listInfoData[i]["vcIntake"], true) + "," + getSqlValue(listInfoData[i]["vcBoxMaxIntake"], true) + "," + getSqlValue(listInfoData[i]["vcBoxType"], true) + "," + getSqlValue(listInfoData[i]["vcLength"], true) + "," + getSqlValue(listInfoData[i]["vcWide"], true) + " ," + getSqlValue(listInfoData[i]["vcHeight"], true) + " ," + getSqlValue(listInfoData[i]["vcEmptyWeight"], true) + " ," + getSqlValue(listInfoData[i]["vcUnitNetWeight"], true) + ",    ");
+                        strSql.AppendLine("   " + getSqlValue(listInfoData[i]["dSendDate"], true) + "," + getSqlValue(listInfoData[i]["dReplyDate"], true) + "," + getSqlValue(listInfoData[i]["dAdmitDate"], true) + "," + getSqlValue(listInfoData[i]["dWeaveDate"], true) + "," + getSqlValue(listInfoData[i]["vcMemo"], true) + " ," + getSqlValue(listInfoData[i]["vcImageRoutes"], true) + " ,   ");
+                        strSql.AppendLine("   '" + userId + "',getdate()," + getSqlValue(listInfoData[i]["vcFactoryOperatorID"], true) + "," + getSqlValue(listInfoData[i]["dFactoryOperatorTime"], true) + ", '" + userId + "',getdate());   ");
+                        strSql.AppendLine("  end ;  ");
+                        strSql.AppendLine("     ");
+
+                        excute.ExcuteSqlWithStringOper(strSql.ToString());
                     }
-                }
-
-                if (sql.Length > 0)
-                {
-                    //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
             }
             catch (Exception ex)
@@ -315,31 +435,75 @@ namespace DataAccess
             }
         }
         /// <summary>
-        /// 一括赋予
+        /// 一括赋予 更改要望收容数
         /// </summary>
         /// <returns></returns>
-        public void allInstall(List<Dictionary<string, object>> listInfoData,  string vcIntake, string userId)
+        public void allInstall(List<Dictionary<string, object>> listInfoData,  string vcExpectIntake, string userId)
         {
             try
             {
-                StringBuilder sql = new StringBuilder();
 
-                sql.Append("update [THeZiManage] set  \n");
+                for (var i = 0; i < listInfoData.Count; i++)
+                {
+                    StringBuilder strSql = new StringBuilder();
+                    string vcPackingPlant = listInfoData[i]["vcPackingPlant"].ToString();
+                    string vcReceiver = listInfoData[i]["vcReceiver"].ToString();
+                    string dSynchronizationDate = listInfoData[i]["dSynchronizationDate"].ToString();
+                    string vcPartNo = listInfoData[i]["vcPartNo"].ToString();
+                    
+                    string dUseStartDate = listInfoData[i]["dUseStartDate"].ToString();
+                    string dUserEndDate = listInfoData[i]["dUserEndDate"].ToString();
+                    string vcPartName = listInfoData[i]["vcPartName"].ToString();
+                    //string vcCarType = listInfoData[i]["vcCarType"].ToString();
+                    //string vcOEOrSP = listInfoData[i]["vcOEOrSP"].ToString();
+                    string vcSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                    //string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();
+
+                    strSql.AppendLine("  declare @isExist int =0;   ");
+                    strSql.AppendLine("  select @isExist=COUNT(*) from THeZiManage where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "'  ");
+                    strSql.AppendLine("     ");
+                    strSql.AppendLine("  if @isExist>0   ");
+                    strSql.AppendLine("  begin   ");
+                    strSql.AppendLine("  update [dbo].[THeZiManage]   ");
+                    strSql.AppendLine("      set   vcExpectIntake='"+ vcExpectIntake + "', vcOperatorID='"+ userId + "',dOperatorTime=getdate() where   vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "'      ");
+                    strSql.AppendLine("  end   ");
+                    strSql.AppendLine("  else   ");
+                    strSql.AppendLine("  begin   ");
+                    strSql.AppendLine("   INSERT INTO [dbo].[THeZiManage]   ");
+                    strSql.AppendLine("         ([vcPackingPlant] ,[vcReceiver],[dSynchronizationDate],[vcState] ,[vcPartNo] ,[dUseStartDate] ,[dUserEndDate]   ");
+                    strSql.AppendLine("         ,[vcPartName] ,[vcCarType] ,[vcOEOrSP] ,[vcSupplier_id]  ,[vcWorkArea]  ,[dExpectDeliveryDate]  ,[vcExpectIntake]   ");
+                    strSql.AppendLine("          ,[vcIntake]  ,[vcBoxMaxIntake]  ,[vcBoxType] ,[vcLength] ,[vcWide] ,[vcHeight]  ,[vcEmptyWeight]  ,[vcUnitNetWeight]   ");
+                    strSql.AppendLine("          ,[dSendDate] ,[dReplyDate]  ,[dAdmitDate],[dWeaveDate] ,[vcMemo]  ,[vcImageRoutes]   ");
+                    strSql.AppendLine("         ,[vcInserter]  ,[vcInserterDate] ,[vcFactoryOperatorID] ,[dFactoryOperatorTime]  ,[vcOperatorID] ,[dOperatorTime])  values (    ");
+                    strSql.AppendLine("   '" + vcPackingPlant + "','" + vcReceiver + "'," + getSqlValue(listInfoData[i]["dSynchronizationDate"], true) + " ,'0','" + vcPartNo + "'," + getSqlValue(listInfoData[i]["dUseStartDate"], true) + "," + getSqlValue(listInfoData[i]["dUserEndDate"], true) + ",   ");
+                    strSql.AppendLine("   " + getSqlValue(listInfoData[i]["vcPartName"], true) + "," + getSqlValue(listInfoData[i]["vcCarType"], true) + "," + getSqlValue(listInfoData[i]["vcOEOrSP"], true) + "," + getSqlValue(listInfoData[i]["vcSupplier_id"], true) + "," + getSqlValue(listInfoData[i]["vcWorkArea"], true) + " ," + getSqlValue(listInfoData[i]["dExpectDeliveryDate"], true) + " ,'" + vcExpectIntake + "',   ");
+                    strSql.AppendLine("   " + getSqlValue(listInfoData[i]["vcIntake"], true) + "," + getSqlValue(listInfoData[i]["vcBoxMaxIntake"], true) + "," + getSqlValue(listInfoData[i]["vcBoxType"], true) + "," + getSqlValue(listInfoData[i]["vcLength"], true) + "," + getSqlValue(listInfoData[i]["vcWide"], true) + " ," + getSqlValue(listInfoData[i]["vcHeight"], true) + " ," + getSqlValue(listInfoData[i]["vcEmptyWeight"], true) + " ," + getSqlValue(listInfoData[i]["vcUnitNetWeight"], true) + ",    ");
+                    strSql.AppendLine("   " + getSqlValue(listInfoData[i]["dSendDate"], true) + "," + getSqlValue(listInfoData[i]["dReplyDate"], true) + "," + getSqlValue(listInfoData[i]["dAdmitDate"], true) + "," + getSqlValue(listInfoData[i]["dWeaveDate"], true) + "," + getSqlValue(listInfoData[i]["vcMemo"], true) + " ," + getSqlValue(listInfoData[i]["vcImageRoutes"], true) + " ,   ");
+                    strSql.AppendLine("   '" + userId + "',getdate()," + getSqlValue(listInfoData[i]["vcFactoryOperatorID"], true) + "," + getSqlValue(listInfoData[i]["dFactoryOperatorTime"], true) + ", '" + userId + "',getdate());   ");
+                    strSql.AppendLine("  end ;  ");
+                    strSql.AppendLine("     ");
+
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+
+                //StringBuilder sql = new StringBuilder();
+
+                //sql.Append("update [THeZiManage] set  \n");
                 
-                if (vcIntake.Length > 0)
-                {
-                    sql.Append(" vcIntake='" + vcIntake + "', \n");
-                }
-                sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    if (i != 0)
-                        sql.Append(",");
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                    sql.Append(iAutoId);
-                }
-                sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                //if (vcIntake.Length > 0)
+                //{
+                //    sql.Append(" vcIntake='" + vcIntake + "', \n");
+                //}
+                //sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
+                //for (int i = 0; i < listInfoData.Count; i++)
+                //{
+                //    if (i != 0)
+                //        sql.Append(",");
+                //    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                //    sql.Append(iAutoId);
+                //}
+                //sql.Append("  )   \r\n ");
+                //excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
@@ -355,64 +519,64 @@ namespace DataAccess
         {
             try
             {
-                StringBuilder strSql = new StringBuilder();
+               
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    //[vcSupplier_id], [vcWorkArea], [dBeginDate], [dEndDate],, 
-                    string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString();
+                    StringBuilder strSql = new StringBuilder();
+                    string vcPackingPlant = dt.Rows[i]["vcPackingPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackingPlant"].ToString();
+                    string vcReceiver = dt.Rows[i]["vcReceiver"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiver"].ToString();
                     string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
-                    string vcPartName = dt.Rows[i]["vcPartName"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartName"].ToString();
-                    string vcInsideOutsideType = dt.Rows[i]["vcInsideOutsideType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInsideOutsideType"].ToString();
-                    if (vcInsideOutsideType == "内制")
-                    {
-                        vcInsideOutsideType = "0";
-                    } else if (vcInsideOutsideType == "外注") {
-                        vcInsideOutsideType = "1";
-                    }
-                    else
-                    { }
                     string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
-                    string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
-                    string vcIsNewRulesFlag = dt.Rows[i]["vcIsNewRulesFlag"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIsNewRulesFlag"].ToString();
-                    if (vcIsNewRulesFlag=="是")
-                    {
-                        vcIsNewRulesFlag = "1";
-                    } else if (vcIsNewRulesFlag == "否")
-                    {
-                        vcIsNewRulesFlag = "0";
-                    } else
-                    { }
-                    string vcOEOrSP = dt.Rows[i]["vcOEOrSP"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOEOrSP"].ToString();
-                    string vcDock = dt.Rows[i]["vcDock"] == System.DBNull.Value ? "" : dt.Rows[i]["vcDock"].ToString();
-                    string vcNumber = dt.Rows[i]["vcNumber"] == System.DBNull.Value ? "" : dt.Rows[i]["vcNumber"].ToString();
-                    string vcPurposes = dt.Rows[i]["vcPurposes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPurposes"].ToString();
-                    
-                    string dOrderPurposesDate = dt.Rows[i]["dOrderPurposesDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dOrderPurposesDate"].ToString()).ToString();
-                    string dOrderReceiveDate = dt.Rows[i]["dOrderReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dOrderReceiveDate"].ToString()).ToString();
-                    string vcReceiveTimes = dt.Rows[i]["vcReceiveTimes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiveTimes"].ToString();
-                    string dActualReceiveDate = dt.Rows[i]["dActualReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dActualReceiveDate"].ToString()).ToString();
-                    string vcAccountOrderNo = dt.Rows[i]["vcAccountOrderNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcAccountOrderNo"].ToString();
-                    string dAccountOrderReceiveDate = dt.Rows[i]["dAccountOrderReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dAccountOrderReceiveDate"].ToString()).ToString();
-                    string vcMemo = dt.Rows[i]["vcMemo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMemo"].ToString();
+                    string dExpectDeliveryDate = dt.Rows[i]["dExpectDeliveryDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dExpectDeliveryDate"].ToString();
+                    string vcExpectIntake = dt.Rows[i]["vcExpectIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcExpectIntake"].ToString();
+                    string vcIntake = dt.Rows[i]["vcIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIntake"].ToString();
+                    string vcBoxMaxIntake = dt.Rows[i]["vcBoxMaxIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxMaxIntake"].ToString();
+                    string vcBoxType = dt.Rows[i]["vcBoxType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxType"].ToString();
+                    string vcLength = dt.Rows[i]["vcLength"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLength"].ToString();
+                    string vcWide = dt.Rows[i]["vcWide"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWide"].ToString();
+                    string vcHeight = dt.Rows[i]["vcHeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcHeight"].ToString();
+                    string vcEmptyWeight = dt.Rows[i]["vcEmptyWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmptyWeight"].ToString();
+                    string vcUnitNetWeight = dt.Rows[i]["vcUnitNetWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcUnitNetWeight"].ToString();
 
-
-                    strSql.AppendLine("  INSERT INTO [dbo].[TOralTestManage]   ");
-                    strSql.AppendLine("             ([dExportDate] ,[vcCarType] ,[vcPartNo],[vcPartName]  ,[vcInsideOutsideType] ,[vcSupplier_id]   ");
-                    strSql.AppendLine("             ,[vcWorkArea] ,[vcIsNewRulesFlag] ,[vcOEOrSP] ,[vcDock] ,[vcNumber],[vcPurposes] ,[dOrderPurposesDate] ,[dOrderReceiveDate]   ");
-                    strSql.AppendLine("             ,[vcReceiveTimes]  ,[dActualReceiveDate],[vcAccountOrderNo] ,[dAccountOrderReceiveDate]   ,[vcMemo] ,   ");
-                    strSql.AppendLine("  		   [vcOperatorID] ,[dOperatorTime])   ");
-                    strSql.AppendLine("  values(   ");
-                    strSql.AppendLine("   GETDATE(),'" + vcCarType + "','" + vcPartNo + "','" + vcPartName + "','" + vcInsideOutsideType + "','" + vcSupplier_id + "'  ");
-                    strSql.AppendLine("   ,'" + vcWorkArea + "','" + vcIsNewRulesFlag + "','" + vcOEOrSP + "','" + vcDock + "','" + vcNumber + "','" + vcPurposes + "','" + dOrderPurposesDate + "','" + dOrderReceiveDate + "'  ");
-                    strSql.AppendLine("   ,'" + vcReceiveTimes + "','" + dActualReceiveDate + "','" + vcAccountOrderNo + "','" + dAccountOrderReceiveDate + "','" + vcMemo + "'  ");
-                    strSql.AppendLine("   ,'" + strUserId + "',GETDATE()) ;   ");
-                   
-                }
-                if (strSql.Length>0)
-                {
+                    strSql.AppendLine("  declare @isExist int =0;   ");
+                    strSql.AppendLine("  select @isExist=COUNT(*) from [dbo].[VI_THeZiManage] where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and  vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and  vcState in ('1','0')    ");
+                    strSql.AppendLine("     ");
+                    strSql.AppendLine("  if @isExist>0   ");
+                    strSql.AppendLine("  begin   ");
+                    strSql.AppendLine("  declare @isExistTHezi int =0;   ");
+                    strSql.AppendLine("  select @isExistTHezi=COUNT(*) from [dbo].[THeZiManage] where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and  vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and  vcState in ('1','0')    ");
+                    strSql.AppendLine("  if @isExistTHezi>0   ");
+                    strSql.AppendLine("  begin   ");
+                    strSql.AppendLine("   update [THeZiManage]  ");
+                    strSql.AppendLine("    set dExpectDeliveryDate='" + dExpectDeliveryDate + "',  vcExpectIntake='" + vcExpectIntake + "',  vcIntake ='" + vcIntake + "',  ");
+                    strSql.AppendLine("    vcBoxMaxIntake='" + vcBoxMaxIntake + "',  ");
+                    strSql.AppendLine("    vcBoxType='" + vcBoxType + "',  ");
+                    strSql.AppendLine("    vcLength='" + vcLength + "',  ");
+                    strSql.AppendLine("    vcWide='" + vcWide + "',  ");
+                    strSql.AppendLine("    vcHeight='" + vcHeight + "',  ");
+                    strSql.AppendLine("    vcEmptyWeight='" + vcEmptyWeight + "',  ");
+                    strSql.AppendLine("   vcUnitNetWeight='" + vcUnitNetWeight + "', vcOperatorID = '" + strUserId + "', dOperatorTime = GETDATE()  ");
+                    strSql.AppendLine("   where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and  vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and  vcState in ('1','0')  ;  ");
+                    strSql.AppendLine("  end   ");
+                    strSql.AppendLine("  else   ");
+                    strSql.AppendLine("  begin   ");
+                    strSql.AppendLine("   INSERT INTO [dbo].[THeZiManage]   ");
+                    strSql.AppendLine("         ([vcPackingPlant] ,[vcReceiver],[dSynchronizationDate],[vcState] ,[vcPartNo] ,[dUseStartDate] ,[dUserEndDate]   ");
+                    strSql.AppendLine("         ,[vcPartName] ,[vcCarType] ,[vcOEOrSP] ,[vcSupplier_id]  ,[vcWorkArea]  , [dExpectDeliveryDate]  , [vcExpectIntake]   ");
+                    strSql.AppendLine("          ,[vcIntake]  ,[vcBoxMaxIntake]  ,[vcBoxType] , [vcLength] , [vcWide] ,[vcHeight]  ,[vcEmptyWeight]  ,[vcUnitNetWeight]   ");
+                    strSql.AppendLine("          ,[dSendDate] ,[dReplyDate]  ,[dAdmitDate],[dWeaveDate] ,[vcMemo]  ,[vcImageRoutes]   ");
+                    strSql.AppendLine("         ,[vcInserter]  ,vcInserterDate,[vcFactoryOperatorID] ,[dFactoryOperatorTime]  ,[vcOperatorID] , [dOperatorTime])");
+                    strSql.AppendLine("  select  [vcPackingPlant], [vcReceiver],[dSynchronizationDate], [vcState], [vcPartNo], [dUseStartDate], [dUserEndDate],   ");
+                    strSql.AppendLine("   [vcPartName], [vcCarType], [vcOEOrSP], [vcSupplier_id], [vcWorkArea],   ");
+                    strSql.AppendLine("  '" + dExpectDeliveryDate + "' as [dExpectDeliveryDate], '" + vcExpectIntake + "' as [vcExpectIntake],'" + vcIntake + "' as  [vcIntake],'" + vcBoxMaxIntake + "' as   [vcBoxMaxIntake], '" + vcBoxType + "' as  [vcBoxType],'" + vcLength + "' as   [vcLength],'" + vcWide + "' as  [vcWide],    ");
+                    strSql.AppendLine("  '" + vcHeight + "' as   [vcHeight],'" + vcEmptyWeight + "' as   [vcEmptyWeight],'" + vcUnitNetWeight + "' as   [vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo],   ");
+                    strSql.AppendLine("  [vcImageRoutes], '" + strUserId + "' as   [vcInserter], getdate() as  [vcInserterDate],    ");
+                    strSql.AppendLine("  [vcFactoryOperatorID], [dFactoryOperatorTime],'" + strUserId + "' as   [vcOperatorID], getdate() as  [dOperatorTime] from [dbo].[VI_THeZiManage]   ");
+                    strSql.AppendLine("   where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and  vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and  vcState in ('1','0') ;  ");
+                    strSql.AppendLine("  end   ");
+                    strSql.AppendLine("  end   ");
                     excute.ExcuteSqlWithStringOper(strSql.ToString());
                 }
-               
             }
             catch (Exception ex)
             {

@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState,  string vcPartNo, string vcCarType, string dExpectDeliveryDate)
+        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState,  string vcPartNo, string vcCarType, string dExpectDeliveryDate,string UserId)
         {
-            return fs0503_DataAccess.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate);
+            return fs0503_DataAccess.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate, UserId);
         }
 
         public DataTable GetBoxType()
@@ -55,6 +55,11 @@ namespace Logic
             fs0503_DataAccess.hZZK(listInfoData, dExpectDeliveryDate, userId);
         }
 
+        public DataTable GetWorkArea( string supplierId)
+        {
+            return fs0503_DataAccess.GetWorkArea(supplierId);
+        }
+
         public void admit(List<Dictionary<string, object>> listInfoData, string userId)
         {
             fs0503_DataAccess.admit(listInfoData, userId);
@@ -76,6 +81,11 @@ namespace Logic
         public bool editOk(dynamic dataForm, string userId)
         {
             return fs0503_DataAccess.editOk(dataForm, userId);
+        }
+
+        public void reply(List<Dictionary<string, object>> listInfoData, string userId)
+        {
+            fs0503_DataAccess.reply(listInfoData, userId);
         }
     }
 }

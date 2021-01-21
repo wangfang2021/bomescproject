@@ -60,12 +60,12 @@ namespace SPPSApi.Controllers.G05
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable task = fs0503_Logic.GetTaskNum();//待回复的数据
-
+                DataTable WorkArea = fs0503_Logic.GetWorkArea(loginInfo.UserId);
                 List<Object> dataList_C034 = ComFunction.convertAllToResult(ComFunction.getTCode("C034"));//荷姿状态
-
+                List<Object> dataList_WorkAreae = ComFunction.convertToResult(WorkArea, new string[] { "vcValue", "vcName" });
                 res.Add("C034", dataList_C034);
-                res.Add("taskNum", task.Rows.Count);
-
+                res.Add("taskNum", task.Rows.Count); 
+                res.Add("WorkArea", dataList_WorkAreae);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -95,8 +95,8 @@ namespace SPPSApi.Controllers.G05
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSupplier_id = loginInfo.UserId.Substring(0,4);
-            string vcWorkArea = loginInfo.UserId.Substring(4);
+            string vcSupplier_id = loginInfo.UserId;
+            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
 
@@ -139,6 +139,7 @@ namespace SPPSApi.Controllers.G05
                 dtConverter.addField("dExpectDeliveryDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOrderReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dUseStartDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dUserEndDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSendDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dReplyDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dAdmitDate", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -173,8 +174,8 @@ namespace SPPSApi.Controllers.G05
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSupplier_id = loginInfo.UserId.Substring(0, 4);
-            string vcWorkArea = loginInfo.UserId.Substring(4);
+            string vcSupplier_id = loginInfo.UserId;
+            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
 
@@ -187,8 +188,8 @@ namespace SPPSApi.Controllers.G05
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "同步时间", "状态", "品番", "使用开始时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
-                field = new string[] { "dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
+                head = new string[] { "状态","要望纳期","包装工厂","收货方" , "品番", "使用开始时间", "使用结束时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
+                field = new string[] { "vcState", "dExpectDeliveryDate", "vcPackingPlant", "vcReceiver", "vcPartNo", "dUseStartDate","dUserEndDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -453,7 +454,7 @@ namespace SPPSApi.Controllers.G05
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.parentFormSelectItem;
+                JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 if (listInfoData.Count == 0)
@@ -480,7 +481,7 @@ namespace SPPSApi.Controllers.G05
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0405", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "回复失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番","供应商","工区", "要望纳期","要望收容数","收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)"},
-                                                {"vcPartNo","vcSupplier_id","vcWorkArea","dExpectDeliveryDate", "vcExpectIntake","vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"",FieldCheck.Date,FieldCheck.Decimal, FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal},
-                                                {"12","4","20","0","20","20","20","50", "20", "20", "20", "20", "20"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","0","0","0","0","0", "0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"包装工厂","收货方","供应商代码","品番","要望纳期","要望收容数","收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)"},
+                                                {"vcPackingPlant","vcReceiver","vcSupplier_id","vcPartNo","dExpectDeliveryDate", "vcExpectIntake","vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight"},
+                                                {"","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Num, FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
+                                                {"20","10","4","12","0","0","20","20","20","50", "20", "20", "20", "20"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","1","0","0","0","0","0","0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -101,7 +101,7 @@ namespace SPPSApi.Controllers.G06
 
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartNo"), r3 = r.Field<string>("vcSupplier_id"), r4 = r.Field<string>("vcWorkArea") } into g
+                             group r by new { r2 = r.Field<string>("vcPartNo"), r3 = r.Field<string>("vcPackingPlant"), r4 = r.Field<string>("vcReceiver"), r5 = r.Field<string>("vcSupplier_id") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -110,7 +110,7 @@ namespace SPPSApi.Controllers.G06
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r2 + " 供应商: " + item.Key.r3 + " 工区: " + item.Key.r4 + " < br/>");
+                        sbr.Append("品番:" + item.Key.r2 + "包装工厂: " + item.Key.r3 + "收货方: " + item.Key.r4 + "供应商代码:" + item.Key.r5 + " < br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();

@@ -79,26 +79,27 @@ namespace SPPSApi.Controllers
             }
         }
         #endregion
+
         [HttpGet]
         [EnableCors("any")]
-        public IActionResult imageListApi(string path)
+        public IActionResult getImageList(string path)
         {
             try
             {
-                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar;//模板目录，读取模板供用户下载
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper" + Path.DirectorySeparatorChar;
                 var provider = new FileExtensionContentTypeProvider();
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
                 byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
-                return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
+                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
             }
             catch (Exception ex)
             {
                 ContentResult result = new ContentResult();
-                result.Content = "<script>alert('导出失败,没有找到要导出的文件！')</script>";
+                result.Content = "<script>alert('导出失败,没有找到要导出的图片！')</script>";
                 result.ContentType = "text/html;charset=utf-8";
-                ComMessage.GetInstance().ProcessMessage("download", "M00UE0007", ex, "system");
+                ComMessage.GetInstance().ProcessMessage("getImage", "M00UE0008", ex, "system");
                 return result;
             }
         }
@@ -124,18 +125,18 @@ namespace SPPSApi.Controllers
                 //string shortfilename = $"{Guid.NewGuid()}{extName}";// 新文件名
                 string shortfilename = filename;
 
-                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar+ hashCode + Path.DirectorySeparatorChar;
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
                 if (!Directory.Exists(fileSavePath))
                 {
                     Directory.CreateDirectory(fileSavePath);
                 }
 
 
-                 
-                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
- 
 
-                filename = fileSavePath + theFolder.GetFiles().Length+"_" + shortfilename; // 新文件名（包括路径）
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+
+                filename = fileSavePath + theFolder.GetFiles().Length + "_" + shortfilename; // 新文件名（包括路径）
                 using (FileStream fs = System.IO.File.Create(filename)) // 创建新文件
                 {
                     file.CopyTo(fs);// 复制文件
@@ -166,7 +167,7 @@ namespace SPPSApi.Controllers
                 string strName = info.Name;
                 if (strName.IndexOf('_') == -1)
                     continue;
-                string strTime =  strName.Substring(0, strName.IndexOf('_'));
+                string strTime = strName.Substring(0, strName.IndexOf('_'));
                 DateTime time = DateTime.Parse(strTime);
                 TimeSpan span = DateTime.Now - time;
                 if (span.Days > 1)
@@ -198,10 +199,10 @@ namespace SPPSApi.Controllers
                 LoginInfo loginInfo = getLoginByToken(token);
                 //以下开始业务处理
                 var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
-                var extName = filename.Substring(filename.LastIndexOf('.')+1).Replace("\"", "");// 扩展名
+                var extName = filename.Substring(filename.LastIndexOf('.') + 1).Replace("\"", "");// 扩展名
                 string ImageType = ".jpg,.png,.gif,.bmp,.jpeg";
                 //判断上传格式是否合法
-                if (ImageType.IndexOf(extName.ToLower())<=0)
+                if (ImageType.IndexOf(extName.ToLower()) <= 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "图片格式必须是jpg|png|gif|bmp|jpeg,请确认上传图片格式!";
@@ -270,11 +271,11 @@ namespace SPPSApi.Controllers
                 return Guid.NewGuid().ToString().Replace("-", "").ToUpper() + realName.Substring(index);
             }
         }
-            /**
-	     * 获取文件目录
-	     * @param name 文件名称
-	     * @return 目录
-	     */
+        /**
+     * 获取文件目录
+     * @param name 文件名称
+     * @return 目录
+     */
         public static String getDir(String name)
         {
             //任意一个对象都有一个hash码   131313213
@@ -287,7 +288,7 @@ namespace SPPSApi.Controllers
             {
                 hex = "0" + hex;
             }
-            return "/" + hex.Substring(0,1) + "/" + hex.Substring(1, 1) + "/" + hex.Substring(2, 1) + "/" + hex.Substring(3, 1) + "/" + hex.Substring(4, 1) + "/" + hex.Substring(5, 1) + "/" + hex.Substring(6, 1) + "/" + hex.Substring(7, 1);
+            return "/" + hex.Substring(0, 1) + "/" + hex.Substring(1, 1) + "/" + hex.Substring(2, 1) + "/" + hex.Substring(3, 1) + "/" + hex.Substring(4, 1) + "/" + hex.Substring(5, 1) + "/" + hex.Substring(6, 1) + "/" + hex.Substring(7, 1);
         }
         #endregion
 

@@ -55,6 +55,11 @@ namespace Logic
             fs0503_DataAccess.hZZK(listInfoData, dExpectDeliveryDate, userId);
         }
 
+        public DataTable GetWorkArea( string supplierId)
+        {
+            return fs0503_DataAccess.GetWorkArea(supplierId);
+        }
+
         public void admit(List<Dictionary<string, object>> listInfoData, string userId)
         {
             fs0503_DataAccess.admit(listInfoData, userId);

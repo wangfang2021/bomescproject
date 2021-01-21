@@ -87,53 +87,6 @@ namespace SPPSApi.Controllers.G04
                                                 {"12","0","0","0"},//最大长度设定,不校验最大长度用0
                                                 {"1","1","1","1"}};//最小长度设定,可以为空用0
 
-                //用于存储错误信息的表
-                //DataTable errorMessage = new DataTable();
-                //errorMessage.Columns.Add("错误类型");
-                //errorMessage.Columns.Add("品番");
-                //errorMessage.Columns.Add("年月");
-                //errorMessage.Columns.Add("错误信息");
-
-
-                ////检验文件中的对象年月是否与在页面上选择的对象年月一致+获取列
-                //foreach (FileInfo info in theFolder.GetFiles())
-                //{
-                //    using (FileStream fs = new FileStream(info.FullName, FileMode.Open, FileAccess.Read))
-                //    {
-                //        IWorkbook workbook = null;
-
-                //        if (info.FullName.IndexOf(".xlsx") > 0 || info.FullName.IndexOf(".xlsm") > 0) // 2007版本
-                //            workbook = new XSSFWorkbook(fs);
-                //        else if (info.FullName.IndexOf(".xls") > 0) // 2003版本
-                //            workbook = new HSSFWorkbook(fs);
-
-                //        IRow firstRow = workbook.GetSheetAt(0).GetRow(0);
-                //        ICell varDxnyCell = firstRow.GetCell(1);
-                //        string varDxny_File = varDxnyCell.StringCellValue;
-
-                //        //若文件中的对象年月与页面输入的不相符，则报错
-                //        if (varDxny_File != strYearMonth) {
-                //            errorMessage.Rows.Add("文件错误","","", "文件中的对象年月与页面输入的对象年月不相符！");
-
-                //            //生成错误文件
-                //            string generateError = "";
-                //            string[] errorHeader = { "错误类型", "品番", "年月", "错误信息" };
-                //            string path=ComFunction.DataTableToExcel(errorHeader, errorHeader, errorMessage, _webHostEnvironment.ContentRootPath,"SOQ导入错误信息", loginInfo.UserId, FunctionID, ref generateError);
-
-                //            //在SOQ导入履历表中新增错误信息数据
-                //            fs0402_Logic.importHistory(varDxny, info.Name,1, path, loginInfo.UserId);
-
-                //            apiResult.code = ComConstant.ERROR_CODE;
-                //            apiResult.data = "文件中的对象年月与页面输入的对象年月不相符！";
-                //            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //        }
-
-                //        //获取列
-                //        headers[0, 1] = firstRow.GetCell(1).StringCellValue;
-                //        headers[0, 2] = firstRow.GetCell(2).StringCellValue;
-                //        headers[0, 3] = firstRow.GetCell(3).StringCellValue;
-                //    }
-                //}
                 List<string> errMessageList = new List<string>();//记录导入错误消息
 
                 string strMsg = "";
@@ -161,12 +114,10 @@ namespace SPPSApi.Controllers.G04
                     string strMonth_import = dt.Rows[0][1] == System.DBNull.Value ? "0" : dt.Rows[0][1].ToString().Replace("月","");
                     string strMonth_import_2 = dt.Rows[0][2] == System.DBNull.Value ? "0" : dt.Rows[0][2].ToString().Replace("月", "");
                     string strMonth_import_3 = dt.Rows[0][3] == System.DBNull.Value ? "0" : dt.Rows[0][3].ToString().Replace("月", "");
-
  
                     int iMonth = Convert.ToInt32(strMonth);
                     int iMonth_2 = Convert.ToInt32(strMonth_2);
                     int iMonth_3 = Convert.ToInt32(strMonth_3);
-
 
                     if (iMonth != Convert.ToInt32(strMonth_import))
                     {
@@ -187,8 +138,6 @@ namespace SPPSApi.Controllers.G04
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
- 
-
                 List<string> errMonthList = new List<string>();//记录年月错误的品番
                 //check:品番行数是否唯一
                 var result = from r in importDt.AsEnumerable()
@@ -205,21 +154,8 @@ namespace SPPSApi.Controllers.G04
                     }
                     errMessageList.Add(sbr.ToString());
                 }
-                //check:三个月品番数量不能同时为0
-
-
-                //   是否为TFTM品番（包装工厂）                           SP_M_SITEM    是否有改品番
-                //    N、N + 1、N + 2月品番有效性                         SP_M_SITEM    TIMEFROM  TIMETO   ，品番在时间区间内有数据
-                //    是否有价格，且在有效期内                            TPrice  dUseBegin    dUseEnd ，品番在时间区间内有数据
-                //    手配中是否有受入、收容数、发注工厂
-                //    收容数整倍数                                        SP_M_SITEM QUANTITYPERCONTAINER
-                //   if一括生产 校验： 对象月 > 实施年月时间 不能订货
-                //  如果是强制订货，没有价格也可以定。
-
-
-
-
-
+                //导入批量校验
+                fs0402_Logic.importCheck(importDt, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList,loginInfo.UnitCode);
                 if (errMessageList.Count > 0)
                 {
                     fs0402_Logic.importHistory(strYearMonth, errMessageList);
@@ -227,11 +163,23 @@ namespace SPPSApi.Controllers.G04
                     apiResult.data = "发现问题数据，导入终止，请查看导入履历。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                string strResult = "";
+                fs0402_Logic.importSave(importDt, loginInfo.UserId, strYearMonth,strYearMonth_2,strYearMonth_3);
+                strResult = "导入成功\\";
+                //导入成功发送邮件给TFTM担当
+                string strMailMsg = "";
+                SendEmail(loginInfo.UserId,loginInfo.UserName,strYearMonth,strYearMonth_2,strYearMonth_3,ref strMailMsg);
+                if(strMailMsg != "")
+                {
+                    strResult += "发送邮件失败";
+                }
+                else
+                {
+                    strResult += "发送邮件成功";
+                }
 
-
-                fs0402_Logic.importSave(importDt, loginInfo.UserId, strYearMonth);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                apiResult.data = strResult;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -239,13 +187,35 @@ namespace SPPSApi.Controllers.G04
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败" + ex.Message;
+                apiResult.data = "导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
 
-
+        public void SendEmail(string strSendUserId,string strSendUserName,string strYearMonth,string strYearMonth_2,string strYearMonth_3,ref string strMsg)
+        {
+            string strSendEmail = fs0402_Logic.getEmail(strSendUserId);
+            if(strSendEmail=="")
+            {
+                strMsg = string.Format("用户{0}没有配置邮箱。",strSendUserName);
+                return;
+            }
+            string strContent =string.Format("FTMS已导入SOQ数据({0}、{1}、{2})。",strYearMonth,strYearMonth_2,strYearMonth_3);
+            DataTable receiverDt = fs0402_Logic.getReciveEmail();
+            if(receiverDt.Rows.Count==0)
+            {
+                strMsg = string.Format("tcode(C050)中没有找到收件人信息。");
+                return;
+            }
+            string strTitle = "FTMS已导入SOQ数据成功";
+            string response= ComFunction.SendEmailInfo(strSendEmail, strSendUserName, strContent, receiverDt, null, strTitle, "", false);
+            if(response== "Error")
+            {
+                strMsg = string.Format("邮件发送失败。");
+                return;
+            }
+        }
 
     }
 }

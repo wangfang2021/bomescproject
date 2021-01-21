@@ -70,58 +70,6 @@ namespace SPPSApi.Controllers.G13
             }
         }
         /// <summary>
-        /// 子页面初始化
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [EnableCors("any")]
-        public string subpageloadApi([FromBody]dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            Dictionary<string, object> res = new Dictionary<string, object>();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
-            string strPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
-            string strPinMu = dataForm.PinMu == null ? "" : dataForm.PinMu;
-            string strPackingImage = dataForm.PackingImage == null ? "" : dataForm.PackingImage;
-            try
-            {
-                //处理初始化
-                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//工厂
-                List<Object> PinMuList = ComFunction.convertAllToResult(fS1310_Logic.getPinMuInfo());//品目
-                res.Add("PlantList", PlantList);
-                res.Add("PinMuList", PinMuList);
-
-
-                DataTable dataTable = fS1310_Logic.getSubInfo(strPlant, strPartNo);
-                DtConverter dtConverter = new DtConverter();
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-                res.Add("PlantItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPlant"].ToString() : "");
-                res.Add("PartNoItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPartId"].ToString() : "");
-                res.Add("PartNameItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPartName"].ToString() : "");
-                res.Add("PinMuItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcBigPM"].ToString() : "");
-                res.Add("PackingImageItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPicUrl"].ToString() : "");
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "初始化失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        /// <summary>
         /// 查询方法
         /// </summary>
         /// <param name="data"></param>
@@ -188,7 +136,7 @@ namespace SPPSApi.Controllers.G13
                 for (int i = 0; i < dataTable.Rows.Count; i++)
                 {
                     dataTable.Rows[i]["LinId"] = (i + 1).ToString();
-                    if (dataTable.Rows[i]["vcOperImage"].ToString() == "")
+                    if (dataTable.Rows[i]["vcOperImage"].ToString() == "暂无图像.jpg")
                         dataTable.Rows[i]["vcOperImage"] = "未导入";
                     else
                         dataTable.Rows[i]["vcOperImage"] = "已导入";
@@ -210,57 +158,6 @@ namespace SPPSApi.Controllers.G13
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        /// <summary>
-        /// 保存方法
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            try
-            {
-                string strPlant = dataForm.Plant;
-                string strPackingImage = dataForm.PackingImage;
-                string strPartNo = dataForm.vcPartNo;
-                string strPartName = dataForm.vcPartName;
-                string strPinMu = dataForm.PinMu;
-                string strRoleId = dataForm.vcRoleId;
-                string strType = dataForm.vcType;
-                if (strType == "mod")
-                {
-                    //fS1310_Logic.setDeleteInfo(listInfoData);
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = null;
-                }
-                if(strType=="add")
-                {
-                    //fS1310_Logic.setDeleteInfo(listInfoData);
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = null;
-                }
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "生成印刷文件失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -361,6 +258,110 @@ namespace SPPSApi.Controllers.G13
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        /// <summary>
+        /// 子页面初始化
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string subpageloadApi([FromBody]dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
+            string strPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
+            string strPinMu = dataForm.PinMu == null ? "" : dataForm.PinMu;
+            string strPackingImage = dataForm.PackingImage == null ? "" : dataForm.PackingImage;
+            try
+            {
+                //处理初始化
+                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//工厂
+                List<Object> PinMuList = ComFunction.convertAllToResult(fS1310_Logic.getPinMuInfo());//品目
+                res.Add("PlantList", PlantList);
+                res.Add("PinMuList", PinMuList);
+
+
+                DataTable dataTable = fS1310_Logic.getSubInfo(strPlant, strPartNo);
+                DtConverter dtConverter = new DtConverter();
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+                res.Add("PlantItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPlant"].ToString() : "");
+                res.Add("PartNoItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPartId"].ToString() : "");
+                res.Add("PartNameItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPartName"].ToString() : "");
+                res.Add("PinMuItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcBigPM"].ToString() : "");
+                res.Add("PackingImageItem", dataTable.Rows.Count != 0 ? dataTable.Rows[0]["vcPicUrl"].ToString() : "");
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 保存方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string saveApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                string strPlant = dataForm.Plant;
+                string strPackingImage = dataForm.PackingImage;
+                string strPartNo = dataForm.vcPartNo;
+                string strPartName = dataForm.vcPartName;
+                string strPinMu = dataForm.PinMu;
+                string strRoleId = dataForm.vcRoleId;
+                string strType = dataForm.vcType;
+                if (strType == "mod")
+                {
+                    //fS1310_Logic.setDeleteInfo(listInfoData);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = null;
+                }
+                if(strType=="add")
+                {
+                    //fS1310_Logic.setDeleteInfo(listInfoData);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = null;
+                }
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成印刷文件失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
         /// <summary>
         /// 解压缩
         /// </summary>

@@ -42,8 +42,7 @@ namespace SPPSApi.Controllers.G04
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C036 = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//月度订单对应状态
+                List<Object> dataList_C036 = ComFunction.convertAllToResult(fs0402_Logic.getTCode("C036"));//月度订单对应状态
                 List<Object> dataList_C037 = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//月度订单合意状态
 
                 res.Add("C036", dataList_C036);
@@ -172,13 +171,32 @@ namespace SPPSApi.Controllers.G04
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 int count = 0;//影响行数，没啥用
+                string strMsg = "";
                 if (listInfoData.Count != 0)//选中了数据操作
                 {
-                    count = fs0402_Logic.ok(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                    if(fs0402_Logic.IsDQR(strYearMonth, listInfoData,ref strMsg))
+                    {//全是待确认的
+                        count = fs0402_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
+                    }
+                    else
+                    {//有不是待确认的数据
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "以下品番不是待确认状态："+strMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 else//按检索条件
                 {
-                    count = fs0402_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
+                    if (fs0402_Logic.IsDQR(strYearMonth, strDyState, strHyState, strPart_id, ref strMsg))
+                    {//全是待确认的
+                        count = fs0402_Logic.ok(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                    }
+                    else 
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "以下品番不是待确认状态：" + strMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = count;
@@ -226,14 +244,36 @@ namespace SPPSApi.Controllers.G04
                     apiResult.data = "对象年月不能为空";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //合意状态是待确认，才能退回
+
+
                 int count = 0;//影响行数，没啥用
+                string strMsg = "";
                 if (listInfoData.Count != 0)//选中了数据操作
                 {
-                    count = fs0402_Logic.ng(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                    if (fs0402_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg))
+                    {//全是待确认的
+                        count = fs0402_Logic.ng(strYearMonth, listInfoData, loginInfo.UserId);
+                    }
+                    else
+                    {//有不是待确认的数据
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "以下品番不是待确认状态：" + strMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 else//按检索条件
                 {
-                    count = fs0402_Logic.ng(strYearMonth, listInfoData, loginInfo.UserId);
+                    if (fs0402_Logic.IsDQR(strYearMonth, strDyState, strHyState, strPart_id, ref strMsg))
+                    {//全是待确认的
+                        count = fs0402_Logic.ng(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
+                    }
+                    else
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "以下品番不是待确认状态：" + strMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -290,6 +330,47 @@ namespace SPPSApi.Controllers.G04
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0205", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导入履历导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi_history([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                DataTable dt = fs0402_Logic.SearchHistory();
+                string[] heads = { "年月", "错误消息"};
+                string[] fields = { "vcYearMonth", "vcMessage" };
+                string strMsg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

@@ -34,8 +34,8 @@ namespace DataAccess
                 strSql.AppendLine(",d.vcName as vcPlant");
                 strSql.AppendLine(",a.vcPart_id as vcPartId");
                 strSql.AppendLine(",b.vcBigPM as vcPinMu");
-                strSql.AppendLine(",c.vcPicUrl_small as vcOperImage_samll");
-                strSql.AppendLine(",c.vcPicUrl as vcOperImage");
+                strSql.AppendLine(",isnull(c.vcPicUrl_small,'暂无图像.jpg') as vcOperImage_samll");
+                strSql.AppendLine(",isnull(c.vcPicUrl,'暂无图像.jpg') as vcOperImage");
                 strSql.AppendLine(",c.vcOperatorID as vcOperator");
                 strSql.AppendLine(",c.dOperatorTime as vcOperatorTime from ");
                 strSql.AppendLine("(select * from TPackageMaster)a");
@@ -113,7 +113,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select a.vcPlant,a.vcPartId,a.vcPicUrl,a.vcPicUrl_small,c.vcBigPM,'' as vcPartName from");
+                strSql.AppendLine("select a.vcPlant,a.vcPartId,isnull(a.vcPicUrl,'暂无图像.jpg') as vcPicUrl,isnull(a.vcPicUrl_small,'暂无图像.jpg') as vcPicUrl_small,c.vcBigPM,'' as vcPartName from");
                 strSql.AppendLine("(select * from TPackOperImage)a");
                 strSql.AppendLine("left join");
                 strSql.AppendLine("(select * from TPackageMaster)b");

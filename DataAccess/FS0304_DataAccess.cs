@@ -23,7 +23,7 @@ namespace DataAccess
                 strSql.Append("     ,b2.vcName as 'vcChange_Name'    \n");
                 strSql.Append("     ,b3.vcName as 'vcInOutflag_Name'    \n");
                 strSql.Append("     ,b4.vcName as 'vcOE_Name'    \n");
-                strSql.Append("     ,b5.vcName as 'vcPackFactory_Name'    \n");
+                strSql.Append("     ,b5.vcName as 'vcSYTCode_Name'    \n");
                 strSql.Append("     ,b6.vcName as 'vcCarType_Name'    \n");
                 strSql.Append("     ,b7.vcName as 'vcFXDiff_Name'    \n");
                 strSql.Append("     ,b8.vcName as 'vcIsDYJG_Name'    \n");
@@ -49,7 +49,7 @@ namespace DataAccess
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C023'    \n");
-                strSql.Append("     )b5 on a.vcPackFactory = b5.vcValue    \n");
+                strSql.Append("     )b5 on a.vcSYTCode = b5.vcValue    \n");
                 strSql.Append("     left join     ");
                 strSql.Append("     (    ");
                 strSql.Append("     	select SUBSTRING(vcValue,1,4) as 'vcValue',vcName from TCode where vcCodeId = 'C098'    ");
@@ -69,7 +69,7 @@ namespace DataAccess
                 strSql.Append("   where 1=1  \n");
                 if (!string.IsNullOrEmpty(strSSDateMonth))
                 {
-                    strSql.Append("      and vcSSDateMonth = '" + strSSDateMonth + "'  ");
+                    strSql.Append("      and dSSDate = '" + strSSDateMonth + "'  ");
                 }
                 if (!string.IsNullOrEmpty(strJD))
                 {
@@ -136,7 +136,7 @@ namespace DataAccess
                         sql.Append("      ,vcSCPlace_Province = " + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_Province"], false) + "      \n");
                         sql.Append("      ,vcCHPlace_City = " + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_City"], false) + "      \n");
                         sql.Append("      ,vcCHPlace_Province = " + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_Province"], false) + "      \n");
-                        sql.Append("      ,vcPackFactory = " + ComFunction.getSqlValue(listInfoData[i]["vcPackFactory"], false) + "      \n");
+                        sql.Append("      ,vcSYTCode = " + ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + "      \n");
                         sql.Append("      ,vcSCSName = " + ComFunction.getSqlValue(listInfoData[i]["vcSCSName"], false) + "      \n");
                         sql.Append("      ,vcSCSPlace = " + ComFunction.getSqlValue(listInfoData[i]["vcSCSPlace"], false) + "      \n");
                         sql.Append("      ,dSupplier_BJ = " + ComFunction.getSqlValue(listInfoData[i]["dSupplier_BJ"], true) + "      \n");
@@ -168,9 +168,7 @@ namespace DataAccess
         #region 退回
         public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            #region 给供应商发邮件
-
-            #endregion
+            
 
             #region 将进度变为已退回
             try

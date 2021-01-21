@@ -71,7 +71,7 @@ namespace SPPSApi.Controllers.G03
                                                     {"dSyncTime"    ,"vcChange","vcSPINo","vcSQState","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE" ,"vcHKPart_id","vcHaoJiu","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" ,"vcZXBZNo"  ,"vcReceiver","vcOriginCompany"},
                                                     {FieldCheck.Date,""        ,""       ,""         ,""      ,""         ,""            ,""               ,""             ,FieldCheck.Date,FieldCheck.Date,FieldCheck.Date,""        ,""             ,""            ,""            ,""        ,""        ,""           ,""             ,""               ,""         ,""         ,""         ,""          ,""           ,FieldCheck.Date,FieldCheck.Date,""     ,""           ,""        ,FieldCheck.Date,FieldCheck.Date,""         ,""                ,FieldCheck.Date ,""      ,""        ,""            ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""        ,""        ,""        ,""        ,""        ,""        ,""          ,""          ,""               },
                                                     {"0"            ,"0"       ,"20"     ,"0"        ,"1"     ,"12"       ,"4"           ,"4"              ,"4"            ,"0"            ,"0"            ,"0"            ,"4"       ,"12"           ,"100"         ,"100"         ,"20"      ,"20"      ,"0"          ,"4"            ,"100"            ,"20"       ,"20"       ,"0"        ,"100"       ,"100"        ,"0"            ,"0"            ,"0"    ,"12"         ,"0"       ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"50"        ,"10"        ,"0"              },//最大长度设定,不校验最大长度用0
-                                                    {"0"            ,"1"       ,"1"      ,"1"        ,"1"     ,"1"        ,"1"           ,"1"              ,"0"            ,"1"            ,"1"            ,"0"            ,"1"       ,"0"            ,"1"           ,"0"           ,"0"       ,"0"       ,"0"          ,"0"            ,"0"              ,"0"        ,"0"        ,"0"        ,"0"         ,"0"          ,"0"            ,"0"            ,"1"    ,"0"          ,"1"       ,"1"            ,"1"            ,"0"        ,"0"               ,"0"             ,"0"     ,"1"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"1"         ,"1"              }//最小长度设定,可以为空用0
+                                                    {"0"            ,"0"       ,"1"      ,"0"        ,"1"     ,"1"        ,"1"           ,"1"              ,"0"            ,"1"            ,"1"            ,"0"            ,"1"       ,"0"            ,"1"           ,"0"           ,"0"       ,"0"       ,"0"          ,"0"            ,"0"              ,"0"        ,"0"        ,"0"        ,"0"         ,"0"          ,"0"            ,"0"            ,"0"    ,"0"          ,"0"       ,"1"            ,"1"            ,"0"        ,"0"               ,"0"             ,"0"     ,"0"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"0"         ,"0"              }//最小长度设定,可以为空用0
                                                     
                     };
                 DataTable importDt = new DataTable();
@@ -92,14 +92,15 @@ namespace SPPSApi.Controllers.G03
                     #region 先定义哪些列涉及Name转Value
 
                     List<FS0303_Logic.NameOrValue> lists = new List<FS0303_Logic.NameOrValue>();
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "变更事项", strHeader = "vcChange", strCodeid = "C002" });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "内外", strHeader = "vcInOutflag", strCodeid = "C003" });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "号旧", strHeader = "vcHaoJiu", strCodeid = "C004" });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "收货方", strHeader = "vcReceiver", strCodeid = "C005" });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "所属原单位", strHeader = "vcOriginCompany", strCodeid = "C006" });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "OE=SP", strHeader = "vcOE", strCodeid = "C012" });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "包装工厂", strHeader = "vcSYTCode", strCodeid = "C016" });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "生确", strHeader = "vcSQState", strCodeid = "C019" });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "变更事项", strHeader = "vcChange", strCodeid = "C002", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "内外", strHeader = "vcInOutflag", strCodeid = "C003", isNull = true });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "号旧", strHeader = "vcHaoJiu", strCodeid = "C004", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "收货方", strHeader = "vcReceiver", strCodeid = "C005", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "所属原单位", strHeader = "vcOriginCompany", strCodeid = "C006", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "OE=SP", strHeader = "vcOE", strCodeid = "C012", isNull = true });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "包装工厂", strHeader = "vcSYTCode", strCodeid = "C016", isNull = true });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "生确", strHeader = "vcSQState", strCodeid = "C019", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "防锈", strHeader = "vcFXDiff", strCodeid = "C028", isNull = false });
                     #endregion
 
                     #region 更新table
@@ -132,10 +133,17 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
-
-                FS0303_Logic.importSave(importDt, loginInfo.UserId);
+                string strErrorPartId="";
+                FS0303_Logic.importSave(importDt, loginInfo.UserId,ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导入失败，以下品番重复：<br/>" + strErrorPartId;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                apiResult.data = "导入成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -143,7 +151,7 @@ namespace SPPSApi.Controllers.G03
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败" + ex.Message;
+                apiResult.data = "导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

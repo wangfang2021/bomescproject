@@ -32,9 +32,15 @@ namespace Logic
         #endregion
 
         #region 退回
-        public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strEmail,string strUserName, ref string strErrorPartId)
         {
+            #region 跟新生确进度表
             fs0304_DataAccess.Back(listInfoData, strUserId, ref strErrorPartId);
+            #endregion
+            
+            #region 给供应商发邮件
+
+            #endregion
         }
         #endregion
 

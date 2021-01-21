@@ -68,7 +68,7 @@ namespace Logic
             {
                 for(int i=0;i<dt.Rows.Count;i++)
                 {
-                    strMsg += dt.Rows[i]["vcPart_id"].ToString();
+                    strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
                 }
                 strMsg = strMsg.Substring(0, strMsg.Length - 1);
                 return false;

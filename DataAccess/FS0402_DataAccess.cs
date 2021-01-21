@@ -530,7 +530,7 @@ namespace DataAccess
 
                 #region 验证8：品番3个月数量不能全为0(N月可以为)
                 sql.Length = 0;//清空
-                sql.Append("select vcPart_id,iHySOQN,iHySOQN1,iHySOQN2 from TSoq where vcYearMonth='202102'    \n");
+                sql.Append("select vcPart_id,iHySOQN,iHySOQN1,iHySOQN2 from TSoq where vcYearMonth='"+strYearMonth+"'    \n");
                 sql.Append("and ISNULL(iHySOQN,0)=0 and ISNULL(iHySOQN1,0)=0 and ISNULL(iHySOQN2,0)=0     \n");
                 DataTable dt8 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 for (int i = 0; i < dt8.Rows.Count; i++)
@@ -542,8 +542,8 @@ namespace DataAccess
 
                 #region 验证9：收容数整倍数
                 sql.Length = 0;//清空
-                sql.Append("select t1.vcPart_id,t1.iHySOQN%t5.iPackingQty as iHySOQN,t1.iHySOQN1%t5.iPackingQty as iHySOQN1,    \n");
-                sql.Append("t1.iHySOQN2%t5.iPackingQty as iHySOQN2    \n");
+                sql.Append("select t1.vcPart_id,t1.iCbSOQN%t5.iPackingQty as iCbSOQN,t1.iCbSOQN1%t5.iPackingQty as iCbSOQN1,    \n");
+                sql.Append("t1.iCbSOQN2%t5.iPackingQty as iCbSOQN2    \n");
                 sql.Append("from (        \n");
                 sql.Append("	select * from TSoq where vcYearMonth='"+strYearMonth+"'         \n");
                 sql.Append(")t1            \n");
@@ -551,7 +551,7 @@ namespace DataAccess
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut        \n");
                 sql.Append("	from TSPMaster         \n");
                 sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06'         \n");
-                sql.Append("	and '202102' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)        \n");
+                sql.Append("	and '"+strYearMonth+"' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)        \n");
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId        \n");
                 sql.Append("left join (    --//供应商工区    \n");
                 sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant         \n");
@@ -566,7 +566,7 @@ namespace DataAccess
                 sql.Append(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant         \n");
                 sql.Append("and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         \n");
                 sql.Append("and t4.vcSupplierPlant=t5.vcSupplierPlant        \n");
-                sql.Append("where t1.iHySOQN%t5.iPackingQty<>0 or t1.iHySOQN1%t5.iPackingQty<>0 or t1.iHySOQN2%t5.iPackingQty<>0       \n");
+                sql.Append("where t1.iCbSOQN%t5.iPackingQty<>0 or t1.iCbSOQN1%t5.iPackingQty<>0 or t1.iCbSOQN2%t5.iPackingQty<>0       \n");
                 DataTable dt9 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 for (int i = 0; i < dt9.Rows.Count; i++)
                 {
@@ -809,7 +809,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" select * TSoq ");
+                strSql.AppendLine(" select * from TSoq ");
                 strSql.AppendLine(" WHERE vcHyState<>'1' ");//1是待确认
                 //筛选条件：对象年月
                 if (!string.IsNullOrEmpty(strYearMonth))
@@ -866,7 +866,6 @@ namespace DataAccess
                     strSql.Append("      (      \n");
                     strSql.Append("       '"+ listInfoData[i]["vcPart_id"].ToString() + "',     \n");
                     strSql.Append("       '" + listInfoData[i]["vcHyState"].ToString() + "'     \n");
-
                     strSql.Append("      );      \n");
                     #endregion
                 }
@@ -1063,7 +1062,7 @@ namespace DataAccess
                     strSql.Append("       vcPart_id        \n");
                     strSql.Append("       ) values         \n");
                     strSql.Append("      (      \n");
-                    strSql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",   \n");
+                    strSql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "   \n");
                     strSql.Append("      );      \n");
                     #endregion
                 }

@@ -149,6 +149,7 @@ namespace SPPSApi.Controllers.G05
                     if (fs0501_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg,"submit"))
                     {//全是可操作的数据
                         // 执行提交操作：按所选数据提交
+                        //fs0402_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
                     }
                     else
                     {//有不可以操作的数据
@@ -162,6 +163,7 @@ namespace SPPSApi.Controllers.G05
                     if (fs0501_Logic.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, ref strMsg))
                     {//全是可操作的数据
                         //执行提交操作：按检索条件提交
+                        //fs0402_Logic.ok(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
                     }
                     else
                     {//有不可以操作的数据

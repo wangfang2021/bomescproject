@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Collections;
+using System.IO;
 
 namespace SPPSApi.Controllers.G06
 {
@@ -104,14 +105,14 @@ namespace SPPSApi.Controllers.G06
                     if (dtCalendar.Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data =string.Format("没找到{0}厂{1}月日历。",strPlant,vcDXYM);
+                        apiResult.data = string.Format("没找到{0}厂{1}月日历。", strPlant, vcDXYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //取Soq数据
                     DataTable dtSoq_dxym = fs0610_Logic.GetSoq(strPlant, vcDXYM, "dxym");
                     DataTable dtSoq_nsym = fs0610_Logic.GetSoq(strPlant, vcDXYM, "nsym");
                     DataTable dtSoq_nnsym = fs0610_Logic.GetSoq(strPlant, vcDXYM, "nnsym");
-                    if(dtSoq_dxym.Rows.Count==0 || dtSoq_nsym.Rows.Count==0 || dtSoq_nnsym.Rows.Count==0)
+                    if (dtSoq_dxym.Rows.Count == 0 || dtSoq_nsym.Rows.Count == 0 || dtSoq_nnsym.Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("没找到{0}厂{1}月soq数据(内制&已合意)。", strPlant, vcDXYM);
@@ -122,7 +123,7 @@ namespace SPPSApi.Controllers.G06
                     ArrayList arrResult_DXYM = new ArrayList();//dtCalendar,dtSoq_dxym,null,null
                     ArrayList arrResult_NSYM = new ArrayList();//dtCalendar,dtSoq_nsym,null,null
                     ArrayList arrResult_NNSYM = new ArrayList();//dtCalendar,dtSoq_nnsym,null,null
-                    if(arrResult_DXYM.Count==0 || arrResult_NSYM.Count==0 || arrResult_NNSYM.Count==0)
+                    if (arrResult_DXYM.Count == 0 || arrResult_NSYM.Count == 0 || arrResult_NNSYM.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("{0}厂{1}月平准化结果计算失败。", strPlant, vcDXYM);
@@ -131,8 +132,8 @@ namespace SPPSApi.Controllers.G06
                     //将平准化结果更新DB
                     string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                     string vcNSYM = Convert.ToDateTime(vcDXYM.Substring(0, 4) + "-" + vcDXYM.Substring(4, 2) + "-01").ToString("yyyyMM");
-                    string vcNNSYM= Convert.ToDateTime(vcNSYM.Substring(0, 4) + "-" + vcNSYM.Substring(4, 2) + "-01").ToString("yyyyMM");
-                    fs0610_Logic.SaveResult(vcCLYM,vcDXYM,vcNSYM, vcNNSYM, strPlant, arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM,loginInfo.UserId);
+                    string vcNNSYM = Convert.ToDateTime(vcNSYM.Substring(0, 4) + "-" + vcNSYM.Substring(4, 2) + "-01").ToString("yyyyMM");
+                    fs0610_Logic.SaveResult(vcCLYM, vcDXYM, vcNSYM, vcNNSYM, strPlant, arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, loginInfo.UserId);
 
                 }
 
@@ -232,6 +233,119 @@ namespace SPPSApi.Controllers.G06
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 生成生产计划
+        [HttpPost]
+        [EnableCors("any")]
+        public string createProPlan([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                object b = dataForm.vcFZGC;
+                string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(','); ;
+                //生成生产计划  
+                string msg = fs0610_Logic.createProPlan(vcDxny, vcFZGC, loginInfo.UserId);
+                if (msg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "生成成功。";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 下载生产计划
+        [HttpPost]
+        [EnableCors("any")]
+        public string downloadProPlan([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+
+
+
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请求失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 上传生产计划
+        [HttpPost]
+        [EnableCors("any")]
+        public string uploadProPlan([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+
+
+
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请求失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

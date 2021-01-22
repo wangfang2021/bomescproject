@@ -286,7 +286,6 @@ namespace SPPSApi.Controllers.G06
         [EnableCors("any")]
         public string downloadProPlan([FromBody] dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -295,22 +294,39 @@ namespace SPPSApi.Controllers.G06
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
+                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                object b = dataForm.vcFZGC;
+                string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
 
+                string[] fields = { "vcMonth", "vcPartsNo", "vcClass", "vcProject", "vcDock", "Total",
+                "D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","D14","D15","D16","D17","D18","D19","D20","D21","D22","D23",
+                "D24","D25","D26","D27","D28","D29","D30","D31"
+                };
+                string filepath = string.Empty;
+                for (int i = 0; i < vcFZGC.Length; i++)
+                {
+                    DataTable dt = fs0610_Logic.serchData(vcDxny, "1", "1", vcFZGC[i], vcFZGC[i]);
+                    filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID);
+                    if (filepath == "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导出生成文件失败";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
 
-
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "";
+                apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "请求失败";
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

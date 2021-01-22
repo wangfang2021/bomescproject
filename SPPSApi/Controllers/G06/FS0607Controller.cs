@@ -179,8 +179,8 @@ namespace SPPSApi.Controllers.G06
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
-                        string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
-                        string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
+                        string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
+                        string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
                         if (dBeginDate!= dEndDate)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -191,8 +191,8 @@ namespace SPPSApi.Controllers.G06
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
-                        string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
-                        string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("-", "").Substring(0, 6);//判断是不是同一个月
+                        string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
+                        string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
                         if (dBeginDate != dEndDate)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;

@@ -131,6 +131,16 @@ namespace DataAccess
                 string vcTargetMonth = dTargetDate.Substring(4, 2);
                 string vcTargetDay = dTargetDate.Substring(6, 2);
                 string filePath = fileList[0]["filePath"].ToString();
+                string fileName = fileList[0]["fileName"].ToString().Trim().Substring(0, fileList[0]["fileName"].ToString().Trim().LastIndexOf("."));
+                string fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);
+                ////订单类型	0	日度
+                //订单类型	1	周度
+                //订单类型	2	月度
+                //订单类型	3	紧急
+                if (vcOrderType == "2")
+                {
+                    vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
+                }
                 strSql.AppendLine("  update TOrderUploadManage   ");
                 strSql.AppendLine("  set vcOrderNo='" + newOrderNo + "',  ");
                 strSql.AppendLine("  vcTargetYear='" + vcTargetYear + "',  ");
@@ -142,7 +152,7 @@ namespace DataAccess
                 strSql.AppendLine("  vcOrderState='0',  ");
                 strSql.AppendLine("  vcMemo='" + vcMemo + "',  ");
                 strSql.AppendLine("  dUploadDate=GETDATE(),  ");
-                strSql.AppendLine("  vcFilePath='" + filePath + "',  ");
+                strSql.AppendLine("  vcFilePath='" + filePath + "',vcFileOrderNo='"+ fileOrderNo + "',  ");
                 strSql.AppendLine("  vcOperatorID='" + UserId + "',  ");
                 strSql.AppendLine("  dOperatorTime=GETDATE()  ");
                 strSql.AppendLine("  where vcOrderNo='" + lastOrderNo + "'  ");
@@ -184,6 +194,7 @@ namespace DataAccess
                     vcTargetYear = dTargetDate.Substring(0, 4);
                     vcTargetMonth = dTargetDate.Substring(4, 2);
                     vcTargetDay = dTargetDate.Substring(6, 2);
+
                 }
                 else if (vcOrderType == "1")
                 {
@@ -196,9 +207,20 @@ namespace DataAccess
 
                 string fileName = string.Empty;
                 string filePath = string.Empty;
+                string fileOrderNo = string.Empty; 
                 for (int i=0;i< fileList.Count;i++)
                 {
-                    fileName= fileList[i]["fileName"].ToString().Trim().Substring(0,fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                   
+                    fileName = fileList[i]["fileName"].ToString().Trim().Substring(0,fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                    fileOrderNo = fileName.Substring(fileName.LastIndexOf("-")+1);
+                    ////订单类型	0	日度
+                    //订单类型	1	周度
+                    //订单类型	2	月度
+                    //订单类型	3	紧急
+                    if (vcOrderType == "2") {
+                        vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
+                    }
+                   
                     filePath = fileList[i]["filePath"].ToString();
                     strSql.AppendLine("  INSERT INTO [dbo].[TOrderUploadManage]   ");
                     strSql.AppendLine("             ([vcOrderNo] ,[vcTargetYear]   ");
@@ -206,7 +228,7 @@ namespace DataAccess
                     strSql.AppendLine("             ,[vcTargetWeek]  ,[vcOrderType],[vcInOutFlag]   ");
                     strSql.AppendLine("             ,[vcOrderState],[vcMemo]   ");
                     strSql.AppendLine("             ,[dUploadDate],[dCreateDate]   ");
-                    strSql.AppendLine("             ,[vcFilePath],[vcOperatorID],[dOperatorTime])   ");
+                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,[vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
                     strSql.AppendLine("             ('" + fileName + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
@@ -218,7 +240,7 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "',   ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',  ");
                     strSql.AppendLine("  		   '"+ userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
                 }

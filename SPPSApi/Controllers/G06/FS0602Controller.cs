@@ -113,14 +113,16 @@ namespace SPPSApi.Controllers.G06
             string strHaoJiu = dataForm.HaoJiu;
             string strSupplierId = dataForm.SupplierId;
             string strSupplierPlant = dataForm.SupplierPlant;
+            string strDataState = dataForm.DataState;
 
             try
             {
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant);
+                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 //dtConverter.addField("dExpectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 //dtConverter.addField("dSReplyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 //dtConverter.addField("dHyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
@@ -166,13 +168,14 @@ namespace SPPSApi.Controllers.G06
             string strHaoJiu = dataForm.HaoJiu;
             string strSupplierId = dataForm.SupplierId;
             string strSupplierPlant = dataForm.SupplierPlant;
+            string strDataState = dataForm.DataState;
             try
             {
                 string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
                 string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
                 string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant);
+                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
 
                 string[] fields = {"vcYearMonth","vcDyState_Name","vcHyState_Name","vcPart_id","vcCarfamilyCode","vcHaoJiu","vcOrderingMethod",
                     "vcOrderPlant","vcInOut",

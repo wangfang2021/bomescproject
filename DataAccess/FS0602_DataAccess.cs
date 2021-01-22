@@ -23,11 +23,14 @@ namespace DataAccess
                 strSql.AppendLine("case when TT.iTzhSOQN is null or TT.iTzhSOQN1 is null or TT.iTzhSOQN2 is null then 'partFS0602A' --无调整");
                 strSql.AppendLine("	when TT.iTzhSOQN=TT.iCbSOQN and TT.iTzhSOQN1=TT.iCbSOQN1 and TT.iTzhSOQN2=TT.iCbSOQN2 then 'partFS0602A' --无调整");
                 strSql.AppendLine("	else 'partFS0602B' --有调整");
-                strSql.AppendLine("	end as vcBgColor,'0' as vcModFlag,'0' as vcAddFlag");
+                strSql.AppendLine("	end as vcBgColor,");
+                strSql.AppendLine("	'0' as bModFlag,'0' as bAddFlag,CASE WHEN vcHyState='1' or vcHyState='2' then '1' else '0' end as bSelectFlag");
                 strSql.AppendLine("FROM (");
                 strSql.AppendLine("select T1.iAutoId AS LinId,");
                 strSql.AppendLine("		T1.vcYearMonth AS vcYearMonth,");
+                strSql.AppendLine("		T1.vcDyState,");
                 strSql.AppendLine("		T6.vcName AS vcDyState_Name,");
+                strSql.AppendLine("		T1.vcHyState,");
                 strSql.AppendLine("		T7.vcName AS vcHyState_Name,");
                 strSql.AppendLine("		T1.vcPart_id AS vcPart_id,");
                 strSql.AppendLine("		T1.vcCarFamilyCode AS vcCarfamilyCode,");
@@ -141,6 +144,24 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public bool checkDbInfo(string strYearMonth)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine(" select isnull(sum(cast(isnull(vcDyState,0) as int)),0) as DyState from [TSoq] where vcYearMonth='" + strYearMonth + "'");
+                DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (dataTable != null && dataTable.Rows[0]["DyState"].ToString() == "0")
+                    return false;
+                else
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void setSOQInfo(string strOperationType, DataTable dtModInfo, string strOperId)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
@@ -163,7 +184,15 @@ namespace DataAccess
                     strSql_modinfo.AppendLine("      ,[dOpenTime] = GETDATE()");
                     strSql_modinfo.AppendLine("      ,[vcOpenUser] = '" + strOperId + "'");
                     strSql_modinfo.AppendLine(" WHERE [vcYearMonth] = @vcYearMonth");
-                    strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id");
+                    strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id and vcHyState in ('0','3')");
+                    strSql_modinfo.AppendLine(" declare @flag int");
+                    strSql_modinfo.AppendLine(" set @flag=(select Count(*) from [TSoq_OperHistory] where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id)");
+                    strSql_modinfo.AppendLine(" if(@flag=0)");
+                    strSql_modinfo.AppendLine(" begin");
+                    strSql_modinfo.AppendLine(" INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
+                    strSql_modinfo.AppendLine(" select [vcYearMonth],[vcPart_id],iCbSOQN,iCbSOQN1,iCbSOQN2,'company' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
+                    strSql_modinfo.AppendLine(" from TSoq where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcHyState in ('0','3')");
+                    strSql_modinfo.AppendLine(" end");
                     sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                     sqlCommand_modinfo.Parameters.AddWithValue("@vcDyState", "");
                     //sqlCommand_modinfo.Parameters.AddWithValue("@vcHyState", "");

@@ -324,7 +324,7 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
 
-                fs0302_logic.weaveUnit(listInfoData, loginInfo.UserId);
+                fs0302_logic.weaveUnit(listInfoData, loginInfo.UserId, loginInfo.UnitCode);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

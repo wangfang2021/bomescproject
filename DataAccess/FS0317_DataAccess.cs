@@ -32,13 +32,13 @@ namespace DataAccess
                 {
                     sbr.AppendLine("AND vcSupplier_id = '" + supplierId + "'");
                 }
-                sbr.AppendLine("SELECT a.vcSupplier_id,a.total,b.total AS overNum,LTRIM(CONVERT(NUMERIC(9,2),CAST(b.total AS int)*100.0/CAST(a.total AS int)))+'%' AS per FROM ");
+                sbr.AppendLine("SELECT a.vcSupplier_id,a.total,ISNULL(b.total,'0') AS overNum,LTRIM(CONVERT(NUMERIC(9,2),CAST(ISNULL(b.total,'0') AS int)*100.0/CAST(a.total AS int)))+'%' AS per FROM ");
                 sbr.AppendLine("(");
                 sbr.AppendLine("SELECT vcSupplier_id,COUNT(*) AS total FROM #temp GROUP BY vcSupplier_id");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT vcSupplier_id,COUNT(*) AS total FROM #temp WHERE dNQDate < GETDATE() GROUP BY vcSupplier_id");
+                sbr.AppendLine("SELECT vcSupplier_id,COUNT(*) AS total FROM #temp WHERE dNQDate < GETDATE() AND isnull(vcSQState,'') <> '2' GROUP BY vcSupplier_id");
                 sbr.AppendLine(") b ON a.vcSupplier_id = b.vcSupplier_id");
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());

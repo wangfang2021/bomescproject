@@ -5,6 +5,7 @@ using System.Text;
 using System.Data.SqlClient;
 using DataEntity;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace DataAccess
 {
@@ -538,6 +539,398 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #endregion
+
+        #region 生产计划方法（王立伟）2020-01-21
+        /// <summary>
+        /// 生成生产计划
+        /// </summary>
+        /// <param name="vcDxny">年月</param>
+        /// <param name="vcFZGC">工厂</param>
+        /// <returns></returns>
+        public string createProPlan(string vcDxny, string vcFZGC)
+        {
+            return "";
+        }
+
+        #region 判断是否已导入SOQ
+        /// <summary>
+        /// 判断是否已导入SOQ
+        /// </summary>
+        /// <param name="mon"></param>
+        /// <param name="plant"></param>
+        /// <returns></returns>
+        public DataTable getSoqInfo(string mon, string plant)
+        {
+            string mon1 = mon.Substring(0, 4) + "-" + mon.Substring(4, 2);
+            string ssql = "";
+            ssql += "  select t1.vcFZGC, t1.vcPart_id, t2.vcDock, t2.vcCarFamilyCode, t2.vcQJcontainer as kbsrs, t2.iQuantityPerContainer as srs, ";
+            ssql += "  t1.iBoxes*t2.iQuantityPerContainer as num, t2.vcPorType, t2.vcZB, t3.KBpartType, t2.vcQFflag, ";
+            ssql += "  t3.vcProName0,t3.vcLT0, t3.vcCalendar0, ";
+            ssql += "  t3.vcProName1,t3.vcLT1, t3.vcCalendar1, ";
+            ssql += "  t3.vcProName2,t3.vcLT2, t3.vcCalendar2, ";
+            ssql += "  t3.vcProName3,t3.vcLT3, t3.vcCalendar3, ";
+            ssql += "  t3.vcProName4,t3.vcLT4, t3.vcCalendar4  ";
+            ssql += "  from TSoqReply t1 ";
+            ssql += "  left join tPartInfoMaster t2 ";
+            ssql += "  on t1.vcPart_id = t2.vcPartsNo and t1.vcCarType = t2.vcCarFamilyCode ";
+            ssql += "  left join ProRuleMst t3 ";
+            ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB = t2.vcZB ";
+            // 王立伟注释掉 //ssql += "  where t1.vcDXYM='" + mon + "' and updateFlag='0' and iPartNums <>'0' and vcFZGC='" + plant + "' and t2.dTimeFrom<='" + mon + "-01" + "' and t2.dTimeTo >= '" + mon + "-01" + "'";
+            ssql += "  where t1.vcDXYM='" + mon + "' and iPartNums <>'0' and vcFZGC='" + plant + "' and t2.dTimeFrom<='" + mon1 + "-01" + "' and t2.dTimeTo >= '" + mon1 + "-01" + "'";
+            ssql += "  order by vcFZGC, vcPorType, vcZB, KBpartType ";
+            return excute.ExcuteSqlWithSelectToDT(ssql);
+        }
+        #endregion
+
+        public DataTable getCalendarSP(int year, int mon, string gc, string zb, int Lt, string plant)//获取 根据Lt计算出的日历 非指定-#2
+        {
+            DataTable dt = new DataTable();
+            DateTime curMon = Convert.ToDateTime(year.ToString() + "-" + mon.ToString() + "-1");
+            int year_last = curMon.AddMonths(-1).Year;
+            int year_month = curMon.AddMonths(-1).Month;
+            string dboMon_current = swithMon(curMon.Month);
+            string dboMon_last = swithMon(curMon.AddMonths(-1).Month);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("    declare @Lt int");
+            sb.AppendLine("    declare @tmpa int ");
+            sb.AppendLine("    declare @tmpb int ");
+            sb.AppendLine("    DECLARE @zhinum int");
+            sb.AppendLine("     DECLARE @banyue int   ");
+            sb.AppendFormat("     set @Lt = {0}", Lt);
+            sb.AppendLine("     SET @zhinum= (");
+            sb.AppendLine("     --算出该月多少值");
+            sb.AppendLine("    select top(1) row_number() over ( order by vcYear,vcMonth) as zhi from (");
+            sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_current);
+            sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon));
+            sb.AppendLine(" )) P");
+
+            sb.AppendFormat("    where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall='M'  ) t  ", gc, zb, year, plant);
+            sb.AppendLine("    order by zhi desc");
+            sb.AppendLine("      )");
+            sb.AppendLine("      set @tmpa = @zhinum");
+            sb.AppendLine("      SET @tmpb= (");
+            sb.AppendLine("     --算出该月多少值");
+            sb.AppendLine("    select top(1) row_number() over ( order by vcYear,vcMonth) as zhi from (");
+            sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_last);
+            sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon.AddMonths(-1)));
+            sb.AppendLine(" )) P");
+            sb.AppendFormat("    where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall='M'  ", gc, zb, year, plant);
+            sb.AppendLine("    union all");
+            sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_current);
+            sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon));
+            sb.AppendLine(" )) P");
+            sb.AppendFormat("    where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall='M'  ) t  ", gc, zb, year, plant);
+
+            sb.AppendLine("    order by zhi desc");
+            sb.AppendLine("      )");
+            sb.AppendLine("      if @zhinum%2 = 1");
+            sb.AppendLine("     	 begin");
+            sb.AppendLine("     	 set  @banyue =(@zhinum+1)/2");
+            sb.AppendLine("     	 end");
+            sb.AppendLine("      else set  @banyue =@zhinum/2");
+            sb.AppendLine("    ");
+            sb.AppendLine("      select tt.* ,((tt.zhi-1)/10+1) as zhou , 0 as total from ");
+            sb.AppendLine("    (");
+            sb.AppendLine("    select tall.vcYear,tall.vcMonth,tall.vcGC,tall.vcZB,tall.dayall,tall.days ,row_number() over ( order by vcYear,vcMonth) as zhi from (");
+            sb.AppendLine("    select t.*,row_number() over ( order by vcYear,vcMonth) as zhitmp from (");
+            sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_last);
+            sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon.AddMonths(-1)));
+            sb.AppendLine(" )) P");
+            sb.AppendFormat("    where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall='M'", gc, zb, year, plant);
+            sb.AppendLine("    union all");
+
+            sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_current);
+            sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon));
+            sb.AppendLine(" )) P");
+            sb.AppendFormat("    where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall='M'  ) t", gc, zb, year, plant);
+            sb.AppendLine("    ) tall");
+            sb.AppendLine("    where tall.zhitmp >@tmpb-@tmpa-@Lt  and tall.zhitmp<=@tmpb-@Lt");
+            sb.AppendLine("    ) tt");
+            sb.AppendLine("    union all");
+            sb.AppendLine("      select '0' ,'0','0' ,'0','0','0','9999', @banyue as banyue , @zhinum as totalzhi");
+
+            try
+            {
+                return excute.ExcuteSqlWithSelectToDT(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getCalendar(int year, int mon, string gc, string zb, string lastflag, string curflag, string a, string plant)
+        {
+            DataTable dt = new DataTable();
+            DateTime curMon = Convert.ToDateTime(year.ToString() + "-" + mon.ToString() + "-1");
+            int year_last = curMon.AddMonths(-1).Year;
+            int year_month = curMon.AddMonths(-1).Month;
+            string dboMon_current = swithMon(curMon.Month);
+            string dboMon_last = swithMon(curMon.AddMonths(-1).Month);
+            StringBuilder sb = new StringBuilder();
+            if (a.Length == 0)
+            {
+                sb.AppendLine(" select t.*,row_number() over ( order by vcYear,vcMonth) as zhi from (");
+                sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_last);
+                sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon.AddMonths(-1)));
+                sb.AppendLine(" )) P");
+                sb.AppendFormat("  where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}'  and dayall IN ('{4}','{4}A','{4}B')", gc, zb, curMon.AddMonths(-1).Year, plant, lastflag);//2018-2-26 Malcolm.L 刘刚
+                sb.AppendLine("  ");
+                sb.AppendLine("  union all");
+                sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_current);
+                sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon));
+                sb.AppendLine(" )) P");
+                sb.AppendFormat("  where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}'  and dayall IN ('{4}','{4}A','{4}B')", gc, zb, curMon.Year, plant, curflag);//2018-2-26 Malcolm.L 刘刚
+                sb.AppendLine(" ) t");
+            }
+            if (a == "1")
+            {
+                sb.AppendLine("  DECLARE @zhinum int");
+                sb.AppendLine("   DECLARE @banyue int   ");
+                sb.AppendLine("   SET @zhinum= (");
+                sb.AppendLine("   --算出该月多少值");
+                sb.AppendLine("  select top(1) row_number() over ( order by vcYear,vcMonth) as zhi from (");
+                sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days from {0} ", dboMon_last);
+                sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon.AddMonths(-1)));
+                sb.AppendLine(" )) P");
+                sb.AppendFormat("  where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall IN ('{4}','{4}A','{4}B')", gc, zb, curMon.AddMonths(-1).Year, plant, lastflag);//2018-2-26 Malcolm.L 刘刚
+                sb.AppendLine("  ");
+                sb.AppendLine("  union all");
+                sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days   from {0} ", dboMon_current);
+                sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon));
+                sb.AppendLine(" )) P");
+                sb.AppendFormat("  where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall IN ('{4}','{4}A','{4}B')", gc, zb, curMon.Year, plant, curflag);//2018-2-26 Malcolm.L 刘刚
+                sb.AppendLine("  ) t  ");
+                sb.AppendLine("  order by zhi desc");
+                sb.AppendLine("    )");
+                sb.AppendLine("    ");
+                sb.AppendLine("    if @zhinum%2 = 1");
+                sb.AppendLine("   	 begin");
+                sb.AppendLine("   	 set  @banyue =(@zhinum+1)/2");
+                sb.AppendLine("   	 end");
+                sb.AppendLine("    else set  @banyue =@zhinum/2");
+                sb.AppendLine("  select tt.* ,((tt.zhi-1)/10+1) as zhou , 0 as total from ");
+                sb.AppendLine("  (");
+                sb.AppendLine("    select t.*,row_number() over ( order by vcYear,vcMonth) as zhi from (");
+                sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_last);
+                sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon.AddMonths(-1)));
+                sb.AppendLine(" )) P");
+                sb.AppendFormat("  where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall IN ('{4}','{4}A','{4}B')", gc, zb, curMon.AddMonths(-1).Year, plant, lastflag);//2018-2-26 Malcolm.L 刘刚
+                sb.AppendLine("  ");
+                sb.AppendLine("  union all");
+                sb.AppendFormat("  select vcYear,vcMonth, vcGC,vcZB ,dayall,days  from {0} ", dboMon_current);
+                sb.AppendFormat(" unpivot (dayall for days in({0}", getDiysql(curMon));
+                sb.AppendLine(" )) P");
+                sb.AppendFormat("  where vcGC= '{0}' and vcZB= '{1}' and vcYear ='{2}' and vcPlant='{3}' and dayall IN ('{4}','{4}A','{4}B')", gc, zb, curMon.Year, plant, curflag);//2018-2-26 Malcolm.L 刘刚
+                sb.AppendLine("  ) t");
+                sb.AppendLine("  ) tt");
+                sb.AppendLine("  union all ");
+                sb.AppendLine("  ");
+                sb.AppendLine("  select '0' ,'0','0' ,'0','0','0','9999', @banyue as banyue , @zhinum as totalzhi");
+            }
+            try
+            {
+                return excute.ExcuteSqlWithSelectToDT(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string updateProPlan(List<DataTable> dt0, List<DataTable> dt1, List<DataTable> dt2, List<DataTable> dt3, List<DataTable> dt4, DataTable partsInfo, string user, string lbltime, string plant)
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(ComConnectionHelper.GetConnectionString());
+            string msg = "";
+            try
+            {
+                cmd.Connection.Open();
+                cmd.Transaction = cmd.Connection.BeginTransaction();
+                cmd.CommandTimeout = 0;
+                TransactionPlan(dt0, cmd, partsInfo, "MonthKanBanPlanTblTMP", user, lbltime, plant, ref msg);
+                if (msg.Length <= 0)
+                {
+                    TransactionPlan(dt1, cmd, partsInfo, "MonthProPlanTblTMP", user, lbltime, plant, ref msg);
+                }
+                if (msg.Length <= 0)
+                {
+                    TransactionPlan(dt2, cmd, partsInfo, "MonthTZPlanTblTMP", user, lbltime, plant, ref msg);
+                }
+                if (msg.Length <= 0)
+                {
+                    TransactionPlan(dt3, cmd, partsInfo, "MonthP3PlanTblTMP", user, lbltime, plant, ref msg);
+                }
+                if (msg.Length <= 0)
+                {
+                    TransactionPlan(dt4, cmd, partsInfo, "MonthPackPlanTblTMP", user, lbltime, plant, ref msg);
+                }
+                if (msg.Length <= 0)
+                {
+                    cmd.Transaction.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                cmd.Transaction.Rollback();
+                msg = "更新失败。" + ex.ToString();
+                return msg;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+            return msg;
+        }
+        public void TransactionPlan(List<DataTable> dt, SqlCommand cmd, DataTable partsInfo, string TableName, string user, string lbltime, string plant, ref string msg)
+        {
+            msg = "";
+            try
+            {
+                DataTable dt2 = new DataTable();//20180929实测没用，是为了把变量apt引出 - 李兴旺
+                cmd.CommandText = "select TOP(1) * from " + TableName;//20180929实测没用，是为了把变量apt引出 - 李兴旺
+                SqlDataAdapter apt = new SqlDataAdapter(cmd);//20180929实测没用，是为了把变量apt引出 - 李兴旺
+                apt.Fill(dt2);//20180929实测没用，是为了把变量apt引出 - 李兴旺
+                cmd.CommandText = "delete from " + TableName + " where (vcMonth='" + lbltime + "' or montouch ='" + lbltime + "') and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = " + TableName + ".vcPartsno   and dTimeFrom<= '" + lbltime + "-01" + "' and dTimeTo >= '" + lbltime + "-01" + "' ) ";
+                cmd.ExecuteNonQuery();
+                for (int i = 0; i < partsInfo.Rows.Count; i++)
+                {
+                    string vcPartsno = partsInfo.Rows[i]["partsno"].ToString();
+                    string vcDock = partsInfo.Rows[i]["vcDock"].ToString();
+                    string vcCarType = partsInfo.Rows[i]["vcCarFamilyCode"].ToString();
+                    string vcProjectName = partsInfo.Rows[i]["vcProName1"].ToString();
+                    string vcProject1 = partsInfo.Rows[i]["vcCalendar1"].ToString();
+                    //string total = (Convert.ToInt32(partsInfo.Rows[i]["num"])/(Convert.ToInt32(partsInfo.Rows[i]["srs"]))).ToString();
+                    string total = partsInfo.Rows[i]["num"].ToString();
+                    //20180929在从SOQReply数据生成包装计划时就已经把5个工程的计划都生成一遍了，所以要在这里，生成看板打印数据时，把周度品番筛走 - 李兴旺
+                    //20180929查看该品番的品番频度 - 李兴旺
+                    string vcPartFrequence = "";
+                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + lbltime + "-01' and dTimeTo>='" + lbltime + "-01' ";
+                    cmd.CommandText = sqlPartFrequence;
+                    DataTable dtPartFrequence = new DataTable();
+                    apt.Fill(dtPartFrequence);
+                    if (dtPartFrequence.Rows.Count <= 0)
+                    {
+                        msg = "品番：" + vcPartsno + " 在当前对象月范围内没有品番基础信息！";
+                        break;
+                    }
+                    vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
+                    //20180929不是看板打印计划表，则不区分品番频度；是看板打印计划表，则区分品番频度，不是周度的则更新。
+                    //即TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"时，不进行更新操作 - 李兴旺
+                    if (!(TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"))
+                    {
+                        #region 插入、更新数据操作
+                        foreach (DataRow dr in dt[i].Rows)
+                        {
+                            string tmpY = dr["vcYear"].ToString();
+                            string tmpM = dr["vcMonth"].ToString().Length == 1 ? "0" + dr["vcMonth"].ToString() : dr["vcMonth"].ToString();
+                            string vcMonth = tmpY + "-" + tmpM;
+                            cmd.CommandText = "select top(1) * from " + TableName + " where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                            DataTable tmp = new DataTable();
+                            apt.Fill(tmp);
+                            if (tmp.Rows.Count > 0)
+                            {
+                                string upsql = "vc" + dr["days"].ToString() + "='" + dr["total"].ToString() + "'";
+                                if (lbltime != vcMonth)
+                                {
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "' ,montouch ='" + lbltime + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                }
+                                else
+                                {
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "'  where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                }
+                                cmd.ExecuteNonQuery();
+                            }
+                            else
+                            {
+                                cmd.CommandText = " INSERT INTO " + TableName + " ([vcMonth],[vcPartsno],[vcDock],[vcCarType],[vcProject1],[vcProjectName] ,[DADDTIME],[CUPDUSER])";
+                                cmd.CommandText += " values( '" + vcMonth + "' ,'" + vcPartsno + "','" + vcDock + "','" + vcCarType + "','" + vcProject1 + "','" + vcProjectName + "',getdate(),'" + user + "')  ";
+                                cmd.ExecuteNonQuery();
+                                string upsql = "vc" + dr["days"].ToString() + "='" + dr["total"].ToString() + "'";
+                                if (lbltime != vcMonth)
+                                {
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "' ,montouch ='" + lbltime + "'  where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                }
+                                else
+                                {
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                }
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        cmd.CommandText = "update " + TableName + " set vcMonTotal='" + total + "'  where vcMonth='" + lbltime + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                        cmd.ExecuteNonQuery();
+                        #endregion
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                msg = ex.ToString();
+            }
+        }
+        #region 公用方法
+        #region 月表名称转换
+        public string swithMon(int Mon)
+        {
+            string re = "";
+            switch (Mon)
+            {
+                case 1:
+                    re = "dbo.tJanuary";
+                    break;
+                case 2:
+                    re = "dbo.tFebruary";
+                    break;
+                case 3:
+                    re = "dbo.tMarch";
+                    break;
+                case 4:
+                    re = "dbo.tApril";
+                    break;
+                case 5:
+                    re = "dbo.tMay";
+                    break;
+                case 6:
+                    re = "dbo.tJune";
+                    break;
+                case 7:
+                    re = "dbo.tJuly";
+                    break;
+                case 8:
+                    re = "dbo.tAugust";
+                    break;
+                case 9:
+                    re = "dbo.tSeptember";
+                    break;
+                case 10:
+                    re = "dbo.tOctober";
+                    break;
+                case 11:
+                    re = "dbo.tNovember";
+                    break;
+                case 12:
+                    re = "dbo.tDecember";
+                    break;
+            }
+            return re;
+        }
+        #endregion
+        public string getDiysql(DateTime tim)
+        {
+            DataTable dt = new DataTable();
+            string sqltmp = "";
+            double daynum = (tim.AddMonths(1) - tim).TotalDays;
+            for (double i = 1; i < daynum + 1; i++)
+            {
+                if (i == daynum)
+                    sqltmp += "D" + i + "b,D" + i + "y";
+                else sqltmp += "D" + i + "b,D" + i + "y,";
+
+            }
+            return sqltmp;
+        }
+        #endregion
         #endregion
     }
 }

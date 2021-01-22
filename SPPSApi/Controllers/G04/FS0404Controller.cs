@@ -203,12 +203,12 @@ namespace SPPSApi.Controllers.G04
                 { 
                 
                 }
-                if (vcInOutFlag.Length==0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "内外选项不能为空,请确认！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //if (vcInOutFlag.Length==0)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "内外选项不能为空,请确认！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
                     #region 判断
                     #endregion
                 if (lastOrderNo.Length >0)
@@ -225,7 +225,7 @@ namespace SPPSApi.Controllers.G04
                 //订单类型	2	月度
                 //订单类型	3	紧急
                 #region
-                
+                String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
                 if (vcOrderType=="0")
                 {
                     if (dTargetDate.Length==0)
@@ -247,6 +247,26 @@ namespace SPPSApi.Controllers.G04
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "文件名不匹配日度订单命名规则，请以RD开始命名 '";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        string strfilePath = fileList[i]["filePath"].ToString();
+                        string strMsg = string.Empty;
+                        Order order = GetPartFromFile(realPath+strfilePath, ref strMsg);
+                        if (strMsg.Length>0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = strMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }else
+                        {
+                            //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
+                            
+                            string code = order.Head.ToString().Substring(0, 1);
+                            if (code!= "D")
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "日度订单的Code代码必须是D开始，请查看订单内容！'";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
                         }
                     }
                 }
@@ -277,6 +297,27 @@ namespace SPPSApi.Controllers.G04
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "文件名不匹配周度订单命名规则，请以ZD开始命名 '";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        string strfilePath = fileList[i]["filePath"].ToString();
+                        string strMsg = string.Empty;
+                        Order order = GetPartFromFile(realPath + strfilePath, ref strMsg);
+                        if (strMsg.Length > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = strMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        else
+                        {
+                            //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
+
+                            string code = order.Head.ToString().Substring(0, 1);
+                            if (code != "W")
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "日度订单的Code代码必须是W开始，请查看订单内容！'";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
                         }
                     }
                 }
@@ -314,6 +355,41 @@ namespace SPPSApi.Controllers.G04
                             apiResult.data = "文件名不匹配月度订单命名规则，请以YD开始命名 '";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
+                        string fileNameNew = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                        string fileOrderNoNew = fileNameNew.Substring(fileNameNew.LastIndexOf("-") + 1);
+                        ////订单类型	0	日度
+                        //订单类型	1	周度
+                        //订单类型	2	月度
+                        //订单类型	3	紧急
+                         string vcInOutFlagNew = fileOrderNoNew.Substring(fileOrderNoNew.Length - 1, 1);
+                        if (vcInOutFlagNew!="0"&& vcInOutFlagNew != "1")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "月度订单文件名最后一位必须是0或1,用于区分内制0和外注1！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
+                        string strfilePath = fileList[i]["filePath"].ToString();
+                        string strMsg = string.Empty;
+                        Order order = GetPartFromFile(realPath + strfilePath, ref strMsg);
+                        if (strMsg.Length > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = strMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        else
+                        {
+                            //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
+
+                            string code = order.Head.ToString().Substring(0, 1);
+                            if (code != "S")
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "日度订单的Code代码必须是S开始，请查看订单内容！'";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
                     }
                 }
                 if (vcOrderType == "3")
@@ -332,6 +408,27 @@ namespace SPPSApi.Controllers.G04
                             apiResult.data = "文件名不匹配紧急订单命名规则，请以JJ开始命名 '";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
+                        string strfilePath = fileList[i]["filePath"].ToString();
+                        string strMsg = string.Empty;
+                        Order order = GetPartFromFile(realPath + strfilePath, ref strMsg);
+                        if (strMsg.Length > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = strMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        else
+                        {
+                            //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
+
+                            string code = order.Head.ToString().Substring(0, 1);
+                            if (code != "H")
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "日度订单的Code代码必须是H开始，请查看订单内容！'";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
                     }
                 }
                 #endregion
@@ -346,9 +443,15 @@ namespace SPPSApi.Controllers.G04
                         apiResult.data = "请确认是否在修正订单，修正订单的原订单号不存在,请确认！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    // 判断状态 是0  或者2 撤销  1已做成
+                    if (dt.Rows[0]["vcOrderState"].ToString()!="0"&& dt.Rows[0]["vcOrderState"].ToString() != "2")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "请确认是否在修正订单，修正订单的状态必须是已上传未处理或者撤销,请确认！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
            
                     fs0404_Logic.updateBylastOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList,loginInfo.UserId);
-                    String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
                     if (System.IO.File.Exists(realPath + dt.Rows[0]["vcFilePath"]))
                     {
                         System.IO.File.Delete(realPath + dt.Rows[0]["vcFilePath"]);
@@ -363,7 +466,6 @@ namespace SPPSApi.Controllers.G04
                 if (fileDelList.Count > 0)
                 {
                     for (int i = 0; i < fileDelList.Count; i++) {
-                        String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
                         string filePath = fileDelList[i]["filePath"].ToString();
                         if(filePath.Length>0)
                         {
@@ -388,6 +490,127 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion
 
+        #region 读取txt
+
+        public Order GetPartFromFile(string path, ref string msg)
+        {
+            string[] strs = System.IO.File.ReadAllLines(@path);
+            Order order = new Order();
+
+            Head head = new Head();
+            List<Detail> details = new List<Detail>();
+            Tail tail = new Tail();
+
+            //获取Detail
+            for (int i = 0; i < strs.Length; i++)
+            {
+                string temp = strs[i];
+                //判断空行
+                if (string.IsNullOrWhiteSpace(temp))
+                {
+                    continue;
+                }
+                //获取Head
+                if (temp[0] == 'D')
+                {
+                    Detail detail = new Detail();
+                    detail.DataId = temp.Substring(0, 1);
+                    detail.CPD = temp.Substring(1, 5);
+                    detail.Date = temp.Substring(6, 8);
+                    detail.Type = temp.Substring(14, 8);
+                    detail.ItemNo = temp.Substring(22, 4);
+                    detail.PartsNo = temp.Substring(26, 12);
+                    detail.QTY = temp.Substring(41, 7);
+                    detail.Price = temp.Substring(48, 9);
+                    details.Add(detail);
+                }
+                else if (temp[0] == 'H')
+                {
+                    head.DataId = temp.Substring(0, 1);
+                    head.CPD = temp.Substring(1, 5);
+                    head.Date = temp.Substring(6, 8);
+                    head.No = temp.Substring(14, 8);
+                    head.Type = temp.Substring(22, 1);
+                    head.SendDate = temp.Substring(28, 8);
+                }
+                else if (temp[0] == 'T')
+                {
+                    tail.DataId = temp.Substring(0, 1);
+                    tail.CPD = temp.Substring(1, 5);
+                    tail.Date = temp.Substring(6, 8);
+                    tail.No = temp.Substring(14, 8);
+                }
+            }
+
+            order.Head = head;
+            order.Details = details;
+            order.Tail = tail;
+
+            if (order.Head == null)
+            {
+                msg = "订单Head部分有误";
+                return null;
+            }
+            else if (order.Details.Count == 0)
+            {
+                msg = "订单Detail为空";
+                return null;
+            }
+            else if (order.Tail == null)
+            {
+                msg = "订单Tail部分有误";
+                return null;
+            }
+
+            return order;
+        }
+
+        public class Order
+        {
+            public Order()
+            {
+                this.Details = new List<Detail>();
+            }
+
+            public Head Head;
+            public List<Detail> Details;
+            public Tail Tail;
+        }
+
+        public class Head
+        {
+            public string DataId;
+            public string CPD;
+            public string Date;
+            public string No;
+            public string Type;
+            public string Code;
+            public string SendDate;
+        }
+
+        public class Detail
+        {
+            public string DataId;
+            public string CPD;
+            public string Date;
+            public string Type;
+            public string ItemNo;
+            public string PartsNo;
+            public string QTY;
+            public string Price;
+
+        }
+
+        public class Tail
+        {
+            public string DataId;
+            public string CPD;
+            public string Date;
+            public string No;
+        }
+
+
+        #endregion
     }
 }
 

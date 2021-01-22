@@ -43,6 +43,47 @@ namespace DataAccess
             }
         }
         /// <summary>
+        ///  通过code 获取抄送者邮箱  vcMeaning='1' 启用中 默认为0 不启用
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        public DataTable getCCEmail(string code)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select vcValue as displayName ,vcName as address from TCode where vcCodeId='C053' and vcMeaning='1' ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 通过供应商 工区 获取指定邮箱
+        /// </summary>
+        /// <param name="vcSupplier_id"></param>
+        /// <param name="vcWorkArea"></param>
+        /// <returns></returns>
+        public DataTable getEmail(string vcSupplier_id, string vcWorkArea)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select vcLinkMan,vcEmail from [dbo].[TSupplierInfo] where vcSupplier_id='"+ vcSupplier_id + "' and vcWorkArea='"+ vcWorkArea + "'   ");
+                 
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// 检索数据
         /// </summary>
         /// <param name="typeCode"></param>

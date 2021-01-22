@@ -44,5 +44,15 @@ namespace Logic
         {
             fs0625_DataAccess.importSave(importDt, userId);
         }
+
+        public DataTable getEmail(string vcSupplier_id, string vcWorkArea)
+        {
+            return fs0625_DataAccess.getEmail(vcSupplier_id, vcWorkArea);
+        }
+
+        public DataTable getCCEmail(string code)
+        {
+            return fs0625_DataAccess.getCCEmail(code);
+        }
     }
 }

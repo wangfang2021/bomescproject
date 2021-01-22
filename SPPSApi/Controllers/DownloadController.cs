@@ -288,7 +288,7 @@ namespace SPPSApi.Controllers
             {
                 hex = "0" + hex;
             }
-            return "/" + hex.Substring(0, 1) + "/" + hex.Substring(1, 1) + "/" + hex.Substring(2, 1) + "/" + hex.Substring(3, 1) + "/" + hex.Substring(4, 1) + "/" + hex.Substring(5, 1) + "/" + hex.Substring(6, 1) + "/" + hex.Substring(7, 1);
+            return Path.DirectorySeparatorChar + hex.Substring(0, 1) + Path.DirectorySeparatorChar + hex.Substring(1, 1) + Path.DirectorySeparatorChar + hex.Substring(2, 1) + Path.DirectorySeparatorChar + hex.Substring(3, 1) + Path.DirectorySeparatorChar + hex.Substring(4, 1) + Path.DirectorySeparatorChar + hex.Substring(5, 1) + Path.DirectorySeparatorChar + hex.Substring(6, 1) + Path.DirectorySeparatorChar + hex.Substring(7, 1);
         }
         #endregion
 

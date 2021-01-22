@@ -54,7 +54,7 @@ namespace DataAccess
                 strSql.AppendLine("   select    ");
                 strSql.AppendLine("   n.[iAutoId], n.vcPackingPlant,n.vcReceiver, n.[dSynchronizationDate], o.vcName as [vcState], n.[vcPartNo],      ");
                 strSql.AppendLine("     	n.[dUseStartDate],n.[dUserEndDate], n.[vcPartName],         ");
-                strSql.AppendLine("     	n.[vcCarType], n.[vcOEOrSP], n.[vcSupplier_id], n.[vcWorkArea], n.[dExpectDeliveryDate], n.[vcExpectIntake],        ");
+                strSql.AppendLine("     	n.[vcCarType],p.vcName as [vcOEOrSP], n.[vcSupplier_id], n.[vcWorkArea], n.[dExpectDeliveryDate], n.[vcExpectIntake],        ");
                 strSql.AppendLine("     	n.[vcIntake], n.[vcBoxMaxIntake], n.[vcBoxType], n.[vcLength], n.[vcWide], n.[vcHeight], n.[vcEmptyWeight],         ");
                 strSql.AppendLine("     	n.[vcUnitNetWeight], n.[dSendDate], n.[dReplyDate], n.[dAdmitDate], n.[dWeaveDate], n.[vcMemo], n.vcImageRoutes,         ");
                 strSql.AppendLine("     	n.[vcInserter], n.[vcInserterDate],n.[vcFactoryOperatorID], n.[dFactoryOperatorTime],        ");
@@ -87,6 +87,7 @@ namespace DataAccess
                 strSql.AppendLine("     	) m      ");
                 strSql.AppendLine("     	) n    ");
                 strSql.AppendLine("   	left join (select vcValue,vcName from TCode where vcCodeId='C033') o on n.vcState = o.vcValue    ");
+                strSql.AppendLine("   	left join (select vcValue,vcName from TCode where vcCodeId='C012') p on n.vcOEOrSP = p.vcValue    ");
                 strSql.AppendLine("   	where 1=1     ");
                 strSql.AppendLine("      ");
 
@@ -360,12 +361,12 @@ namespace DataAccess
                         StringBuilder strSql = new StringBuilder();
                         string vcPackingPlant = listInfoData[i]["vcPackingPlant"].ToString();
                         string vcReceiver = listInfoData[i]["vcReceiver"].ToString();
-                        string dSynchronizationDate = listInfoData[i]["dSynchronizationDate"].ToString();
+                        //string dSynchronizationDate = listInfoData[i]["dSynchronizationDate"].ToString();
                         string vcPartNo = listInfoData[i]["vcPartNo"].ToString();
 
                         string dUseStartDate = listInfoData[i]["dUseStartDate"].ToString();
                         string dUserEndDate = listInfoData[i]["dUserEndDate"].ToString();
-                        string vcPartName = listInfoData[i]["vcPartName"].ToString();
+                        //string vcPartName = listInfoData[i]["vcPartName"].ToString();
                         //string vcCarType = listInfoData[i]["vcCarType"].ToString();
                        // string vcOEOrSP = listInfoData[i]["vcOEOrSP"].ToString();
                         string vcSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();

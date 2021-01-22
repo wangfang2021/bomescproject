@@ -17,7 +17,7 @@ namespace Logic
 {
     public class FS1205_Logic
     {
-        FS1205_DataAccess fs_da = new FS1205_DataAccess();
+        FS1205_DataAccess fs0610_DataAccess = new FS1205_DataAccess();
         private MultiExcute excute = new MultiExcute();
 
         public string btnExport(DataTable dt, ref string exlName)
@@ -261,14 +261,14 @@ namespace Logic
             {
                 case "1"://生产计划  值别
                     {
-                        dt = fs_da.getMonPackPlanTMP(strMonth, "WeekProdPlanTbl", strPlant);
+                        dt = fs0610_DataAccess.getMonPackPlanTMP(strMonth, "WeekProdPlanTbl", strPlant);
                         addEDflag(ref dt, "通常");
                         dt.TableName = "WeekPro1" + "-#" + strPlant;
                         break;
                     }
                 case "0"://包装计划  值别
                     {
-                        dt = fs_da.getMonPackPlanTMP(strMonth, "WeekPackPlanTbl", strPlant);
+                        dt = fs0610_DataAccess.getMonPackPlanTMP(strMonth, "WeekPackPlanTbl", strPlant);
                         dt = tranNZtoWZ(dt, strMonth);
                         addEDflag(ref dt, "通常");
                         dt.TableName = "WeekPro4" + "-#" + strPlant;
@@ -276,14 +276,14 @@ namespace Logic
                     }
                 case "2"://看板打印计划  值别
                     {
-                        dt = fs_da.getMonPackPlanTMP(strMonth, "WeekKanBanPlanTbl", strPlant);
+                        dt = fs0610_DataAccess.getMonPackPlanTMP(strMonth, "WeekKanBanPlanTbl", strPlant);
                         addEDflag(ref dt, "通常");
                         dt.TableName = "WeekPro0" + "-#" + strPlant;
                         break;
                     }
                 case "3"://丰铁看板涂装计划  值别
                     {
-                        dt = fs_da.getMonPackPlanTMP(strMonth, "WeekTZPlanTbl", strPlant);
+                        dt = fs0610_DataAccess.getMonPackPlanTMP(strMonth, "WeekTZPlanTbl", strPlant);
                         dt = tranNZtoWZ(dt, strMonth);
                         addEDflag(ref dt, "通常");
                         dt.TableName = "WeekPro2" + "-#" + strPlant;
@@ -291,7 +291,7 @@ namespace Logic
                     }
                 case "4"://P3计划  值别
                     {
-                        dt = fs_da.getMonPackPlanTMP(strMonth, "WeekP3PlanTbl", strPlant);
+                        dt = fs0610_DataAccess.getMonPackPlanTMP(strMonth, "WeekP3PlanTbl", strPlant);
                         dt = tranNZtoWZ(dt, strMonth);
                         addEDflag(ref dt, "通常");
                         dt.TableName = "WeekPro3" + "-#" + strPlant;
@@ -357,7 +357,7 @@ namespace Logic
         /// <returns></returns>
         public string checkPlanExist(string txtMon, string plant)
         {
-            return fs_da.checkPlanExist(txtMon, plant);
+            return fs0610_DataAccess.checkPlanExist(txtMon, plant);
         }
         #endregion
 
@@ -416,9 +416,9 @@ namespace Logic
             try
             {
                 InitCSVDataTable(dtCSV);//初始化CSV信息表
-                DataTable dtPercentage = fs_da.getWeekLevelPercentage(strMonth, strWeek, strPlant);//获取周计划变动幅度管理表信息
-                DataTable dtSchedule = fs_da.getWeekLevelSchedule(strMonth, strWeek, strPlant);//获取周度订单平准化管理表信息
-                DataTable dtWeekPackPlan = fs_da.getWeekPackPlan(strMonth, strPlant);//获取周度包装计划管理表信息
+                DataTable dtPercentage = fs0610_DataAccess.getWeekLevelPercentage(strMonth, strWeek, strPlant);//获取周计划变动幅度管理表信息
+                DataTable dtSchedule = fs0610_DataAccess.getWeekLevelSchedule(strMonth, strWeek, strPlant);//获取周度订单平准化管理表信息
+                DataTable dtWeekPackPlan = fs0610_DataAccess.getWeekPackPlan(strMonth, strPlant);//获取周度包装计划管理表信息
                 if (dtPercentage.Rows.Count <= 0)
                 {
                     msg = "对象月为" + strMonth + "，第" + strWeek + "周的厂区为" + strPlant + "的周计划变动幅度管理表信息不存在！";
@@ -4880,7 +4880,7 @@ namespace Logic
         /// <returns></returns>
         public DataTable bindplant()
         {
-            return fs_da.bindplant();
+            return fs0610_DataAccess.bindplant();
         }
         #endregion
 

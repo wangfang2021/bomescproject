@@ -258,6 +258,7 @@ namespace Logic
         #region 数据同步
         public void dataSync(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strMessage)
         {
+            #region 将旧型1-15年转为变成decimal格式
             for (int i = 0; i < listInfoData.Count; i++)
             {
                 listInfoData[i]["vcNum1"] = Conver2Decimal(listInfoData[i]["vcNum1"]);
@@ -275,23 +276,29 @@ namespace Logic
                 listInfoData[i]["vcNum13"] = Conver2Decimal(listInfoData[i]["vcNum13"]);
                 listInfoData[i]["vcNum14"] = Conver2Decimal(listInfoData[i]["vcNum14"]);
                 listInfoData[i]["vcNum15"] = Conver2Decimal(listInfoData[i]["vcNum15"]);
-                
+
             }
+            #endregion
 
-
+            #region 向下游同步数据
             //获取所有的事业体
             DataTable dt = ComFunction.getTCode("C016");
 
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 var tempList = getSendData(dt.Rows[i]["vcValue"].ToString(), listInfoData);
-                if (tempList.Count>0)  //有要发送的数据
+                if (tempList.Count > 0)  //有要发送的数据
                 {
                     //发送数据的方法
                     fs0303_DataAccess.dataSync(dt.Rows[i]["vcName"].ToString(), tempList, strUserId, ref strMessage);
                     strMessage += "发送成功！ ";
                 }
             }
+            #endregion
+
+            #region 更新源数据的同步时间
+            fs0303_DataAccess.dataSync(listInfoData, strUserId);
+            #endregion
 
         }
         #endregion

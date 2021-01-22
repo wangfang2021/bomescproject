@@ -120,8 +120,6 @@ namespace DataAccess
                 //获取soq验收数量
                 DataTable SoqDt = getSoqDt(TargetYM);
 
-                //记录sql文
-                List<String> sqlList = new List<string>();
 
                 //读取文件
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -145,7 +143,7 @@ namespace DataAccess
                         //判断头
                         if (order.Head.Type != "3")
                         {
-                            msg = "订单类型不正确";
+                            msg = "订单" + vcOrderNo + "类型不正确";
                             return false;
                         }
 
@@ -202,7 +200,7 @@ namespace DataAccess
                             sbr.Append(ComFunction.getSqlValue(OrderTargetYM, false) + ",");
                             sbr.Append(ComFunction.getSqlValue(vcDock, false) + ",");
                             sbr.Append(ComFunction.getSqlValue(CPD, false) + ",");
-                            sbr.Append("'" + order.Head.Type + "',");
+                            sbr.Append("'2',");
                             sbr.Append(ComFunction.getSqlValue(vcOrderNo, false) + ",");
                             sbr.Append(ComFunction.getSqlValue(vcSeqno, false) + ",");
                             sbr.Append(ComFunction.getSqlValue(detail.Date, true) + ",");
@@ -235,6 +233,84 @@ namespace DataAccess
                     }
                     else if (listInfoData[i]["vcOrderType"].Equals("紧急"))
                     {
+                        //判断头
+                        if (order.Head.Type != "2")
+                        {
+                            msg = "订单" + vcOrderNo + "类型不正确";
+                            return false;
+                        }
+
+                        string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
+
+                        foreach (Detail detail in order.Details)
+                        {
+                            string tmp = "";
+                            string vcPart_id = detail.PartsNo.Trim();
+                            string CPD = detail.CPD.Trim();
+                            string vcSeqno = detail.ItemNo.Trim();
+                            string vcDock = "";
+                            string vcSupplierId = "";
+                            string vcCarType = "";
+                            string vcPartId_Replace = "";
+                            string inout = "";
+                            string vcOrderingMethod = "";
+
+                            string dateTime = detail.Date.Trim();
+                            string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                            string Field = "vcPlantQtyDaily" + Day;
+                            //检测品番表是否存在该品番
+                            Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                            if (hashtable.Keys.Count > 0)
+                            {
+                                inout = hashtable["vcInOut"].ToString();
+                                vcDock = hashtable["vcSufferIn"].ToString();
+                                vcSupplierId = hashtable["vcSupplierId"].ToString();
+                                vcCarType = hashtable["vcCarfamilyCode"].ToString();
+                                vcPartId_Replace = hashtable["vcPartId_Replace"].ToString();
+                                vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            }
+                            else
+                            {
+                                tmp += "品番基础数据表不包含品番" + vcPart_id + ";\r\n";
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(tmp))
+                            {
+                                msg += tmp;
+                                continue;
+                            }
+
+                            sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory,vcTargetYearMonth,vcDock,vcCpdcompany,vcOrderType,vcOrderNo,vcSeqno,dOrderDate,dOrderExportDate,vcPartNo,vcInsideOutsideType,vcCarType,vcLastPartNo,vcSupplier_id,vcOperatorID,dOperatorTime, ");
+                            sbr.Append(Field + ") VALUES");
+                            sbr.Append("(");
+                            sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(OrderTargetYM, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(vcDock, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(CPD, false) + ",");
+                            sbr.Append("'3',");
+                            sbr.Append(ComFunction.getSqlValue(vcOrderNo, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(vcSeqno, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(detail.Date, true) + ",");
+                            sbr.Append("GETDATE(),");
+                            sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(inout, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(vcCarType, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(vcPartId_Replace, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
+                            sbr.Append(ComFunction.getSqlValue(userId, false) + ",");
+                            sbr.Append("GETDATE(),");
+                            sbr.Append(ComFunction.getSqlValue(Convert.ToInt32(detail.QTY), false));
+                            sbr.Append(") \r\n");
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(msg))
+                        {
+                            return false;
+                        }
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+
+                        //修改状态
+                        sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
 
                     }
 
@@ -244,7 +320,7 @@ namespace DataAccess
                     }
 
                 }
-                return false;
+                return true;
             }
             catch (Exception ex)
             {

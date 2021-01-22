@@ -162,10 +162,14 @@ namespace SPPSApi.Controllers.G06
                     string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
                                       Path.DirectorySeparatorChar + "orders";
 
-                    fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, ref refMsg);
-
+                    bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, ref refMsg);
+                    if (!resflag&&!string.IsNullOrWhiteSpace(refMsg))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = refMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
-
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

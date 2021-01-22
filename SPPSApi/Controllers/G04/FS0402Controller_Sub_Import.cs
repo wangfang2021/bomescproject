@@ -164,7 +164,7 @@ namespace SPPSApi.Controllers.G04
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string strResult = "";
-                fs0402_Logic.importSave(importDt, loginInfo.UserId, strYearMonth,strYearMonth_2,strYearMonth_3);
+                fs0402_Logic.importSave(importDt, loginInfo.UserId, strYearMonth,strYearMonth_2,strYearMonth_3,loginInfo.UnitCode);
                 strResult = "导入成功\\";
                 //导入成功发送邮件给TFTM担当
                 string strMailMsg = "";

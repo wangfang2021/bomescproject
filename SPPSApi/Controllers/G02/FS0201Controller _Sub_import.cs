@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -66,9 +67,9 @@ namespace SPPSApi.Controllers.G02
                 //0 SPI导入
                 if (flag == "0")
                 {
-                    //TODO 存储文件到共享文件夹
-
                     fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
+                    //存储文件到共享文件夹
+                    SaveFile(fileSavePath, "SPI");
                 }
                 //1 导出导入
                 if (flag == "1")
@@ -201,6 +202,36 @@ namespace SPPSApi.Controllers.G02
                 dellist.RemoveAt(0);
             }
         }
+        #endregion
+
+        #region 保存文件
+
+        public void SaveFile(string filePath, string Type)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                                      Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + Type + Path.DirectorySeparatorChar;
+
+                if (Directory.Exists(fileSavePath) == false)
+                {
+                    Directory.CreateDirectory(fileSavePath);
+                }
+
+                DirectoryInfo theFolder = new DirectoryInfo(filePath);
+
+                foreach (FileInfo info in theFolder.GetFiles())
+                {
+                    fileSavePath = fileSavePath + info.Name;
+                    System.IO.File.Copy(filePath+info.Name, fileSavePath, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
     }
 

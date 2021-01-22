@@ -1368,11 +1368,39 @@ namespace Logic
                         //        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
                         //    }
                         //}
-                        if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WL"))
+                        //if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WL"))
+                        //{
+                        //    if (temp[index].vcOldProj != "" && !row.GetCell(15 + flag).ToString().Contains("("))
+                        //    {
+                        //        if (!row.GetCell(15 + flag).ToString().Contains("(WV"))
+                        //        {
+                        //            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+                        //            {
+                        //                temp[index].vcOldProj += ",";
+                        //                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        //                if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+                        //                {
+                        //                    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+                        //                    {
+                        //                        temp[index].vcOldProjTime += ",";
+                        //                    }
+                        //                }
+                        //                temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+                        //            }
+                        //            else
+                        //            {
+                        //                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+                        //            }
+                        //        }
+                        //    }
+                        //}
+
+                        if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WL"))
                         {
-                            if (temp[index].vcOldProj != "" && !row.GetCell(15 + flag).ToString().Contains("("))
+                            //Boolean flaga = row.GetCell(15 + flag).ToString().Contains("(");
+                            if (temp[index].vcOldProj != "")
                             {
-                                if (!row.GetCell(15 + flag).ToString().Contains("(WV"))
+                                if (!row.GetCell(15 + flag).ToString().Contains("(WV") && !row.GetCell(15 + flag).ToString().Contains("(WL"))
                                 {
                                     if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
                                     {
@@ -1394,8 +1422,6 @@ namespace Logic
                                 }
                             }
                         }
-
-
 
                     }
 

@@ -52,9 +52,9 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3)
+        public void importSave(DataTable dt, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3,string strUnit)
         {
-            fs0402_DataAccess.importSave(dt, strUserId, strYearMonth,strYearMonth_2,strYearMonth_3);
+            fs0402_DataAccess.importSave(dt, strUserId, strYearMonth,strYearMonth_2,strYearMonth_3,strUnit);
         }
         #endregion
 

@@ -69,6 +69,7 @@ namespace SPPSApi.Controllers.G02
                         if (list.Count > 0)
                         {
                             fs0203_logic.importPartList(list, info.Name, loginInfo.UserId);
+                            SaveFile(fileSavePath + info.Name, "PartList");
                         }
                     }
 
@@ -110,6 +111,7 @@ namespace SPPSApi.Controllers.G02
                             importDt.ImportRow(row);
                         }
                         fs0203_logic.importSPRL(importDt, info.Name, loginInfo.UserId);
+                        SaveFile(fileSavePath + info.Name, "SPRL");
                     }
                     ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
@@ -205,6 +207,34 @@ namespace SPPSApi.Controllers.G02
             }
         }
         #endregion
+
+        #region 保存文件
+
+        public void SaveFile(string filePath, string Type)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                                      Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + Type + Path.DirectorySeparatorChar;
+
+                if (Directory.Exists(fileSavePath) == false)
+                {
+                    Directory.CreateDirectory(fileSavePath);
+                }
+
+                fileSavePath = fileSavePath + Path.GetFileName(filePath);
+                System.IO.File.Copy(filePath, fileSavePath, true);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+
     }
 
 

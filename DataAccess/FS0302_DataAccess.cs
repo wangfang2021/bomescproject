@@ -65,7 +65,7 @@ namespace DataAccess
 
         #region 织入原单位
 
-        public void weaveUnit(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void weaveUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, string SYTCode)
         {
             try
             {
@@ -83,6 +83,10 @@ namespace DataAccess
                         string vcType = ObjToString(listInfoData[i]["vcType"]).Trim();
                         string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
                         string vcStartYearMonth = ObjToString(listInfoData[i]["vcStartYearMonth"]).Trim();
+                        string vcSYTCode = getSYTCode(SYTCode);
+                        string vcPartNameEn = ObjToString(listInfoData[i]["vcPartName"]);
+                        string vcSPINo = ObjToString(listInfoData[i]["vcSPINo"]);
+
                         if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
                         {
                             vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
@@ -96,8 +100,8 @@ namespace DataAccess
                         }
 
                         sbr.Append(" INSERT INTO TUnit  \r\n");
-                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime) values\r\n");
-                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE())  \r\n");
+                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcSYTCode,vcPartNameEn,vcSPINo) values\r\n");
+                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcSYTCode + "','" + vcPartNameEn + "','" + vcSPINo + "')  \r\n");
 
                         sbr.Append(" UPDATE TSBManager \r\n");
                         sbr.Append(" SET vcFinishState = '3', \r\n");
@@ -690,6 +694,34 @@ namespace DataAccess
                 throw;
             }
         }
+        #endregion
+
+        #region 获取事业体编号
+
+        public string getSYTCode(string SYTCode)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcName"].ToString().Equals(SYTCode))
+                    {
+                        return dt.Rows[i]["vcValue"].ToString();
+                    }
+                }
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
     }
 }

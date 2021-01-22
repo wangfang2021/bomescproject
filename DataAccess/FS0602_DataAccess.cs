@@ -4,6 +4,7 @@ using System.Data;
 using System.Text;
 using System.Data.SqlClient;
 using DataEntity;
+using System.Collections.Generic;
 
 namespace DataAccess
 {
@@ -11,100 +12,276 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        #region 按检索条件检索,返回dt
-        public DataTable Search(FS0602_DataEntity searchForm)
+        public DataTable getSearchInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
+                  string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+                  string strDyInfo, string strHyInfo)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                System.Data.SqlClient.SqlParameter[] parameters = {
-                    new SqlParameter("@varDxny", SqlDbType.VarChar,10),
-                };
-                parameters[0].Value = searchForm.varDxny;
-
-
-                strSql.Append("SELECT iAutoId");
-                strSql.Append("      ,CARFAMILYCODE");
-                strSql.Append("      ,CURRENTPASTCODE");
-                strSql.Append("      ,varMakingOrderType");
-                strSql.Append("      ,iFZGC");
-                strSql.Append("      ,INOUTFLAG");
-                strSql.Append("      ,SUPPLIERCODE");
-                strSql.Append("      ,iSupplierPlant");
-                strSql.Append("      ,QUANTITYPERCONTAINER");
-                strSql.Append("      ,dCjhfTime");
-                strSql.Append("      ,varDxny");
-                strSql.Append("      ,varDyzt");
-                strSql.Append("      ,varHyzt");
-                strSql.Append("      ,PARTSNO");
-                strSql.Append("      ,iCbSOQN");
-                strSql.Append("      ,decCbBdl");
-                strSql.Append("      ,iCbSOQN1");
-                strSql.Append("      ,iCbSOQN2");
-                strSql.Append("      ,iTzhSOQN");
-                strSql.Append("      ,iTzhSOQN1");
-                strSql.Append("      ,iTzhSOQN2");
-                strSql.Append("      ,iHySOQN");
-                strSql.Append("      ,iHySOQN1");
-                strSql.Append("      ,iHySOQN2");
-                strSql.Append("      ,dHyTime");
-                strSql.Append("  FROM TSoq");
-                strSql.Append("  WHERE 1=1");
-
-
-                if (!string.IsNullOrEmpty(searchForm.varDxny)) {
-                    strSql.Append(" AND varDxny=@varDxny");
-                }
-                if (!string.IsNullOrEmpty(searchForm.varDyzt))
+                strSql.AppendLine("SELECT TT.*,");
+                strSql.AppendLine("case when TT.iTzhSOQN is null or TT.iTzhSOQN1 is null or TT.iTzhSOQN2 is null then 'partFS0602A' --无调整");
+                strSql.AppendLine("	when TT.iTzhSOQN=TT.iCbSOQN and TT.iTzhSOQN1=TT.iCbSOQN1 and TT.iTzhSOQN2=TT.iCbSOQN2 then 'partFS0602A' --无调整");
+                strSql.AppendLine("	else 'partFS0602B' --有调整");
+                strSql.AppendLine("	end as vcBgColor,'0' as vcModFlag,'0' as vcAddFlag");
+                strSql.AppendLine("FROM (");
+                strSql.AppendLine("select T1.iAutoId AS LinId,");
+                strSql.AppendLine("		T1.vcYearMonth AS vcYearMonth,");
+                strSql.AppendLine("		T6.vcName AS vcDyState_Name,");
+                strSql.AppendLine("		T7.vcName AS vcHyState_Name,");
+                strSql.AppendLine("		T1.vcPart_id AS vcPart_id,");
+                strSql.AppendLine("		T1.vcCarFamilyCode AS vcCarfamilyCode,");
+                strSql.AppendLine("		T3.vcName AS vcHaoJiu,");
+                strSql.AppendLine("		T4.vcName AS vcOrderingMethod,");
+                strSql.AppendLine("		T5.vcName AS vcOrderPlant,");
+                strSql.AppendLine("		T2.vcName AS vcInOut,");
+                strSql.AppendLine("		T1.vcSupplier_id AS vcSupplierId,");
+                strSql.AppendLine("		T1.vcSupplierPlant AS vcSupplierPlant,");
+                strSql.AppendLine("		T1.iQuantityPercontainer AS iPackingQty,");
+                strSql.AppendLine("		T1.iCbSOQN AS iCbSOQN,");
+                strSql.AppendLine("		T1.decCbBdl AS decCbBdl,");
+                strSql.AppendLine("		T1.iCbSOQN1 AS iCbSOQN1,");
+                strSql.AppendLine("		T1.iCbSOQN2 AS iCbSOQN2,");
+                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,0) ELSE ISNULL(T1.iTzhSOQN,0) END AS iTzhSOQN,");
+                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN1 IS NULL THEN ISNULL(T8.iTzhSOQN1,0) ELSE ISNULL(T1.iTzhSOQN1,0) END AS iTzhSOQN1,");
+                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN2 IS NULL THEN ISNULL(T8.iTzhSOQN2,0) ELSE ISNULL(T1.iTzhSOQN2,0) END AS iTzhSOQN2,");
+                strSql.AppendLine("		T1.iHySOQN AS iHySOQN,");
+                strSql.AppendLine("		T1.iHySOQN1 AS iHySOQN1,");
+                strSql.AppendLine("		T1.iHySOQN2 AS iHySOQN2,");
+                strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dExpectTime,23) END AS dExpectTime,");
+                strSql.AppendLine("		CASE WHEN T1.dSReplyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dSReplyTime,120) END AS dSReplyTime,");
+                strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE (");
+                strSql.AppendLine("			CASE WHEN T1.dSReplyTime IS NULL THEN (CASE WHEN CONVERT(VARCHAR(10),T1.dExpectTime,23)>=CONVERT(VARCHAR(10),GETDATE(),23) THEN '' ELSE '逾期' END) ");
+                strSql.AppendLine("				ELSE (CASE WHEN CONVERT(VARCHAR(10),T1.dSReplyTime,23)<=CONVERT(VARCHAR(10),T1.dExpectTime,23) THEN '' ELSE '逾期' END) END ");
+                strSql.AppendLine("		) END AS vcOverDue,		");
+                strSql.AppendLine("		CASE WHEN T1.dHyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dHyTime,120) END AS dHyTime");
+                strSql.AppendLine("		from ");
+                strSql.AppendLine("(select * from TSoq ");
+                strSql.AppendLine("where 1=1 and vcDyState in (" + strDyInfo + ") and vcHyState in (" + strHyInfo + ") ");
+                if (strYearMonth != "")
                 {
-                    strSql.Append(" AND varDyzt=@varDyzt");
+                    strSql.AppendLine("and vcYearMonth='" + strYearMonth + "' ");
                 }
-                if (!string.IsNullOrEmpty(searchForm.varHyzt))
+                if (strDyState != "")
                 {
-                    strSql.Append(" AND varHyzt=@varHyzt");
+                    strSql.AppendLine("and vcDyState ='" + strDyState + "'");
                 }
-                if (!string.IsNullOrEmpty(searchForm.PARTSNO))
+                if (strHyState != "")
                 {
-                    strSql.Append(" AND PARTSNO=@PARTSNO");
+                    strSql.AppendLine("and vcHyState ='" + strHyState + "'");
                 }
-                if (!string.IsNullOrEmpty(searchForm.CARFAMILYCODE))
+                if (strPartId != "")
                 {
-                    strSql.Append(" AND CARFAMILYCODE=@CARFAMILYCODE");
+                    strSql.AppendLine("and vcPart_id like '%" + strPartId + "%'");
                 }
-                if (!string.IsNullOrEmpty(searchForm.CURRENTPASTCODE))
+                if (strCarModel != "")
                 {
-                    strSql.Append(" AND CURRENTPASTCODE=@CURRENTPASTCODE");
+                    strSql.AppendLine("and vcCarFamilyCode='" + strCarModel + "'");
                 }
-                if (!string.IsNullOrEmpty(searchForm.varMakingOrderType))
+                if (strInOut != "")
                 {
-                    strSql.Append(" AND varMakingOrderType=@varMakingOrderType");
+                    strSql.AppendLine("and vcInOutFlag='" + strInOut + "'");
                 }
-                if (!string.IsNullOrEmpty(searchForm.iFZGC))
+                if (strOrderingMethod != "")
                 {
-                    strSql.Append(" AND iFZGC=@iFZGC");
+                    strSql.AppendLine("and vcMakingOrderType='" + strOrderingMethod + "'");
                 }
-                if (!string.IsNullOrEmpty(searchForm.INOUTFLAG))
+                if (strOrderPlant != "")
                 {
-                    strSql.Append(" AND INOUTFLAG=@INOUTFLAG");
+                    strSql.AppendLine("and vcFZGC='" + strOrderPlant + "'");
                 }
-                if (!string.IsNullOrEmpty(searchForm.SUPPLIERCODE))
+                if (strHaoJiu != "")
                 {
-                    strSql.Append(" AND SUPPLIERCODE=@SUPPLIERCODE");
+                    strSql.AppendLine("and vcCurrentPastcode='" + strHaoJiu + "'");
                 }
-                if (searchForm.iSupplierPlant != null)
+                if (strSupplierId != "")
                 {
-                    strSql.Append(" AND iSupplierPlant=@iSupplierPlant");
+                    strSql.AppendLine("and vcSupplier_id='" + strSupplierId + "'");
                 }
-                
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), parameters);
+                if (strSupplierPlant != "")
+                {
+                    strSql.AppendLine("and vcSupplierPlant='" + strSupplierPlant + "'");
+                }
+                strSql.AppendLine(")T1 ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T2--内外区分 ");
+                strSql.AppendLine("on T1.vcInOutFlag=T2.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T3--号旧区分 ");
+                strSql.AppendLine("on T1.vcCurrentPastcode=T3.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T4--订货方式 ");
+                strSql.AppendLine("on T1.vcMakingOrderType=T4.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T5--发注工厂 ");
+                strSql.AppendLine("on T1.vcFZGC=T5.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C036')T6--对应状态 ");
+                strSql.AppendLine("on T1.vcDyState=T6.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C037')T7--合意状态 ");
+                strSql.AppendLine("on T1.vcHyState=T7.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2      ");
+                strSql.AppendLine("from  ");
+                strSql.AppendLine("(select * from TSoq_OperHistory  ");
+                strSql.AppendLine("where vcInputType in ('supplier','company'))a     ");
+                strSql.AppendLine("inner join  ");
+                strSql.AppendLine("(select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory ");
+                strSql.AppendLine("where vcInputType in ('supplier','company')   ");
+                strSql.AppendLine("group by vcYearMonth,vcPart_id     ");
+                strSql.AppendLine(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id)T8 ");
+                strSql.AppendLine("on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id ");
+                strSql.AppendLine(")TT");
+                strSql.AppendLine("order by vcYearMonth,vcSupplierId,vcSupplierPlant,vcPart_id");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        #endregion
+        public void setSOQInfo(string strOperationType, DataTable dtModInfo, string strOperId)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
 
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            try
+            {
+                #region sqlCommand_modinfo 展开内示
+                if (strOperationType == "展开内示")
+                {
+                    SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
+                    sqlCommand_modinfo.Transaction = sqlTransaction;
+                    sqlCommand_modinfo.CommandType = CommandType.Text;
+                    StringBuilder strSql_modinfo = new StringBuilder();
+                    strSql_modinfo.AppendLine("UPDATE [dbo].[TSoq]");
+                    strSql_modinfo.AppendLine("   SET [vcDyState] = @vcDyState");
+                    //strSql_modinfo.AppendLine("      ,[vcHyState] = @vcHyState");
+                    strSql_modinfo.AppendLine("      ,[dExpectTime] = @dExpectTime");
+                    strSql_modinfo.AppendLine("      ,[dOpenTime] = GETDATE()");
+                    strSql_modinfo.AppendLine("      ,[vcOpenUser] = '" + strOperId + "'");
+                    strSql_modinfo.AppendLine(" WHERE [vcYearMonth] = @vcYearMonth");
+                    strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id");
+                    sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcDyState", "");
+                    //sqlCommand_modinfo.Parameters.AddWithValue("@vcHyState", "");
+                    sqlCommand_modinfo.Parameters.AddWithValue("@dExpectTime", "");
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcPart_id", "");
+                    foreach (DataRow item in dtModInfo.Rows)
+                    {
+                        sqlCommand_modinfo.Parameters["@vcDyState"].Value = item["vcDyState"].ToString();
+                        //sqlCommand_modinfo.Parameters["@vcHyState"].Value = item["vcHyState"].ToString();
+                        sqlCommand_modinfo.Parameters["@dExpectTime"].Value = item["dExpectTime"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
+                        sqlCommand_modinfo.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+                #region sqlCommand_modinfo 退回内示
+                if (strOperationType == "退回内示")
+                {
+                    SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
+                    sqlCommand_modinfo.Transaction = sqlTransaction;
+                    sqlCommand_modinfo.CommandType = CommandType.Text;
+                    StringBuilder strSql_modinfo = new StringBuilder();
+                    strSql_modinfo.AppendLine("DELETE FROM [TSoq]  WHERE [vcYearMonth] = @vcYearMonth ");
+                    strSql_modinfo.AppendLine("DELETE FROM TSoq_OperHistory WHERE [vcYearMonth] = @vcYearMonth ");
+                    sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
+                    foreach (DataRow item in dtModInfo.Rows)
+                    {
+                        sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
+                        sqlCommand_modinfo.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+                #region sqlCommand_modinfo 回复内示
+                if (strOperationType == "回复内示")
+                {
+                    SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
+                    sqlCommand_modinfo.Transaction = sqlTransaction;
+                    sqlCommand_modinfo.CommandType = CommandType.Text;
+                    StringBuilder strSql_modinfo = new StringBuilder();
+                    strSql_modinfo.AppendLine("update T1 SET");
+                    strSql_modinfo.AppendLine("	 T1.[vcHyState]=@vcHyState");
+                    strSql_modinfo.AppendLine("	,T1.iTzhSOQN=ISNULL(T2.iTzhSOQN,0)");
+                    strSql_modinfo.AppendLine("	,T1.iTzhSOQN1=ISNULL(T2.iTzhSOQN1,0)");
+                    strSql_modinfo.AppendLine("	,T1.iTzhSOQN2=ISNULL(T2.iTzhSOQN2,0)");
+                    strSql_modinfo.AppendLine("	,T1.dReplyTime=GETDATE()");
+                    strSql_modinfo.AppendLine("	,T1.vcReplyUser='" + strOperId + "' from ");
+                    strSql_modinfo.AppendLine("(select * from TSoq ");
+                    strSql_modinfo.AppendLine("where 1=1 and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') ");
+                    strSql_modinfo.AppendLine("and vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id ");
+                    strSql_modinfo.AppendLine(")T1 ");
+                    strSql_modinfo.AppendLine("left join ");
+                    strSql_modinfo.AppendLine("(select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2      ");
+                    strSql_modinfo.AppendLine("from  ");
+                    strSql_modinfo.AppendLine("(select * from TSoq_OperHistory  ");
+                    strSql_modinfo.AppendLine("where vcInputType in ('supplier','company'))a     ");
+                    strSql_modinfo.AppendLine("inner join  ");
+                    strSql_modinfo.AppendLine("(select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory");
+                    strSql_modinfo.AppendLine("where vcInputType in ('supplier','company')   ");
+                    strSql_modinfo.AppendLine("group by vcYearMonth,vcPart_id     ");
+                    strSql_modinfo.AppendLine(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id)T2");
+                    strSql_modinfo.AppendLine("on T1.vcYearMonth=T2.vcYearMonth and T1.vcPart_id=T2.vcPart_id ");
+                    sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcPart_id", "");
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcHyState", "");
+                    foreach (DataRow item in dtModInfo.Rows)
+                    {
+                        sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcHyState"].Value = item["vcHyState"].ToString();
+                        sqlCommand_modinfo.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+                #region sqlCommand_modinfo 提交内示
+                if (strOperationType == "提交内示")
+                {
+                    SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
+                    sqlCommand_modinfo.Transaction = sqlTransaction;
+                    sqlCommand_modinfo.CommandType = CommandType.Text;
+                    StringBuilder strSql_modinfo = new StringBuilder();
+                    strSql_modinfo.AppendLine("UPDATE [dbo].[TSoq]");
+                    strSql_modinfo.AppendLine("   SET [vcDyState] = @vcDyState");
+                    strSql_modinfo.AppendLine("      ,[dSReplyTime] = GETDATE()");
+                    strSql_modinfo.AppendLine("      ,[vcSReplyUser] = '" + strOperId + "'");
+                    strSql_modinfo.AppendLine(" WHERE [vcYearMonth] = @vcYearMonth");
+                    strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id");
+                    sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcDyState", "");
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
+                    sqlCommand_modinfo.Parameters.AddWithValue("@vcPart_id", "");
+                    foreach (DataRow item in dtModInfo.Rows)
+                    {
+                        sqlCommand_modinfo.Parameters["@vcDyState"].Value = item["vcDyState"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
+                        sqlCommand_modinfo.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
+                        sqlCommand_modinfo.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+
+            }
+            catch (Exception ex)
+            {
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
+            }
+        }
 
         #region 承认。将合意后SOQ数据复制到合意SOQ，并改变合意状态，赋予合意时间
         public int Cr(string varDxny, string varDyzt, string varHyzt, string PARTSNO)
@@ -152,7 +329,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" AND PARTSNO like '%'+@PARTSNO+'%' ");
                 }
-                
+
                 return excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
             }
             catch (Exception ex)
@@ -194,7 +371,7 @@ namespace DataAccess
                 parameters[7].Value = searchForm.iFZGC;
                 parameters[8].Value = searchForm.INOUTFLAG;
                 parameters[9].Value = searchForm.SUPPLIERCODE;
-                parameters[10].Value = searchForm.iSupplierPlant==null?0: searchForm.iSupplierPlant;
+                parameters[10].Value = searchForm.iSupplierPlant == null ? 0 : searchForm.iSupplierPlant;
 
 
                 strSql.AppendLine(" UPDATE TSoq SET ");

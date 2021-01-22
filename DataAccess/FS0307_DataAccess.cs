@@ -271,10 +271,20 @@ namespace DataAccess
                     sql.Append(" AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " \r\n");
                     sql.Append(" AND vcCarTypeDev = " + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDev"], false) + " \r\n");
                     sql.Append(" AND vcSupplier_id =" + ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false) + " \r\n");
-                    sql.Append(" AND vcSYTCode = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
-                    sql.Append(" AND vcOriginCompany = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
-                    sql.Append(" AND vcReceiver = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
-                    sql.Append(" AND vcInOutflag = '" + getValue("C003", dt.Rows[i]["vcInOutflag"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcSYTCode,'') = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcOriginCompany,'') = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcReceiver,'') = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcInOutflag,'') = '" + getValue("C003", dt.Rows[i]["vcInOutflag"].ToString()) + "' \r\n");
+
+                    //sql.Append(" AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " \r\n");
+                    //sql.Append(" AND vcCarTypeDev = " + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDev"], false) + " \r\n");
+                    //sql.Append(" AND vcSupplier_id =" + ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false) + " \r\n");
+                    //sql.Append(" AND vcSYTCode = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
+                    //sql.Append(" AND vcOriginCompany = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
+                    //sql.Append(" AND vcReceiver = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
+                    //sql.Append(" AND vcInOutflag = '" + getValue("C003", dt.Rows[i]["vcInOutflag"].ToString()) + "' \r\n");
+
+
                     if (!vcFinish.Equals("对象外"))
                     {
                         sql.Append(" AND vcFinish = '" + getValue("C024", vcFinish) + "' \r\n");
@@ -426,9 +436,9 @@ namespace DataAccess
                     sbr.AppendLine("dOperatorTime = GETDATE()");
                     sbr.AppendLine("WHERE ");
                     sbr.AppendLine("vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "");
-                    sbr.AppendLine("AND vcReceiver = " + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + " ");
-                    sbr.AppendLine("AND vcSYTCode = " + ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + " ");
-                    sbr.AppendLine("AND vcOriginCompany = " + ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + " ");
+                    sbr.AppendLine("AND vcReceiver = " + ComFunction.getSqlValue(getValue("C005", ObjToString(listInfoData[i]["vcReceiver"])), false) + " ");
+                    sbr.AppendLine("AND vcSYTCode = " + ComFunction.getSqlValue(getValue("C016", ObjToString(listInfoData[i]["vcSYTCode"])), false) + " ");
+                    sbr.AppendLine("AND vcOriginCompany = " + ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcOriginCompany"])), false) + " ");
                     sbr.AppendLine("AND vcSupplier_id = " + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + " ");
                     sbr.AppendLine("AND vcCarTypeDev = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + " ");
                     sbr.AppendLine("AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");

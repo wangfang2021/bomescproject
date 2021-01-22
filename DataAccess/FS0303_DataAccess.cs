@@ -367,74 +367,75 @@ namespace DataAccess
 
                 #region 两张表进行连接，相同的部分进行UPDATE操作，不同的部分进行INSERT操作
                 sql.Append("      update TUnit set       \n");
-                sql.Append("       dSyncTime=b.dSyncTime          ");
-                sql.Append("      ,vcChange=b.vcChange          ");
-                sql.Append("      ,vcSPINo=b.vcSPINo          ");
-                sql.Append("      ,vcSQState=b.vcSQState          ");
-                sql.Append("      ,vcDiff=b.vcDiff          ");
-                sql.Append("      ,vcPart_id=b.vcPart_id          ");
-                sql.Append("      ,vcCarTypeDev=b.vcCarTypeDev          ");
-                sql.Append("      ,vcCarTypeDesign=b.vcCarTypeDesign          ");
-                sql.Append("      ,vcCarTypeName=b.vcCarTypeName          ");
-                sql.Append("      ,dTimeFrom=b.dTimeFrom          ");
-                sql.Append("      ,dTimeTo=b.dTimeTo          ");
-                sql.Append("      ,dTimeFromSJ=b.dTimeFromSJ          ");
-                sql.Append("      ,vcBJDiff=b.vcBJDiff          ");
-                sql.Append("      ,vcPartReplace=b.vcPartReplace          ");
-                sql.Append("      ,vcPartNameEn=b.vcPartNameEn          ");
-                sql.Append("      ,vcPartNameCn=b.vcPartNameCn          ");
-                sql.Append("      ,vcHKGC=b.vcHKGC          ");
-                sql.Append("      ,vcBJGC=b.vcBJGC          ");
-                sql.Append("      ,vcInOutflag=b.vcInOutflag          ");
-                sql.Append("      ,vcSupplier_id=b.vcSupplier_id          ");
-                sql.Append("      ,vcSupplier_Name=b.vcSupplier_Name          ");
-                sql.Append("      ,vcSCPlace=b.vcSCPlace          ");
-                sql.Append("      ,vcCHPlace=b.vcCHPlace          ");
-                sql.Append("      ,vcSYTCode=b.vcSYTCode          ");
-                sql.Append("      ,vcSCSName=b.vcSCSName          ");
-                sql.Append("      ,vcSCSAdress=b.vcSCSAdress          ");
-                sql.Append("      ,dGYSTimeFrom=b.dGYSTimeFrom          ");
-                sql.Append("      ,dGYSTimeTo=b.dGYSTimeTo          ");
-                sql.Append("      ,vcOE=b.vcOE          ");
-                sql.Append("      ,vcHKPart_id=b.vcHKPart_id          ");
-                sql.Append("      ,vcHaoJiu=b.vcHaoJiu          ");
-                sql.Append("      ,dJiuBegin=b.dJiuBegin          ");
-                sql.Append("      ,dJiuEnd=b.dJiuEnd          ");
-                sql.Append("      ,vcJiuYear=b.vcJiuYear          ");
-                sql.Append("      ,vcNXQF=b.vcNXQF          ");
-                sql.Append("      ,dSSDate=b.dSSDate          ");
-                sql.Append("      ,vcMeno=b.vcMeno          ");
-                sql.Append("      ,vcFXDiff=b.vcFXDiff          ");
-                sql.Append("      ,vcFXNo=b.vcFXNo          ");
-                sql.Append("      ,vcNum1=b.vcNum1          ");
-                sql.Append("      ,vcNum2=b.vcNum2          ");
-                sql.Append("      ,vcNum3=b.vcNum3          ");
-                sql.Append("      ,vcNum4=b.vcNum4          ");
-                sql.Append("      ,vcNum5=b.vcNum5          ");
-                sql.Append("      ,vcNum6=b.vcNum6          ");
-                sql.Append("      ,vcNum7=b.vcNum7          ");
-                sql.Append("      ,vcNum8=b.vcNum8          ");
-                sql.Append("      ,vcNum9=b.vcNum9          ");
-                sql.Append("      ,vcNum10=b.vcNum10          ");
-                sql.Append("      ,vcNum11=b.vcNum11          ");
-                sql.Append("      ,vcNum12=b.vcNum12          ");
-                sql.Append("      ,vcNum13=b.vcNum13          ");
-                sql.Append("      ,vcNum14=b.vcNum14          ");
-                sql.Append("      ,vcNum15=b.vcNum15          ");
-                sql.Append("      ,vcZXBZNo=b.vcZXBZNo          ");
-                sql.Append("      ,vcReceiver=b.vcReceiver          ");
-                sql.Append("      ,vcOriginCompany=b.vcOriginCompany          ");
-                sql.Append("      ,vcOperator=b.vcOperator          ");
-                sql.Append("      ,dOperatorTime=b.dOperatorTime          ");
+                sql.Append("       dSyncTime=b.dSyncTime          \n");
+                sql.Append("      ,vcChange=b.vcChange          \n");
+                sql.Append("      ,vcSPINo=b.vcSPINo          \n");
+                sql.Append("      ,vcSQState=b.vcSQState          \n");
+                sql.Append("      ,vcDiff=b.vcDiff          \n");
+                sql.Append("      ,vcPart_id=b.vcPart_id          \n");
+                sql.Append("      ,vcCarTypeDev=b.vcCarTypeDev          \n");
+                sql.Append("      ,vcCarTypeDesign=b.vcCarTypeDesign          \n");
+                sql.Append("      ,vcCarTypeName=b.vcCarTypeName          \n");
+                sql.Append("      ,dTimeFrom=b.dTimeFrom          \n");
+                sql.Append("      ,dTimeTo=b.dTimeTo          \n");
+                sql.Append("      ,dTimeFromSJ=b.dTimeFromSJ          \n");
+                sql.Append("      ,vcBJDiff=b.vcBJDiff          \n");
+                sql.Append("      ,vcPartReplace=b.vcPartReplace          \n");
+                sql.Append("      ,vcPartNameEn=b.vcPartNameEn          \n");
+                sql.Append("      ,vcPartNameCn=b.vcPartNameCn          \n");
+                sql.Append("      ,vcHKGC=b.vcHKGC          \n");
+                sql.Append("      ,vcBJGC=b.vcBJGC          \n");
+                sql.Append("      ,vcInOutflag=b.vcInOutflag          \n");
+                sql.Append("      ,vcSupplier_id=b.vcSupplier_id          \n");
+                sql.Append("      ,vcSupplier_Name=b.vcSupplier_Name          \n");
+                sql.Append("      ,vcSCPlace=b.vcSCPlace          \n");
+                sql.Append("      ,vcCHPlace=b.vcCHPlace          \n");
+                sql.Append("      ,vcSYTCode=b.vcSYTCode          \n");
+                sql.Append("      ,vcSCSName=b.vcSCSName          \n");
+                sql.Append("      ,vcSCSAdress=b.vcSCSAdress          \n");
+                sql.Append("      ,dGYSTimeFrom=b.dGYSTimeFrom          \n");
+                sql.Append("      ,dGYSTimeTo=b.dGYSTimeTo          \n");
+                sql.Append("      ,vcOE=b.vcOE          \n");
+                sql.Append("      ,vcHKPart_id=b.vcHKPart_id          \n");
+                sql.Append("      ,vcHaoJiu=b.vcHaoJiu          \n");
+                sql.Append("      ,dJiuBegin=b.dJiuBegin          \n");
+                sql.Append("      ,dJiuEnd=b.dJiuEnd          \n");
+                sql.Append("      ,vcJiuYear=b.vcJiuYear          \n");
+                sql.Append("      ,vcNXQF=b.vcNXQF          \n");
+                sql.Append("      ,dSSDate=b.dSSDate          \n");
+                sql.Append("      ,vcMeno=b.vcMeno          \n");
+                sql.Append("      ,vcFXDiff=b.vcFXDiff          \n");
+                sql.Append("      ,vcFXNo=b.vcFXNo          \n");
+                sql.Append("      ,vcNum1=b.vcNum1          \n");
+                sql.Append("      ,vcNum2=b.vcNum2          \n");
+                sql.Append("      ,vcNum3=b.vcNum3          \n");
+                sql.Append("      ,vcNum4=b.vcNum4          \n");
+                sql.Append("      ,vcNum5=b.vcNum5          \n");
+                sql.Append("      ,vcNum6=b.vcNum6          \n");
+                sql.Append("      ,vcNum7=b.vcNum7          \n");
+                sql.Append("      ,vcNum8=b.vcNum8          \n");
+                sql.Append("      ,vcNum9=b.vcNum9          \n");
+                sql.Append("      ,vcNum10=b.vcNum10          \n");
+                sql.Append("      ,vcNum11=b.vcNum11          \n");
+                sql.Append("      ,vcNum12=b.vcNum12          \n");
+                sql.Append("      ,vcNum13=b.vcNum13          \n");
+                sql.Append("      ,vcNum14=b.vcNum14          \n");
+                sql.Append("      ,vcNum15=b.vcNum15          \n");
+                sql.Append("      ,vcZXBZNo=b.vcZXBZNo          \n");
+                sql.Append("      ,vcReceiver=b.vcReceiver          \n");
+                sql.Append("      ,vcOriginCompany=b.vcOriginCompany          \n");
+                sql.Append("      ,vcOperator=b.vcOperator          \n");
+                sql.Append("      ,dOperatorTime=b.dOperatorTime          \n");
                 sql.Append("      from TUnit a      \n");
                 sql.Append("      inner join       \n");
                 sql.Append("      (      \n");
-                sql.Append("      	select * from #TUnit_temp      \n");
+                sql.Append("      	select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from #TUnit_temp      \n");
                 sql.Append("      ) b      \n");
                 sql.Append("      on a.vcPart_id = b.vcPart_id      \n");
-                sql.Append("      and a.dTimeFrom = b.dTimeFrom      \n");
+                sql.Append("      and a.vcSYTCode = b.vcSYTCode      \n");
+                sql.Append("      and a.vcSupplier_id = b.vcSupplier_id      \n");
                 sql.Append("      and a.vcReceiver = b.vcReceiver ;     \n");
-                
+
                 sql.Append("      insert into TUnit      \n");
                 sql.Append("      (      \n");
                 sql.Append("      dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff,vcPart_id,vcCarTypeDev,vcCarTypeDesign      \n");
@@ -454,9 +455,13 @@ namespace DataAccess
                 sql.Append("      ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcNum11      \n");
                 sql.Append("      ,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15,a.vcZXBZNo,a.vcReceiver,a.vcOriginCompany,a.vcOperator      \n");
                 sql.Append("      ,a.dOperatorTime from #TUnit_temp a      \n");
-                sql.Append("      left join TUnit b      \n");
+                sql.Append("      left join       \n");
+                sql.Append("      (          \n");
+                sql.Append("          select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit           \n");
+                sql.Append("      ) b         \n");
                 sql.Append("      on a.vcPart_id = b.vcPart_id      \n");
-                sql.Append("      and a.dTimeFrom = b.dTimeFrom      \n");
+                sql.Append("      on a.vcSYTCode = b.vcSYTCode      \n");
+                sql.Append("      and a.vcSupplier_id = b.vcSupplier_id      \n");
                 sql.Append("      and a.vcReceiver = b.vcReceiver      \n");
                 sql.Append("      where a.vcPart_id is null      \n");
                 #endregion
@@ -588,7 +593,34 @@ namespace DataAccess
             }
         }
         #endregion
-        
+
+        #region 数据同步-更新源数据的同步时间
+        public void dataSync(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                #region 更新同步日期
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string autoId = listInfoData[i]["iAutoId"].ToString();
+                    strSql.Append("     update TUnit set dSyncTime = GETDATE() where iAutoId = '"+autoId+"'        \n");
+                }
+                #endregion
+
+                if (strSql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(strSql.ToString(),"TK");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 数据同步
         public void dataSync(string sytCode,List<Dictionary<string, Object>> listInfoData,string strUserId,ref string strMessage)
         {
@@ -639,7 +671,7 @@ namespace DataAccess
                         strSql.Append("      )       \r\n");
                         strSql.Append("      values       \r\n");
                         strSql.Append("      (       \r\n");
-                        strSql.Append("       '" + listInfoData[i]["dSyncTime"] + "'       \r\n");
+                        strSql.Append("       GETDATE()       \r\n");
                         strSql.Append("      ,'" + listInfoData[i]["vcChange"] + "'       \r\n");
                         strSql.Append("      ,'" + listInfoData[i]["vcSPINo"] + "'       \r\n");
                         strSql.Append("      ,'" + listInfoData[i]["vcSQState"] + "'       \r\n");
@@ -700,6 +732,10 @@ namespace DataAccess
                         strSql.Append("      )       \r\n");
 
                     }
+                    #endregion
+
+                    #region 更新原单位中所选数据的同步时间
+                    strSql.Append("");
                     #endregion
 
                     #region 临时表同步数据到下游表

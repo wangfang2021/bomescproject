@@ -53,6 +53,7 @@ namespace DataAccess
         {
             try
             {
+                DataTable ChangeList = getChange();
                 //存储SPI
                 StringBuilder sbr = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -67,7 +68,10 @@ namespace DataAccess
                     string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString().Replace(@"/", "").Trim();
                     string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
                     string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
+                    //修改变更事项
                     string vcChange = dt.Rows[i]["vcChange"].ToString();
+                    vcChange = getChangString(ChangeList, vcChange);
+                    //
                     string vcOldProj = dt.Rows[i]["vcOldProj"].ToString();
                     string vcOldProjTime = dt.Rows[i]["vcOldProjTime"].ToString();
                     string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
@@ -133,8 +137,8 @@ namespace DataAccess
                     string vcPart_Id_old = dt.Rows[i]["vcPart_Id_old"].ToString();
                     string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
-                    //string vcChange = dt.Rows[i]["vcChange"].ToString();
-                    string vcChange = getChangString(change, dt.Rows[i]["vcChange"].ToString());
+                    string vcChange = dt.Rows[i]["vcChange"].ToString();
+                    //string vcChange = getChangString(change, dt.Rows[i]["vcChange"].ToString());
                     string vcBJDiff = dt.Rows[i]["vcBJDiff"].ToString();
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
                     string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
@@ -464,7 +468,7 @@ namespace DataAccess
                     sbr.Append(" vcFileName  = " + ComFunction.getSqlValue(dt.Rows[i]["vcFileName"], false) + ", ");
                     sbr.Append(" vcOperatorId  = '" + strUserId + "', ");
                     sbr.Append(" dOperatorTime  = GETDATE() ");
-                    sbr.Append(" where  vcSPINo = '" + vcSPINo + "' AND (vcPart_Id_old = '" + vcPart_Id_old + "' OR vcPart_Id_new = '" + vcPart_Id_new + "') \r\n");
+                    sbr.Append(" where  vcSPINo = '" + vcSPINo + "' AND vcPart_Id_old = '" + vcPart_Id_old + "' AND vcPart_Id_new = '" + vcPart_Id_new + "' \r\n");
 
                 }
                 if (sbr.Length > 0)

@@ -14,13 +14,13 @@ namespace SPPSApi.Controllers.G02
     [Route("api/FS0202/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0202Controller : BaseController
+    public class FS0614Controller : BaseController
     {
         FS0202_Logic fs0202_logic = new FS0202_Logic();
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly string FunctionID = "FS0202";
 
-        public FS0202Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0614Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }

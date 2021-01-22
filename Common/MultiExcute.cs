@@ -16,6 +16,12 @@ namespace Common
 
         }
 
+        public SqlConnection GetConnect(string SYTCode)
+        {
+            string sConnect = ComConnectionHelper.GetConnectionString_MainToUnit(SYTCode);
+            Sqlcon = new SqlConnection(sConnect);
+            return Sqlcon;
+        }
 
         public SqlConnection GetConnect()
         {
@@ -126,6 +132,37 @@ namespace Common
                 }
             }
         }
+
+        public DataTable ExcuteSqlWithSelectToDT(string SqlStr, string SYTCode)
+        {
+            try
+            {
+                DataSet newDS = new DataSet();
+                Sqlcon = GetConnect(SYTCode);
+                Sqlcon.Open();
+                using (SqlCommand cmd = new SqlCommand(SqlStr, Sqlcon))
+                {
+                    cmd.CommandTimeout = 0;
+                    SqlDataAdapter ada = new SqlDataAdapter(cmd);
+                    ada.Fill(newDS);
+
+                }
+                Sqlcon.Close();
+                return newDS.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == Sqlcon.State)
+                {
+                    Sqlcon.Close();
+                }
+            }
+        }
+
         /// <summary>
         /// 普通检索
         /// </summary>
@@ -340,6 +377,50 @@ namespace Common
                     conn.Close();
                 }
             }
+        }
+
+        public int ExcuteSqlWithStringOper(string SqlStr, string strCode)
+        {
+            Int32 rowsAffected = 0;
+            SqlTransaction st = null;
+            SqlConnection conn = null;
+            try
+            {
+                DataSet ds = new DataSet();
+
+                conn = Common.ComConnectionHelper.CreateSqlConnection(strCode);
+                
+                SqlDataAdapter da = new SqlDataAdapter();
+                da.SelectCommand = new SqlCommand();
+                da.SelectCommand.Connection = conn;
+                da.SelectCommand.CommandType = System.Data.CommandType.Text;
+                da.SelectCommand.CommandTimeout = 0;
+                da.SelectCommand.CommandText = SqlStr;
+                da.SelectCommand.Connection.Open();
+                st = conn.BeginTransaction();
+                da.SelectCommand.Transaction = st;
+                rowsAffected = da.SelectCommand.ExecuteNonQuery();
+                st.Commit();
+                da.SelectCommand.Connection.Close();
+                da.SelectCommand.Dispose();
+                da.Dispose();
+            }
+            catch (Exception ex)
+            {
+                if (st != null)
+                {
+                    st.Rollback();
+                }
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == conn.State)
+                {
+                    conn.Close();
+                }
+            }
+            return rowsAffected;
         }
 
         public int ExcuteSqlWithStringOper(string SqlStr)

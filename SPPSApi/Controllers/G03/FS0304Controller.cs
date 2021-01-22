@@ -102,7 +102,7 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strSSDateMonth = dataForm.vcSSDateMonth;
+            string strSSDateMonth = dataForm.dSSDate;
             string strJD = dataForm.vcJD;
             string strInOutFlag = dataForm.vcInOutflag;
             string strSupplier_id = dataForm.vcSupplier_id;
@@ -213,32 +213,9 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                
-                #region 数据验证
-                string[,] strField = new string[,] {{"实施日期"     ,"进度","补给品番" ,"设变号" ,"变更事项","车种"     ,"内外区分"   ,"品名"      ,"OE=SP","供应商代码"   ,"防锈指示","防锈指示书","旧型今后必要预测数","对应结果可否确认结果","防锈对应可否","延期说明/NG理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂"     ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
-                                                    {"dSSDateMonth" ,"vcJD","vcPart_id","vcSPINo","vcChange","vcCarType","vcInOutflag","vcPartName","vcOE" ,"vcSupplier_id","vcFXDiff","vcFXNo"    ,"vcSumLater"        ,"vcIsDYJG"            ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcPackFactory","vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
-                                                    {FieldCheck.Date,""    ,""         ,""       ,""        ,""         ,""           ,""          ,""     ,""             ,""        ,""          ,""                  ,""                    ,""            ,""               ,""              ,""                  ,""              ,""                  ,""             ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
-                                                    {"0"            ,"1"   ,"12"       ,"20"     ,"1"       ,"4"        ,"1"          ,"100"       ,"1"    ,"4"            ,"1"       ,"12"        ,"20"                ,"1"                   ,"1"           ,"100"            ,"100"           ,"100"               ,"100"           ,"100"               ,"100"          ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
-                                                    {"1"            ,"1"   ,"1"        ,"1"      ,"1"       ,"1"        ,"1"          ,"1"         ,"1"    ,"1"            ,"1"       ,"1"         ,"1"                 ,"1"                   ,"1"           ,"1"              ,"1"             ,"1"                 ,"1"             ,"1"                 ,"1"            ,"1"         ,"1"         ,"1"                  ,"1"                  ,"1"                ,"1"           ,"1"         },//最小长度设定,可以为空用0
-                                                    {"1"            ,"2"   ,"3"        ,"4"      ,"5"       ,"6"        ,"7"          ,"8"         ,"9"    ,"10"           ,"11"      ,"12"        ,"13"                ,"14"                  ,"15"          ,"16"             ,"17"            ,"18"                ,"19"            ,"20"                ,"21"           ,"22"        ,"23"        ,"24"                 ,"25"                 ,"26"               ,"27"          ,"28"        }//前台显示列号，从0开始计算,注意有选择框的是0
-                    };
-                //需要判断时间区间先后关系的字段
-                string[,] strDateRegion = null;
-                string[,] strSpecialCheck = null;
-
-                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0304");
-                #endregion
-
-                if (checkRes != null)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = checkRes;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
 
                 string strErrorPartId = "";
-                fs0304_Logic.Back(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                fs0304_Logic.Back(listInfoData, loginInfo.UserId,loginInfo.Email,loginInfo.UserName, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -298,12 +275,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"实施日期"     ,"进度","补给品番" ,"设变号" ,"变更事项","车种"     ,"内外区分"   ,"品名"      ,"OE=SP","供应商代码"   ,"防锈指示","防锈指示书","旧型今后必要预测数","对应结果可否确认结果","防锈对应可否","延期说明/NG理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂"     ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
-                                                        {"dSSDateMonth" ,"vcJD","vcPart_id","vcSPINo","vcChange","vcCarType","vcInOutflag","vcPartName","vcOE" ,"vcSupplier_id","vcFXDiff","vcFXNo"    ,"vcSumLater"        ,"vcIsDYJG"            ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcPackFactory","vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
-                                                        {FieldCheck.Date,""    ,""         ,""       ,""        ,""         ,""           ,""          ,""     ,""             ,""        ,""          ,""                  ,""                    ,""            ,""               ,""              ,""                  ,""              ,""                  ,""             ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
-                                                        {"0"            ,"1"   ,"12"       ,"20"     ,"1"       ,"4"        ,"1"          ,"100"       ,"1"    ,"4"            ,"1"       ,"12"        ,"20"                ,"1"                   ,"1"           ,"100"            ,"100"           ,"100"               ,"100"           ,"100"               ,"100"          ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
-                                                        {"1"            ,"1"   ,"1"        ,"1"      ,"1"       ,"1"        ,"1"          ,"1"         ,"1"    ,"1"            ,"1"       ,"1"         ,"1"                 ,"1"                   ,"1"           ,"1"              ,"1"             ,"1"                 ,"1"             ,"1"                 ,"1"            ,"1"         ,"1"         ,"1"                  ,"1"                  ,"1"                ,"1"           ,"1"         },//最小长度设定,可以为空用0
-                                                        {"1"            ,"2"   ,"3"        ,"4"      ,"5"       ,"6"        ,"7"          ,"8"         ,"9"    ,"10"           ,"11"      ,"12"        ,"13"                ,"14"                  ,"15"          ,"16"             ,"17"            ,"18"                ,"19"            ,"20"                ,"21"           ,"22"        ,"23"        ,"24"                 ,"25"                 ,"26"               ,"27"          ,"28"        }//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"实施日期"     ,"进度","补给品番" ,"设变号" ,"变更事项","车种"     ,"内外区分"   ,"品名"      ,"OE=SP","供应商代码"   ,"防锈指示","防锈指示书","旧型今后必要预测数","对应结果可否确认结果","防锈对应可否","延期说明/NG理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂" ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
+                                                        {"dSSDate"      ,"vcJD","vcPart_id","vcSPINo","vcChange","vcCarType","vcInOutflag","vcPartName","vcOE" ,"vcSupplier_id","vcFXDiff","vcFXNo"    ,"vcSumLater"        ,"vcIsDYJG"            ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode","vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
+                                                        {FieldCheck.Date,""    ,""         ,""       ,""        ,""         ,""           ,""          ,""     ,""             ,""        ,""          ,""                  ,""                    ,""            ,""               ,""              ,""                  ,""              ,""                  ,""         ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
+                                                        {"0"            ,"1"   ,"12"       ,"20"     ,"1"       ,"4"        ,"1"          ,"100"       ,"1"    ,"4"            ,"1"       ,"12"        ,"20"                ,"1"                   ,"1"           ,"100"            ,"100"           ,"100"               ,"100"           ,"100"               ,"100"      ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
+                                                        {"1"            ,"1"   ,"1"        ,"1"      ,"1"       ,"1"        ,"1"          ,"1"         ,"1"    ,"1"            ,"1"       ,"1"         ,"1"                 ,"1"                   ,"1"           ,"1"              ,"1"             ,"1"                 ,"1"             ,"1"                 ,"1"        ,"1"         ,"1"         ,"1"                  ,"1"                  ,"1"                ,"1"           ,"1"         },//最小长度设定,可以为空用0
+                                                        {"1"            ,"2"   ,"3"        ,"4"      ,"5"       ,"6"        ,"7"          ,"8"         ,"9"    ,"10"           ,"11"      ,"12"        ,"13"                ,"14"                  ,"15"          ,"16"             ,"17"            ,"18"                ,"19"            ,"20"                ,"21"       ,"22"        ,"23"        ,"24"                 ,"25"                 ,"26"               ,"27"          ,"28"        }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = null;

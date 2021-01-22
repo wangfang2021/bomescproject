@@ -163,7 +163,7 @@ namespace SPPSApi.Controllers.G06
                                       Path.DirectorySeparatorChar + "orders";
 
                     bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, ref refMsg);
-                    if (!resflag&&!string.IsNullOrWhiteSpace(refMsg))
+                    if (!resflag && !string.IsNullOrWhiteSpace(refMsg))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = refMsg;
@@ -270,7 +270,7 @@ namespace SPPSApi.Controllers.G06
                     string tmp = fileSavePath + Path.DirectorySeparatorChar;
                     if (Directory.Exists(tmp))
                     {
-                        DeleteFolder(tmp);
+                        ComFunction.DeleteFolder(tmp);
                     }
 
                     string filepathTmp = realPath + filepath;
@@ -322,66 +322,6 @@ namespace SPPSApi.Controllers.G06
             return "";
         }
 
-        #endregion
-        #region 清空文件夹
-
-        public void DeleteSrcFolder(string file)
-        {
-            //去除文件夹和子文件的只读属性
-            //去除文件夹的只读属性
-            System.IO.DirectoryInfo fileInfo = new DirectoryInfo(file);
-            fileInfo.Attributes = FileAttributes.Normal & FileAttributes.Directory;
-            //去除文件的只读属性
-            System.IO.File.SetAttributes(file, System.IO.FileAttributes.Normal);
-            //判断文件夹是否还存在
-            if (Directory.Exists(file))
-            {
-                foreach (string f in Directory.GetFileSystemEntries(file))
-                {
-                    if (System.IO.File.Exists(f))
-                    {
-                        //如果有子文件删除文件
-                        System.IO.File.Delete(f);
-                    }
-                    else
-                    {
-                        //循环递归删除子文件夹 
-                        DeleteFolder(f);
-                    }
-                }
-                //删除空文件夹
-                //Directory.Delete(file);
-            }
-        }
-
-        public void DeleteFolder(string file)
-        {
-            //去除文件夹和子文件的只读属性
-            //去除文件夹的只读属性
-            System.IO.DirectoryInfo fileInfo = new DirectoryInfo(file);
-            fileInfo.Attributes = FileAttributes.Normal & FileAttributes.Directory;
-            //去除文件的只读属性
-            System.IO.File.SetAttributes(file, System.IO.FileAttributes.Normal);
-            //判断文件夹是否还存在
-            if (Directory.Exists(file))
-            {
-                foreach (string f in Directory.GetFileSystemEntries(file))
-                {
-                    if (System.IO.File.Exists(f))
-                    {
-                        //如果有子文件删除文件
-                        System.IO.File.Delete(f);
-                    }
-                    else
-                    {
-                        //循环递归删除子文件夹 
-                        DeleteFolder(f);
-                    }
-                }
-                //删除空文件夹
-                Directory.Delete(file);
-            }
-        }
         #endregion
 
         #endregion

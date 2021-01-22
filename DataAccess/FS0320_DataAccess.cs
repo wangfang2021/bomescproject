@@ -14,7 +14,11 @@ namespace DataAccess
         {
             StringBuilder sbr = new StringBuilder();
             sbr.Append(" SELECT iAutoId,vcPart_id,vcPartNameEn,LEFT(vcPart_id,5) AS vcPart_id_short,vcPartNameCn,'0' as vcModFlag,'0' as vcAddFlag FROM Tunit \r\n ");
-            sbr.Append(" WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
+            sbr.Append(" WHERE 1=1 ");
+            
+            //TODO 有效时间是否需要
+            //sbr.Append(" AND dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
+            
             if (!string.IsNullOrWhiteSpace(vcPart_id))
             {
                 sbr.Append(" AND ISNULL(vcPart_id,'') LIKE '" + vcPart_id + "%' ");

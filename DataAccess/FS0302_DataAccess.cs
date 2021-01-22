@@ -84,7 +84,9 @@ namespace DataAccess
                         string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
                         string vcStartYearMonth = ObjToString(listInfoData[i]["vcStartYearMonth"]).Trim();
                         string vcSYTCode = getSYTCode(SYTCode);
-                        string vcPartNameEn = ObjToString(listInfoData[i]["vcPartNameEn"]);
+                        string vcPartNameEn = ObjToString(listInfoData[i]["vcPartName"]);
+                        string vcSPINo = ObjToString(listInfoData[i]["vcSPINo"]);
+
                         if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
                         {
                             vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
@@ -98,8 +100,8 @@ namespace DataAccess
                         }
 
                         sbr.Append(" INSERT INTO TUnit  \r\n");
-                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcSYTCode,vcPartNameEn) values\r\n");
-                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcSYTCode + "','" + vcPartNameEn + "')  \r\n");
+                        sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcSYTCode,vcPartNameEn,vcSPINo) values\r\n");
+                        sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'1'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231'),'新设/新车新设;','H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcSYTCode + "','" + vcPartNameEn + "','" + vcSPINo + "')  \r\n");
 
                         sbr.Append(" UPDATE TSBManager \r\n");
                         sbr.Append(" SET vcFinishState = '3', \r\n");

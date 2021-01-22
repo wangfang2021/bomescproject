@@ -122,7 +122,19 @@ namespace Logic
                 }
                 catch (Exception ex)
                 {
-                    return "生成失败！";
+                    return "生成计划失败！";
+                }
+
+                if (msg.Length == 0) //取得以上生成的临时表包装计划
+                {
+                    DataTable dt_temp = serchData(vcDxny, "Importpro", "", vcFZGC[k], "");
+                    Exception ex = new Exception();
+                    fs0610_DataAccess.updatePro(dt_temp, strUserId, vcDxny, ref ex, vcFZGC[k]);
+                    if (msg.Length > 0)
+                    {
+                        return msg;
+                    }
+                    msg = "计划生成成功！";
                 }
             }
             return msg;
@@ -554,6 +566,187 @@ namespace Logic
             for (i = m < n ? m : n; m % i != 0 || n % i != 0; i--) ;
             return i = m * n / i;
         }
+
+        public DataTable serchData(string mon, string plan, string type, string plant, string plantname)//检索方法
+        {
+            DataTable dt = new DataTable();
+            switch (plan)
+            {
+                case "1"://生产计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = fs0610_DataAccess.getMonProALL2(mon, "MonthProdPlanTbl", "EDMonthProdPlanTbl", plant);
+                            dt.TableName = "ALLPro1" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = fs0610_DataAccess.getMonPackPlanTMP(mon, "MonthProdPlanTbl", plant);
+                            addEDflag(ref dt, "通常");
+                            dt.TableName = "MonPro1" + "-" + plantname;
+                        }
+                        break;
+                    }
+                case "0"://包装计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = fs0610_DataAccess.getMonProALL2(mon, "MonthPackPlanTbl", "EDMonthPackPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            dt.TableName = "ALLPro4" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = fs0610_DataAccess.getMonPackPlanTMP(mon, "MonthPackPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            addEDflag(ref dt, "通常");
+                            dt.TableName = "MonPro4" + "-" + plantname;
+                        }
+                        break;
+                    }
+                case "2"://看板打印计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = fs0610_DataAccess.getMonProALL2(mon, "MonthKanBanPlanTbl", "EDMonthKanBanPlanTbl", plant);
+                            dt.TableName = "ALLPro0" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = fs0610_DataAccess.getMonPackPlanTMP(mon, "MonthKanBanPlanTbl", plant);
+                            dt.TableName = "MonPro0" + "-" + plantname;
+                            addEDflag(ref dt, "通常");
+                        }
+                        break;
+                    }
+                case "3"://丰铁看板涂装计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = fs0610_DataAccess.getMonProALL2(mon, "MonthTZPlanTbl", "dbo.EDMonthTZPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            dt.TableName = "ALLPro2" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = fs0610_DataAccess.getMonPackPlanTMP(mon, "MonthTZPlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            addEDflag(ref dt, "通常");
+                        }
+                        break;
+                    }
+                case "4"://P3计划  值别
+                    {
+                        if (type == "0")//合算
+                        {
+                            dt = fs0610_DataAccess.getMonProALL2(mon, "MonthP3PlanTbl", "EDMonthP3PlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            dt.TableName = "ALLPro3" + "-" + plantname;
+                        }
+                        if (type == "1")//月度
+                        {
+                            dt = fs0610_DataAccess.getMonPackPlanTMP(mon, "MonthP3PlanTbl", plant);
+                            dt = tranNZtoWZ(dt, mon);
+                            addEDflag(ref dt, "通常");
+                        }
+                        break;
+                    }
+                case "Importpack":
+                    {
+                        dt = fs0610_DataAccess.getMonPackPlanTMPcur(mon, "MonthPackPlanTblTMP", plant);
+                        addEDflag(ref dt, "通常"); ;
+                        //   dt = tranNZtoWZ(dt);
+                        break;
+                    }
+                case "Importpro":
+                    {
+                        dt = fs0610_DataAccess.getMonPackPlanTMPcur(mon, "MonthProPlanTblTMP", plant);
+                        addEDflag(ref dt, "通常");
+                        break;
+                    }
+            }
+            dt.Columns["vcEDflag"].SetOrdinal(5);
+            return dt;
+        }
+
+        public void addEDflag(ref DataTable dt, string flag)//加列
+        {
+            DataColumn col = new DataColumn();
+            col.ColumnName = "vcEDflag";
+            col.DataType = typeof(string);
+            col.DefaultValue = flag;
+            dt.Columns.Add(col);
+        }
+
+        public DataTable tranNZtoWZ(DataTable dtNZ, string mon)//内制品转换相应外注
+        {
+            DataTable dtWz = new DataTable();
+            DataTable dtInfo = fs0610_DataAccess.getPartsno(mon);
+            dtWz = dtNZ.Copy();
+            foreach (var row in dtWz.AsEnumerable())
+            {
+                var isQF = from info in dtInfo.AsEnumerable()
+                           where info.Field<string>("vcPartsNo") == row.Field<string>("vcPartsNo").Replace("-", "")
+                           && info.Field<string>("vcQFflag") == "1" && info.Field<string>("vcDock") == row.Field<string>("vcDock")
+                           select info;
+                if (isQF.Count() > 0)
+                {
+                    var tmp = from info in dtInfo.AsEnumerable()
+                              where info.Field<string>("vcPartsNo").Substring(0, 10) == row.Field<string>("vcPartsNo").Replace("-", "").Substring(0, 10)
+                                  && info.Field<string>("vcInOutFlag") == "1"
+                              select new
+                              {
+                                  o_partsno = info.Field<string>("vcPartsNo"),
+                                  o_dock = info.Field<string>("vcDock")
+                              };
+                    if (tmp.Count() > 0)
+                    {
+                        string tmppartsno = tmp.ElementAt(0).o_partsno.ToString();
+                        string partsno = tmppartsno.Insert(5, "-").Insert(11, "-");
+                        string dock = tmp.ElementAt(0).o_dock.ToString();
+                        row.SetField<string>("vcPartsNo", partsno);
+                        row.SetField<string>("vcDock", dock);
+                    }
+                }
+            }
+            return dtWz;
+        }
+
+        public DataTable tranWztoNz(DataTable dtWz, string mon)//外注品转换相应内制品
+        {
+            DataTable dtNz = new DataTable();
+            DataTable dtInfo = fs0610_DataAccess.getPartsno(mon);
+            dtNz = dtWz.Copy();
+            foreach (var row in dtNz.AsEnumerable())
+            {
+                var isWz = from info in dtInfo.AsEnumerable()
+                           where info.Field<string>("vcPartsNo") == row.Field<string>("vcPartsNo").Replace("-", "")
+                           && info.Field<string>("vcDock") == row.Field<string>("vcDock")
+                           && info.Field<string>("vcInOutFlag") == "1"
+                           select info;
+                if (isWz.Count() > 0)
+                {
+                    var tmp = from info in dtInfo.AsEnumerable()
+                              where info.Field<string>("vcPartsNo").Substring(0, 10) == row.Field<string>("vcPartsNo").Replace("-", "").Substring(0, 10)
+                              && info.Field<string>("vcInOutFlag") == "0"
+                              select new
+                              {
+                                  o_partsno = info.Field<string>("vcPartsNo"),
+                                  o_dock = info.Field<string>("vcDock")
+                              };
+                    if (tmp.Count() > 0)
+                    {
+                        string tmppartsno = tmp.ElementAt(0).o_partsno.ToString();
+                        string partsno = tmppartsno.Insert(5, "-").Insert(11, "-");
+                        string dock = tmp.ElementAt(0).o_dock.ToString();
+                        row.SetField<string>("vcPartsNo", partsno);
+                        row.SetField<string>("vcDock", dock);
+                    }
+                }
+            }
+            return dtNz;
+        }
+
         #endregion
     }
 

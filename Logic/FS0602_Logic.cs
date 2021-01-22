@@ -17,15 +17,25 @@ namespace Logic
     {
         FS0602_DataAccess fs0602_DataAccess = new FS0602_DataAccess();
         public DataTable getSearchInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
-                  string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant)
+                  string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant, string strDataState)
         {
-            string strDyInfo = "'0','1','2','3'";
-            string strHyInfo = "'0','3'";
+            string strDyInfo = "";
+            string strHyInfo = "";
+            if (strDataState == "待处理")
+            {
+                strDyInfo = "'0','1','2','3'";//对应状态全部
+                strHyInfo = "'0','3'";//合意状态 -和退回
+            }
+            else
+            {
+                strDyInfo = "'0','1','2','3'";//对应状态全部
+                strHyInfo = "'1','2'";//合意状态 待确认和已合意
+            }
             DataTable dataTable = fs0602_DataAccess.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDyInfo, strHyInfo);
             return dataTable;
         }
-        public void openPlan(List<Dictionary<string, Object>> listInfoData, dynamic dataForm, string dExpectTime, string strOperId,ref string strMessageList)
+        public void openPlan(List<Dictionary<string, Object>> listInfoData, dynamic dataForm, string dExpectTime, string strOperId, ref string strMessageList)
         {
             try
             {
@@ -49,17 +59,25 @@ namespace Logic
                     string strHaoJiu = dataForm.HaoJiu;
                     string strSupplierId = dataForm.SupplierId;
                     string strSupplierPlant = dataForm.SupplierPlant;
+                    string strDataState = dataForm.DataState;
                     DataTable dt = getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant);
+                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcDyState"] = "1";
-                        dataRow["vcHyState"] = "";
-                        dataRow["dExpectTime"] = dExpectTime;
-                        dataRow["vcYearMonth"] = dt.Rows[i]["vcYearMonth"].ToString();
-                        dataRow["vcPart_id"] = dt.Rows[i]["vcPart_id"].ToString();
-                        dataTable.Rows.Add(dataRow);
+                        if (dt.Rows[i]["vcDyState"].ToString() == "0")
+                        {
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcDyState"] = "1";
+                            dataRow["vcHyState"] = "";
+                            dataRow["dExpectTime"] = dExpectTime;
+                            dataRow["vcYearMonth"] = dt.Rows[i]["vcYearMonth"].ToString();
+                            dataRow["vcPart_id"] = dt.Rows[i]["vcPart_id"].ToString();
+                            dataTable.Rows.Add(dataRow);
+                        }
+                        else
+                        {
+                            strMessageList = "已经内示展开过，不能重复展开";
+                        }
                     }
 
                 }
@@ -67,16 +85,23 @@ namespace Logic
                 {
                     for (int i = 0; i < listInfoData.Count; i++)
                     {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcDyState"] = "1";
-                        dataRow["vcHyState"] = "";
-                        dataRow["dExpectTime"] = dExpectTime;
-                        dataRow["vcYearMonth"] = listInfoData[i]["vcYearMonth"].ToString(); ;
-                        dataRow["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString(); ;
-                        dataTable.Rows.Add(dataRow);
+                        if (listInfoData[i]["vcDyState"].ToString() == "0")
+                        {
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcDyState"] = "1";
+                            dataRow["vcHyState"] = "";
+                            dataRow["dExpectTime"] = dExpectTime;
+                            dataRow["vcYearMonth"] = listInfoData[i]["vcYearMonth"].ToString(); ;
+                            dataRow["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString(); ;
+                            dataTable.Rows.Add(dataRow);
+                        }
+                        else
+                        {
+                            strMessageList = "已经内示展开过，不能重复展开";
+                        }
                     }
                 }
-                if (strMessageList=="")
+                if (strMessageList == "" || dataTable.Rows.Count != 0)
                 {
                     fs0602_DataAccess.setSOQInfo(strOperationType, dataTable, strOperId);
                 }
@@ -110,17 +135,25 @@ namespace Logic
                     string strHaoJiu = dataForm.HaoJiu;
                     string strSupplierId = dataForm.SupplierId;
                     string strSupplierPlant = dataForm.SupplierPlant;
+                    string strDataState = dataForm.DataState;
                     DataTable dt = getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant);
+                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcDyState"] = "";
-                        dataRow["vcHyState"] = "1";
-                        dataRow["dExpectTime"] = "";
-                        dataRow["vcYearMonth"] = dt.Rows[i]["vcYearMonth"].ToString();
-                        dataRow["vcPart_id"] = dt.Rows[i]["vcPart_id"].ToString();
-                        dataTable.Rows.Add(dataRow);
+                        if (dt.Rows[i]["vcHyState"].ToString() == "0" || dt.Rows[i]["vcHyState"].ToString() == "3")
+                        {
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcDyState"] = "";
+                            dataRow["vcHyState"] = "1";
+                            dataRow["dExpectTime"] = "";
+                            dataRow["vcYearMonth"] = dt.Rows[i]["vcYearMonth"].ToString();
+                            dataRow["vcPart_id"] = dt.Rows[i]["vcPart_id"].ToString();
+                            dataTable.Rows.Add(dataRow);
+                        }
+                        else
+                        {
+                            strMessageList = "已经内示回复过，不能重复回复";
+                        }
                     }
 
                 }
@@ -128,16 +161,24 @@ namespace Logic
                 {
                     for (int i = 0; i < listInfoData.Count; i++)
                     {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcDyState"] = "";
-                        dataRow["vcHyState"] = "1";
-                        dataRow["dExpectTime"] = "";
-                        dataRow["vcYearMonth"] = listInfoData[i]["vcYearMonth"].ToString(); ;
-                        dataRow["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString(); ;
-                        dataTable.Rows.Add(dataRow);
+                        if (listInfoData[i]["vcHyState"].ToString() == "0"|| listInfoData[i]["vcHyState"].ToString() == "3")
+                        {
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcDyState"] = "";
+                            dataRow["vcHyState"] = "1";
+                            dataRow["dExpectTime"] = "";
+                            dataRow["vcYearMonth"] = listInfoData[i]["vcYearMonth"].ToString(); ;
+                            dataRow["vcPart_id"] = listInfoData[i]["vcPart_id"].ToString(); ;
+                            dataTable.Rows.Add(dataRow);
+                        }
+                        else
+                        {
+                            strMessageList = "已经内示回复过，不能重复回复";
+                        }
                     }
+
                 }
-                if (strMessageList == "")
+                if (strMessageList == "" || dataTable.Rows.Count != 0)
                 {
                     fs0602_DataAccess.setSOQInfo(strOperationType, dataTable, strOperId);
                 }
@@ -166,6 +207,10 @@ namespace Logic
                 dataRow["vcYearMonth"] = strYearMonth;
                 dataRow["vcPart_id"] = "";
                 dataTable.Rows.Add(dataRow);
+
+                //对象月需要都是未展开才能进行退回
+                if (fs0602_DataAccess.checkDbInfo(strYearMonth))
+                    strMessageList = "对象月" + strYearMonth + "已经存在内示展开的数据，无法在进行退回操作";
                 if (strMessageList == "")
                 {
                     fs0602_DataAccess.setSOQInfo(strOperationType, dataTable, strOperId);

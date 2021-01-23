@@ -51,7 +51,7 @@ namespace SPPSApi.Controllers.G06
 
                 #region 1厂
                 int iStep1 = 0;
-                DataTable dt_1 = fs0610_Logic.getZhankaiData(false,"1");
+                DataTable dt_1 = fs0610_Logic.getZhankaiData(false, "1");
                 if (dt_1.Rows.Count != 0)
                 {
                     iStep1 = 1;
@@ -61,7 +61,7 @@ namespace SPPSApi.Controllers.G06
                 //{
                 iStep1 = 2;
                 //}
-                DataTable dt3_1 = fs0610_Logic.getZhankaiData(true,"1");
+                DataTable dt3_1 = fs0610_Logic.getZhankaiData(true, "1");
                 if (dt3_1.Rows.Count != 0)
                 {
                     iStep1 = 3;
@@ -258,7 +258,7 @@ namespace SPPSApi.Controllers.G06
                     string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                     string vcNSYM = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").ToString("yyyyMM");
                     string vcNNSYM = Convert.ToDateTime(vcNSYM.Substring(0, 4) + "-" + vcNSYM.Substring(4, 2) + "-01").ToString("yyyyMM");
-                    fs0610_Logic.SaveResult(vcCLYM, strYearMonth, strYearMonth_2, strYearMonth_3, strPlant, arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, loginInfo.UserId,loginInfo.UnitCode);
+                    fs0610_Logic.SaveResult(vcCLYM, strYearMonth, strYearMonth_2, strYearMonth_3, strPlant, arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, loginInfo.UserId, loginInfo.UnitCode);
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -318,7 +318,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                fs0610_Logic.zk(loginInfo.UserId,plantList);
+                fs0610_Logic.zk(loginInfo.UserId, plantList);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 //apiResult.data = count;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -460,6 +460,15 @@ namespace SPPSApi.Controllers.G06
                 string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
+                string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",
+                    "品名（中）","工程号","工程名","号旧","月度总量",
+                    "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
+                    "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
+                    "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜",
+                    "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
+                    "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
+                    "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜"
+                };
                 string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
                     "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
                     "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y","TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y",
@@ -470,11 +479,16 @@ namespace SPPSApi.Controllers.G06
                     "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
                 };
                 string filepath = "";
+                string msg = "";
+                string tbName = "";
+                DataTable dt = new DataTable();
                 for (int i = 0; i < vcFZGC.Length; i++)
                 {
-                    DataTable dt = fs0610_Logic.dowloadProPlan(vcDxny, vcFZGC[i], loginInfo.UserId);
-                    //filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID, vcFZGC[i]);
+                    dt.Merge(fs0610_Logic.dowloadProPlan(vcDxny, vcFZGC[i], loginInfo.UserId));
+                    tbName += "#" + vcFZGC[i];
                 }
+                if (dt != null && dt.Rows.Count > 0)
+                    filepath += ComFunction.DataTableToExcel(heads, fields, dt, ".", tbName + "生产计划_", loginInfo.UserId, "", ref msg) + ";";
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -482,7 +496,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
+                apiResult.data = filepath.Trim(';');
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
             }

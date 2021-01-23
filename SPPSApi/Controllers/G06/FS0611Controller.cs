@@ -46,7 +46,18 @@ namespace SPPSApi.Controllers.G06
                  
                 DateTime dNow = DateTime.Now.AddMonths(1);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
-
+                int iStep = 0;
+                DataTable dt = fs0611_Logic.getZhankaiData(false);
+                if (dt.Rows.Count != 0)
+                {
+                    iStep = 1;
+                }
+                DataTable dt2 = fs0611_Logic.getZhankaiData(true);
+                if (dt2.Rows.Count != 0)
+                {
+                    iStep = 2;
+                }
+                res.Add("iStep", iStep);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -257,7 +268,7 @@ namespace SPPSApi.Controllers.G06
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
 
-                DataTable dt=fs0611_Logic.getZhankaiData();
+                DataTable dt=fs0611_Logic.getZhankaiData(false);
                 if (dt.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

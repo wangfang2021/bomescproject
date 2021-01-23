@@ -90,11 +90,15 @@ namespace DataAccess
         #endregion
 
 
-        #region 获取没有展开的数据
-        public DataTable getZhankaiData()
+        #region 获取展开的数据
+        public DataTable getZhankaiData(bool isZhankai)
         {
             StringBuilder sql = new StringBuilder();
-            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='1' and dZhanKaiTime is null  \n");
+            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='1' \n");
+            if (isZhankai)
+                sql.Append("  and dZhanKaiTime is not null  ");
+            else
+                sql.Append("  and dZhanKaiTime is null  ");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
         #endregion

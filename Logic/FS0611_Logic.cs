@@ -61,9 +61,9 @@ namespace Logic
         #endregion
 
         #region 获取没有展开的数据
-        public DataTable getZhankaiData()
+        public DataTable getZhankaiData(bool isZhankai)
         {
-            return fs0611_DataAccess.getZhankaiData();
+            return fs0611_DataAccess.getZhankaiData(isZhankai);
         }
         #endregion
 

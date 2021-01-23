@@ -421,7 +421,7 @@ namespace Common
             }
         }
 
-        public static DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header,int startRow, ref string RetMsg)
+        public static DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, int startRow, ref string RetMsg)
         {
             FileStream fs = null;
             IWorkbook workbook = null;
@@ -757,7 +757,7 @@ namespace Common
         /// <param name="strFunctionName"></param>
         /// <param name="RetMsg"></param>
         /// <returns>最终文件的全路径</returns>
-        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath,string fileName, string strUserId, string strFunctionName, ref string RetMsg)
+        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath, string fileName, string strUserId, string strFunctionName, ref string RetMsg)
         {
             bool result = false;
             RetMsg = "";
@@ -889,6 +889,49 @@ namespace Common
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        ICell cell = row.CreateCell(j);
+                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                    }
+                }
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
+        #region 导出带模板（多sheet）
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, string sheetName)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);//第几个sheet
+
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -1083,8 +1126,8 @@ namespace Common
                     MMge.To.Add(new MailAddress(receiverDt.Rows[i]["address"].ToString(), receiverDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
                 }
                 //添加抄送
-                if(cCDt!=null)
-                { 
+                if (cCDt != null)
+                {
                     for (var i = 0; i < cCDt.Rows.Count; i++)
                     {
                         MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
@@ -1184,5 +1227,5 @@ namespace Common
     }
     #endregion
 
-    
+
 }

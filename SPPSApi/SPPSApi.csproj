@@ -47,6 +47,7 @@
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\DataEntity\DataEntity.csproj" />
     <ProjectReference Include="..\Logic\Logic.csproj" />
+    <ProjectReference Include="..\SoqCompute\SoqCompute.csproj" />
   </ItemGroup>
 
   <ItemGroup>

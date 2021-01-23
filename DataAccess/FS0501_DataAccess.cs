@@ -24,7 +24,8 @@ namespace DataAccess
                 strSql.Append(" when t3.iTzhSOQN is null or t3.iTzhSOQN1 is null or t3.iTzhSOQN2 is null then 'partFS0501A' --无调整          \n");
                 strSql.Append(" when t3.iTzhSOQN=t1.iCbSOQN and t3.iTzhSOQN1=t1.iCbSOQN1 and t3.iTzhSOQN2=t1.iCbSOQN2 then 'partFS0501A' --无调整        \n");
                 strSql.Append(" else 'partFS0501B' --有调整          \n");
-                strSql.Append(" end as vcBgColor,'0' as vcModFlag,'0' as vcAddFlag,t1.vcSupplier_id      \n");
+                strSql.Append(" end as vcBgColor,'0' as vcModFlag,'0' as vcAddFlag,t1.vcSupplier_id,      \n");
+                strSql.Append("CASE WHEN vcDyState='1' and vcHyState in ('0','3') then '0' else '1' end as bSelectFlag    \n");
                 strSql.Append("from(    \n");
                 strSql.Append("	select * from TSoq     \n");
                 strSql.Append("	where vcYearMonth='" + strYearMonth + "'     \n");
@@ -48,7 +49,7 @@ namespace DataAccess
                 strSql.Append("		select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory     \n");
                 strSql.Append("		where vcInputType='supplier'    \n");
                 strSql.Append("		group by vcYearMonth,vcPart_id    \n");
-                strSql.Append("	)b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id    \n");
+                strSql.Append("	)b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id and a.dOperatorTime=b.dOperatorTime       \n");
                 strSql.Append(")t3 on t1.vcYearMonth=t3.vcYearMonth and t1.vcPart_id=t3.vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -98,7 +99,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 是否待确认
+        #region 是否可操作-按检索条件
         public DataTable IsDQR(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState)
         {
             try
@@ -125,7 +126,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 是否待确认
+        #region 是否可操作-按列表所选数据
         public DataTable IsDQR(string strYearMonth, List<Dictionary<string, Object>> listInfoData, string strType)//strType:save(保存)、submit(提交)
         {
             try
@@ -192,8 +193,8 @@ namespace DataAccess
         }
         #endregion
 
-        #region 承认。将合意后SOQ数据复制到合意SOQ，并改变合意状态，赋予合意时间
-        public int ok(string strYearMonth, string strDyState, string strHyState, string strPart_id, string strUserId)
+        #region 提交-按检索条件
+        public int ok(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strUserId)
         {
             try
             {
@@ -201,40 +202,27 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine(" UPDATE TSoq SET ");
-                strSql.AppendLine("      iHySOQN=iTzhSOQN,");
-                strSql.AppendLine("      iHySOQN1=iTzhSOQN1,");
-                strSql.AppendLine("      iHySOQN2=iTzhSOQN2,");
-                strSql.AppendLine("      vcHyState='2', ");
-                strSql.AppendLine("      dHyTime=getdate() ");
-                strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
-                strSql.AppendLine("      ,dOperatorTime=getDate() ");
-                strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
-                strSql.AppendLine(" WHERE 1=1 ");
-                //筛选条件：对象年月
-                if (!string.IsNullOrEmpty(strYearMonth))
-                {
-                    strSql.AppendLine(" AND vcYearMonth='" + strYearMonth + "' ");
-                }
-                //筛选条件：对应状态
-                if (!string.IsNullOrEmpty(strDyState))
-                {
-                    strSql.AppendLine(" AND vcDyState='" + strDyState + "' ");
-                }
-                //筛选条件：合意状态
-                if (!string.IsNullOrEmpty(strHyState))
-                {
-                    strSql.AppendLine(" AND vcHyState='" + strHyState + "' ");
-                }
-                //筛选条件：品番
-                if (!string.IsNullOrEmpty(strPart_id))
-                {
-                    strSql.AppendLine(" AND vcPart_id like '%" + strPart_id + "%' ");
-                }
-                strSql.Append("; \r\n ");
+                strSql.Append("      vcDyState=case when iCbSOQN!=iTzhSOQN or iCbSOQN1!=iTzhSOQN1 or iCbSOQN2!=iTzhSOQN2 then '2' else '3' end, ");//0：未发送；1：待回复；2：有调整；3：无调整
+                strSql.Append("      vcSReplyUser='" + strUserId + "', ");
+                strSql.Append("      dSReplyTime=getdate(), ");
+                strSql.Append("      vcOperator='" + strUserId + "', ");
+                strSql.Append("      dOperatorTime=getDate(), ");
+                strSql.Append("      vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                strSql.AppendLine(" WHERE (vcDyState='1' and vcHyState in ('0','3')) ");//这几个状态(1,0,3)是可操作的状态
+                strSql.Append("	and vcYearMonth='" + strYearMonth + "'     \n");
+                strSql.Append("	and vcSupplier_id='" + strSupplier_id + "'    \n");
+                if (strOperState == "Y")
+                    strSql.Append("	and vcDyState='1' and vcHyState in ('0','3')    \n");
+                else if (strOperState == "N")
+                    strSql.Append("	and (vcDyState!='1' or vcHyState not in ('0','3'))    \n");
+                if (!string.IsNullOrEmpty(strDyState))//对应状态
+                    strSql.Append(" and vcDyState='" + strDyState + "' ");
+                if (!string.IsNullOrEmpty(strPart_id))//品番
+                    strSql.Append(" and vcPart_id like '%" + strPart_id + "%'");
 
                 //记录日志
                 strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
-                strSql.AppendLine("  select vcYearMonth,vcPart_id,'FTMS承认','" + strUserId + "',getDate() from TSoq  where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "' ");
+                strSql.AppendLine("  select vcYearMonth,vcPart_id,'供应商提交','" + strUserId + "',getDate() from TSoq  where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "' ");
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
@@ -244,7 +232,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 承认。将合意后SOQ数据复制到合意SOQ，并改变合意状态，赋予合意时间
+        #region 提交-按列表所选数据
         public int ok(string strYearMonth, List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
@@ -258,41 +246,41 @@ namespace DataAccess
                 strSql.Append("      End      \n");
                 strSql.Append("      select * into #TSoq_temp_cr from       \n");
                 strSql.Append("      (      \n");
-                strSql.Append("      	select vcPart_id from TSoq where 1=0      \n");
+                strSql.Append("      	select vcPart_id,vcYearMonth,iTzhSOQN,iTzhSOQN1,iTzhSOQN2 from TSoq where 1=0      \n");
                 strSql.Append("      ) a      ;\n");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     #region 将所有的数据都插入临时表
-                    strSql.Append("      insert into #TSoq_temp_cr       \n");
-                    strSql.Append("       (         \n");
-                    strSql.Append("       vcPart_id        \n");
-                    strSql.Append("       ) values         \n");
-                    strSql.Append("      (      \n");
-                    strSql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "   \n");
-                    strSql.Append("      );      \n");
+                    strSql.Append("insert into #TSoq_temp_cr       \n");
+                    strSql.Append(" (         \n");
+                    strSql.Append(" vcPart_id,vcYearMonth,iTzhSOQN,iTzhSOQN1,iTzhSOQN2        \n");
+                    strSql.Append(" ) values         \n");
+                    strSql.Append("(      \n");
+                    strSql.Append(    ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",   \n");
+                    strSql.Append(    ComFunction.getSqlValue(listInfoData[i]["vcYearMonth"], false) + ",   \n");
+                    strSql.Append(    ComFunction.getSqlValue(listInfoData[i]["iTzhSOQN"], false) + ",   \n");
+                    strSql.Append(    ComFunction.getSqlValue(listInfoData[i]["iTzhSOQN1"], false) + ",   \n");
+                    strSql.Append(    ComFunction.getSqlValue(listInfoData[i]["iTzhSOQN2"], false) + "   \n");
+                    strSql.Append(")      \n");
                     #endregion
                 }
-
-                strSql.AppendLine(" UPDATE TSoq SET ");
-                strSql.AppendLine("      iHySOQN=iTzhSOQN,");
-                strSql.AppendLine("      iHySOQN1=iTzhSOQN1,");
-                strSql.AppendLine("      iHySOQN2=iTzhSOQN2,");
-                strSql.AppendLine("      vcHyState='2', ");
-                strSql.AppendLine("      dHyTime=getdate() ");
-                strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
-                strSql.AppendLine("      ,dOperatorTime=getDate() ");
-                strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
-                strSql.AppendLine(" from TSoq a  \n ");
-                strSql.AppendLine(" inner join  \n ");
-                strSql.AppendLine(" (  \n ");
-                strSql.AppendLine("    select vcPart_id from #TSoq_temp_cr  \n ");
-                strSql.AppendLine(" )b on a.vcPart_id=b.vcPart_id  \n ");
-                strSql.Append(";  \n ");
+                //更新对应状态为有调整/无调整，更新提交人和提单时间
+                strSql.Append(" UPDATE TSoq SET ");
+                strSql.Append("      vcDyState=case when a.iCbSOQN!=b.iTzhSOQN or a.iCbSOQN1!=b.iTzhSOQN1 or a.iCbSOQN2!=b.iTzhSOQN2 then '2' else '3' end, ");//0：未发送；1：待回复；2：有调整；3：无调整
+                strSql.Append("      vcSReplyUser='" + strUserId+"', ");
+                strSql.Append("      dSReplyTime=getdate(), ");
+                strSql.Append("      vcOperator='" + strUserId + "', ");
+                strSql.Append("      dOperatorTime=getDate(), ");
+                strSql.Append("      vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                strSql.Append(" from TSoq a  \n ");
+                strSql.Append(" inner join  \n ");
+                strSql.Append(" (  \n ");
+                strSql.Append("    select * from #TSoq_temp_cr  \n ");
+                strSql.Append(" )b on a.vcPart_id=b.vcPart_id and a.vcYearMonth=b.vcYearMonth  \n ");
 
                 //记录日志
-                strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
-                strSql.AppendLine("  select '" + strYearMonth + "' as vcYearMonth,vcPart_id,'FTMS承认','" + strUserId + "',getDate() from TSoq where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "'  ");
-                strSql.Append(";  \n ");
+                strSql.Append("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
+                strSql.Append("  select '" + strYearMonth + "' as vcYearMonth,vcPart_id,'供应商提交','" + strUserId + "',getDate() from TSoq where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "'  ");
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
@@ -322,7 +310,8 @@ namespace DataAccess
                     }
                     if (baddflag == false && bmodflag == true)
                     {//修改
-                        sql.Append("  INSERT INTO TSoq_temp(vcYearMonth,vcPart_id,vcSupplier_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcOperator,dOperatorTime) values  ");
+                        sql.Append("  INSERT INTO TSoq_temp(vcYearMonth,vcPart_id,vcSupplier_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcOperator,dOperatorTime,  ");
+                        sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2) values       \n");
                         sql.Append("('" + strYearMonth + "',");
                         sql.Append("'" + listInfoData[i]["vcPart_id"].ToString() + "',");
                         sql.Append("'" + listInfoData[i]["vcSupplier_id"].ToString() + "',");
@@ -330,7 +319,10 @@ namespace DataAccess
                         sql.Append("'" + listInfoData[i]["iTzhSOQN1"].ToString() + "',");
                         sql.Append("'" + listInfoData[i]["iTzhSOQN2"].ToString() + "',");
                         sql.Append("'" + strUserId + "',");
-                        sql.Append("getDate()");
+                        sql.Append("getDate(),");
+                        sql.Append("'" + listInfoData[i]["iCbSOQN"].ToString() + "',");
+                        sql.Append("'" + listInfoData[i]["iCbSOQN1"].ToString() + "',");
+                        sql.Append("'" + listInfoData[i]["iCbSOQN2"].ToString() + "'");
                         sql.Append(")");
                     }
                 }
@@ -721,7 +713,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region 验证8：品番3个月数量不能全为0(N月可以为)
+                #region 验证8：品番3个月数量不能全为0
                 sql.Length = 0;//清空
                 sql.Append("select vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2 from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'    \n");
                 sql.Append("and ISNULL(iTzhSOQN,0)=0 and ISNULL(iTzhSOQN1,0)=0 and ISNULL(iTzhSOQN2,0)=0     \n");
@@ -729,7 +721,19 @@ namespace DataAccess
                 for (int i = 0; i < dt8.Rows.Count; i++)
                 {
                     string strPart_id = dt8.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add(strPart_id + "的3个月数量不能全部为0");
+                    errMessageList.Add("品番"+strPart_id + "的3个月数量不能全部为0");
+                }
+                #endregion
+
+                #region 验证8-1：调整3个月数量加总必须等于初版3个月数量加总
+                sql.Length = 0;//清空
+                sql.Append("select vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2 from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'    \n");
+                sql.Append("and ISNULL(iTzhSOQN,0)+ISNULL(iTzhSOQN1,0)+ISNULL(iTzhSOQN2,0)!=ISNULL(iCbSOQN,0)+ISNULL(iCbSOQN1,0)+ISNULL(iCbSOQN2,0)     \n");
+                DataTable dt8_1 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                for (int i = 0; i < dt8_1.Rows.Count; i++)
+                {
+                    string strPart_id = dt8_1.Rows[i]["vcPart_id"].ToString();
+                    errMessageList.Add("品番" + strPart_id + "的3个月调整数量总和与初版不一致");
                 }
                 #endregion
 
@@ -764,7 +768,7 @@ namespace DataAccess
                 for (int i = 0; i < dt9.Rows.Count; i++)
                 {
                     string strPart_id = dt9.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add(strPart_id + "数量不是收容数的整数倍。");
+                    errMessageList.Add("品番" + strPart_id + "数量不是收容数的整数倍。");
                 }
                 #endregion
 

@@ -13,135 +13,78 @@ namespace Logic
     {
         FS0611_DataAccess fs0611_DataAccess = new FS0611_DataAccess();
 
-        #region 生成SOQReply
-        public int create(string varDxny, string userId)
+        #region 取日历
+        public DataTable GetCalendar(string strPlant, string vcDXYM)
         {
-            try
-            {
-                //从soq表中获取soq，然后获取稼动日历，再生成平准化结果
-                //#1厂
-                //获取稼动日历数据
-                DataTable calendarRe = fs0611_DataAccess.getJdrlData(varDxny, "1");
+            return fs0611_DataAccess.GetCalendar(strPlant, vcDXYM);
+        }
+        #endregion
 
-                //计算月前半稼动日大小
-                decimal halfWorkDaysCount = Math.Ceiling(Convert.ToDecimal(calendarRe.Rows[0]["TOTALWORKDAYS"].ToString()) / 2);
-
-
-                //获取品番箱数为1的所有soq品番
-                DataTable re = fs0611_DataAccess.getParts(varDxny, "1", 1);
-
-
-                //开始平准
-                //存储前半月稼动的日子
-                DataTable pzRe = new DataTable();
-
-                pzRe.Columns.Add("PARTSNO");
-
-                //给结果表新增列。只有前半稼动日的列
-                int index = Convert.ToInt32(halfWorkDaysCount);
-                for (int i = 0; i < 31 && index > 0; i++)
-                {
-                    //休息日跳过
-                    if (calendarRe.Rows[0]["TARGETDAY" + (i + 1)].ToString() == "0")
-                        continue;
-                    else
-                    {
-                        pzRe.Columns.Add("D" + (i + 1));
-                        index = index - 1;
-                    }
-                }
-
-                //发注工厂列
-                pzRe.Columns.Add("iFZGC");
-                //订货频度列
-                pzRe.Columns.Add("varMakingOrderType");
-                //内外区分列
-                pzRe.Columns.Add("INOUTFLAG");
-                //车型编号列
-                pzRe.Columns.Add("CARFAMILYCODE");
-                //收容数列
-                pzRe.Columns.Add("QUANTITYPERCONTAINER");
-                //箱数列
-                pzRe.Columns.Add("iUnits");
-                //品番数列
-                pzRe.Columns.Add("iPCS");
-
-
-                int dayIndex = 0;
-                int roundIndex = 0;
-                for (int i = 0; i < re.Rows.Count; i++)
-                {
-                    pzRe.Rows.Add();
-                    pzRe.Rows[i]["PARTSNO"] = re.Rows[i]["PARTSNO"].ToString();
-
-                    //第一轮且单值，则跳过该日的排班
-                    while (roundIndex == 0 && calendarRe.Rows[0][pzRe.Columns[dayIndex + 1].ToString().Replace("D", "TARGETDAY")].ToString().Length > 1)
-                    {
-                        dayIndex++;
-                        if (dayIndex > halfWorkDaysCount - 1)
-                        {
-                            roundIndex++;
-                            dayIndex = 0;
-                        }
-                    }
-                    pzRe.Rows[i][dayIndex + 1] = 1;
-
-                    //发注工厂列
-                    pzRe.Rows[i]["iFZGC"] = re.Rows[i]["iFZGC"].ToString();
-                    //订货频度列
-                    pzRe.Rows[i]["varMakingOrderType"] = re.Rows[i]["varMakingOrderType"].ToString();
-                    //内外区分列
-                    pzRe.Rows[i]["INOUTFLAG"] = re.Rows[i]["INOUTFLAG"].ToString();
-                    //车型编号列
-                    pzRe.Rows[i]["CARFAMILYCODE"] = re.Rows[i]["CARFAMILYCODE"].ToString();
-                    //收容数列
-                    pzRe.Rows[i]["QUANTITYPERCONTAINER"] = re.Rows[i]["QUANTITYPERCONTAINER"].ToString();
-                    //箱数列
-                    pzRe.Rows[i]["iUnits"] = re.Rows[i]["iUnits"].ToString();
-                    //品番数列
-                    pzRe.Rows[i]["iPCS"] = re.Rows[i]["iPCS"].ToString();
-
-                    dayIndex++;
-                    if (dayIndex > halfWorkDaysCount - 1)
-                    {
-                        roundIndex++;
-                        dayIndex = 0;
-                    }
-                }
-
-
-                if (pzRe.Rows.Count > 0)
-                    return fs0611_DataAccess.save(pzRe, userId, varDxny, 0);
-                else
-                    return 0;
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+        #region 取soq数据
+        public DataTable GetSoq(string strPlant, string strYearMonth, string strType)
+        {
+            return fs0611_DataAccess.GetSoq(strPlant, strYearMonth, strType);
         }
         #endregion
 
 
-        #region 展开SOQReply
-        public int zk(string varDxny, string userId)
+        #region 取soq数据-已合意
+        public DataTable GetSoqHy(string strPlant, string strYearMonth, string strType)
         {
-            return fs0611_DataAccess.zk(varDxny, userId);
+            return fs0611_DataAccess.GetSoqHy(strPlant, strYearMonth, strType);
+        }
+        #endregion
+        
+
+        #region 取特殊厂家对应的品番
+        public DataTable GetSpecialSupplier(string strYearMonth)
+        {
+            return fs0611_DataAccess.GetSpecialSupplier(strYearMonth);
+        }
+        #endregion
+
+
+        #region 取特殊品番
+        public DataTable GetSpecialPartId(string strYearMonth)
+        {
+            return fs0611_DataAccess.GetSpecialPartId(strYearMonth);
+        }
+        #endregion
+
+        #region 更新平准化结果
+        public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId)
+        {
+            fs0611_DataAccess.SaveResult(strCLYM, strDXYM, strNSYM, strNNSYM, strPlant,
+             arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, strUserId);
+        }
+        #endregion
+
+        #region 获取没有展开的数据
+        public DataTable getZhankaiData(bool isZhankai)
+        {
+            return fs0611_DataAccess.getZhankaiData(isZhankai);
+        }
+        #endregion
+
+        #region 展开SOQReply
+        public int zk( string userId)
+        {
+            return fs0611_DataAccess.zk(userId);
         }
         #endregion
 
         #region 下载SOQReply（检索内容）
-        public DataTable search(string varDxny)
+        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3)
         {
-            return fs0611_DataAccess.search(varDxny);
+            return fs0611_DataAccess.search(strYearMonth,strYearMonth_2,strYearMonth_3);
         }
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string varDxny)
+        public void importSave(DataTable dt, string strYearMonth, string strUserId)
         {
-            fs0611_DataAccess.importSave(dt, varDxny);
+            fs0611_DataAccess.importSave(dt, strYearMonth, strUserId);
         }
         #endregion
     }

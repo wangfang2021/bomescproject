@@ -106,7 +106,7 @@ namespace DataAccess
 
         #region 更新平准化结果
         public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
-            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId)
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId,string strUnit)
         {
             SqlCommand cmd;
             SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString());//对账平台
@@ -208,7 +208,7 @@ namespace DataAccess
                     "and vcInOutFlag='1')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='TFTM' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
                 cmd.Connection = conn;

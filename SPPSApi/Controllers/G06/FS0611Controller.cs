@@ -232,7 +232,7 @@ namespace SPPSApi.Controllers.G06
                     string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                     string vcNSYM = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").ToString("yyyyMM");
                     string vcNNSYM = Convert.ToDateTime(vcNSYM.Substring(0, 4) + "-" + vcNSYM.Substring(4, 2) + "-01").ToString("yyyyMM");
-                    fs0611_Logic.SaveResult(vcCLYM, strYearMonth, strYearMonth_2, strYearMonth_3, strPlant, arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, loginInfo.UserId);
+                    fs0611_Logic.SaveResult(vcCLYM, strYearMonth, strYearMonth_2, strYearMonth_3, strPlant, arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, loginInfo.UserId,loginInfo.UnitCode);
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

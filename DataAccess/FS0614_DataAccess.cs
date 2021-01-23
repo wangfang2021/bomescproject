@@ -59,7 +59,7 @@ namespace DataAccess
 
                 if (!string.IsNullOrWhiteSpace(dUpload))
                 {
-                    sbr.AppendLine("AND a.dUploadDate = " + ComFunction.getSqlValue(dUpload, true) + "");
+                    sbr.AppendLine("AND Convert(varchar(10),a.dUploadDate,120) = " + ComFunction.getSqlValue(dUpload, true) + "");
                 }
 
 

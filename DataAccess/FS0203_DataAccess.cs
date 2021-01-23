@@ -25,7 +25,7 @@ namespace DataAccess
             }
             if (!string.IsNullOrWhiteSpace(UploadTime))
             {
-                sbr.Append(" and dOperatorTime = '" + UploadTime + "' \r\n");
+                sbr.Append(" and Convert(varchar(10),dOperatorTime,120) = '" + UploadTime + "' \r\n");
             }
 
             sbr.Append(" order by dOperatorTime desc \r\n");

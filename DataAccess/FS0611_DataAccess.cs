@@ -420,7 +420,7 @@ namespace DataAccess
                 strSql.AppendLine(" LEFT JOIN (   ");
                 strSql.AppendLine("   SELECT vcPart_id,vcCarType as 'N+2 O/L',iBoxes as 'N+2 Units',iPartNums as 'N+2 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_2 + "' ");//外注
+                strSql.AppendLine("   WHERE vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_3 + "' ");//外注
                 strSql.AppendLine("  ) c ");
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id ");
 

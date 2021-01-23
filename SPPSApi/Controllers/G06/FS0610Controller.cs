@@ -300,8 +300,8 @@ namespace SPPSApi.Controllers.G06
                 string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
-                string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
-                    "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
+                string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
+                    "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
                     "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y","TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y",
                     "TD11b","TD11y","TD12b","TD12y","TD13b","TD13y","TD14b","TD14y","TD15b","TD15y","TD16b","TD16y","TD17b","TD17y","TD18b","TD18y","TD19b","TD19y","TD20b","TD20y",
                     "TD21b","TD21y","TD22b","TD22y","TD23b","TD23y","TD24b","TD24y","TD25b","TD25y","TD26b","TD26y","TD27b","TD27y","TD28b","TD28y","TD29b","TD29y","TD30b","TD30y","TD31b","TD31y",
@@ -313,20 +313,18 @@ namespace SPPSApi.Controllers.G06
                 for (int i = 0; i < vcFZGC.Length; i++)
                 {
                     DataTable dt = fs0610_Logic.dowloadProPlan(vcDxny, vcFZGC[i], loginInfo.UserId);
-                    filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID);
-                    if (filepath == "")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导出生成文件失败";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = filepath;
+                    filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID, vcFZGC[i]);
+                }
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
             }
             catch (Exception ex)
             {

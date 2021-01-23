@@ -473,7 +473,7 @@ namespace SPPSApi.Controllers.G06
                 for (int i = 0; i < vcFZGC.Length; i++)
                 {
                     DataTable dt = fs0610_Logic.dowloadProPlan(vcDxny, vcFZGC[i], loginInfo.UserId);
-                    filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID, vcFZGC[i]);
+                    //filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID, vcFZGC[i]);
                 }
                 if (filepath == "")
                 {

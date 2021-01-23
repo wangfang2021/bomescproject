@@ -53,10 +53,10 @@ namespace Logic
 
         #region 更新平准化结果
         public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
-            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId)
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId,string strUnit)
         {
             fs0611_DataAccess.SaveResult(strCLYM, strDXYM, strNSYM, strNNSYM, strPlant,
-             arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, strUserId);
+             arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, strUserId,strUnit);
         }
         #endregion
 

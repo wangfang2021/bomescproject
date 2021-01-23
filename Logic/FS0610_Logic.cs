@@ -23,39 +23,60 @@ namespace Logic
         #endregion
 
         #region 取soq数据
-        public DataTable GetSoq(string strPlant, string strDXYM, string strType)
+        public DataTable GetSoq(string strPlant, string strYearMonth, string strType)
         {
-            return fs0610_DataAccess.GetSoq(strPlant, strDXYM, strType);
+            return fs0610_DataAccess.GetSoq(strPlant, strYearMonth, strType);
+        }
+        #endregion
+
+        #region 取soq数据-已合意
+        public DataTable GetSoqHy(string strPlant, string strYearMonth, string strType)
+        {
+            return fs0610_DataAccess.GetSoqHy(strPlant, strYearMonth, strType);
         }
         #endregion
 
         #region 更新平准化结果
         public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
-            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId)
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId,string strUnit)
         {
             fs0610_DataAccess.SaveResult(strCLYM, strDXYM, strNSYM, strNNSYM, strPlant,
-             arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, strUserId);
+             arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, strUserId,strUnit);
+        }
+        #endregion
+
+        #region 获取没有展开的数据
+        public DataTable getZhankaiData(bool isZhankai,List<string> plantList)
+        {
+            return fs0610_DataAccess.getZhankaiData(isZhankai, plantList);
         }
         #endregion
 
         #region 展开SOQReply
-        public int zk(string varDxny, string userId)
+        public int zk(string userId, List<string> plantList)
         {
-            return fs0610_DataAccess.zk(varDxny, userId);
+            return fs0610_DataAccess.zk(userId,plantList);
         }
         #endregion
 
         #region 下载SOQReply（检索内容）
-        public DataTable search(string varDxny)
+        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3,List<string> plantList)
         {
-            return fs0610_DataAccess.search(varDxny);
+            return fs0610_DataAccess.search(strYearMonth, strYearMonth_2, strYearMonth_3,plantList);
         }
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string varDxny)
+        public void importSave(DataTable dt, string strYearMonth, string strUserId)
         {
-            fs0610_DataAccess.importSave(dt, varDxny);
+            fs0610_DataAccess.importSave(dt, strYearMonth, strUserId);
+        }
+        #endregion
+
+        #region 获取没有展开的数据
+        public DataTable getZhankaiData(bool isZhankai,string strPlant)
+        {
+            return fs0610_DataAccess.getZhankaiData(isZhankai,strPlant);
         }
         #endregion
 

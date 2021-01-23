@@ -2074,6 +2074,7 @@ namespace DataAccess
 
         public DataTable getMonPackPlanTMPcur(string mon, string tablename, string plant)//获取临时表的值别计划
         {
+            mon = mon.Substring(0, 4) + "-" + mon.Substring(4, 2);
             DataTable dt = new DataTable();
             string tmpT = "";
             string tmpE = "";

@@ -60,6 +60,7 @@ namespace Logic
         #endregion
 
         #region 生产计划方法（王立伟）2020-01-21
+        #region 生成生产计划
         /// <summary>
         /// 生成生产计划
         /// </summary>
@@ -69,7 +70,6 @@ namespace Logic
         public string createProPlan(string vcDxny, string[] vcFZGC, string strUserId)
         {
             string msg = string.Empty;//方法返回消息
-
             this.Mon = Convert.ToInt32(vcDxny.Substring(4, 2));
             this.Year = Convert.ToInt32(vcDxny.Substring(0, 4));
             for (int k = 0; k < vcFZGC.Length; k++)
@@ -124,22 +124,37 @@ namespace Logic
                 {
                     return "生成计划失败！";
                 }
-
-                if (msg.Length == 0) //取得以上生成的临时表包装计划
-                {
-                    DataTable dt_temp = serchData(vcDxny, "Importpro", "", vcFZGC[k], "");
-                    Exception ex = new Exception();
-                    fs0610_DataAccess.updatePro(dt_temp, strUserId, vcDxny, ref ex, vcFZGC[k]);
-                    if (msg.Length > 0)
-                    {
-                        return msg;
-                    }
-                    msg = "计划生成成功！";
-                }
             }
-            return msg;
+            return "计划生成成功！";
         }
+        #endregion
 
+        #region 下载生产计划（王立伟）2020-01-23
+        public DataTable dowloadProPlan(string vcDxny, string vcFZGC, string strUserId)
+        {
+            try
+            {
+                DataTable tb = serchData(vcDxny, "Importpro", "", vcFZGC, "");
+                return tb;
+                //if (msg.Length == 0) //取得以上生成的临时表包装计划
+                //{
+
+                //    Exception ex = new Exception();
+                //    fs0610_DataAccess.updatePro(dt_temp, strUserId, vcDxny, ref ex, vcFZGC[k]);
+                //    if (msg.Length > 0)
+                //    {
+                //        return msg;
+                //    }
+                //    msg = "";
+                //}
+                //return msg;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
         #region 平准方法
         public static object lockflag = new object();
@@ -748,6 +763,7 @@ namespace Logic
         }
 
         #endregion
+
     }
 
     #region 平准分支

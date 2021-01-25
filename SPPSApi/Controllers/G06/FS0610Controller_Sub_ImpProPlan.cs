@@ -89,18 +89,18 @@ namespace SPPSApi.Controllers.G06
                             "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
                             },
                             {"","","","","","","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","","",""
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num
                              },
                             {"7","2","14","4","4","10","20","20","20","20","500","20","7","2","10",
                              "10","10","10","10","10","10","10","10","10","10",
@@ -145,7 +145,6 @@ namespace SPPSApi.Controllers.G06
                             "128","129","130","131","132","133","134","135","136","137","138","139"
                             }//前台显示列号，从0开始计算,注意有选择框的是0
                 };
-
                 string strMsg = "";
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -196,18 +195,25 @@ namespace SPPSApi.Controllers.G06
                 {
                     strMsg = fs0610_Logic.checkExcelData_Pro(ref importDt, vcMon, vcFZGC[i]);//校验数据
                     if (strMsg.Length > 0)
-                        break;
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
-                //
-                //dtre = dt;
-
-
-
-
-
-                //fs0610_Logic.importSave(importDt, strYearMonth, loginInfo.UserId);
+                Exception ex = new Exception();
+                for (int i = 0; i < vcFZGC.Length; i++)
+                {
+                    strMsg = fs0610_Logic.updatePro(importDt, loginInfo.UserId, vcMon, ref ex, vcFZGC[i]);
+                    if (strMsg.Length > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                apiResult.data = "上传生产计划成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

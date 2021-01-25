@@ -513,7 +513,7 @@ namespace DataAccess
                     string month = dt.Rows[i]["vcMonth"].ToString();
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
-                    cmd.CommandText = "  select iQuantityPerContainer from tPartInfoMaster where vcPartsno = '" + partsno + "' and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCarType + "' and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
+                    cmd.CommandText = "  select iQuantityPerContainer from tPartInfoMaster where vcPartsno= '" + partsno + "' and vcDock='" + vcDock + "' and vcCarFamilyCode='" + vcCarType + "' and dTimeFrom<= '" + month + "-01" + "' and dTimeTo>= '" + month + "-01" + "' ";
                     DataTable srsdt = new DataTable();
                     apt.Fill(srsdt);
                     cmd.CommandText = " select * from MonthProPlanTblTMP where montouch='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";

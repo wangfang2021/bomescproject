@@ -41,7 +41,7 @@ namespace DataAccess
                 }
 
 
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -89,7 +89,7 @@ namespace DataAccess
                 }
                 if (sql.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -134,7 +134,7 @@ namespace DataAccess
                 }
                 if (sql.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)

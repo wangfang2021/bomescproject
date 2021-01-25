@@ -32,7 +32,7 @@ namespace DataAccess
                 {
                     sbr.Append("  AND dTimeFrom<=GETDATE() AND dTimeTo>= GETDATE() \r\n");
                 }
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -66,7 +66,7 @@ namespace DataAccess
                         sbr.Append(" dOperatorTime = GETDATE() ");
                         sbr.Append(" WHERE iAuto_Id = '" + iAutoId + "' \r\n");
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)

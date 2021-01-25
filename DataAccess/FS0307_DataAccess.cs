@@ -79,7 +79,7 @@ namespace DataAccess
                 sbr.Append("             WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')  \r\n");
                 sbr.Append("      DROP TABLE #temp;  \r\n");
 
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -101,7 +101,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -165,7 +165,7 @@ namespace DataAccess
                     sbr.Append(" AND a.vcOriginCompany in (" + OriginCompany + ") \r\n");
                 }
 
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -196,7 +196,7 @@ namespace DataAccess
                 sbr.AppendLine("FROM TOldYearManager a");
                 sbr.AppendLine("     LEFT JOIN(SELECT vcName, vcValue FROM TCode WHERE vcCodeId='C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
                 sbr.AppendLine("WHERE a.iAuto_id IN (" + idList + ");");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -222,7 +222,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -294,7 +294,7 @@ namespace DataAccess
                 }
                 if (sql.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -344,7 +344,7 @@ namespace DataAccess
                 }
                 if (sql.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -375,7 +375,7 @@ namespace DataAccess
                 sbr.Append(" UPDATE TOldYearManager SET vcFinish = '3',dFinishYMD = GETDATE(),vcOperatorID = '" + strUserId + "',dOperatorTime = GETDATE() \r\n");
                 sbr.Append(" WHERE iAuto_id in ( " + id + " ) \r\n");
 
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -449,7 +449,7 @@ namespace DataAccess
 
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -467,7 +467,6 @@ namespace DataAccess
             catch (Exception ex)
             {
                 return "";
-                throw;
             }
         }
     }

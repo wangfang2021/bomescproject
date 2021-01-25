@@ -465,9 +465,9 @@ namespace SPPSApi.Controllers.G06
                     "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
                     "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
                     "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜",
-                    "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
-                    "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
-                    "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜"
+                    "1日白 ","1日夜 ","2日白 ","2日夜 ","3日白 ","3日夜 ","4日白 ","4日夜 ","5日白 ","5日夜 ","6日白 ","6日夜 ","7日白 ","7日夜 ","8日白 ","8日夜 ","9日白 ","9日夜 ","10日白 ","10日夜 ",
+                    "11日白 ","11日夜 ","12日白 ","12日夜 ","13日白 ","13日夜 ","14日白 ","14日夜 ","15日白 ","15日夜 ","16日白 ","16日夜 ","17日白 ","17日夜 ","18日白 ","18日夜 ","19日白 ","19日夜 ","20日白 ","20日夜 ",
+                    "21日白 ","21日夜 ","22日白 ","22日夜 ","23日白 ","23日夜 ","24日白 ","24日夜 ","25日白 ","25日夜 ","26日白 ","26日夜 ","27日白 ","27日夜 ","28日白 ","28日夜 ","29日白 ","29日夜 ","30日白 ","30日夜 ","31日白 ","31日夜 "
                 };
                 string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
                     "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
@@ -488,7 +488,8 @@ namespace SPPSApi.Controllers.G06
                     tbName += "#" + vcFZGC[i];
                 }
                 if (dt != null && dt.Rows.Count > 0)
-                    filepath += ComFunction.DataTableToExcel(heads, fields, dt, ".", tbName + "生产计划_", loginInfo.UserId, "", ref msg) + ";";
+                    filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID);
+                //filepath += ComFunction.DataTableToExcel(heads, fields, dt, ".", tbName + "生产计划_", loginInfo.UserId, "", ref msg) + ";";
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -496,7 +497,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath.Trim(';');
+                apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
             }

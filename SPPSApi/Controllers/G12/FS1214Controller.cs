@@ -97,6 +97,8 @@ namespace SPPSApi.Controllers.G12
             {
                 DataTable dt = logic.GetSearchAll(vcConstCode, vcData1, vcData2, vcData3);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

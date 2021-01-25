@@ -57,6 +57,13 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
+            if (dataForm.YearMonth == null || dataForm.YearMonth == "")
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请选择对象年月。";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+
             string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
             string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
             string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
@@ -81,7 +88,10 @@ namespace SPPSApi.Controllers.G04
                 }
 
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-                string[,] headers = new string[,] {{"品番", "", "", ""},
+                int iMonth_column = Convert.ToInt32(strYearMonth.Substring(4, 2));//对象月
+                int iMonth_2_column = Convert.ToInt32(strYearMonth_2.Substring(4, 2));//内示月
+                int iMonth_3_column = Convert.ToInt32(strYearMonth_3.Substring(4, 2));//内内示月
+                string[,] headers = new string[,] {{"品番", iMonth_column + "月", iMonth_2_column + "月", iMonth_3_column + "月"},
                                                 {"vcPart_id", "iCbSOQN", "iCbSOQN1", "iCbSOQN2"},
                                                 {FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
                                                 {"12","0","0","0"},//最大长度设定,不校验最大长度用0
@@ -216,6 +226,54 @@ namespace SPPSApi.Controllers.G04
                 return;
             }
         }
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportModuleApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            if(dataForm.YearMonth==null || dataForm.YearMonth=="")
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "请选择对象年月。";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+
+            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
+            string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
+            string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
+
+            try
+            {
+                string filepath = fs0402_Logic.generateExcelWithXlt_Module( _webHostEnvironment.ContentRootPath, "FS0402.xlsx", loginInfo.UserId, FunctionID, strYearMonth, strYearMonth_2, strYearMonth_3);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0205", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
     }
 }

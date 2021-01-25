@@ -33,7 +33,6 @@ namespace Logic
         {
             return dataAccess.GetDataName();
         }
-
         public DataTable GetSearchAll(string strDataName, string Data1, string Data2, string Data3)
         {
             return dataAccess.GetSearchAll(strDataName, Data1, Data2, Data3);

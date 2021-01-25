@@ -28,7 +28,7 @@ namespace DataAccess
                 }
 
                 sbr.Append(" ORDER BY dOperatorTime desc  \r\n");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception e)
             {
@@ -43,7 +43,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append("UPDATE TSBFile SET vcState = 1 WHERE vcState = 0 AND vcFileNameTJ = '" + fileName + "' \r\n");
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace DataAccess
                         sbr.Append(" UPDATE TSBFile SET vcRemark = '" + vcRemark + "' WHERE iAutoId = " + iAutoId + " \r\n");
 
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)

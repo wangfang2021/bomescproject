@@ -41,7 +41,7 @@ namespace DataAccess
                 sbr.AppendLine("SELECT vcSupplier_id,COUNT(*) AS total FROM #temp WHERE dNQDate < GETDATE() AND isnull(vcSQState,'') <> '2' GROUP BY vcSupplier_id");
                 sbr.AppendLine(") b ON a.vcSupplier_id = b.vcSupplier_id");
 
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {

@@ -49,7 +49,7 @@ namespace DataAccess
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
                 sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
 
 
 
@@ -215,7 +215,7 @@ namespace DataAccess
 
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
 
                 if (listInfoData.Count > 0)
@@ -594,7 +594,7 @@ namespace DataAccess
 
 
                 }
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 if (listInfoData.Count > 0)
                 {
                     int id = Convert.ToInt32(listInfoData[0]["iAutoId"]);
@@ -653,7 +653,7 @@ namespace DataAccess
                 sbr.AppendLine("WHERE iAutoId = " + id + "");
                 sbr.AppendLine(")");
             }
-            excute.ExcuteSqlWithStringOper(sbr.ToString());
+            excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
         }
 
 
@@ -667,7 +667,7 @@ namespace DataAccess
                 DataTable dt = new DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
-                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (dt.Rows[i]["vcName"].ToString().Equals(vcName))
@@ -691,7 +691,6 @@ namespace DataAccess
             catch (Exception ex)
             {
                 return "";
-                throw;
             }
         }
         #endregion
@@ -704,7 +703,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016'");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {

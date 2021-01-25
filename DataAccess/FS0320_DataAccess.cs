@@ -15,10 +15,10 @@ namespace DataAccess
             StringBuilder sbr = new StringBuilder();
             sbr.Append(" SELECT iAutoId,vcPart_id,vcPartNameEn,LEFT(vcPart_id,5) AS vcPart_id_short,vcPartNameCn,'0' as vcModFlag,'0' as vcAddFlag FROM Tunit \r\n ");
             sbr.Append(" WHERE 1=1 ");
-            
+
             //TODO 有效时间是否需要
             //sbr.Append(" AND dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
-            
+
             if (!string.IsNullOrWhiteSpace(vcPart_id))
             {
                 sbr.Append(" AND ISNULL(vcPart_id,'') LIKE '" + vcPart_id + "%' ");
@@ -37,7 +37,7 @@ namespace DataAccess
             }
             sbr.Append(" AND  vcChange IN(SELECT vcValue FROM Tcode WHERE vcCodeId = 'C002' AND vcName LIKE '%新设%') ");
 
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
 
         #region 保存
@@ -56,7 +56,7 @@ namespace DataAccess
                         sbr.Append(" UPDATE TUnit SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",dOperatorTime = GETDATE(),vcOperator = '" + strUserId + "' WHERE iAutoId = " + iAutoId + " \r\n");
 
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace DataAccess
                 }
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)

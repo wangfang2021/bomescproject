@@ -135,7 +135,7 @@ namespace DataAccess
 
                 if (sbr.Length > 0)
                 {
-                    return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                    return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
                 }
 
                 return null;

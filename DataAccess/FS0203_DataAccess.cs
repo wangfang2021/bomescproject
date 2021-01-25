@@ -29,7 +29,7 @@ namespace DataAccess
             }
 
             sbr.Append(" order by dOperatorTime desc \r\n");
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
 
 
@@ -54,21 +54,15 @@ namespace DataAccess
                     sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Id_Father,vcPart_Name,vcParent,vcFileName,dOperatorTime,vcOperatorID) VALUES \r\n");
                     sbr.Append(" ('" + vcCarType + "','" + vcUseLocation + "'," + iLV + ",'" + vcPart_Id.Replace("-", "") + "','" + vcFather.Trim().Replace("-", "") + "','" + vcPart_Name + "','" + vcParent + "','" + fileName + "',GETDATE(),'" + userId + "') \r\n");
 
-                    if (i % 1000 == 0)
-                    {
-                        excute.ExcuteSqlWithStringOper(sbr.ToString());
-                        sbr.Length = 0;
-                    }
-                }
-                if (sbr.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
                 }
 
-                StringBuilder sbrList = new StringBuilder();
-                sbrList.Append(" INSERT INTO TPartHistory (vcFileName,vcOperatorID,dOperatorTime,vcType) VALUES \r\n");
-                sbrList.Append(" ('" + fileName + "','" + userId + "',GETDATE(),0 ) \r\n");
-                excute.ExcuteSqlWithStringOper(sbrList.ToString());
+                sbr.Append(" INSERT INTO TPartHistory (vcFileName,vcOperatorID,dOperatorTime,vcType) VALUES \r\n");
+                sbr.Append(" ('" + fileName + "','" + userId + "',GETDATE(),0 ) \r\n");
+
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                }
             }
             catch (Exception ex)
             {
@@ -215,12 +209,6 @@ namespace DataAccess
                     sbr.Append(" ) \r\n");
                 }
 
-                if (sbr.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
-                }
-
-                sbr.Length = 0;
                 sbr.Append(" INSERT INTO TSPIHistory (vcFileName,vcRemark,vcType,vcOperatorID,dOperatorTime) \r\n");
                 sbr.Append(" values ( \r\n");
                 sbr.Append(" '" + fileName + "',");
@@ -229,19 +217,16 @@ namespace DataAccess
                 sbr.Append("'" + userId + "',");
                 sbr.Append(" GETDATE() ) \r\n");
 
-                if (sbr.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
-                }
-
-                sbr.Length = 0;
                 sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcRemark,vcOperatorId,dOperatorTime) \r\n");
                 sbr.Append(" values ( \r\n");
                 sbr.Append(" '" + FileNameTJ + "','0','','" + userId + "',GETDATE()) \r\n ");
+
+
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
+
             }
             catch (Exception ex)
             {

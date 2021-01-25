@@ -12,7 +12,6 @@ namespace DataAccess
     public class FS1214_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-
         public string SFXchanged(string value)
         {
             if (value == "") return "0";

@@ -244,7 +244,7 @@ namespace DataAccess
                 sbr.Append(" AND vcUseLocation IN (SELECT DISTINCT vcUseLocation FROM TPartList WHERE vcPart_Id = '" + vcPart_Id + "' ) \r\n");
                 sbr.Append(" ORDER BY vcUseLocation,iAutoId \r\n");
 
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
                 List<FatherNode> list = new List<FatherNode>();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -621,7 +621,7 @@ namespace DataAccess
             sbr.AppendLine(" WHERE iAutoId = " + id);
             sbr.AppendLine(" )");
 
-            DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             List<string> list = new List<string>();
             for (int j = 0; j < dt.Rows.Count; j++)
             {

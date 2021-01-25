@@ -55,10 +55,8 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            DateTime dNow = DateTime.Now.AddMonths(1);
-            string strYearMonth = dNow.ToString("yyyyMM");
-
+            string vcMon = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+            string[] vcFZGC = dataForm.vcFZGC.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
@@ -78,9 +76,9 @@ namespace SPPSApi.Controllers.G06
                             "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
                             "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
                             "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜",
-                            "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
-                            "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
-                            "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜"},
+                            "1日白 ","1日夜 ","2日白 ","2日夜 ","3日白 ","3日夜 ","4日白 ","4日夜 ","5日白 ","5日夜 ","6日白 ","6日夜 ","7日白 ","7日夜 ","8日白 ","8日夜 ","9日白 ","9日夜 ","10日白 ","10日夜 ",
+                            "11日白 ","11日夜 ","12日白 ","12日夜 ","13日白 ","13日夜 ","14日白 ","14日夜 ","15日白 ","15日夜 ","16日白 ","16日夜 ","17日白 ","17日夜 ","18日白 ","18日夜 ","19日白 ","19日夜 ","20日白 ","20日夜 ",
+                            "21日白 ","21日夜 ","22日白 ","22日夜 ","23日白 ","23日夜 ","24日白 ","24日夜 ","25日白 ","25日夜 ","26日白 ","26日夜 ","27日白 ","27日夜 ","28日白 ","28日夜 ","29日白 ","29日夜 ","30日白 ","30日夜 ","31日白 ","31日夜 "},
                            {"vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
                             "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
                             "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y","TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y",
@@ -90,21 +88,21 @@ namespace SPPSApi.Controllers.G06
                             "ED11b","ED11y","ED12b","ED12y","ED13b","ED13y","ED14b","ED14y","ED15b","ED15y","ED16b","ED16y","ED17b","ED17y","ED18b","ED18y","ED19b","ED19y","ED20b","ED20y",
                             "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
                             },
-                            {"","","","","","","","","","","","","","",FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                            {"","","","","","","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","",
+                             "","","","","","","","","","","",""
                              },
-                            {"7","2","12","4","4","10","20","20","20","20","500","20","7","2","10",
+                            {"7","2","14","4","4","10","20","20","20","20","500","20","7","2","10",
                              "10","10","10","10","10","10","10","10","10","10",
                              "10","10","10","10","10","10","10","10","10","10",
                              "10","10","10","10","10","10","10","10","10","10",
@@ -118,19 +116,19 @@ namespace SPPSApi.Controllers.G06
                              "10","10","10","10","10","10","10","10","10","10",
                              "10","10","10","10","10","10","10","10","10","10","10","10"
                             },//最大长度设定,不校验最大长度用0
-                            {"7","2","12","4","4","10","20","20","20","20","500","20","7","2","10",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","","","",
-                              "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","",
-                             "","","","","","","","","","","",""
+                            {"7","2","0","0","0","0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0",
+                             "0","0","0","0","0","0","0","0","0","0","0","0"
                             },//最小长度设定,可以为空用0
                             {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
                             "16","17","18","19","20","21","22","23","24","25",
@@ -177,7 +175,7 @@ namespace SPPSApi.Controllers.G06
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPart_id") } into g
+                             group r by new { r2 = r.Field<string>("vcMonth"), r3 = r.Field<string>("vcPlant"), r4 = r.Field<string>("vcPartsno"), r5 = r.Field<string>("vcDock") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -186,41 +184,28 @@ namespace SPPSApi.Controllers.G06
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r2 + "<br/>");
+                        sbr.Append("对象月:" + item.Key.r2 + "工厂:" + item.Key.r2 + "品番:" + item.Key.r2 + "受入:" + item.Key.r2 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                //验证修改后每日平准箱数是否跟总箱数一致
-                StringBuilder errPart = new StringBuilder();
-                for (int i = 0; i < importDt.Rows.Count; i++)
+                fs0610_Logic.TranColName(ref importDt);
+                fs0610_Logic.PartsNoFomatTo12(ref importDt);//2013-4-18 10位品番后两位加00
+                for (int i = 0; i < vcFZGC.Length; i++)
                 {
-                    string strPart_id = importDt.Rows[i]["vcPart_id"].ToString();
-                    string strTemp = importDt.Rows[i]["iBoxes"] == System.DBNull.Value ? "" : importDt.Rows[i]["iBoxes"].ToString();
-                    int iBoxes = strTemp.Trim() == "" ? 0 : Convert.ToInt32(strTemp.Trim());
-                    int iCheck = 0;
-                    for (int j = 1; j < 32; j++)
-                    {
-                        string strIDTemp = importDt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : importDt.Rows[i]["iD" + j].ToString();
-                        int iD = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim());
-                        iCheck = iCheck + iD;
-                    }
-                    if (iBoxes != iCheck)
-                        errPart.Append(strPart_id + ",");
+                    strMsg = fs0610_Logic.checkExcelData_Pro(ref importDt, vcMon, vcFZGC[i]);//校验数据
+                    if (strMsg.Length > 0)
+                        break;
                 }
-                if (errPart.Length > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("以下品番修改后每日平准箱数跟总箱数不一致:<br/>");
-                    sbr.Append(errPart);
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //
+                //dtre = dt;
 
-                fs0610_Logic.importSave(importDt, strYearMonth, loginInfo.UserId);
+
+
+
+
+                //fs0610_Logic.importSave(importDt, strYearMonth, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

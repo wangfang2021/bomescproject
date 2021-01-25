@@ -71,6 +71,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dOldProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dNewProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy/MM/dd");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -250,7 +251,8 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0302_logic.SearchApi(fileName);
                 string resMsg = "";
-                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
+                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime" };
+                //string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0302.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

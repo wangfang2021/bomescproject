@@ -24,7 +24,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrWhiteSpace(dOperatorTime))
                 {
-                    sbr.Append(" AND dOperatorTime = '" + dOperatorTime + "' \r\n");
+                    sbr.Append(" AND Convert(varchar(10),dOperatorTime,120) = '" + dOperatorTime + "' \r\n");
                 }
 
                 sbr.Append(" ORDER BY dOperatorTime desc  \r\n");

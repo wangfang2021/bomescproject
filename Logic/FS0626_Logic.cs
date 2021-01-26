@@ -55,5 +55,12 @@ namespace Logic
             fs0626_DataAccess.Del(listInfoData, strUserId);
         }
         #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0626_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
     }
 }

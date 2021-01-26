@@ -37,5 +37,23 @@ namespace Logic
         {
             return dataAccess.GetSearchAll(strDataName, Data1, Data2, Data3);
         }
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            dataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
+        public string SFXchanged(string value)
+        {
+            return dataAccess.SFXchanged(value);
+        }
     }
 }

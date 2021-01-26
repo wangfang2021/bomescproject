@@ -43,5 +43,10 @@ namespace Logic
         {
             return fs0626_DataAccess.bindInjectionFactory();
         }
+
+        public DataTable bindplant()
+        {
+            return fs0626_DataAccess.bindplant();
+        }
     }
 }

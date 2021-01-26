@@ -48,16 +48,15 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-
-                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea], [vcDock],    ");
-                strSql.AppendLine("  [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber], [vcNoReceiveNumber], [vcNoReceiveReason],   ");
-                strSql.AppendLine("  [vcExpectRedeemDate], [vcRealRedeemDate], [vcReceiveFlag], [vcOperatorID], [dOperatorTime],1 as vcFlag    ");
-                strSql.AppendLine("  from [dbo].[TOutsidePurchaseManage] where 1=1   ");
-                strSql.AppendLine("     ");
+                strSql.AppendLine(" select [iAutoId], [vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea], [vcDock], ");
+                strSql.AppendLine(" [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber], [vcNoReceiveNumber], [vcNoReceiveReason], ");
+                strSql.AppendLine(" [vcExpectRedeemDate], [vcRealRedeemDate], [vcReceiveFlag], [vcOperatorID], [dOperatorTime],1 as vcFlag  ");
+                strSql.AppendLine(" from TOutsidePurchaseManage ");
+                strSql.AppendLine(" where 1=1 ");
 
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcInjectionFactory = '" + vcInjectionFactory + "' ");
+                    strSql.AppendLine("  and vcInjectionFactory in (select vcData2 from ConstMst where vcDataID='KBPlant' and vcData1= '" + vcInjectionFactory + "') ");
                 }
                 if (vcTargetMonth.Length > 0)
                 {
@@ -87,7 +86,6 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  vcReceiveFlag = '" + vcReceiveFlag + "' ");
                 }
-
                 strSql.AppendLine("  order by  dOperatorTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -218,6 +216,12 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+
+        public DataTable bindplant()
+        {
+            string ssql = " select '' as vcCodeName,'' as vcCodeId union all select distinct vcData2,vcData1 from ConstMst where vcDataID='KBPlant' ";
+            return excute.ExcuteSqlWithSelectToDT(ssql);
         }
     }
 }

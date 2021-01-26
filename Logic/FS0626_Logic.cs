@@ -48,5 +48,12 @@ namespace Logic
         {
             return fs0626_DataAccess.bindplant();
         }
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0626_DataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
     }
 }

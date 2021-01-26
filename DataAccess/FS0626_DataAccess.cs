@@ -50,7 +50,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" select [iAutoId], [vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea], [vcDock], ");
                 strSql.AppendLine(" [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber], [vcNoReceiveNumber], [vcNoReceiveReason], ");
-                strSql.AppendLine(" [vcExpectRedeemDate], [vcRealRedeemDate], [vcReceiveFlag], [vcOperatorID], [dOperatorTime],1 as vcFlag  ");
+                strSql.AppendLine(" [vcExpectRedeemDate], [vcRealRedeemDate], [vcReceiveFlag], [vcOperatorID], [dOperatorTime],1 as vcFlag, '0'as iflag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId  ");
                 strSql.AppendLine(" from TOutsidePurchaseManage ");
                 strSql.AppendLine(" where 1=1 ");
 
@@ -113,26 +113,32 @@ namespace DataAccess
             }
         }
 
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        /// <param name="dtdel"></param>
-        /// <param name="userId"></param>
-        public void Del(DataTable dtdel, string userId)
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            StringBuilder sql = new StringBuilder();
-            for (int i = 0; i < dtdel.Rows.Count; i++)
+            try
             {
-                DataRow dr = dtdel.Rows[i];
-                sql.Append("delete from [TSpecialSupplier]  \n");
-                sql.Append("where vcSupplier_id='" + dr["vcSupplier_id"].ToString() + "'  and vcWorkArea='" + dr["vcWorkArea"].ToString() + "' \n");
-
-            }
-            if (sql.Length > 0)
-            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM TOutsidePurchaseManage where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+        #endregion
+
+
+
         /// <summary>
         /// 保存
         /// </summary>

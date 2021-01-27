@@ -71,7 +71,7 @@ namespace DataAccess
                     string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
                     //修改变更事项
                     string vcChange = dt.Rows[i]["vcChange"].ToString();
-                    vcChange = getChangString(ChangeList, vcChange);
+                    //vcChange = getChangString(ChangeList, vcChange);
                     //
                     string vcOldProj = dt.Rows[i]["vcOldProj"].ToString();
                     string vcOldProjTime = dt.Rows[i]["vcOldProjTime"].ToString();
@@ -135,6 +135,10 @@ namespace DataAccess
                     string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
                     string vcChange = dt.Rows[i]["vcChange"].ToString();
+                    if (vcChange.Contains("/"))
+                    {
+                        vcChange = vcChange.Substring(0, vcChange.IndexOf('/'));
+                    }
                     //string vcChange = getChangString(change, dt.Rows[i]["vcChange"].ToString());
                     string vcBJDiff = dt.Rows[i]["vcBJDiff"].ToString();
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
@@ -163,7 +167,7 @@ namespace DataAccess
                     }
                     string[] tmp = getOrigin(vcPartId);
                     sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType,vcDiff,vcOriginCompany) values ");
-                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "',0,'" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE(),'0','" + tmp[1] + "','" + tmp[0] + "' ) \r\n");
+                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "','','" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE(),'0','" + tmp[1] + "','" + tmp[0] + "' ) \r\n");
 
                     fileList.Add(vcFileNameTJ);
                 }

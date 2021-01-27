@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Common;
 
@@ -170,24 +171,87 @@ namespace DataAccess
 
         #endregion
 
+        //public void importSPRL(DataTable dt, string fileName, string userId)
+        //{
+        //    try
+        //    {
+        //        StringBuilder sbr = new StringBuilder();
+        //        string carType = fileName.Substring(0, 4);
+        //        string vcPlant = "";
+        //        for (int i = 0; i < dt.Rows.Count; i++)
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(dt.Rows[i]["vcPlant"].ToString()))
+        //            {
+        //                vcPlant = dt.Rows[i]["vcPlant"].ToString();
+        //                break;
+        //            }
+        //        }
+        //        string FileNameTJ = vcPlant + "_" + "SPRL" + "_" + carType;
+        //        for (int i = 0; i < dt.Rows.Count; i++)
+        //        {
+        //            sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType,vcDiff) \r\n");
+        //            sbr.Append(" values ( \r\n");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"].ToString().Trim(), false) + ",");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_new"].ToString().Replace("-", "").Trim(), false) + ",");
+        //            sbr.Append("'',");
+        //            sbr.Append("'" + carType + "',");
+        //            sbr.Append("'新车新设',");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcBJDiff"].ToString().Trim(), false) + ",");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPartName"].ToString().Trim(), false) + ",");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("*", "").Replace("/", "").Trim(), false) + ",");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"].ToString().Trim(), false) + ",");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"].ToString().Trim(), false) + ",");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcNewProj"].ToString().Trim(), false) + ",");
+        //            sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("**", "/01").Replace("/", "").Trim(), true) + ",");
+        //            sbr.Append("'" + fileName + "',");
+        //            sbr.Append("'" + FileNameTJ + "',");
+        //            sbr.Append("'" + userId + "',");
+        //            sbr.Append(" GETDATE(),'1','2'");
+        //            sbr.Append(" ) \r\n");
+        //        }
+
+        //        sbr.Append(" INSERT INTO TSPIHistory (vcFileName,vcRemark,vcType,vcOperatorID,dOperatorTime) \r\n");
+        //        sbr.Append(" values ( \r\n");
+        //        sbr.Append(" '" + fileName + "',");
+        //        sbr.Append("'',");
+        //        sbr.Append("'1',");
+        //        sbr.Append("'" + userId + "',");
+        //        sbr.Append(" GETDATE() ) \r\n");
+
+        //        sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcRemark,vcOperatorId,dOperatorTime) \r\n");
+        //        sbr.Append(" values ( \r\n");
+        //        sbr.Append(" '" + FileNameTJ + "','0','','" + userId + "',GETDATE()) \r\n ");
+
+
+        //        if (sbr.Length > 0)
+        //        {
+        //            excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
         public void importSPRL(DataTable dt, string fileName, string userId)
+
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
                 string carType = fileName.Substring(0, 4);
                 string vcPlant = "";
+                List<string> FileNameTJs = new List<string>();
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (!string.IsNullOrWhiteSpace(dt.Rows[i]["vcPlant"].ToString()))
                     {
                         vcPlant = dt.Rows[i]["vcPlant"].ToString();
-                        break;
                     }
-                }
-                string FileNameTJ = vcPlant + "_" + "SPRL" + "_" + carType;
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
+                    string FileNameTJ = vcPlant + "_" + "SPRL" + "_" + carType;
                     sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType,vcDiff) \r\n");
                     sbr.Append(" values ( \r\n");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"].ToString().Trim(), false) + ",");
@@ -207,6 +271,20 @@ namespace DataAccess
                     sbr.Append("'" + userId + "',");
                     sbr.Append(" GETDATE(),'1','2'");
                     sbr.Append(" ) \r\n");
+
+
+                    FileNameTJs.Add(FileNameTJ);
+                    FileNameTJs = FileNameTJs.Distinct().ToList();
+                }
+
+
+                for (int i = 0; i < FileNameTJs.Count; i++)
+                {
+                    sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcRemark,vcOperatorId,dOperatorTime) \r\n");
+
+                    sbr.Append(" values ( \r\n");
+
+                    sbr.Append(" '" + FileNameTJs[i] + "','0','','" + userId + "',GETDATE()) \r\n ");
                 }
 
                 sbr.Append(" INSERT INTO TSPIHistory (vcFileName,vcRemark,vcType,vcOperatorID,dOperatorTime) \r\n");
@@ -216,22 +294,21 @@ namespace DataAccess
                 sbr.Append("'1',");
                 sbr.Append("'" + userId + "',");
                 sbr.Append(" GETDATE() ) \r\n");
-
-                sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcRemark,vcOperatorId,dOperatorTime) \r\n");
-                sbr.Append(" values ( \r\n");
-                sbr.Append(" '" + FileNameTJ + "','0','','" + userId + "',GETDATE()) \r\n ");
-
-
                 if (sbr.Length > 0)
                 {
                     excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
 
             }
+
             catch (Exception ex)
+
             {
+
                 throw ex;
+
             }
+
         }
     }
 }

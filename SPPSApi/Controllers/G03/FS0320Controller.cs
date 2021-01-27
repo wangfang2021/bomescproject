@@ -49,7 +49,7 @@ namespace SPPSApi.Controllers.G03
             string vcPartNameCn = dataForm.vcPartNameCn == null ? "" : dataForm.vcPartNameCn;
             try
             {
-                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn, loginInfo.UnitCode);
+                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn);
 
 
                 DtConverter dtConverter = new DtConverter();
@@ -171,7 +171,7 @@ namespace SPPSApi.Controllers.G03
             string vcPartNameCn = dataForm.vcPartNameCn == null ? "" : dataForm.vcPartNameCn;
             try
             {
-                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn, loginInfo.UnitCode);
+                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn);
                 string resMsg = "";
                 string[] head = { "品番", "英文品名", "品番前五位", "中文品名" };
                 string[] fields = { "vcPart_id", "vcPartNameEn", "vcPart_id_short", "vcPartNameCn" };
@@ -196,5 +196,6 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
+
     }
 }

@@ -53,9 +53,9 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//内外区分
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 
-                res.Add("C002", dataList_C002);
+                res.Add("C003", dataList_C003);
                 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

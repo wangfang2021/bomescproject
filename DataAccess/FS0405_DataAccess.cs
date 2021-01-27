@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strDXDateMonth, string strFileName, string strInOutFlag, string strState)
+        public DataTable Search(string strDXDateMonth, string strInOutFlag, string strState)
         {
             try
             {
@@ -30,10 +30,6 @@ namespace DataAccess
                 if (!string.IsNullOrEmpty(strDXDateMonth))
                 {
                     strSql.Append("     and vcDXYM = '"+strDXDateMonth+"'    \n");
-                }
-                if (!string.IsNullOrEmpty(strFileName))
-                {
-                    strSql.Append("         \n");
                 }
                 if (!string.IsNullOrEmpty(strInOutFlag))
                 {

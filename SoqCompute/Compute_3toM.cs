@@ -12,30 +12,61 @@ namespace SoqCompute
 		//平准3箱~稼动日主方法							
 		public void pinZhun_3toM(ref ArrayList beginData, DataTable dtCalendar)
 		{
-			int iWeekLength = getMaxWeek(dtCalendar);//剩余还有多少周要处理							
-			pinZhun_3_Sub("1", ref beginData,dtCalendar, ref iWeekLength);
-			pinZhun_3_Sub("3", ref beginData,dtCalendar, ref iWeekLength);
-			pinZhun_3_Sub("5", ref beginData,dtCalendar, ref iWeekLength);
-			pinZhun_3_Sub("2", ref beginData,dtCalendar, ref iWeekLength);
-			pinZhun_3_Sub("4", ref beginData,dtCalendar, ref iWeekLength);
-		}
-		//平准3箱到稼动日子方法							
-		public void pinZhun_3_Sub(string strNowDealWeek, ref ArrayList beginData, DataTable dtCalendar, ref int iWeekLength)
-		{
-			bool halfFlag = false;//半值处理标记，遍历第一次设定false(数据不处理)，如果true才处理数据，处理完设定false						
-			int iStartDay = -1;
-			int iEndDay = -1;
-			getMaxWeek(dtCalendar, strNowDealWeek, ref iStartDay, ref iEndDay);//获取指定周工作日区间范围						
-			if (iStartDay == -1)//没找到，证明没有，比如第5周						
-				return;
-			int iPositionDay = -1;//记录当前分配日期游标						
+			Hashtable hash = new Hashtable();//记录每周的最后游标和半值处理标记
+			int iWeekLength = getMaxWeek(dtCalendar);//剩余还有多少周要处理
+			int iWeekLength_cursor = iWeekLength;
+			string strNowDealWeek = "1";//从第一周开始
 			for (int i = 0; i < beginData.Count; i++)
 			{
+				int iStartDay = -1;
+				int iEndDay = -1;
+				int iPositionDay = -1;//记录当前分配日期游标	
+				bool halfFlag = false;//半值处理标记，遍历第一次设定false(数据不处理)，如果true才处理数据，处理完设定false		
+				getMaxWeek(dtCalendar, strNowDealWeek, ref iStartDay, ref iEndDay);//获取指定周工作日区间范围						
+				if (iStartDay == -1)//没找到，证明没有，比如第5周，此时周数++，但是品番不能变					
+				{
+					switch (strNowDealWeek)
+					{
+						case "1": strNowDealWeek = "3"; break;
+						case "3": strNowDealWeek = "5"; break;
+						case "5": strNowDealWeek = "2"; break;
+						case "2": strNowDealWeek = "4"; break;
+						case "4": strNowDealWeek = "1"; break;
+					}
+					i--;
+					continue;
+				}
+				if (hash[strNowDealWeek] != null)
+				{
+					iPositionDay = (int)hash[strNowDealWeek];//最有天数游标
+					halfFlag = (bool)hash[strNowDealWeek + "halfFlag"];//最后半值游标
+				}
+
 				string[] temp = (string[])beginData[i];
-				pingZhunPart(ref temp, dtCalendar, ref halfFlag, iWeekLength, iStartDay, iEndDay, ref iPositionDay);
+				pingZhunPart(ref temp, dtCalendar, ref halfFlag, iWeekLength_cursor, iStartDay, iEndDay, ref iPositionDay);
+				hash[strNowDealWeek] = iPositionDay;//最有天数游标
+				hash[strNowDealWeek + "halfFlag"] = halfFlag;//最后半值游标
+				switch (strNowDealWeek)
+				{
+					case "1": strNowDealWeek = "3"; break;
+					case "3": strNowDealWeek = "5"; break;
+					case "5": strNowDealWeek = "2"; break;
+					case "2": strNowDealWeek = "4"; break;
+					case "4": strNowDealWeek = "1"; break;
+				}
+				int iBox_Last_PZ = Convert.ToInt32(temp[35]);//剩余需要平准化的箱数		
+				if (iBox_Last_PZ > 0)//当前品番没分配完，继续下周分配
+				{
+					i--;
+					iWeekLength_cursor--;
+				}
+				else//分完了，下一个品番
+				{
+					iWeekLength_cursor = iWeekLength;//处理周数还原
+				}
 			}
-			iWeekLength--;
 		}
+ 
 
 		//平准一个品番，按照制定日期时间范围、起始日期进行每日分配，如果分配到最后一天没分完，则从第一个天数分配,iPositionDay=下一个要分配的天数							
 		public void pingZhunPart(ref string[] temp, DataTable dtCalendar, ref bool halfFlag, int iWeekLength, int iStartDay, int iEndDay, ref int iPositionDay)

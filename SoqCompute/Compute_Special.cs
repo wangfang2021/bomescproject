@@ -42,7 +42,7 @@ namespace SoqCompute
                 //合计稼动日计算decTotalWorkDays			
                 ArrayList beginData_temp = new ArrayList();
                 beginData_temp.Add(temp);
-                compute_MtoMax.pinZhun_MtoMax(ref beginData_temp, dtCalendar_temp, decTotalWorkDays, strSpecial);//计算并设定特别处理			
+                compute_MtoMax.pinZhun_MtoMax(ref beginData_temp, dtCalendar_temp, decTotalWorkDays, strSpecial, beginData);//计算并设定特别处理			
                 beginData.AddRange(beginData_temp);
             }
         }

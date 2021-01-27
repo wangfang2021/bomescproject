@@ -76,7 +76,7 @@ namespace SoqCompute
 
 
 		//返回某周分配总数最少的一天，如果有多个天都是最小的，应该按照从左到右返回第一天		
-		public int getWeekMinDay(DataTable dtCalendar, string week, ArrayList beginData)
+		public int getWeekMinDay(DataTable dtCalendar, string week, ArrayList beginData, ArrayList beforeTotalList)
 		{
 			int iStartDay = -1;
 			int iEndDay = -1;
@@ -84,7 +84,23 @@ namespace SoqCompute
 			if (iStartDay == -1)
 				return -1;//没找到		
 			Hashtable hash = new Hashtable();
-
+			for (int i = 0; i < beforeTotalList.Count; i++)//遍历处理 [3~稼动日/特殊厂家] "之前" 的订单总数
+			{
+				string[] temp = (string[])beforeTotalList[i];
+				for (int j = iStartDay; j <= iEndDay; j++)//遍历当前周日期范围	
+				{
+					string strNowDay = dtCalendar.Rows[0]["TARGETDAY" + j] == System.DBNull.Value ? "0" : dtCalendar.Rows[0]["TARGETDAY" + j].ToString();
+					int iBox = Convert.ToInt32(temp[j + 3]);//这个地方+3，因为i从1开始，且稼动日左边有4个位置存其他信息	
+					int iQuantityPercontainer = Convert.ToInt32(temp[2]);//收容数
+					if (strNowDay.IndexOf('*') != -1)
+						iBox = iBox * 2;
+					//以下存储要匹配收容数，最后按照订单数进行比较
+					if (hash[j] == null)
+						hash[j] = iBox * iQuantityPercontainer;
+					else
+						hash[j] = Convert.ToInt32(hash[j]) + iBox * iQuantityPercontainer;
+				}
+			}
 			for (int i = 0; i < beginData.Count; i++)
 			{
 				string[] temp = (string[])beginData[i];
@@ -92,12 +108,14 @@ namespace SoqCompute
 				{
 					string strNowDay = dtCalendar.Rows[0]["TARGETDAY" + j] == System.DBNull.Value ? "0" : dtCalendar.Rows[0]["TARGETDAY" + j].ToString();
 					int iBox = Convert.ToInt32(temp[j + 3]);//这个地方+3，因为i从1开始，且稼动日左边有4个位置存其他信息	
+					int iQuantityPercontainer = Convert.ToInt32(temp[2]);//收容数
 					if (strNowDay.IndexOf('*') != -1)
 						iBox = iBox * 2;
+					//以下存储要匹配收容数，最后按照订单数进行比较
 					if (hash[j] == null)
-						hash[j] = iBox;
+						hash[j] = iBox* iQuantityPercontainer;
 					else
-						hash[j] = Convert.ToInt32(hash[j]) + iBox;
+						hash[j] = Convert.ToInt32(hash[j]) + iBox* iQuantityPercontainer;
 				}
 			}
 			int max = 999999999;

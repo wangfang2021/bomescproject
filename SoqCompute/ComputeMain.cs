@@ -35,21 +35,24 @@ namespace SoqCompute
             getBeginData(dtSoq, decTotalWorkDays, ref beginData_1, ref beginData_2, ref beginData_3, ref beginData_4);
             ArrayList result = new ArrayList();//1箱处理数据											
             compute_1.pinZhun_1(ref beginData_1, dtCalendar, decTotalWorkDays);
-            compute_2.pinZhun_2(ref beginData_2, dtCalendar, decTotalWorkDays);
-            compute_3toM.pinZhun_3toM(ref beginData_3, dtCalendar);
-            compute_MtoMax.pinZhun_MtoMax(ref beginData_4, dtCalendar, decTotalWorkDays, null);
-
-            if(beginData_1.Count>0)
+            if (beginData_1.Count > 0)
                 result.AddRange(beginData_1);
+
+            compute_2.pinZhun_2(ref beginData_2, dtCalendar, decTotalWorkDays);
             if (beginData_2.Count > 0)
                 result.AddRange(beginData_2);
+
+            compute_3toM.pinZhun_3toM(ref beginData_3, dtCalendar);
             if (beginData_3.Count > 0)
                 result.AddRange(beginData_3);
+
+            compute_MtoMax.pinZhun_MtoMax(ref beginData_4, dtCalendar, decTotalWorkDays, null, result);
             if (beginData_4.Count > 0)
                 result.AddRange(beginData_4);
 
             if (dtSpecialSupplier!=null&& dtSpecialSupplier.Rows.Count>0)
                 compute_SpecialSupplier.pinZhun_SpecialSupplier(ref result, dtCalendar, dtSpecialSupplier);//特殊厂家处理，注意跟品番先后顺序，先厂家，再品番
+            
             if (dtSpecialPart != null && dtSpecialPart.Rows.Count > 0)
                 compute_SpecialPart.pinZhun_SpecialPart(ref result, dtCalendar, dtSpecialPart);//特殊品番处理
 
@@ -81,11 +84,11 @@ namespace SoqCompute
                 {
                     beginData_2.Add(temp);
                 }
-                else if (iBox >= 3 && iBox <= decTotalWorkDays)
+                else if (iBox >= 3 && iBox < decTotalWorkDays)//这块参考老系统算法，等于稼动日的不算这个区间
                 {
                     beginData_3.Add(temp);
                 }
-                else if (iBox > decTotalWorkDays)
+                else if (iBox >= decTotalWorkDays)
                 {
                     beginData_4.Add(temp);
                 }

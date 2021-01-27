@@ -130,5 +130,25 @@ namespace Logic
             return fs0309_DataAccess.test10W();
         }
         #endregion
+
+        #region 销售展开（根据检索条件）
+        public int sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+            , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
+            , string strReceiver, string strPriceState,ref string strErr
+            )
+        {
+            return fs0309_DataAccess.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu
+            , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
+            , strReceiver, strPriceState, ref strErr);
+        }
+        #endregion
+
+        #region 销售展开（根据所选）
+        public void sendMail(List<Dictionary<string,object>> listInfoData, ref string strErr)
+        {
+            fs0309_DataAccess.sendMail(listInfoData, ref strErr);
+        }
+        #endregion
+
     }
 }

@@ -415,13 +415,41 @@ namespace SPPSApi.Controllers.G03
                 Object multipleSelection=dataForm.multipleSelection;
                 if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
                 {
-
-
+                    string strChange = dataForm.Change;
+                    string strPart_id = dataForm.Part_id;
+                    string strOriginCompany = dataForm.OriginCompany;
+                    string strHaoJiu = dataForm.HaoJiu;
+                    string strProjectType = dataForm.ProjectType;
+                    if (loginInfo.Special == "财务用户")
+                        strProjectType = "内制";
+                    string strPriceChangeInfo = dataForm.PriceChangeInfo;
+                    string strCarTypeDev = dataForm.CarTypeDev;
+                    string strSupplier_id = dataForm.Supplier_id;
+                    string strReceiver = dataForm.Receiver;
+                    string strPriceState = dataForm.PriceState;
+                    string strErr = "";
+                    var temp = fs0309_Logic.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu, strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id, strReceiver, strPriceState, ref strErr);
+                    if (strErr!="")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErr;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 else
-                { 
-                    
-                    
+                {
+                    JArray checkedInfo = dataForm.multipleSelection;
+                    List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                    string strErr = "";
+                    string strAutoId = dataForm.iAutoId;
+                    fs0309_Logic.sendMail(listInfoData,ref strErr);
+                    if (strErr!="")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErr;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 //发送邮件
                 //发件人邮箱，对方邮箱，邮件标题、内容、附件需要确认

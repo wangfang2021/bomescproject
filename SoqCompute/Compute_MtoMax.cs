@@ -9,7 +9,7 @@ namespace SoqCompute
     public class Compute_MtoMax : ComputeBase
 	{
 		//平准大于稼动日主方法	
-		public void pinZhun_MtoMax(ref ArrayList beginData, DataTable dtCalendar, decimal decTotalWorkDays, string strSpecial)
+		public void pinZhun_MtoMax(ref ArrayList beginData, DataTable dtCalendar, decimal decTotalWorkDays, string strSpecial, ArrayList beforeTotalList)
 		{
 			int iMaxWeek = getMaxWeek(dtCalendar);//一共多少周要处理	
 			for (int i = 0; i < beginData.Count; i++)
@@ -29,7 +29,7 @@ namespace SoqCompute
 				if (iBox_Last_PZ == 0)
 					continue;//没有剩余的箱子要分配，跳过
 				//返回某周分配总数最少的一天
-				int iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData);
+				int iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList);
 				if (iMinDay == -1)//有可能这周不存在，则遍历的品番不变，周数--
 				{
 					i--;

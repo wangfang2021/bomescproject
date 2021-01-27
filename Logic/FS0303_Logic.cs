@@ -103,14 +103,14 @@ namespace Logic
                                 }
                                 else
                                 {
-                                    strErr = "第" + (i + 2) + "行的" + item.strTitle + "不能为空";
+                                    //strErr = "第" + (i + 2) + "行的" + item.strTitle + "不能为空";
                                     return null;
                                 }
 
                             }
                         }
                         //value获取失败,表示并未找到与其对应的Value值
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             #region 提示第几行的数据不合法，提示消息赋值给strErr
                             strErr = "第" + (i + 2) + "行的" + item.strTitle + "填写不合法";
@@ -250,6 +250,11 @@ namespace Logic
             {
                 string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
                 DataTable receiverDt = getSupplierEmail(strSupplier_id);
+                if (receiverDt==null)
+                {
+                    strErr += "未找到 '" + strSupplier_id + "' 供应商邮件信息";
+                    return;
+                }
                 ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
             }
         }

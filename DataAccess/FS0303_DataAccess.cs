@@ -149,7 +149,13 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcHaoJiu"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcJiuYear"], false) + ",   \r\n");
+                        //旧型经年由旧型开始和结束时间计算得出
+                        #region 计算旧型经年
+                        var datetime1 = Convert.ToDateTime(ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false));
+                        var datetime2 = Convert.ToDateTime(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], false));
+                        var dJiuYear = datetime2.Year - datetime1.Year;
+                        #endregion
+                        sql.Append("'"+dJiuYear+"'"+",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcNXQF"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dSSDate"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcMeno"], false) + ",   \r\n");
@@ -367,6 +373,8 @@ namespace DataAccess
 
                 #region 两张表进行连接，相同的部分进行UPDATE操作，不同的部分进行INSERT操作
                 sql.Append("      update TUnit set       \n");
+
+                
                 sql.Append("       dSyncTime=b.dSyncTime          \n");
                 sql.Append("      ,vcChange=b.vcChange          \n");
                 sql.Append("      ,vcSPINo=b.vcSPINo          \n");
@@ -426,11 +434,11 @@ namespace DataAccess
                 sql.Append("      ,vcOriginCompany=b.vcOriginCompany          \n");
                 sql.Append("      ,vcOperator=b.vcOperator          \n");
                 sql.Append("      ,dOperatorTime=b.dOperatorTime          \n");
-                sql.Append("      from TUnit a      \n");
+                sql.Append("      from TUnit_temp b      \n");
                 sql.Append("      inner join       \n");
                 sql.Append("      (      \n");
-                sql.Append("      	select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from #TUnit_temp      \n");
-                sql.Append("      ) b      \n");
+                sql.Append("      	select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from #TUnit      \n");
+                sql.Append("      ) a      \n");
                 sql.Append("      on a.vcPart_id = b.vcPart_id      \n");
                 sql.Append("      and a.vcSYTCode = b.vcSYTCode      \n");
                 sql.Append("      and a.vcSupplier_id = b.vcSupplier_id      \n");
@@ -460,7 +468,7 @@ namespace DataAccess
                 sql.Append("          select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit           \n");
                 sql.Append("      ) b         \n");
                 sql.Append("      on a.vcPart_id = b.vcPart_id      \n");
-                sql.Append("      on a.vcSYTCode = b.vcSYTCode      \n");
+                sql.Append("      and a.vcSYTCode = b.vcSYTCode      \n");
                 sql.Append("      and a.vcSupplier_id = b.vcSupplier_id      \n");
                 sql.Append("      and a.vcReceiver = b.vcReceiver      \n");
                 sql.Append("      where a.vcPart_id is null      \n");

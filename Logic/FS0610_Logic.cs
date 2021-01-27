@@ -153,27 +153,26 @@ namespace Logic
         #region 下载生产计划（王立伟）2020-01-23
         public DataTable dowloadProPlan(string vcDxny, string vcFZGC, string strUserId)
         {
-            try
-            {
-                DataTable tb = serchData(vcDxny, "Importpro", "", vcFZGC, "");
-                return tb;
-                //if (msg.Length == 0) //取得以上生成的临时表包装计划
-                //{
+            DataTable tb = serchData(vcDxny, "Importpro", "", vcFZGC, "");
+            return tb;
+        }
+        #endregion
 
-                //    Exception ex = new Exception();
-                //    fs0610_DataAccess.updatePro(dt_temp, strUserId, vcDxny, ref ex, vcFZGC[k]);
-                //    if (msg.Length > 0)
-                //    {
-                //        return msg;
-                //    }
-                //    msg = "";
-                //}
-                //return msg;
-            }
-            catch (Exception ex)
+        #region 上传生产计划（王立伟）2020-01-25
+        public string updatePro(DataTable dt1, string user, string mon, ref Exception ex, string plant)
+        {
+            DataTable dt = dt1.Clone();
+            DataRow[] r = dt1.Select("vcPlant='#" + plant + "'");
+            for (int i = 0; i < r.Length; i++)
             {
-                throw ex;
+                DataRow r1 = dt.NewRow();
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    r1[j] = r[i][j];
+                }
+                dt.Rows.Add(r1);
             }
+            return fs0610_DataAccess.updatePro(dt, user, mon, ref ex, plant);
         }
         #endregion
 
@@ -873,16 +872,16 @@ namespace Logic
                         {
                             try
                             {
-                                k = Convert.ToInt32(dt.Rows[i][j].ToString().Trim().Length == 0 ? "0" : dt.Rows[i][j].ToString().Trim());
+                                k = Convert.ToInt32(dt.Rows[i][j].ToString().Trim());
                             }
-                            catch
+                            catch (Exception ex)
                             {
                                 msg = "第" + (i + 2) + "行，" + ExcelPos(j + 2) + "列，输入数据应为数字！";
                                 return msg;
                             }
                         }
                         Totalnum -= k;
-                        dr[0][j] = ((dt.Rows[i][j] != null && dt.Rows[i][j].ToString().Length == 0) ? 0 : dt.Rows[i][j]);
+                        dr[0][j] = dt.Rows[i][j];
                     }
                     if (Totalnum != 0)
                     {
@@ -928,6 +927,8 @@ namespace Logic
             if (i >= 26) re = A[(i / 26) - 1] + A[i % 26];
             return re;
         }
+
+
         #endregion
 
     }

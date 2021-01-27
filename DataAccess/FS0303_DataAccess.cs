@@ -80,6 +80,7 @@ namespace DataAccess
                 {
                     strSql.Append("     and vcOriginCompany='" + strOriginCompany + "'   \n");
                 }
+                strSql.Append("     order by vcPart_id asc   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)

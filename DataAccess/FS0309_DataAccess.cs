@@ -18,6 +18,13 @@ namespace DataAccess
             , string strReceiver, string strPriceState
             )
         {
+
+            DateTime dateTime1 = DateTime.Now;
+            
+            DateTime dateTime = Convert.ToDateTime("2022-01-26");
+            var years = dateTime1.Year - dateTime.Year;
+            var temp = dateTime - dateTime1;
+
             try
             {
                 StringBuilder strSql = new StringBuilder();
@@ -495,6 +502,112 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 销售展开 (带参数)
+        /// <summary>
+        /// 根据检索条件进行销售展开
+        /// </summary>
+        /// <param name="strChange"></param>
+        /// <param name="strPart_id"></param>
+        /// <param name="strOriginCompany"></param>
+        /// <param name="strHaoJiu"></param>
+        /// <param name="strProjectType"></param>
+        /// <param name="strPriceChangeInfo"></param>
+        /// <param name="strCarTypeDev"></param>
+        /// <param name="strSupplier_id"></param>
+        /// <param name="strReceiver"></param>
+        /// <param name="strPriceState"></param>
+        /// <returns>返回受影响的行数</returns>
+        public int sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+            , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
+            , string strReceiver, string strPriceState,ref string strErr
+            )
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("         update TPrice set vcPriceChangeInfo = null,vcPriceState = '4'        ");
+                if (!string.IsNullOrEmpty(strChange))
+                {
+                    strSql.AppendLine("         where vcChange = '"+strChange+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strPart_id))
+                {
+                    strSql.AppendLine("         and vcPart_id ='"+strPart_id+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strOriginCompany))
+                {
+                    strSql.AppendLine("         and vcOriginCompany = '"+strOriginCompany+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strHaoJiu))
+                {
+                    strSql.AppendLine("         and vcHaoJiu = '"+strHaoJiu+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strProjectType))
+                {
+                    strSql.AppendLine("         and vcProjectType = '"+strProjectType+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strPriceChangeInfo))
+                {
+                    strSql.AppendLine("         and vcPriceChangeInfo = '"+strPriceChangeInfo+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strCarTypeDev))
+                {
+                    strSql.AppendLine("         and vcCarTypeDev = '"+strCarTypeDev+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strSupplier_id))
+                {
+                    strSql.AppendLine("         and vcSupplier_id = '"+strSupplier_id+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strReceiver))
+                {
+                    strSql.AppendLine("         and vcReceiver  = '"+strReceiver+"'        ");
+                }
+                if (!string.IsNullOrEmpty(strPriceState))
+                {
+                    strSql.AppendLine("         and vcPriceState = '"+strPriceState+"'        ");
+                }
+                if (strSql.Length>0)
+                {
+                    return excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+                else
+                {
+                    strErr += "未更改任何数据";
+                    return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                strErr += "操作失败:"+ex.Message;
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 销售展开
+        public void sendMail(List<Dictionary<string,object>> listInfoData, ref string strErr)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    strSql.AppendLine("      update TPrice set vcPriceChangeInfo = null,vcPriceState = 'PIC'       ");
+                    strSql.AppendLine("      where iAutoId = '" + listInfoData[i]["iAutoId"] + "'       ");
+                }
+                if (strSql.Length>0)
+                {
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                strErr += "操作失败:" + ex.Message;
                 throw ex;
             }
         }

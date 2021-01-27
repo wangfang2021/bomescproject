@@ -62,5 +62,9 @@ namespace Logic
             fs0626_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
+        public void importSave(DataTable importDt, string userId)
+        {
+            fs0626_DataAccess.importSave(importDt, userId);
+        }
     }
 }

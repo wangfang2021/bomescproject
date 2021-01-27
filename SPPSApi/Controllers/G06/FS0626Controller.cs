@@ -317,9 +317,6 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
-
-
-
     }
 }
 

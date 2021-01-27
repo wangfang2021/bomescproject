@@ -27,7 +27,7 @@ namespace DataAccess
                 {
                     if (strSql.Length > 0)
                     {
-                        strSql.AppendLine("  union all select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='"+ dtadd.Rows[i]["vcWorkArea"] + "' ");
+                        strSql.AppendLine("  union all select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "' ");
                     }
                     else
                     {
@@ -60,7 +60,7 @@ namespace DataAccess
                 }
                 if (vcTargetMonth.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcTargetMonth = '" + vcTargetMonth.Replace("-","") + "' ");
+                    strSql.AppendLine("  and  vcTargetMonth = '" + vcTargetMonth.Replace("-", "") + "' ");
                 }
                 if (vcSupplier_id.Length > 0)
                 {
@@ -277,11 +277,12 @@ namespace DataAccess
         /// 一括赋予
         /// </summary>
         /// <returns></returns>
-        public void allInstall(DateTime dBeginDate,DateTime dEndDate,string userId) {
+        public void allInstall(DateTime dBeginDate, DateTime dEndDate, string userId)
+        {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                
+
                 sql.Append("update TSpecialSupplier set dBeginDate='" + dBeginDate + "', dEndDate='" + dEndDate + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  \n");
 
                 if (sql.Length > 0)
@@ -300,5 +301,51 @@ namespace DataAccess
             string ssql = " select '' as vcCodeName,'' as vcCodeId union all select distinct vcData2,vcData1 from ConstMst where vcDataID='KBPlant' ";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sql.Append(" insert into TOutsidePurchaseManage(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, \r\n");
+                    sql.Append(" vcPartNo, vcNewOldFlag, vcOrderNumber, vcNoReceiveNumber, vcNoReceiveReason, vcExpectRedeemDate, vcRealRedeemDate, dOperatorTime, vcOperatorID) \r\n");
+                    sql.Append(" values ( \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcPackPlant"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcInjectionFactory"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcTargetMonth"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcSupplier_id"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcWorkArea"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcDock"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcOrderNo"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcPartNo"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcNewOldFlag"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcOrderNumber"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcNoReceiveNumber"].ToString() + "',  \r\n");
+                    sql.Append(" '" + dt.Rows[i]["vcNoReceiveReason"].ToString() + "',  \r\n");
+                    if (dt.Rows[i]["vcExpectRedeemDate"].ToString().Length > 0)
+                        sql.Append(" '" + dt.Rows[i]["vcExpectRedeemDate"].ToString() + "',  \r\n");
+                    else
+                        sql.Append(" null,  \r\n");
+                    if (dt.Rows[i]["vcRealRedeemDate"].ToString().Length > 0)
+                        sql.Append(" '" + dt.Rows[i]["vcRealRedeemDate"].ToString() + "',  \r\n");
+                    else
+                        sql.Append(" null,  \r\n");
+                    sql.Append(" getdate(),  \r\n");
+                    sql.Append(" '" + strUserId + "') \r\n");
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

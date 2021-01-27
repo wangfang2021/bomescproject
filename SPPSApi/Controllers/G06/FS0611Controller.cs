@@ -214,6 +214,8 @@ namespace SPPSApi.Controllers.G06
                     ArrayList arrResult_NSYM = new ArrayList();//dtCalendar,dtSoq_nsym,null,null
                     ArrayList arrResult_NNSYM = new ArrayList();//dtCalendar,dtSoq_nnsym,null,null
 
+                    if (!find && !find_2 && !find_3)
+                        continue;//如果该厂没有要处理的数据，则跳过
                     
                     if(find)
                         arrResult_DXYM=soqCompute.getPinZhunList(dtSoq_dxym, dtCalendar, dtSpecialSupplier, dtSpecialPart);

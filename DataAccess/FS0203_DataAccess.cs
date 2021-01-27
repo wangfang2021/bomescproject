@@ -192,7 +192,7 @@ namespace DataAccess
                     sbr.Append(" values ( \r\n");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"].ToString().Trim(), false) + ",");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_new"].ToString().Replace("-", "").Trim(), false) + ",");
-                    sbr.Append("'0',");
+                    sbr.Append("'',");
                     sbr.Append("'" + carType + "',");
                     sbr.Append("'新车新设',");
                     sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcBJDiff"].ToString().Trim(), false) + ",");

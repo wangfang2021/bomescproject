@@ -605,7 +605,7 @@ namespace DataAccess
                         sbr.AppendLine(" UPDATE TSBManager SET ");
                         sbr.AppendLine(" vcFinishState = " +
                                        ComFunction.getSqlValue(
-                                           getValue("C014", listInfoData[i]["FinishState"].ToString()), false) + ",");
+                                           getValue("C014", ObjToString(listInfoData[i]["FinishState"])), false) + ",");
                         sbr.AppendLine(" vcOriginCompany = " +
                                        ComFunction.getSqlValue(getValue("C006", listInfoData[i]["vcUnit"].ToString()),
                                            false) + ",");
@@ -663,7 +663,7 @@ namespace DataAccess
             }
             sbr.Length = 0;
 
-            if (!list.Contains("0") && !list.Contains("2"))
+            if (!list.Contains("0") && !list.Contains("2") && !list.Contains(""))
             {
                 sbr.AppendLine("UPDATE TSBFile");
                 sbr.AppendLine("SET vcState = '2',");

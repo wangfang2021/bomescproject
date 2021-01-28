@@ -24,7 +24,7 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
 namespace SPPSApi.Controllers.G06
-{
+{ 
     [Route("api/FS0610_Sub_ImpProPlan/[action]")]
     [EnableCors("any")]
     [ApiController]

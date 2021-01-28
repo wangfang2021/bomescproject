@@ -25,7 +25,7 @@ namespace SPPSApi.Controllers.G06
         FS0610_Logic fs0610_Logic = new FS0610_Logic();
 
         public FS0610Controller(IWebHostEnvironment webHostEnvironment)
-        {
+        { 
             _webHostEnvironment = webHostEnvironment;
         }
 

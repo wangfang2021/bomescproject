@@ -29,7 +29,7 @@ namespace SPPSApi.Controllers.G04
     [EnableCors("any")]
     [ApiController]
     public class FS0610Controller_Sub_Import : BaseController
-    {
+    { 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0610_Logic fs0610_Logic = new FS0610_Logic();

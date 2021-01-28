@@ -81,7 +81,23 @@ namespace DataAccess
                     strSql.Append("     and vcOriginCompany='" + strOriginCompany + "'   \n");
                 }
                 strSql.Append("     order by vcPart_id asc   \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 检索特记
+        public DataTable SearchTeji(string strPart_id)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("   select top 1 vcMeno,'0' as vcModFlag,'0' as vcAddFlag from TUnit where vcPart_id='" + strPart_id + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {
@@ -1596,6 +1612,29 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("    select vcTitle,vcContent from TMailMessageSetting where vcUserId='"+ strUserId + "'   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 保存特记
+        public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                StringBuilder sbrTeJi = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string strMeno =  listInfoData[i]["vcMeno"].ToString();
+                    sbrTeJi.Append(strMeno + ";");
+                }
+                sql.Append("    update TUnit set vcMeno='"+ sbrTeJi.ToString()+ "' where vcPart_id='"+ strPartId + "'   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {

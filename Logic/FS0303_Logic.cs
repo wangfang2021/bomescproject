@@ -26,6 +26,13 @@ namespace Logic
         }
         #endregion
 
+        #region 检索特记
+        public DataTable SearchTeji(string strPart_id)
+        {
+            return fs0303_DataAccess.SearchTeji(strPart_id);
+        }
+        #endregion
+
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -37,6 +44,13 @@ namespace Logic
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
             fs0303_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+        #region 保存特记
+        public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strPartId)
+        {
+            fs0303_DataAccess.SaveTeJi(listInfoData, strUserId, strPartId);
         }
         #endregion
 

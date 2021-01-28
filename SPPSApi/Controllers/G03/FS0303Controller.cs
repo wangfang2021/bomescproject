@@ -158,6 +158,59 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
+        #region 检索特记
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchTeJiApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strPart_id = dataForm.vcPart_id;
+            try
+            {
+                DataTable dt = fs0303_Logic.SearchTeji(strPart_id);
+                DataTable dtResult = dt.Clone();
+                if (dt.Rows.Count > 0)
+                {
+                    string strMono = dt.Rows[0]["vcMeno"] == DBNull.Value ? "" : dt.Rows[0]["vcMeno"].ToString();
+                    string[] strMonos = strMono.Split(';');
+                    for (int i = 0; i < strMonos.Length; i++)
+                    {
+                        DataRow row = dtResult.NewRow();
+                        row["vcMeno"] = strMonos[i];
+                        row["vcModFlag"] = "0";
+                        row["vcAddFlag"] = "0";
+                        dtResult.Rows.Add(row);
+                    }
+                }
+
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dtResult, dtConverter);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0306", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 保存
         [HttpPost]
         [EnableCors("any")]

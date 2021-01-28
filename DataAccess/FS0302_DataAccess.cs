@@ -133,6 +133,7 @@ namespace DataAccess
                         //Add,TODO 工程结束时间
                         sbr.Append(" a.vcBJDiff = b.vcBJDiff, \r\n");
                         sbr.Append(" a.vcPartReplace = b.vcPart_id_DT, \r\n");
+                        sbr.Append(" a.dGYSTimeTo = b.vcStartYearMonth ");
                         //
                         sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
                         sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
@@ -227,6 +228,7 @@ namespace DataAccess
                         sbr.Append(" a.vcFXNo = b.vcFXNo, \r\n");
                         //ADD,TODO 工程结束时间
                         sbr.Append(" a.vcPartNameEn = b.vcPartName, \r\n");
+                        sbr.Append(" a.dGYSTimeTo = CONVERT(DATE,'99991231') ");
                         //
                         sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
                         sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
@@ -603,7 +605,7 @@ namespace DataAccess
                         sbr.AppendLine(" UPDATE TSBManager SET ");
                         sbr.AppendLine(" vcFinishState = " +
                                        ComFunction.getSqlValue(
-                                           getValue("C014", listInfoData[i]["FinishState"].ToString()), false) + ",");
+                                           getValue("C014", ObjToString(listInfoData[i]["FinishState"])), false) + ",");
                         sbr.AppendLine(" vcOriginCompany = " +
                                        ComFunction.getSqlValue(getValue("C006", listInfoData[i]["vcUnit"].ToString()),
                                            false) + ",");
@@ -619,6 +621,8 @@ namespace DataAccess
                         sbr.AppendLine(" vcOperatorId = '" + strUserId + "',");
                         sbr.AppendLine(" dOperatorTime = GETDATE()");
                         sbr.AppendLine(" WHERE iAutoId = " + iAutoId + "");
+                        //TODO 已织入时不能修改
+                        //sbr.AppendLine(" AND vcFinishState <> '3' ");
 
                     }
 
@@ -659,7 +663,7 @@ namespace DataAccess
             }
             sbr.Length = 0;
 
-            if (!list.Contains("0") && !list.Contains("2"))
+            if (!list.Contains("0") && !list.Contains("2") && !list.Contains(""))
             {
                 sbr.AppendLine("UPDATE TSBFile");
                 sbr.AppendLine("SET vcState = '2',");

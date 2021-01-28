@@ -49,7 +49,7 @@ namespace SPPSApi.Controllers.G03
             string vcPartNameCn = dataForm.vcPartNameCn == null ? "" : dataForm.vcPartNameCn;
             try
             {
-                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn, loginInfo.UnitCode);
+                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn);
 
 
                 DtConverter dtConverter = new DtConverter();
@@ -64,7 +64,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE2001", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -143,7 +143,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE2002", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -171,7 +171,7 @@ namespace SPPSApi.Controllers.G03
             string vcPartNameCn = dataForm.vcPartNameCn == null ? "" : dataForm.vcPartNameCn;
             try
             {
-                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn, loginInfo.UnitCode);
+                DataTable dt = fs0320_logic.searchApi(vcPart_Id, vcPartNameEn, vcPartNameCn);
                 string resMsg = "";
                 string[] head = { "品番", "英文品名", "品番前五位", "中文品名" };
                 string[] fields = { "vcPart_id", "vcPartNameEn", "vcPart_id_short", "vcPartNameCn" };
@@ -189,12 +189,13 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE2003", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
+
     }
 }

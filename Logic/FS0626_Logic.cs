@@ -43,5 +43,28 @@ namespace Logic
         {
             return fs0626_DataAccess.bindInjectionFactory();
         }
+
+        public DataTable bindplant()
+        {
+            return fs0626_DataAccess.bindplant();
+        }
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0626_DataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0626_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+        public void importSave(DataTable importDt, string userId)
+        {
+            fs0626_DataAccess.importSave(importDt, userId);
+        }
     }
 }

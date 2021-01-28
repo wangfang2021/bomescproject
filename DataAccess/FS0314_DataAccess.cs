@@ -27,7 +27,7 @@ namespace DataAccess
             {
                 sbr.Append("  AND vcSupplier_name LIKE '" + vcSupplier_name.Trim() + "%'  ");
             }
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
 
         #endregion
@@ -47,7 +47,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -113,7 +113,7 @@ namespace DataAccess
                 }
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)

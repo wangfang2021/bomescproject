@@ -112,7 +112,7 @@ namespace DataAccess
 
                 if (sbr.Length > 0)
                 {
-                    list.Add(excute.ExcuteSqlWithSelectToDT(sbr.ToString()));
+                    list.Add(excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK"));
                 }
 
                 return list;

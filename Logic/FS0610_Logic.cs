@@ -38,15 +38,15 @@ namespace Logic
 
         #region 更新平准化结果
         public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
-            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId,string strUnit)
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId, string strUnit)
         {
             fs0610_DataAccess.SaveResult(strCLYM, strDXYM, strNSYM, strNNSYM, strPlant,
-             arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, strUserId,strUnit);
+             arrResult_DXYM, arrResult_NSYM, arrResult_NNSYM, strUserId, strUnit);
         }
         #endregion
 
         #region 获取没有展开的数据
-        public DataTable getZhankaiData(bool isZhankai,List<string> plantList)
+        public DataTable getZhankaiData(bool isZhankai, List<string> plantList)
         {
             return fs0610_DataAccess.getZhankaiData(isZhankai, plantList);
         }
@@ -55,14 +55,14 @@ namespace Logic
         #region 展开SOQReply
         public int zk(string userId, List<string> plantList)
         {
-            return fs0610_DataAccess.zk(userId,plantList);
+            return fs0610_DataAccess.zk(userId, plantList);
         }
         #endregion
 
         #region 下载SOQReply（检索内容）
-        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3,List<string> plantList)
+        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3, List<string> plantList)
         {
-            return fs0610_DataAccess.search(strYearMonth, strYearMonth_2, strYearMonth_3,plantList);
+            return fs0610_DataAccess.search(strYearMonth, strYearMonth_2, strYearMonth_3, plantList);
         }
         #endregion
 
@@ -74,9 +74,9 @@ namespace Logic
         #endregion
 
         #region 获取没有展开的数据
-        public DataTable getZhankaiData(bool isZhankai,string strPlant)
+        public DataTable getZhankaiData(bool isZhankai, string strPlant)
         {
-            return fs0610_DataAccess.getZhankaiData(isZhankai,strPlant);
+            return fs0610_DataAccess.getZhankaiData(isZhankai, strPlant);
         }
         #endregion
 
@@ -153,27 +153,26 @@ namespace Logic
         #region 下载生产计划（王立伟）2020-01-23
         public DataTable dowloadProPlan(string vcDxny, string vcFZGC, string strUserId)
         {
-            try
-            {
-                DataTable tb = serchData(vcDxny, "Importpro", "", vcFZGC, "");
-                return tb;
-                //if (msg.Length == 0) //取得以上生成的临时表包装计划
-                //{
+            DataTable tb = serchData(vcDxny, "Importpro", "", vcFZGC, "");
+            return tb;
+        }
+        #endregion
 
-                //    Exception ex = new Exception();
-                //    fs0610_DataAccess.updatePro(dt_temp, strUserId, vcDxny, ref ex, vcFZGC[k]);
-                //    if (msg.Length > 0)
-                //    {
-                //        return msg;
-                //    }
-                //    msg = "";
-                //}
-                //return msg;
-            }
-            catch (Exception ex)
+        #region 上传生产计划（王立伟）2020-01-25
+        public string updatePro(DataTable dt1, string user, string mon, ref Exception ex, string plant)
+        {
+            DataTable dt = dt1.Clone();
+            DataRow[] r = dt1.Select("vcPlant='#" + plant + "'");
+            for (int i = 0; i < r.Length; i++)
             {
-                throw ex;
+                DataRow r1 = dt.NewRow();
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    r1[j] = r[i][j];
+                }
+                dt.Rows.Add(r1);
             }
+            return fs0610_DataAccess.updatePro(dt, user, mon, ref ex, plant);
         }
         #endregion
 
@@ -782,6 +781,153 @@ namespace Logic
             }
             return dtNz;
         }
+
+        public void TranColName(ref DataTable dt)
+        {
+            dt.Columns[1].ColumnName = "vcPlant";
+            dt.Columns[2].ColumnName = "vcPartsno";
+            dt.Columns[3].ColumnName = "vcDock";
+            dt.Columns[5].ColumnName = "vcEDflag";
+        }
+
+        public DataTable PartsNoFomatTo12(ref DataTable dt)//转换成12位品番-加00
+        {
+            try
+            {
+                int a = 0;
+                foreach (var row in dt.AsEnumerable())
+                {
+                    string part = row.Field<string>("vcPartsno").ToString().Replace("-", "").Trim();
+                    if (part == null)
+                    {
+                        int aa = 0;
+                    }
+                    if (part.Length == 10)
+                    {
+                        row.SetField<string>("vcPartsno", part.Insert(5, "-") + "-00");
+                    }
+                    a++;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+
+        public string checkExcelData_Pro(ref DataTable dt1, string mon, string plant)
+        {
+            DataTable dt = dt1.Clone();
+            DataRow[] r = dt1.Select("vcPlant='#" + plant + "'");
+            for (int i = 0; i < r.Length; i++)
+            {
+                DataRow r1 = dt.NewRow();
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    r1[j] = r[i][j];
+                }
+                dt.Rows.Add(r1);
+            }
+
+            string msg = "";
+            DataTable dt_Data = serchData(mon, "Importpro", "", plant, "");
+            dt_Data.Columns.Remove("vcEDflag");
+            dt.Columns.Remove("vcEDflag");
+            dt_Data.Columns.Remove("vcPlant");
+            dt.Columns.Remove("vcPlant");
+            if (dt_Data.Rows.Count != dt.Rows.Count)
+            {
+                msg = "导入数据与本月初版生产计划不符，请重新导出修改！";
+                return msg;
+            }
+            else
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    DataRow[] dr = dt_Data.Select(" vcPartsno ='" + dt.Rows[i][1].ToString() + "' and  vcMonth ='" + dt.Rows[i][0].ToString() + "' and vcDock ='" + dt.Rows[i][2] + "' and vcCarType ='" + dt.Rows[i][3].ToString() + "'");
+                    if (dr.Length == 0)
+                    {
+                        msg = "第" + (i + 2) + "行，初版生产计划无该条数据。";
+                        return msg;
+                    }
+                    for (int j = 0; j < 13; j++)//前13列基础信息 需要一致
+                    {
+                        if (dr[0][j].ToString().Trim() != dt.Rows[i][j].ToString().Trim())
+                        {
+                            msg = "第" + (i + 2) + "行，" + ExcelPos(j + 2) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
+                            return msg;
+                        }
+                    }
+                    int Totalnum = Convert.ToInt32(dr[0][12].ToString().Trim());
+                    for (int j = 13; j < dt_Data.Columns.Count; j++)
+                    {
+                        int k = 0;
+                        if (dr[0][j].ToString().Trim().Length == 0 && dt.Rows[i][j].ToString().Trim().Length > 0)
+                        {
+                            msg = "第" + (i + 2) + "行，" + ExcelPos(j + 2) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
+                            return msg;
+                        }
+                        else if (dr[0][j].ToString().Trim().Length > 0)
+                        {
+                            try
+                            {
+                                k = Convert.ToInt32(dt.Rows[i][j].ToString().Trim());
+                            }
+                            catch (Exception ex)
+                            {
+                                msg = "第" + (i + 2) + "行，" + ExcelPos(j + 2) + "列，输入数据应为数字！";
+                                return msg;
+                            }
+                        }
+                        Totalnum -= k;
+                        dr[0][j] = dt.Rows[i][j];
+                    }
+                    if (Totalnum != 0)
+                    {
+                        msg = "值别计划总和与月度总量不相等，请重新修改！";
+                        return msg;
+                    }
+                }
+            }
+            dt = dt_Data;
+            return msg;
+        }
+        public string ExcelPos(int i)//取得列位置
+        {
+            string re = "error";
+            List<string> A = new List<string>();
+            A.Add("A");
+            A.Add("B");
+            A.Add("C");
+            A.Add("D");
+            A.Add("E");
+            A.Add("F");
+            A.Add("G");
+            A.Add("H");
+            A.Add("I");
+            A.Add("J");
+            A.Add("K");
+            A.Add("L");
+            A.Add("M");
+            A.Add("N");
+            A.Add("O");
+            A.Add("P");
+            A.Add("Q");
+            A.Add("R");
+            A.Add("S");
+            A.Add("T");
+            A.Add("U");
+            A.Add("V");
+            A.Add("W");
+            A.Add("X");
+            A.Add("Y");
+            A.Add("Z");
+            if (i < 26) re = A[i];
+            if (i >= 26) re = A[(i / 26) - 1] + A[i % 26];
+            return re;
+        }
+
 
         #endregion
 

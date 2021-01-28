@@ -250,6 +250,7 @@ namespace SPPSApi.Controllers.G06
                 if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "info";
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -277,14 +278,24 @@ namespace SPPSApi.Controllers.G06
                     //}
                     #endregion
                 }
-
-                string strErrorPartId = "";
-                fs0603_Logic.setSPInfo(listInfoData, loginInfo.UserId, ref strErrorPartId);
-                if (strErrorPartId != "")
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                bool bReault = true;
+                DataTable dtImport = fs0603_Logic.checkDataInfo(listInfoData, ref bReault, ref dtMessage);
+                if (!bReault)
                 {
+                    //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs0603_Logic.setSPInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -295,6 +306,7 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.type = "info";
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -1140,7 +1152,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strSyncTime =string.Empty;
+            string strSyncTime = string.Empty;
             string strPartId = string.Empty;
             string strCarModel = string.Empty;
             string strReceiver = string.Empty;
@@ -1150,7 +1162,7 @@ namespace SPPSApi.Controllers.G06
             string strFromTime = string.Empty;
             string strToTime = string.Empty;
             string strHaoJiu = string.Empty;
-            string strOrderPlant = string.Empty; 
+            string strOrderPlant = string.Empty;
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut,
@@ -1163,7 +1175,7 @@ namespace SPPSApi.Controllers.G06
                     "vcSupplierPlace",
                     "BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed",
                     "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",
-                    "OrderPlant_ed","OrderPlantFromTime_ed","OrderPlantToTime_ed",
+                    "vcOrderPlant_name","OrderPlantFromTime_ed","OrderPlantToTime_ed",
                     "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime",
                     "vcBillType_name","vcRemark1","vcRemark2",
                     "vcOrderingMethod_name","vcMandOrder_name"
@@ -1221,60 +1233,100 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番","使用开始","使用结束","变更履历", "公式选择", "原价","价格开始","价格结束"},
-                                                {"vcPart_id", "dUseBegin", "dUseEnd", "vcPriceChangeInfo","vcPriceGS","decPriceOrigin","dPricebegin","dPriceEnd"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,FieldCheck.Date,FieldCheck.Date},
-                                                {"12","0","0","50", "50", "0", "0", "0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
+                #region  string[,] headers = new string[,] {}
+                string[,] headers = new string[,] {
+                    {"同步时间","变更事项","包装工厂","补给品番","品名(英文)","车种代码",
+                        "收货方","品番-使用开始","品番-使用结束","替代品番",
+                        "内外区分","OE=SP","号旧区分","旧型年限生产区分","旧型开始时间","实施年月(年限)",
+                        "供应商编号","供应商使用开始","供应商使用结束","供应商名称",
+                        "工区","工区-使用开始","工区-使用结束",
+                        "供应商出荷地",
+                        "补给收容数","收容数-使用开始","收容数-使用结束","箱种","长（mm)","宽（mm)","高（mm)","体积（mm³)",
+                        "受入","受入-使用开始","受入-使用结束",
+                        "发注工厂","发注工厂-使用开始","发注工厂-使用结束",
+                        "内制工程","通过工程","前工程","前工程通过时间","自工程出货时间",
+                        "单据区分","备注1","备注2","订货方式","强制订货"},
+                    {"dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
+                        "vcReceiver","dFromTime","dToTime","vcPartId_Replace",
+                        "vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dOldStartTime","dDebugTime",
+                        "vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName",
+                        "SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed",
+                        "vcSupplierPlace",
+                        "BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed",
+                        "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",
+                        "vcOrderPlant_name","OrderPlantFromTime_ed","OrderPlantToTime_ed",
+                        "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime",
+                        "vcBillType_name","vcRemark1","vcRemark2","vcOrderingMethod_name","vcMandOrder_name"},
+                    {"","","","","","",
+                        "","","","",
+                        "","","","","","",
+                        "","","","",
+                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,
+                        "",
+                        FieldCheck.Num,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",
+                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,
+                        "",FieldCheck.Date,FieldCheck.Date,
+                        "","","",FieldCheck.Date,FieldCheck.Date,
+                        "","","","",""},
+                    {"0","0","0","0","0","0",
+                        "0","0","0","0",
+                        "0","0","0","0","0","0",
+                        "0","0","0","0",
+                        "1","0","0",
+                        "50",
+                        "5","0","0","5","5","5","5","0",
+                        "2","0","0",
+                        "20","0","0",
+                        "50","50","50","0","0",
+                        "10","100","100","10","10"},//最大长度设定,不校验最大长度用0
+                    {"0","0","0","0","0","0",
+                        "0","0","0","0",
+                        "0","0","0","0","0","0",
+                        "0","0","0","0",
+                        "1","1","1",
+                        "0",
+                        "1","1","1","1","1","1","1","0",
+                        "1","1","1",
+                        "1","1","1",
+                        "0","0","0","0","0",
+                        "1","0","0","1","1"}};//最小长度设定,可以为空用0
+                #endregion
                 DataTable importDt = new DataTable();
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                bool bReault = true;
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                    DataTable dt = ComFunction.ExcelToDataTableformRows(info.FullName, "sheet1", headers, 2, 3, ref strMsg);
                     if (strMsg != "")
                     {
-                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "读取导入文件" + info.Name + "出错！";
+                        dtMessage.Rows.Add(dataRow);
+                        //弹出错误dtMessage
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (importDt.Columns.Count == 0)
-                        importDt = dt.Clone();
-                    if (dt.Rows.Count == 0)
+                    DataTable dtImport = fs0603_Logic.checkFileInfo(dt, headers, 2, 3, ref bReault, ref dtMessage);
+                    if (!bReault)
                     {
-                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        //弹出错误dtMessage
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入终止，文件" + info.Name + "没有要导入的数据";
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    foreach (DataRow row in dt.Rows)
+                    fs0603_Logic.setSPInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                    if (dtMessage.Rows.Count != 0)
                     {
-                        importDt.ImportRow(row);
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
-
-
-                var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPart_id"), r3 = r.Field<string>("dUseBegin"), r4 = r.Field<string>("dUseEnd") } into g
-                             where g.Count() > 1
-                             select g;
-                if (result.Count() > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
-                    {
-                        sbr.Append("品番:" + item.Key.r2 + " 使用开始:" + item.Key.r3 + " 使用结束:" + item.Key.r4 + "<br/>");
-                    }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-
-
-
-
-                //fs0309_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -1284,7 +1336,63 @@ namespace SPPSApi.Controllers.G06
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.type = "info";
                 apiResult.data = "保存失败" + ex.Message;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            //finally
+            //{
+            //    ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
+            //}
+        }
+        /// <summary>
+        /// 导出消息信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dataTable = fs0603_Logic.createTable("MES");
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
+                    dataTable.Rows.Add(dataRow);
+                }
+                string[] fields = { "vcMessage" };
+
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

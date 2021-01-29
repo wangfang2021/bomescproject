@@ -64,6 +64,7 @@ namespace SPPSApi.Controllers.G03
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
                 List<Object> dataList_C013 = ComFunction.convertAllToResult(ComFunction.getTCode("C013"));//状态
                 List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
+                List<Object> dataList_C038 = ComFunction.convertAllToResult(ComFunction.getTCode("C038"));//公式名
                 //设变履历是否下拉待确定
                 List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
 
@@ -76,8 +77,7 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C013", dataList_C013);
                 res.Add("C005", dataList_C005);
                 res.Add("C006", dataList_C006);
-                List<Object> dataList_GS = ComFunction.convertAllToResult(fs0309_Logic.getAllGS());//公式
-                res.Add("optionGS", dataList_GS);
+                res.Add("C038", dataList_C038);
                 res.Add("taskNum", task.Rows.Count);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

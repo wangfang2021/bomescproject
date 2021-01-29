@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G03
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番","使用开始","使用结束","变更履历", "公式选择", "原价","价格开始","价格结束"},
-                                                {"vcPart_id", "dUseBegin", "dUseEnd", "vcPriceChangeInfo","vcPriceGS","decPriceOrigin","dPricebegin","dPriceEnd"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,FieldCheck.Date,FieldCheck.Date},
-                                                {"12","0","0","50", "50", "0", "0", "0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"ID","品番","使用开始","使用结束","变更履历", "公式选择", "原价","价格开始","价格结束"},
+                                                {"iAutoId","vcPart_id", "dUseBegin", "dUseEnd", "vcPriceChangeInfo","vcPriceGS","decPriceOrigin","dPricebegin","dPriceEnd"},
+                                                {"",FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,FieldCheck.Date,FieldCheck.Date},
+                                                {"","12","0","0","50", "50", "0", "0", "0"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","1","0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {

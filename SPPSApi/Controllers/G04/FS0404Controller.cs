@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Common;
+using DataAccess;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static DataAccess.FS0404_DataAccess;
 
 namespace SPPSApi.Controllers.G04
 {
@@ -167,7 +169,7 @@ namespace SPPSApi.Controllers.G04
         #region 上传确定
         [HttpPost]
         [EnableCors("any")]
-        public string updateOKApi([FromBody] dynamic data)
+        public string upLoadOKApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -225,6 +227,9 @@ namespace SPPSApi.Controllers.G04
                 //订单类型	2	月度
                 //订单类型	3	紧急
                 #region
+                FS0404_DataAccess objDateAccess = new FS0404_DataAccess();
+                Order order = new Order();
+
                 String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
                 if (vcOrderType=="0")
                 {
@@ -242,6 +247,15 @@ namespace SPPSApi.Controllers.G04
                     }
                     for (int i = 0; i < fileList.Count; i++)
                     {
+                        string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                        //判段上传的订单号号是否存在
+                        DataTable dt = fs0404_Logic.isCheckByOrderNo(fileName);
+                        if (dt.Rows.Count>0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = fileName + "订单号已存在，不能再上传!";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         if (fileList[i]["fileName"].ToString().Substring(0, 2).ToUpper() != "RD")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -250,7 +264,7 @@ namespace SPPSApi.Controllers.G04
                         }
                         string strfilePath = fileList[i]["filePath"].ToString();
                         string strMsg = string.Empty;
-                        Order order = GetPartFromFile(realPath+strfilePath, ref strMsg);
+                        order = GetPartFromFile(realPath+strfilePath, "", ref strMsg);
                         if (strMsg.Length>0)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -260,7 +274,7 @@ namespace SPPSApi.Controllers.G04
                         {
                             //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
                             
-                            string code = order.Head.ToString().Substring(0, 1);
+                            string code = order.Head.Code;
                             if (code!= "D")
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
@@ -292,6 +306,15 @@ namespace SPPSApi.Controllers.G04
                     }
                     for (int i = 0; i < fileList.Count; i++)
                     {
+                        string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                        //判段上传的订单号号是否存在
+                        DataTable dt = fs0404_Logic.isCheckByOrderNo(fileName);
+                        if (dt.Rows.Count > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = fileName + "订单号已存在，不能再上传!";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         if (fileList[i]["fileName"].ToString().Substring(0, 2).ToUpper() != "ZD")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -300,7 +323,7 @@ namespace SPPSApi.Controllers.G04
                         }
                         string strfilePath = fileList[i]["filePath"].ToString();
                         string strMsg = string.Empty;
-                        Order order = GetPartFromFile(realPath + strfilePath, ref strMsg);
+                        order = GetPartFromFile(realPath + strfilePath, "", ref strMsg);
                         if (strMsg.Length > 0)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -311,11 +334,11 @@ namespace SPPSApi.Controllers.G04
                         {
                             //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
 
-                            string code = order.Head.ToString().Substring(0, 1);
+                            string code = order.Head.Code;
                             if (code != "W")
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "日度订单的Code代码必须是W开始，请查看订单内容！'";
+                                apiResult.data = "周度订单的Code代码必须是W开始，请查看订单内容！'";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
                         }
@@ -349,6 +372,15 @@ namespace SPPSApi.Controllers.G04
                     
                     for (int i = 0; i < fileList.Count; i++)
                     {
+                        string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                        //判段上传的订单号号是否存在
+                        DataTable dt = fs0404_Logic.isCheckByOrderNo(fileName);
+                        if (dt.Rows.Count > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = fileName + "订单号已存在，不能再上传!";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         if (fileList[i]["fileName"].ToString().Substring(0, 2).ToUpper() != "YD")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -371,7 +403,7 @@ namespace SPPSApi.Controllers.G04
 
                         string strfilePath = fileList[i]["filePath"].ToString();
                         string strMsg = string.Empty;
-                        Order order = GetPartFromFile(realPath + strfilePath, ref strMsg);
+                        order = GetPartFromFile(realPath + strfilePath, "", ref strMsg);
                         if (strMsg.Length > 0)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -382,11 +414,11 @@ namespace SPPSApi.Controllers.G04
                         {
                             //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
 
-                            string code = order.Head.ToString().Substring(0, 1);
+                            string code = order.Head.Code;
                             if (code != "S")
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "日度订单的Code代码必须是S开始，请查看订单内容！'";
+                                apiResult.data = "月度订单的Code代码必须是S开始，请查看订单内容！'";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
                         }
@@ -402,6 +434,15 @@ namespace SPPSApi.Controllers.G04
                     }
                     for (int i = 0; i < fileList.Count; i++)
                     {
+                        string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                        //判段上传的订单号号是否存在
+                        DataTable dt = fs0404_Logic.isCheckByOrderNo(fileName);
+                        if (dt.Rows.Count > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = fileName + "订单号已存在，不能再上传!";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         if (fileList[i]["fileName"].ToString().Substring(0, 2).ToUpper() != "JJ")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -410,7 +451,7 @@ namespace SPPSApi.Controllers.G04
                         }
                         string strfilePath = fileList[i]["filePath"].ToString();
                         string strMsg = string.Empty;
-                        Order order = GetPartFromFile(realPath + strfilePath, ref strMsg);
+                        order = GetPartFromFile(realPath + strfilePath,"", ref strMsg);
                         if (strMsg.Length > 0)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
@@ -421,17 +462,18 @@ namespace SPPSApi.Controllers.G04
                         {
                             //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
 
-                            string code = order.Head.ToString().Substring(0, 1);
+                            string code = order.Head.Code;
                             if (code != "H")
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = "日度订单的Code代码必须是H开始，请查看订单内容！'";
+                                apiResult.data = "紧急订单的Code代码必须是H开始，请查看订单内容！'";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
                         }
                     }
                 }
                 #endregion
+                string msg = string.Empty;
                 //判断是修正 还是新增
                 if (lastOrderNo.Length > 0 && newOrderNo.Length > 0)
                 {
@@ -459,7 +501,15 @@ namespace SPPSApi.Controllers.G04
                 }
                 else
                 {
-                    fs0404_Logic.addOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, loginInfo.UserId);
+                    //紧急订单 特殊处理
+                    if (vcOrderType == "3")
+                    {
+                        
+                        fs0404_Logic.addJinJiOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, loginInfo.UserId,loginInfo.UnitCode,ref msg );
+                    } else
+                    {
+                        fs0404_Logic.addOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, loginInfo.UserId);
+                    }
                 }
 
                 //删除误操作的上传订单
@@ -468,6 +518,211 @@ namespace SPPSApi.Controllers.G04
                     for (int i = 0; i < fileDelList.Count; i++) {
                         string filePath = fileDelList[i]["filePath"].ToString();
                         if(filePath.Length>0)
+                        {
+                            if (System.IO.File.Exists(realPath + filePath))
+                            {
+                                System.IO.File.Delete(realPath + filePath);
+                            }
+                        }
+                    }
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                if (msg.Length>0)
+                {
+                    apiResult.data = msg;
+                } else
+                {
+                    apiResult.data = null;
+                }
+               
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0404", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "上传订单失败！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 修正确定
+        [HttpPost]
+        [EnableCors("any")]
+        public string updateOKApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
+            string vcInOutFlag = dataForm.vcInOutFlag == null ? "" : dataForm.vcInOutFlag;
+            string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
+            string vcOrderState = dataForm.vcOrderState == null ? "" : dataForm.vcOrderState;
+            string lastOrderNo = dataForm.lastOrdderNo == null ? "" : dataForm.lastOrdderNo;
+            string newOrderNo = dataForm.newOrderNo == null ? "" : dataForm.newOrderNo;
+            string vcMemo = dataForm.vcMemo == null ? "" : dataForm.vcMemo;
+            string dTargetWeek = dataForm.dTargetWeek == null ? "" : dataForm.dTargetWeek;
+            List<Dictionary<string, Object>> fileList = dataForm.file.ToObject<List<Dictionary<string, Object>>>();
+            List<Dictionary<string, Object>> fileDelList = dataForm.fileDel.ToObject<List<Dictionary<string, Object>>>();
+            try
+            {
+                if (vcOrderType != "紧急")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正的原订单订购类型必须是紧急,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                vcOrderType = "3";
+                if (vcOrderState != "撤销")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正的原订单订购状态必须是撤销,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                #region 判断
+                #endregion
+                if (lastOrderNo.Length ==0 )
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正时原订单号不能为空,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+                if (newOrderNo.Length == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正时修正的订单号不能为空,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+               
+                #region
+                String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
+                if (newOrderNo.EndsWith(";"))
+                {
+                    newOrderNo.Substring(0,newOrderNo.Length - 1);
+                }
+                string[] newOrderList = newOrderNo.Split(";");
+
+                //FS0404_DataAccess objDataAccess = new FS0404_DataAccess();
+                ArrayList orderList = new ArrayList();
+                //
+                if (vcOrderType == "3")
+                {
+                    for (int i = 0; i < fileList.Count; i++)
+                    {
+                        for (int j = i+1; j < fileList.Count; j++)
+                        {
+                            if (fileList[i]["fileName"].ToString()== fileList[j]["fileName"].ToString())
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = fileList[i]["fileName"].ToString()+"附件重复,不允许,请确认！";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                            }
+                        }
+                    }
+                }
+                if (vcOrderType == "3")
+                {
+                    if (fileList.Count ==0 )
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "修正紧急订单时,附件不能为空,请确认！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (newOrderList.Length!=fileList.Count)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "修正紧急订单时,修正的订单号和上传的文件个数不匹配,请确认！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+                    for (int i = 0; i < fileList.Count; i++)
+                    {
+                        string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                        //判段上传的订单号号是否存在
+                        DataTable dtExit = fs0404_Logic.isCheckByOrderNo(fileName);
+                        if (dtExit.Rows.Count > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = fileName + "订单号已存在，不能再上传!";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (fileList[i]["fileName"].ToString().Substring(0, 2).ToUpper() != "JJ")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "文件名不匹配紧急订单命名规则，请以JJ开始命名 '";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        string strfilePath = fileList[i]["filePath"].ToString();
+                        string strMsg = string.Empty;
+                        Order order = GetPartFromFile(realPath + strfilePath,"", ref strMsg);
+                        if (strMsg.Length > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = strMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        else
+                        {
+                            //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
+                            string code = order.Head.Code;
+                            if (code != "H")
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "紧急订单的Code代码必须是H开始，请查看订单内容！'";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                        orderList.Add(order);
+                    }
+                }
+                DataTable dt = fs0404_Logic.isCheckByOrderNo(lastOrderNo);
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请确认是否在修正订单，修正订单的原订单号不存在,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                // 判断状态 是0  或者2 撤销  1已做成
+                if (dt.Rows[0]["vcOrderState"].ToString() != "2" )
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正订单的状态必须是撤销,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (dt.Rows[0]["vcOrderType"].ToString() != "3")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正的订单类型必须是紧急,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string msg = string.Empty;
+                string vcMemos = lastOrderNo + "--->" + newOrderNo + vcMemo;
+                fs0404_Logic.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemos, fileList, loginInfo.UserId,loginInfo.UnitCode,ref msg);
+                //if (System.IO.File.Exists(realPath + dt.Rows[0]["vcFilePath"]))
+                //{
+                //    System.IO.File.Delete(realPath + dt.Rows[0]["vcFilePath"]);
+                //}
+
+                #endregion
+
+                //删除误操作的上传订单
+                if (fileDelList.Count > 0)
+                {
+                    for (int i = 0; i < fileDelList.Count; i++)
+                    {
+                        string filePath = fileDelList[i]["filePath"].ToString();
+                        if (filePath.Length > 0)
                         {
                             if (System.IO.File.Exists(realPath + filePath))
                             {
@@ -489,10 +744,8 @@ namespace SPPSApi.Controllers.G04
             }
         }
         #endregion
-
-        #region 读取txt
-
-        public Order GetPartFromFile(string path, ref string msg)
+        #region
+        public Order GetPartFromFile(string path, string orderNo, ref string msg)
         {
             string[] strs = System.IO.File.ReadAllLines(@path);
             Order order = new Order();
@@ -548,67 +801,65 @@ namespace SPPSApi.Controllers.G04
 
             if (order.Head == null)
             {
-                msg = "订单Head部分有误";
+                msg = "订单" + orderNo + "Head部分有误";
                 return null;
             }
             else if (order.Details.Count == 0)
             {
-                msg = "订单Detail为空";
+                msg = "订单" + orderNo + "Detail为空";
                 return null;
             }
             else if (order.Tail == null)
             {
-                msg = "订单Tail部分有误";
+                msg = "订单" + orderNo + "Tail部分有误";
                 return null;
             }
 
             return order;
         }
-
         public class Order
-        {
-            public Order()
-            {
-                this.Details = new List<Detail>();
-            }
+                {
+                    public Order()
+                    {
+                        this.Details = new List<Detail>();
+                    }
 
-            public Head Head;
-            public List<Detail> Details;
-            public Tail Tail;
-        }
+                    public Head Head;
+                    public List<Detail> Details;
+                    public Tail Tail;
+                }
 
-        public class Head
-        {
-            public string DataId;
-            public string CPD;
-            public string Date;
-            public string No;
-            public string Type;
-            public string Code;
-            public string SendDate;
-        }
+                public class Head
+                {
+                    public string DataId;
+                    public string CPD;
+                    public string Date;
+                    public string No;
+                    public string Type;
+                    public string Code;
+                    public string SendDate;
+                }
 
-        public class Detail
-        {
-            public string DataId;
-            public string CPD;
-            public string Date;
-            public string Type;
-            public string ItemNo;
-            public string PartsNo;
-            public string QTY;
-            public string Price;
+                public class Detail
+                {
+                    public string DataId;
+                    public string CPD;
+                    public string Date;
+                    public string Type;
+                    public string ItemNo;
+                    public string PartsNo;
+                    public string QTY;
+                    public string Price;
 
-        }
+                }
 
-        public class Tail
-        {
-            public string DataId;
-            public string CPD;
-            public string Date;
-            public string No;
-        }
-
+                public class Tail
+                {
+                    public string DataId;
+                    public string CPD;
+                    public string Date;
+                    public string No;
+                }
 
         #endregion
     }

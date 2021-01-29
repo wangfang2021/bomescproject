@@ -6,7 +6,6 @@ using System.Data;
 using DataAccess;
 using System.Collections;
 
-
 namespace Logic
 {
     public class FS0404_Logic
@@ -37,6 +36,16 @@ namespace Logic
         public void addOrderNo(string vcOrderType,string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId)
         {
             fs0404_DataAccess.addOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId);
+        }
+
+        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode,ref string msg)
+        {
+            fs0404_DataAccess.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode,ref msg);
+        }
+
+        public void addJinJiOrderNo(string realPath, string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId,string uionCode, ref string msg)
+        {
+            fs0404_DataAccess.addJinJiOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode,ref msg);
         }
     }
 }

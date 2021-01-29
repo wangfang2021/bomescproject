@@ -22,7 +22,7 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G06
 {
-    [Route("api/FS0309/[action]")]
+    [Route("api/FS0624/[action]")]
     [EnableCors("any")]
     [ApiController]
     public class FS0624Controller : BaseController
@@ -128,7 +128,7 @@ namespace SPPSApi.Controllers.G06
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
                 ,"vcOriginCompany_Name"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0624_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

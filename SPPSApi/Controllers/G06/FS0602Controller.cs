@@ -30,6 +30,7 @@ namespace SPPSApi.Controllers.G06
         private readonly IWebHostEnvironment _webHostEnvironment;
         FS0602_Logic fs0602_Logic = new FS0602_Logic();
         FS0402_Logic fs0402_Logic = new FS0402_Logic();
+        FS0501_Logic fs0501_Logic = new FS0501_Logic();
         private readonly string FunctionID = "FS0602";
         public FS0602Controller(IWebHostEnvironment webHostEnvironment)
         {
@@ -207,6 +208,49 @@ namespace SPPSApi.Controllers.G06
             }
         }
         /// <summary>
+        /// 导出履历方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportresumeApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                DataTable dt = fs0402_Logic.SearchHistory();
+                string[] heads = { "年月", "错误消息" };
+                string[] fields = { "vcYearMonth", "vcMessage" };
+                string strMsg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0205", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
         /// 保存方法
         /// </summary>
         /// <param name="data"></param>
@@ -230,59 +274,94 @@ namespace SPPSApi.Controllers.G06
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
+                List<string> lsYearMonth = new List<string>();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["bModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
-                        hasFind = true;//修改
+                    bool bAddFlag = (bool)listInfoData[i]["bAddFlag"];//true可编辑,false不可编辑
+                    string ym = listInfoData[i]["vcYearMonth"].ToString();
+                    ym = ym.Substring(0, 4) + "-" + ym.Substring(4, 2) + "-01";
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        hasFind = true;
+                        if (!lsYearMonth.Contains(ym))
+                        {
+                            lsYearMonth.Add(ym);
+                        }
+                    }
                 }
+                string strYearMonth = "";
+                string strYearMonth_2 = "";
+                string strYearMonth_3 = "";
+                string strMsg = "";
                 if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                else
+                {
+                    strYearMonth = Convert.ToDateTime(lsYearMonth[0].ToString()).ToString("yyyyMM");
+                    strYearMonth_2 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(1).ToString("yyyyMM");
+                    strYearMonth_3 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(2).ToString("yyyyMM");
+                    if (fs0602_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg, "save"))
+                    {//全是可操作的数据
+                        //继续向下执行
+                    }
+                    else
+                    {//有不可以操作的数据
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "以下品番不可操作：" + strMsg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 //开始数据验证
                 if (hasFind)
                 {
-                    #region 数据校验
-                    //string[,] strField = new string[,] {{"同步时间","变更事项","包装工厂","补给品番","品名","车种代码","收货方","使用开始","使用结束","替代品番","内外区分","OE=SP","号旧区分","旧型年限生产区分","旧型开始时间","实施年月","供应商编号","供应商使用开始","供应商使用结束","供应商名称"},
-                    //                            {"dSyncTime","vcChanges","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode","vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcInOut","vcOESP","vcHaoJiu","vcOldProduction","dOldStartTime","dDebugTime","vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName"},
-                    //                            {FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.YearMonth,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar},
-                    //                            {"0","0","0","12","200","0","0","0","0","0","0","0","0","0","0","0","10","0","0","0"},//最大长度设定,不校验最大长度用0
-                    //                            {"0","1","1","12","1","0","1","1","1","0","1","1","1","0","0","0","1","1","1","1"},//最小长度设定,可以为空用0
-                    //                            {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"}//前台显示列号，从0开始计算,注意有选择框的是0
-                    //};
-                    ////需要判断时间区间先后关系的字段
-                    //string[,] strDateRegion = { { "dFromTime", "dToTime" }, { "dSupplierFromTime", "dSupplierToTime" } };
-                    //string[,] strSpecialCheck = { };
-                    //List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0603");
-                    //if (checkRes != null)
-                    //{
-                    //    apiResult.code = ComConstant.ERROR_CODE;
-                    //    apiResult.data = checkRes;
-                    //    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    //}
+                    #region 数据格式校验
+                    string[,] strField = new string[,]
+                    {
+                        {"N月","N+1月","N+2月"},//中文字段名
+                        {"iTzhSOQN","iTzhSOQN1","iTzhSOQN2"},//英文字段名
+                        {FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},//数据类型校验
+                        {"0","0","0"},//最大长度设定,不校验最大长度用0
+                        {"1","1","1"},//最小长度设定,可以为空用0
+                        {"9","10","11"},//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0602");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     #endregion
                 }
 
-                string strErrorPartId = "";
-                //fs0603_Logic.setSPInfo(listInfoData, loginInfo.UserId, ref strErrorPartId);
-                if (strErrorPartId != "")
+                List<string> errMessageList = new List<string>();//记录导入错误消息
+                fs0602_Logic.SaveCheck(listInfoData, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, loginInfo.UnitCode);
+                if (errMessageList.Count > 0)
                 {
+                    fs0501_Logic.importHistory(strYearMonth, errMessageList, loginInfo.UserId);
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
+                    apiResult.data = "发现问题数据，导入终止，请查看导入履历。";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                fs0602_Logic.importSave(strYearMonth, loginInfo.UserId, loginInfo.UnitCode);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0704", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -391,7 +470,7 @@ namespace SPPSApi.Controllers.G06
                 {
                     listInfoData = null;
                 }
-                fs0602_Logic.openPlan(listInfoData, dataForm, strExpectTime, loginInfo.UserId, ref strMsg);
+                fs0602_Logic.openPlan(listInfoData, dataForm, strExpectTime, loginInfo, loginInfo.UserId, ref strMsg);
                 if (strMsg == "")
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;
@@ -463,6 +542,50 @@ namespace SPPSApi.Controllers.G06
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 错误信息下载
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string errMsgDownApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
+            try
+            {
+                DataTable dt = fs0501_Logic.SearchHistory(strYearMonth, loginInfo.UserId);
+                string[] heads = { "年月", "错误消息" };
+                string[] fields = { "vcYearMonth", "vcMessage" };
+                string strMsg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0703", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

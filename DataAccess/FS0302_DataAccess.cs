@@ -73,7 +73,7 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                    string finishstate = getValue("C014", ObjToString(listInfoData[i]["vcFinishState"]).Trim());
+                    string finishstate = getValue("C014", ObjToString(listInfoData[i]["FinishState"]).Trim());
                     string change = getValue("C015", ObjToString(listInfoData[i]["THChange"]).Trim());
 
                     if (!finishstate.Equals("1") && !finishstate.Equals("3"))
@@ -135,7 +135,7 @@ namespace DataAccess
                             //Add,TODO 工程结束时间
                             sbr.Append(" a.vcBJDiff = b.vcBJDiff, \r\n");
                             sbr.Append(" a.vcPartReplace = b.vcPart_id_DT, \r\n");
-                            sbr.Append(" a.dGYSTimeTo = b.vcStartYearMonth ");
+                            sbr.Append(" a.dGYSTimeTo = b.vcStartYearMonth, ");
                             //
                             sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
                             sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
@@ -180,7 +180,8 @@ namespace DataAccess
                             sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_old"], false) + ",");
                             sbr.Append("'3',");
                             sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ", ");
+                            //sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ", ");
+                            sbr.Append("CONVERT(DATE, '" + listInfoData[i]["vcStartYearMonth"].ToString() + "' + '01'), ");
                             sbr.Append("'" + strUserId + "',");
                             sbr.Append("GETDATE(),'0') \r\n");
 
@@ -230,7 +231,7 @@ namespace DataAccess
                             sbr.Append(" a.vcFXNo = b.vcFXNo, \r\n");
                             //ADD,TODO 工程结束时间
                             sbr.Append(" a.vcPartNameEn = b.vcPartName, \r\n");
-                            sbr.Append(" a.dGYSTimeTo = CONVERT(DATE,'99991231') ");
+                            sbr.Append(" a.dGYSTimeTo = CONVERT(DATE,'99991231'), ");
                             //
                             sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
                             sbr.Append(" a.dOperatorTime = GETDATE() \r\n");

@@ -16,7 +16,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" SELECT a.*,b.vcName,'0' as vcModFlag,'0' as vcAddFlag FROM ( \r\n");
-                sbr.Append(" SELECT iAutoId,vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10 FROM TJiuTenYear  \r\n");
+                sbr.Append(" SELECT iAutoId,vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear  \r\n");
                 sbr.Append(" WHERE 1=1 \r\n");
                 if (!string.IsNullOrWhiteSpace(vcPart_Id))
                 {
@@ -96,7 +96,7 @@ namespace DataAccess
                         sbr.Append(" vcNum7= " + ComFunction.getSqlValue(listInfoData[i]["vcNum7"], false) + ", \r\n");
                         sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
                         sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
-                        sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + " \r\n");
+                        sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + ", \r\n");
                         sbr.Append(" vcIsLock='1' \r\n");
                         sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
 
@@ -169,12 +169,12 @@ namespace DataAccess
                     sbr.Append("vcNum7  = b.vcNum7 ,");
                     sbr.Append("vcNum8  = b.vcNum8 ,");
                     sbr.Append("vcNum9  = b.vcNum9 ,");
-                    sbr.Append("vcNum10 = b.vcNum10");
+                    sbr.Append("vcNum10 = b.vcNum10 ");
                     sbr.Append("FROM  ");
-                    sbr.Append("TUnit a");
+                    sbr.Append("TUnit a ");
                     sbr.Append("LEFT JOIN ");
-                    sbr.Append("(SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id");
-                    sbr.Append("WHERE b.vcIsLock = '2'");
+                    sbr.Append("(SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id ");
+                    sbr.Append("WHERE b.vcIsLock = '2' ");
                     sbr.Append("UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
 
                     excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");

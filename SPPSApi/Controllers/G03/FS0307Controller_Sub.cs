@@ -54,11 +54,12 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string date = dataForm.date == null ? "" : dataForm.date;
+            string flag = dataForm.flag == null ? "" : dataForm.flag;
 
 
             try
             {
-                String emailBody = fs0307_Logic.CreateEmailBody(date);
+                String emailBody = fs0307_Logic.CreateEmailBody(date, flag);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = emailBody;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -106,7 +107,15 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody, _webHostEnvironment.ContentRootPath);
+                string strMsg = "";
+                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody, _webHostEnvironment.ContentRootPath, ref strMsg);
+
+                if (!string.IsNullOrWhiteSpace(strMsg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -123,6 +132,65 @@ namespace SPPSApi.Controllers.G03
 
         #endregion
 
+        #region FTMS
+
+        [HttpPost]
+        [EnableCors("any")]
+        public string FTMSApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                string EmailBody = dataForm.emailBody.ToString();
+
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+
+                if (listInfoData.Count > 0)
+                {
+                    hasFind = true;
+                }
+
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选中一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                string strMsg = "";
+                fs0307_Logic.FTMS(listInfoData, EmailBody, loginInfo.UserId, ref strMsg);
+
+                if (!string.IsNullOrWhiteSpace(strMsg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0704", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "FTMS层别失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
     }
 }

@@ -503,5 +503,288 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
+
+        #region 送信-调达
+        [HttpPost]
+        [EnableCors("any")]
+        public string sendDiaoDaApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                Object multipleSelection = dataForm.multipleSelection;
+
+                //切替预定日计算逻辑
+                //新设：使用开始时间
+                //旧型：旧型开始
+                //废止：使用结束时间
+                //恢复现号：旧型结束+1天
+                //复活：使用开始时间
+                //持续生产：旧型持续开始
+                //一括生产：使用结束时间
+                //工程变更新设：工程/供应商信息下的开始时间
+                //工程变更废止：工程/供应商信息下的结束时间
+                //供应商变更新设：工程/供应商信息下的开始时间
+                //供应商变更废止：工程/供应商信息下的开始时间
+                //包装工厂变更新设：工程/供应商信息下的开始时间
+                //包装工厂变更废止：工程/供应商信息下的开始时间
+                //防锈变更：=文本“即时切替”
+
+                if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
+                {
+                    string strChange = dataForm.Change;
+                    string strPart_id = dataForm.Part_id;
+                    string strOriginCompany = dataForm.OriginCompany;
+                    string strHaoJiu = dataForm.HaoJiu;
+                    string strProjectType = dataForm.ProjectType;
+                    if (loginInfo.Special == "财务用户")
+                        strProjectType = "内制";
+                    string strPriceChangeInfo = dataForm.PriceChangeInfo;
+                    string strCarTypeDev = dataForm.CarTypeDev;
+                    string strSupplier_id = dataForm.Supplier_id;
+                    string strReceiver = dataForm.Receiver;
+                    string strPriceState = dataForm.PriceState;
+ 
+                    DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+                      , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
+                      , strReceiver, strPriceState
+                      );
+                    string[] fields = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",
+                        "vcSupplier_id","vcOE","vcPart_id_HK","vcHaoJiu_Name","vcStateFX","vcFXNO","vcChange_Name"
+                    ,"dQieTi","field1","field2","field3"
+                    };
+                    DataTable result = dt.Clone();
+                    result.Columns.Add("iNo");//序号
+                    result.Columns.Add("dQieTi");//切替预定日
+                    result.Columns.Add("field1");//价格设定要望日
+                    result.Columns.Add("field2");//调达原价
+                    result.Columns.Add("field3");//调达部回答日
+
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        DataRow row=result.NewRow();
+                        row["iNo"] = i+1;
+                        row["field1"] = "";
+                        row["field2"] = "";
+                        row["field3"] = "";
+                        row["vcPart_id"] = dt.Rows[i]["vcPart_id"];
+                        row["vcCarTypeDev"] = dt.Rows[i]["vcCarTypeDev"];
+                        row["vcPart_Name"] = dt.Rows[i]["vcPart_Name"];
+                        row["vcSupplier_Name"] = dt.Rows[i]["vcSupplier_Name"];
+                        row["vcSupplier_id"] = dt.Rows[i]["vcSupplier_id"];
+                        row["vcOE"] = dt.Rows[i]["vcOE"];
+                        row["vcPart_id_HK"] = dt.Rows[i]["vcPart_id_HK"];
+                        row["vcHaoJiu_Name"] = dt.Rows[i]["vcHaoJiu_Name"];
+                        row["vcStateFX"] = dt.Rows[i]["vcStateFX"];
+                        row["vcFXNO"] = dt.Rows[i]["vcFXNO"];
+                        row["vcChange"] = dt.Rows[i]["vcChange"];
+                        row["vcChange_Name"] = dt.Rows[i]["vcChange_Name"];
+                        if (row["vcChange"].ToString() == "1")//新设：使用开始时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dUseBegin"]; 
+                        }
+                        else if (row["vcChange"].ToString() == "5")//旧型：旧型开始
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dJiuBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "4")//废止：使用结束时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dUseEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "6")//恢复现号：旧型结束+1天
+                        {
+                            DateTime temp_d = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]).AddDays(1);
+                            row["dQieTi"] = temp_d;
+                        }
+                        else if (row["vcChange"].ToString() == "16")//复活：使用开始时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dUseBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "7")//持续生产：旧型持续开始
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dJiuBeginSustain"];
+                        }
+                        else if (row["vcChange"].ToString() == "15")//一括生产：使用结束时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dUseEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "8")//工程变更新设：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dProjectBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "9") //工程变更废止：工程/供应商信息下的结束时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dProjectEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "10")//供应商变更新设：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dProjectBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dProjectEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "12")//包装工厂变更新设：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dProjectBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = dt.Rows[i]["dProjectEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "17")//防锈变更：=文本“即时切替”
+                        {
+                            row["dQieTi"] = "即时切替";
+                        }
+                        result.Rows.Add(row);
+                    }
+
+                    string filepath = fs0309_Logic.generateExcelWithXlt(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa.xlsx", 8, loginInfo.UserId, FunctionID);
+                    if (filepath == "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导出生成文件失败";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = filepath;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    JArray checkedInfo = dataForm.multipleSelection;
+                    List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                    string[] fields = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",
+                        "vcSupplier_id","vcOE","vcPart_id_HK","vcHaoJiu_Name","vcStateFX","vcFXNO","vcChange_Name"
+                    ,"dQieTi","field1","field2","field3"
+                    };
+                    DataTable result = new DataTable();
+                    result.Columns.Add("iNo");//序号
+                    result.Columns.Add("vcPart_id");
+                    result.Columns.Add("vcCarTypeDev");
+                    result.Columns.Add("vcPart_Name");
+                    result.Columns.Add("vcSupplier_Name");
+                    result.Columns.Add("vcSupplier_id");
+                    result.Columns.Add("vcOE");
+                    result.Columns.Add("vcPart_id_HK");
+                    result.Columns.Add("vcHaoJiu_Name");
+                    result.Columns.Add("vcStateFX");
+                    result.Columns.Add("vcFXNO");
+                    result.Columns.Add("vcChange");
+                    result.Columns.Add("vcChange_Name");
+                    result.Columns.Add("dQieTi");//切替预定日
+                    result.Columns.Add("field1");//价格设定要望日
+                    result.Columns.Add("field2");//调达原价
+                    result.Columns.Add("field3");//调达部回答日
+
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        DataRow row = result.NewRow();
+                        row["iNo"] = i + 1;
+                        row["field1"] = "";
+                        row["field2"] = "";
+                        row["field3"] = "";
+                        row["vcPart_id"] = listInfoData[i]["vcPart_id"];
+                        row["vcCarTypeDev"] = listInfoData[i]["vcCarTypeDev"];
+                        row["vcPart_Name"] = listInfoData[i]["vcPart_Name"];
+                        row["vcSupplier_Name"] = listInfoData[i]["vcSupplier_Name"];
+                        row["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"];
+                        row["vcOE"] = listInfoData[i]["vcOE"];
+                        row["vcPart_id_HK"] = listInfoData[i]["vcPart_id_HK"];
+                        row["vcHaoJiu_Name"] = listInfoData[i]["vcHaoJiu_Name"];
+                        row["vcStateFX"] = listInfoData[i]["vcStateFX"];
+                        row["vcFXNO"] = listInfoData[i]["vcFXNO"];
+                        row["vcChange"] = listInfoData[i]["vcChange"];
+                        row["vcChange_Name"] = listInfoData[i]["vcChange_Name"];
+                        if (row["vcChange"].ToString() == "1")//新设：使用开始时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dUseBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "5")//旧型：旧型开始
+                        {
+                            row["dQieTi"] = listInfoData[i]["dJiuBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "4")//废止：使用结束时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dUseEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "6")//恢复现号：旧型结束+1天
+                        {
+                            DateTime temp_d = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]).AddDays(1);
+                            row["dQieTi"] = temp_d;
+                        }
+                        else if (row["vcChange"].ToString() == "16")//复活：使用开始时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dUseBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "7")//持续生产：旧型持续开始
+                        {
+                            row["dQieTi"] = listInfoData[i]["dJiuBeginSustain"];
+                        }
+                        else if (row["vcChange"].ToString() == "15")//一括生产：使用结束时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dUseEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "8")//工程变更新设：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dProjectBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "9") //工程变更废止：工程/供应商信息下的结束时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dProjectEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "10")//供应商变更新设：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dProjectBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dProjectEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "12")//包装工厂变更新设：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dProjectBegin"];
+                        }
+                        else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                        {
+                            row["dQieTi"] = listInfoData[i]["dProjectEnd"];
+                        }
+                        else if (row["vcChange"].ToString() == "17")//防锈变更：=文本“即时切替”
+                        {
+                            row["dQieTi"] = "即时切替";
+                        }
+                        result.Rows.Add(row);
+                    }
+
+                    string filepath = fs0309_Logic.generateExcelWithXlt(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa.xlsx", 8, loginInfo.UserId, FunctionID);
+                    if (filepath == "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导出生成文件失败";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = filepath;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0911", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "送信失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

@@ -421,7 +421,169 @@ namespace Common
             }
         }
 
-        public static DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header,int startRow, ref string RetMsg)
+        /// <summary>
+        /// 导入标准Excel，第一行为列头
+        /// </summary>
+        /// <param name="FileFullName">文件完整路径</param>
+        /// <param name="sheetName">指定sheet页名称，如未匹配则默认选择第一个sheet</param>
+        /// <param name="Header">5个数组,第一个为文件中列头，第二个为对应DataTable列头，第三个对应校验数据类型，第四个为最大长度限定（为0不校验），第五个为最小长度限定（为0不校验）</param>
+        /// <param name="RetMsg">返回信息</param>
+        /// <returns></returns>
+        public static DataTable ExcelToDataTableformRows(string FileFullName, string sheetName, string[,] Header, int heardrow, int datarow, ref string RetMsg)
+        {
+            FileStream fs = null;
+            IWorkbook workbook = null;
+            ISheet sheet = null;
+            List<int> index = new List<int>();
+            DataTable data = new DataTable();
+            RetMsg = "";
+            int startRow = 0;
+
+            try
+            {
+                fs = new FileStream(FileFullName, FileMode.Open, FileAccess.Read);
+
+                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0) // 2007版本
+                    workbook = new XSSFWorkbook(fs);
+                else if (FileFullName.IndexOf(".xls") > 0) // 2003版本
+                    workbook = new HSSFWorkbook(fs);
+
+                if (sheetName != null)
+                {
+                    sheet = workbook.GetSheet(sheetName);
+                    if (sheet == null) //如果没有找到指定的sheetName对应的sheet，则尝试获取第一个sheet
+                    {
+                        sheet = workbook.GetSheetAt(0);
+                    }
+                }
+                else
+                {
+                    sheet = workbook.GetSheetAt(0);
+                }
+
+                if (sheet != null)
+                {
+                    IRow firstRow = sheet.GetRow(heardrow - 1);
+                    int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+
+                    //对应索引
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        bool bFound = false;
+                        for (int j = 0; j < cellCount; j++)
+                        {
+                            ICell cell = firstRow.GetCell(j);
+                            string cellValue = cell.StringCellValue;
+                            if (!string.IsNullOrEmpty(cellValue))
+                            {
+                                if (Header[0, i] == cellValue)
+                                {
+                                    bFound = true;
+                                    index.Add(j);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bFound == false)
+                        {
+                            RetMsg = Header[0, i] + "列不存在";
+                            return null;
+                        }
+                    }
+
+                    //创建Datatable的列
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        data.Columns.Add(Header[1, i].ToString().Trim());
+                    }
+
+                    //获取数据首尾行
+                    startRow = datarow - 1;
+                    //startRow = sheet.FirstRowNum + 1;
+                    int rowCount = sheet.LastRowNum;
+
+                    //读取数据
+                    for (int i = startRow; i <= rowCount; ++i)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row == null) continue; //没有数据的行默认是null　　　　　　　
+
+                        DataRow dataRow = data.NewRow();
+                        for (int j = 0; j < Header.GetLength(1); j++)
+                        {
+                            ICell cell = row.GetCell(index[j]);
+                            if (cell != null) //同理，没有数据的单元格都默认是null
+                            {
+                                switch (cell.CellType)
+                                {
+                                    case CellType.Blank:
+                                        dataRow[j] = string.Empty;
+                                        break;
+                                    case CellType.Numeric:
+                                        //short format = cell.CellStyle.DataFormat;
+                                        ////对时间格式（2015.12.5、2015/12/5、2015-12-5等）的处理***
+                                        //if (format == 14 || format == 31 || format == 57 || format == 58 || format == 20 || format == 22)
+                                        //    dataRow[j] = cell.DateCellValue.ToString("yyyy-MM-dd HH:mm:ss");
+                                        //else
+                                        //    dataRow[j] = cell.NumericCellValue;
+                                        //NPOI中数字和日期都是NUMERIC类型的，这里对其进行判断是否是日期类型
+                                        if (HSSFDateUtil.IsCellDateFormatted(cell))//日期类型
+                                        {
+                                            //dataRow[j] = cell.DateCellValue;
+                                            var value = cell.NumericCellValue;
+                                            dataRow[j] = DateTime.FromOADate(value).ToString("yyyy-MM-dd HH:mm:ss");
+                                        }
+                                        else//其他数字类型
+                                        {
+                                            dataRow[j] = cell.NumericCellValue;
+                                        }
+                                        break;
+                                    case CellType.String:
+                                        dataRow[j] = cell.StringCellValue;
+                                        break;
+                                    //case CellType.Formula:
+                                    //    HSSFFormulaEvaluator eva = new HSSFFormulaEvaluator(workbook);
+                                    //    dataRow[j] = eva.Evaluate(cell).StringValue;
+                                    //    break;
+                                    default: 
+                                        dataRow[j] = cell.ToString();
+                                        break;
+                                }
+                            }
+                        }
+
+                        data.Rows.Add(dataRow);
+                    }
+                }
+
+                for (int i = 0; i < data.Columns.Count; i++)
+                {
+                    data.Columns[i].DataType = typeof(string);
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine("Exception: " + ex.Message);
+                return null;
+            }
+            finally
+            {
+                if (workbook != null)
+                {
+                    workbook.Close();
+                }
+                if (fs != null)
+                {
+                    fs.Close();
+                    fs.Dispose();
+                }
+            }
+        }
+
+        public static DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, int startRow, ref string RetMsg)
         {
             FileStream fs = null;
             IWorkbook workbook = null;
@@ -757,7 +919,7 @@ namespace Common
         /// <param name="strFunctionName"></param>
         /// <param name="RetMsg"></param>
         /// <returns>最终文件的全路径</returns>
-        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath,string fileName, string strUserId, string strFunctionName, ref string RetMsg)
+        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath, string fileName, string strUserId, string strFunctionName, ref string RetMsg)
         {
             bool result = false;
             RetMsg = "";
@@ -1083,8 +1245,8 @@ namespace Common
                     MMge.To.Add(new MailAddress(receiverDt.Rows[i]["address"].ToString(), receiverDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
                 }
                 //添加抄送
-                if(cCDt!=null)
-                { 
+                if (cCDt != null)
+                {
                     for (var i = 0; i < cCDt.Rows.Count; i++)
                     {
                         MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
@@ -1184,5 +1346,5 @@ namespace Common
     }
     #endregion
 
-    
+
 }

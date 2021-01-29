@@ -21,11 +21,37 @@ namespace Logic
     {
         FS0307_DataAccess fs0307_dataAccess = new FS0307_DataAccess();
 
+        #region 获取抽取状态
+
+        public DataTable getExtractState(string OriginCompany)
+        {
+            DataTable dt = fs0307_dataAccess.getExtractState();
+
+            int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
+            string tmp = "";
+            for (int i = 0; i < arrInt.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(tmp))
+                {
+                    tmp += ",";
+                }
+                tmp += "'" + arrInt[i].ToString() + "'";
+            }
+
+            DataRow[] rows = dt.Select("vcValue in (" + tmp + ")");
+            DataTable res = rows.CopyToDataTable();
+
+            return dt;
+            return res;
+        }
+
+        #endregion
+
         #region 检索
 
-        public DataTable searchApi(string strYear, string FinishFlag, string SYT, string Receiver, List<string> origin)
+        public DataTable searchApi(string strYear, string FinishFlag)
         {
-            return fs0307_dataAccess.searchApi(strYear, FinishFlag, SYT, Receiver, origin);
+            return fs0307_dataAccess.searchApi(strYear, FinishFlag);
         }
 
         #endregion
@@ -46,30 +72,83 @@ namespace Logic
 
         #endregion
 
-        #region FTMS
+        #region 创建邮件体
 
-        public void FTMS(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public string CreateEmailBody(string date, string flag)
         {
-            fs0307_dataAccess.FTMSCB(listInfoData, strUserId);
+            StringBuilder sbr = new StringBuilder();
+            if (flag == "0")
+            {
+                sbr.AppendLine("<p>FTMS 相关各位殿：</p>");
+                sbr.AppendLine("<p>大家好！</p>");
+                sbr.AppendLine("<p>感谢一直以来对TFTM补给业务的支持！</p><p><br></p>");
+                sbr.AppendLine("<p>关于标题一事，</p>");
+                sbr.AppendLine("<p>根据年限制度运用手册，抽出了本年度需要调整的对象品番。</p>");
+                sbr.AppendLine("<p>抽出对象：</p>");
+                sbr.AppendLine("<p>1）即将旧型满10年</p>");
+                sbr.AppendLine("<p>2）往年判断持续生产（旧型已超过10年）</p>");
+                sbr.AppendLine("<p>3）旧型满7年的内外装</p><p><br></p>");
+                sbr.AppendLine("<p>拜托开始进行受注实绩的把握（注：机能部品参考近三年平均受注，内外装部品参考近两年平均受注）</p>");
+                sbr.AppendLine("<p>持续、一括、打切的层别，以及必要数的预测</p><p><br></p>");
+                sbr.AppendLine("<p>请在<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>前，向TFTM反馈结果。</p><p><br></p>");
+                sbr.AppendLine("<p>如有问题，请与我联络。</p><p><br></p>");
+                sbr.AppendLine("<p>以上。</p>");
+            }
+            else if (flag == "1")
+            {
+                sbr.AppendLine("<p>各位供应商殿&nbsp;&nbsp;&nbsp;（请转发给贵司社内相关人员）</p><p><br></p>");
+                sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
+                sbr.AppendLine("<p><br></p><p><br></p><p><br></p>");
+                sbr.AppendLine("<p>关于标题一事，</p>");
+                sbr.AppendLine("<p>本年度的年限调整工作开始展开。 </p>");
+                sbr.AppendLine("<p>附件为本年度贵司的旧型年限制度联络单，请查收。</p>");
+                sbr.AppendLine("<p>回复纳期：<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>下班前</p><p><br></p><p>回答时，请添付填写完毕的帐票电子版以及</p>");
+                sbr.AppendLine("<p>填写完毕并有贵司责任者签字承认的回答书扫描版（PDF）</p>");
+                sbr.AppendLine("<p>另外：一括生产零件调达周期超过3个月（包含3个月）的，请进行标注并提示具体调达周期。</p><p><br></p>");
+                sbr.AppendLine("<p>如有问题，请随时与我联络。</p><p><br></p>");
+                sbr.AppendLine("<p>以上。</p><p><br></p>");
+            }
+
+            return sbr.ToString();
         }
 
         #endregion
 
-        #region 展开账票
+        #region FTMS
 
-        public string CreateEmailBody(string date)
-        {
-            StringBuilder sbr = new StringBuilder();
-            sbr.AppendLine("展开期限");
-            sbr.AppendLine(date);
-            return sbr.ToString();
-        }
-
-        public bool ZKZP(List<Dictionary<string, Object>> listInfoData, string strUserId, string emailBody, string path)
+        public void FTMS(List<Dictionary<string, Object>> listInfoData, string EmailBody, string strUserId, ref string refMsg)
         {
             try
             {
-                bool isSuccess = true;
+                fs0307_dataAccess.FTMSCB(listInfoData, strUserId);
+                //TODO 发送邮件
+
+                //邮件发送失败
+                if (false)
+                {
+                    refMsg = "FTMS层别展开成功，但邮件发送失败。";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+
+        #endregion
+
+
+
+        #region 展开账票
+
+
+
+        public void ZKZP(List<Dictionary<string, Object>> listInfoData, string strUserId, string emailBody, string path, ref string refMsg)
+        {
+            try
+            {
                 //记录列表
                 List<MailSend> list = new List<MailSend>();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -95,24 +174,38 @@ namespace Logic
                         list[index].id.Add(iAutoId);
                     }
                 }
-                //对每个供应商发送邮件，成功则记录
+                List<int> id = new List<int>();
+                foreach (MailSend mailSend in list)
+                {
+                    foreach (int tmp in mailSend.id)
+                    {
+                        id.Add(tmp);
+                    }
+                }
+                //账票展开
+                fs0307_dataAccess.ZKZP(id, strUserId);
+
+                //对每个供应商发送邮件，记录失败供应商前台显示
                 for (int i = 0; i < list.Count; i++)
                 {
                     //TODO 生成附件
                     DataTable dt = fs0307_dataAccess.getFile(list[i].id);
                     string file = generateExcelWithXlt(dt, path, "FS0307_template.xlsx", list[i].supplierId);
-                    if (string.IsNullOrWhiteSpace(file))
-                    {
-                        return false;
-                    }
+
                     //TODO 发送邮件
 
-                    //成功发送邮件,记录结果
-                    fs0307_dataAccess.ZKZP(list[i].id, strUserId);
+                    //失败记录失败供应商
+                    if (false)
+                    {
+                        if (string.IsNullOrWhiteSpace(refMsg))
+                        {
+                            refMsg = "账票展开成功，但以下供应商邮件发送失败。";
+                        }
+
+                        refMsg += list[i].supplierId + ";";
+                    }
+
                 }
-
-                return isSuccess;
-
             }
             catch (Exception ex)
             {

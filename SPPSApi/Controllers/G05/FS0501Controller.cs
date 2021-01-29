@@ -149,6 +149,7 @@ namespace SPPSApi.Controllers.G05
                     if (fs0501_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg,"submit"))
                     {//全是可操作的数据
                         // 执行提交操作：按所选数据提交
+                        fs0501_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
                     }
                     else
                     {//有不可以操作的数据
@@ -162,6 +163,7 @@ namespace SPPSApi.Controllers.G05
                     if (fs0501_Logic.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, ref strMsg))
                     {//全是可操作的数据
                         //执行提交操作：按检索条件提交
+                        fs0501_Logic.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, loginInfo.UserId);
                     }
                     else
                     {//有不可以操作的数据
@@ -276,9 +278,9 @@ namespace SPPSApi.Controllers.G05
                         }
                     }
                 }
-                string strYearMonth = Convert.ToDateTime(lsYearMonth[0].ToString()).ToString("yyyyMM");
-                string strYearMonth_2 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(1).ToString("yyyyMM");
-                string strYearMonth_3 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(2).ToString("yyyyMM");
+                string strYearMonth = "";
+                string strYearMonth_2 = "";
+                string strYearMonth_3 = "";
                 string strMsg = "";
                 if (!hasFind)
                 {
@@ -288,6 +290,9 @@ namespace SPPSApi.Controllers.G05
                 }
                 else
                 {
+                    strYearMonth = Convert.ToDateTime(lsYearMonth[0].ToString()).ToString("yyyyMM");
+                    strYearMonth_2 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(1).ToString("yyyyMM");
+                    strYearMonth_3 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(2).ToString("yyyyMM");
                     if (fs0501_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg,"save"))
                     {//全是可操作的数据
                         //继续向下执行
@@ -309,7 +314,7 @@ namespace SPPSApi.Controllers.G05
                         {"iTzhSOQN","iTzhSOQN1","iTzhSOQN2"},//英文字段名
                         {FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},//数据类型校验
                         {"0","0","0"},//最大长度设定,不校验最大长度用0
-                        {"0","0","0"},//最小长度设定,可以为空用0
+                        {"1","1","1"},//最小长度设定,可以为空用0
                         {"9","10","11"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0501");
@@ -322,13 +327,12 @@ namespace SPPSApi.Controllers.G05
                     }
                     #endregion
                 }
-                
-                
+
                 List<string> errMessageList = new List<string>();//记录导入错误消息
                 fs0501_Logic.SaveCheck(listInfoData, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, loginInfo.UnitCode);
                 if (errMessageList.Count > 0)
                 {
-                    fs0501_Logic.importHistory(strYearMonth, errMessageList,loginInfo.UserId);
+                    fs0501_Logic.importHistory(strYearMonth, errMessageList, loginInfo.UserId);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "发现问题数据，导入终止，请查看导入履历。";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);

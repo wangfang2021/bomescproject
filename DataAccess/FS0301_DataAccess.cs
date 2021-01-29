@@ -3,7 +3,6 @@ using Common;
 using System.Data;
 using System.Text;
 using System.Collections.Generic;
-using Org.BouncyCastle.Crypto;
 
 namespace DataAccess
 {
@@ -24,11 +23,11 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrWhiteSpace(dOperatorTime))
                 {
-                    sbr.Append(" AND dOperatorTime = '" + dOperatorTime + "' \r\n");
+                    sbr.Append(" AND Convert(varchar(10),dOperatorTime,120) = '" + dOperatorTime + "' \r\n");
                 }
 
-                sbr.Append(" ORDER BY dOperatorTime desc  \r\n");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                sbr.Append(" ORDER BY vcState ASC, dOperatorTime desc  \r\n");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception e)
             {
@@ -43,7 +42,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append("UPDATE TSBFile SET vcState = 1 WHERE vcState = 0 AND vcFileNameTJ = '" + fileName + "' \r\n");
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -68,7 +67,7 @@ namespace DataAccess
                         sbr.Append(" UPDATE TSBFile SET vcRemark = '" + vcRemark + "' WHERE iAutoId = " + iAutoId + " \r\n");
 
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)

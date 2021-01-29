@@ -10,15 +10,13 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        public DataTable searchApi(string vcPart_id, string vcPartNameEn, string vcPartNameCn, string strSYT)
+        public DataTable searchApi(string vcPart_id, string vcPartNameEn, string vcPartNameCn)
         {
             StringBuilder sbr = new StringBuilder();
-            sbr.Append(" SELECT iAutoId,vcPart_id,vcPartNameEn,LEFT(vcPart_id,5) AS vcPart_id_short,vcPartNameCn,'0' as vcModFlag,'0' as vcAddFlag FROM Tunit \r\n ");
+            sbr.Append(" SELECT iAutoId,vcPart_id,vcPartNameEn,LEFT(vcPart_id,5) AS vcPart_id_short,vcPartNameCn,'0' as vcModFlag,'0' as vcAddFlag,vcIsLock FROM TPartNameCN \r\n ");
             sbr.Append(" WHERE 1=1 ");
-            
+
             //TODO 有效时间是否需要
-            //sbr.Append(" AND dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
-            
             if (!string.IsNullOrWhiteSpace(vcPart_id))
             {
                 sbr.Append(" AND ISNULL(vcPart_id,'') LIKE '" + vcPart_id + "%' ");
@@ -31,13 +29,7 @@ namespace DataAccess
             {
                 sbr.Append(" AND ISNULL(vcPartNameCn,'') LIKE '" + vcPartNameCn + "%' ");
             }
-            if (!string.IsNullOrWhiteSpace(strSYT))
-            {
-                sbr.Append(" AND vcSYTCode = (SELECT vcValue FROM TCode WHERE vcCodeId = 'C016' AND vcName = '" + strSYT + "') ");
-            }
-            sbr.Append(" AND  vcChange IN(SELECT vcValue FROM Tcode WHERE vcCodeId = 'C002' AND vcName LIKE '%新设%') ");
-
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
 
         #region 保存
@@ -49,14 +41,17 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
+                    string flag = listInfoData[i]["vcIsLock"].ToString();
+                    if (bModFlag == true && flag.Equals("0"))
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                        sbr.Append(" UPDATE TUnit SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",dOperatorTime = GETDATE(),vcOperator = '" + strUserId + "' WHERE iAutoId = " + iAutoId + " \r\n");
+                        sbr.Append(" UPDATE TPartNameCN SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",dOperatorTime = GETDATE(),vcOperator = '" + strUserId + "' WHERE iAutoId = " + iAutoId + " \r\n");
+                        sbr.Append(" UPDATE TUnit SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",vcOperator = '" + strUserId + "',dOperatorTime = GETDATE() ");
+                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
 
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -81,17 +76,22 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sbr.Append(" UPDATE TUnit SET  \r\n ");
+                    sbr.Append(" UPDATE TPartNameCN SET  \r\n ");
                     sbr.Append(" vcPartNameCn = " + ComFunction.getSqlValue(dt.Rows[i]["vcPartNameCn"], false) + ", ");
                     sbr.Append(" dOperatorTime = GETDATE(), ");
-                    sbr.Append(" vcOperator = '" + strUserId + "' \r\n");
-                    sbr.Append(" where  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
-                    sbr.Append(" and vcSYTCode = (SELECT vcValue FROM TCode WHERE vcCodeId = 'C016' AND vcName = '" + strUnitCode + "') ");
-                    sbr.Append(" and vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + "  \r\n");
+                    sbr.Append(" vcOperator = '" + strUserId + "',vcIsLock = '2' \r\n");
+                    sbr.Append(" where vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " AND vcIsLock = '0'  \r\n");
                 }
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    sbr.Append("UPDATE TUnit SET vcPartNameCn = b.vcPartNameCn from  ");
+                    sbr.Append("TUnit a");
+                    sbr.Append("LEFT JOIN ");
+                    sbr.Append("(SELECT vcPart_id,vcPartNameCn,vcIsLock FROM TPartNameCN) b ON a.vcPart_id = b.vcPart_id");
+                    sbr.Append("WHERE b.vcIsLock = '2'");
+                    sbr.Append("UPDATE TPartNameCN SET vcIsLock = '1' WHERE vcIsLock = '2'");
+
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)

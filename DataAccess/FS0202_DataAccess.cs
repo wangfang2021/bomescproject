@@ -32,7 +32,7 @@ namespace DataAccess
 
             }
             sbr.Append(" order by dOperatorTime desc \r\n");
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
 
         }
 

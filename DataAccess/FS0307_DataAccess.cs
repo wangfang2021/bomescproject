@@ -3,13 +3,27 @@ using System.Collections.Generic;
 using Common;
 using System.Data;
 using System.Text;
-using Org.BouncyCastle.Crypto.Tls;
 
 namespace DataAccess
 {
     public class FS0307_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
+
+        //获取抽取状态
+        public DataTable getExtractState()
+        {
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine("SELECT a.vcName,a.vcValue,CASE WHEN a.isFinish>0 THEN '已抽取' WHEN a.isFinish = 0 THEN '未抽取' END AS isFinish  FROM ");
+            sbr.AppendLine("(");
+            sbr.AppendLine("SELECT a.*,ISNULL(b.vcOriginCompany,'0') AS isFinish FROM ");
+            sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') a");
+            sbr.AppendLine("LEFT JOIN ");
+            sbr.AppendLine("(SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcValue = b.vcOriginCompany");
+            sbr.AppendLine(") a");
+
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+        }
 
         //年限对象品番抽取
         public void extractPart(string strUserId, List<string> vcOriginCompany)
@@ -79,7 +93,7 @@ namespace DataAccess
                 sbr.Append("             WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')  \r\n");
                 sbr.Append("      DROP TABLE #temp;  \r\n");
 
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -101,7 +115,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -109,24 +123,24 @@ namespace DataAccess
             }
         }
         //检索
-        public DataTable searchApi(string strYear, string FinishFlag, string SYT, string Receiver, List<string> origin)
+        public DataTable searchApi(string strYear, string FinishFlag)
         {
             try
             {
-                string OriginCompany = "";
-                if (origin.Count > 0)
-                {
-                    OriginCompany = "";
-                    foreach (string str in origin)
-                    {
-                        if (!string.IsNullOrWhiteSpace(OriginCompany))
-                        {
-                            OriginCompany += ",";
-                        }
+                //string OriginCompany = "";
+                //if (origin.Count > 0)
+                //{
+                //    OriginCompany = "";
+                //    foreach (string str in origin)
+                //    {
+                //        if (!string.IsNullOrWhiteSpace(OriginCompany))
+                //        {
+                //            OriginCompany += ",";
+                //        }
 
-                        OriginCompany += "'" + str + "'";
-                    }
-                }
+                //        OriginCompany += "'" + str + "'";
+                //    }
+                //}
                 StringBuilder sbr = new StringBuilder();
 
                 sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,e.vcName AS vcSYTCode,f.vcName AS vcReceiver,g.vcName AS vcOriginCompany,   \r\n");
@@ -152,20 +166,20 @@ namespace DataAccess
                 {
                     sbr.Append(" AND a.vcFinish = '" + FinishFlag + "' \r\n");
                 }
-                if (!string.IsNullOrWhiteSpace(SYT))
-                {
-                    sbr.Append(" AND a.vcSYTCode = '" + SYT + "' \r\n");
-                }
-                if (!string.IsNullOrWhiteSpace(Receiver))
-                {
-                    sbr.Append(" AND a.vcReceiver = '" + Receiver + "' \r\n");
-                }
-                if (!string.IsNullOrWhiteSpace(OriginCompany))
-                {
-                    sbr.Append(" AND a.vcOriginCompany in (" + OriginCompany + ") \r\n");
-                }
+                //if (!string.IsNullOrWhiteSpace(SYT))
+                //{
+                //    sbr.Append(" AND a.vcSYTCode = '" + SYT + "' \r\n");
+                //}
+                //if (!string.IsNullOrWhiteSpace(Receiver))
+                //{
+                //    sbr.Append(" AND a.vcReceiver = '" + Receiver + "' \r\n");
+                //}
+                //if (!string.IsNullOrWhiteSpace(OriginCompany))
+                //{
+                //    sbr.Append(" AND a.vcOriginCompany in (" + OriginCompany + ") \r\n");
+                //}
 
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -191,12 +205,12 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn, a.vcCarTypeDev, a.dJiuBegin,");
                 sbr.AppendLine(" CASE b.vcName WHEN '机能' THEN '1' WHEN '内外装' THEN '2' ELSE '' END AS vcPM, ");
-                sbr.AppendLine("a.vcNum1, a.vcNum2, a.vcNum3, CONVERT(DECIMAL(18, 2), ((CONVERT(DECIMAL(18, 2), ISNULL(a.vcNum1, 0))+CONVERT(DECIMAL(18, 2), ISNULL(a.vcNum2, 0))+CONVERT(DECIMAL(18, 2), ISNULL(a.vcNum3, 0)))/ 3)) AS vcNumAvg, ");
+                sbr.AppendLine("a.vcNum1, a.vcNum2, a.vcNum3,  CAST((CAST((CASE isnull(A.vcNum1,'') WHEN '' THEN '0' ELSE A.vcNum1 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum2,'') WHEN '' THEN '0'  ELSE A.vcNum2 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum3,'') WHEN '' THEN '0'  ELSE A.vcNum3 END ) as decimal(18,2)))/3 AS decimal(18,2)) AS vcNumAvg, ");
                 sbr.AppendLine(" a.vcNXQF, a.dSSDate, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 ");
                 sbr.AppendLine("FROM TOldYearManager a");
                 sbr.AppendLine("     LEFT JOIN(SELECT vcName, vcValue FROM TCode WHERE vcCodeId='C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
                 sbr.AppendLine("WHERE a.iAuto_id IN (" + idList + ");");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -222,7 +236,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -294,7 +308,7 @@ namespace DataAccess
                 }
                 if (sql.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -344,7 +358,7 @@ namespace DataAccess
                 }
                 if (sql.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -375,7 +389,7 @@ namespace DataAccess
                 sbr.Append(" UPDATE TOldYearManager SET vcFinish = '3',dFinishYMD = GETDATE(),vcOperatorID = '" + strUserId + "',dOperatorTime = GETDATE() \r\n");
                 sbr.Append(" WHERE iAuto_id in ( " + id + " ) \r\n");
 
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -449,7 +463,7 @@ namespace DataAccess
 
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -467,7 +481,6 @@ namespace DataAccess
             catch (Exception ex)
             {
                 return "";
-                throw;
             }
         }
     }

@@ -26,6 +26,13 @@ namespace Logic
         }
         #endregion
 
+        #region 检索特记
+        public DataTable SearchTeji(string strPart_id)
+        {
+            return fs0303_DataAccess.SearchTeji(strPart_id);
+        }
+        #endregion
+
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -37,6 +44,13 @@ namespace Logic
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
             fs0303_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+        #region 保存特记
+        public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strPartId)
+        {
+            fs0303_DataAccess.SaveTeJi(listInfoData, strUserId, strPartId);
         }
         #endregion
 
@@ -103,14 +117,14 @@ namespace Logic
                                 }
                                 else
                                 {
-                                    strErr = "第" + (i + 2) + "行的" + item.strTitle + "不能为空";
+                                    //strErr = "第" + (i + 2) + "行的" + item.strTitle + "不能为空";
                                     return null;
                                 }
 
                             }
                         }
                         //value获取失败,表示并未找到与其对应的Value值
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             #region 提示第几行的数据不合法，提示消息赋值给strErr
                             strErr = "第" + (i + 2) + "行的" + item.strTitle + "填写不合法";
@@ -250,6 +264,11 @@ namespace Logic
             {
                 string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
                 DataTable receiverDt = getSupplierEmail(strSupplier_id);
+                if (receiverDt==null)
+                {
+                    strErr += "未找到 '" + strSupplier_id + "' 供应商邮件信息";
+                    return;
+                }
                 ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
             }
         }

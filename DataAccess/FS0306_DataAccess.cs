@@ -16,9 +16,8 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" SELECT a.*,b.vcName,'0' as vcModFlag,'0' as vcAddFlag FROM ( \r\n");
-                sbr.Append(" SELECT iAutoId,vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10 FROM TUnit  \r\n");
-                sbr.Append(" WHERE vcSYTCode = (SELECT vcValue FROM TCode WHERE vcCodeId = 'C016' AND vcName = '" + strUnitCode + "') \r\n");
-                sbr.Append(" AND vcChange IN (SELECT vcValue FROM TCode WHERE vcCodeId = 'C002' AND vcName LIKE '%旧型%')  \r\n");
+                sbr.Append(" SELECT iAutoId,vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear  \r\n");
+                sbr.Append(" WHERE 1=1 \r\n");
                 if (!string.IsNullOrWhiteSpace(vcPart_Id))
                 {
                     sbr.Append(" AND ISNULL(vcPart_id,'') LIKE '" + vcPart_Id.Trim() + "%' \r\n");
@@ -42,7 +41,7 @@ namespace DataAccess
                 sbr.Append(" ) a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C002' ) b ON a.vcChange = b.vcValue \r\n");
 
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -56,7 +55,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  delete TUnit where iAutoId in(   \r\n ");
+                sql.Append("  delete TJiuTenYear where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)
@@ -65,7 +64,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -83,9 +82,24 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
+                    string vcIsLock = listInfoData[i]["vcIsLock"].ToString();//true可编辑,false不可编辑
+                    if (bModFlag == true && vcIsLock.Equals("0"))
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+
+                        sbr.Append(" UPDATE TJiuTenYear SET vcNum1= " + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + ", \r\n");
+                        sbr.Append(" vcNum2= " + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + ", \r\n");
+                        sbr.Append(" vcNum3= " + ComFunction.getSqlValue(listInfoData[i]["vcNum3"], false) + ", \r\n");
+                        sbr.Append(" vcNum4= " + ComFunction.getSqlValue(listInfoData[i]["vcNum4"], false) + ", \r\n");
+                        sbr.Append(" vcNum5= " + ComFunction.getSqlValue(listInfoData[i]["vcNum5"], false) + ", \r\n");
+                        sbr.Append(" vcNum6= " + ComFunction.getSqlValue(listInfoData[i]["vcNum6"], false) + ", \r\n");
+                        sbr.Append(" vcNum7= " + ComFunction.getSqlValue(listInfoData[i]["vcNum7"], false) + ", \r\n");
+                        sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
+                        sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
+                        sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + ", \r\n");
+                        sbr.Append(" vcIsLock='1' \r\n");
+                        sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
+
 
                         sbr.Append(" UPDATE TUnit SET vcNum1= " + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + ", \r\n");
                         sbr.Append(" vcNum2= " + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + ", \r\n");
@@ -97,9 +111,9 @@ namespace DataAccess
                         sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
                         sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
                         sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + " \r\n");
-                        sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
+                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -125,7 +139,8 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sbr.Append("UPDATE TUnit SET  \r\n");
+                    sbr.Append("UPDATE TJiuTenYear SET  \r\n");
+                    sbr.Append("vcIsLock= '2', ");
                     sbr.Append("vcNum1= " + ComFunction.getSqlValue(dt.Rows[i]["vcNum1"], false) + ", ");
                     sbr.Append("vcNum2= " + ComFunction.getSqlValue(dt.Rows[i]["vcNum2"], false) + ", ");
                     sbr.Append("vcNum3= " + ComFunction.getSqlValue(dt.Rows[i]["vcNum3"], false) + ", ");
@@ -140,10 +155,29 @@ namespace DataAccess
                     sbr.Append("AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " ");
                     sbr.Append("AND vcCarTypeDesign = " + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDesign"], false) + " ");
                     sbr.Append("AND dJiuBegin = " + ComFunction.getSqlValue(dt.Rows[i]["dJiuBegin"], true) + " ");
+                    sbr.Append("AND vcIsLock = '0' ");
                 }
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    sbr.Append("UPDATE TUnit SET");
+                    sbr.Append("vcNum1  = b.vcNum1 ,");
+                    sbr.Append("vcNum2  = b.vcNum2 ,");
+                    sbr.Append("vcNum3  = b.vcNum3 ,");
+                    sbr.Append("vcNum4  = b.vcNum4 ,");
+                    sbr.Append("vcNum5  = b.vcNum5 ,");
+                    sbr.Append("vcNum6  = b.vcNum6 ,");
+                    sbr.Append("vcNum7  = b.vcNum7 ,");
+                    sbr.Append("vcNum8  = b.vcNum8 ,");
+                    sbr.Append("vcNum9  = b.vcNum9 ,");
+                    sbr.Append("vcNum10 = b.vcNum10 ");
+                    sbr.Append("FROM  ");
+                    sbr.Append("TUnit a ");
+                    sbr.Append("LEFT JOIN ");
+                    sbr.Append("(SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id ");
+                    sbr.Append("WHERE b.vcIsLock = '2' ");
+                    sbr.Append("UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
+
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)

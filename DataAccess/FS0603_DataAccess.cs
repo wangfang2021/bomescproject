@@ -196,7 +196,7 @@ namespace DataAccess
         }
 
         public void setSPInfo(DataTable dtAddInfo, DataTable dtModInfo, DataTable dtModInfo_SP, DataTable dtModInfo_PQ, DataTable dtModInfo_SI, DataTable dtModInfo_OP, DataTable dtOperHistory,
-            string strOperId, ref string strErrorPartId)
+            string strOperId, ref DataTable dtMessage)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
 
@@ -596,12 +596,9 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                if (ex.Message.IndexOf("-->") != -1)
-                {//主动判断抛出的异常
-                    int startIndex = ex.Message.IndexOf("-->");
-                    int endIndex = ex.Message.LastIndexOf("<--");
-                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
-                }
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据写入数据库失败！";
+                dtMessage.Rows.Add(dataRow);
                 //回滚事务
                 if (sqlTransaction != null && sqlConnection != null)
                 {

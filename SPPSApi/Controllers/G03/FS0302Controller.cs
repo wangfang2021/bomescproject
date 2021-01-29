@@ -67,10 +67,13 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("oldDuplicate", ConvertFieldType.BoolType, null);
+                dtConverter.addField("newDuplicate", ConvertFieldType.BoolType, null);
 
                 dtConverter.addField("dOldProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dNewProjTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy/MM/dd");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -191,12 +194,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"完成状态"     ,"原单位名" , "区分"    ,"车型代码"   ,"变更事项(统合)" ,"备注" },
-                                                        {"FinishState" ,"vcUnit" ,"vcDiff"   ,"vcCarType","THChange"    ,"vcRemark"},
-                                                        {""            ,""       ,FieldCheck.Num,FieldCheck.NumChar,""  ,""  },
-                                                        {"0"           ,"0"      ,"1"        ,"10"       ,"0"           ,"0"  },//最大长度设定,不校验最大长度用0
-                                                        {"1"           ,"1"      ,"1"        ,"1"        ,"1"           ,"0"  },//最小长度设定,可以为空用0
-                                                        {"4"           ,"5"      ,"6"        ,"7"        ,"8"           ,"10" }//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"完成状态"     ,"原单位名"    ,"车型代码"   ,"变更事项(统合)" ,"备注" },
+                                                        {"FinishState" ,"vcUnit"    ,"vcCarType","THChange"    ,"vcRemark"},
+                                                        {""            ,""       ,FieldCheck.NumChar,""  ,""  },
+                                                        {"0"           ,"0"      ,"10"       ,"0"           ,"0"  },//最大长度设定,不校验最大长度用0
+                                                        {"0"           ,"1"      ,"1"        ,"1"           ,"0"  },//最小长度设定,可以为空用0
+                                                        {"4"           ,"5"      ,"7"        ,"8"           ,"10" }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
@@ -250,7 +253,8 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0302_logic.SearchApi(fileName);
                 string resMsg = "";
-                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
+                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime" };
+                //string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0302.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -307,8 +311,8 @@ namespace SPPSApi.Controllers.G03
                     string[,] strField = new string[,] {{"完成状态"     ,"原单位名" , "区分"    ,"车型代码"   ,"变更事项(统合)" ,"备注" },
                         {"FinishState" ,"vcUnit" ,"vcDiff"   ,"vcCarType","THChange"    ,"vcRemark"},
                         {""            ,""       ,FieldCheck.Num,FieldCheck.NumChar,""  ,""  },
-                        {"0"           ,"0"      ,"1"        ,"10"       ,"0"           ,"0"  },//最大长度设定,不校验最大长度用0
-                        {"1"           ,"1"      ,"1"        ,"1"        ,"1"           ,"0"  },//最小长度设定,可以为空用0
+                        {"0"           ,"0"      ,"0"        ,"10"       ,"0"           ,"0"  },//最大长度设定,不校验最大长度用0
+                        {"0"           ,"1"      ,"0"        ,"1"        ,"1"           ,"0"  },//最小长度设定,可以为空用0
                         {"4"           ,"5"      ,"6"        ,"7"        ,"8"           ,"10" }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段

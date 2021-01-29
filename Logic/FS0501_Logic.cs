@@ -23,7 +23,7 @@ namespace Logic
         }
         #endregion
 
-        #region 是否为待确认
+        #region 是否可操作-按检索条件
         public bool IsDQR(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, ref string strMsg)
         {
             DataTable dt= fs0501_DataAccess.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState);
@@ -42,7 +42,7 @@ namespace Logic
         }
         #endregion
 
-        #region 是否为待确认
+        #region 是否可操作-按列表所选数据
         public bool IsDQR(string strYearMonth, List<Dictionary<string, Object>> listInfoData,ref string strMsg,string strType)
         {
             DataTable dt= fs0501_DataAccess.IsDQR(strYearMonth, listInfoData,strType);
@@ -60,14 +60,14 @@ namespace Logic
         }
         #endregion
 
-        #region 承认
-        public int ok(string strYearMonth, string strDyState, string strHyState, string strPart_id, string strUserId)
+        #region 提交-按检索条件
+        public int ok(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strUserId)
         {
-            return fs0501_DataAccess.ok(strYearMonth, strDyState, strHyState, strPart_id, strUserId);
+            return fs0501_DataAccess.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strUserId);
         }
         #endregion
 
-        #region 承认
+        #region 提交-按列表所选
         public int ok(string strYearMonth, List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             return fs0501_DataAccess.ok(strYearMonth, listInfoData, strUserId);
@@ -107,12 +107,12 @@ namespace Logic
                 int iMonth_2 = Convert.ToInt32(strYearMonth_2.Substring(4, 2));//内示月
                 int iMonth_3 = Convert.ToInt32(strYearMonth_3.Substring(4, 2));//内内示月
 
-                sheet.GetRow(1).GetCell(3).SetCellValue(iMonth + "月");
-                sheet.GetRow(1).GetCell(4).SetCellValue(iMonth_2 + "月");
-                sheet.GetRow(1).GetCell(5).SetCellValue(iMonth_3 + "月");
-                sheet.GetRow(1).GetCell(6).SetCellValue(iMonth + "月");
-                sheet.GetRow(1).GetCell(7).SetCellValue(iMonth_2 + "月");
-                sheet.GetRow(1).GetCell(8).SetCellValue(iMonth_3 + "月");
+                sheet.GetRow(1).GetCell(5).SetCellValue(iMonth + "月");
+                sheet.GetRow(1).GetCell(6).SetCellValue(iMonth_2 + "月");
+                sheet.GetRow(1).GetCell(7).SetCellValue(iMonth_3 + "月");
+                sheet.GetRow(1).GetCell(5).SetCellValue(iMonth + "月");
+                sheet.GetRow(1).GetCell(6).SetCellValue(iMonth_2 + "月");
+                sheet.GetRow(1).GetCell(7).SetCellValue(iMonth_3 + "月");
 
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
@@ -153,9 +153,11 @@ namespace Logic
         }
         #endregion
 
+        #region 检索保存错误信息
         public DataTable SearchHistory(string strYearMonth, string strUserId)
         {
             return fs0501_DataAccess.SearchHistory(strYearMonth, strUserId);
         }
+        #endregion
     }
 }

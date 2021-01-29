@@ -372,6 +372,59 @@ namespace Logic
         }
         #endregion
 
+        #region 导出带模板
+        public string generateExcelWithXlt_Module(string rootPath, string xltName, string strUserId, string strFunctionName, string strYearMonth, string strYearMonth_2, string strYearMonth_3)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                //    IRow row = sheet.CreateRow(startRow + i);
+                //    for (int j = 0; j < field.Length; j++)
+                //    {
+                //        ICell cell = row.CreateCell(j);
+                //        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                //    }
+                //}
+
+                //以下业务特别处理
+
+                int iMonth = Convert.ToInt32(strYearMonth.Substring(4, 2));//对象月
+                int iMonth_2 = Convert.ToInt32(strYearMonth_2.Substring(4, 2));//内示月
+                int iMonth_3 = Convert.ToInt32(strYearMonth_3.Substring(4, 2));//内内示月
+
+                sheet.GetRow(0).GetCell(1).SetCellValue(iMonth + "月");
+                sheet.GetRow(0).GetCell(2).SetCellValue(iMonth_2 + "月");
+                sheet.GetRow(0).GetCell(3).SetCellValue(iMonth_3 + "月");
+
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
         #region 返回用户邮箱
         public string getEmail(string strSendUserId)
         {

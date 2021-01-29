@@ -48,5 +48,25 @@ namespace Logic
         {
             return fs0620_DataAccess.getCCEmail(code);
         }
+
+        public DataTable getPlant(string vcTargetYear)
+        {
+            return fs0620_DataAccess.getPlant(vcTargetYear);
+        }
+
+        public DataTable getDtByTargetYearAndPlant(string vcTargetYear, string plantCode)
+        {
+            return fs0620_DataAccess.getDtByTargetYearAndPlant(vcTargetYear,plantCode);
+        }
+
+        public DataTable getWaiZhuDt(string vcTargetYear)
+        {
+            return fs0620_DataAccess.getWaiZhuDt(vcTargetYear);
+        }
+        public DataTable getHuiZongDt(string vcTargetYear)
+        {
+            return fs0620_DataAccess.getHuiZongDt(vcTargetYear);
+        }
+        
     }
 }

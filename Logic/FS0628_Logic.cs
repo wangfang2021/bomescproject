@@ -37,5 +37,10 @@ namespace Logic
         {
             fs0628_DataAccess.importSave(importDt, userId);
         }
+
+        public void ImportProgress(List<Dictionary<string, object>> listInfoData, string userId,string strUnitCode)
+        {
+            fs0628_DataAccess.ImportProgress(listInfoData, userId, strUnitCode);
+        }
     }
 }

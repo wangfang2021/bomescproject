@@ -157,8 +157,8 @@ namespace SPPSApi.Controllers.G06
             {
                 DataTable dataTable = fS0616_logic.getSearchInfo(strDelete, strState, listOrderNo, strPartId, strOrderPlant, strInOut, strHaoJiu, strSupplierId, strSupplierPlant);
 
-                string[] fields = {"vcState_name","dReplyOverDate","vcOrderNo","vcPart_id","vcOrderPlant","vcInOut","vcHaoJiu","vcOESP","vcSupplierId",
-                    "vcSupplierPlant","vcSupplierPlace","vcSufferIn","iPackingQty","iOrderQuantity","iDuiYingQuantity","dDeliveryDate","dOutPutDate"
+                string[] fields = {"vcState_name","vcOrderNo","vcPart_id","vcOrderPlant","vcInOut","vcHaoJiu","vcOESP","vcSupplierId",
+                    "vcSupplierPlant","vcSupplierPlace","vcSufferIn","iPackingQty","iOrderQuantity","iDuiYingQuantity","dDeliveryDate","dOutPutDate","dReplyOverDate"
                 };
 
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0616_Export.xlsx", 1, loginInfo.UserId, FunctionID);
@@ -201,13 +201,15 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
+                List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
+                JArray listInfo = dataForm.alltemp.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
-                for (int i = 0; i < listInfoData.Count; i++)
+                for (int i = 0; i < listMultipleData.Count; i++)
                 {
-                    bool bModFlag = (bool)listInfoData[i]["bModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["bAddFlag"];//true可编辑,false不可编辑
+                    bool bModFlag = (bool)listMultipleData[i]["bModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listMultipleData[i]["bAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                         hasFind = true;//新增
                     else if (bAddFlag == false && bModFlag == true)
@@ -220,35 +222,27 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //开始数据验证
-                if (hasFind)
+
+                //汇集要修改的订单号（订单号+供应商+品番）
+                DataTable dtMultiple = fs0603_Logic.createTable("Multipleof616");
+                for (int i = 0; i < listMultipleData.Count; i++)
                 {
-                    #region 数据校验
-                    //string[,] strField = new string[,] {{"同步时间","变更事项","包装工厂","补给品番","品名","车种代码","收货方","使用开始","使用结束","替代品番","内外区分","OE=SP","号旧区分","旧型年限生产区分","旧型开始时间","实施年月","供应商编号","供应商使用开始","供应商使用结束","供应商名称"},
-                    //                            {"dSyncTime","vcChanges","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode","vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcInOut","vcOESP","vcHaoJiu","vcOldProduction","dOldStartTime","dDebugTime","vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName"},
-                    //                            {FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.YearMonth,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar},
-                    //                            {"0","0","0","12","200","0","0","0","0","0","0","0","0","0","0","0","10","0","0","0"},//最大长度设定,不校验最大长度用0
-                    //                            {"0","1","1","12","1","0","1","1","1","0","1","1","1","0","0","0","1","1","1","1"},//最小长度设定,可以为空用0
-                    //                            {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"}//前台显示列号，从0开始计算,注意有选择框的是0
-                    //};
-                    ////需要判断时间区间先后关系的字段
-                    //string[,] strDateRegion = { { "dFromTime", "dToTime" }, { "dSupplierFromTime", "dSupplierToTime" } };
-                    //string[,] strSpecialCheck = { };
-                    //List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0603");
-                    //if (checkRes != null)
-                    //{
-                    //    apiResult.code = ComConstant.ERROR_CODE;
-                    //    apiResult.data = checkRes;
-                    //    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    //}
-                    #endregion
+                    string strOrderNo = listMultipleData[i]["vcOrderNo"] == null ? "" : listMultipleData[i]["vcOrderNo"].ToString();
+                    string strPart_id = listMultipleData[i]["vcPart_id"] == null ? "" : listMultipleData[i]["vcPart_id"].ToString();
+                    string strSupplierId = listMultipleData[i]["vcSupplierId"] == null ? "" : listMultipleData[i]["vcSupplierId"].ToString();
+                    if (dtMultiple.Select("vcOrderNo='" + strOrderNo + "' and vcPart_id='" + strPart_id + "' and vcSupplierId='" + strSupplierId + "'").Length == 0)
+                    {
+                        DataRow drMultiple = dtMultiple.NewRow();
+                        drMultiple["vcOrderNo"] = strOrderNo;
+                        drMultiple["vcPart_id"] = strPart_id;
+                        drMultiple["vcSupplierId"] = strSupplierId;
+                        dtMultiple.Rows.Add(drMultiple);
+                    }
                 }
+
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                //DataTable dataTable = fS0616_logic.getSearchInfo(strDelete, strState, strOrderNoList, strPartId, strOrderPlant, strInOut, strHaoJiu, strSupplierId, strSupplierPlant);
-                DataTable dataTable = new DataTable();
                 bool bReault = true;
-                DataTable dtImport = fS0616_logic.checkSaveInfo(listInfoData, dataTable, ref bReault, ref dtMessage);
+                DataTable dtImport = fS0616_logic.checkSaveInfo(listInfoData, dtMultiple, ref bReault, ref dtMessage);
                 if (!bReault)
                 {
                     //弹出错误dtMessage
@@ -301,22 +295,42 @@ namespace SPPSApi.Controllers.G06
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-                string strDelete = dataForm.Delete;
-                string strState = dataForm.State;
-                List<Object> listOrderNo = dataForm.OrderNoList.ToObject<List<Object>>();
-                string strPartId = dataForm.PartId;
-                string strOrderPlant = dataForm.OrderPlant;
-                string strInOut = dataForm.InOut;
-                string strHaoJiu = dataForm.HaoJiu;
-                string strSupplierId = dataForm.SupplierId;
-                string strSupplierPlant = dataForm.SupplierPlant;
+                string strDelete = dataForm.searchform.Delete;
+                string strState = dataForm.searchform.State;
+                List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
+                string strPartId = dataForm.searchform.PartId;
+                string strOrderPlant = dataForm.searchform.OrderPlant;
+                string strInOut = dataForm.searchform.InOut;
+                string strHaoJiu = dataForm.searchform.HaoJiu;
+                string strSupplierId = dataForm.searchform.SupplierId;
+                string strSupplierPlant = dataForm.searchform.SupplierPlant;
 
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
+                List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
+                JArray listInfo = dataForm.alltemp.list;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                //汇集要修改的订单号（订单号+供应商+品番）
+                DataTable dtMultiple = fs0603_Logic.createTable("Multipleof616");
+                for (int i = 0; i < listMultipleData.Count; i++)
+                {
+                    string mOrderNo = listMultipleData[i]["vcOrderNo"] == null ? "" : listMultipleData[i]["vcOrderNo"].ToString();
+                    string mPart_id = listMultipleData[i]["vcPart_id"] == null ? "" : listMultipleData[i]["vcPart_id"].ToString();
+                    string mSupplierId = listMultipleData[i]["vcSupplierId"] == null ? "" : listMultipleData[i]["vcSupplierId"].ToString();
+                    if (dtMultiple.Select("vcOrderNo='" + mOrderNo + "' and vcPart_id='" + mPart_id + "' and vcSupplierId='" + mSupplierId + "'").Length == 0)
+                    {
+                        DataRow drMultiple = dtMultiple.NewRow();
+                        drMultiple["vcOrderNo"] = mOrderNo;
+                        drMultiple["vcPart_id"] = mPart_id;
+                        drMultiple["vcSupplierId"] = mSupplierId;
+                        dtMultiple.Rows.Add(drMultiple);
+                    }
+                }
+
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dataTable = fS0616_logic.getSearchInfo(strDelete, strState, listOrderNo, strPartId, strOrderPlant, strInOut, strHaoJiu, strSupplierId, strSupplierPlant);
                 bool bReault = true;
-                DataTable dtImport = fS0616_logic.checkReplyInfo(listInfoData, dataTable, ref bReault, ref dtMessage);
+                DataTable dtImport = fS0616_logic.checkReplyInfo(listInfoData, dtMultiple, dataTable, ref bReault, ref dtMessage);
                 if (!bReault)
                 {
                     //弹出错误dtMessage
@@ -368,18 +382,18 @@ namespace SPPSApi.Controllers.G06
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-                string strDelete = dataForm.Delete;
-                string strState = dataForm.State;
-                List<Object> listOrderNo = dataForm.OrderNoList.ToObject<List<Object>>();
-                string strPartId = dataForm.PartId;
-                string strOrderPlant = dataForm.OrderPlant;
-                string strInOut = dataForm.InOut;
-                string strHaoJiu = dataForm.HaoJiu;
-                string strSupplierId = dataForm.SupplierId;
-                string strSupplierPlant = dataForm.SupplierPlant;
+                string strDelete = dataForm.searchform.Delete;
+                string strState = dataForm.searchform.State;
+                List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
+                string strPartId = dataForm.searchform.PartId;
+                string strOrderPlant = dataForm.searchform.OrderPlant;
+                string strInOut = dataForm.searchform.InOut;
+                string strHaoJiu = dataForm.searchform.HaoJiu;
+                string strSupplierId = dataForm.searchform.SupplierId;
+                string strSupplierPlant = dataForm.searchform.SupplierPlant;
                 string strReplyOverDate = dataForm.info;//期望回复日
 
-                JArray checkedInfo = dataForm.multipleSelection;
+                JArray checkedInfo = dataForm.searchform.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                 if (strReplyOverDate == "")
                 {
@@ -391,7 +405,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dataTable = fS0616_logic.getSearchInfo(strDelete, strState, listOrderNo, strPartId, strOrderPlant, strInOut, strHaoJiu, strSupplierId, strSupplierPlant);
                 bool bReault = true;
-                DataTable dtImport = fS0616_logic.checkOpenInfo(listInfoData, dataTable, ref bReault, ref dtMessage);
+                DataTable dtImport = fS0616_logic.checkOpenInfo(listInfoData, dataTable, strReplyOverDate, ref bReault, ref dtMessage);
                 if (!bReault)
                 {
                     //弹出错误dtMessage
@@ -443,18 +457,18 @@ namespace SPPSApi.Controllers.G06
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-                string strDelete = dataForm.Delete;
-                string strState = dataForm.State;
-                List<Object> listOrderNo = dataForm.OrderNoList.ToObject<List<Object>>();
-                string strPartId = dataForm.PartId;
-                string strOrderPlant = dataForm.OrderPlant;
-                string strInOut = dataForm.InOut;
-                string strHaoJiu = dataForm.HaoJiu;
-                string strSupplierId = dataForm.SupplierId;
-                string strSupplierPlant = dataForm.SupplierPlant;
+                string strDelete = dataForm.searchform.Delete;
+                string strState = dataForm.searchform.State;
+                List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
+                string strPartId = dataForm.searchform.PartId;
+                string strOrderPlant = dataForm.searchform.OrderPlant;
+                string strInOut = dataForm.searchform.InOut;
+                string strHaoJiu = dataForm.searchform.HaoJiu;
+                string strSupplierId = dataForm.searchform.SupplierId;
+                string strSupplierPlant = dataForm.searchform.SupplierPlant;
                 string strOutPutDate = dataForm.info;//出荷日
 
-                JArray checkedInfo = dataForm.multipleSelection;
+                JArray checkedInfo = dataForm.searchform.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                 if (strOutPutDate == "")
                 {
@@ -466,7 +480,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dataTable = fS0616_logic.getSearchInfo(strDelete, strState, listOrderNo, strPartId, strOrderPlant, strInOut, strHaoJiu, strSupplierId, strSupplierPlant);
                 bool bReault = true;
-                DataTable dtImport = fS0616_logic.checkOutputInfo(listInfoData, dataTable, ref bReault, ref dtMessage);
+                DataTable dtImport = fS0616_logic.checkOutputInfo(listInfoData, dataTable, strOutPutDate, ref bReault, ref dtMessage);
                 if (!bReault)
                 {
                     //弹出错误dtMessage

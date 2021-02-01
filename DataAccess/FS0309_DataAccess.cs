@@ -375,12 +375,12 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                     {//新增
-                        sql.Append("  insert into TPrice_GS(vcGSName,vcCoefficient,vcRate,vcArea,dBegin,dEnd,vcReason,vcOperatorID,dOperatorTime   \r\n");
+                        sql.Append("  insert into TPrice_GS(vcGSName,decXiShu,decTaxRate,vcArea,dBegin,dEnd,vcReason,vcOperatorID,dOperatorTime   \r\n");
                         sql.Append("  )   \r\n");
                         sql.Append(" values (  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcGSName"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCoefficient"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcRate"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decXiShu"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decTaxRate"], false) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcArea"], false) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dBegin"], true) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dEnd"], true) + ",  \r\n");
@@ -395,8 +395,8 @@ namespace DataAccess
 
                         sql.Append("  update TPrice_GS set    \r\n");
                         sql.Append("   vcGSName = " + ComFunction.getSqlValue(listInfoData[i]["vcGSName"], false) + "    \r\n");
-                        sql.Append("  ,vcCoefficient = " + ComFunction.getSqlValue(listInfoData[i]["vcCoefficient"], false) + "   \r\n");
-                        sql.Append("  ,vcRate = " + ComFunction.getSqlValue(listInfoData[i]["vcRate"], false) + "   \r\n");
+                        sql.Append("  ,decXiShu = " + ComFunction.getSqlValue(listInfoData[i]["decXiShu"], false) + "   \r\n");
+                        sql.Append("  ,decTaxRate = " + ComFunction.getSqlValue(listInfoData[i]["decTaxRate"], false) + "   \r\n");
                         sql.Append("  ,vcArea=" + ComFunction.getSqlValue(listInfoData[i]["vcArea"], false) + "   \r\n");
                         sql.Append("  ,dBegin=" + ComFunction.getSqlValue(listInfoData[i]["dBegin"], true) + "   \r\n");
                         sql.Append("  ,dEnd=" + ComFunction.getSqlValue(listInfoData[i]["dEnd"], true) + "   \r\n");

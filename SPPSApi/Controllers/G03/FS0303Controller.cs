@@ -570,28 +570,28 @@ namespace SPPSApi.Controllers.G03
                     if (listInfoData[i]["vcPart_id"] ==null|| string.IsNullOrEmpty(listInfoData[i]["vcPart_id"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第"+(i+1)+ "行品番不能为空，数据同步失败！";
+                        apiResult.data = "所选行第"+(i+1)+ "行品番不能为空，数据同步失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //包装工厂不能为null
                     if (listInfoData[i]["vcSYTCode"] ==null||string.IsNullOrEmpty(listInfoData[i]["vcSYTCode"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 1) + "行的包装工厂不能为空，数据同步失败！";
+                        apiResult.data = "所选行第" + (i + 1) + "行的包装工厂不能为空，数据同步失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //收货方时间不能为null
                     if (listInfoData[i]["vcReceiver"] ==null||string.IsNullOrEmpty(listInfoData[i]["vcReceiver"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 1) + "行的收货方不能为空，数据同步失败！";
+                        apiResult.data = "所选行第" + (i + 1) + "行的收货方不能为空，数据同步失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     //供应商代码不能为null
                     if (listInfoData[i]["vcSupplier_id"] == null|| string.IsNullOrEmpty(listInfoData[i]["vcSupplier_id"].ToString()))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 1) + "行的供应商代码不能为空，数据同步失败！";
+                        apiResult.data = "所选行第" + (i + 1) + "行的供应商代码不能为空，数据同步失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

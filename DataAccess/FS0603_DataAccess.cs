@@ -22,6 +22,10 @@ namespace DataAccess
                 {
                     strSql.AppendLine("select vcValue,vcName from TCustomerInfo where vcDisting='C' and vcDisable='0'");
                 }
+                if (strType == "NqState")//纳期状态
+                {
+                    strSql.AppendLine("select vcValue,vcName from TCode where vcCodeId='C056' order by vcValue");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

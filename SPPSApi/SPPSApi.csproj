@@ -35,6 +35,7 @@
     <None Remove="Doc\Import\No.1_668WJ0030.xlsx" />
     <None Remove="Doc\Import\No.1_685WF0373.xlsx" />
     <None Remove="Doc\Import\No.1_HBV791.xlsx" />
+    <None Remove="Doc\Template\FS0307 - 复制.xlsx" />
   </ItemGroup>
 
   <ItemGroup>

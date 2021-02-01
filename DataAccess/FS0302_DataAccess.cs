@@ -78,7 +78,7 @@ namespace DataAccess
 
                     if (!finishstate.Equals("1") && !finishstate.Equals("3"))
                     {
-                        if (change.Equals("1") || change.Equals("9"))//新设/新车新设
+                        if (change.Equals("1") || change.Equals("2"))//新设/新车新设
                         {
                             string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                             string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
@@ -122,7 +122,7 @@ namespace DataAccess
                             sbr.Append(") \r\n");
 
                         }
-                        else if (change.Equals("2"))//废止
+                        else if (change.Equals("4"))//废止
                         {
                             sbr.Append(" UPDATE a SET \r\n");
                             sbr.Append(" a.vcChange = '" + change + "', \r\n");
@@ -149,7 +149,7 @@ namespace DataAccess
                             sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
 
                         }
-                        else if (change.Equals("3"))//旧型
+                        else if (change.Equals("5"))//旧型
                         {
                             sbr.Append(" UPDATE a SET \r\n");
                             sbr.Append(" a.vcChange = '" + change + "', \r\n");
@@ -186,7 +186,7 @@ namespace DataAccess
                             sbr.Append("GETDATE(),'0') \r\n");
 
                         }
-                        else if (change.Equals("4"))//旧型恢复现号
+                        else if (change.Equals("6"))//旧型恢复现号
                         {
                             sbr.Append(" UPDATE a SET \r\n");
                             sbr.Append(" a.vcChange = '4', \r\n");
@@ -212,7 +212,7 @@ namespace DataAccess
 
 
                         }
-                        else if (change.Equals("5"))//复活
+                        else if (change.Equals("16"))//复活
                         {
                             sbr.Append(" UPDATE a SET \r\n");
                             sbr.Append(" a.vcChange = '5', \r\n");

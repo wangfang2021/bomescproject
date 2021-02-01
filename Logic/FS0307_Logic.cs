@@ -41,7 +41,6 @@ namespace Logic
             DataRow[] rows = dt.Select("vcValue in (" + tmp + ")");
             DataTable res = rows.CopyToDataTable();
 
-            return dt;
             return res;
         }
 

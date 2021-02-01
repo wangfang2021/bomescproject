@@ -153,7 +153,7 @@ namespace DataAccess
                 DataTable dt = new DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
-                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (dt.Rows[i]["vcName"].ToString().Equals(vcName))

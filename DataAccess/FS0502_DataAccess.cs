@@ -78,16 +78,6 @@ namespace DataAccess
                 strSql.Append("	where vcOrderNo='" + vcOrderNo + "' and vcPart_id='" + vcPart_id + "' and vcSupplier_id='" + vcSupplier_id + "'     \n");
                 strSql.Append(")t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id       \n");
 
-                //strSql.Append("select t2.iAutoId,t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,t1.iOrderQuantity,t2.iDuiYingQuantity,t2.dDeliveryDate,t1.vcStatus,'0' as vcModFlag,'0' as vcAddFlag     \n");
-                //strSql.Append("from    \n");
-                //strSql.Append("(    \n");
-                //strSql.Append("	select * from TUrgentOrder    \n");
-                //strSql.Append("	where vcOrderNo='"+vcOrderNo+"' and vcPart_id='"+vcPart_id+"' and vcSupplier_id='"+vcSupplier_id+"'    \n");
-                //strSql.Append(")t1    \n");
-                //strSql.Append("left join (            \n");
-                //strSql.Append("    select * from VI_UrgentOrder_OperHistory where vcInputType='supplier'        \n");
-                //strSql.Append(")t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id       \n");
-
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -142,29 +132,6 @@ namespace DataAccess
                             sql.Append("select vcOrderNo,vcPart_id,vcSupplier_id,nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",''),     \n");
                             sql.Append("nullif('" + listInfoData[i]["dDeliveryDate"] + "',''),'supplier','" + strUserId + "','" + strdate + "'     \n");
                             sql.Append("from TUrgentOrder where iAutoId=" + strautoid_main + "      \n");
-                            //插TUrgentOrder
-                            //sql.Append("INSERT INTO [TUrgentOrder]    \n");
-                            //sql.Append("           ([vcOrderNo]    \n");
-                            //sql.Append("           ,[vcPart_id]    \n");
-                            //sql.Append("           ,[vcSupplier_id]    \n");
-                            //sql.Append("           ,[vcGQ]    \n");
-                            //sql.Append("           ,[vcChuHePlant]    \n");
-                            //sql.Append("           ,[dReplyOverDate]    \n");
-                            //sql.Append("           ,[iOrderQuantity]    \n");
-                            //sql.Append("           ,[iDuiYingQuantity]    \n");
-                            //sql.Append("           ,[dDeliveryDate]    \n");
-                            //sql.Append("           ,[vcStatus]    \n");
-                            //sql.Append("           ,[vcSender]    \n");
-                            //sql.Append("           ,[dSendTime]    \n");
-                            //sql.Append("           ,[vcSupReplier]    \n");
-                            //sql.Append("           ,[dSupReplyTime]    \n");
-                            //sql.Append("           ,[vcDelete]    \n");
-                            //sql.Append("           ,[vcOperatorID]    \n");
-                            //sql.Append("           ,[dOperatorTime])    \n");
-                            //sql.Append("select vcOrderNo,vcPart_id,vcSupplier_id,vcGQ,vcChuHePlant,dReplyOverDate,iOrderQuantity,    \n");
-                            //sql.Append("nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",''),nullif('" + listInfoData[i]["dDeliveryDate"] + "',''),    \n");
-                            //sql.Append("vcStatus,vcSender,dSendTime,vcSupReplier,dSupReplyTime,vcDelete,'" + strUserId + "','" + strdate + "'    \n");
-                            //sql.Append("from TUrgentOrder where iAutoId=1    \n");
                         }
                     }
                     else if (bAddFlag == false && bModFlag == true)
@@ -190,11 +157,6 @@ namespace DataAccess
                             sql.Append("           ,'supplier'    \n");
                             sql.Append("           ,'" + strUserId + "'    \n");
                             sql.Append("           ,'" + strdate + "')    \n");
-                            //更新TUrgentOrder
-                            //sql.Append("update TUrgentOrder set iDuiYingQuantity=nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",''),    \n");
-                            //sql.Append("dDeliveryDate=nullif('" + listInfoData[i]["dDeliveryDate"] + "',''),    \n");
-                            //sql.Append("vcOperatorID='" + strUserId + "',dOperatorTime='" + strdate + "'    \n");
-                            //sql.Append("where iAutoId=" + iAutoId + "    \n");
                         }
                         else
                         {
@@ -220,11 +182,6 @@ namespace DataAccess
                     sql.Append("       	group by vcOrderNo,vcPart_id    \r\n");
                     sql.Append("       )t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id        \r\n");
                     sql.Append("       where t1.iOrderQuantity<>t2.iDuiYingQuantity    \r\n");
-                    //sql.Append("        select distinct vcPart_id from (    \r\n");
-                    //sql.Append("        	select vcOrderNo,vcPart_id,vcSupplier_id,iOrderQuantity,SUM(iDuiYingQuantity) as quanlity from TUrgentOrder    \r\n");
-                    //sql.Append("        	group by vcOrderNo,vcPart_id,vcSupplier_id,iOrderQuantity    \r\n");
-                    //sql.Append("        )t1    \r\n");
-                    //sql.Append("        where iOrderQuantity<>quanlity    \r\n");
                     sql.Append("  	)a for xml path('')   \r\n");
                     sql.Append("  )   \r\n");
                     sql.Append("      \r\n");
@@ -259,19 +216,7 @@ namespace DataAccess
                 strSql.Append("      if object_id('tempdb..#TUrgentOrder_temp_cr') is not null       \n");
                 strSql.Append("      Begin      \n");
                 strSql.Append("      drop  table #TUrgentOrder_temp_cr       \n");
-                //strSql.Append("      create table #TUrgentOrder_temp_cr    \n");
-                //strSql.Append("      (    \n");
-                //strSql.Append("       vcPart_id varchar(12) null,    \n");
-                //strSql.Append("       vcStatus varchar(10) null,    \n");
-                //strSql.Append("       iDuiYingQuantity int null,    \n");
-                //strSql.Append("       dDeliveryDate datetime null,    \n");
-                //strSql.Append("       vcDelete varchar(10) null    \n");
-                //strSql.Append("      )    \n");
                 strSql.Append("      End      \n");
-                //strSql.Append("      select * into #TUrgentOrder_temp_cr from       \n");
-                //strSql.Append("      (      \n");
-                //strSql.Append("      	select vcPart_id,vcStatus,null as iDuiYingQuantity,null as dDeliveryDate,vcDelete from TUrgentOrder where 1=0      \n");
-                //strSql.Append("      ) a      ;\n");
                 strSql.Append("     select * into #TUrgentOrder_temp_cr from                \n");
                 strSql.Append("     (               \n");
                 strSql.Append("     	select t1.vcPart_id,t1.vcStatus,t3.iDuiYingQuantity,t3.dDeliveryDate,t1.vcDelete from TUrgentOrder t1         \n");
@@ -308,7 +253,7 @@ namespace DataAccess
                         }
                     }
                 }
-                else if (strType == "submit")
+                else if (strType == "submit") 
                 {
                     for (int i = 0; i < listInfoData.Count; i++)
                     {

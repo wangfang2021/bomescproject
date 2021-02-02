@@ -290,15 +290,6 @@ namespace DataAccess
                     sql.Append(" AND isnull(vcReceiver,'') = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
                     sql.Append(" AND isnull(vcInOutflag,'') = '" + getValue("C003", dt.Rows[i]["vcInOutflag"].ToString()) + "' \r\n");
 
-                    //sql.Append(" AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " \r\n");
-                    //sql.Append(" AND vcCarTypeDev = " + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDev"], false) + " \r\n");
-                    //sql.Append(" AND vcSupplier_id =" + ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false) + " \r\n");
-                    //sql.Append(" AND vcSYTCode = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
-                    //sql.Append(" AND vcOriginCompany = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
-                    //sql.Append(" AND vcReceiver = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
-                    //sql.Append(" AND vcInOutflag = '" + getValue("C003", dt.Rows[i]["vcInOutflag"].ToString()) + "' \r\n");
-
-
                     if (!vcFinish.Equals("对象外"))
                     {
                         sql.Append(" AND vcFinish = '" + getValue("C024", vcFinish) + "' \r\n");
@@ -405,7 +396,7 @@ namespace DataAccess
                 DataTable dt = new DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
-                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
+                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (dt.Rows[i]["vcName"].ToString().Equals(vcName))

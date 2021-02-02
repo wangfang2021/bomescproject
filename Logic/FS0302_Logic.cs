@@ -31,9 +31,9 @@ namespace Logic
         #endregion
 
         //织入原单位
-        public void weaveUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, string SYTCode)
+        public void weaveUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, string SYTCode, ref string refMsg)
         {
-            fs0302_dataAccess.weaveUnit(listInfoData, strUserId, SYTCode);
+            fs0302_dataAccess.weaveUnit(listInfoData, strUserId, SYTCode, ref refMsg);
         }
 
         public DataTable getDuplicate(DataTable dt)

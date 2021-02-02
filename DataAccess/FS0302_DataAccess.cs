@@ -63,7 +63,7 @@ namespace DataAccess
                     string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
                     if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
                     {
-                        DataRow[] tmp = dt.Select("vcPart_id = '" + vcPart_Id_old + "'");
+                        DataRow[] tmp = dt.Select("vcPart_Id_old = '" + vcPart_Id_old + "'");
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -75,7 +75,7 @@ namespace DataAccess
                     }
                     else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
                     {
-                        DataRow[] tmp = dt.Select("vcPart_id = '" + vcPart_Id_new + "'");
+                        DataRow[] tmp = dt.Select("vcPart_Id_new = '" + vcPart_Id_new + "'");
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -130,7 +130,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 //可选择的变更事项
-                List<string> changeList = new List<string>() { "1", "2" };
+                List<string> changeList = new List<string>() { "1", "2", "3", "4", "5", "6", "10", "11", "12", "13", "16", "21" };
                 //品番check
                 List<string> partCheck = getPart();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -138,6 +138,12 @@ namespace DataAccess
                     string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
                     string vcPart_Id_new = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
                     string vcPart_Id_old = ObjToString(listInfoData[i]["vcPart_Id_old"]).Trim();
+                    if (!changeList.Contains(change))
+                    {
+                        string partId = string.IsNullOrWhiteSpace(vcPart_Id_new) ? vcPart_Id_old : vcPart_Id_new;
+                        refMsg += "品番" + partId + "变更事项选择有误;";
+                    }
+
 
                     if (change != "1" && change != "2" && change != "10" && change != "12")
                     {

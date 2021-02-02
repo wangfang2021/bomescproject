@@ -15,13 +15,25 @@ namespace Logic
 
         #region check
 
-        public void Check(DataTable excelTable)
+        //public void Check(DataTable excelTable,ref string refMsg)
+        public void Check()
         {
+
+
             DataTable Calendar = fs0403_dataAccess.getCalendar();
+            //各工厂的指定日
             Hashtable Day = fs0403_dataAccess.getDay(Calendar);
-            DataTable dt = fs0403_dataAccess.getCount(Day);
+
+            //品番的数量
+            Hashtable quantity = fs0403_dataAccess.getCount(Day);
+
+            //获取波动率
             Hashtable ht = fs0403_dataAccess.getFluctuate();
 
+            //for (int i = 0; i < excelTable.Rows.Count; i++)
+            //{
+
+            //}
         }
 
         public class Node
@@ -33,6 +45,12 @@ namespace Logic
             public decimal realPercent;
             public bool flag;
 
+            public Node(string partId)
+            {
+                this.partId = partId;
+                this.flag = false;
+            }
+
             public Node(string partId, string excelQuantity, string soqQuantity, string allowPercent)
             {
                 this.partId = partId;
@@ -42,6 +60,11 @@ namespace Logic
 
                 this.realPercent = (this.excelQuantity - this.soqQuantity) / this.soqQuantity;
                 this.flag = this.allowPercent >= this.realPercent ? true : false;
+            }
+
+            public bool isAllow()
+            {
+                return this.flag;
             }
         }
         #endregion

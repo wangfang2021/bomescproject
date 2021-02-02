@@ -29,6 +29,8 @@ namespace SPPSApi.Controllers.G03
         [EnableCors("any")]
         public string searchApi([FromBody]dynamic data)
         {
+            FS0403_Logic logic = new FS0403_Logic();
+            logic.Check();
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))

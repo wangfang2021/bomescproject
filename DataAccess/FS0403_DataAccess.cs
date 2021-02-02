@@ -188,10 +188,11 @@ namespace DataAccess
 
         #region 获取品番当月每天的订单数量
 
-        public DataTable getCount(Hashtable ht)
+        public Hashtable getCount(Hashtable ht)
         {
             try
             {
+                Hashtable res = new Hashtable();
                 string choose = "";
                 foreach (string htKey in ht.Keys)
                 {
@@ -214,8 +215,34 @@ namespace DataAccess
                 }
 
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT * FROM TSoqReply WHERE vcMakingOrderType = '3' " + choose);
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+                //TODO 应修改日度订货次数
+                //sbr.AppendLine("SELECT * FROM TSoqReply WHERE vcMakingOrderType = '3' " + choose);
+                sbr.AppendLine("SELECT * FROM TSoqReply WHERE 1=1 " + choose);
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string vcFZGC = dt.Rows[i]["vcFZGC"].ToString();
+                    string vcPart_id = dt.Rows[i]["vcPart_id"].ToString();
+                    string YM = ht[vcFZGC].ToString().Substring(0, 6);
+                    string day = ht[vcFZGC].ToString().Substring(6, 2);
+
+                    DataRow[] rows = dt.Select("vcFZGC = '" + vcFZGC + "' and vcPart_id = '" + vcPart_id + "'");
+                    if (rows.Length > 0)
+                    {
+                        int quantity = 0;
+                        if (!string.IsNullOrWhiteSpace(rows[0]["iD" + day.TrimStart('0')].ToString()))
+                        {
+                            quantity = Convert.ToInt32(rows[0]["iD" + day.TrimStart('0')].ToString());
+                        }
+                        res.Add(vcPart_id, quantity);
+                    }
+                }
+
+
+                return res;
             }
             catch (Exception ex)
             {
@@ -238,7 +265,11 @@ namespace DataAccess
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    ht.Add(dt.Rows[i]["vcPartNo"].ToString(), getFloat(dt.Rows[i]["vcFluctuationRange"].ToString()));
+                    string vcPartNo = dt.Rows[i]["vcPartNo"].ToString();
+                    if (!ht.Contains(vcPartNo))
+                    {
+                        ht.Add(vcPartNo, getFloat(dt.Rows[i]["vcFluctuationRange"].ToString()));
+                    }
                 }
 
                 return ht;

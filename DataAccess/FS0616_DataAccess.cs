@@ -257,11 +257,12 @@ namespace DataAccess
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try
             {
+                string strNow = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff");
                 SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
                 sqlCommand_modinfo.Transaction = sqlTransaction;
                 sqlCommand_modinfo.CommandType = CommandType.Text;
                 StringBuilder strSql_modinfo = new StringBuilder();
-                strSql_modinfo.AppendLine("UPDATE [dbo].[TUrgentOrder_OperHistory] SET [dOutPutDate] = CASE WHEN @dOutPutDate='' THEN NULL ELSE @dOutPutDate END,[vcOperatorID] = '" + strOperId + "',[dOperatorTime] = getdate()");
+                strSql_modinfo.AppendLine("UPDATE [dbo].[TUrgentOrder_OperHistory] SET [dOutPutDate] = CASE WHEN @dOutPutDate='' THEN NULL ELSE @dOutPutDate END,[vcOperatorID] = '" + strOperId + "',[dOperatorTime] = '"+ strNow + "'");
                 strSql_modinfo.AppendLine(" WHERE [iAutoId]=@LinId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@dOutPutDate", "");

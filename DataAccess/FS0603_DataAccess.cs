@@ -18,6 +18,10 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
+                if (strType == "Supplier")//供应商
+                {
+                    strSql.AppendLine("select vcSupplier_id as vcName,vcSupplier_id as vcValue from TSupplierInfo");
+                }
                 if (strType == "Receiver")//收货方
                 {
                     strSql.AppendLine("select vcValue,vcName from TCustomerInfo where vcDisting='C' and vcDisable='0'");

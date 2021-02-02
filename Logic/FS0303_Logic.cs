@@ -282,21 +282,21 @@ namespace Logic
                 #region 将旧型1-15年转为变成decimal格式
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    listInfoData[i]["vcNum1"] = Conver2Decimal(listInfoData[i]["vcNum1"]);
-                    listInfoData[i]["vcNum2"] = Conver2Decimal(listInfoData[i]["vcNum2"]);
-                    listInfoData[i]["vcNum3"] = Conver2Decimal(listInfoData[i]["vcNum3"]);
-                    listInfoData[i]["vcNum4"] = Conver2Decimal(listInfoData[i]["vcNum4"]);
-                    listInfoData[i]["vcNum5"] = Conver2Decimal(listInfoData[i]["vcNum5"]);
-                    listInfoData[i]["vcNum6"] = Conver2Decimal(listInfoData[i]["vcNum6"]);
-                    listInfoData[i]["vcNum7"] = Conver2Decimal(listInfoData[i]["vcNum7"]);
-                    listInfoData[i]["vcNum8"] = Conver2Decimal(listInfoData[i]["vcNum8"]);
-                    listInfoData[i]["vcNum9"] = Conver2Decimal(listInfoData[i]["vcNum9"]);
-                    listInfoData[i]["vcNum10"] = Conver2Decimal(listInfoData[i]["vcNum10"]);
-                    listInfoData[i]["vcNum11"] = Conver2Decimal(listInfoData[i]["vcNum11"]);
-                    listInfoData[i]["vcNum12"] = Conver2Decimal(listInfoData[i]["vcNum12"]);
-                    listInfoData[i]["vcNum13"] = Conver2Decimal(listInfoData[i]["vcNum13"]);
-                    listInfoData[i]["vcNum14"] = Conver2Decimal(listInfoData[i]["vcNum14"]);
-                    listInfoData[i]["vcNum15"] = Conver2Decimal(listInfoData[i]["vcNum15"]);
+                    listInfoData[i]["vcNum1"] = Conver2Int(listInfoData[i]["vcNum1"]);
+                    listInfoData[i]["vcNum2"] = Conver2Int(listInfoData[i]["vcNum2"]);
+                    listInfoData[i]["vcNum3"] = Conver2Int(listInfoData[i]["vcNum3"]);
+                    listInfoData[i]["vcNum4"] = Conver2Int(listInfoData[i]["vcNum4"]);
+                    listInfoData[i]["vcNum5"] = Conver2Int(listInfoData[i]["vcNum5"]);
+                    listInfoData[i]["vcNum6"] = Conver2Int(listInfoData[i]["vcNum6"]);
+                    listInfoData[i]["vcNum7"] = Conver2Int(listInfoData[i]["vcNum7"]);
+                    listInfoData[i]["vcNum8"] = Conver2Int(listInfoData[i]["vcNum8"]);
+                    listInfoData[i]["vcNum9"] = Conver2Int(listInfoData[i]["vcNum9"]);
+                    listInfoData[i]["vcNum10"] = Conver2Int(listInfoData[i]["vcNum10"]);
+                    listInfoData[i]["vcNum11"] = Conver2Int(listInfoData[i]["vcNum11"]);
+                    listInfoData[i]["vcNum12"] = Conver2Int(listInfoData[i]["vcNum12"]);
+                    listInfoData[i]["vcNum13"] = Conver2Int(listInfoData[i]["vcNum13"]);
+                    listInfoData[i]["vcNum14"] = Conver2Int(listInfoData[i]["vcNum14"]);
+                    listInfoData[i]["vcNum15"] = Conver2Int(listInfoData[i]["vcNum15"]);
 
                 }
                 #endregion
@@ -354,11 +354,11 @@ namespace Logic
 
 
         #region 旧型1-15年字符串转为数字
-        public decimal Conver2Decimal(object value)
+        public decimal Conver2Int(object value)
         {
             try
             {
-                return Convert.ToDecimal(value);
+                return Convert.ToInt32(value);
             }
             catch
             {

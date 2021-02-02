@@ -232,12 +232,13 @@ namespace DataAccess
                     DataRow[] rows = dt.Select("vcFZGC = '" + vcFZGC + "' and vcPart_id = '" + vcPart_id + "'");
                     if (rows.Length > 0)
                     {
-                        int quantity = 0;
+                        PartNode node = new PartNode();
+                        node.DXR = ht[vcFZGC].ToString();
                         if (!string.IsNullOrWhiteSpace(rows[0]["iD" + day.TrimStart('0')].ToString()))
                         {
-                            quantity = Convert.ToInt32(rows[0]["iD" + day.TrimStart('0')].ToString());
+                            node.quantity = Convert.ToInt32(rows[0]["iD" + day.TrimStart('0')].ToString());
                         }
-                        res.Add(vcPart_id, quantity);
+                        res.Add(vcPart_id, node);
                     }
                 }
 
@@ -248,6 +249,17 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+
+        public class PartNode
+        {
+            public PartNode()
+            {
+                this.quantity = 0;
+            }
+
+            public int quantity;
+            public string DXR;
         }
 
         #endregion

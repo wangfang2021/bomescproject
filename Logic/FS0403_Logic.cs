@@ -30,10 +30,14 @@ namespace Logic
             //获取波动率
             Hashtable ht = fs0403_dataAccess.getFluctuate();
 
+            //获取品番对应工厂
+
             //for (int i = 0; i < excelTable.Rows.Count; i++)
             //{
 
             //}
+
+            //无误则继续，修改soqreply,记录修改
         }
 
         public class Node
@@ -43,6 +47,7 @@ namespace Logic
             public int soqQuantity;
             public decimal allowPercent;
             public decimal realPercent;
+            public string DXR;
             public bool flag;
 
             public Node(string partId)
@@ -51,14 +56,14 @@ namespace Logic
                 this.flag = false;
             }
 
-            public Node(string partId, string excelQuantity, string soqQuantity, string allowPercent)
+            public Node(string partId, string excelQuantity, string soqQuantity, string allowPercent, string DXR)
             {
                 this.partId = partId;
                 this.excelQuantity = ObjToInt(excelQuantity);
                 this.soqQuantity = ObjToInt(soqQuantity);
                 this.allowPercent = ObjToDecimal(allowPercent);
-
-                this.realPercent = (this.excelQuantity - this.soqQuantity) / this.soqQuantity;
+                this.DXR = DXR;
+                this.realPercent = System.Math.Abs((this.excelQuantity - this.soqQuantity) / this.soqQuantity);
                 this.flag = this.allowPercent >= this.realPercent ? true : false;
             }
 

@@ -65,6 +65,12 @@ namespace SPPSApi.Controllers.G03
                 List<Object> dataList_C013 = ComFunction.convertAllToResult(ComFunction.getTCode("C013"));//状态
                 List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
                 List<Object> dataList_C038 = ComFunction.convertAllToResult(ComFunction.getTCode("C038"));//公式名
+
+                Dictionary<string, object> row_All = new Dictionary<string, object>();//公式增加请选择
+                row_All["vcName"] = "请选择";
+                row_All["vcValue"] = "";
+                dataList_C038.Insert(0,row_All);
+
                 //设变履历是否下拉待确定
                 List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
 
@@ -189,7 +195,7 @@ namespace SPPSApi.Controllers.G03
                    , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                    , strReceiver, strPriceState
                    );
-                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
+                string[] fields = { "iAutoId","vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
                 ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
                 ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
                 ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
@@ -281,13 +287,13 @@ namespace SPPSApi.Controllers.G03
                             "号口",
                             "H" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
                         },
-                        { "变更事项","vcChange", "旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
-                        { "变更事项","vcChange", "新设","1", "旧型开始","dJiuBegin","0", "空","" },
-                        { "变更事项","vcChange", "新设","1", "旧型结束","dJiuEnd","0", "空","" },
-                        { "变更事项","vcChange", "新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
-                        { "变更事项","vcChange", "旧型","3", "旧型开始","dJiuBegin","1", "","" },
-                        { "变更事项","vcChange", "旧型","3", "旧型结束","dJiuEnd","1", "","" },
-                        { "变更事项","vcChange", "旧型","3", "旧型持续开始","dJiuBeginSustain","1", "","" }
+                        { "变更事项","vcChange", "打切旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
+                        { "变更事项","vcChange", "新车新设","1", "旧型开始","dJiuBegin","0", "空","" },
+                        { "变更事项","vcChange", "新车新设","1", "旧型结束","dJiuEnd","0", "空","" },
+                        { "变更事项","vcChange", "新车新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
+                        { "变更事项","vcChange", "打切旧型","3", "旧型开始","dJiuBegin","1", "","" },
+                        { "变更事项","vcChange", "打切旧型","3", "旧型结束","dJiuEnd","1", "","" },
+                        { "变更事项","vcChange", "打切旧型","3", "旧型持续开始","dJiuBeginSustain","1", "","" }
                     };
 
 
@@ -786,5 +792,86 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
+
+
+        #region 公式选择时进行计算
+        [HttpPost]
+        [EnableCors("any")]
+        public string gsChangeApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                
+
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
+
+
+                if (listInfoData[0]["decPriceOrigin"]==null|| listInfoData[0]["decPriceOrigin"].ToString().Trim()=="")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "必须输入原价！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                string strPartId = listInfoData[0]["vcPart_id"].ToString();
+                string strSupplier = listInfoData[0]["vcSupplier_id"].ToString();
+                int iAutoId = Convert.ToInt32(listInfoData[0]["iAutoId"]);
+                string strGS = listInfoData[0]["vcPriceGS"].ToString();
+                decimal decPriceOrigin = Convert.ToDecimal(listInfoData[0]["decPriceOrigin"]);
+                if ((strGS == "2" || strGS == "3") &&!fs0309_Logic.getLastStateGsData(strPartId, strSupplier, iAutoId))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "选择公式B/C的品番必须存在上个状态的价格信息！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strGS!=""&& strGS!="4"&&!fs0309_Logic.isGsExist(strGS))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "选择的公式没维护基础数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+
+                DataTable dt=fs0309_Logic.getGSChangePrice(strPartId, strSupplier, iAutoId, strGS, decPriceOrigin);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                if (dt.Rows[0]["priceAfter"] == DBNull.Value)
+                {
+                    res.Add("priceAfter", "");
+                    res.Add("priceTNPWithTax", "");
+                }
+                else
+                {
+                    decimal priceAfter = Convert.ToDecimal(dt.Rows[0]["priceAfter"]);
+                    decimal priceTNPWithTax = Convert.ToDecimal(dt.Rows[0]["priceTNPWithTax"]);
+                    res.Add("priceAfter", priceAfter);
+                    res.Add("priceTNPWithTax", priceTNPWithTax);
+                }
+ 
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0912", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "公式计算失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
     }
 }

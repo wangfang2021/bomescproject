@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G11
     [ApiController]
     public class FS1104Controller : BaseController
     {
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
         FS1104_Logic fS1104_Logic = new FS1104_Logic();
         FS0617_Logic fS0617_Logic = new FS0617_Logic();
         private readonly string FunctionID = "FS1104";
@@ -51,7 +52,7 @@ namespace SPPSApi.Controllers.G11
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
                 List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发货方
-                List<Object> RePartyList = ComFunction.convertAllToResult(fS0617_Logic.getRePartyInfo());//客户代码
+                List<Object> RePartyList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//客户代码
                 List<Object> PackPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装厂
                 res.Add("PlantList", PlantList);
                 res.Add("RePartyList", RePartyList);

@@ -91,13 +91,6 @@ namespace Logic
         }
         #endregion
 
-        #region 检索所有的公式
-        public DataTable getAllGS()
-        {
-            return fs0309_DataAccess.getAllGS();
-        }
-        #endregion
-
         #region 按检索条件检索,返回dt
         public DataTable Search_GS(string strBegin, string strEnd )
         {
@@ -203,5 +196,35 @@ namespace Logic
         }
         #endregion
 
+
+        #region 根据选择公式返回对应金额
+        public DataTable getGSChangePrice(string strPartId, string strSupplier, int iAutoId, string strGSName, decimal decPriceOrigin)
+        {
+            return fs0309_DataAccess.getGSChangePrice(strPartId,strSupplier,iAutoId,strGSName,decPriceOrigin);
+        }
+        #endregion
+
+
+        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        public bool getLastStateGsData(string strPartId, string strSupplier, int iAutoId)
+        {
+            DataTable dt=fs0309_DataAccess.getLastStateGsData(strPartId, strSupplier, iAutoId);
+            if (dt.Rows.Count == 0)
+                return false;
+            else
+                return true;
+        }
+        #endregion
+
+        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        public bool isGsExist(string strGs)
+        {
+            DataTable dt = fs0309_DataAccess.isGsExist(strGs);
+            if (dt.Rows.Count == 0)
+                return false;
+            else
+                return true;
+        }
+        #endregion
     }
 }

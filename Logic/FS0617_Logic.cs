@@ -16,17 +16,9 @@ namespace Logic
         {
             fs0617_DataAccess = new FS0617_DataAccess();
         }
-        public DataTable getSuPartyInfo()
+        public DataTable getSearchInfo(string strPlantArea, string strOrderPlant, string strPartId, string strCarModel, string strReceiver, string strSupplier)
         {
-            return fs0617_DataAccess.getSuPartyInfo();
-        }
-        public DataTable getRePartyInfo()
-        {
-            return fs0617_DataAccess.getRePartyInfo();
-        }
-        public DataTable getSearchInfo(string strPlantArea, string strPlant, string strPartId, string strCarType, string strReParty, string strSuparty)
-        {
-            return fs0617_DataAccess.getSearchInfo(strPlantArea, strPlant, strPartId, strCarType, strReParty, strSuparty);
+            return fs0617_DataAccess.getSearchInfo(strPlantArea, strOrderPlant, strPartId, strCarModel, strReceiver, strSupplier);
         }
         public DataTable getPrintInfo(List<Dictionary<string, Object>> listInfoData)
         {

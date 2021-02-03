@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 using System.Collections;
 namespace DataAccess
 {
-    public class FS0305_DataAccess
+    public class FS9905_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
@@ -29,6 +29,7 @@ namespace DataAccess
                 strSql.Append("     ,b8.vcName as 'vcIsDYJG_Name'    \n");
                 strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
                 strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     ,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
                 strSql.Append("     from TSQJD a    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
@@ -92,6 +93,49 @@ namespace DataAccess
         }
         #endregion
 
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
+        {
+            try
+            {
+                StringBuilder sqlStr = new StringBuilder();
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sqlStr.AppendLine("        update TSQJD set         ");
+                    sqlStr.AppendLine("         vcIsDYJG = '" + listInfoData[i]["vcIsDYJG"] + "'         ");
+                    sqlStr.AppendLine("        ,vcIsDYFX = '" + listInfoData[i]["vcIsDYFX"] + "'         ");
+                    sqlStr.AppendLine("        ,vcSCPlace_Province = '" + listInfoData[i]["vcSCPlace_Province"] + "'         ");
+                    sqlStr.AppendLine("        ,vcSCPlace_City = '" + listInfoData[i]["vcSCPlace_City"] + "'         ");
+                    sqlStr.AppendLine("        ,vcCHPlace_Province = '" + listInfoData[i]["vcCHPlace_Province"] + "'         ");
+                    sqlStr.AppendLine("        ,vcCHPlace_City     = '" + listInfoData[i]["vcCHPlace_City    "] + "'         ");
+                    sqlStr.AppendLine("        ,vcYQorNG = '" + listInfoData[i]["vcYQorNG"] + "'         ");
+                    sqlStr.AppendLine("        ,vcNotDY = '" + listInfoData[i]["vcNotDY"] + "'         ");
+                    sqlStr.AppendLine("        ,dSupplier_BJ = '" + listInfoData[i]["dSupplier_BJ"] + "'         ");
+                    sqlStr.AppendLine("        ,dSupplier_HK = '" + listInfoData[i]["dSupplier_HK"] + "'         ");
+                    sqlStr.AppendLine("        ,vcZXBZDiff = '" + listInfoData[i]["vcZXBZDiff"] + "'         ");
+                    sqlStr.AppendLine("        ,vcZXBZNo = '" + listInfoData[i]["vcZXBZNo"] + "'         ");
+                    sqlStr.AppendLine("        ,vcSCSName = '" + listInfoData[i]["vcSCSName"] + "'         ");
+                    sqlStr.AppendLine("        ,vcSCSPlace = '" + listInfoData[i]["vcSCSPlace"] + "'         ");
+                    sqlStr.AppendLine("        ,vcOperatorId = '" + strUserId + "'         ");
+                    sqlStr.AppendLine("        ,dOperatorTime = GETDATE()         ");
+                    sqlStr.AppendLine("        where iAutoId = '" + iAutoId + "';         ");
+                }
+                if (sqlStr.Length>0)
+                {
+                    excute.CommonExcuteNonQuery(sqlStr.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                strErr = ex.Message;
+                throw ex;
+            }
+        }
+
+        #endregion
+
         #region 生确回复
         public void Send(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
@@ -132,7 +176,7 @@ namespace DataAccess
         #endregion
 
         #region 对应可否一括付与
-        public void IsDYJG(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strIsDYJG)
+        public void SetDYJG(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strIsDYJG)
         {
             try
             {
@@ -163,7 +207,7 @@ namespace DataAccess
         #endregion
 
         #region 防锈区分一括付与
-        public void IsDYFX(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strIsDYFX)
+        public void SetDYFX(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strIsDYFX)
         {
             try
             {

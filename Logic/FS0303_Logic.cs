@@ -161,6 +161,8 @@ namespace Logic
                     {
                         try
                         {
+                            if (listData[i][item.strHeader + "_Name"] == null)
+                                continue;//前天没填写
                             #region 获取正确的Name
                             string strName = listData[i][item.strHeader + "_Name"].ToString();
                             #endregion
@@ -178,31 +180,13 @@ namespace Logic
                             listData[i][item.strHeader] = strValue;
                             #endregion
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
                             strErr = "编辑行中第" + (i + 1) + "行" + item.strTitle + "填写不合法";
                             return null;
                         }
 
                     }
-                    #region 单独验证防锈
-                    try
-                    {
-                        string strFXDiff = listData[i]["vcFXDiff"].ToString();
-                        string strValue = fs0303_DataAccess.Name2Value("C028", strFXDiff, true);
-                        if (string.IsNullOrEmpty(strValue))
-                        {
-                            strErr = "编辑行中第" + (i + 1) + "行防锈不能为空";
-                            return null;
-                        }
-                    }
-                    catch
-                    {
-                        strErr = "编辑行中第" + (i + 1) + "行防锈填写不合法";
-                        return null;
-                    }
-                    #endregion
-
                 }
                 return listData;
             }

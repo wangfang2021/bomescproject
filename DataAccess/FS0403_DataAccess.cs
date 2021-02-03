@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 计算5个工作日各工厂日期
-        class Node
+        public class Node
         {
             public Node(string plant, Hashtable hs)
             {
@@ -43,16 +43,15 @@ namespace DataAccess
             public string plant;
             public Hashtable day;
         }
-
-        public DataTable getCalendar()
+        public DataTable getCalendar(DateTime YM)
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("DECLARE @YM VARCHAR(6)");
                 sbr.AppendLine("DECLARE @YM1 VARCHAR(6)");
-                sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),GETDATE(),112)");
-                sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,GETDATE()),112)");
+                sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),DATEADD(m,0,'" + YM + "'),112)");
+                sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,'" + YM + "'),112)");
                 sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1)");
                 sbr.AppendLine("ORDER BY vcFZGC,TARGETMONTH");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
@@ -62,7 +61,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public Hashtable getDay(DataTable dt)
+        public Hashtable getDay(DataTable dt, DateTime temp, int dayCount)
         {
             try
             {
@@ -156,11 +155,11 @@ namespace DataAccess
 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    DateTime time = DateTime.Now;
+                    DateTime time = temp;
                     string key = list[i].plant;
                     string value = "";
                     int count = 0;
-                    while (count < 5)
+                    while (count < dayCount)
                     {
                         time = time.AddDays(1);
                         string tmp = time.ToString("yyyyMMdd");
@@ -294,6 +293,26 @@ namespace DataAccess
 
         #endregion
 
+        #region 修改soqReply并导入履历表
+
+        public void ChangeSoq(List<PartIDNode> list)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+
+                sbr.AppendLine("");
+
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
         #region string To Float
 
         public Decimal getFloat(string str)
@@ -309,5 +328,79 @@ namespace DataAccess
         }
 
         #endregion
+
+        #region 品番完整类
+
+        public class PartIDNode
+        {
+            public string partId;//品番
+            public int IQuantityNow;//修改后数量
+            public int iQuantityBefore;//修改前数量
+            public decimal allowPercent;//允许波动率
+            public decimal realPercent;//变更波动率
+            public string DXR;//对象日
+            public string ChangeNo;//变更号
+            public bool flag;//是否允许更改
+
+
+            public PartIDNode(string partId)
+            {
+                this.partId = partId;
+                this.flag = false;
+            }
+
+            public PartIDNode(string partId, string excelQuantity, string soqQuantity, string allowPercent, string DXR, string ChangeNo)
+            {
+                this.partId = partId;
+                this.IQuantityNow = ObjToInt(excelQuantity);
+                this.iQuantityBefore = ObjToInt(soqQuantity);
+                this.allowPercent = ObjToDecimal(allowPercent);
+                this.DXR = DXR;
+                this.ChangeNo = ChangeNo;
+
+                //TODO 对soq原数据为0进行check
+                if (this.iQuantityBefore.Equals(0))
+                {
+
+                }
+                else
+                {
+                    this.realPercent = Math.Abs((this.IQuantityNow - this.iQuantityBefore) / this.iQuantityBefore);
+                    this.flag = this.allowPercent >= this.realPercent ? true : false;
+                }
+            }
+
+            public bool isAllow()
+            {
+                return this.flag;
+            }
+        }
+
+        public static int ObjToInt(Object obj)
+        {
+            try
+            {
+                return Convert.ToInt32(obj);
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        public static decimal ObjToDecimal(Object obj)
+        {
+            try
+            {
+                return Convert.ToDecimal(obj);
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        #endregion
+
     }
 }

@@ -96,7 +96,7 @@ namespace DataAccess
         public void Send(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
             
-            #region 将进度变为已退回
+            #region 将进度变为已退回,清空退回理由
             try
             {
                 StringBuilder sql = new StringBuilder();
@@ -109,6 +109,7 @@ namespace DataAccess
                     sql.Append("      select vcValue from TCode where vcCodeId = 'C026' and vcName = '已回复'      \n");
                     sql.Append("      ),      \n");
                     sql.Append("      vcOperatorId = '" + strUserId + "',      \n");
+                    sql.Append("      vcTH = null,      \n");
                     sql.Append("      dOperatorTime = GETDATE()      \n");
                     sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
                 }

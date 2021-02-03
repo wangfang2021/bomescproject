@@ -279,7 +279,7 @@ namespace Logic
         {
             try
             {
-                #region 将旧型1-15年转为变成decimal格式
+                #region 将旧型1-15年转为变成int格式
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     listInfoData[i]["vcNum1"] = Conver2Int(listInfoData[i]["vcNum1"]);
@@ -297,7 +297,6 @@ namespace Logic
                     listInfoData[i]["vcNum13"] = Conver2Int(listInfoData[i]["vcNum13"]);
                     listInfoData[i]["vcNum14"] = Conver2Int(listInfoData[i]["vcNum14"]);
                     listInfoData[i]["vcNum15"] = Conver2Int(listInfoData[i]["vcNum15"]);
-
                 }
                 #endregion
 

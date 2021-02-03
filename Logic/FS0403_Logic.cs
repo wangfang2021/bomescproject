@@ -13,10 +13,19 @@ namespace Logic
     {
         FS0403_DataAccess fs0403_dataAccess = new FS0403_DataAccess();
 
-        #region check
+        #region 检索
+
+        public DataTable searchApi(string changeNo, string state, string orderNo)
+        {
+            return fs0403_dataAccess.searchApi(changeNo, state, orderNo);
+        }
+
+        #endregion
+
+        #region 日别导入
 
         //public void Check(DataTable excelTable,ref string refMsg)
-        public void Check(DateTime time)
+        public void ImportFile(DateTime time)
         {
 
             DataTable Calendar = fs0403_dataAccess.getCalendar(time);
@@ -30,7 +39,6 @@ namespace Logic
             Hashtable ht = fs0403_dataAccess.getFluctuate();
 
             List<FS0403_DataAccess.PartIDNode> list = new List<FS0403_DataAccess.PartIDNode>();
-
             //for (int i = 0; i < excelTable.Rows.Count; i++)
             //{
 

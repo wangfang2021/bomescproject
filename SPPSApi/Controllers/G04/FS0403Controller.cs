@@ -25,44 +25,6 @@ namespace SPPSApi.Controllers.G04
         }
 
 
-        #region 页面初始化
-        [HttpPost]
-        [EnableCors("any")]
-        public string pageloadApi()
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外
-                List<Object> dataList_C047 = ComFunction.convertAllToResult(ComFunction.getTCode("C047"));//订货方式
-
-
-                res.Add("C003", dataList_C003);
-                res.Add("C047", dataList_C047);
-
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "初始化失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
         #region 检索数据
         [HttpPost]
         [EnableCors("any")]
@@ -79,18 +41,17 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string Part_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
-            string TimeFrom = dataForm.TimeFrom == null ? "" : dataForm.TimeFrom;
-            string TimeTo = dataForm.TimeTo == null ? "" : dataForm.TimeTo;
-            string carType = dataForm.carType == null ? "" : dataForm.carType;
-            string InOut = dataForm.InOut == null ? "" : dataForm.InOut;
-            string DHFlag = dataForm.DHFlag == null ? "" : dataForm.DHFlag;
+            string changeNo = dataForm.changeNo == null ? "" : dataForm.changeNo;
+            string state = dataForm.state == null ? "" : dataForm.state;
+            string orderNo = dataForm.orderNo == null ? "" : dataForm.orderNo;
 
 
             try
             {
-                //List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-                List<Object> dataList = new List<object>();
+                DataTable dt = fs0403_Logic.searchApi(changeNo, state, orderNo);
+                DtConverter dtConverter = new DtConverter();
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

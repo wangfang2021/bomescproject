@@ -177,7 +177,7 @@ namespace DataAccess
 
                     if (!finishstate.Equals("1") && !finishstate.Equals("3"))
                     {
-                        if (change.Equals("1") || change.Equals("2") || change.Equals("10") || change.Equals("12") || change != "8")//新设
+                        if (change.Equals("1") || change.Equals("2") || change.Equals("10") || change.Equals("12") || change.Equals("8"))//新设
                         {
                             string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                             string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();

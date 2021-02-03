@@ -12,7 +12,27 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        #region 计算5个工作日各工厂日期
+        #region 检索
+
+        public DataTable searchApi(string changeNo, string state, string orderNo)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 导入d+n日次变更
+
+        #region 计算n个工作日各工厂稼动日
         public class Node
         {
             public Node(string plant, Hashtable hs)
@@ -43,15 +63,15 @@ namespace DataAccess
             public string plant;
             public Hashtable day;
         }
-        public DataTable getCalendar(DateTime YM)
+        public DataTable getCalendar(DateTime DXR)
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("DECLARE @YM VARCHAR(6)");
                 sbr.AppendLine("DECLARE @YM1 VARCHAR(6)");
-                sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),DATEADD(m,0,'" + YM + "'),112)");
-                sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,'" + YM + "'),112)");
+                sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),DATEADD(m,0,'" + DXR + "'),112)");
+                sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,'" + DXR + "'),112)");
                 sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1)");
                 sbr.AppendLine("ORDER BY vcFZGC,TARGETMONTH");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
@@ -340,7 +360,7 @@ namespace DataAccess
             public decimal realPercent;//变更波动率
             public string DXR;//对象日
             public string ChangeNo;//变更号
-            public bool flag;//是否允许更改
+            public bool flag;//是否允许存在
 
 
             public PartIDNode(string partId)
@@ -357,23 +377,28 @@ namespace DataAccess
                 this.allowPercent = ObjToDecimal(allowPercent);
                 this.DXR = DXR;
                 this.ChangeNo = ChangeNo;
+                this.flag = true;
 
-                //TODO 对soq原数据为0进行check
-                if (this.iQuantityBefore.Equals(0))
-                {
+                //波动率范围
+                int max = 0;
+                int min = 0;
 
-                }
-                else
+                iQuantityBefore = iQuantityBefore == 0 ? 0 : 1;
+                max = (int)Math.Floor(iQuantityBefore * (1 + this.allowPercent));
+                min = (int)Math.Ceiling(iQuantityBefore * (1 - this.allowPercent));
+                min = min < 0 ? 0 : min;
+
+                if (IQuantityNow > max)
                 {
-                    this.realPercent = Math.Abs((this.IQuantityNow - this.iQuantityBefore) / this.iQuantityBefore);
-                    this.flag = this.allowPercent >= this.realPercent ? true : false;
+                    IQuantityNow = max;
                 }
+                else if (IQuantityNow < min)
+                {
+                    IQuantityNow = min;
+                }
+
             }
 
-            public bool isAllow()
-            {
-                return this.flag;
-            }
         }
 
         public static int ObjToInt(Object obj)
@@ -399,6 +424,8 @@ namespace DataAccess
                 return 0;
             }
         }
+
+        #endregion
 
         #endregion
 

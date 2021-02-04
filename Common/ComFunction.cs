@@ -405,7 +405,7 @@ namespace Common
             {
 
                 Console.WriteLine("Exception: " + ex.Message);
-                return null;
+                throw ex;
             }
             finally
             {

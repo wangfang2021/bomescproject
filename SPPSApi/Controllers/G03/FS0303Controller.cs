@@ -411,7 +411,7 @@ namespace SPPSApi.Controllers.G03
             {
                 /*2020-01-04*/
                 DataTable dt = fs0303_Logic.Search(strIsShowAll, strOriginCompany);
-                string[] fields = { "dSyncTime", "vcChange_Name", "vcSPINo", "vcSQState_Name", "vcDiff"
+                string[] fields = { "iAutoId","dSyncTime", "vcChange_Name", "vcSPINo", "vcSQState_Name", "vcDiff"
                                     ,"vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName"
                                     ,"dTimeFrom","dTimeTo","dTimeFromSJ","vcBJDiff","vcPartReplace"
                                     ,"vcPartNameEn","vcPartNameCn","vcHKGC","vcBJGC","vcInOutflag_Name"
@@ -423,7 +423,7 @@ namespace SPPSApi.Controllers.G03
                                     ,"vcNum9","vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                                     ,"vcZXBZNo","vcReceiver_Name","vcOriginCompany_Name"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

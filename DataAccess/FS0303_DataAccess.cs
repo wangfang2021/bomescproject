@@ -373,6 +373,10 @@ namespace DataAccess
                 sql.Append("        (      \n");
                 sql.Append("      	  select * from TUnit where 1=0      \n");
                 sql.Append("        ) a      ;\n");
+                sql.Append("        ALTER TABLE #TUnit_temp drop column iAutoId  ;\n");
+                sql.Append("        ALTER TABLE #TUnit_temp ADD  iAutoId int     ;\n");
+
+                
                 #endregion
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -394,7 +398,7 @@ namespace DataAccess
                     sql.Append("                ");
                     sql.Append("      (      \n");
                     sql.Append("      " + dt.Rows[i]["iAutoId"] + "      \n");
-                    sql.Append("      '" + dt.Rows[i]["dSyncTime"] + "'      \n");
+                    sql.Append("      ,'" + dt.Rows[i]["dSyncTime"] + "'      \n");
                     sql.Append("      ,'" + dt.Rows[i]["vcChange_Name"] + "'      \n");
                     sql.Append("      ,'" + dt.Rows[i]["vcSPINo"] + "'      \n");
                     sql.Append("      ,'" + dt.Rows[i]["vcSQState_Name"] + "'      \n");
@@ -427,7 +431,21 @@ namespace DataAccess
                     sql.Append("      ,'" + dt.Rows[i]["vcHaoJiu_Name"] + "'      \n");
                     sql.Append("      ,'" + dt.Rows[i]["dJiuBegin"] + "'      \n");
                     sql.Append("      ,'" + dt.Rows[i]["dJiuEnd"] + "'      \n");
-                    sql.Append("      ,'" + dt.Rows[i]["vcJiuYear"] + "'      \n");
+
+                    //旧型经年由旧型开始和结束时间计算得出
+                    #region 计算旧型经年
+                    if (dt.Rows[i]["dJiuBegin"].ToString() != "" && dt.Rows[i]["dJiuEnd"].ToString() != "")
+                    {
+                        DateTime datetime1 = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]);
+                        DateTime datetime2 = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]);
+                        int iJiuYear = datetime2.Year - datetime1.Year;
+                        sql.Append(",'" + iJiuYear + "'" + "   \r\n");
+                    }
+                    else
+                    {
+                        sql.Append(",null   \r\n");
+                    }
+                    #endregion
                     sql.Append("      ,'" + dt.Rows[i]["vcNXQF"] + "'      \n");
                     sql.Append("      ,'" + dt.Rows[i]["dSSDate"] + "'      \n");
                     sql.Append("      ,'" + dt.Rows[i]["vcMeno"] + "'      \n");
@@ -519,11 +537,11 @@ namespace DataAccess
                 sql.Append("      ,vcOriginCompany=b.vcOriginCompany          \n");
                 sql.Append("      ,vcOperator=b.vcOperator          \n");
                 sql.Append("      ,dOperatorTime=b.dOperatorTime          \n");
-                sql.Append("      from TUnit_temp b      \n");
+                sql.Append("      from TUnit a      \n");
                 sql.Append("      inner join       \n");
                 sql.Append("      (      \n");
-                sql.Append("      	select iAutoId from #TUnit      \n");
-                sql.Append("      ) a      \n");
+                sql.Append("      	select * from #TUnit_temp      \n");
+                sql.Append("      ) b      \n");
                 sql.Append("      on a.iAutoId = b.iAutoId      \n");
 
                 sql.Append("      insert into TUnit      \n");

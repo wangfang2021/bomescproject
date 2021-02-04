@@ -271,7 +271,6 @@ namespace DataAccess
                 {
                     string vcFZGC = dt.Rows[i]["vcFZGC"].ToString();
                     string vcPart_id = dt.Rows[i]["vcPart_id"].ToString();
-                    string YM = ht[vcFZGC].ToString().Substring(0, 6);
                     string day = ht[vcFZGC].ToString().Substring(6, 2);
 
                     DataRow[] rows = dt.Select("vcFZGC = '" + vcFZGC + "' and vcPart_id = '" + vcPart_id + "'");
@@ -383,44 +382,57 @@ namespace DataAccess
             public int IQuantityNow;//修改后数量
             public int iQuantityBefore;//修改前数量
             public decimal allowPercent;//允许波动率
-            public decimal realPercent;//变更波动率
             public string DXR;//对象日
             public string ChangeNo;//变更号
             public bool flag;//是否允许存在
+            public string message;//错误记录
+            //public decimal realPercent;//变更波动率
 
-
-            public PartIDNode(string partId)
+            public PartIDNode(string partId, int excelQuantity, int soqQuantity, string allowPercent, string DXR, string ChangeNo)
             {
-                this.partId = partId;
-                this.flag = false;
-            }
-
-            public PartIDNode(string partId, string excelQuantity, string soqQuantity, string allowPercent, string DXR, string ChangeNo)
-            {
-                this.partId = partId;
-                this.IQuantityNow = ObjToInt(excelQuantity);
-                this.iQuantityBefore = ObjToInt(soqQuantity);
-                this.allowPercent = ObjToDecimal(allowPercent);
-                this.DXR = DXR;
-                this.ChangeNo = ChangeNo;
-                this.flag = true;
-
-                //波动率范围
-                int max = 0;
-                int min = 0;
-
-                iQuantityBefore = iQuantityBefore == 0 ? 0 : 1;
-                max = (int)Math.Floor(iQuantityBefore * (1 + this.allowPercent));
-                min = (int)Math.Ceiling(iQuantityBefore * (1 - this.allowPercent));
-                min = min < 0 ? 0 : min;
-
-                if (IQuantityNow > max)
+                try
                 {
-                    IQuantityNow = max;
+                    this.partId = partId;
+                    this.IQuantityNow = excelQuantity;
+
+                    if (soqQuantity.Equals("-1"))
+                    {
+                        this.message += "对象日Soq不存在";
+                    }
+
+                    if (string.IsNullOrWhiteSpace(allowPercent))
+                    {
+                        this.message += "波动率不存在";
+                    }
+
+                    this.iQuantityBefore = soqQuantity;
+                    this.allowPercent = ObjToDecimal(allowPercent);
+                    this.DXR = DXR;
+                    this.ChangeNo = ChangeNo;
+                    this.flag = true;
+
+                    //波动率范围
+                    int max = 0;
+                    int min = 0;
+
+                    iQuantityBefore = iQuantityBefore == 0 ? 1 : iQuantityBefore;
+                    max = (int)Math.Floor(iQuantityBefore * (1 + this.allowPercent / 100));
+                    min = (int)Math.Ceiling(iQuantityBefore * (1 - this.allowPercent / 100));
+                    min = min < 0 ? 0 : min;
+
+                    if (IQuantityNow > max)
+                    {
+                        IQuantityNow = max;
+                    }
+                    else if (IQuantityNow < min)
+                    {
+                        IQuantityNow = min;
+                    }
                 }
-                else if (IQuantityNow < min)
+                catch (Exception ex)
                 {
-                    IQuantityNow = min;
+                    this.partId = partId;
+                    flag = false;
                 }
 
             }

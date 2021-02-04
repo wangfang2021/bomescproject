@@ -58,13 +58,46 @@ namespace DataAccess
 
                 dt.Columns.Add("vcDiff");
                 DataTable Diff = getDiff();
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                //    string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
+                //    string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
+                //    if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
+                //    {
+                //        DataRow[] tmp = dt.Select("vcPart_Id_old = '" + vcPart_Id_old + "'");
+                //        if (tmp.Length > 0)
+                //        {
+                //            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                //        }
+                //        else
+                //        {
+                //            dt.Rows[i]["vcDiff"] = "";
+                //        }
+                //    }
+                //    else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
+                //    {
+                //        DataRow[] tmp = dt.Select("vcPart_Id_new = '" + vcPart_Id_new + "'");
+                //        if (tmp.Length > 0)
+                //        {
+                //            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                //        }
+                //        else
+                //        {
+                //            dt.Rows[i]["vcDiff"] = "";
+                //        }
+                //    }
+                //    else
+                //    {
+                //        dt.Rows[i]["vcDiff"] = "";
+                //    }
+                //}
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
                     string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
                     if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
                     {
-                        DataRow[] tmp = dt.Select("vcPart_Id_old = '" + vcPart_Id_old + "'");
+                        DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_old + "'");
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -76,7 +109,7 @@ namespace DataAccess
                     }
                     else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
                     {
-                        DataRow[] tmp = dt.Select("vcPart_Id_new = '" + vcPart_Id_new + "'");
+                        DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_new + "'");
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -91,7 +124,6 @@ namespace DataAccess
                         dt.Rows[i]["vcDiff"] = "";
                     }
                 }
-
                 return dt;
             }
             catch (Exception ex)
@@ -873,7 +905,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
                     "SELECT distinct vcPart_id FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE()");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
                 List<string> res = new List<string>();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {

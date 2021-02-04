@@ -65,7 +65,6 @@ namespace SPPSApi.Controllers.G04
 
             DateTime time = Convert.ToDateTime(DXR);
 
-            fs0403_Logic.ImportFile(time);
 
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
@@ -82,11 +81,11 @@ namespace SPPSApi.Controllers.G04
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
 
-                string[,] headers = new string[,] {{"品番","英文品名","中文品名"},
-                                                {"vcPart_id", "vcPartNameEn", "vcPartNameCn"},
-                                                {"","",""},
-                                                {"12","0","50"},//最大长度设定,不校验最大长度用0
-                                                {"10","0","1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"变更号","品番","变更数量"},
+                                                {"vcChangeNo", "vcPart_Id", "iQuantity"},
+                                                {"","",FieldCheck.Num},
+                                                {"0","12","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","10","1"}};//最小长度设定,可以为空用0
 
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -113,10 +112,14 @@ namespace SPPSApi.Controllers.G04
                         importDt.ImportRow(row);
                     }
                 }
+
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
+                string refMsg = "";
+                fs0403_Logic.ImportFile(time, importDt, ref refMsg);
 
-                //fs0320_Logic.importSave(importDt, loginInfo.UserId, loginInfo.UnitCode);
+
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

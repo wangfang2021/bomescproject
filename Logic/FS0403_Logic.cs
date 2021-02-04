@@ -24,8 +24,7 @@ namespace Logic
 
         #region 日别导入
 
-        //public void Check(DataTable excelTable,ref string refMsg)
-        public void ImportFile(DateTime time)
+        public void ImportFile(DateTime time, DataTable excelTable, ref string refMsg)
         {
 
             DataTable Calendar = fs0403_dataAccess.getCalendar(time);
@@ -39,10 +38,31 @@ namespace Logic
             Hashtable ht = fs0403_dataAccess.getFluctuate();
 
             List<FS0403_DataAccess.PartIDNode> list = new List<FS0403_DataAccess.PartIDNode>();
-            //for (int i = 0; i < excelTable.Rows.Count; i++)
-            //{
 
-            //}
+            for (int i = 0; i < excelTable.Rows.Count; i++)
+            {
+
+                string changeNo = excelTable.Rows[i]["vcchangeNo"].ToString();
+                string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                int excelquantity = Convert.ToInt32(excelTable.Rows[i]["iQuantity"]);
+                int soqQuantity = -1;
+                string DXR = "";
+                string allowPercent = "";
+                if (quantity.Contains(partId))
+                {
+                    FS0403_DataAccess.PartNode tmp = (FS0403_DataAccess.PartNode)quantity[partId];
+                    DXR = tmp.DXR;
+                    soqQuantity = tmp.quantity;
+                }
+
+                if (ht.Contains(partId))
+                {
+                    allowPercent = ht[partId].ToString();
+                }
+
+                list.Add(new FS0403_DataAccess.PartIDNode(partId, excelquantity, soqQuantity, allowPercent, DXR, changeNo));
+
+            }
 
             //无误则继续，修改soqreply,记录修改
             fs0403_dataAccess.ChangeSoq(list);

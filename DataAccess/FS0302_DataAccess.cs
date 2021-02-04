@@ -40,7 +40,8 @@ namespace DataAccess
                 sbr.Append(" ) b ON a.vcFinishState = b.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
-                sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C009' \r\n");
+                //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C009' \r\n");
+                sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
                 sbr.Append(" ) c ON a.vcCarType = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");

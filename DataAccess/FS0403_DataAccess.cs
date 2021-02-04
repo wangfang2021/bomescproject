@@ -19,6 +19,30 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcDXDate,vcOrderNo,vcChangeNo,dFileUpload,CASE a.state WHEN '0' THEN '订单待上传' WHEN '1' THEN '订单已上传' END AS state FROM ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT a.*,ISNULL(b.Exist,'0') AS state FROM ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcDXDate,vcOrderNo,vcChangeNo,dFileUpload FROM TSoqDayChange");
+                sbr.AppendLine(") a");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT DISTINCT vcOrderNo,'1' AS Exist FROM SP_M_ORD WHERE vcOrderType = ''");
+                sbr.AppendLine(") b ON a.vcOrderNo = b.vcOrderNo");
+                sbr.AppendLine("WHERE 1=1");
+                if (!string.IsNullOrWhiteSpace(state))
+                {
+                    sbr.AppendLine("AND ISNULL(b.Exist,'0') = '" + state + "'");
+                }
+                if (!string.IsNullOrWhiteSpace(changeNo))
+                {
+                    sbr.AppendLine("AND a.vcChangeNo LIKE '" + changeNo + "%'");
+                }
+                if (!string.IsNullOrWhiteSpace(orderNo))
+                {
+                    sbr.AppendLine("AND a.vcOrderNo LIKE '" + orderNo + "%'");
+                }
+                sbr.AppendLine(") a");
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
@@ -70,9 +94,11 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("DECLARE @YM VARCHAR(6)");
                 sbr.AppendLine("DECLARE @YM1 VARCHAR(6)");
+                sbr.AppendLine("DECLARE @YM2 VARCHAR(6)");
                 sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),DATEADD(m,0,'" + DXR + "'),112)");
                 sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,'" + DXR + "'),112)");
-                sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1)");
+                sbr.AppendLine("SET @YM2 = CONVERT(VARCHAR(6),DATEADD(m,2,'" + DXR + "'),112)");
+                sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1,@YM2)");
                 sbr.AppendLine("ORDER BY vcFZGC,TARGETMONTH");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }

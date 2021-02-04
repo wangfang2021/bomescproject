@@ -50,7 +50,7 @@ namespace SPPSApi.Controllers.G04
             {
                 DataTable dt = fs0403_Logic.searchApi(changeNo, state, orderNo);
                 DtConverter dtConverter = new DtConverter();
-
+                dtConverter.addField("dFileUpload", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -58,7 +58,7 @@ namespace SPPSApi.Controllers.G04
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0101", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0301", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

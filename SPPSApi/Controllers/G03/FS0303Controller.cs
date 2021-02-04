@@ -54,7 +54,7 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<string> dataList_C002 = convertTCodeToResult(getTCode("C035"));//变更事项
+                List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
                 List<string> dataList_C003 = convertTCodeToResult(getTCode("C003"));//内外区分
                 List<string> dataList_C004 = convertTCodeToResult(getTCode("C004"));//号旧区分
                 List<string> dataList_C005 = convertTCodeToResult(getTCode("C005"));//收货方
@@ -62,6 +62,8 @@ namespace SPPSApi.Controllers.G03
                 List<string> dataList_C012 = convertTCodeToResult(getTCode("C012"));//OE=SP
                 List<string> dataList_C016 = convertTCodeToResult(getTCode("C016"));//包装事业体
                 List<string> dataList_C019 = convertTCodeToResult(getTCode("C019"));//生确
+                List<string> dataList_C028 = convertTCodeToResult(getTCode("C028"));//防錆
+
 
                 res.Add("C002", dataList_C002);
                 res.Add("C003", dataList_C003);
@@ -71,7 +73,8 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C012", dataList_C012);
                 res.Add("C016", dataList_C016);
                 res.Add("C019", dataList_C019);
-                
+                res.Add("C028", dataList_C028);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -138,7 +141,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("dGYSTimeTo", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
@@ -262,8 +265,8 @@ namespace SPPSApi.Controllers.G03
                     string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"旧型年限生产区分","实施年限(年限)","特记"  ,"防錆"    ,"防錆指示书号","旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年","执行标准No","收货方"         ,"所属原单位"          },
                                                         {"dSyncTime"    ,"vcChange_Name","vcSPINo","vcSQState_Name","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name"},
                                                         {FieldCheck.Date,""             ,""       ,""              ,""      ,""         ,""            ,""               ,""             ,FieldCheck.Date,FieldCheck.Date,FieldCheck.Date,""        ,""             ,""            ,""            ,""        ,""        ,""                ,""             ,""               ,""         ,""         ,""              ,""          ,""           ,FieldCheck.Date,FieldCheck.Date,""         ,""           ,""             ,FieldCheck.Date,FieldCheck.Date,""         ,""                ,FieldCheck.Date ,""      ,""        ,""            ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""        ,""        ,""        ,""        ,""        ,""        ,""          ,""               ,""                    },
-                                                        {"0"            ,"0"            ,"20"     ,"0"             ,"0"     ,"12"       ,"4"           ,"4"              ,"4"            ,"0"            ,"0"            ,"0"            ,"4"       ,"12"           ,"100"         ,"100"         ,"20"      ,"20"      ,"0"               ,"4"            ,"100"            ,"20"       ,"20"       ,"0"             ,"100"       ,"100"        ,"0"            ,"0"            ,"0"        ,"12"         ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"50"        ,"0"              ,"0"                   },//最大长度设定,不校验最大长度用0
-                                                        {"0"            ,"0"            ,"1"      ,"1"             ,"1"     ,"1"        ,"1"           ,"1"              ,"0"            ,"1"            ,"1"            ,"0"            ,"1"       ,"0"            ,"1"           ,"0"           ,"0"       ,"0"       ,"1"               ,"1"            ,"0"              ,"0"        ,"0"        ,"1"             ,"0"         ,"0"          ,"0"            ,"0"            ,"1"        ,"0"          ,"1"            ,"1"            ,"1"            ,"0"        ,"0"               ,"0"             ,"0"     ,"1"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"1"              ,"1"                   },//最小长度设定,可以为空用0
+                                                        {"0"            ,"0"            ,"20"     ,"0"             ,"0"     ,"12"       ,"4"           ,"4"              ,"10"           ,"0"            ,"0"            ,"0"            ,"4"       ,"12"           ,"100"         ,"100"         ,"20"      ,"20"      ,"0"               ,"4"            ,"100"            ,"20"       ,"20"       ,"0"             ,"100"       ,"100"        ,"0"            ,"0"            ,"0"        ,"12"         ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"50"        ,"0"              ,"0"                   },//最大长度设定,不校验最大长度用0
+                                                        {"0"            ,"0"            ,"0"      ,"0"             ,"0"     ,"1"        ,"0"           ,"0"              ,"0"            ,"0"            ,"0"            ,"0"            ,"0"       ,"0"            ,"0"           ,"0"           ,"0"       ,"0"       ,"0"               ,"0"            ,"0"              ,"0"        ,"0"        ,"0"             ,"0"         ,"0"          ,"0"            ,"0"            ,"0"        ,"0"          ,"0"            ,"0"            ,"0"            ,"0"        ,"0"               ,"0"             ,"0"     ,"0"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"0"              ,"0"                   },//最小长度设定,可以为空用0
                                                         {"1"            ,"2"            ,"3"      ,"4"             ,"5"     ,"6"        ,"7"           ,"8"              ,"9"            ,"10"           ,"11"           ,"12"           ,"13"      ,"14"           ,"15"          ,"16"          ,"17"      ,"18"      ,"19"              ,"20"           ,"21"             ,"22"       ,"23"       ,"24"            ,"25"        ,"26"         ,"27"           ,"28"           ,"29"       ,"30"         ,"31"           ,"32"           ,"33"           ,"34"       ,"35"              ,"36"            ,"37"    ,"38"      ,"39"          ,"40"     ,"41"     ,"42"     ,"43"     ,"44"     ,"45"     ,"46"     ,"47"     ,"48"     ,"49"      ,"50"      ,"51"      ,"52"      ,"53"      ,"54"      ,"55"        ,"56"             ,"57"                  }
                     };
                     //需要判断时间区间先后关系的字段
@@ -304,6 +307,8 @@ namespace SPPSApi.Controllers.G03
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "OE=SP", strHeader = "vcOE", strCodeid = "C012", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "包装工厂", strHeader = "vcSYTCode", strCodeid = "C016", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "生确", strHeader = "vcSQState", strCodeid = "C019", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "防錆", strHeader = "vcFXDiff", strCodeid = "C028", isNull = false });
+
                     #endregion
 
                     #region 更新table
@@ -413,7 +418,7 @@ namespace SPPSApi.Controllers.G03
                                     ,"vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace"
                                     ,"vcSYTCode_Name","vcSCSName","vcSCSAdress","dGYSTimeFrom","dGYSTimeTo"
                                     ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin","dJiuEnd","vcJiuYear"
-                                    ,"vcNXQF","dSSDate","vcMeno","vcFXDiff","vcFXNo","vcNum1"
+                                    ,"vcNXQF","dSSDate","vcMeno","vcFXDiff_Name","vcFXNo","vcNum1"
                                     ,"vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8"
                                     ,"vcNum9","vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                                     ,"vcZXBZNo","vcReceiver_Name","vcOriginCompany_Name"
@@ -699,6 +704,8 @@ namespace SPPSApi.Controllers.G03
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "OE=SP", strHeader = "vcOE", strCodeid = "C012", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "包装工厂", strHeader = "vcSYTCode", strCodeid = "C016", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "生确", strHeader = "vcSQState", strCodeid = "C019", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "防錆", strHeader = "vcFXDiff", strCodeid = "C028", isNull = false });
+
                     #endregion
 
                     #region 更新table

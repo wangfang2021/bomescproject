@@ -55,17 +55,17 @@ namespace SPPSApi.Controllers.G04
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            if (dataForm.DXR == null || dataForm.DXR == "")
+            string DXR = dataForm.DXR == null ? "" : dataForm.DXR;
+            if (string.IsNullOrWhiteSpace(DXR))
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "请选择对象年月日。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
 
-            DateTime DXR = dataForm.DXR == null ? "" : Convert.ToDateTime(dataForm.DXR);
+            DateTime time = Convert.ToDateTime(DXR);
 
-            fs0403_Logic.ImportFile(DXR);
+            fs0403_Logic.ImportFile(time);
 
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;

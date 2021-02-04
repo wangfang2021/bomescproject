@@ -18,20 +18,48 @@ namespace Logic
             fs0612_DataAccess = new FS0612_DataAccess();
         }
 
-        #region 检索
-        public DataTable Search(string vcPlant, string vcCLYM)
+        #region 检索_FORECAST
+        public DataTable Search(string vcCLYM)
         {
-            return fs0612_DataAccess.Search(vcPlant, vcCLYM);
+            return fs0612_DataAccess.Search(vcCLYM);
+        }
+        #endregion
+
+        #region 检索_EKANBAN
+        public DataTable Search2(string vcCLYM)
+        {
+            return fs0612_DataAccess.Search2(vcCLYM);
         }
         #endregion
 
         #region 记录请求时间
-        public void CreateView(string vcCLYM, List<string> plantList, string strUserId)
+        public void CreateView(string vcCLYM, DataTable dtPlant, string strUserId)
         {
-            fs0612_DataAccess.CreateView(vcCLYM, plantList,strUserId);
+            fs0612_DataAccess.CreateView(vcCLYM, dtPlant,strUserId);
+        }
+        public void CreateView2(string vcCLYM, List<string> plantList, string strUserId)
+        {
+            fs0612_DataAccess.CreateView2(vcCLYM, plantList, strUserId);
         }
         #endregion
 
+        #region  取NQC处理结果
+        public DataTable dtNQCReceive(string vcCLYM)
+        {
+            return fs0612_DataAccess.dtNQCReceive(vcCLYM);
+        }
+        #endregion
+
+        #region  取最大次数的内制结果
+        public DataTable GetMaxCLResult(string vcCLYM)
+        {
+            return fs0612_DataAccess.GetMaxCLResult(vcCLYM);
+        }
+        public DataTable GetMaxCLResult2(string vcCLYM)
+        {
+            return fs0612_DataAccess.GetMaxCLResult2(vcCLYM);
+        }
+        #endregion
     }
 
 }

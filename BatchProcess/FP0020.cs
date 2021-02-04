@@ -5,18 +5,18 @@ using System.Text;
 using System.Data;
 using System.Data.SqlClient;
 /// <summary>
-/// NQC内外合状态获取_FORECAST
+/// NQC内外合状态获取_EKANBAN
 /// </summary>
 namespace BatchProcess
 {
-    public class FP0017
+    public class FP0020
     {
         private MultiExcute excute = new MultiExcute();
 
         #region 主方法
         public bool main(string strUserId)
         {
-            string PageId = "FP0017";
+            string PageId = "FP0020";
             try
             {
                 //批处理开始
@@ -65,9 +65,10 @@ namespace BatchProcess
                     string excutetime = strname[4];
                     for (int j = 0; j < dt.Rows.Count; j++)
                     {
-                        sql.Append("update TNQCStatus_HS_FORECAST set dWCTime=nullif('" + excutetime + "',''),vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE(),     \n");
+                        sql.Append("update TNQCStatus_HS_EKANBAN set dWCTime=nullif('" + excutetime + "',''),vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE(),     \n");
                         sql.Append("vcStatus='" + strStatus + "'    \n");
                         sql.Append("where vcCLYM='" + strCLYM + "' and vcPlant='" + strPlant + "' and iTimes=" + strTimes + "    \n");
+
                     }
                 }
                 if (sql.Length > 0)
@@ -95,8 +96,8 @@ namespace BatchProcess
                     string iTimes = dt.Rows[i]["iTimes"].ToString();
                     StringBuilder sql = new StringBuilder();
                     sql.Append("select * from NQCSRStatusInfo    \n");
-                    sql.Append("where Process_YYYYMM='" + vcCLYM + "' and Process_Cycle_NO=" + iTimes + " \n");
-                    sql.Append("and Process_Name= 'NQCF01'   \n");//NQCF01：#1#2#3内外合FORECAST
+                    sql.Append("where Process_Factory='TFTM" + vcPlant + "' and Process_YYYYMM='" + vcCLYM + "' and Process_Cycle_NO=" + iTimes + " \n");
+                    sql.Append("and Process_Name= 'NQCE0" + vcPlant + "'   \n");//NQCE01/NQCE02/NQCE03：#1/#2/#3内外合EKANBAN   
                     DataTable dtNQCStatus = NQCSearch(sql.ToString());
                     if (dtNQCStatus.Rows.Count > 0)
                     {//有处理完成的数据
@@ -121,7 +122,7 @@ namespace BatchProcess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select distinct vcPlant,vcCLYM,iTimes from TNQCStatus_HS_FORECAST where vcStatus!='C'    \n");
+                sql.Append("select distinct vcPlant,vcCLYM,iTimes from TNQCStatus_HS_EKANBAN where vcStatus!='C'    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)

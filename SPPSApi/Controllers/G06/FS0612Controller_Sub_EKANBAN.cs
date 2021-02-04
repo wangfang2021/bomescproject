@@ -18,17 +18,18 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G06
 {
-    [Route("api/FS0630_Sub_Cal/[action]")]
+    [Route("api/FS0612_Sub_EKANBAN/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0630_Sub_CalController : BaseController
+    public class FS0612_Sub_EKANBANController : BaseController
     {
+        FS0612_Logic fs0612_Logic = new FS0612_Logic();
         FS0630_Logic fs0630_Logic = new FS0630_Logic();
-        private readonly string FunctionID = "FS0630";
+        private readonly string FunctionID = "FS0612";
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FS0630_Sub_CalController(IWebHostEnvironment webHostEnvironment)
+        public FS0612_Sub_EKANBANController(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -112,14 +113,10 @@ namespace SPPSApi.Controllers.G06
                 string vcDXYM = dataForm.vcDXYM == null ? "" : dataForm.vcDXYM;
                 string vcNSYM = dataForm.vcNSYM == null ? "" : dataForm.vcNSYM;
                 string vcNNSYM = dataForm.vcNNSYM == null ? "" : dataForm.vcNNSYM;
-
                 vcCLYM = vcCLYM == "" ? "" : vcCLYM.Replace("-", "").Substring(0, 6);
                 vcDXYM = vcDXYM == "" ? "" : vcDXYM.Replace("-", "").Substring(0, 6);
                 vcNSYM = vcNSYM == "" ? "" : vcNSYM.Replace("-", "").Substring(0, 6);
                 vcNNSYM = vcNNSYM == "" ? "" : vcNNSYM.Replace("-", "").Substring(0, 6);
-
-                List<string> lsdxym = new List<string>();
-
                 if (string.IsNullOrEmpty(vcCLYM))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -132,121 +129,73 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "工厂不能为空。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                if (string.IsNullOrEmpty(vcDXYM))
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "对象年月不能为空。";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                //之前说内示年月和内内示年月不能为空，但是global系统要求：1个处理月必须对应3个对象月的数据
-                if (string.IsNullOrEmpty(vcNSYM))
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "内示年月不能为空。";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                if (string.IsNullOrEmpty(vcNNSYM))
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "内内示年月不能为空。";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                //对象年月=处理年月+1
-                string vcDXYM_temp = Convert.ToDateTime(vcCLYM.Substring(0, 4) + "-" + vcCLYM.Substring(4, 2) + "-" + "01").AddMonths(1).ToString("yyyyMM");
-                if (vcDXYM != vcDXYM_temp)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = string.Format("对象年月只能是{0}。", vcDXYM_temp);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                lsdxym.Add(vcDXYM);
-                //内示年月=对象年月+1
-                if (string.IsNullOrEmpty(vcNSYM) == false)
-                {
-                    string vcNSYM_temp = Convert.ToDateTime(vcDXYM.Substring(0, 4) + "-" + vcDXYM.Substring(4, 2) + "-" + "01").AddMonths(1).ToString("yyyyMM");
-                    if (vcNSYM != vcNSYM_temp)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("内示年月只能是{0}。", vcNSYM_temp);
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    lsdxym.Add(vcNSYM);
-                }
-                //内内示年月=内示年月+1
-                if (string.IsNullOrEmpty(vcNNSYM) == false)
-                {
-                    if (string.IsNullOrEmpty(vcNSYM) == false)
-                    {
-                        string vcNNSYM_temp = Convert.ToDateTime(vcNSYM.Substring(0, 4) + "-" + vcNSYM.Substring(4, 2) + "-" + "01").AddMonths(1).ToString("yyyyMM");
-                        if (vcNNSYM != vcNNSYM_temp)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = string.Format("内内示年月只能是{0}。", vcNNSYM_temp);
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        lsdxym.Add(vcNNSYM);
-                    }
-                    else
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("内示年月不能为空。");
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-                //判断平准化数据是否展开
-                DataTable dtSOQReply = fs0630_Logic.GetSOQReply(vcCLYM,"0");
+                //判断内制结果是否已处理完
+                DataTable dtNQCResult = fs0612_Logic.dtNQCReceive(vcCLYM);
                 for (int i = 0; i < plantList.Count; i++)
                 {
-                    DataRow[] drs_dxny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='"+vcDXYM+"'  ");
-                    DataRow[] drs_nsny= dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "'  ");
-                    DataRow[] drs_nnsny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "'  ");
-                    if(drs_dxny.Length==0)
+                    DataRow[] drs_dxny = dtNQCResult.Select("Process_Factory='TFTM" + plantList[i].ToString() + "' and Start_date_for_daily_qty like '" + vcDXYM + "%'  ");
+                    DataRow[] drs_nsny = dtNQCResult.Select("Process_Factory='TFTM" + plantList[i].ToString() + "' and Start_date_for_daily_qty like '" + vcNSYM + "%'  ");
+                    DataRow[] drs_nnsny = dtNQCResult.Select("Process_Factory='TFTM" + plantList[i].ToString() + "' and Start_date_for_daily_qty like '" + vcNNSYM + "%'  ");
+                    if (drs_dxny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("工厂{0},对象年月{1}内制平准化数据没有展开。",plantList[i].ToString(),vcDXYM);
+                        apiResult.data = string.Format("工厂{0},对象年月{1}内制结果未处理。", plantList[i].ToString(), vcDXYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (drs_nsny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("工厂{0},内示年月{1}内制平准化数据没有展开。", plantList[i].ToString(), vcNSYM);
+                        apiResult.data = string.Format("工厂{0},内示年月{1}内制结果未处理。", plantList[i].ToString(), vcNSYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (drs_nnsny.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("工厂{0},内内示年月{1}内制平准化数据没有展开。", plantList[i].ToString(), vcNNSYM);
+                        apiResult.data = string.Format("工厂{0},内内示年月{1}内制结果未处理。", plantList[i].ToString(), vcNNSYM);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                //判断最大次数的内制结果能不能再次请求，如果请求了但是没有回复则不能再次请求
-                DataTable dtMaxCLResult= fs0630_Logic.GetMaxCLResult(vcCLYM);
+                //判断外注平准化数据是否展开
+                DataTable dtSOQReply = fs0630_Logic.GetSOQReply(vcCLYM,"1");
                 for (int i = 0; i < plantList.Count; i++)
                 {
-                    DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcDXYM + "' and vcStatus='已请求'  ");
-                    DataRow[] drs_nsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "' and vcStatus='已请求'  ");
-                    DataRow[] drs_nnsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "' and vcStatus='已请求'  ");
+                    DataRow[] drs_dxny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcDXYM + "'  ");
+                    DataRow[] drs_nsny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "'  ");
+                    DataRow[] drs_nnsny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "'  ");
+                    if (drs_dxny.Length == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0},对象年月{1}外注平准化数据没有展开。", plantList[i].ToString(), vcDXYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (drs_nsny.Length == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0},内示年月{1}外注平准化数据没有展开。", plantList[i].ToString(), vcNSYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (drs_nnsny.Length == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0},内内示年月{1}外注平准化数据没有展开。", plantList[i].ToString(), vcNNSYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                //判断最大次数合算能不能再次请求，如果请求了但是没有回复则不能再次请求
+                DataTable dtMaxCLResult = fs0612_Logic.GetMaxCLResult2(vcCLYM);
+                for (int i = 0; i < plantList.Count; i++)
+                {
+                    string strPlant = plantList[i];
+                    DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + strPlant + "' and vcStatus='已请求'  ");
                     if (drs_dxny.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("工厂{0}不能再次请求。", plantList[i].ToString(), vcDXYM);
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    if (drs_nsny.Length > 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("工厂{0}不能再次请求。", plantList[i].ToString(), vcNSYM);
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    if (drs_nnsny.Length > 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = string.Format("工厂{0}不能再次请求。", plantList[i].ToString(), vcNNSYM);
+                        apiResult.data = string.Format("工厂{0}不能再次请求。", strPlant);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
                 //记录请求时间
-                fs0630_Logic.CreateView(vcCLYM, plantList, lsdxym, loginInfo.UserId);
+                fs0612_Logic.CreateView2(vcCLYM, plantList, loginInfo.UserId);
 
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

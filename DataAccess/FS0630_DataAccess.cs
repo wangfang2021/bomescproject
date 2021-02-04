@@ -19,25 +19,22 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.* from (    \n");
-                strSql.Append("	select t1.vcCLYM,LEFT(vcCLYM,4)+'/'+RIGHT(vcCLYM,2) as vcCLYMFormat,t1.vcPlant,t1.iTimes,    \n");
-                strSql.Append("	t1.vcDXYM,LEFT(vcDXYM,4)+'/'+RIGHT(vcDXYM,2) as vcDXYMFormat,    \n");
-                strSql.Append("	t2.vcName as vcPlantName,t1.vcStatus,t1.dRequestTime,t1.dWCTime      \n");
-                strSql.Append("	from TNQCStatus t1      \n");
-                strSql.Append("	left join (select vcValue,vcName from TCode where vcCodeId='C000') t2 on t1.vcPlant=t2.vcValue      \n");
-                strSql.Append(")t1    \n");
-                strSql.Append("inner join (    \n");
-                strSql.Append("	select vcCLYM,vcPlant,vcDXYM,MAX(iTimes) as iTimes from TNQCStatus    \n");
-                strSql.Append("	group by vcCLYM,vcPlant,vcDXYM    \n");
-                strSql.Append(")t2 on t1.vcCLYM=t2.vcCLYM and t1.vcPlant=t2.vcPlant and t1.iTimes=t2.iTimes  and t1.vcDXYM=t2.vcDXYM   \n");
-                strSql.Append("where 1=1  \n");
+                strSql.Append("select t1.vcCLYM,LEFT(vcCLYM,4)+'/'+RIGHT(vcCLYM,2) as vcCLYMFormat,t1.vcPlant,t1.iTimes,        \n");
+                strSql.Append("t1.vcDXYM,LEFT(vcDXYM,4)+'/'+RIGHT(vcDXYM,2) as vcDXYMFormat,        \n");
+                strSql.Append("t2.vcName as vcPlantName,t1.dRequestTime,case when t1.vcStatus='C' then t1.dWCTime else null end as dWCTime,t1.vcStatus,     \n");
+                strSql.Append("case t1.vcStatus when 'C' then '处理完成' when 'P' then '处理中' when 'E' then '处理失败' else t1.vcStatus end as vcStatusName    \n");
+                strSql.Append("from (    \n");
+                strSql.Append("	select * from VI_NQCStatus    \n");
+                strSql.Append("	where 1=1      \n");
                 if (vcCLYM != "" && vcCLYM != null)
-                    strSql.Append("and isnull(t1.vcCLYM,'') like '%" + vcCLYM + "%'   \n");
+                    strSql.Append("and vcCLYM = '" + vcCLYM + "'   \n");
                 if (vcPlant != "" && vcPlant != null)
-                    strSql.Append("and isnull(t1.vcPlant,'') like '%" + vcPlant + "%'  \n");
+                    strSql.Append("and vcPlant = '" + vcPlant + "'  \n");
                 if (vcDXYM != "" && vcDXYM != null)
-                    strSql.Append("and isnull(t1.vcDXYM,'') like '%" + vcDXYM + "%'   \n");
-                strSql.Append("order by t1.vcCLYM,t1.vcPlant,t1.vcDXYM,t1.iTimes  \n");
+                    strSql.Append("and vcDXYM = '" + vcDXYM + "'   \n");
+                strSql.Append(")t1    \n");
+                strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C000') t2 on t1.vcPlant=t2.vcValue    \n");
+                strSql.Append("order by t1.vcCLYM,t1.vcPlant,t1.vcDXYM,t1.iTimes    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -152,5 +149,38 @@ namespace DataAccess
         }
         #endregion
 
+        #region 取soq结果
+        public DataTable GetSOQReply(string vcCLYM,string kind)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select vcCLYM,vcDXYM,vcFZGC,COUNT(1) as num from TSOQReply     \n");
+                sql.Append("where vcCLYM='"+vcCLYM+"' and vcInOutFlag='"+kind+"' and (isnull(vcZhanKaiID,'')!='' or dZhanKaiTime is not null)    \n");
+                sql.Append("group by vcCLYM,vcDXYM,vcFZGC    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 取最大次数的内制结果
+        public DataTable GetMaxCLResult(string vcCLYM)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select * from VI_NQCStatus where vcCLYM='"+vcCLYM+"'    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

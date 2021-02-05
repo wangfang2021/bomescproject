@@ -340,13 +340,17 @@ namespace DataAccess
 
         #region 修改soqReply并导入履历表
 
-        public void ChangeSoq(List<PartIDNode> list)
+        public void ChangeSoq(List<PartIDNode> list, string strUserId, string orderNo)
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
-
-                sbr.AppendLine("");
+                for (int i = 0; i < list.Count; i++)
+                {
+                    sbr.AppendLine("INSERT INTO TSoqDayChange(vcDXDate,vcChangeNo, vcPart_Id, iQuantityBefore, iQuantityNow, dFileUpload,vcOrderNo, vcOperatorID, dOperatorTime)");
+                    sbr.AppendLine("VALUES('" + list[i].DXR + "','" + list[i].ChangeNo + "','" + list[i].partId + "'," + list[i].iQuantityBefore + "," + list[i].IQuantityNow + ",GETDATE(),'" + orderNo + "','" + strUserId + "'  ,GETDATE());");
+                    sbr.AppendLine("UPDATE TSoqReply SET iD" + Convert.ToInt32(list[i].DXR.Substring(6, 2)) + " = " + list[i].IQuantityNow + " ,vcOperatorID = '" + strUserId + "' ,dOperatorTime = GETDATE() WHERE vcDXYM = '" + list[i].DXR.Substring(0, 6) + "' AND vcPart_id = '" + list[i].partId + "';");
+                }
 
                 excute.ExcuteSqlWithStringOper(sbr.ToString());
             }
@@ -393,29 +397,34 @@ namespace DataAccess
                 try
                 {
                     this.partId = partId;
-                    this.IQuantityNow = excelQuantity;
+                    this.flag = true;
+                    this.DXR = DXR;
 
-                    if (soqQuantity.Equals("-1"))
+                    this.IQuantityNow = excelQuantity;
+                    this.message = "";
+                    if (soqQuantity == -1 || string.IsNullOrWhiteSpace(DXR))
                     {
                         this.message += "对象日Soq不存在";
+                        this.flag = false;
                     }
 
                     if (string.IsNullOrWhiteSpace(allowPercent))
                     {
                         this.message += "波动率不存在";
+                        this.flag = false;
                     }
 
                     this.iQuantityBefore = soqQuantity;
                     this.allowPercent = ObjToDecimal(allowPercent);
-                    this.DXR = DXR;
                     this.ChangeNo = ChangeNo;
-                    this.flag = true;
 
                     //波动率范围
                     int max = 0;
                     int min = 0;
 
+                    //TODO 当日订货数量为0是否要置为1？
                     iQuantityBefore = iQuantityBefore == 0 ? 1 : iQuantityBefore;
+                    //
                     max = (int)Math.Floor(iQuantityBefore * (1 + this.allowPercent / 100));
                     min = (int)Math.Ceiling(iQuantityBefore * (1 - this.allowPercent / 100));
                     min = min < 0 ? 0 : min;
@@ -432,7 +441,8 @@ namespace DataAccess
                 catch (Exception ex)
                 {
                     this.partId = partId;
-                    flag = false;
+                    this.message = "数据错误";
+                    this.flag = false;
                 }
 
             }

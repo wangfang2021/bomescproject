@@ -116,9 +116,13 @@ namespace SPPSApi.Controllers.G04
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 string refMsg = "";
-                fs0403_Logic.ImportFile(time, importDt, ref refMsg);
-
-
+                fs0403_Logic.ImportFile(time, importDt, loginInfo.UserId, ref refMsg);
+                if (!string.IsNullOrWhiteSpace(refMsg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = refMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

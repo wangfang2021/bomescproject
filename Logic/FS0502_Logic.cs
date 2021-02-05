@@ -17,9 +17,9 @@ namespace Logic
         FS0502_DataAccess fs0502_DataAccess = new FS0502_DataAccess();
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id)
+        public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id,string vcDelete)
         {
-            return fs0502_DataAccess.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
+            return fs0502_DataAccess.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, vcDelete);
         }
         #endregion
 
@@ -37,44 +37,79 @@ namespace Logic
         }
         #endregion
 
-        #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main)
+        #region 取C056中2个状态
+        public DataTable getTCode(string strCodeId)
         {
-            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main);
+            return fs0502_DataAccess.getTCode(strCodeId);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main,string vcSupplier_id)
+        {
+            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main, vcSupplier_id);
         }
         #endregion
 
         #region 是否可操作-按列表所选数据
-        public bool IsDQR(List<Dictionary<string, Object>> listInfoData, ref string strMsg, string strType)
+        public bool IsDQR(List<Dictionary<string, Object>> listInfoData, ref string strMsg_status,ref string strMsg_null, string strType)
         {
-            DataTable dt = fs0502_DataAccess.IsDQR(listInfoData, strType);
-            if (dt.Rows.Count == 0)
+            DataSet ds = fs0502_DataAccess.IsDQR(listInfoData, strType);
+            DataTable dt_status = ds.Tables[0];
+            DataTable dt_null = ds.Tables[1];
+
+            if (dt_status.Rows.Count == 0 && dt_null.Rows.Count==0)
                 return true;
             else
             {
-                for (int i = 0; i < dt.Rows.Count; i++)
+                if(dt_status.Rows.Count>0)
                 {
-                    strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
+                    for (int i = 0; i < dt_status.Rows.Count; i++)
+                    {
+                        strMsg_status += dt_status.Rows[i]["vcPart_id"].ToString() + "/";
+                    }
+                    strMsg_status = strMsg_status.Substring(0, strMsg_status.Length - 1);
                 }
-                strMsg = strMsg.Substring(0, strMsg.Length - 1);
+                if(dt_null.Rows.Count>0)
+                {
+                    for(int i=0;i<dt_null.Rows.Count;i++)
+                    {
+                        strMsg_null += dt_null.Rows[i]["vcPart_id"].ToString() + "/";
+                    }
+                    strMsg_null = strMsg_null.Substring(0, strMsg_null.Length - 1);
+                }
                 return false;
             }
         }
         #endregion
 
         #region 是否可操作-按检索条件
-        public bool IsDQR(string vcSupplier_id,string vcStatus,string vcOrderNo,string vcPart_id, ref string strMsg)
+        public bool IsDQR(string vcSupplier_id,string vcStatus,string vcOrderNo,string vcPart_id, ref string strMsg_status,ref string strMsg_null)
         {
-            DataTable dt = fs0502_DataAccess.IsDQR(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id,ref strMsg);
-            if (dt.Rows.Count == 0)
+            DataSet ds = fs0502_DataAccess.IsDQR(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
+            DataTable dt_status = ds.Tables[0];
+            DataTable dt_null = ds.Tables[1];
+
+            if (dt_status.Rows.Count == 0 && dt_null.Rows.Count == 0)
                 return true;
             else
             {
-                for (int i = 0; i < dt.Rows.Count; i++)
+                if (dt_status.Rows.Count > 0)
                 {
-                    strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
+                    for (int i = 0; i < dt_status.Rows.Count; i++)
+                    {
+                        strMsg_status += dt_status.Rows[i]["vcPart_id"].ToString() + "/";
+                    }
+                    strMsg_status = strMsg_status.Substring(0, strMsg_status.Length - 1);
                 }
-                strMsg = strMsg.Substring(0, strMsg.Length - 1);
+                if (dt_null.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt_null.Rows.Count; i++)
+                    {
+                        strMsg_null += dt_null.Rows[i]["vcPart_id"].ToString() + "/";
+                    }
+                    strMsg_null = strMsg_null.Substring(0, strMsg_null.Length - 1);
+                }
                 return false;
             }
 

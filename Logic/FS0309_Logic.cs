@@ -5,6 +5,9 @@ using System.Text;
 using System.Data;
 using DataAccess;
 using System.Collections;
+using NPOI.XSSF.UserModel;
+using System.IO;
+using NPOI.SS.UserModel;
 
 namespace Logic
 {
@@ -88,13 +91,6 @@ namespace Logic
         }
         #endregion
 
-        #region 检索所有的公式
-        public DataTable getAllGS()
-        {
-            return fs0309_DataAccess.getAllGS();
-        }
-        #endregion
-
         #region 按检索条件检索,返回dt
         public DataTable Search_GS(string strBegin, string strEnd )
         {
@@ -150,5 +146,85 @@ namespace Logic
         }
         #endregion
 
+        #region 导出带模板
+        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.BorderBottom = BorderStyle.Thin;
+                style.BorderLeft = BorderStyle.Thin;
+                style.BorderRight = BorderStyle.Thin;
+                style.BorderTop = BorderStyle.Thin;
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        ICell cell = row.CreateCell(j);
+                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        cell.CellStyle = style;
+                    }
+                }
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
+
+        #region 根据选择公式返回对应金额
+        public DataTable getGSChangePrice(string strPartId, string strSupplier, int iAutoId, string strGSName, decimal decPriceOrigin)
+        {
+            return fs0309_DataAccess.getGSChangePrice(strPartId,strSupplier,iAutoId,strGSName,decPriceOrigin);
+        }
+        #endregion
+
+
+        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        public bool getLastStateGsData(string strPartId, string strSupplier, int iAutoId)
+        {
+            DataTable dt=fs0309_DataAccess.getLastStateGsData(strPartId, strSupplier, iAutoId);
+            if (dt.Rows.Count == 0)
+                return false;
+            else
+                return true;
+        }
+        #endregion
+
+        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        public bool isGsExist(string strGs)
+        {
+            DataTable dt = fs0309_DataAccess.isGsExist(strGs);
+            if (dt.Rows.Count == 0)
+                return false;
+            else
+                return true;
+        }
+        #endregion
     }
 }

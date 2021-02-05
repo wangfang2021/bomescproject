@@ -12,6 +12,7 @@ namespace Logic
     public class FS1104_Logic
     {
         FS1104_DataAccess fs1104_DataAccess;
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
 
         public FS1104_Logic()
         {
@@ -28,7 +29,7 @@ namespace Logic
                 FS0617_DataAccess fs0617_DataAccess = new FS0617_DataAccess();
                 DataTable dataTable = createTable();
                 DataTable dtPlantList = ComFunction.getTCode("C000");
-                DataTable dtRePartyList = fs0617_DataAccess.getRePartyInfo();
+                DataTable dtRePartyList = fS0603_Logic.getCodeInfo("Receiver");
                 DataTable dtPackPlantList = ComFunction.getTCode("C023");
                 for (int i = Convert.ToInt32(strCaseLianFanNo); i < Convert.ToInt32(strPrintNum) + Convert.ToInt32(strCaseLianFanNo); i++)
                 {

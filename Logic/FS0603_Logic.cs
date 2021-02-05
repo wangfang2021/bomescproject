@@ -1615,6 +1615,19 @@ namespace Logic
             {
                 dataTable.Columns.Add("vcMessage");
             }
+            if (strSpSub == "Multipleof616")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcOrderNo", typeof(string));
+                dataTable.Columns.Add("vcPart_id", typeof(string));
+                dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("iOrderQuantity", typeof(int));
+                dataTable.Columns.Add("iDuiYingQuantity", typeof(int));
+                dataTable.Columns.Add("dDeliveryDate", typeof(string));
+                dataTable.Columns.Add("dOutPutDate", typeof(string));
+                dataTable.Columns.Add("dReplyOverDate", typeof(string));
+                dataTable.Columns.Add("vcInputType", typeof(string));//company
+            }
             return dataTable;
         }
     }

@@ -111,12 +111,12 @@ namespace SPPSApi.Controllers.G03
 
                 List<string> dataList_C006 = convertTCodeToResult(getTCode("C006"));//原单位
                 List<string> dataList_C014 = convertTCodeToResult(getTCode("C014"));//完成状态
-                List<string> dataList_C015 = convertTCodeToResult(getTCode("C015"));//变更事项
+                List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
 
 
                 res.Add("C006", dataList_C006);
                 res.Add("C014", dataList_C014);
-                res.Add("C015", dataList_C015);
+                res.Add("C002", dataList_C002);
 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -328,7 +328,15 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
 
-                fs0302_logic.weaveUnit(listInfoData, loginInfo.UserId, loginInfo.UnitCode);
+                string refmsg = "";
+                fs0302_logic.weaveUnit(listInfoData, loginInfo.UserId, loginInfo.UnitCode, ref refmsg);
+
+                if (!string.IsNullOrWhiteSpace(refmsg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = refmsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

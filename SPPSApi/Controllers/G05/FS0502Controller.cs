@@ -41,7 +41,7 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_C056 = ComFunction.convertAllToResult(ComFunction.getTCode("C056"));//状态
+                List<Object> dataList_C056 = ComFunction.convertAllToResult(fs0502_Logic.getTCode("C056"));//状态
                 res.Add("C056", dataList_C056);
                 res.Add("vcSupplier_id", loginInfo.UserId);
 
@@ -119,10 +119,11 @@ namespace SPPSApi.Controllers.G05
             string vcStatus = dataForm.vcStatus == null ? "" : dataForm.vcStatus;
             string vcOrderNo = dataForm.vcOrderNo == null?"": dataForm.vcOrderNo;
             string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
+            string vcDelete= dataForm.vcDelete == null ? "" : dataForm.vcDelete;
 
             try
             {
-                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
+                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, vcDelete);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dReplyOverDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dDeliveryDate", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -205,10 +206,11 @@ namespace SPPSApi.Controllers.G05
             string vcStatus = dataForm.vcStatus == null ? "" : dataForm.vcStatus;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
+            string vcDelete = dataForm.vcDelete == null ? "" : dataForm.vcDelete;
 
             try
             {
-                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
+                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id,vcDelete);
                 string[] heads = { "状态", "订单编号", "品番", "供应商代码","工区","出荷场代码","回复截至日期","订货总数(个)","可对应数量(个)","纳期"};
                 string[] fields = { "vcStatusName","vcOrderNo","vcPart_id","vcSupplier_id","vcGQ","vcChuHePlant","dReplyOverDate","iOrderQuantity",
                     "iDuiYingQuantity","dDeliveryDate"};
@@ -251,6 +253,7 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
@@ -268,7 +271,8 @@ namespace SPPSApi.Controllers.G05
                         hasFind = true;
                     }
                 }
-                string strMsg = "";
+                string strMsg_status = "";
+                string strMsg_null = "";
                 if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -277,14 +281,17 @@ namespace SPPSApi.Controllers.G05
                 }
                 else
                 {
-                    if (fs0502_Logic.IsDQR(listInfoData, ref strMsg, "save"))
+                    if (fs0502_Logic.IsDQR(listInfoData, ref strMsg_status,ref strMsg_null, "save"))
                     {//全是可操作的数据
                         //继续向下执行
                     }
                     else
                     {//有不可以操作的数据
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不可操作：" + strMsg;
+                        if (strMsg_status.Length > 0)
+                        {
+                            apiResult.data = "以下品番不可操作：" + strMsg_status;
+                        }
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -312,7 +319,7 @@ namespace SPPSApi.Controllers.G05
                     #endregion
                 }
                 string strErrorPartId = "";
-                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId,"");
+                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId,"", vcSupplier_id);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -351,45 +358,49 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
                 string iAutoId = dataForm.iAutoId == null ? "" : dataForm.iAutoId;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                //JArray listInfo = dataForm.multipleSelection;
+                //List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                dynamic dSubform = dataForm.subform.list;//维护页面数据列表
+                List<Dictionary<string, Object>> listSubInfo = dSubform.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 List<string> lsYearMonth = new List<string>();
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        hasFind = true;
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        hasFind = true;
-                    }
-                }
-                string strMsg = "";
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                else
-                {
-                    if (fs0502_Logic.IsDQR(listInfoData, ref strMsg, "save"))
-                    {//全是可操作的数据
-                        //继续向下执行
-                    }
-                    else
-                    {//有不可以操作的数据
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不可操作：" + strMsg;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
+                //for (int i = 0; i < listInfoData.Count; i++)
+                //{
+                //    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                //    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                //    if (bAddFlag == true)
+                //    {//新增
+                //        hasFind = true;
+                //    }
+                //    else if (bAddFlag == false && bModFlag == true)
+                //    {//修改
+                //        hasFind = true;
+                //    }
+                //}
+                //string strMsg = "";
+                //if (!hasFind)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "最少有一个编辑行！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
+                //else
+                //{
+                //    if (fs0502_Logic.IsDQR(listInfoData, ref strMsg, "save"))
+                //    {//全是可操作的数据
+                //        //继续向下执行
+                //    }
+                //    else
+                //    {//有不可以操作的数据
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = "以下品番不可操作：" + strMsg;
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //}
                 //开始数据验证
+                hasFind = true;
                 if (hasFind)
                 {
                     #region 数据格式校验
@@ -400,9 +411,9 @@ namespace SPPSApi.Controllers.G05
                         {FieldCheck.Num,FieldCheck.Date},//数据类型校验
                         {"0","0"},//最大长度设定,不校验最大长度用0
                         {"1","1"},//最小长度设定,可以为空用0
-                        {"3","4"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"1","2"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0502_Sub");
+                    List<Object> checkRes = ListChecker.validateList(listSubInfo, strField, null, null, true, "FS0502_Sub");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -413,7 +424,7 @@ namespace SPPSApi.Controllers.G05
                     #endregion
                 }
                 string strErrorPartId = "";
-                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId,iAutoId);
+                fs0502_Logic.Save(listSubInfo, loginInfo.UserId, ref strErrorPartId,iAutoId,vcSupplier_id);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -435,7 +446,7 @@ namespace SPPSApi.Controllers.G05
         }
         #endregion
 
-        #region 提交
+        #region 回复纳期
         [HttpPost]
         [EnableCors("any")]
         public string okApi([FromBody] dynamic data)
@@ -466,10 +477,11 @@ namespace SPPSApi.Controllers.G05
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 int count = 0;//影响行数，没啥用
-                string strMsg = "";
+                string strMsg_status = "";
+                string strMsg_null = "";
                 if (listInfoData.Count != 0)//选中了数据操作
                 {
-                    if (fs0502_Logic.IsDQR( listInfoData, ref strMsg, "submit"))
+                    if (fs0502_Logic.IsDQR( listInfoData, ref strMsg_status,ref strMsg_null, "submit"))
                     {//全是可操作的数据
                         // 执行提交操作：按所选数据提交
                         fs0502_Logic.ok( listInfoData, loginInfo.UserId);
@@ -477,13 +489,20 @@ namespace SPPSApi.Controllers.G05
                     else
                     {//有不可以操作的数据
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不可操作：" + strMsg;
+                        if(strMsg_status.Length>0)
+                        {
+                            apiResult.data = "以下品番不可操作：" + strMsg_status;
+                        }
+                        if (strMsg_null.Length > 0)
+                        {
+                            apiResult.data = "以下品番没填写对应数量/纳期：" + strMsg_null;
+                        }
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
                 else//按检索条件
                 {
-                    if (fs0502_Logic.IsDQR(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id,ref strMsg))
+                    if (fs0502_Logic.IsDQR(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, ref strMsg_status, ref strMsg_null))
                     {//全是可操作的数据
                         //执行提交操作：按检索条件提交
                         fs0502_Logic.ok(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, loginInfo.UserId);
@@ -491,7 +510,14 @@ namespace SPPSApi.Controllers.G05
                     else
                     {//有不可以操作的数据
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不可操作：" + strMsg;
+                        if (strMsg_status.Length > 0)
+                        {
+                            apiResult.data = "以下品番不可操作：" + strMsg_status;
+                        }
+                        if (strMsg_null.Length > 0)
+                        {
+                            apiResult.data = "以下品番没填写对应数量/纳期：" + strMsg_null;
+                        }
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

@@ -70,6 +70,8 @@ namespace SPPSApi.Controllers.G02
                 dtConverter.addField("NewProjError", ConvertFieldType.BoolType, null);
                 dtConverter.addField("OldProjTimeError", ConvertFieldType.BoolType, null);
                 dtConverter.addField("NewProjTimeError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("startYearMonthError", ConvertFieldType.BoolType, null);
+
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

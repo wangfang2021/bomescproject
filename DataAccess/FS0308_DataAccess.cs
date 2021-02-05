@@ -26,13 +26,14 @@ namespace DataAccess
                 sbr.Append(" a.dSSDate, a.vcDY, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 \r\n");
                 sbr.Append(" FROM TOldYearManager a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C024') b ON a.vcFinish = b.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
+                sbr.Append(" LEFT JOIN (SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C003') d ON a.vcInOutflag = d.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016') e ON a.vcSYTCode = e.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
-                sbr.Append(" AND a.vcFinish in ('-1','1','2','3','4') \r\n");
+                sbr.Append(" AND a.vcFinish in ('1','2','3','4') \r\n");
                 sbr.Append(" AND a.vcReceiver = " + ComFunction.getSqlValue(getValue("C005", Receiver), false) + " \r\n");
 
                 if (!string.IsNullOrWhiteSpace(strYear))
@@ -85,7 +86,7 @@ namespace DataAccess
                     sql.Append(" vcYear = " + ComFunction.getSqlValue(dt.Rows[i]["vcYear"], false) + " \r\n");
                     sql.Append(" AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " \r\n");
                     sql.Append(" AND vcReceiver = '" + getValue("C005", receiver) + "' \r\n");
-
+                    sql.Append(" AND vcFinish = '1' \r\n");
                 }
                 if (sql.Length > 0)
                 {
@@ -129,6 +130,7 @@ namespace DataAccess
                     sql.Append(" dOperatorTime = GETDATE() \r\n");
                     sql.Append(" WHERE \r\n");
                     sql.Append(" iAuto_Id = " + iAutoId + " \r\n");
+                    sql.Append(" AND vcFinish = '1' \r\n");
 
 
                 }
@@ -153,7 +155,7 @@ namespace DataAccess
                 DataTable dt = new DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
-                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (dt.Rows[i]["vcName"].ToString().Equals(vcName))

@@ -54,7 +54,7 @@ namespace DataAccess
         {
             try
             {
-                DataTable ChangeList = getChange();
+                //DataTable ChangeList = getChange();
                 //存储SPI
                 StringBuilder sbr = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -126,7 +126,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 List<string> fileList = new List<string>();
 
-                DataTable change = getChange();
+                ///DataTable change = getChange();
                 //将spi表传到设变表
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -215,39 +215,39 @@ namespace DataAccess
 
         #region 获取变更事项
 
-        public DataTable getChange()
-        {
-            try
-            {
-                StringBuilder sbr = new StringBuilder();
-                sbr.Append("SELECT vcName,vcValue FROM  TCode WHERE vcCodeId = 'C025'");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //public DataTable getChange()
+        //{
+        //    try
+        //    {
+        //        StringBuilder sbr = new StringBuilder();
+        //        sbr.Append("SELECT vcName,vcValue FROM  TCode WHERE vcCodeId = 'C025'");
+        //        return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
-        public string getChangString(DataTable dt, string change)
-        {
-            try
-            {
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    if (dt.Rows[i]["vcValue"].ToString().Trim().Equals(change.Trim()))
-                    {
-                        return dt.Rows[i]["vcName"].ToString().Trim();
-                    }
-                }
+        //public string getChangString(DataTable dt, string change)
+        //{
+        //    try
+        //    {
+        //        for (int i = 0; i < dt.Rows.Count; i++)
+        //        {
+        //            if (dt.Rows[i]["vcValue"].ToString().Trim().Equals(change.Trim()))
+        //            {
+        //                return dt.Rows[i]["vcName"].ToString().Trim();
+        //            }
+        //        }
 
-                return change;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        return change;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
         #endregion
 
 

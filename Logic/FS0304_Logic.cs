@@ -34,7 +34,7 @@ namespace Logic
         #region 退回
         public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strEmail,string strUserName, ref string strErrorPartId)
         {
-            #region 跟新生确进度表
+            #region 更新生确进度表
             fs0304_DataAccess.Back(listInfoData, strUserId, ref strErrorPartId);
             #endregion
             
@@ -48,6 +48,13 @@ namespace Logic
         public void DateKFY(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string dTFTM_BJ)
         {
             fs0304_DataAccess.DateKFY(listInfoData, strUserId, ref strErrorPartId, dTFTM_BJ);
+        }
+        #endregion
+
+        #region 织入原单位
+        public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0304_DataAccess.sendUnit(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
     }

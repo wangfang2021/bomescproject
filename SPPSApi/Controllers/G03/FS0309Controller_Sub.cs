@@ -158,12 +158,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"公式名","系数","税率","适用范围","开始时间","结束时间","变更原因描述"},
-                                                {"vcGSName","vcCoefficient","vcRate","vcArea","dBegin","dEnd","vcReason"},
-                                                {"","","","",FieldCheck.Date,FieldCheck.Date,""},
-                                                {"25","50","50","50","0","0","50"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","1","1","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"公式名"  ,"系数"            ,"税率"            ,"开始时间"     ,"结束时间"     ,"变更原因描述"},
+                                                        {"vcGSName","decXiShu"        ,"decTaxRate"      ,"dBegin"       ,"dEnd"         ,"vcReason"    },
+                                                        {""        ,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Date,FieldCheck.Date,""            },
+                                                        {"25"      ,"50"              ,"50"              ,"0"            ,"0"            ,"50"          },//最大长度设定,不校验最大长度用0
+                                                        {"1"       ,"1"               ,"1"               ,"1"            ,"1"            ,"0"           },//最小长度设定,可以为空用0
+                                                        {"1"       ,"2"               ,"3"               ,"5"            ,"6"            ,"7"           }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dBegin", "dEnd" }};

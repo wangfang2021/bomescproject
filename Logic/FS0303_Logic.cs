@@ -161,6 +161,8 @@ namespace Logic
                     {
                         try
                         {
+                            if (listData[i][item.strHeader + "_Name"] == null)
+                                continue;//前天没填写
                             #region 获取正确的Name
                             string strName = listData[i][item.strHeader + "_Name"].ToString();
                             #endregion
@@ -178,31 +180,13 @@ namespace Logic
                             listData[i][item.strHeader] = strValue;
                             #endregion
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
                             strErr = "编辑行中第" + (i + 1) + "行" + item.strTitle + "填写不合法";
                             return null;
                         }
 
                     }
-                    #region 单独验证防锈
-                    try
-                    {
-                        string strFXDiff = listData[i]["vcFXDiff"].ToString();
-                        string strValue = fs0303_DataAccess.Name2Value("C028", strFXDiff, true);
-                        if (string.IsNullOrEmpty(strValue))
-                        {
-                            strErr = "编辑行中第" + (i + 1) + "行防锈不能为空";
-                            return null;
-                        }
-                    }
-                    catch
-                    {
-                        strErr = "编辑行中第" + (i + 1) + "行防锈填写不合法";
-                        return null;
-                    }
-                    #endregion
-
                 }
                 return listData;
             }
@@ -277,47 +261,57 @@ namespace Logic
         #region 数据同步
         public void dataSync(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strMessage)
         {
-            #region 将旧型1-15年转为变成decimal格式
-            for (int i = 0; i < listInfoData.Count; i++)
+            try
             {
-                listInfoData[i]["vcNum1"] = Conver2Decimal(listInfoData[i]["vcNum1"]);
-                listInfoData[i]["vcNum2"] = Conver2Decimal(listInfoData[i]["vcNum2"]);
-                listInfoData[i]["vcNum3"] = Conver2Decimal(listInfoData[i]["vcNum3"]);
-                listInfoData[i]["vcNum4"] = Conver2Decimal(listInfoData[i]["vcNum4"]);
-                listInfoData[i]["vcNum5"] = Conver2Decimal(listInfoData[i]["vcNum5"]);
-                listInfoData[i]["vcNum6"] = Conver2Decimal(listInfoData[i]["vcNum6"]);
-                listInfoData[i]["vcNum7"] = Conver2Decimal(listInfoData[i]["vcNum7"]);
-                listInfoData[i]["vcNum8"] = Conver2Decimal(listInfoData[i]["vcNum8"]);
-                listInfoData[i]["vcNum9"] = Conver2Decimal(listInfoData[i]["vcNum9"]);
-                listInfoData[i]["vcNum10"] = Conver2Decimal(listInfoData[i]["vcNum10"]);
-                listInfoData[i]["vcNum11"] = Conver2Decimal(listInfoData[i]["vcNum11"]);
-                listInfoData[i]["vcNum12"] = Conver2Decimal(listInfoData[i]["vcNum12"]);
-                listInfoData[i]["vcNum13"] = Conver2Decimal(listInfoData[i]["vcNum13"]);
-                listInfoData[i]["vcNum14"] = Conver2Decimal(listInfoData[i]["vcNum14"]);
-                listInfoData[i]["vcNum15"] = Conver2Decimal(listInfoData[i]["vcNum15"]);
-
-            }
-            #endregion
-
-            #region 向下游同步数据
-            //获取所有的事业体
-            DataTable dt = ComFunction.getTCode("C016");
-
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                var tempList = getSendData(dt.Rows[i]["vcValue"].ToString(), listInfoData);
-                if (tempList.Count > 0)  //有要发送的数据
+                #region 将旧型1-15年转为变成int格式
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    //发送数据的方法
-                    fs0303_DataAccess.dataSync(dt.Rows[i]["vcName"].ToString(), tempList, strUserId, ref strMessage);
-                    strMessage += "发送成功！ ";
+                    listInfoData[i]["vcNum1"] = Conver2Int(listInfoData[i]["vcNum1"]);
+                    listInfoData[i]["vcNum2"] = Conver2Int(listInfoData[i]["vcNum2"]);
+                    listInfoData[i]["vcNum3"] = Conver2Int(listInfoData[i]["vcNum3"]);
+                    listInfoData[i]["vcNum4"] = Conver2Int(listInfoData[i]["vcNum4"]);
+                    listInfoData[i]["vcNum5"] = Conver2Int(listInfoData[i]["vcNum5"]);
+                    listInfoData[i]["vcNum6"] = Conver2Int(listInfoData[i]["vcNum6"]);
+                    listInfoData[i]["vcNum7"] = Conver2Int(listInfoData[i]["vcNum7"]);
+                    listInfoData[i]["vcNum8"] = Conver2Int(listInfoData[i]["vcNum8"]);
+                    listInfoData[i]["vcNum9"] = Conver2Int(listInfoData[i]["vcNum9"]);
+                    listInfoData[i]["vcNum10"] = Conver2Int(listInfoData[i]["vcNum10"]);
+                    listInfoData[i]["vcNum11"] = Conver2Int(listInfoData[i]["vcNum11"]);
+                    listInfoData[i]["vcNum12"] = Conver2Int(listInfoData[i]["vcNum12"]);
+                    listInfoData[i]["vcNum13"] = Conver2Int(listInfoData[i]["vcNum13"]);
+                    listInfoData[i]["vcNum14"] = Conver2Int(listInfoData[i]["vcNum14"]);
+                    listInfoData[i]["vcNum15"] = Conver2Int(listInfoData[i]["vcNum15"]);
                 }
-            }
-            #endregion
+                #endregion
 
-            #region 更新源数据的同步时间
-            fs0303_DataAccess.dataSync(listInfoData, strUserId);
-            #endregion
+                #region 向下游同步数据
+                //获取所有的事业体
+                DataTable dt = ComFunction.getTCode("C016");
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string strSYTName = dt.Rows[i]["vcName"].ToString();
+                    var tempList = getSendData(dt.Rows[i]["vcValue"].ToString(), listInfoData);
+                    if (tempList.Count > 0)  //有要发送的数据
+                    {
+                        //发送数据的方法
+                        strMessage += dt.Rows[i]["vcName"].ToString()+": ";
+                        fs0303_DataAccess.dataSync(strSYTName, tempList, strUserId, ref strMessage);
+                        strMessage += "发送成功！ \n";
+                    }
+                }
+                #endregion
+
+                #region 更新源数据的同步时间
+                fs0303_DataAccess.dataSync(listInfoData, strUserId);
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                strMessage += "发送成功！ \n";
+                throw ex;
+            }
+
 
         }
         #endregion
@@ -343,11 +337,11 @@ namespace Logic
 
 
         #region 旧型1-15年字符串转为数字
-        public decimal Conver2Decimal(object value)
+        public decimal Conver2Int(object value)
         {
             try
             {
-                return Convert.ToDecimal(value);
+                return Convert.ToInt32(value);
             }
             catch
             {

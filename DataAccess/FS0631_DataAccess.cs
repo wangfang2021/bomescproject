@@ -19,7 +19,8 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select iAutoId,Part_No,SUBSTRING(Process_YYYYMM,1,4)+'-'+SUBSTRING(Process_YYYYMM,5,2)+'-01' as Process_YYYYMM,     \n");
+                sql.Append("select iAutoId,Part_No,Part_No+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,'') as Part_No_Disp,     \n");
+                sql.Append("SUBSTRING(Process_YYYYMM,1,4)+'-'+SUBSTRING(Process_YYYYMM,5,2)+'-01' as Process_YYYYMM,    \n");
                 sql.Append("SUBSTRING(Start_date_for_daily_qty,1,4)+'-'+SUBSTRING(Start_date_for_daily_qty,5,2)+'-01' as Start_date_for_daily_qty,    \n");
                 sql.Append("Daily_Qty_01,Daily_Qty_02,Daily_Qty_03,Daily_Qty_04,Daily_Qty_05,Daily_Qty_06,Daily_Qty_07,Daily_Qty_08,    \n");
                 sql.Append("Daily_Qty_09,Daily_Qty_10,Daily_Qty_11,Daily_Qty_12,Daily_Qty_13,Daily_Qty_14,Daily_Qty_15,Daily_Qty_16,    \n");
@@ -32,7 +33,7 @@ namespace DataAccess
                 if (strDXYM != null && strDXYM != "")
                     sql.Append("and isnull(Start_date_for_daily_qty,'') like '" + strDXYM + "%'    \n");
                 if (strPartNo != null && strPartNo != "")
-                    sql.Append("and isnull(Part_No,'') like '%" + strPartNo + "%'    \n");
+                    sql.Append("and Part_No+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,'') like '%" + strPartNo + "%'    \n");
                 sql.Append("order by Part_No,Start_date_for_daily_qty    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }

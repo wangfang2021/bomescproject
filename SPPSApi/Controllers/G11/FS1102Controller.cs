@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G11
     [ApiController]
     public class FS1102Controller : BaseController
     {
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
         FS1102_Logic fS1102_Logic = new FS1102_Logic();
         FS0617_Logic fS0617_Logic = new FS0617_Logic();
         private readonly string FunctionID = "FS1102";
@@ -50,7 +51,7 @@ namespace SPPSApi.Controllers.G11
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
-                List<Object> RePartyList = ComFunction.convertAllToResult(fS0617_Logic.getRePartyInfo());//客户代码
+                List<Object> RePartyList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//客户代码
                 res.Add("RePartyList", RePartyList);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

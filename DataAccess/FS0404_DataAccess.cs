@@ -218,9 +218,9 @@ namespace DataAccess
                     //订单类型	1	周度
                     //订单类型	2	月度
                     //订单类型	3	紧急
-                    if (vcOrderType == "2") {
-                        vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
-                    }
+                    //if (vcOrderType == "2") {
+                    //    vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
+                    //}
                    
                     filePath = fileList[i]["filePath"].ToString();
                     strSql.AppendLine("  INSERT INTO [dbo].[TOrderUploadManage]   ");
@@ -308,10 +308,10 @@ namespace DataAccess
                     //订单类型	1	周度
                     //订单类型	2	月度
                     //订单类型	3	紧急
-                    if (vcOrderType == "2")
-                    {
-                        vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
-                    }
+                    //if (vcOrderType == "2")
+                    //{
+                    //    vcInOutFlag = fileOrderNo.Substring(fileOrderNo.Length - 1, 1);
+                    //}
 
                     filePath = fileList[i]["filePath"].ToString();
                     strSql.AppendLine("  INSERT INTO [dbo].[TOrderUploadManage]   ");

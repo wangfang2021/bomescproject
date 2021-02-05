@@ -1355,10 +1355,14 @@ namespace Common
                 MMge.Dispose();
                 if (delFileNameFlag)
                 {
-                    if (System.IO.File.Exists(strFilePath))
+                    foreach (string strFilePath in strFilePathArray)
                     {
-                        System.IO.File.Delete(strFilePath);
+                        if (System.IO.File.Exists(strFilePath))
+                        {
+                            System.IO.File.Delete(strFilePath);
+                        }
                     }
+                    
                 }
             }
         }

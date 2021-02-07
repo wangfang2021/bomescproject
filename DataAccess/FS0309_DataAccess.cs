@@ -235,8 +235,6 @@ namespace DataAccess
         }
         #endregion
 
- 
-
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {

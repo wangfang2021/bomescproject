@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcCarType, \r\n");
+                sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
                 //sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,f.vcDiff,a.vcCarType, \r\n");
                 sbr.Append(" d.vcName AS THChange,c.vcName AS vcDD,a.vcRemark,a.vcChange,a.vcBJDiff, \r\n");
                 sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
@@ -51,6 +51,10 @@ namespace DataAccess
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
                 sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
+                sbr.Append(" LEFT JOIN  \r\n");
+                sbr.Append(" ( \r\n");
+                sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() AND ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
+                sbr.Append(" ) f ON a.vcPart_Id_old = f.vcPart_id OR a.vcPart_Id_new = f.vcPart_id \r\n");
                 //sbr.Append(" LEFT JOIN  \r\n");
                 //sbr.Append(" (SELECT vcPart_id,MAX(vcDiff) AS vcDiff FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id) f \r\n");
                 //sbr.Append(" ON (a.vcPart_Id_old = f.vcPart_id AND ISNULL(a.vcPart_Id_old,'')<> '') OR (a.vcPart_Id_new = f.vcPart_id AND ISNULL(a.vcPart_Id_new,'')<> '' ) \r\n");
@@ -259,7 +263,8 @@ namespace DataAccess
                             sbr.Append(" UPDATE a SET \r\n");
                             sbr.Append(" a.vcChange = '" + change + "', \r\n");
                             sbr.Append(" a.dSyncTime = NULL, \r\n");
-                            sbr.Append(" a.dTimeTo = b.vcStartYearMonth, \r\n");
+                            //不更新使用结束时间
+                            //sbr.Append(" a.dTimeTo = b.vcStartYearMonth, \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                             sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'废止;', \r\n");
                             sbr.Append(" a.vcSQState = '0', \r\n");

@@ -44,8 +44,10 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
                 List<Object> dataList_C049 = ComFunction.convertAllToResult(ComFunction.getTCode("C049"));//工程
+                List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//工程
 
                 res.Add("C049", dataList_C049);
+                res.Add("C006", dataList_C006);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -84,8 +86,9 @@ namespace SPPSApi.Controllers.G03
             {
                 string startTime = dateRange.Count > 0 ? dateRange[0].Replace("-", "") : "";
                 string endTime = dateRange.Count > 0 ? dateRange[1].Replace("-", "") : "";
+                string vcOriginCompany = dataForm.vcOriginCompany == null ? "" : dataForm.vcOriginCompany;
 
-                List<DataTable> list = fs0315_logic.searchApi(startTime, endTime, project);
+                List<DataTable> list = fs0315_logic.searchApi(startTime, endTime, project, vcOriginCompany);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = list;
@@ -124,8 +127,9 @@ namespace SPPSApi.Controllers.G03
             {
                 string startTime = dateRange.Count > 0 ? dateRange[0].Replace("-", "") : "";
                 string endTime = dateRange.Count > 0 ? dateRange[1].Replace("-", "") : "";
+                string vcOriginCompany = dataForm.vcOriginCompany == null ? "" : dataForm.vcOriginCompany;
 
-                List<DataTable> list = fs0315_logic.searchApi(startTime, endTime, project);
+                List<DataTable> list = fs0315_logic.searchApi(startTime, endTime, project, vcOriginCompany);
                 string filepath = "";
                 string strMsg = "";
                 if (flag == "0")

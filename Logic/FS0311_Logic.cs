@@ -21,5 +21,12 @@ namespace Logic
         {
             fs0311_dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0311_dataAccess.importSave(dt, strUserId);
+        }
+        #endregion
     }
 }

@@ -19,7 +19,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcBJDiff, ");
-                sbr.Append(" vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth, ");
+                sbr.Append(" vcDTDiff,vcPart_id_DT,vcPartName,CASE ISNULL(vcStartYearMonth,'') WHEN '' THEN '' ELSE SUBSTRING(RTRIM(LTRIM(vcStartYearMonth)),1,4)+'/'+SUBSTRING(RTRIM(LTRIM(vcStartYearMonth)),5,2) END AS vcStartYearMonth, ");
                 sbr.Append(" vcFXDiff,vcFXNo,vcChange,vcOldProj,vcOldProjTime,vcNewProj, ");
                 sbr.Append(" vcNewProjTime,vcCZYD,dHandleTime,vcSheetName, ");
                 sbr.Append(" vcFileName,'0' as vcModFlag,'0' as vcAddFlag FROM TSPIList ");
@@ -66,7 +66,7 @@ namespace DataAccess
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
                     string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
                     string vcPartName = dt.Rows[i]["vcPartName"].ToString();
-                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString().Replace(@"/", "").Trim();
+                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString().Replace("/", "").Trim();
                     string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
                     string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
                     //修改变更事项
@@ -144,7 +144,7 @@ namespace DataAccess
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
                     string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
                     string vcPartName = dt.Rows[i]["vcPartName"].ToString();
-                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString();
+                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString().Replace("/", "");
                     string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
                     string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
                     string vcOldProj = dt.Rows[i]["vcOldProj"].ToString();
@@ -165,29 +165,28 @@ namespace DataAccess
                     {
                         vcPartId = vcPart_Id_new;
                     }
-                    string[] tmp = getOrigin(vcPartId);
-                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType,vcDiff,vcOriginCompany) values ");
-                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "','','" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE(),'0','" + tmp[1] + "','" + tmp[0] + "' ) \r\n");
+                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType) values ");
+                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "','','" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE(),'0' ) \r\n");
 
                     fileList.Add(vcFileNameTJ);
                 }
 
-                //匹配原单位
-                string list = "";
-                fileList = fileList.Distinct().ToList();
-                foreach (string fileName in fileList)
-                {
-                    if (!string.IsNullOrWhiteSpace(list))
-                    {
-                        list = list + ",";
-                    }
+                ////匹配原单位
+                //string list = "";
+                //fileList = fileList.Distinct().ToList();
+                //foreach (string fileName in fileList)
+                //{
+                //    if (!string.IsNullOrWhiteSpace(list))
+                //    {
+                //        list = list + ",";
+                //    }
 
-                    list = list + "'" + fileName + "'";
-                }
-                sbr.Append(" UPDATE TSBManager SET vcDiff = b.vcDiff,vcOriginCompany = b.vcOriginCompany \r\n");
-                sbr.Append(" from TSBManager a  \r\n");
-                sbr.Append(" LEFT JOIN TUnit B ON a.vcPart_Id_old = b.vcPart_id OR a.vcPart_Id_new = b.vcPart_id \r\n");
-                sbr.Append(" WHERE a.vcFileNameTJ IN (" + list + ") \r\n");
+                //    list = list + "'" + fileName + "'";
+                //}
+                //sbr.Append(" UPDATE TSBManager SET vcDiff = b.vcDiff,vcOriginCompany = b.vcOriginCompany \r\n");
+                //sbr.Append(" from TSBManager a  \r\n");
+                //sbr.Append(" LEFT JOIN TUnit B ON a.vcPart_Id_old = b.vcPart_id OR a.vcPart_Id_new = b.vcPart_id \r\n");
+                //sbr.Append(" WHERE a.vcFileNameTJ IN (" + list + ") \r\n");
 
                 for (int i = 0; i < fileList.Count; i++)
                 {
@@ -271,7 +270,7 @@ namespace DataAccess
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_old"], false) + "," + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_new"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcBJDiff"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ",  \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + " \r\n");
-                        sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + "," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ", \r\n");
+                        sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + "," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcOldProj"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcOldProjTime"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcNewProj"], false) + ",  " + ComFunction.getSqlValue(listInfoData[i]["vcNewProjTime"], false) + ", \r\n");
@@ -286,7 +285,7 @@ namespace DataAccess
                         sbr.Append(" vcPart_Id_old = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_old"], false) + ",vcPart_Id_new = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_new"], false) + ",  \r\n");
                         sbr.Append(" vcBJDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcBJDiff"], false) + ",vcDTDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ",  \r\n");
                         sbr.Append(" vcPart_id_DT = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ",vcPartName = " + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + ",  \r\n");
-                        sbr.Append(" vcStartYearMonth = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ",vcFXDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ",  \r\n");
+                        sbr.Append(" vcStartYearMonth = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + ",vcFXDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ",  \r\n");
                         sbr.Append(" vcFXNo = " + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ",vcChange = " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",  \r\n");
                         sbr.Append(" vcOldProj = " + ComFunction.getSqlValue(listInfoData[i]["vcOldProj"], false) + ",vcOldProjTime = " + ComFunction.getSqlValue(listInfoData[i]["vcOldProjTime"], false) + ",  \r\n");
                         sbr.Append(" vcNewProj = " + ComFunction.getSqlValue(listInfoData[i]["vcNewProj"], false) + ",vcNewProjTime = " + ComFunction.getSqlValue(listInfoData[i]["vcNewProjTime"], false) + ",  \r\n");
@@ -353,7 +352,7 @@ namespace DataAccess
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + ",");
-                        sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",");
@@ -380,7 +379,7 @@ namespace DataAccess
                         sbr.Append(" vcDTDiff  = " + ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ", ");
                         sbr.Append(" vcPart_id_DT  = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ", ");
                         sbr.Append(" vcPartName  = " + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + ", ");
-                        sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ", ");
+                        sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + ", ");
                         sbr.Append(" vcFXDiff  = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ", ");
                         sbr.Append(" vcFXNo  = " + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ", ");
                         sbr.Append(" vcChange  = " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ", ");
@@ -436,7 +435,7 @@ namespace DataAccess
                     sbr.Append(" vcDTDiff  = " + ComFunction.getSqlValue(dt.Rows[i]["vcDTDiff"], false) + ", ");
                     sbr.Append(" vcPart_id_DT  = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id_DT"], false) + ", ");
                     sbr.Append(" vcPartName  = " + ComFunction.getSqlValue(dt.Rows[i]["vcPartName"], false) + ", ");
-                    sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"], false) + ", ");
+                    sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"], false).Replace("/", "") + ", ");
                     sbr.Append(" vcFXDiff  = " + ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"], false) + ", ");
                     sbr.Append(" vcFXNo  = " + ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"], false) + ", ");
                     sbr.Append(" vcChange  = " + ComFunction.getSqlValue(dt.Rows[i]["vcChange"], false) + ", ");

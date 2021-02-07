@@ -146,10 +146,10 @@ namespace DataAccess
                 sbrDiff.AppendLine("CASE vcDiff ");
                 sbrDiff.AppendLine("	WHEN '1' then 1");
                 sbrDiff.AppendLine("	when '2' then 2");
-                sbrDiff.AppendLine("	when '9' then 3 	");
-                sbrDiff.AppendLine("	WHEN '4' then 3 ");
+                sbrDiff.AppendLine("	when '9' then 3 ");
+                sbrDiff.AppendLine("	WHEN '4' then 4 ");
                 sbrDiff.AppendLine("end");
-                return excute.ExcuteSqlWithSelectToDT(sbrDiff.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbrDiff.ToString(), "TK");
             }
             catch (Exception ex)
             {

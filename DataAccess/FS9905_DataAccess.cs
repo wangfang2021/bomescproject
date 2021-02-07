@@ -113,7 +113,7 @@ namespace DataAccess
                     sqlStr.AppendLine("        ,vcSCPlace_Province = '" + listInfoData[i]["vcSCPlace_Province"] + "'         ");
                     sqlStr.AppendLine("        ,vcSCPlace_City = '" + listInfoData[i]["vcSCPlace_City"] + "'         ");
                     sqlStr.AppendLine("        ,vcCHPlace_Province = '" + listInfoData[i]["vcCHPlace_Province"] + "'         ");
-                    sqlStr.AppendLine("        ,vcCHPlace_City     = '" + listInfoData[i]["vcCHPlace_City    "] + "'         ");
+                    sqlStr.AppendLine("        ,vcCHPlace_City     = '" + listInfoData[i]["vcCHPlace_City"] + "'         ");
                     sqlStr.AppendLine("        ,vcYQorNG = '" + listInfoData[i]["vcYQorNG"] + "'         ");
                     sqlStr.AppendLine("        ,vcNotDY = '" + listInfoData[i]["vcNotDY"] + "'         ");
                     sqlStr.AppendLine("        ,dSupplier_BJ = '" + listInfoData[i]["dSupplier_BJ"] + "'         ");
@@ -157,7 +157,7 @@ namespace DataAccess
                     sql.Append("      select vcValue from TCode where vcCodeId = 'C026' and vcName = '已回复'      \n");
                     sql.Append("      ),      \n");
                     sql.Append("      vcOperatorId = '" + strUserId + "',      \n");
-                    sql.Append("      vcTH = null,      \n");
+                    //sql.Append("      vcTH = null,      \n");
                     sql.Append("      dOperatorTime = GETDATE()      \n");
                     sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
                 }
@@ -206,7 +206,7 @@ namespace DataAccess
                     sql.AppendLine("       ,vcOperatorId = '" + strUserId + "'      \n");
                     sql.AppendLine("       ,dOperatorTime = GETDATE()      \n");
                     sql.AppendLine("      where iAutoId = '" + iAutoId + "'      \n");
-                    sql.AppendLine("       and vcJD = '1' and vcJD = '3'         ");
+                    sql.AppendLine("       and vcJD in ('1','3')         ");
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }

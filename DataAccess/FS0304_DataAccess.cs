@@ -117,7 +117,7 @@ namespace DataAccess
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("      update TSQJD set       \n");
-                        sql.Append("      dSSDateMonth = "+ ComFunction.getSqlValue(listInfoData[i]["dSSDateMonth"], true) + "      \n");
+                        sql.Append("      dSSDate = "+ ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "      \n");
                         sql.Append("      ,vcJD = " + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "      \n");
                         sql.Append("      ,vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "      \n");
                         sql.Append("      ,vcSPINo = " + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "      \n");
@@ -147,6 +147,7 @@ namespace DataAccess
                         sql.Append("      ,vcOperatorId = '" + strUserId + "'      \n");
                         sql.Append("      ,dOperatorTime = GETDATE()      \n");
                         sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
+                        sql.Append("       and vcJD not in ('3')          ");
                     }
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());

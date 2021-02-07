@@ -474,14 +474,14 @@ namespace SPPSApi.Controllers.G03
                 /*
                  * 时间：2021-01-26
                  * 修改人：董镇
-                 * 修改内容：新增不进行校验，只需要填写品番即可，其他都可为空
+                 * 修改内容：生确单发行数据校验
                  */
-                string[,] strField = new string[,] {{"变更事项"     ,"生确"          ,"补给品番" ,"供应商代码"   ,"包装工厂"      ,"收货方"         },
-                                                    {"vcChange_Name","vcSQState_Name","vcPart_id","vcSupplier_id","vcSYTCode_Name","vcReceiver_Name"},
-                                                    {""             ,""              ,""         ,""             ,""              ,""               },
-                                                    {"0"            ,"0"             ,"12"       ,"4"            ,"0"             ,"0"              },//最大长度设定,不校验最大长度用0
-                                                    {"1"            ,"1"             ,"1"        ,"1"            ,"1"             ,"1"              },//最小长度设定,可以为空用0
-                                                    {"2"            ,"4"             ,"6"        ,"20"           ,"24"            ,"56"             }
+                string[,] strField = new string[,] {{"变更事项"     ,"生确"          ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"英文品名"    ,"供应商代码"   ,"OE=SP"    ,"防錆"    ,"防錆指示书号","收货方"         },
+                                                    {"vcChange_Name","vcSQState_Name","vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcPartNameEn","vcSupplier_id","vcOE_Name","vcFXDiff","vcFXNo"      ,"vcReceiver_Name"},
+                                                    {""             ,""              ,""         ,""            ,""               ,""            ,""             ,""         ,""        ,""            ,""               },
+                                                    {"0"            ,"0"             ,"12"       ,"4"           ,"4"              ,"100"         ,"4"            ,"0"        ,"2"       ,"12"          ,"0"              },//最大长度设定,不校验最大长度用0
+                                                    {"1"            ,"1"             ,"1"        ,"1"           ,"1"              ,"1"           ,"1"            ,"1"        ,"1"       ,"1"           ,"1"              },//最小长度设定,可以为空用0
+                                                    {"2"            ,"4"             ,"6"        ,"7"           ,"8"              ,"15"          ,"20"           ,"29"       ,"38"      ,"39"          ,"56"             }
                     };
                 //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = { };
@@ -499,23 +499,52 @@ namespace SPPSApi.Controllers.G03
                 if (string.IsNullOrEmpty(strSqDate))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请先选择纳期日期";
+                    apiResult.data = "请选择纳期日期";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                string strErr = "";
+                #region 校验所选择的数据能否进行发行
+                int strSQStateSum = 0;      //记录生确状态不为未确认       确认中和已确认的不能再次发行
+                int strChangeSum = 0;       //记录变更事项
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string strSQState = listInfoData[i]["vcSQState_Name"] == null?"": listInfoData[i]["vcSQState_Name"].ToString();
-                    if (strSQState!="未确认")
+                    string strSQState = listInfoData[i]["vcSQState"].ToString();
+                    if (strSQState!="0")
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "只可发行未确认的信息";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        strSQStateSum++;
+                    }
+                    string strChange = listInfoData[i]["vcChange"].ToString();
+                    if (strChange != "1" &&
+                        strChange != "2" &&
+                        strChange != "3" &&
+                        strChange != "4" &&
+                        strChange != "5" &&
+                        strChange != "8" &&
+                        strChange != "9" &&
+                        strChange != "10" &&
+                        strChange != "11" &&
+                        strChange != "16" )
+                    {
+                        strChangeSum++;
                     }
                 }
 
+                if (strSQStateSum >=1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "只可发行未确认的信息";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strChangeSum>=1)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "只可发行变更事项为新设、废止、旧型、复活、工程变更、供应商变更的信息";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
+                string strErr = "";
                 fs0303_Logic.sqSend(listInfoData, strSqDate, loginInfo.UserId,loginInfo.Email,loginInfo.UserName,ref strErr);
                 if (strErr!=null)
                 {

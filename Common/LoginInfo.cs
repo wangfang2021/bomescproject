@@ -18,6 +18,8 @@ namespace Common
         public string Ip = "";//用户当前登录IP
         public string IsTest = "";//是否测试登陆
         public string Special = "";//特殊权限
+        public string BanZhi = "";//班值
+        public string BaoZhuangPlace = "";//包装场
         public string PlatForm = "";//所属平台
         #endregion
     }

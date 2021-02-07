@@ -38,12 +38,7 @@ namespace SPPSApi.Controllers
             ICryptoTransform cryptoTransform = des.CreateEncryptor();
             byte[] res = cryptoTransform.TransformFinalBlock(bytedata, 0, bytedata.Length);
             string token = Convert.ToBase64String(res);
-
             byte[] res22 = Convert.FromBase64String(token);
-
-
-
-
             using (var entry = memoryCache_Login.CreateEntry(token))
             {
                 entry.Value = token;

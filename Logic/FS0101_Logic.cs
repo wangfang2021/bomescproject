@@ -102,13 +102,13 @@ namespace Logic
         //#endregion
 
         #region 插入操作,若成功返回true；失败返回false
-        public bool Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail,string strStop, string strSpecial, string vcPlatForm)
+        public bool Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail,string strStop, string strSpecial, string vcBanZhi, string vcBaoZhuangPlace, string vcPlatForm)
         {
             try
             {
                 //返回值定义，默认为失败false
                 bool bIsOK = false;
-                int count = fs0101_DataAccess.Insert(strUserId, strUserName, strPwd, strPalnt, strUnit, roleList, strOperatorID, strMail, strStop, strSpecial, vcPlatForm);
+                int count = fs0101_DataAccess.Insert(strUserId, strUserName, strPwd, strPalnt, strUnit, roleList, strOperatorID, strMail, strStop, strSpecial, vcBanZhi, vcBaoZhuangPlace, vcPlatForm);
                 if (count > 0)
                     bIsOK = true;
                 return bIsOK;
@@ -120,13 +120,13 @@ namespace Logic
         }
         #endregion
         #region 修改操作,若成功返回true；失败返回false
-        public bool Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID, string strMail, string strStop, string strSpecial,string vcPlatForm)
+        public bool Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID, string strMail, string strStop, string strSpecial, string vcBanZhi,string vcBaoZhuangPlace, string vcPlatForm)
         {
             try
             {
                 //返回值定义，默认为失败false
                 bool bIsOK = false;
-                int count = fs0101_DataAccess.Update(strUserId, strUserName, strPwd, strPalnt, strUnit, roleList, strOperatorID, strMail,strStop, strSpecial, vcPlatForm);
+                int count = fs0101_DataAccess.Update(strUserId, strUserName, strPwd, strPalnt, strUnit, roleList, strOperatorID, strMail,strStop, strSpecial, vcBanZhi, vcBaoZhuangPlace, vcPlatForm);
                 if (count > 0)
                     bIsOK = true;
                 return bIsOK;

@@ -37,6 +37,8 @@ namespace Logic
                 info.IsAdmin = dt.Rows[0]["vcIsAdmin"].ToString();
                 info.Ip = dt.Rows[0]["vcIp"].ToString();
                 info.Special = dt.Rows[0]["vcSpecial"].ToString();
+                info.BanZhi = dt.Rows[0]["vcBanZhi"].ToString();
+                info.BaoZhuangPlace = dt.Rows[0]["vcBaoZhuangPlace"].ToString();
                 info.PlatForm = dt.Rows[0]["vcPlatForm"].ToString();
                 return info;
             }

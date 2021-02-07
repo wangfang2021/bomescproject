@@ -58,7 +58,7 @@ namespace SPPSApi.Controllers.G00
             try
             {
                 DataTable dt = fs0101_Logic.Search(vcUnitID, vcUserID, vcUserName);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcUserID", "vcUserName", "vcUnitName", "vcPlantCode", "vcRoleName", "vcStop", "vcSpecial" , "vcEmail" });
+                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcUserID", "vcUserName", "vcUnitName", "vcPlantCode", "vcRoleName", "vcStop", "vcSpecial","vcBanZhi", "vcBaoZhuangPlace","vcBanZhi_Name", "vcBaoZhuangPlace_Name", "vcEmail" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -104,6 +104,10 @@ namespace SPPSApi.Controllers.G00
                 List<Object> list_AllSpecialRole = ComFunction.convertToResult(dt_Special, new string[] { "label", "value" });//返回所有特别角色
                 List<Object> list_AllPlant = ComFunction.convertToResult(dt_PlantAll, new string[] { "vcPlantCode", "vcPlantName" });//返回所有工厂代码
 
+                List<Object> dataList_C001 = ComFunction.convertAllToResult(ComFunction.getTCode("C001"));//包装场
+                List<Object> dataList_C010 = ComFunction.convertAllToResult(ComFunction.getTCode("C010"));//班值
+ 
+
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 res.Add("allRole", list_AllRole);
                 res.Add("myRole", list_MyRole);
@@ -111,7 +115,9 @@ namespace SPPSApi.Controllers.G00
                 res.Add("plantAll", list_AllPlant);
                 res.Add("plantMyList", plantList);
                 res.Add("unitCode", loginInfo.UnitCode);
-
+                //2021-2-7追加 班值 包装场
+                res.Add("baoZhuangPlaceOptions", dataList_C001);
+                res.Add("banzhiOptions", dataList_C010);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -154,6 +160,10 @@ namespace SPPSApi.Controllers.G00
                 string vcStop = dataForm.vcStop == "true" ? "1" : "0";
                 string vcSpecial = dataForm.vcSpecial;
                 JArray listInfo = dataForm.ddlRoleValue;
+
+                string vcBanZhi = dataForm.vcBanZhi;
+                string vcBaoZhuangPlace = dataForm.vcBaoZhuangPlace;
+
                 List<string> roleList = listInfo.ToObject<List<string>>();
 
                 if (vcUnitID.Trim() == "")
@@ -194,7 +204,7 @@ namespace SPPSApi.Controllers.G00
                 }
 
                 fs0101_Logic.Insert(vcUserID, vcUserName, ComFunction.encodePwd(vcPassWord)
-                         , fs0101_Logic.getStrByList(plantList), vcUnitID, roleList, loginInfo.UserId, vcEmail, vcStop, vcSpecial, loginInfo.PlatForm);
+                         , fs0101_Logic.getStrByList(plantList), vcUnitID, roleList, loginInfo.UserId, vcEmail, vcStop, vcSpecial, vcBanZhi, vcBaoZhuangPlace, loginInfo.PlatForm);
 
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UI0103", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -240,6 +250,9 @@ namespace SPPSApi.Controllers.G00
                 string vcStop = dataForm.vcStop=="true"?"1":"0";
                 string vcSpecial = dataForm.vcSpecial;
 
+                string vcBanZhi = dataForm.vcBanZhi;
+                string vcBaoZhuangPlace = dataForm.vcBaoZhuangPlace;
+
                 JArray listInfo = dataForm.ddlRoleValue;
                 List<string> roleList = listInfo.ToObject<List<string>>();
 
@@ -270,7 +283,7 @@ namespace SPPSApi.Controllers.G00
                  
 
                 fs0101_Logic.Update(vcUserID, vcUserName, ComFunction.encodePwd(vcPassWord)
-                        , fs0101_Logic.getStrByList(plantList), vcUnitID, roleList, loginInfo.UserId, vcEmail, vcStop, vcSpecial, loginInfo.PlatForm);
+                        , fs0101_Logic.getStrByList(plantList), vcUnitID, roleList, loginInfo.UserId, vcEmail, vcStop, vcSpecial, vcBanZhi, vcBaoZhuangPlace, loginInfo.PlatForm);
                 ComMessage.GetInstance().ProcessMessage(FunctionID,  "M01UI0104", null, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "";

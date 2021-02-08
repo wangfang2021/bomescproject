@@ -102,7 +102,7 @@ namespace SPPSApi.Controllers.G03
                 
                 fs0320_Logic.importSave(importDt, loginInfo.UserId, loginInfo.UnitCode);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                apiResult.data = "保存成功,但已填写中文品名的数据不进行更新。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

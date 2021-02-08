@@ -73,6 +73,7 @@ namespace DataAccess
                 sbr.Append("  SELECT vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcNXQF, vcCarTypeDev, dJiuBegin,vcSYTCode,vcReceiver,vcOriginCompany  \r\n");
                 sbr.Append("  INTO #temp  \r\n");
                 sbr.Append("  FROM TUnit  \r\n");
+                //sbr.Append("  WHERE vcChange IN (SELECT vcValue FROM TCode WHERE vcName like'%旧型%' AND vcCodeId='C002') AND vcOriginCompany in (" + OriginCompany + ") AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ;  \r\n");
                 sbr.Append("  WHERE vcChange IN (SELECT vcValue FROM TCode WHERE vcName like'%旧型%' AND vcCodeId='C002') AND vcOriginCompany in (" + OriginCompany + ") AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ;  \r\n");
 
                 sbr.Append("  INSERT INTO TOldYearManager(vcYear, vcFinish,dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7,vcNXQF, vcOperatorID, dOperatorTime,vcSYTCode,vcReceiver,vcOriginCompany)  \r\n");

@@ -167,7 +167,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 //可选择的变更事项
-                List<string> changeList = new List<string>() { "1", "2", "3", "4", "5", "6", "8", "10", "11", "12", "13", "16", "21" };
+                List<string> changeList = new List<string>() { "1", "2", "3", "4", "5", "6", "16" };
                 //品番check
                 List<string> partCheck = getPart();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -214,7 +214,7 @@ namespace DataAccess
 
                     if (!finishstate.Equals("1") && !finishstate.Equals("3"))
                     {
-                        if (change.Equals("1") || change.Equals("2") || change.Equals("10") || change.Equals("12") || change.Equals("8"))//新设
+                        if (change.Equals("1") || change.Equals("2"))//新设
                         {
                             string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                             string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
@@ -258,7 +258,7 @@ namespace DataAccess
                             sbr.Append(") \r\n");
 
                         }
-                        else if (change.Equals("4") || change.Equals("11") || change.Equals("13") || change.Equals("21"))//废止
+                        else if (change.Equals("4"))//废止
                         {
                             sbr.Append(" UPDATE a SET \r\n");
                             sbr.Append(" a.vcChange = '" + change + "', \r\n");

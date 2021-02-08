@@ -1,16 +1,18 @@
 ﻿using Common;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Data;
-using System.Data.SqlClient;
-/// <summary>
-/// NQC内制状态及结果获取
-/// </summary>
 namespace BatchProcess
 {
     public class FP00019
     {
+        /*
+         * 时间：2020-02-08
+         * 作者：董镇
+         * 描述：此批处理用来做生确超期邮件提醒
+         *       原单位向供应商发生确后，有一个纳期时间，生确表中如果这条数据的纳期时间已经小于当前时间(纳期超期了)，
+         *       并且生确进度还是未确认状态
+         */
         private MultiExcute excute = new MultiExcute();
 
         #region 主方法
@@ -20,7 +22,7 @@ namespace BatchProcess
             try
             {
                 //批处理开始
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1901", null, strUserId);
 
                 #region 邮件发送准备
 
@@ -28,7 +30,7 @@ namespace BatchProcess
                 string strUserEmail = getUserEmail();
                 if (string.IsNullOrEmpty(strUserEmail))
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1901", null, strUserId);
                     return true;
                 }
                 #endregion
@@ -37,7 +39,7 @@ namespace BatchProcess
                 string strUserName = getUserName();
                 if (string.IsNullOrEmpty(strUserEmail))
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1902", null, strUserId);
                     return true;
                 }
                 #endregion
@@ -46,7 +48,7 @@ namespace BatchProcess
                 string strEmailBody = getEmailBody(strUserId, "FP00019");
                 if (string.IsNullOrEmpty(strEmailBody))
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1903", null, strUserId);
                     return true;
                 }
                 //这里做了年月的转换
@@ -57,7 +59,7 @@ namespace BatchProcess
                 DataTable receiverDt = getReceiverDt();
                 if (receiverDt==null || receiverDt.Rows.Count<=0)
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1904", null, strUserId);
                     return true;
                 }
                 #endregion
@@ -73,7 +75,7 @@ namespace BatchProcess
                 string strSubject = getSubject(strUserId,"FP00019");
                 if (string.IsNullOrEmpty(strSubject))
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1905", null, strUserId);
                     return true;
                 }
                 #endregion
@@ -101,19 +103,19 @@ namespace BatchProcess
                 SendMail(strUserEmail, strUserName, strEmailBody, receiverDt, cCDt, strSubject, strFilePath, delFileNameFlag,ref strErr);
                 if (strErr!="")
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1906", null, strUserId);
                     return true;
                 }
                 #endregion
 
                 //批处理结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1902", null, strUserId);
                 return true;
             }
             catch (Exception ex)
             {
                 //批处理异常结束
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE0200", null, strUserId);
+                ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1907", null, strUserId);
                 throw ex;
             }
         }
@@ -127,7 +129,7 @@ namespace BatchProcess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("         select vcName from TCode where vcCodeId = 'C009'        ");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                if (dt.Rows[0][0]!=null && dt.Rows[0][0].ToString()!="")
+                if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
                 }
@@ -152,7 +154,7 @@ namespace BatchProcess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("         select vcValue from TCode where vcCodeId = 'C009'        ");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                if (dt.Rows[0][0] != null && dt.Rows[0][0].ToString() != "")
+                if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
                 }
@@ -176,7 +178,7 @@ namespace BatchProcess
                 StringBuilder sql = new StringBuilder();
                 sql.Append(" select vcContent from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                if (dt.Rows[0][0] != null && dt.Rows[0][0].ToString() != "")
+                if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
                 }
@@ -264,7 +266,7 @@ namespace BatchProcess
                 StringBuilder sql = new StringBuilder();
                 sql.Append(" select vcTitle from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                if (dt.Rows[0][0] != null && dt.Rows[0][0].ToString() != "")
+                if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
                 }

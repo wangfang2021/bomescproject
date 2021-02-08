@@ -329,6 +329,8 @@ namespace DataAccess
                 sql.Append("       update TUnit set        \n");
                 sql.Append("        vcSYTCode = a.vcSYTCode       \n");
                 sql.Append("       ,dTimeFrom = a.dTFTM_BJ       \n");
+                sql.Append("       ,dGYSTimeFrom = a.dTFTM_BJ       \n");
+                sql.Append("       ,dGYSTimeTo = '9999-12-31'       \n");
                 sql.Append("       ,vcSCPlace = a.vcSCPlace_City       \n");
                 sql.Append("       ,vcCHPlace = a.vcCHPlace_City       \n");
                 sql.Append("       ,vcSCSName = a.vcSCSName       \n");

@@ -24,60 +24,86 @@ namespace BatchProcess
 
                 #region 邮件发送准备
 
-                //用户邮箱
+                #region 用户邮箱
                 string strUserEmail = getUserEmail();
-
-                //用户名称
-
-
-
-
-                #region 获取所有超期的供应商名称，如果没有，则提示批处理已完成
-                DataTable dt = GetRequestData();
-                if (dt.Rows.Count == 0)
-                {//没有超期的数据
+                if (string.IsNullOrEmpty(strUserEmail))
+                {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                     return true;
                 }
                 #endregion
 
-                #region 获取邮箱内容，如果没有获取到，则提示邮箱内容获取失败，批处理结束
-                DataTable dtMail = getMail(strUserId, "FP00019");
-                if (dtMail == null || dtMail.Rows.Count <= 0)
-                {//未获取邮箱信息
+                #region 用户名称
+                string strUserName = getUserName();
+                if (string.IsNullOrEmpty(strUserEmail))
+                {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                     return true;
                 }
                 #endregion
 
-                #region 获取收件人信息、抄送人信息
-                DataTable sendUser = getSendUser();
-                if (sendUser==null || sendUser.Rows.Count<=0)
+                #region 邮件内容
+                string strEmailBody = getEmailBody(strUserId, "FP00019");
+                if (string.IsNullOrEmpty(strEmailBody))
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                     return true;
                 }
-                DataTable sendUsers = getSendUsers();
-                if (sendUsers==null || sendUsers.Rows.Count<=0)
+                //这里做了年月的转换
+                strEmailBody = strEmailBody.Replace("##yearmonth##", DateTime.Now.ToString("yyyy年MM月"));
+                #endregion
+
+                #region 收件人
+                DataTable receiverDt = getReceiverDt();
+                if (receiverDt==null || receiverDt.Rows.Count<=0)
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                     return true;
                 }
+                #endregion
+
+                #region 抄送人
+                /*
+                 * 注意：抄送人不需要判断是否拿到数据，如果没有拿到数据，说明没有添加抄送人，对于发送邮件无影响
+                 */
+                DataTable cCDt = getCDt();
+                #endregion
+
+                #region 邮件主题
+                string strSubject = getSubject(strUserId,"FP00019");
+                if (string.IsNullOrEmpty(strSubject))
+                {
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    return true;
+                }
+                #endregion
+
+                #region 附件
+                /*
+                 * 有附件给地址，无给null
+                 */
+                string strFilePath = null;
+                #endregion
+
+                #region 传入附件后，是否需要删除附件
+                /*
+                 * true:需要删除附件
+                 * false:需要删除附件/没有附件
+                 */
+                bool delFileNameFlag = false;
                 #endregion
 
                 #endregion
 
                 #region 开始发送邮件
-
-                string strErr = "";     //记录错误信息
-
-                SendMail(dt, dtMail, strUserId, sendUser.Rows[0][1].ToString(), sendUser.Rows[0][0].ToString(), ref strErr);
+                //记录错误信息
+                string strErr = "";     
+                SendMail(strUserEmail, strUserName, strEmailBody, receiverDt, cCDt, strSubject, strFilePath, delFileNameFlag,ref strErr);
                 if (strErr!="")
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                     return true;
                 }
-
                 #endregion
 
                 //批处理结束
@@ -99,129 +125,176 @@ namespace BatchProcess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("         select vcValue from TCode where vcCodeId = 'C009'        ");
+                strSql.AppendLine("         select vcName from TCode where vcCodeId = 'C009'        ");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 if (dt.Rows[0][0]!=null && dt.Rows[0][0].ToString()!="")
                 {
-
+                    return dt.Rows[0][0].ToString();
                 }
-                return "";
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        #endregion
+
+        #region 获取用户名称
+        public string getUserName()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("         select vcValue from TCode where vcCodeId = 'C009'        ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (dt.Rows[0][0] != null && dt.Rows[0][0].ToString() != "")
+                {
+                    return dt.Rows[0][0].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取邮件内容
+        public string getEmailBody(string strUserId, string strChildFunID)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append(" select vcContent from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                if (dt.Rows[0][0] != null && dt.Rows[0][0].ToString() != "")
+                {
+                    return dt.Rows[0][0].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取收件人
+        public DataTable getReceiverDt()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("      select b.address,b.displayName from        ");
+                strSql.AppendLine("      (       ");
+                strSql.AppendLine("      	select vcSupplier_id from TSQJD       ");
+                strSql.AppendLine("      	where dNqDate<GETDATE() and vcYQorNG is null or vcYQorNG = ''       ");
+                strSql.AppendLine("      	group by vcSupplier_id       ");
+                strSql.AppendLine("      )  a       ");
+                strSql.AppendLine("      inner join        ");
+                strSql.AppendLine("      (       ");
+                strSql.AppendLine("      select vcEmail1 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail2 is not null and vcEmail1 !=''       ");
+                strSql.AppendLine("      union all       ");
+                strSql.AppendLine("      select vcEmail2 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail2 is not null and vcEmail2 !=''       ");
+                strSql.AppendLine("      union all       ");
+                strSql.AppendLine("      select vcEmail3 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail2 is not null and vcEmail3 !=''       ");
+                strSql.AppendLine("      ) b on a.vcSupplier_id = b.displayName       ");
+
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (dt.Rows.Count>0)
+                {
+                    return dt;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception)
             {
 
                 throw;
             }
-
         }
         #endregion
 
+        #region 获取抄送人
+        public DataTable getCDt()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("        select vcValue2 as 'address',vcValue1 as 'displayName' from TOutCode where vcCodeId = 'C005' and vcIsColum = '0'         ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (dt.Rows.Count>0)
+                {
+                    return dt;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region 获取邮件主题
+        public string getSubject(string strUserId, string strChildFunID)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append(" select vcTitle from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                if (dt.Rows[0][0] != null && dt.Rows[0][0].ToString() != "")
+                {
+                    return dt.Rows[0][0].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
         #region 向供应商发送邮件
-        public void SendMail(DataTable dt,DataTable dtMail, string strUserId, string strEmail, string strUserName, ref string strErr)
-        {
-            string strTitle = "";//邮件标题
-            string strContent = "";//邮件内容
-
-            strTitle = dtMail.Rows[0]["vcTitle"].ToString();
-            strContent = dtMail.Rows[0]["vcContent"].ToString();
-            string dateTime = DateTime.Now.ToString("yyyy年MM月");
-            strContent = strContent.Replace("##yearmonth##", dateTime);
-
-            //再向供应商发邮件
-            StringBuilder strEmailBody = new StringBuilder();
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                string strSupplier_id = dt.Rows[i]["vcSupplier_id"].ToString();
-                DataTable receiverDt = getSupplierEmail(strSupplier_id);
-                if (receiverDt == null)
-                {
-                    strErr += "未找到 '" + strSupplier_id + "' 供应商邮件信息";
-                    return;
-                }
-                ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
-            }
-        }
-        #endregion
-
-        #region 获取邮件内容
-        public DataTable getMail(string strUserId,string strChildFunID)
+        public void SendMail(string strUserEmail, string strUserName, string strEmailBody, DataTable receiverDt, DataTable cCDt, string strSubject, string strFilePath, bool delFileNameFlag,ref string strErr)
         {
             try
             {
-                StringBuilder sql = new StringBuilder();
-                sql.Append(" select * from TMailMessageSetting where vcChildFunID = '" + strChildFunID+"' and vcUserId = '"+ strUserId + "'    \n");
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDt, cCDt, strSubject, strFilePath, delFileNameFlag);
             }
             catch (Exception ex)
             {
+                strErr = ex.Message;
                 throw ex;
             }
+            
         }
         #endregion
 
-        #region 根据供应商获取邮件地址
-        public DataTable getSupplierEmail(string strSupplierId)
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='" + strSupplierId + "'   \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 取出需要请求的数据
-        public DataTable GetRequestData()
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append(" select vcSupplier_id from TSQJD where dNqDate<GETDATE() and vcYQorNG is null or vcYQorNG = ''    \n");
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 获取收件人信息
-        public DataTable getSendUser()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("       select top 1 vcValue,vcName from TCode where vcCodeId = 'C002'      ");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 获取发件人信息
-        public DataTable getSendUsers()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcValue1 as 'UserName',vcValue2 as 'Email' from TOutCode where vcCodeId = 'C005' and vcIsColum = 0       ");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
     }
 }

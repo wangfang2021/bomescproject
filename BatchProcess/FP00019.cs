@@ -21,19 +21,57 @@ namespace BatchProcess
             {
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0200", null, strUserId);
+
+                #region 邮件发送准备
+
+                #region 获取所有超期的供应商名称，如果没有，则提示批处理已完成
                 DataTable dt = GetRequestData();
                 if (dt.Rows.Count == 0)
                 {//没有超期的数据
                     ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                     return true;
                 }
-                string strMail = getMail(strUserId, "FP00019").Rows[0][0].ToString();
-                if (string.IsNullOrEmpty(strMail))
-                {//没有NQC结果数据
+                #endregion
+
+                #region 获取邮箱内容，如果没有获取到，则提示邮箱内容获取失败，批处理结束
+                DataTable dtMail = getMail(strUserId, "FP00019");
+                if (dtMail == null || dtMail.Rows.Count <= 0)
+                {//未获取邮箱信息
                     ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                     return true;
                 }
-                UpdateDB(dsNQC, strUserId);
+                #endregion
+
+                #region 获取发件人信息、抄送人信息
+                DataTable sendUser = getSendUser();
+                if (sendUser==null || sendUser.Rows.Count<=0)
+                {
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    return true;
+                }
+                DataTable sendUsers = getSendUsers();
+                if (sendUsers==null || sendUsers.Rows.Count<=0)
+                {
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    return true;
+                }
+                #endregion
+
+                #endregion
+
+                #region 开始发送邮件
+
+                string strErr = "";     //记录错误信息
+
+                SendMail(dt, dtMail, strUserId, sendUser.Rows[0][1].ToString(), sendUser.Rows[0][0].ToString(), ref strErr);
+                if (strErr!="")
+                {
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
+                    return true;
+                }
+
+                #endregion
+
                 //批处理结束
                 ComMessage.GetInstance().ProcessMessage(PageId, "M03PI0201", null, strUserId);
                 return true;
@@ -48,23 +86,28 @@ namespace BatchProcess
         #endregion
 
         #region 向供应商发送邮件
-        public void SendMail(DataSet dsNQC, string strUserId)
+        public void SendMail(DataTable dt,DataTable dtMail, string strUserId, string strEmail, string strUserName, ref string strErr)
         {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
+            string strTitle = "";//邮件标题
+            string strContent = "";//邮件内容
 
-                sql.Append("                \n");
-                sql.Append("                \n");
-                sql.Append("                \n");
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
+            strTitle = dtMail.Rows[0]["vcTitle"].ToString();
+            strContent = dtMail.Rows[0]["vcContent"].ToString();
+            string dateTime = DateTime.Now.ToString("yyyy年MM月");
+            strContent = strContent.Replace("##yearmonth##", dateTime);
+
+            //再向供应商发邮件
+            StringBuilder strEmailBody = new StringBuilder();
+            for (int i = 0; i < dt.Rows.Count; i++)
             {
-                throw ex;
+                string strSupplier_id = dt.Rows[i]["vcSupplier_id"].ToString();
+                DataTable receiverDt = getSupplierEmail(strSupplier_id);
+                if (receiverDt == null)
+                {
+                    strErr += "未找到 '" + strSupplier_id + "' 供应商邮件信息";
+                    return;
+                }
+                ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
             }
         }
         #endregion
@@ -75,8 +118,24 @@ namespace BatchProcess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" select vcContent from TMailMessageSetting where vcChildFunID = '" + strChildFunID+"' and vcUserId = '"+ strUserId + "'    \n");
+                sql.Append(" select * from TMailMessageSetting where vcChildFunID = '" + strChildFunID+"' and vcUserId = '"+ strUserId + "'    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 根据供应商获取邮件地址
+        public DataTable getSupplierEmail(string strSupplierId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='" + strSupplierId + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {
@@ -91,7 +150,7 @@ namespace BatchProcess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" select vcPart_id from TSQJD where dNqDate<GETDATE() and vcYQorNG is null or vcYQorNG = ''    \n");
+                sql.Append(" select vcSupplier_id from TSQJD where dNqDate<GETDATE() and vcYQorNG is null or vcYQorNG = ''    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -101,26 +160,33 @@ namespace BatchProcess
         }
         #endregion
 
-        #region NQC系统取数据连接
-        public DataTable NQCSearch(string sql)
+        #region 获取发件人信息
+        public DataTable getSendUser()
         {
-            SqlConnection conn = Common.ComConnectionHelper.CreateConnection_NQC();
             try
             {
-                SqlDataAdapter da = new SqlDataAdapter();
-                DataTable dt = new DataTable();
-                da.SelectCommand = new SqlCommand();
-                da.SelectCommand.CommandType = System.Data.CommandType.Text;
-                da.SelectCommand.Connection = conn;
-                da.SelectCommand.CommandText = sql;
-                Common.ComConnectionHelper.OpenConection_SQL(ref conn);
-                da.Fill(dt);
-                Common.ComConnectionHelper.CloseConnection_SQL(ref conn);
-                return dt;
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("       select top 1 vcValue,vcName from TCode where vcCodeId = 'C002'      ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {
-                Common.ComConnectionHelper.CloseConnection_SQL(ref conn);
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取发件人信息
+        public DataTable getSendUsers()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("      select vcValue1 as 'UserName',vcValue2 as 'Email' from TOutCode where vcCodeId = 'C005' and vcIsColum = 0       ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }

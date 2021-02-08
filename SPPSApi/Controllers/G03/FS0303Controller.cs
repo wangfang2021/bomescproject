@@ -575,7 +575,7 @@ namespace SPPSApi.Controllers.G03
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName from TCode where vcCodeId='" + strCodeId + "'     \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
             {

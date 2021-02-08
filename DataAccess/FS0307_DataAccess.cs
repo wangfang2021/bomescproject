@@ -22,7 +22,7 @@ namespace DataAccess
             sbr.AppendLine("(SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcValue = b.vcOriginCompany");
             sbr.AppendLine(") a");
 
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(),"TK");
         }
 
         //年限对象品番抽取

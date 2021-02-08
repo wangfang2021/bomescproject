@@ -101,7 +101,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select top 1 vcMeno,'0' as vcModFlag,'0' as vcAddFlag from TUnit where vcPart_id='" + strPart_id + "'   \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
             {
@@ -318,7 +318,7 @@ namespace DataAccess
                         sql.Append("        select CONVERT(int,'-->'+@errorPart+'<--')        \r\n");
                         sql.Append("        end        \r\n");
 
-                        excute.ExcuteSqlWithStringOper(sql.ToString());
+                        excute.ExcuteSqlWithStringOper(sql.ToString(),"TK");
                     }
                 }
 
@@ -352,7 +352,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(),"TK");
             }
             catch (Exception ex)
             {
@@ -596,7 +596,7 @@ namespace DataAccess
                     sql.Append("        select CONVERT(int,'-->'+@errorPart+'<--')        \r\n");
                     sql.Append("        end        \r\n");
 
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(),"TK");
                 }
             }
             catch (Exception ex)
@@ -622,7 +622,7 @@ namespace DataAccess
 
                 sql = sync.getUpdateTunitNqSql(strSqDate, listInfoData);
                 sql.Append(sync.getSQSendSql(listInfoData));
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(),"TK");
             }
             catch (Exception ex)
             {
@@ -2937,7 +2937,7 @@ namespace DataAccess
                     strSql.Append("     and vcValue = '" + strNameOrValue + "'    \n");
                 }
                 
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString()).Rows[0][0].ToString();
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK").Rows[0][0].ToString();
             }
             catch(Exception ex)
             {
@@ -2955,7 +2955,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='"+ strSupplierId + "'   \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
             {
@@ -2971,7 +2971,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("    select vcTitle,vcContent from TMailMessageSetting where vcUserId='"+ strUserId + "' and vcChildFunID = 'FS0303'   \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
             {
@@ -2994,7 +2994,7 @@ namespace DataAccess
                     sbrTeJi.Append(strMeno + ";");
                 }
                 sql.Append("    update TUnit set vcMeno='"+ sbrTeJi.ToString()+ "' where vcPart_id='"+ strPartId + "'   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(),"TK");
             }
             catch (Exception ex)
             {

@@ -256,20 +256,24 @@ namespace DataAccess
                         sql.Append("      ,dJiuEnd = " + ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], false) + "      \r\n");
                         //旧型经年由旧型开始和结束时间计算得出
                         #region 计算旧型经年
-                        if (listInfoData[i]["dJiuBegin"].ToString() != ""&& listInfoData[i]["dJiuEnd"].ToString() != "")
+
+                        if (
+                                (listInfoData[i]["dJiuBegin"] != null && listInfoData[i]["dJiuBegin"].ToString() != "")
+                                 &&
+                                (listInfoData[i]["dJiuEnd"] != null && listInfoData[i]["dJiuEnd"].ToString() != "")
+                            )
                         {
-                            
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append("      ,vcJiuYear = '" + iJiuYear + "'      \r\n");
+                            sql.Append("'" + iJiuYear + "'" + ",   \r\n");
                         }
                         else
                         {
-                            sql.Append("      ,vcJiuYear =null      \r\n");
+                            sql.Append("null,   \r\n");
                         }
                         #endregion
-                        
+
                         sql.Append("      ,vcNXQF = " + ComFunction.getSqlValue(listInfoData[i]["vcNXQF"], false) + "      \r\n");
                         sql.Append("      ,dSSDate = " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], false) + "      \r\n");
                         sql.Append("      ,vcFXDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "      \r\n");

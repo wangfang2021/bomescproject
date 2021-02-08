@@ -368,7 +368,7 @@ namespace BatchProcess
         }
         #endregion
 
-        #region 取出需要请求的数据
+        #region 获取所有超期的数据
         public DataTable GetRequestData()
         {
             try

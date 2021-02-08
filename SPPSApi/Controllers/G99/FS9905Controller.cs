@@ -179,12 +179,12 @@ namespace SPPSApi.Controllers.G99
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"对应结果可否确认结果","防锈对应可否","延期说明/NG理由","对应不可理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂"     ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
+                    string[,] strField = new string[,] {{"对应可否确认结果"    ,"防锈对应可否","延期说明/NG理由","对应不可理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂"     ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
                                                         {"vcIsDYJG"            ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcNotDY"     ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode"    ,"vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
                                                         {""                    ,""            ,""               ,""            ,""              ,""                  ,""              ,""                  ,""             ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
                                                         {"1"                   ,"1"           ,"100"            ,"100"         ,"100"           ,"100"               ,"100"           ,"100"               ,"100"          ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
                                                         {"1"                   ,"1"           ,"0"              ,"0"           ,"1"             ,"1"                 ,"1"             ,"1"                 ,"1"            ,"1"         ,"1"         ,"1"                  ,"1"                  ,"1"                ,"0"           ,"0"         },//最小长度设定,可以为空用0
-                                                        {"14"                  ,"15"          ,"16"             ,"17"          ,"18"            ,"19"                ,"20"            ,"21"                ,"22"           ,"23"        ,"24"        ,"25"                 ,"26"                 ,"27"               ,"28"          ,"29"        }//前台显示列号，从0开始计算,注意有选择框的是0
+                                                        {"14"                  ,"15"          ,"17"             ,"18"          ,"19"            ,"20"                ,"21"            ,"22"                ,"23"           ,"24"        ,"25"        ,"26"                 ,"27"                 ,"28"               ,"29"          ,"30"        }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = null;
@@ -194,8 +194,8 @@ namespace SPPSApi.Controllers.G99
                      */
                     /*                                   验证vcChange字段             当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
                     string[,] strSpecialCheck = {{ "执行标准区分"    ,"vcZXBZDiff",  "CCC"     ,"CCC",   "执行标准NO"  ,"vcZXBZNo", "1",                      "","" }
-                                                ,{ "对应可否确认结果","vcIsDYJG"  ,  "不可对应","0"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
-                                                ,{ "防锈对应可否    ","vcIsDYFX"  ,  "不可对应","0"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
+                                                ,{ "对应可否确认结果","vcIsDYJG"  ,  "不可对应","2"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
+                                                ,{ "防锈对应可否    ","vcIsDYFX"  ,  "不可对应","2"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
                         };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
@@ -305,13 +305,19 @@ namespace SPPSApi.Controllers.G99
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
+                if (listInfoData.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未选择任何行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 string strErr = "";
                 fs9905_Logic.Send(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data =  strErr;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

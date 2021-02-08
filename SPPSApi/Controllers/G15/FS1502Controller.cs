@@ -94,9 +94,10 @@ namespace SPPSApi.Controllers.G15
             {
                 DataTable dt = fs1502_Logic.Search(dBZDate);
                 string[] fields = { "vcBigPM", "iBZPlan_Day", "iBZPlan_Night", "iBZPlan_Heji", "iEmergencyOrder", "iLJBZRemain"
-                ,"iPlanTZ","iSSPlan_Day","iSSPlan_Night","iSSPlan_Heji","dPackDate"
+                ,"iPlanTZ","iSSPlan_Day","iSSPlan_Night","iSSPlan_Heji"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1502_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = fs1502_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1502_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -162,12 +163,12 @@ namespace SPPSApi.Controllers.G15
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"计划调整"},//中文字段名
-                        {"iPlanTZ"},//英文字段名
-                        {FieldCheck.Num},//数据类型校验
-                        {"0"},//最大长度设定,不校验最大长度用0
-                        {"1"},//最小长度设定,可以为空用0
-                        {"7"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"累积包装残","计划调整"},//中文字段名
+                        {"iLJBZRemain","iPlanTZ"},//英文字段名
+                        {FieldCheck.Num,FieldCheck.Num},//数据类型校验
+                        {"0","0"},//最大长度设定,不校验最大长度用0
+                        {"1","1"},//最小长度设定,可以为空用0
+                        {"6","7"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1502");
                     if (checkRes != null)
@@ -194,10 +195,10 @@ namespace SPPSApi.Controllers.G15
         }
         #endregion
 
-        #region 删除
+        #region 计算
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string calApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -211,24 +212,23 @@ namespace SPPSApi.Controllers.G15
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (checkedInfoData.Count == 0)
+                string dBZDate = dataForm.dBZDate == null ? "" : dataForm.dBZDate;
+                if (dBZDate == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    apiResult.data = "请选择包装日期！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1502_Logic.Del(checkedInfoData, loginInfo.UserId);
+                fs1502_Logic.Cal(dBZDate, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1003", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

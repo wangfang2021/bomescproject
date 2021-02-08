@@ -24,6 +24,14 @@ namespace BatchProcess
 
                 #region 邮件发送准备
 
+                //用户邮箱
+                string strUserEmail = getUserEmail();
+
+                //用户名称
+
+
+
+
                 #region 获取所有超期的供应商名称，如果没有，则提示批处理已完成
                 DataTable dt = GetRequestData();
                 if (dt.Rows.Count == 0)
@@ -42,7 +50,7 @@ namespace BatchProcess
                 }
                 #endregion
 
-                #region 获取发件人信息、抄送人信息
+                #region 获取收件人信息、抄送人信息
                 DataTable sendUser = getSendUser();
                 if (sendUser==null || sendUser.Rows.Count<=0)
                 {
@@ -84,6 +92,30 @@ namespace BatchProcess
             }
         }
         #endregion
+
+        #region 获取用户邮箱
+        public string getUserEmail()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("         select vcValue from TCode where vcCodeId = 'C009'        ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (dt.Rows[0][0]!=null && dt.Rows[0][0].ToString()!="")
+                {
+
+                }
+                return "";
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+        #endregion
+
 
         #region 向供应商发送邮件
         public void SendMail(DataTable dt,DataTable dtMail, string strUserId, string strEmail, string strUserName, ref string strErr)
@@ -160,7 +192,7 @@ namespace BatchProcess
         }
         #endregion
 
-        #region 获取发件人信息
+        #region 获取收件人信息
         public DataTable getSendUser()
         {
             try

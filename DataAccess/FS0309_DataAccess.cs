@@ -506,7 +506,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("         update TPrice set vcPriceChangeInfo = null,vcPriceState = '4'        ");
+                strSql.AppendLine("         update TPrice set vcPriceChange = null,vcPriceState = '4'        ");
                 if (!string.IsNullOrEmpty(strChange))
                 {
                     strSql.AppendLine("         where vcChange = '"+strChange+"'        ");
@@ -573,7 +573,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    strSql.AppendLine("      update TPrice set vcPriceChangeInfo = null,vcPriceState = 'PIC'       ");
+                    strSql.AppendLine("      update TPrice set vcPriceChange = null,vcPriceState = 'PIC'       ");
                     strSql.AppendLine("      where iAutoId = '" + listInfoData[i]["iAutoId"] + "'       ");
                 }
                 if (strSql.Length>0)

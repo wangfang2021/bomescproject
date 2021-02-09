@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Common;
 using System.Data;
 using System.Text;
+using NPOI.OpenXmlFormats.Dml;
 
 namespace DataAccess
 {
@@ -22,11 +24,11 @@ namespace DataAccess
             sbr.AppendLine("(SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcValue = b.vcOriginCompany");
             sbr.AppendLine(") a");
 
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(),"TK");
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
 
         //年限对象品番抽取
-        public void extractPart(string strUserId, List<string> vcOriginCompany)
+        public void extractPart(string strUserId, List<string> vcOriginCompany, ref string Message)
         {
             try
             {
@@ -95,6 +97,31 @@ namespace DataAccess
                 sbr.Append("      DROP TABLE #temp;  \r\n");
 
                 excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+
+                sbr.Length = 0;
+                sbr.Append(" SELECT vcOriginCompany,COUNT(*) AS num FROM TOldYearManager WHERE vcYear =SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4) AND vcOriginCompany IN (" + OriginCompany + ") GROUP BY vcOriginCompany ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+                Hashtable table = new Hashtable();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    table.Add(dt.Rows[i]["vcOriginCompany"].ToString(), dt.Rows[i]["num"].ToString());
+                }
+
+                for (int i = 0; i < vcOriginCompany.Count; i++)
+                {
+                    if (!table.Contains(vcOriginCompany[i]))
+                    {
+                        if (!string.IsNullOrWhiteSpace(Message))
+                        {
+                            Message += ",";
+                        }
+                        Message += getName("C006", vcOriginCompany[i]);
+
+                    }
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -415,6 +442,30 @@ namespace DataAccess
             }
         }
 
+        //获取value值
+        public string getName(string strCodeId, string vcValue)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+                dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcValue"].ToString().Equals(vcValue))
+                    {
+                        return dt.Rows[i]["vcName"].ToString();
+                    }
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         //织入原单位
         public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -477,5 +528,42 @@ namespace DataAccess
                 return "";
             }
         }
+
+        #region 获取销售公司邮箱
+
+        public DataTable getReceiverEmail()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 获取供应商邮箱
+
+        public DataTable getSupplierEmail()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcSupplier_id,vcLXR1,vcEmail1 FROM TSupplier ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 }

@@ -64,41 +64,41 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-        #region 年限抽取
+        //#region 年限抽取
 
-        [HttpPost]
-        [EnableCors("any")]
-        public string extractApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            JArray listInfo = dataForm.vcOriginCompany;
-            List<string> vcOriginCompany = listInfo.ToObject<List<string>>();
-            try
-            {
-                fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany);
+        //[HttpPost]
+        //[EnableCors("any")]
+        //public string extractApi([FromBody]dynamic data)
+        //{
+        //    //验证是否登录
+        //    string strToken = Request.Headers["X-Token"];
+        //    if (!isLogin(strToken))
+        //    {
+        //        return error_login();
+        //    }
+        //    LoginInfo loginInfo = getLoginByToken(strToken);
+        //    //以下开始业务处理
+        //    ApiResult apiResult = new ApiResult();
+        //    dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        //    JArray listInfo = dataForm.vcOriginCompany;
+        //    List<string> vcOriginCompany = listInfo.ToObject<List<string>>();
+        //    try
+        //    {
+        //        fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany);
 
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0701", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "年限抽取失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
+        //        apiResult.code = ComConstant.SUCCESS_CODE;
+        //        apiResult.data = null;
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0701", ex, loginInfo.UserId);
+        //        apiResult.code = ComConstant.ERROR_CODE;
+        //        apiResult.data = "年限抽取失败";
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //}
+        //#endregion
 
         #region 检索（分页缓存）
         [HttpPost]

@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
+using NPOI.HSSF.UserModel;
 
 namespace Logic
 {
@@ -26,6 +27,13 @@ namespace Logic
         public DataTable Search(string dBZDate)
         {
             return fs1502_DataAccess.Search(dBZDate);
+        }
+        #endregion
+
+        #region 检索_报表
+        public DataTable Search_report(string dBZDate)
+        {
+            return fs1502_DataAccess.Search_report(dBZDate);
         }
         #endregion
 
@@ -158,7 +166,7 @@ namespace Logic
                         if (j == 0)
                             cell.SetCellValue(value);
                         else
-                            cell.SetCellValue(Convert.ToInt32(value==""?"0":value));
+                            cell.SetCellValue(Convert.ToInt32(value==""?"0":value));//设置数字格式
                     }
                     string strBigPM = dt.Rows[i]["vcBigPM"].ToString();
                     if (strBigPM.Contains("合计"))
@@ -176,6 +184,57 @@ namespace Logic
                 using (FileStream fs = File.OpenWrite(path))
                 {
                     hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
+        #region 导出带模板_报表
+        public string generateExcelWithXlt_report(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                HSSFWorkbook hssfworkbook = new HSSFWorkbook();
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new HSSFWorkbook(fs);
+                    fs.Close();
+                }
+                ISheet sheet = hssfworkbook.GetSheet("数据源");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        ICell cell = row.CreateCell(j);
+                        if (j == 3)
+                            cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));//设置数字格式
+                        else
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                    }
+                }
+                //源行数赋值
+                ICell cell2 = sheet.GetRow(1).CreateCell(4);
+                cell2.SetCellValue(dt.Rows.Count + 1);
+                //刷新透视表
+                //ISheet sheet_main = hssfworkbook.GetSheet("Sheet1");
+                //sheet_main.ForceFormulaRecalculation = true;
+                //hssfworkbook.GetCreationHelper().CreateFormulaEvaluator().EvaluateAll();
+
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xls";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据 
                     fs.Close();
                 }
                 return strFileName;

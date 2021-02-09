@@ -118,6 +118,47 @@ namespace SPPSApi.Controllers.G15
         }
         #endregion
 
+        #region 报表
+        [HttpPost]
+        [EnableCors("any")]
+        public string reportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string dBZDate = dataForm.dBZDate == null ? "" : dataForm.dBZDate;
+            try
+            {
+                DataTable dt = fs1502_Logic.Search_report(dBZDate);
+                string[] fields = { "kind", "dt", "vcBigPM", "heji"};
+                string filepath = fs1502_Logic.generateExcelWithXlt_report(dt, fields, _webHostEnvironment.ContentRootPath, "FS1502_Report.xls", 1, loginInfo.UserId, FunctionID);
+
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1002", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 保存
         [HttpPost]
         [EnableCors("any")]

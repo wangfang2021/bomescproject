@@ -343,38 +343,104 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
+
+                DataTable dtOrigin = getTCode("C006");
+                DataTable dtSYT = getTCode("C016");
+                DataTable dtReceiver = getTCode("C005");
+                DataTable dtinOut = getTCode("C003");
+                DataTable dtFinish = getTCode("C024");
+
                 for (int i = 0; i < list.Count; i++)
                 {
-                    string vcFinish = list[i]["vcFinish"].ToString();
-                    int iAutoId = Convert.ToInt32(list[i]["iAuto_id"]);
-                    sql.Append(" UPDATE TOldYearManager SET \r\n");
-                    if (vcFinish.Equals("对象外"))
-                    {
-                        sql.Append(" vcFinish = '" + getValue("C024", vcFinish) + "', \r\n");
-                        sql.Append(" dFinishYMD = GETDATE(), \r\n");
-                    }
-                    sql.Append(" vcNum1 = " + ComFunction.getSqlValue(list[i]["vcNum1"], false) + ", \r\n");
-                    sql.Append(" vcNum2 = " + ComFunction.getSqlValue(list[i]["vcNum2"], false) + ", \r\n");
-                    sql.Append(" vcNum3 = " + ComFunction.getSqlValue(list[i]["vcNum3"], false) + ", \r\n");
-                    sql.Append(" vcNXQF = " + ComFunction.getSqlValue(list[i]["vcNXQF"], false) + ", \r\n");
-                    sql.Append(" dSSDate = " + ComFunction.getSqlValue(list[i]["dSSDate"], true) + ", \r\n");
-                    sql.Append(" vcDY = " + ComFunction.getSqlValue(list[i]["vcDY"], false) + ", \r\n");
-                    sql.Append(" vcNum11=" + ComFunction.getSqlValue(list[i]["vcNum11"], false) + ", \r\n");
-                    sql.Append(" vcNum12=" + ComFunction.getSqlValue(list[i]["vcNum12"], false) + ", \r\n");
-                    sql.Append(" vcNum13=" + ComFunction.getSqlValue(list[i]["vcNum13"], false) + ", \r\n");
-                    sql.Append(" vcNum14=" + ComFunction.getSqlValue(list[i]["vcNum14"], false) + ", \r\n");
-                    sql.Append(" vcNum15=" + ComFunction.getSqlValue(list[i]["vcNum15"], false) + ", \r\n");
-                    sql.Append(" vcNum16=" + ComFunction.getSqlValue(list[i]["vcNum16"], false) + ", \r\n");
-                    sql.Append(" vcNum17=" + ComFunction.getSqlValue(list[i]["vcNum17"], false) + ", \r\n");
-                    sql.Append(" vcNum18=" + ComFunction.getSqlValue(list[i]["vcNum18"], false) + ", \r\n");
-                    sql.Append(" vcNum19=" + ComFunction.getSqlValue(list[i]["vcNum19"], false) + ", \r\n");
-                    sql.Append(" vcNum20=" + ComFunction.getSqlValue(list[i]["vcNum20"], false) + ", \r\n");
-                    sql.Append(" vcNum21=" + ComFunction.getSqlValue(list[i]["vcNum21"], false) + ", \r\n");
-                    sql.Append(" vcOperatorID='" + strUserId + "', \r\n");
-                    sql.Append(" dOperatorTime = GETDATE() \r\n");
-                    sql.Append(" WHERE \r\n");
-                    sql.Append(" iAuto_Id = " + iAutoId + " \r\n");
+                    bool bModFlag = (bool)list[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)list[i]["vcAddFlag"];//true可编辑,false不可编辑
 
+                    if (bAddFlag == true)
+                    {
+                        string vcInOutflag = getValue(dtinOut, list[i]["vcInOutflag"].ToString());
+                        string vcFinish = getValue(dtFinish, list[i]["vcFinish"].ToString());
+                        string vcOld10 = list[i]["vcOld10"].ToString().Equals("●") ? "1" : "0";
+                        string vcOld9 = list[i]["vcOld9"].ToString().Equals("●") ? "1" : "0";
+                        string vcOld7 = list[i]["vcOld7"].ToString().Equals("●") ? "1" : "0";
+
+                        string vcOriginCompany = getValue(dtOrigin, list[i]["vcOriginCompany"].ToString());
+                        string vcSYTCode = getValue(dtSYT, list[i]["vcSYTCode"].ToString());
+                        string vcReceiver = getValue(dtReceiver, list[i]["vcReceiver"].ToString());
+
+
+
+
+
+                        sql.Append(" INSERT INTO dbo.TOldYearManager(vcYear, vcFinish, dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7, vcNum1, vcNum2, vcNum3, vcNXQF, dSSDate, vcDY, vcNum11, vcNum12, vcNum13, vcNum14, vcNum15, vcNum16, vcNum17, vcNum18, vcNum19, vcNum20, vcNum21, vcSYTCode, vcReceiver, vcOriginCompany, vcOperatorID, dOperatorTime) ");
+                        sql.Append(" VALUES(" + ComFunction.getSqlValue(list[i]["vcYear"], false) + ",");
+                        sql.Append(" " + ComFunction.getSqlValue(vcFinish, false) + "  ,");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["dFinishYMD"], true) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcSupplier_id"], false) + "  , ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcPart_id"], false) + "  , ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcPartNameEn"], false) + "  , ");
+                        sql.Append(" " + ComFunction.getSqlValue(vcInOutflag, false) + "  , ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcCarTypeDev"], false) + "  , ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["dJiuBegin"], true) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcRemark"], false) + "  , ");
+                        sql.Append(" " + ComFunction.getSqlValue(vcOld10, false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(vcOld9, false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(vcOld7, false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum1"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum2"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum3"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNXQF"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["dSSDate"], true) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcDY"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum11"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum12"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum13"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum14"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum15"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum16"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum17"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum18"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum19"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum20"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum21"], false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(vcSYTCode, false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(vcReceiver, false) + ", ");
+                        sql.Append(" " + ComFunction.getSqlValue(vcOriginCompany, false) + ", ");
+                        sql.Append(" '" + strUserId + "', ");
+                        sql.Append(" GETDATE()  ");
+                        sql.Append("     ) ");
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {
+                        string vcFinish = list[i]["vcFinish"].ToString();
+                        int iAutoId = Convert.ToInt32(list[i]["iAuto_id"]);
+                        sql.Append(" UPDATE TOldYearManager SET \r\n");
+                        if (vcFinish.Equals("对象外"))
+                        {
+                            sql.Append(" vcFinish = '" + getValue("C024", vcFinish) + "', \r\n");
+                            sql.Append(" dFinishYMD = GETDATE(), \r\n");
+                        }
+                        sql.Append(" vcNum1 = " + ComFunction.getSqlValue(list[i]["vcNum1"], false) + ", \r\n");
+                        sql.Append(" vcNum2 = " + ComFunction.getSqlValue(list[i]["vcNum2"], false) + ", \r\n");
+                        sql.Append(" vcNum3 = " + ComFunction.getSqlValue(list[i]["vcNum3"], false) + ", \r\n");
+                        sql.Append(" vcNXQF = " + ComFunction.getSqlValue(list[i]["vcNXQF"], false) + ", \r\n");
+                        sql.Append(" dSSDate = " + ComFunction.getSqlValue(list[i]["dSSDate"], true) + ", \r\n");
+                        sql.Append(" vcDY = " + ComFunction.getSqlValue(list[i]["vcDY"], false) + ", \r\n");
+                        sql.Append(" vcNum11=" + ComFunction.getSqlValue(list[i]["vcNum11"], false) + ", \r\n");
+                        sql.Append(" vcNum12=" + ComFunction.getSqlValue(list[i]["vcNum12"], false) + ", \r\n");
+                        sql.Append(" vcNum13=" + ComFunction.getSqlValue(list[i]["vcNum13"], false) + ", \r\n");
+                        sql.Append(" vcNum14=" + ComFunction.getSqlValue(list[i]["vcNum14"], false) + ", \r\n");
+                        sql.Append(" vcNum15=" + ComFunction.getSqlValue(list[i]["vcNum15"], false) + ", \r\n");
+                        sql.Append(" vcNum16=" + ComFunction.getSqlValue(list[i]["vcNum16"], false) + ", \r\n");
+                        sql.Append(" vcNum17=" + ComFunction.getSqlValue(list[i]["vcNum17"], false) + ", \r\n");
+                        sql.Append(" vcNum18=" + ComFunction.getSqlValue(list[i]["vcNum18"], false) + ", \r\n");
+                        sql.Append(" vcNum19=" + ComFunction.getSqlValue(list[i]["vcNum19"], false) + ", \r\n");
+                        sql.Append(" vcNum20=" + ComFunction.getSqlValue(list[i]["vcNum20"], false) + ", \r\n");
+                        sql.Append(" vcNum21=" + ComFunction.getSqlValue(list[i]["vcNum21"], false) + ", \r\n");
+                        sql.Append(" vcOperatorID='" + strUserId + "', \r\n");
+                        sql.Append(" dOperatorTime = GETDATE() \r\n");
+                        sql.Append(" WHERE \r\n");
+                        sql.Append(" iAuto_Id = " + iAutoId + " \r\n");
+                    }
 
                 }
                 if (sql.Length > 0)
@@ -565,5 +631,45 @@ namespace DataAccess
         }
 
         #endregion
+
+        #region 获取原单位
+
+        public DataTable getTCode(string CodeId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = '" + CodeId + "'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(),"TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string getValue(DataTable dt, string name)
+        {
+            try
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcName"].ToString().Equals(name))
+                    {
+                        return dt.Rows[i]["vcValue"].ToString();
+                    }
+                }
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+      
     }
 }

@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Text.Json;
 using System.Threading;
 using Common;
-using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +13,13 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.ServiceModel;
+using System.Threading.Tasks;
+using System.IO;
+using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
+using Logic;
 
 namespace SPPSApi.Controllers.G12
 {
@@ -47,8 +54,10 @@ namespace SPPSApi.Controllers.G12
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.dllPorPlant());
-                string[] userPorType = null;
-                List<Object> dataList_PorTypeSource = ComFunction.convertAllToResult(logic.dllPorType(loginInfo.UserId,ref userPorType));
+                string RolePorType = logic.getRoleTip(loginInfo.UserId);
+                DataTable dtportype = logic.dllPorType(RolePorType.Split('*'));
+                List<Object> dataList_PorTypeSource = ComFunction.convertAllToResult(dtportype);
+
                 string printerName = logic.PrintMess(loginInfo.UserId);
                 res.Add("dataList_PlantSource", dataList_PlantSource);
                 res.Add("dataList_PorTypeSource", dataList_PorTypeSource);
@@ -82,40 +91,18 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcType = dataForm.vcType;
-            string vcPrintPartNo = dataForm.vcPrintPartNo;
-            string vcLianFan = dataForm.vcLianFan;
-            string vcPorPlant = dataForm.vcPorPlant;
-            string vcKbOrderId = dataForm.vcKbOrderId;
-            string vcPorType = dataForm.vcPorType;
-            vcType = vcType == null ? "" : vcType;
-            vcPrintPartNo = vcPrintPartNo == null ? "" : vcPrintPartNo;
-            vcLianFan = vcLianFan == null ? "" : vcLianFan;
-            vcPorPlant = vcPorPlant == null ? "" : vcPorPlant;
-            vcKbOrderId = vcKbOrderId == null ? "" : vcKbOrderId;
-            vcPorType = vcPorType == null ? "" : vcPorType;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcPrintPartNo = dataForm.vcPrintPartNo == null ? "" : dataForm.vcPrintPartNo;
+            string vcLianFan = dataForm.vcLianFan == null ? "" : dataForm.vcLianFan;
+            string vcPorPlant = dataForm.vcPorPlant == null ? "" : dataForm.vcPorPlant;
+            string vcKbOrderId = dataForm.vcKbOrderId == null ? "" : dataForm.vcKbOrderId;
+            string vcPorType = dataForm.vcPorType == null ? "" : dataForm.vcPorType;
             try
             {
-                string[] userPorType = null;
-                DataTable dtportype = logic.dllPorType(loginInfo.UserId, ref userPorType);
-                if ("PP".Equals(vcPorType))
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "没有生产部署权限，检索无数据";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                DataTable resutPrint;
-                if (vcType == "3")
-                {
-                    resutPrint = logic.searchPrint(vcPrintPartNo, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
-                }
-                else
-                {
-                    resutPrint = logic.searchPrint(vcPrintPartNo, vcType, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
-                }
+                DataTable resutPrint = logic.Search(vcType, vcPrintPartNo, vcLianFan, vcPorPlant, vcKbOrderId, vcPorType, loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                //dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                //dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(resutPrint, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -134,9 +121,9 @@ namespace SPPSApi.Controllers.G12
         #region 打印
         [HttpPost]
         [EnableCors("any")]
-        //public string BtnPrintAll(DataTable dt, string vcType, string printerName)
         public string printdataApi([FromBody] dynamic data)
         {
+            #region 
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
@@ -147,39 +134,17 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcType = dataForm.vcType;
-            string vcPrintPartNo = dataForm.vcPrintPartNo;
-            string vcLianFan = dataForm.vcLianFan;
-            string vcPorPlant = dataForm.vcPorPlant;
-            string vcKbOrderId = dataForm.vcKbOrderId;
-            string vcPorType = dataForm.vcPorType;    
-            string printerName = dataForm.printerName;
-            vcType = vcType == null ? "" : vcType;
-            vcPrintPartNo = vcPrintPartNo == null ? "" : vcPrintPartNo;
-            vcLianFan = vcLianFan == null ? "" : vcLianFan;
-            vcPorPlant = vcPorPlant == null ? "" : vcPorPlant;
-            vcKbOrderId = vcKbOrderId == null ? "" : vcKbOrderId;
-            vcPorType = vcPorType == null ? "" : vcPorType;
-            printerName = printerName == null ? "" : printerName;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcPrintPartNo = dataForm.vcPrintPartNo == null ? "" : dataForm.vcPrintPartNo;
+            string vcLianFan = dataForm.vcLianFan == null ? "" : dataForm.vcLianFan;
+            string vcPorPlant = dataForm.vcPorPlant == null ? "" : dataForm.vcPorPlant;
+            string vcKbOrderId = dataForm.vcKbOrderId == null ? "" : dataForm.vcKbOrderId;
+            string vcPorType = dataForm.vcPorType == null ? "" : dataForm.vcPorType;
+            string printerName = logic.PrintMess(loginInfo.UserId);
             try
             {
-                string[] userPorType = null;
-                DataTable dtportype = logic.dllPorType(loginInfo.UserId, ref userPorType);
-                if ("PP".Equals(vcPorType))
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "没有生产部署权限，检索无数据";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                DataTable printTable;
-                if (vcType == "3")
-                {
-                    printTable = logic.searchPrint(vcPrintPartNo, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
-                }
-                else
-                {
-                    printTable = logic.searchPrint(vcPrintPartNo, vcType, vcKbOrderId, vcLianFan, vcPorType, vcPorPlant, dtportype);
-                }
+                //先检索
+                DataTable printTable = logic.Search(vcType, vcPrintPartNo, vcLianFan, vcPorPlant, vcKbOrderId, vcPorType, loginInfo.UserId);
                 if (null == printTable || null == vcType || null == printerName)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -192,29 +157,21 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = "无检索数据,无法打印";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //FS1209_Logic fS1209_Logic = new FS1209_Logic();
-                string userid = loginInfo.UserId;
-                DataTable dtPorType = new DataTable();
-                //if (ActionContext.Request.Properties.ContainsKey("userId") && ActionContext.Request.Properties["userId"] != null)
-                //{
-                //    userid = ActionContext.Request.Properties["userId"].ToString();
-                //}
-                //else
-                //{
-                //    userid = "admin";
-                //}
-                try
-                {
-                    logic.BtnPrintAll(printTable, vcType, printerName, userid, ref dtPorType);
-                }
-                catch (System.Exception e)
-                {
-                    for (int i = 0; i < dtPorType.Rows.Count; i++)
-                    {
-                        //fS1209_Logic.DeleteprinterCREX(dtPorType.Rows[i]["vcPorType"].ToString(), dtPorType.Rows[i]["vcorderno"].ToString(), dtPorType.Rows[i]["vcComDate01"].ToString(), dtPorType.Rows[i]["vcBanZhi01"].ToString());
-                    }
-                    throw new Exception("看板打印异常:" + e.Message);
-                }
+
+                string s = logic.BtnPrintAll(printTable, vcType, "", printerName, loginInfo.UserId);
+
+                //BasicHttpBinding binding = new BasicHttpBinding();
+                //binding.CloseTimeout = TimeSpan.MaxValue;
+                //binding.OpenTimeout = TimeSpan.MaxValue;
+                //binding.ReceiveTimeout = TimeSpan.MaxValue;
+                //binding.SendTimeout = TimeSpan.MaxValue;
+                //EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
+                //PrintTableSoapClient client = new PrintTableSoapClient(binding, address);
+                //Task<PrinterResponse> responseTask = client.PrinterAsync("test20210205", "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
+                //PrinterResponse response = responseTask.Result;
+                //// 获取HelloWorld方法的返回值
+                //return response.Body.PrinterResult;
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -226,7 +183,7 @@ namespace SPPSApi.Controllers.G12
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
+            #endregion
         }
         #endregion
     }

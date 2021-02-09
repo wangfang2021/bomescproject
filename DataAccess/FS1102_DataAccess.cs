@@ -12,17 +12,17 @@ namespace DataAccess
     public class FS1102_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getSearchInfo(string strReParty, string strCaseNo, string strTagId)
+        public DataTable getSearchInfo(string strReceiver, string strCaseNo, string strTagId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("SELECT T1.LinId,T1.vcCustomerId as vcCustomerId,T1.vcCaseNo as vcCaseNo");
-                strSql.AppendLine(",T1.vcInPutOrderNo as vcInPutOrderNo,T1.vcPartId as vcPartId,t3.vcPartsNameEN as vcPartName,t1.vcQty as vcQty FROM");
+                strSql.AppendLine("SELECT T1.LinId,T1.vcCustomerId as vcReceiver,T1.vcCaseNo as vcCaseNo");
+                strSql.AppendLine(",T1.vcInPutOrderNo as vcInPutOrderNo,T1.vcPartId as vcPartId,t3.vcPartsNameEN as vcPartENName,t1.vcQty as iQty,'1' as bSelectFlag FROM");
                 strSql.AppendLine("(select * from TCaseList where dFirstPrintTime is not null ");
-                if (strReParty != "")
+                if (strReceiver != "")
                 {
-                    strSql.AppendLine("AND vcCustomerId='" + strReParty + "'");
+                    strSql.AppendLine("AND vcCustomerId='" + strReceiver + "'");
                 }
                 if (strCaseNo != "")
                 {

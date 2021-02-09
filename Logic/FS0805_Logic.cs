@@ -16,9 +16,9 @@ namespace Logic
         {
             fs0805_DataAccess = new FS0805_DataAccess();
         }
-        public DataTable getSearchInfo(string strSaleno)
+        public DataTable getSearchInfo(string strSellNo)
         {
-            return fs0805_DataAccess.getSearchInfo(strSaleno);
+            return fs0805_DataAccess.getSearchInfo(strSellNo);
         }
         public string getPrintFile(string strSaleno)
         {

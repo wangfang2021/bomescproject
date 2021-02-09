@@ -208,6 +208,9 @@ namespace Logic
                     fs.Close();
                 }
                 ISheet sheet = hssfworkbook.GetSheet("数据源");
+                ICellStyle dateStyle = hssfworkbook.CreateCellStyle();
+                IDataFormat dataFormat = hssfworkbook.CreateDataFormat();
+                dateStyle.DataFormat = dataFormat.GetFormat("d日");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     IRow row = sheet.CreateRow(startRow + i);
@@ -216,6 +219,11 @@ namespace Logic
                         ICell cell = row.CreateCell(j);
                         if (j == 3)
                             cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));//设置数字格式
+                        else if(j==1)
+                        {//设置日期格式
+                            cell.CellStyle = dateStyle;
+                            cell.SetCellValue(Convert.ToDateTime(dt.Rows[i][field[j]].ToString()));
+                        }
                         else
                             cell.SetCellValue(dt.Rows[i][field[j]].ToString());
                     }
@@ -223,10 +231,6 @@ namespace Logic
                 //源行数赋值
                 ICell cell2 = sheet.GetRow(1).CreateCell(4);
                 cell2.SetCellValue(dt.Rows.Count + 1);
-                //刷新透视表
-                //ISheet sheet_main = hssfworkbook.GetSheet("Sheet1");
-                //sheet_main.ForceFormulaRecalculation = true;
-                //hssfworkbook.GetCreationHelper().CreateFormulaEvaluator().EvaluateAll();
 
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xls";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除

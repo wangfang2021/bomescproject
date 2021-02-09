@@ -1,0 +1,398 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using Common;
+using Logic;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace SPPSApi.Controllers.G99
+{
+    [Route("api/FS9905/[action]")]
+    [EnableCors("any")]
+    [ApiController]
+    public class FS9905Controller : BaseController
+    {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        FS9905_Logic fs9905_Logic = new FS9905_Logic();
+        private readonly string FunctionID = "FS9905";
+
+        public FS9905Controller(IWebHostEnvironment webHostEnvironment)
+        {
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                List<Object> dataList_C026 = ComFunction.convertAllToResult(ComFunction.getTCode("C026"));//生确进度
+                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
+                List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE
+                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
+                List<Object> dataList_C098 = ComFunction.convertAllToResult(ComFunction.getTCode("C098"));//车种
+                List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));//防锈指示
+                List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));//对应可否确认结果
+                List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));//防锈对应可否
+
+                res.Add("C026", dataList_C026);
+                res.Add("C002", dataList_C002);
+                res.Add("C003", dataList_C003);
+                res.Add("C012", dataList_C012);
+                res.Add("C016", dataList_C016);
+                res.Add("C098", dataList_C098);
+                res.Add("C028", dataList_C028);
+                res.Add("C029", dataList_C029);
+                res.Add("C030", dataList_C030);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0501", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strJD = dataForm.vcJD;
+            string strInOutflag = dataForm.vcInOutflag;
+            string strSupplier_id = dataForm.vcSupplier_id;
+            string strCarType = dataForm.vcCarType;
+            string strPart_id = dataForm.vcPart_id;
+            string strIsDYJG = dataForm.vcIsDYJG;
+            string strIsDYFX = dataForm.vcIsDYFX;
+
+            try
+            {
+                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id);
+                DtConverter dtConverter = new DtConverter();
+
+                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSCSNameModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSCSPlaceModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0502", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 保存
+        [HttpPost]
+        [EnableCors("any")]
+        public string saveApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    
+                    if (bModFlag == true)
+                    {//修改
+                        hasFind = true;
+                    }
+                }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少有一个编辑行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{"对应可否确认结果"    ,"防锈对应可否","延期说明/NG理由","对应不可理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂"     ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
+                                                        {"vcIsDYJG"            ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcNotDY"     ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode"    ,"vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
+                                                        {""                    ,""            ,""               ,""            ,""              ,""                  ,""              ,""                  ,""             ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
+                                                        {"1"                   ,"1"           ,"100"            ,"100"         ,"100"           ,"100"               ,"100"           ,"100"               ,"100"          ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
+                                                        {"1"                   ,"1"           ,"0"              ,"0"           ,"1"             ,"1"                 ,"1"             ,"1"                 ,"1"            ,"1"         ,"1"         ,"1"                  ,"1"                  ,"1"                ,"0"           ,"0"         },//最小长度设定,可以为空用0
+                                                        {"14"                  ,"15"          ,"17"             ,"18"          ,"19"            ,"20"                ,"21"            ,"22"                ,"23"           ,"24"        ,"25"        ,"26"                 ,"27"                 ,"28"               ,"29"          ,"30"        }//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    //需要判断时间区间先后关系的字段
+                    string[,] strDateRegion = null;
+
+                    /*
+                     * 执行标准区分为CCC时，执行标准No必填
+                     */
+                    /*                                   验证vcChange字段             当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
+                    string[,] strSpecialCheck = {{ "执行标准区分"    ,"vcZXBZDiff",  "CCC"     ,"CCC",   "执行标准NO"  ,"vcZXBZNo", "1",                      "","" }
+                                                ,{ "对应可否确认结果","vcIsDYJG"  ,  "不可对应","2"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
+                                                ,{ "防锈对应可否    ","vcIsDYFX"  ,  "不可对应","2"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
+                        };
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                string strErr = "";
+                fs9905_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
+                if (strErr != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strErr;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0503", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportapi([FromBody] dynamic data)
+        {
+            string strtoken = Request.Headers["x-token"];
+            if (!isLogin(strtoken))
+            {
+                return error_login();
+            }
+            LoginInfo logininfo = getLoginByToken(strtoken);
+            //以下开始业务处理
+            ApiResult apiresult = new ApiResult();
+            dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strJD = dataform.vcJD;
+            string strInOutflag = dataform.strInOutflag;
+            string strSupplier_id = dataform.vcSupplier_id;
+            string strCarType = dataform.vcCarType;
+            string strPart_id = dataform.vcPart_id;
+            string strIsDYJG = dataform.vcIsDYJG;
+            string strIsDYFX = dataform.vcIsDYFX;
+            try
+            {
+                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id);
+                string[] fields = { "dSSDateMonth", "vcJD_Name", "vcPart_id", "vcSPINo",
+                                    "vcChange_Name", "vcCarType_Name","vcInOutflag_Name","vcPartName",
+                                    "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
+                                    "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
+                                    "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
+                                    "vcPackFactory_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
+                                    "dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "fs9905_export.xlsx", 2, logininfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiresult.code = ComConstant.ERROR_CODE;
+                    apiresult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+                }
+                apiresult.code = ComConstant.SUCCESS_CODE;
+                apiresult.data = filepath;
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0504", ex, logininfo.UserId);
+                apiresult.code = ComConstant.ERROR_CODE;
+                apiresult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 生确回复
+        [HttpPost]
+        [EnableCors("any")]
+        public string sendApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                if (listInfoData.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未选择任何行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                string strErr = "";
+                fs9905_Logic.Send(listInfoData, loginInfo.UserId, ref strErr);
+                if (strErr != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data =  strErr;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0505", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 一括付与
+        [HttpPost]
+        [EnableCors("any")]
+        public string setFYApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                string dSupplier_BJ = dataForm.dSupplier_BJ;
+                string dSupplier_HK = dataForm.dSupplier_HK;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                //判断至少勾选了一条数据
+                if (listInfoData.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未选中任何行";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                //如果补给和号口日期都为空，则不能一括付与
+                if (string.IsNullOrEmpty(dSupplier_BJ) && string.IsNullOrEmpty(dSupplier_HK))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "至少选择一个日期";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                string strErr = "";
+                fs9905_Logic.SetFY(listInfoData,dSupplier_BJ,dSupplier_HK, loginInfo.UserId, ref strErr);
+                if (strErr != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strErr;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0506", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+    }
+}

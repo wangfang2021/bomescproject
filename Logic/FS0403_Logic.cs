@@ -13,90 +13,86 @@ namespace Logic
     {
         FS0403_DataAccess fs0403_dataAccess = new FS0403_DataAccess();
 
-        #region check
+        #region 检索
 
-        //public void Check(DataTable excelTable,ref string refMsg)
-        public void Check()
+        public DataTable searchApi(string changeNo, string state, string orderNo)
         {
-
-
-            DataTable Calendar = fs0403_dataAccess.getCalendar();
-            //各工厂的指定日
-            Hashtable Day = fs0403_dataAccess.getDay(Calendar);
-
-            //品番的数量
-            Hashtable quantity = fs0403_dataAccess.getCount(Day);
-
-            //获取波动率
-            Hashtable ht = fs0403_dataAccess.getFluctuate();
-
-            //获取品番对应工厂
-
-            //for (int i = 0; i < excelTable.Rows.Count; i++)
-            //{
-
-            //}
-
-            //无误则继续，修改soqreply,记录修改
+            return fs0403_dataAccess.searchApi(changeNo, state, orderNo);
         }
 
-        public class Node
-        {
-            public string partId;
-            public int excelQuantity;
-            public int soqQuantity;
-            public decimal allowPercent;
-            public decimal realPercent;
-            public string DXR;
-            public bool flag;
-
-            public Node(string partId)
-            {
-                this.partId = partId;
-                this.flag = false;
-            }
-
-            public Node(string partId, string excelQuantity, string soqQuantity, string allowPercent, string DXR)
-            {
-                this.partId = partId;
-                this.excelQuantity = ObjToInt(excelQuantity);
-                this.soqQuantity = ObjToInt(soqQuantity);
-                this.allowPercent = ObjToDecimal(allowPercent);
-                this.DXR = DXR;
-                this.realPercent = System.Math.Abs((this.excelQuantity - this.soqQuantity) / this.soqQuantity);
-                this.flag = this.allowPercent >= this.realPercent ? true : false;
-            }
-
-            public bool isAllow()
-            {
-                return this.flag;
-            }
-        }
         #endregion
 
-        public static int ObjToInt(Object obj)
+        #region 日别导入
+
+        public void ImportFile(DateTime time, DataTable excelTable, string strUserId, ref string refMsg)
         {
+
             try
             {
-                return Convert.ToInt32(obj);
+                DataTable Calendar = fs0403_dataAccess.getCalendar(time);
+                //各工厂的指定日
+                Hashtable Day = fs0403_dataAccess.getDay(Calendar, time, 5);
+
+                //品番的数量
+                Hashtable quantity = fs0403_dataAccess.getCount(Day);
+
+                //获取波动率
+                Hashtable ht = fs0403_dataAccess.getFluctuate();
+
+                List<FS0403_DataAccess.PartIDNode> list = new List<FS0403_DataAccess.PartIDNode>();
+
+                for (int i = 0; i < excelTable.Rows.Count; i++)
+                {
+
+                    string changeNo = excelTable.Rows[i]["vcchangeNo"].ToString();
+                    string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    int excelquantity = Convert.ToInt32(excelTable.Rows[i]["iQuantity"]);
+                    int soqQuantity = -1;
+                    string DXR = "";
+                    string allowPercent = "";
+                    if (quantity.Contains(partId))
+                    {
+                        FS0403_DataAccess.PartNode tmp = (FS0403_DataAccess.PartNode)quantity[partId];
+                        DXR = tmp.DXR;
+                        soqQuantity = tmp.quantity;
+                    }
+
+                    if (ht.Contains(partId))
+                    {
+                        allowPercent = ht[partId].ToString();
+                    }
+
+                    list.Add(new FS0403_DataAccess.PartIDNode(partId, excelquantity, soqQuantity, allowPercent, DXR, changeNo));
+
+                }
+
+                refMsg = "";
+                foreach (FS0403_DataAccess.PartIDNode partIdNode in list)
+                {
+                    if (!partIdNode.flag)
+                    {
+                        refMsg += "品番" + partIdNode.partId + ":" + partIdNode.message;
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(refMsg))
+                {
+                    return;
+                }
+                //TODO 创建账单号
+                string orderNo = "test";
+                //无误则继续，修改soqreply,记录修改
+                fs0403_dataAccess.ChangeSoq(list, strUserId, orderNo);
             }
             catch (Exception ex)
             {
-                return 0;
+                throw ex;
             }
         }
 
-        public static decimal ObjToDecimal(Object obj)
-        {
-            try
-            {
-                return Convert.ToDecimal(obj);
-            }
-            catch (Exception ex)
-            {
-                return 0;
-            }
-        }
+        #endregion
+
+
 
     }
 

@@ -12,9 +12,9 @@ namespace Logic
     {
         FS0320_DataAccess fs0320_dataAccess = new FS0320_DataAccess();
 
-        public DataTable searchApi(string vcPart_id, string vcPartNameEn, string vcPartNameCn)
+        public DataTable searchApi(string vcPart_id, string vcPartNameEn, string vcPartNameCn, string vcState)
         {
-            return fs0320_dataAccess.searchApi(vcPart_id, vcPartNameEn, vcPartNameCn);
+            return fs0320_dataAccess.searchApi(vcPart_id, vcPartNameEn, vcPartNameCn, vcState);
         }
 
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)

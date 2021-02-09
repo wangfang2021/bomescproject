@@ -668,7 +668,7 @@ namespace SPPSApi.Controllers.G06
                 style6.BorderLeft = BorderStyle.Thin;
                 style6.BorderRight = BorderStyle.Thin;
                 style6.BorderTop = BorderStyle.Thin;
-                style6.BorderBottom = BorderStyle.Double;
+                style6.BorderBottom = BorderStyle.Medium;
 
                 IFont font7 = hssfworkbook.CreateFont();
                 font7.Color = IndexedColors.Black.Index;
@@ -978,7 +978,7 @@ namespace SPPSApi.Controllers.G06
                     nextRowHSSFColWaiZhu.GetCell(16).CellStyle = style4;
                     nextRow++;
 
-                    for (var j = 0; j < dthuiZong.Rows.Count - 1; j++)
+                    for (var j = 0; j < dthuiZong.Rows.Count; j++)
                     {
                         mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 0, 1));
                         IRow nextRowHSSFRow = mysheetHSSF.CreateRow(nextRow);
@@ -1009,9 +1009,9 @@ namespace SPPSApi.Controllers.G06
 
                     nextRowHSSFLastRow.CreateCell(1).SetCellValue("");
                     nextRowHSSFLastRow.GetCell(1).CellStyle = style6;
-                    for (var m = 2; m < dtWaiZhu.Columns.Count; m++)
+                    for (var m = 2; m < dthuiZong.Columns.Count; m++)
                     {
-                        nextRowHSSFLastRow.CreateCell(m).SetCellValue(Convert.ToDouble(dthuiZong.Rows[dthuiZong.Rows.Count - 1][m].ToString()));
+                        nextRowHSSFLastRow.CreateCell(m).SetCellValue("");
                         nextRowHSSFLastRow.GetCell(m).CellStyle = style6;
                     }
                     

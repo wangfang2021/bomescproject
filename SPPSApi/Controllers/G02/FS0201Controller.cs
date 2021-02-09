@@ -56,7 +56,7 @@ namespace SPPSApi.Controllers.G02
 
 
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("PartError", ConvertFieldType.BoolType, null);
@@ -70,6 +70,8 @@ namespace SPPSApi.Controllers.G02
                 dtConverter.addField("NewProjError", ConvertFieldType.BoolType, null);
                 dtConverter.addField("OldProjTimeError", ConvertFieldType.BoolType, null);
                 dtConverter.addField("NewProjTimeError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("startYearMonthError", ConvertFieldType.BoolType, null);
+
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -110,8 +112,8 @@ namespace SPPSApi.Controllers.G02
             {
                 DataTable dt = fs0201_logic.searchApi(vcSPINo, vcPart_Id, vcCarType, vcState);
                 string resMsg = "";
-                string[] head = { "SPI NO", "旧品番", "新品番", "補給区分(新)", "代替区分", "代替品番(新)", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№(新)", "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名" };
-                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj", "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
+                string[] head = { "SPI NO", "状态", "错误信息", "旧品番", "新品番", "補給区分(新)", "代替区分", "代替品番(新)", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№(新)", "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名" };
+                string[] fields = { "vcSPINo", "State", "ErrorInfo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj", "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")

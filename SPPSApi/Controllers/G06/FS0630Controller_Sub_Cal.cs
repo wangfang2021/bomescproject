@@ -193,6 +193,58 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                //判断平准化数据是否展开
+                DataTable dtSOQReply = fs0630_Logic.GetSOQReply(vcCLYM,"0");
+                for (int i = 0; i < plantList.Count; i++)
+                {
+                    DataRow[] drs_dxny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='"+vcDXYM+"'  ");
+                    DataRow[] drs_nsny= dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "'  ");
+                    DataRow[] drs_nnsny = dtSOQReply.Select("vcFZGC='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "'  ");
+                    if(drs_dxny.Length==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0},对象年月{1}内制平准化数据没有展开。",plantList[i].ToString(),vcDXYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (drs_nsny.Length == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0},内示年月{1}内制平准化数据没有展开。", plantList[i].ToString(), vcNSYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (drs_nnsny.Length == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0},内内示年月{1}内制平准化数据没有展开。", plantList[i].ToString(), vcNNSYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                //判断最大次数的内制结果能不能再次请求，如果请求了但是没有回复则不能再次请求
+                DataTable dtMaxCLResult= fs0630_Logic.GetMaxCLResult(vcCLYM);
+                for (int i = 0; i < plantList.Count; i++)
+                {
+                    DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcDXYM + "' and vcStatus='已请求'  ");
+                    DataRow[] drs_nsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNSYM + "' and vcStatus='已请求'  ");
+                    DataRow[] drs_nnsny = dtMaxCLResult.Select("vcPlant='" + plantList[i].ToString() + "' and vcDXYM='" + vcNNSYM + "' and vcStatus='已请求'  ");
+                    if (drs_dxny.Length > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0}不能再次请求。", plantList[i].ToString(), vcDXYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (drs_nsny.Length > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0}不能再次请求。", plantList[i].ToString(), vcNSYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (drs_nnsny.Length > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("工厂{0}不能再次请求。", plantList[i].ToString(), vcNNSYM);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 //记录请求时间
                 fs0630_Logic.CreateView(vcCLYM, plantList, lsdxym, loginInfo.UserId);
 

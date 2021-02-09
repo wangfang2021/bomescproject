@@ -90,8 +90,8 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0311_logic.searchApi(PartId, Sale, allPartNo);
                 string resMsg = "";
-                string[] head = { "收货方", "补给品番", "车名", "中文品名", "执行标准", "生产商名称", "地址", "开始时间", "结束时间" };
-                string[] fields = { "vcCPDCompany", "vcPart_Id", "vcCarTypeName", "vcPartNameCN", "vcZXBZNo", "vcSCSName", "vcSCSAdress", "dTimeFrom", "dTimeTo" };
+                string[] head = { "收货方", "补给品番","供应商编号", "车名", "中文品名", "执行标准", "生产商名称", "地址", "开始时间", "结束时间" };
+                string[] fields = { "vcCPDCompany", "vcPart_Id", "vcSupplier_id", "vcCarTypeName", "vcPartNameCN", "vcZXBZNo", "vcSCSName", "vcSCSAdress", "dTimeFrom", "dTimeTo" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")

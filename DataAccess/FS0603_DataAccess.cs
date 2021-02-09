@@ -30,7 +30,12 @@ namespace DataAccess
                 {
                     strSql.AppendLine("select vcValue,vcName from TCode where vcCodeId='C056' order by vcValue");
                 }
+                if (strType == "Role")//角色
+                {
+                    strSql.AppendLine("select vcRoleID as vcValue,vcRoleName as vcName from SRole");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+
             }
             catch (Exception ex)
             {
@@ -168,7 +173,7 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C002')T11--变更事项");
                 strSql.AppendLine("ON T1.vcChanges=T11.vcValue");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C051')T12--包装工厂");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C017')T12--包装工厂");
                 strSql.AppendLine("ON T1.vcPackingPlant=T12.vcValue");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C012')T13--OE=SP");
@@ -225,7 +230,7 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("     VALUES");
                 strSql_addinfo.AppendLine("           (case when @dSyncTime='' then null else @dSyncTime end,@vcChanges,@vcPackingPlant,@vcPartId,@vcPartENName,@vcCarfamilyCode,@vcCarfamilyCode,@vcReceiver");
                 strSql_addinfo.AppendLine("           ,case when @dFromTime='' then null else @dFromTime end,case when @dToTime='' then null else @dToTime end,@vcPartId_Replace,@vcInOut,@vcOESP,@vcHaoJiu,@vcOldProduction,case when @dOldStartTime='' then null else @dOldStartTime end,case when @dDebugTime='' then null else @dDebugTime+'/01' end");
-                strSql_addinfo.AppendLine("           ,@vcSupplierId,@dSupplierFromTime,@dSupplierToTime,@vcSupplierName,'"+ strOperId + "',GETDATE())");
+                strSql_addinfo.AppendLine("           ,@vcSupplierId,@dSupplierFromTime,@dSupplierToTime,@vcSupplierName,'" + strOperId + "',GETDATE())");
                 sqlCommand_addinfo.CommandText = strSql_addinfo.ToString();
                 sqlCommand_addinfo.Parameters.AddWithValue("@dSyncTime", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcChanges", "");
@@ -290,7 +295,7 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("      ,[vcMandOrder] = @vcMandOrder");
                 strSql_modinfo.AppendLine("      ,[vcRemark1] = @vcRemark1");
                 strSql_modinfo.AppendLine("      ,[vcRemark2] = @vcRemark2");
-                strSql_modinfo.AppendLine("      ,[vcOperatorID] = '"+ strOperId + "'");
+                strSql_modinfo.AppendLine("      ,[vcOperatorID] = '" + strOperId + "'");
                 strSql_modinfo.AppendLine("      ,[dOperatorTime] = GETDATE()");
                 strSql_modinfo.AppendLine(" WHERE LinId=@LinId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
@@ -333,7 +338,7 @@ namespace DataAccess
                 strSql_modinfo_sp_add.AppendLine("           ,[vcSupplierPlant],[vcOperatorType],[vcOperatorID],[dOperatorTime])");
                 strSql_modinfo_sp_add.AppendLine("     VALUES");
                 strSql_modinfo_sp_add.AppendLine("           (@vcPackingPlant,@vcPartId,@vcReceiver,@vcSupplierId,case when @dFromTime='' then null else @dFromTime end ,case when @dToTime='' then null else @dToTime end");
-                strSql_modinfo_sp_add.AppendLine("           ,@vcSupplierPlant,'1','"+strOperId+"',GETDATE())");
+                strSql_modinfo_sp_add.AppendLine("           ,@vcSupplierPlant,'1','" + strOperId + "',GETDATE())");
                 sqlCommand_modinfo_sp_add.CommandText = strSql_modinfo_sp_add.ToString();
                 sqlCommand_modinfo_sp_add.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_modinfo_sp_add.Parameters.AddWithValue("@vcPartId", "");
@@ -365,7 +370,7 @@ namespace DataAccess
                 StringBuilder strSql_modinfo_sp_mod = new StringBuilder();
                 strSql_modinfo_sp_mod.AppendLine("UPDATE [dbo].[TSPMaster_SupplierPlant]");
                 strSql_modinfo_sp_mod.AppendLine("   SET [dToTime] = case when @dToTime='' then null else  @dToTime end");
-                strSql_modinfo_sp_mod.AppendLine("      ,[vcOperatorID] = '"+strOperId+"'");
+                strSql_modinfo_sp_mod.AppendLine("      ,[vcOperatorID] = '" + strOperId + "'");
                 strSql_modinfo_sp_mod.AppendLine("      ,[dOperatorTime] =GETDATE()");
                 strSql_modinfo_sp_mod.AppendLine(" WHERE [LinId]=@LinId");
                 sqlCommand_modinfo_sp_mod.CommandText = strSql_modinfo_sp_mod.ToString();
@@ -391,7 +396,7 @@ namespace DataAccess
                 strSql_modinfo_pq_add.AppendLine("           ,[iPackingQty],[vcBoxType],[iLength],[iWidth],[iHeight],[iVolume],[vcOperatorType],[vcOperatorID],[dOperatorTime])");
                 strSql_modinfo_pq_add.AppendLine("     VALUES");
                 strSql_modinfo_pq_add.AppendLine("           (@vcPackingPlant,@vcPartId,@vcReceiver,@vcSupplierId,@vcSupplierPlant,case when @dFromTime='' then null else @dFromTime end ,case when @dToTime='' then null else @dToTime end");
-                strSql_modinfo_pq_add.AppendLine("           ,@iPackingQty,@vcBoxType,@iLength,@iWidth,@iHeight,@iVolume,'1','"+strOperId+"',GETDATE())");
+                strSql_modinfo_pq_add.AppendLine("           ,@iPackingQty,@vcBoxType,@iLength,@iWidth,@iHeight,@iVolume,'1','" + strOperId + "',GETDATE())");
                 sqlCommand_modinfo_pq_add.CommandText = strSql_modinfo_pq_add.ToString();
                 sqlCommand_modinfo_pq_add.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_modinfo_pq_add.Parameters.AddWithValue("@vcPartId", "");
@@ -435,7 +440,7 @@ namespace DataAccess
                 StringBuilder strSql_modinfo_pq_mod = new StringBuilder();
                 strSql_modinfo_pq_mod.AppendLine("UPDATE [dbo].[TSPMaster_Box]");
                 strSql_modinfo_pq_mod.AppendLine("   SET [dToTime] = case when @dToTime='' then null else  @dToTime end");
-                strSql_modinfo_pq_mod.AppendLine("      ,[vcOperatorID] = '"+strOperId+"'");
+                strSql_modinfo_pq_mod.AppendLine("      ,[vcOperatorID] = '" + strOperId + "'");
                 strSql_modinfo_pq_mod.AppendLine("      ,[dOperatorTime] =GETDATE()");
                 strSql_modinfo_pq_mod.AppendLine(" WHERE [LinId]=@LinId");
                 sqlCommand_modinfo_pq_mod.CommandText = strSql_modinfo_pq_mod.ToString();
@@ -461,7 +466,7 @@ namespace DataAccess
                 strSql_modinfo_si_add.AppendLine("           ,[vcSufferIn],[vcOperatorType],[vcOperatorID],[dOperatorTime])");
                 strSql_modinfo_si_add.AppendLine("     VALUES");
                 strSql_modinfo_si_add.AppendLine("           (@vcPackingPlant,@vcPartId,@vcReceiver,@vcSupplierId,case when @dFromTime='' then null else @dFromTime end ,case when @dToTime='' then null else @dToTime end");
-                strSql_modinfo_si_add.AppendLine("           ,@vcSufferIn,'1','"+strOperId+"',GETDATE())");
+                strSql_modinfo_si_add.AppendLine("           ,@vcSufferIn,'1','" + strOperId + "',GETDATE())");
                 sqlCommand_modinfo_si_add.CommandText = strSql_modinfo_si_add.ToString();
                 sqlCommand_modinfo_si_add.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_modinfo_si_add.Parameters.AddWithValue("@vcPartId", "");
@@ -519,7 +524,7 @@ namespace DataAccess
                 strSql_modinfo_op_add.AppendLine("           ,[vcOrderPlant],[vcOperatorType],[vcOperatorID],[dOperatorTime])");
                 strSql_modinfo_op_add.AppendLine("     VALUES");
                 strSql_modinfo_op_add.AppendLine("           (@vcPackingPlant,@vcPartId,@vcReceiver,@vcSupplierId,case when @dFromTime='' then null else @dFromTime end ,case when @dToTime='' then null else @dToTime end");
-                strSql_modinfo_op_add.AppendLine("           ,@vcOrderPlant,'1','"+strOperId+"',GETDATE())");
+                strSql_modinfo_op_add.AppendLine("           ,@vcOrderPlant,'1','" + strOperId + "',GETDATE())");
                 sqlCommand_modinfo_op_add.CommandText = strSql_modinfo_op_add.ToString();
                 sqlCommand_modinfo_op_add.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_modinfo_op_add.Parameters.AddWithValue("@vcPartId", "");
@@ -576,7 +581,7 @@ namespace DataAccess
                 strSql_operhistory.AppendLine("INSERT INTO [dbo].[TSPMaster_OperHistory]([vcPackingPlant],[vcPartId],[vcReceiver],[vcSupplierId]");
                 strSql_operhistory.AppendLine("           ,[vcAction],[vcOperatorID],[dOperatorTime])");
                 strSql_operhistory.AppendLine("     VALUES(@vcPackingPlant,@vcPartId,@vcReceiver,@vcSupplierId");
-                strSql_operhistory.AppendLine("           ,@vcAction,'"+strOperId+"',GETDATE())");
+                strSql_operhistory.AppendLine("           ,@vcAction,'" + strOperId + "',GETDATE())");
                 sqlCommand_operhistory.CommandText = strSql_operhistory.ToString();
                 sqlCommand_operhistory.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_operhistory.Parameters.AddWithValue("@vcPartId", "");
@@ -670,7 +675,7 @@ namespace DataAccess
                 sqlCommand_allininfo.Transaction = sqlTransaction;
                 sqlCommand_allininfo.CommandType = CommandType.Text;
                 StringBuilder strSql_allininfo = new StringBuilder();
-                strSql_allininfo.AppendLine("UPDATE [TSPMaster] SET [dFromTime]='"+ dFromTime + "',[dToTime]='"+ dToTime + "',[vcOperatorID]='"+ strOperId + "',[dOperatorTime]=GETDATE() WHERE [LinId]=@LinId");
+                strSql_allininfo.AppendLine("UPDATE [TSPMaster] SET [dFromTime]='" + dFromTime + "',[dToTime]='" + dToTime + "',[vcOperatorID]='" + strOperId + "',[dOperatorTime]=GETDATE() WHERE [LinId]=@LinId");
                 sqlCommand_allininfo.CommandText = strSql_allininfo.ToString();
                 sqlCommand_allininfo.Parameters.AddWithValue("@LinId", "");
                 foreach (DataRow item in dataTable.Rows)
@@ -764,6 +769,20 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public string setNullValue(Object obj, string strModle, string strDefault)
+        {
+            if (obj == null)
+                return strDefault.ToUpper();
+            else if (obj.ToString().Trim() == "")
+                return strDefault.ToUpper();
+            else
+            {
+                if (strModle == "date")
+                    return Convert.ToDateTime(obj.ToString().Trim().ToUpper()).ToString("yyyy-MM-dd");
+                else
+                    return obj.ToString().ToUpper();
             }
         }
     }

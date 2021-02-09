@@ -12,7 +12,7 @@ namespace DataAccess
 
         #region 生成报表
 
-        public List<DataTable> searchApi(string startTime, string endTime, List<string> Type)
+        public List<DataTable> searchApi(string startTime, string endTime, List<string> Type, string vcOriginCompany)
         {
             try
             {
@@ -25,10 +25,15 @@ namespace DataAccess
                 sbr.AppendLine("WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')");
                 sbr.AppendLine("DROP TABLE #temp;");
                 sbr.AppendLine("SELECT SUBSTRING(vcFileNameTJ,7,4) AS Year,SUBSTRING(vcFileNameTJ,11,2) AS Month,SUBSTRING(vcFileNameTJ,13,2) AS Day,iAutoId,vcChange INTO #temp FROM TSBManager ");
-                sbr.AppendLine("WHERE vcType = 'SPI' ");
+                sbr.AppendLine("WHERE vcType = '0' ");
                 if (!string.IsNullOrWhiteSpace(startTime))
                 {
-                    sbr.AppendLine("AND '" + startTime + "'<=SUBSTRING(vcFileNameTJ,7,8)");
+                    sbr.AppendLine(" AND '" + startTime + "'<=SUBSTRING(vcFileNameTJ,7,8)");
+                }
+
+                if (!string.IsNullOrWhiteSpace(vcOriginCompany))
+                {
+                    sbr.AppendLine(" AND vcOriginCompany = '" + vcOriginCompany + "'");
                 }
                 if (!string.IsNullOrWhiteSpace(endTime))
                 {
@@ -75,10 +80,14 @@ namespace DataAccess
                 sbr.AppendLine("WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')");
                 sbr.AppendLine("DROP TABLE #temp;");
                 sbr.AppendLine("SELECT SUBSTRING(vcFileNameTJ,7,4) AS Year,SUBSTRING(vcFileNameTJ,11,2) AS Month,iAutoId,vcChange INTO #temp FROM TSBManager ");
-                sbr.AppendLine("WHERE vcType = 'SPI' ");
+                sbr.AppendLine("WHERE vcType = '0' ");
                 if (!string.IsNullOrWhiteSpace(startTime))
                 {
-                    sbr.AppendLine("AND '" + startTime + "'<=SUBSTRING(vcFileNameTJ,7,8)");
+                    sbr.AppendLine(" AND '" + startTime + "'<=SUBSTRING(vcFileNameTJ,7,8)");
+                }
+                if (!string.IsNullOrWhiteSpace(vcOriginCompany))
+                {
+                    sbr.AppendLine(" AND vcOriginCompany = '" + vcOriginCompany + "'");
                 }
                 if (!string.IsNullOrWhiteSpace(endTime))
                 {

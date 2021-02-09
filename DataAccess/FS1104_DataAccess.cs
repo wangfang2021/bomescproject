@@ -12,14 +12,14 @@ namespace DataAccess
     public class FS1104_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public string getCaseLianFanInfo(string strPlant, string strReParty, string strPackPlant)
+        public string getCaseNoInfo(string strOrderPlant, string strReceiver, string strPackingPlant, string strLianFan)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("declare @LianFanNo int ");
-                strSql.AppendLine("set @LianFanNo=(select vcLianFanNo from TCaseNoInfo where vcPlant='" + strPlant + "' and vcReParty='" + strReParty + "' and vcPackPlant='" + strPackPlant + "')");
-                strSql.AppendLine("if((select count(*) from TCaseNoInfo where vcPlant='" + strPlant + "' and vcReParty='" + strReParty + "' and vcPackPlant='" + strPackPlant + "')=0)");
+                strSql.AppendLine("set @LianFanNo=(select vcLianFanNo from TCaseNoInfo where vcPlant='" + strOrderPlant + "' and vcReParty='" + strReceiver + "' and vcPackPlant='" + strPackingPlant + "')");
+                strSql.AppendLine("if((select count(*) from TCaseNoInfo where vcPlant='" + strOrderPlant + "' and vcReParty='" + strReceiver + "' and vcPackPlant='" + strPackingPlant + "')=0)");
                 strSql.AppendLine("begin");
                 strSql.AppendLine("select '0000001' as vcLianFanNo");
                 strSql.AppendLine("end");

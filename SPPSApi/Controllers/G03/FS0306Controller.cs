@@ -147,7 +147,7 @@ namespace SPPSApi.Controllers.G03
                                                 {"vcNum1","vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9","vcNum10"},
                                                 {FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,},
                                                 {"0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","1","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
                                                 {"4","5","6","7","8","9","10","11","12","13"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
@@ -168,9 +168,16 @@ namespace SPPSApi.Controllers.G03
 
                 string strErrorPartId = "";
                 fs0306_logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
-
+                if (string.IsNullOrWhiteSpace(strErrorPartId))
+                {
+                    strErrorPartId = "保存成功";
+                }
+                else
+                {
+                    strErrorPartId = "保存成功，但品番" + strErrorPartId + "已织入原单位，无法修改";
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = strErrorPartId;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

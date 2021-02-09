@@ -23,9 +23,11 @@ namespace DataAccess
                 };
                 parameters[0].Value = strUserName;
                 strSql.Append("      select *         \n");
+                strSql.Append("       ,d.vcName as 'vcBaoZhuangPlace_Name'     \n");
+                strSql.Append("       ,e.vcName as 'vcBanZhi_Name'      \n");
                 strSql.Append("      from          \n");
                 strSql.Append("      (         \n");
-                strSql.Append("      	select a.vcUserID,a.vcUserName       \n");
+                strSql.Append("      	select a.vcUserID,a.vcUserName,a.vcBaoZhuangPlace,a.vcBanZhi       \n");
                 strSql.Append("      	,case when isnull(vcStop,'0')='0' then '启用' else '停用' end as vcStop,a.vcUserName as vcOperatorName,dOperatorTime,vcIp,vcUnitCode,vcPlantCode,vcEmail,vcSpecial,vcPlatForm      \n");
                 strSql.Append("      	from SUser a         \n");
                 strSql.Append("      	left join         \n");
@@ -35,22 +37,31 @@ namespace DataAccess
                 strSql.Append("      )a      \n");
                 strSql.Append("      left join      \n");
                 strSql.Append("      (      \n");
-                strSql.Append("    	SELECT a.vcUserID,											      \n");
-                strSql.Append("    	STUFF											      \n");
-                strSql.Append("    	(											      \n");
-                strSql.Append("    		(										      \n");
-                strSql.Append("    			SELECT ','+SRole.vcRoleName FROM SUserRole,SRole       \n");
-                strSql.Append("    			WHERE SUserRole.vcUserId=a.vcUserId and SUserRole.vcRoleID=SRole.vcRoleID 	      \n");
-                strSql.Append("    			FOR XML PATH('')									      \n");
-                strSql.Append("    		), 1, 1, ''										      \n");
-                strSql.Append("    	)   AS vcRoleName  											      \n");
-                strSql.Append("    	FROM SUser a 											      \n");
-                strSql.Append("    	GROUP BY vcUserID       \n");
+                strSql.Append("        	SELECT a.vcUserID,											      \n");
+                strSql.Append("        	STUFF											      \n");
+                strSql.Append("        	(											      \n");
+                strSql.Append("        		(										      \n");
+                strSql.Append("        			SELECT ','+SRole.vcRoleName FROM SUserRole,SRole       \n");
+                strSql.Append("        			WHERE SUserRole.vcUserId=a.vcUserId and SUserRole.vcRoleID=SRole.vcRoleID 	      \n");
+                strSql.Append("        			FOR XML PATH('')									      \n");
+                strSql.Append("        		), 1, 1, ''										      \n");
+                strSql.Append("        	)   AS vcRoleName  											      \n");
+                strSql.Append("        	FROM SUser a 											      \n");
+                strSql.Append("        	GROUP BY vcUserID       \n");
                 strSql.Append("      )b on a.vcUserID=b.vcUserID      \n");
-                strSql.Append("     left join       \n");
-                strSql.Append("     (       \n");
-                strSql.Append("        select vcUnitCode,vcUnitName from SUnitInfo       \n");
-                strSql.Append("     )c on a.vcUnitCode=c.vcUnitCode       \n");
+                strSql.Append("      left join       \n");
+                strSql.Append("      (       \n");
+                strSql.Append("         select vcUnitCode,vcUnitName from SUnitInfo       \n");
+                strSql.Append("      )c on a.vcUnitCode=c.vcUnitCode       \n");
+                strSql.Append("      left join      \n");
+                strSql.Append("      (      \n");
+                strSql.Append("         select vcValue,vcName from TCode where vcCodeId='C001'      \n");
+                strSql.Append("      )d on a.vcBaoZhuangPlace=d.vcValue      \n");
+                strSql.Append("      left join      \n");
+                strSql.Append("      (      \n");
+                strSql.Append("         select vcValue,vcName from TCode where vcCodeId='C010'      \n");
+                strSql.Append("      )e on a.vcBanZhi=e.vcValue      \n");
+
                 strSql.Append("      where 1=1      \n");
                 if (strUnitCode.Trim() != "")
                     strSql.Append("   and a.vcUnitCode='" + strUnitCode.Trim() + "'        \n");
@@ -231,13 +242,13 @@ namespace DataAccess
         #endregion
 
         #region 插入操作,若成功返回true；失败返回false
-        public int Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail,string strStop,string strSpecial, string vcPlatForm)
+        public int Insert(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail,string strStop,string strSpecial, string strBanZhi, string strBaoZhuangPlace, string vcPlatForm)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("  insert into SUser     \n");
-                strSql.Append("  (vcUnitCode,vcPlantCode,vcUserID,vcUserName,vcPassWord,vcOperatorID,dOperatorTime,vcStop,vcEmail,vcSpecial,vcPlatForm)      \n");
+                strSql.Append("  (vcUnitCode,vcPlantCode,vcUserID,vcUserName,vcPassWord,vcOperatorID,dOperatorTime,vcStop,vcEmail,vcSpecial,vcBanZhi, vcBaoZhuangPlace,vcPlatForm)      \n");
                 strSql.Append("  values      \n");
                 strSql.Append("  (      \n");
                 strSql.Append("   '" + strUnit + "',     \n");
@@ -250,8 +261,11 @@ namespace DataAccess
                 strSql.Append("   '" + strStop + "',     \n");
                 strSql.Append("   '" + strMail + "',     \n");
                 strSql.Append("   '" + strSpecial + "',     \n");
+                strSql.Append("   '" + strBanZhi + "',     \n");
+                strSql.Append("   '" + strBaoZhuangPlace + "',     \n");
                 strSql.Append("   '" + vcPlatForm + "'     \n");
                 strSql.Append("  );      \n");
+
                 for (int i = 0; i < roleList.Count; i++)
                 {
                     strSql.Append("   insert into SUserRole     \n");
@@ -274,7 +288,7 @@ namespace DataAccess
         #endregion
 
         #region 修改操作,若成功返回true；失败返回false
-        public int Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail, string strStop,string strSpecial, string vcPlatForm)
+        public int Update(string strUserId, string strUserName, string strPwd, string strPalnt, string strUnit, List<string> roleList, string strOperatorID,string strMail, string strStop,string strSpecial, string strBanZhi, string strBaoZhuangPlace, string vcPlatForm)
         {
             try
             {
@@ -290,6 +304,8 @@ namespace DataAccess
                 strSql.Append("  vcPlantCode='" + strPalnt + "',     \n");
                 strSql.Append("  vcEmail='" + strMail + "',     \n");
                 strSql.Append("  vcSpecial='" + strSpecial + "',     \n");
+                strSql.Append("  vcBanZhi='" + strBanZhi + "',     \n");
+                strSql.Append("  vcBaoZhuangPlace='" + strBaoZhuangPlace + "',     \n");
                 strSql.Append("  vcPlatForm='" + vcPlatForm + "'     \n");
                 
                 strSql.Append("  where vcUserId='" + strUserId + "'  ;   \n");

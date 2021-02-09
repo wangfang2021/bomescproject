@@ -108,9 +108,10 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 string strMsg = "";
-                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody, _webHostEnvironment.ContentRootPath, ref strMsg);
+                string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
+                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody, _webHostEnvironment.ContentRootPath, ref strMsg, loginInfo.Email, loginInfo.UnitName, path);
 
-                if (!string.IsNullOrWhiteSpace(strMsg))
+                if (!strMsg.Equals("账票展开成功。"))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strMsg;
@@ -169,7 +170,7 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 string strMsg = "";
-                fs0307_Logic.FTMS(listInfoData, EmailBody, loginInfo.UserId, ref strMsg);
+                fs0307_Logic.FTMS(listInfoData, EmailBody, loginInfo.UserId, ref strMsg, loginInfo.Email, loginInfo.UnitName);
 
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {

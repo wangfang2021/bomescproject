@@ -248,6 +248,7 @@ namespace Logic
 
             dt.Columns.Add("OldProjTimeError");
             dt.Columns.Add("NewProjTimeError");
+            dt.Columns.Add("startYearMonthError");
             //判断画面显示样式
             for (int i = 0; i < dt.Rows.Count; i++)
             {
@@ -263,6 +264,7 @@ namespace Logic
                 string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
                 string vcOldProjTime = dt.Rows[i]["vcOldProjTime"].ToString();
                 string vcNewProjTime = dt.Rows[i]["vcNewProjTime"].ToString();
+                string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString();
 
                 int State = 0;
                 string ErrorInfo = "";
@@ -277,7 +279,14 @@ namespace Logic
                 int NewProjError = 0;
                 int OldProjTimeError = 0;
                 int NewProjTimeError = 0;
+                int startYearMonth = 0;
                 List<string> errorlist = new List<string>();
+                if (string.IsNullOrWhiteSpace(vcStartYearMonth))
+                {
+                    startYearMonth = 1;
+                    errorlist.Add("品番实施时期必填");
+
+                }
                 if (!string.IsNullOrWhiteSpace(vcOldProjTime) && !IsDate(vcOldProjTime))
                 {
                     OldProjTimeError = 1;
@@ -308,10 +317,10 @@ namespace Logic
                     errorlist.Add("代替区分必填");
                 }
                 //代替区分为HD/NR时代替品番为空
-                if ((vcDTDiff.Contains("HD") || vcDTDiff.Contains("NR")) && string.IsNullOrWhiteSpace(vcPart_id_DT))
+                if ((vcDTDiff.Contains("HD") && string.IsNullOrWhiteSpace(vcPart_id_DT)))
                 {
                     DTPartError = 1;
-                    errorlist.Add("代替区分为HD/NR时,代替品番必填");
+                    errorlist.Add("代替区分为HD时,代替品番必填");
                 }
                 //品名为空
                 if (string.IsNullOrWhiteSpace(vcPartName))
@@ -360,7 +369,7 @@ namespace Logic
                         ErrorInfo += errorlist[j] + ";";
                     }
                 }
-
+                dt.Rows[i]["startYearMonthError"] = startYearMonth;
                 dt.Rows[i]["State"] = State;
                 dt.Rows[i]["ErrorInfo"] = ErrorInfo;
                 dt.Rows[i]["PartError"] = PartError;

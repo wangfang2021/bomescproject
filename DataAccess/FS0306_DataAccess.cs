@@ -83,6 +83,8 @@ namespace DataAccess
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     string vcIsLock = listInfoData[i]["vcIsLock"].ToString();//true可编辑,false不可编辑
+                    string vcPart_id = listInfoData[i]["vcPart_id"].ToString();
+
                     if (bModFlag == true && vcIsLock.Equals("0"))
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
@@ -113,7 +115,19 @@ namespace DataAccess
                         sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + " \r\n");
                         sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(strErrorPartId))
+                        {
+                            strErrorPartId += ",";
+                        }
+
+                        strErrorPartId += vcPart_id;
+                    }
+                    if (!string.IsNullOrWhiteSpace(sbr.ToString()))
+                    {
+                        excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                    }
                 }
             }
             catch (Exception ex)
@@ -159,7 +173,7 @@ namespace DataAccess
                 }
                 if (sbr.Length > 0)
                 {
-                    sbr.Append("UPDATE TUnit SET");
+                    sbr.Append("UPDATE TUnit SET ");
                     sbr.Append("vcNum1  = b.vcNum1 ,");
                     sbr.Append("vcNum2  = b.vcNum2 ,");
                     sbr.Append("vcNum3  = b.vcNum3 ,");

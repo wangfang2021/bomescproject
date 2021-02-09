@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcCarType, \r\n");
+                sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
                 //sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,f.vcDiff,a.vcCarType, \r\n");
                 sbr.Append(" d.vcName AS THChange,c.vcName AS vcDD,a.vcRemark,a.vcChange,a.vcBJDiff, \r\n");
                 sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
@@ -40,7 +40,8 @@ namespace DataAccess
                 sbr.Append(" ) b ON a.vcFinishState = b.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
-                sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C009' \r\n");
+                //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C009' \r\n");
+                sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
                 sbr.Append(" ) c ON a.vcCarType = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
@@ -50,6 +51,10 @@ namespace DataAccess
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
                 sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
+                sbr.Append(" LEFT JOIN  \r\n");
+                sbr.Append(" ( \r\n");
+                sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() AND ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
+                sbr.Append(" ) f ON a.vcPart_Id_old = f.vcPart_id OR a.vcPart_Id_new = f.vcPart_id \r\n");
                 //sbr.Append(" LEFT JOIN  \r\n");
                 //sbr.Append(" (SELECT vcPart_id,MAX(vcDiff) AS vcDiff FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id) f \r\n");
                 //sbr.Append(" ON (a.vcPart_Id_old = f.vcPart_id AND ISNULL(a.vcPart_Id_old,'')<> '') OR (a.vcPart_Id_new = f.vcPart_id AND ISNULL(a.vcPart_Id_new,'')<> '' ) \r\n");
@@ -57,13 +62,46 @@ namespace DataAccess
 
                 dt.Columns.Add("vcDiff");
                 DataTable Diff = getDiff();
+                //for (int i = 0; i < dt.Rows.Count; i++)
+                //{
+                //    string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
+                //    string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
+                //    if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
+                //    {
+                //        DataRow[] tmp = dt.Select("vcPart_Id_old = '" + vcPart_Id_old + "'");
+                //        if (tmp.Length > 0)
+                //        {
+                //            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                //        }
+                //        else
+                //        {
+                //            dt.Rows[i]["vcDiff"] = "";
+                //        }
+                //    }
+                //    else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
+                //    {
+                //        DataRow[] tmp = dt.Select("vcPart_Id_new = '" + vcPart_Id_new + "'");
+                //        if (tmp.Length > 0)
+                //        {
+                //            dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
+                //        }
+                //        else
+                //        {
+                //            dt.Rows[i]["vcDiff"] = "";
+                //        }
+                //    }
+                //    else
+                //    {
+                //        dt.Rows[i]["vcDiff"] = "";
+                //    }
+                //}
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
                     string vcPart_Id_new = ObjToString(dt.Rows[i]["vcPart_Id_new"]);
                     if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
                     {
-                        DataRow[] tmp = dt.Select("vcPart_Id_old = '" + vcPart_Id_old + "'");
+                        DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_old + "'");
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -75,7 +113,7 @@ namespace DataAccess
                     }
                     else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
                     {
-                        DataRow[] tmp = dt.Select("vcPart_Id_new = '" + vcPart_Id_new + "'");
+                        DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_new + "'");
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -90,7 +128,6 @@ namespace DataAccess
                         dt.Rows[i]["vcDiff"] = "";
                     }
                 }
-
                 return dt;
             }
             catch (Exception ex)
@@ -109,10 +146,10 @@ namespace DataAccess
                 sbrDiff.AppendLine("CASE vcDiff ");
                 sbrDiff.AppendLine("	WHEN '1' then 1");
                 sbrDiff.AppendLine("	when '2' then 2");
-                sbrDiff.AppendLine("	when '9' then 3 	");
-                sbrDiff.AppendLine("	WHEN '4' then 3 ");
+                sbrDiff.AppendLine("	when '9' then 3 ");
+                sbrDiff.AppendLine("	WHEN '4' then 4 ");
                 sbrDiff.AppendLine("end");
-                return excute.ExcuteSqlWithSelectToDT(sbrDiff.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbrDiff.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -130,7 +167,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 //可选择的变更事项
-                List<string> changeList = new List<string>() { "1", "2", "3", "4", "5", "6", "8", "10", "11", "12", "13", "16", "21" };
+                List<string> changeList = new List<string>() { "1", "2", "3", "4", "5", "6", "16" };
                 //品番check
                 List<string> partCheck = getPart();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -177,16 +214,18 @@ namespace DataAccess
 
                     if (!finishstate.Equals("1") && !finishstate.Equals("3"))
                     {
-                        if (change.Equals("1") || change.Equals("2") || change.Equals("10") || change.Equals("12") || change != "8")//新设
+                        if (change.Equals("1") || change.Equals("2"))//新设
                         {
                             string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                             string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
                             string vcType = ObjToString(listInfoData[i]["vcType"]).Trim();
                             string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
                             string vcStartYearMonth = ObjToString(listInfoData[i]["vcStartYearMonth"]).Trim();
-                            string vcSYTCode = getSYTCode(SYTCode);
                             string vcPartNameEn = ObjToString(listInfoData[i]["vcPartName"]);
                             string vcSPINo = ObjToString(listInfoData[i]["vcSPINo"]);
+                            string vcFXNo = ObjToString(listInfoData[i]["vcFXNo"]);
+                            string vcFXDiff = ObjToString(listInfoData[i]["vcFXDiff"]);
+                            string vcBJDiff = ObjToString(listInfoData[i]["vcBJDiff"]);
 
                             if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
                             {
@@ -201,8 +240,8 @@ namespace DataAccess
                             }
 
                             sbr.Append(" INSERT INTO TUnit  \r\n");
-                            sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcSYTCode,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState) values\r\n");
-                            sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcSYTCode + "','" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0')  \r\n");
+                            sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff) values\r\n");
+                            sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
 
                             sbr.Append(" UPDATE TSBManager \r\n");
                             sbr.Append(" SET vcFinishState = '3', \r\n");
@@ -221,14 +260,15 @@ namespace DataAccess
                             sbr.Append(") \r\n");
 
                         }
-                        else if (change.Equals("4") || change.Equals("11") || change.Equals("13") || change.Equals("21"))//废止
+                        else if (change.Equals("4"))//废止
                         {
                             sbr.Append(" UPDATE a SET \r\n");
                             sbr.Append(" a.vcChange = '" + change + "', \r\n");
                             sbr.Append(" a.dSyncTime = NULL, \r\n");
-                            sbr.Append(" a.dTimeTo = b.vcStartYearMonth, \r\n");
+                            //不更新使用结束时间
+                            //sbr.Append(" a.dTimeTo = b.vcStartYearMonth, \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'废止;', \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";', \r\n");
                             sbr.Append(" a.vcSQState = '0', \r\n");
                             sbr.Append(" a.vcDiff = '4', \r\n");
                             //Add,TODO 工程结束时间
@@ -255,7 +295,7 @@ namespace DataAccess
                             sbr.Append(" a.dSyncTime = NULL, \r\n");
                             sbr.Append(" a.vcHaoJiu = 'Q', \r\n");
                             sbr.Append(" a.dJiuBegin = b.vcStartYearMonth,  \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'旧型;' , \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                             sbr.Append(" a.vcDiff = '9', \r\n");
                             sbr.Append(" a.vcSQState = '0', \r\n");
@@ -292,7 +332,7 @@ namespace DataAccess
                             sbr.Append(" a.dSyncTime = NULL, \r\n");
                             sbr.Append(" a.vcHaoJiu = 'H', \r\n");
                             sbr.Append(" a.dJiuEnd = b.vcStartYearMonth, \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'旧型恢复现号;' , \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                             sbr.Append(" a.vcDiff = '1', \r\n");
                             sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");
@@ -320,7 +360,7 @@ namespace DataAccess
                             sbr.Append(" a.dTimeFrom = b.vcStartYearMonth, \r\n");
                             sbr.Append(" a.dTimeTo = CONVERT(DATE,'99991231'), \r\n");
                             sbr.Append(" a.vcHaoJiu = 'H', \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'复活;' , \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                             sbr.Append(" a.vcDiff = '2', \r\n");
                             sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");
@@ -872,7 +912,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
                     "SELECT distinct vcPart_id FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE()");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
                 List<string> res = new List<string>();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -888,5 +928,6 @@ namespace DataAccess
         }
 
         #endregion
+
     }
 }

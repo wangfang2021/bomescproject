@@ -235,8 +235,6 @@ namespace DataAccess
         }
         #endregion
 
- 
-
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -318,9 +316,9 @@ namespace DataAccess
                 strSql.Append("      select *,'0' as vcModFlag,'0' as vcAddFlag from TPrice_GS         \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
-                if (strBegin != "")
+                if (!string.IsNullOrEmpty(strBegin))
                     strSql.Append("   and    dBegin>='"+ strBegin + "'         \n");
-                if (strEnd != "")
+                if (!string.IsNullOrEmpty(strEnd))
                     strSql.Append("   and    dEnd<='" + strEnd + "'         \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -363,8 +361,8 @@ namespace DataAccess
 
                         sql.Append("  update TPrice_GS set    \r\n");
                         sql.Append("   vcGSName = " + ComFunction.getSqlValue(listInfoData[i]["vcGSName"], false) + "    \r\n");
-                        sql.Append("  ,vcCoefficient = " + ComFunction.getSqlValue(listInfoData[i]["decXiShu"], false) + "   \r\n");
-                        sql.Append("  ,vcRate = " + ComFunction.getSqlValue(listInfoData[i]["decTaxRate"], false) + "   \r\n");
+                        sql.Append("  ,decXiShu = " + ComFunction.getSqlValue(listInfoData[i]["decXiShu"], false) + "   \r\n");
+                        sql.Append("  ,decTaxRate = " + ComFunction.getSqlValue(listInfoData[i]["decTaxRate"], false) + "   \r\n");
                         sql.Append("  ,vcArea=" + ComFunction.getSqlValue(listInfoData[i]["vcArea"], false) + "   \r\n");
                         sql.Append("  ,dBegin=" + ComFunction.getSqlValue(listInfoData[i]["dBegin"], true) + "   \r\n");
                         sql.Append("  ,dEnd=" + ComFunction.getSqlValue(listInfoData[i]["dEnd"], true) + "   \r\n");
@@ -508,7 +506,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("         update TPrice set vcPriceChangeInfo = null,vcPriceState = '4'        ");
+                strSql.AppendLine("         update TPrice set vcPriceChange = null,vcPriceState = '4'        ");
                 if (!string.IsNullOrEmpty(strChange))
                 {
                     strSql.AppendLine("         where vcChange = '"+strChange+"'        ");
@@ -575,7 +573,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    strSql.AppendLine("      update TPrice set vcPriceChangeInfo = null,vcPriceState = 'PIC'       ");
+                    strSql.AppendLine("      update TPrice set vcPriceChange = null,vcPriceState = 'PIC'       ");
                     strSql.AppendLine("      where iAutoId = '" + listInfoData[i]["iAutoId"] + "'       ");
                 }
                 if (strSql.Length>0)

@@ -12,8 +12,52 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        #region 计算5个工作日各工厂日期
-        class Node
+        #region 检索
+
+        public DataTable searchApi(string changeNo, string state, string orderNo)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcDXDate,vcOrderNo,vcChangeNo,dFileUpload,CASE a.state WHEN '0' THEN '订单待上传' WHEN '1' THEN '订单已上传' END AS state FROM ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT a.*,ISNULL(b.Exist,'0') AS state FROM ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcDXDate,vcOrderNo,vcChangeNo,dFileUpload FROM TSoqDayChange");
+                sbr.AppendLine(") a");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT DISTINCT vcOrderNo,'1' AS Exist FROM SP_M_ORD WHERE vcOrderType = ''");
+                sbr.AppendLine(") b ON a.vcOrderNo = b.vcOrderNo");
+                sbr.AppendLine("WHERE 1=1");
+                if (!string.IsNullOrWhiteSpace(state))
+                {
+                    sbr.AppendLine("AND ISNULL(b.Exist,'0') = '" + state + "'");
+                }
+                if (!string.IsNullOrWhiteSpace(changeNo))
+                {
+                    sbr.AppendLine("AND a.vcChangeNo LIKE '" + changeNo + "%'");
+                }
+                if (!string.IsNullOrWhiteSpace(orderNo))
+                {
+                    sbr.AppendLine("AND a.vcOrderNo LIKE '" + orderNo + "%'");
+                }
+                sbr.AppendLine(") a");
+
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 导入d+n日次变更
+
+        #region 计算n个工作日各工厂稼动日
+        public class Node
         {
             public Node(string plant, Hashtable hs)
             {
@@ -43,17 +87,18 @@ namespace DataAccess
             public string plant;
             public Hashtable day;
         }
-
-        public DataTable getCalendar()
+        public DataTable getCalendar(DateTime DXR)
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("DECLARE @YM VARCHAR(6)");
                 sbr.AppendLine("DECLARE @YM1 VARCHAR(6)");
-                sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),GETDATE(),112)");
-                sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,GETDATE()),112)");
-                sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1)");
+                sbr.AppendLine("DECLARE @YM2 VARCHAR(6)");
+                sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),DATEADD(m,0,'" + DXR + "'),112)");
+                sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,'" + DXR + "'),112)");
+                sbr.AppendLine("SET @YM2 = CONVERT(VARCHAR(6),DATEADD(m,2,'" + DXR + "'),112)");
+                sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1,@YM2)");
                 sbr.AppendLine("ORDER BY vcFZGC,TARGETMONTH");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
@@ -62,7 +107,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public Hashtable getDay(DataTable dt)
+        public Hashtable getDay(DataTable dt, DateTime temp, int dayCount)
         {
             try
             {
@@ -156,11 +201,11 @@ namespace DataAccess
 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    DateTime time = DateTime.Now;
+                    DateTime time = temp;
                     string key = list[i].plant;
                     string value = "";
                     int count = 0;
-                    while (count < 5)
+                    while (count < dayCount)
                     {
                         time = time.AddDays(1);
                         string tmp = time.ToString("yyyyMMdd");
@@ -226,7 +271,6 @@ namespace DataAccess
                 {
                     string vcFZGC = dt.Rows[i]["vcFZGC"].ToString();
                     string vcPart_id = dt.Rows[i]["vcPart_id"].ToString();
-                    string YM = ht[vcFZGC].ToString().Substring(0, 6);
                     string day = ht[vcFZGC].ToString().Substring(6, 2);
 
                     DataRow[] rows = dt.Select("vcFZGC = '" + vcFZGC + "' and vcPart_id = '" + vcPart_id + "'");
@@ -294,6 +338,30 @@ namespace DataAccess
 
         #endregion
 
+        #region 修改soqReply并导入履历表
+
+        public void ChangeSoq(List<PartIDNode> list, string strUserId, string orderNo)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    sbr.AppendLine("INSERT INTO TSoqDayChange(vcDXDate,vcChangeNo, vcPart_Id, iQuantityBefore, iQuantityNow, dFileUpload,vcOrderNo, vcOperatorID, dOperatorTime)");
+                    sbr.AppendLine("VALUES('" + list[i].DXR + "','" + list[i].ChangeNo + "','" + list[i].partId + "'," + list[i].iQuantityBefore + "," + list[i].IQuantityNow + ",GETDATE(),'" + orderNo + "','" + strUserId + "'  ,GETDATE());");
+                    sbr.AppendLine("UPDATE TSoqReply SET iD" + Convert.ToInt32(list[i].DXR.Substring(6, 2)) + " = " + list[i].IQuantityNow + " ,vcOperatorID = '" + strUserId + "' ,dOperatorTime = GETDATE() WHERE vcDXYM = '" + list[i].DXR.Substring(0, 6) + "' AND vcPart_id = '" + list[i].partId + "';");
+                }
+
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
         #region string To Float
 
         public Decimal getFloat(string str)
@@ -309,5 +377,105 @@ namespace DataAccess
         }
 
         #endregion
+
+        #region 品番完整类
+
+        public class PartIDNode
+        {
+            public string partId;//品番
+            public int IQuantityNow;//修改后数量
+            public int iQuantityBefore;//修改前数量
+            public decimal allowPercent;//允许波动率
+            public string DXR;//对象日
+            public string ChangeNo;//变更号
+            public bool flag;//是否允许存在
+            public string message;//错误记录
+            //public decimal realPercent;//变更波动率
+
+            public PartIDNode(string partId, int excelQuantity, int soqQuantity, string allowPercent, string DXR, string ChangeNo)
+            {
+                try
+                {
+                    this.partId = partId;
+                    this.flag = true;
+                    this.DXR = DXR;
+
+                    this.IQuantityNow = excelQuantity;
+                    this.message = "";
+                    if (soqQuantity == -1 || string.IsNullOrWhiteSpace(DXR))
+                    {
+                        this.message += "对象日Soq不存在";
+                        this.flag = false;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(allowPercent))
+                    {
+                        this.message += "波动率不存在";
+                        this.flag = false;
+                    }
+
+                    this.iQuantityBefore = soqQuantity;
+                    this.allowPercent = ObjToDecimal(allowPercent);
+                    this.ChangeNo = ChangeNo;
+
+                    //波动率范围
+                    int max = 0;
+                    int min = 0;
+
+                    //TODO 当日订货数量为0是否要置为1？
+                    iQuantityBefore = iQuantityBefore == 0 ? 1 : iQuantityBefore;
+                    //
+                    max = (int)Math.Floor(iQuantityBefore * (1 + this.allowPercent / 100));
+                    min = (int)Math.Ceiling(iQuantityBefore * (1 - this.allowPercent / 100));
+                    min = min < 0 ? 0 : min;
+
+                    if (IQuantityNow > max)
+                    {
+                        IQuantityNow = max;
+                    }
+                    else if (IQuantityNow < min)
+                    {
+                        IQuantityNow = min;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.partId = partId;
+                    this.message = "数据错误";
+                    this.flag = false;
+                }
+
+            }
+
+        }
+
+        public static int ObjToInt(Object obj)
+        {
+            try
+            {
+                return Convert.ToInt32(obj);
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        public static decimal ObjToDecimal(Object obj)
+        {
+            try
+            {
+                return Convert.ToDecimal(obj);
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
     }
 }

@@ -54,6 +54,7 @@
   <ItemGroup>
     <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G17\" />
+    <Folder Include="Controllers\G99\" />
     <Folder Include="Doc\Export\" />
     <Folder Include="Doc\Image\PackingOper\" />
     <Folder Include="Doc\Image\Checking\" />

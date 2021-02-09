@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G11
     [ApiController]
     public class FS1101Controller : BaseController
     {
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
         FS1101_Logic fS1101_Logic = new FS1101_Logic();
         private readonly string FunctionID = "FS1101";
 
@@ -79,7 +80,6 @@ namespace SPPSApi.Controllers.G11
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
-            Dictionary<string, object> res = new Dictionary<string, object>();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strPackMaterNo = dataForm.PackMaterNo == null ? "" : dataForm.PackMaterNo;
@@ -91,10 +91,11 @@ namespace SPPSApi.Controllers.G11
             {
                 DataTable dataTable = fS1101_Logic.getSearchInfo(strPackMaterNo, strTrolleyNo, strPartId, strOrderNo, strLianFan);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-                res.Add("tempList", dataList);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
+                apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -130,9 +131,19 @@ namespace SPPSApi.Controllers.G11
             {
                 if (listInfoData.Count != 0)
                 {
+                    //获取待打印的数据
+                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
                     //执行打印操作
                     //===========================================
+                    DataTable dtMessage = fS0603_Logic.createTable("MES");
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "错误测试";
+                    dtMessage.Rows.Add(dataRow);
 
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
 
 

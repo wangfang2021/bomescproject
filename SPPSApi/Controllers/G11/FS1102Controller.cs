@@ -51,8 +51,8 @@ namespace SPPSApi.Controllers.G11
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
-                List<Object> RePartyList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//客户代码
-                res.Add("RePartyList", RePartyList);
+                List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
+                res.Add("ReceiverList", ReceiverList);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -86,17 +86,18 @@ namespace SPPSApi.Controllers.G11
             Dictionary<string, object> res = new Dictionary<string, object>();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strReParty = dataForm.ReParty == null ? "" : dataForm.ReParty;
+            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
             string strCaseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;
             string strTagId = dataForm.TagId == null ? "" : dataForm.TagId;
             try
             {
-                DataTable dataTable = fS1102_Logic.getSearchInfo(strReParty, strCaseNo, strTagId);
+                DataTable dataTable = fS1102_Logic.getSearchInfo(strReceiver, strCaseNo, strTagId);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-                res.Add("tempList", dataList);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
+                apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -132,9 +133,19 @@ namespace SPPSApi.Controllers.G11
             {
                 if (listInfoData.Count != 0)
                 {
+                    //获取待打印的数据
+                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
                     //执行打印操作
                     //===========================================
+                    DataTable dtMessage = fS0603_Logic.createTable("MES");
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "错误测试";
+                    dtMessage.Rows.Add(dataRow);
 
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
 
 

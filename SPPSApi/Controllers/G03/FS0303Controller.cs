@@ -421,7 +421,7 @@ namespace SPPSApi.Controllers.G03
                                     ,"vcNXQF","dSSDate","vcMeno","vcFXDiff_Name","vcFXNo","vcNum1"
                                     ,"vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8"
                                     ,"vcNum9","vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
-                                    ,"vcZXBZNo","vcReceiver_Name","vcOriginCompany_Name"
+                                    ,"vcZXBZNo","vcReceiver_Name","vcOriginCompany_Name","vcRemark"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0303_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")

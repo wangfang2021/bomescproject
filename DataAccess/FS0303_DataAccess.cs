@@ -133,7 +133,7 @@ namespace DataAccess
                         sql.Append("       ,vcJiuYear,vcNXQF,dSSDate,vcMeno,vcFXDiff,vcFXNo,vcNum1      \n");
                         sql.Append("       ,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8      \n");
                         sql.Append("       ,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15      \n");
-                        sql.Append("       ,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime      \n");
+                        sql.Append("       ,vcZXBZNo,vcReceiver,vcOriginCompany,vcRemark,vcOperator,dOperatorTime      \n");
                         sql.Append("      )      \n");
                         sql.Append("      VALUES      \n");
                         sql.Append("      (      \n");
@@ -213,6 +213,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcRemark"], false) + ",   \r\n");
                         sql.Append("'" + strUserId + "',     \r\n");
                         sql.Append("GETDATE()     \r\n");
                         sql.Append(");   \r\n");
@@ -266,11 +267,11 @@ namespace DataAccess
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append("'" + iJiuYear + "'" + ",   \r\n");
+                            sql.Append("      ,vcJiuYear = '" + iJiuYear + "'      \r\n");
                         }
                         else
                         {
-                            sql.Append("null,   \r\n");
+                            sql.Append("      ,vcJiuYear =null      \r\n");
                         }
                         #endregion
 
@@ -296,6 +297,7 @@ namespace DataAccess
                         sql.Append("      ,vcZXBZNo = " + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "      \r\n");
                         sql.Append("      ,vcReceiver = " + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "      \r\n");
                         sql.Append("      ,vcOriginCompany = " + ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + "      \r\n");
+                        sql.Append("      ,vcRemark = " + ComFunction.getSqlValue(listInfoData[i]["vcRemark"], false) + "      \r\n");
                         sql.Append("      ,vcOperator = '" + strUserId + "'      \r\n");
                         sql.Append("      ,dOperatorTime = GETDATE()      \r\n");//按品番、包装工厂、供应商代码、收货方 更新
                         sql.Append("      where iAutoId=" + listInfoData[i]["iAutoId"] + "   \r\n ");
@@ -401,7 +403,7 @@ namespace DataAccess
                     sql.Append("       ,vcMeno,vcFXDiff,vcFXNo,vcNum1,vcNum2,vcNum3,vcNum4         \n");
                     sql.Append("       ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10         \n");
                     sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo         \n");
-                    sql.Append("       ,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime         \n");
+                    sql.Append("       ,vcReceiver,vcOriginCompany,vcRemark,vcOperator,dOperatorTime         \n");
                     sql.Append("       ) values         \n");
                     sql.Append("                ");
                     sql.Append("      (      \n"); 
@@ -476,7 +478,8 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum15"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcZXBZNo"], true) + "       \n"); 
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcReceiver_Name"], true) + "     \n"); 
-                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcOriginCompany_Name"], true) + "     \n"); 
+                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcOriginCompany_Name"], true) + "     \n");
+                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcRemark"], false) + "     \n");
                     sql.Append("      ,'" + strUserId + "'      \n");
                     sql.Append("      ,GETDATE()      \n");
                     sql.Append("      );      \n");
@@ -543,6 +546,7 @@ namespace DataAccess
                 sql.Append("      ,vcZXBZNo=b.vcZXBZNo          \n");
                 sql.Append("      ,vcReceiver=b.vcReceiver          \n");
                 sql.Append("      ,vcOriginCompany=b.vcOriginCompany          \n");
+                sql.Append("      ,vcRemark=b.vcRemark          \n");
                 sql.Append("      ,vcOperator=b.vcOperator          \n");
                 sql.Append("      ,dOperatorTime=b.dOperatorTime          \n");
                 sql.Append("      from TUnit a      \n");
@@ -560,7 +564,7 @@ namespace DataAccess
                 sql.Append("      ,vcCHPlace,vcSYTCode,vcSCSName,vcSCSAdress,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id      \n");
                 sql.Append("      ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDate,vcMeno,vcFXDiff,vcFXNo      \n");
                 sql.Append("      ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11      \n");
-                sql.Append("      ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator      \n");
+                sql.Append("      ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo,vcReceiver,vcOriginCompany,vcRemark,vcOperator      \n");
                 sql.Append("      ,dOperatorTime      \n");
                 sql.Append("      )       \n");
                 sql.Append("      select a.dSyncTime,a.vcChange,a.vcSPINo,a.vcSQState,a.vcDiff,a.vcPart_id,a.vcCarTypeDev,a.vcCarTypeDesign      \n");
@@ -569,7 +573,7 @@ namespace DataAccess
                 sql.Append("      ,a.vcCHPlace,a.vcSYTCode,a.vcSCSName,a.vcSCSAdress,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcOE,a.vcHKPart_id      \n");
                 sql.Append("      ,a.vcHaoJiu,a.dJiuBegin,a.dJiuEnd,a.vcJiuYear,a.vcNXQF,a.dSSDate,a.vcMeno,a.vcFXDiff,a.vcFXNo      \n");
                 sql.Append("      ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcNum11      \n");
-                sql.Append("      ,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15,a.vcZXBZNo,a.vcReceiver,a.vcOriginCompany,a.vcOperator      \n");
+                sql.Append("      ,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15,a.vcZXBZNo,a.vcReceiver,a.vcOriginCompany,a.vcRemark,a.vcOperator      \n");
                 sql.Append("      ,a.dOperatorTime from #TUnit_temp a      \n");
                 sql.Append("      left join       \n");
                 sql.Append("      (          \n");

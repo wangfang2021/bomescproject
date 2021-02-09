@@ -1855,21 +1855,21 @@ namespace SPPSApi.Controllers.G12
                     FS1209_Logic lg = new FS1209_Logic();
                     string uuidTb = string.Empty;
                     string msg = lg.CreateTempTable(dt, out uuidTb);
-                    if (msg.Length == 0)
-                    {
-                        BasicHttpBinding binding = new BasicHttpBinding();
-                        binding.CloseTimeout = TimeSpan.MaxValue;
-                        binding.OpenTimeout = TimeSpan.MaxValue;
-                        binding.ReceiveTimeout = TimeSpan.MaxValue;
-                        binding.SendTimeout = TimeSpan.MaxValue;
-                        EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
-                        SPPSPrint.PrintTableSoapClient client = new SPPSPrint.PrintTableSoapClient(binding, address);
-                        Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, strPrinterName, reportPath, "172.23.140.169", "SPPSdb", "sa", "Sa123");
-                        //Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
-                        SPPSPrint.PrinterResponse response = responseTask.Result;
-                        // 获取HelloWorld方法的返回值
-                        return response.Body.PrinterResult;
-                    }
+                    //if (msg.Length == 0)
+                    //{
+                    //    BasicHttpBinding binding = new BasicHttpBinding();
+                    //    binding.CloseTimeout = TimeSpan.MaxValue;
+                    //    binding.OpenTimeout = TimeSpan.MaxValue;
+                    //    binding.ReceiveTimeout = TimeSpan.MaxValue;
+                    //    binding.SendTimeout = TimeSpan.MaxValue;
+                    //    EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
+                    //    SPPSPrint.PrintTableSoapClient client = new SPPSPrint.PrintTableSoapClient(binding, address);
+                    //    Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, strPrinterName, reportPath, "172.23.140.169", "SPPSdb", "sa", "Sa123");
+                    //    //Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
+                    //    SPPSPrint.PrinterResponse response = responseTask.Result;
+                    //    // 获取HelloWorld方法的返回值
+                    //    return response.Body.PrinterResult;
+                    //}
                     return msg;
                 }
                 return "检索不到数据，打印失败";

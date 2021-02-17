@@ -919,13 +919,11 @@ namespace DataAccess
             //dt.Columns.Remove("vcPartsNameEN");
             //dt.Columns.Remove("vcPartsNameCHN");
             //dt.Columns.Remove("iQuantityPerContainer");
-
-            DataTable dtt = dt.Clone();
             for (int i = 0; i < dt.Rows.Count; i++)
             {
-                strSQL.AppendLine("select vcData1,vcData3 from ConstMst where vcDataId='ProType' and vcData1='" + dt.Rows[i]["vcPorType"].ToString() + "' and vcData3='" + dt.Rows[i]["vcZB"].ToString() + "' order by vcData1,vcData3");
-                DataTable ds = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
-                if (ds.Rows.Count == 0)
+                strSQL.AppendLine("select count(1) from ConstMst where vcDataId='ProType' and vcData1='" + dt.Rows[i]["vcPorType"].ToString() + "' and vcData3='" + dt.Rows[i]["vcZB"].ToString() + "'");
+                int nums = excute.ExecuteSQLNoQuery(strSQL.ToString());
+                if (nums == 0)
                 {
                     return "Excel数据中存在生产部署、组别未在数据库中维护的数据";
                 }

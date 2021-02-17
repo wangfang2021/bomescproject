@@ -352,10 +352,6 @@ namespace SPPSApi.Controllers.G03
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                JArray factoryArray = dataForm.select_ZXBZNo;
-                List<string> select_ZXBZNo = factoryArray.ToObject<List<string>>();
-
-
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {

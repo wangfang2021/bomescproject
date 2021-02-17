@@ -59,9 +59,17 @@ namespace SPPSApi.Controllers.G03
 
             try
             {
-                String emailBody = fs0307_Logic.CreateEmailBody(date, flag);
+                List<string> email = fs0307_Logic.CreateEmailBody(date, flag);
+
+                if (email.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "获取邮件体失败，请进行常量配置。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = emailBody;
+                apiResult.data = email;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -94,6 +102,7 @@ namespace SPPSApi.Controllers.G03
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 string EmailBody = dataForm.emailBody.ToString();
+                string EmailSubject = dataForm.emailSubject.ToString();
 
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 if (listInfoData.Count > 0)
@@ -109,7 +118,7 @@ namespace SPPSApi.Controllers.G03
 
                 string strMsg = "";
                 string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
-                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody, _webHostEnvironment.ContentRootPath, ref strMsg, loginInfo.Email, loginInfo.UnitName, path);
+                fs0307_Logic.ZKZP(listInfoData, loginInfo.UserId, EmailBody, EmailSubject, _webHostEnvironment.ContentRootPath, ref strMsg, loginInfo.Email, loginInfo.UnitName, path);
 
                 if (!strMsg.Equals("账票展开成功。"))
                 {
@@ -154,6 +163,7 @@ namespace SPPSApi.Controllers.G03
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 string EmailBody = dataForm.emailBody.ToString();
+                string EmailSubject = dataForm.emailSubject.ToString();
 
                 bool hasFind = false;//是否找到需要新增或者修改的数据
 
@@ -171,7 +181,7 @@ namespace SPPSApi.Controllers.G03
 
 
                 string strMsg = "";
-                fs0307_Logic.FTMS(listInfoData, EmailBody, loginInfo.UserId, ref strMsg, loginInfo.Email, loginInfo.UnitName);
+                fs0307_Logic.FTMS(listInfoData, EmailBody, EmailSubject, loginInfo.UserId, ref strMsg, loginInfo.Email, loginInfo.UnitName);
 
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {

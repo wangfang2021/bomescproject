@@ -434,7 +434,7 @@ namespace SPPSApi.Controllers.G06
             string msg = "";
             try
             {
-                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                string vcDxny = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM + "/01").ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(','); ;
                 //生成生产计划  
@@ -475,7 +475,7 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
-                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                string vcDxny = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM + "/01").ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",

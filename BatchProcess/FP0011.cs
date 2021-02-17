@@ -61,7 +61,7 @@ namespace BatchProcess
                 sql.Append("insert into tCheckMethod_Master_temp (vcPartId,dFromTime,dToTime,vcCarfamilyCode,vcInOut,vcHaoJiu,    \n");
                 sql.Append("vcPartArea,vcPackType,vcSupplierId,vcSupplierPlant,vcPartENName,vcOperatorID,dOperatorTime,vcSPISStatus)    \n");
                 sql.Append("select vcPartId,convert(varchar(10),dFromTime,120),convert(varchar(10),dToTime,120),vcCarfamilyCode,vcInOut,vcHaoJiu,发注工厂,     \n");
-                sql.Append("vcSupplierPacking,vcSupplierId,vcSupplierPlant,vcPartENName,'" + strUserId+"',GETDATE(),null    \n");
+                sql.Append("vcSupplierPacking,vcSupplierId,vcSupplierPlant,vcPartENName,'" + strUserId+"',GETDATE(),'0'    \n");
                 sql.Append("from (    \n");
                 sql.Append("	select ROW_NUMBER() over(partition by a1.vcpartid,a1.vcSupplierId order by a1.vcpartid,a1.vcSupplierId) as id,    \n");
                 sql.Append("	a1.vcPartId,a1.vcSupplierId,cast(a1.dFromTime as datetime) as dFromTime,a1.dToTime,a2.vcCarfamilyCode,a2.vcInOut,a2.vcHaoJiu,a2.发注工厂,    \n");

@@ -2066,7 +2066,7 @@ namespace DataAccess
             #endregion
             sb.AppendLine("  from  ");
             sb.AppendLine(" ( ");
-            sb.AppendLine(" select t1.* , t2.vcCurrentPastCode,t2.vcPartsNameCHN,--t2.vcPorType ,t2.vcZB, ");
+            sb.AppendLine(" select t1.*, t2.vcCurrentPastCode,t2.vcPartsNameCHN,--t2.vcPorType ,t2.vcZB, ");
             sb.AppendLine("  t3.vcCalendar1,t3.vcCalendar2,t3.vcCalendar3,t3.vcCalendar4  ");
             sb.AppendLine("  from  ");
             sb.AppendLine(" (SELECT vcMonth ,vcPartsno ,vcDock ,vcCarType ,vcProject1 ,vcProjectName ,vcMonTotal, ");
@@ -2089,9 +2089,9 @@ namespace DataAccess
             sb.AppendLine(" montouch  ");
             sb.AppendLine(" FROM [MonthProdPlanTbl] ");
             sb.AppendLine(" ) t1 ");
-            sb.AppendLine(" left join dbo.tPartInfoMaster t2  ");
+            sb.AppendLine(" left join tPartInfoMaster t2  ");
             sb.AppendLine(" on t1.vcPartsno = t2.vcPartsNo and t1.vcDock =t2.vcDock and t1.vcCarType =t2.vcCarFamilyCode and t2.dTimeFrom <='" + mon + "-01' and t2.dTimeTo>= '" + mon + "-01' ");
-            sb.AppendLine(" left join dbo.ProRuleMst t3 on t3.vcPorType=t2.vcPorType and t3.vcZB=t2.vcZB ");
+            sb.AppendLine(" left join ProRuleMst t3 on t3.vcPorType=t2.vcPorType and t3.vcZB=t2.vcZB ");
             sb.AppendLine(" where t1.montouch ='2012-12'  ");
             sb.AppendLine(" ) tT ");
             sb.AppendLine(" left join ( ");
@@ -2117,11 +2117,11 @@ namespace DataAccess
             sb.AppendLine(" vcD29b	+	vcD29y	as	ED29,vcD30b	+	vcD30y	as	ED30, ");
             sb.AppendLine(" vcD31b	+	vcD31y	as	ED31, ");
             sb.AppendLine(" montouch  ");
-            sb.AppendLine(" FROM [MonthProdPlanTbl] ");
+            sb.AppendLine(" FROM MonthProdPlanTbl ");
             sb.AppendLine(" ) t1 ");
-            sb.AppendLine(" left join dbo.tPartInfoMaster t2  ");
+            sb.AppendLine(" left join tPartInfoMaster t2  ");
             sb.AppendLine(" on t1.vcPartsno = t2.vcPartsNo and t1.vcDock =t2.vcDock and t1.vcCarType =t2.vcCarFamilyCode and  t2.dTimeFrom <='" + mon + "-01' and t2.dTimeTo>= '" + mon + "-01' ");
-            sb.AppendLine(" left join dbo.ProRuleMst t3 on t3.vcPorType=t2.vcPorType and t3.vcZB=t2.vcZB ");
+            sb.AppendLine(" left join ProRuleMst t3 on t3.vcPorType=t2.vcPorType and t3.vcZB=t2.vcZB ");
             sb.AppendLine(" where t1.vcMonth ='2012-12' and t1.montouch is null ");
             sb.AppendLine(" ) tE ");
             sb.AppendLine(" on tE.vcPartsno = tT.vcPartsno and tE.vcDock = tT.vcDock and tE.vcCarType = tT.vcCarType ");
@@ -2159,20 +2159,20 @@ namespace DataAccess
             }
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine("   select t2.vcMonth ,t5.vcData2 as vcPlant, t2.vcPartsno, t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
+            sb.AppendLine("   select t2.vcMonth,t5.vcData2 as vcPlant, t2.vcPartsno, t2.vcDock, t2.vcCarType, t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
             sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t4.vcProName1 as vcProject1,t3.vcProType+'-'+t3.vcZB as vcProjectName, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from   {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from (select * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
-            sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendLine("  left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from dbo.tPlanPartInfo) t3");
-            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType and  t3.vcMonth = '" + mon + "' ");
-            sb.AppendLine("  left join dbo.ProRuleMst t4");
-            sb.AppendLine("  on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
-            sb.AppendLine(" left join (select vcData1 ,vcData2  from dbo.ConstMst where vcDataId ='kbplant') t5");
-            sb.AppendLine(" on t3.vcPlant = t5.vcData1 ");
-            sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcPlant ='{1}' and t3.vcEDFlag ='S' ", mon, plant);
+            sb.AppendLine("  on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendLine("  left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo) t3");
+            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType and  t3.vcMonth= '" + mon + "' ");
+            sb.AppendLine("  left join ProRuleMst t4");
+            sb.AppendLine("  on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
+            sb.AppendLine(" left join (select vcData1,vcData2 from ConstMst where vcDataId='kbplant') t5");
+            sb.AppendLine(" on t3.vcPlant=t5.vcData1 ");
+            sb.AppendFormat(" where t2.vcMonth='{0}' and t3.vcPlant='{1}' and t3.vcEDFlag='S' ", mon, plant);
             try
             {
                 dt = excute.ExcuteSqlWithSelectToDT(sb.ToString());
@@ -2211,14 +2211,14 @@ namespace DataAccess
             sb.AppendLine("   t3.vcPartsNameCHN, t4.vcProName1 as vcProject1,t3.vcPorType+'-'+t3.vcZB as vcProjectName, t3.vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from   {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from (select * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
             sb.AppendLine("  left join (select * from tPartInfoMaster where dTimeFrom <='" + mon + "-01' and dTimeTo>= '" + mon + "-01' ) t3");
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarFamilyCode = t2.vcCarType");
-            sb.AppendLine("  left join dbo.ProRuleMst t4");
+            sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType = t3.vcPorType and t4.vcZB = t3.vcZB");
-            sb.AppendLine(" left join (select vcData1 ,vcData2  from dbo.ConstMst where vcDataId ='kbplant') t5");
+            sb.AppendLine(" left join (select vcData1,vcData2 from ConstMst where vcDataId ='kbplant') t5");
             sb.AppendLine(" on t3.vcPartPlant = t5.vcData1 ");
             sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcPartPlant ='{1}'", mon, plant);
             try
@@ -2257,12 +2257,12 @@ namespace DataAccess
             sb.AppendLine("   t3.vcPartsNameCHN, t2.vcProject1,t3.vcPorType+'-'+t3.vcZB as vcProjectName, t3.vcCurrentPastCode,t2.vcMonTotal *t3.iQuantityPerContainer as vcMonTotal ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from   {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from ( select  * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendLine("  left join dbo.tPartInfoMaster t3");
+            sb.AppendLine("  left join tPartInfoMaster t3");
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarFamilyCode = t2.vcCarType  and t3.dTimeFrom <='" + mon + "-01' and t3.dTimeTo>= '" + mon + "-01' ");
-            sb.AppendLine("  left join dbo.ProRuleMst t4");
+            sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType = t3.vcPorType and t4.vcZB = t3.vcZB");
             sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcPartPlant ='{1}' ", mon, plant);
             try

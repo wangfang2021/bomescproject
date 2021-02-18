@@ -442,7 +442,11 @@ namespace DataAccess
 
                     //旧型经年由旧型开始和结束时间计算得出
                     #region 计算旧型经年
-                    if (dt.Rows[i]["dJiuBegin"].ToString() != "" && dt.Rows[i]["dJiuEnd"].ToString() != "")
+                    if (
+                        (dt.Rows[i]["dJiuBegin"]!=null && dt.Rows[i]["dJiuBegin"].ToString() != "" ) 
+                        && 
+                        (dt.Rows[i]["dJiuEnd"] !=null && dt.Rows[i]["dJiuEnd"].ToString() != "")
+                        )
                     {
                         DateTime datetime1 = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]);
                         DateTime datetime2 = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]);

@@ -229,8 +229,8 @@ namespace DataAccess
                         sql.Append("  ,vcLastTimeFlag='" + strLastTimeFlag + "'   \r\n");
                         
                         sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcLastTimeFlag='" + strLastTimeFlag + "'  \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where isnull(vcChange,'')<>'' and decPriceOrigin is not null and decPriceTNPWithTax is null  and vcLastTimeFlag='" + strLastTimeFlag + "'    \r\n");
+                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcLastTimeFlag='" + strLastTimeFlag + "' and vcPriceState<>'4' \r\n");//PIC=4，PIC状态不再发生变化
+                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where isnull(vcChange,'')<>'' and decPriceOrigin is not null and decPriceTNPWithTax is null  and vcLastTimeFlag='" + strLastTimeFlag + "'  and vcPriceState<>'4'   \r\n");
                     }
                 }
  
@@ -339,8 +339,8 @@ namespace DataAccess
                         sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                         //sql.Append("  ,dOperatorTime=getdate()   \r\n");
                         sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null   \r\n");
+                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   and vcPriceState<>'4' \r\n");
+                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null  and vcPriceState<>'4'  \r\n");
 
                     }
                     else
@@ -349,8 +349,8 @@ namespace DataAccess
                         sql.Append("  decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                         sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null   \r\n");
+                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null  and vcPriceState<>'4'  \r\n");
+                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null  and vcPriceState<>'4'  \r\n");
                     }
                 }
                 if (sql.Length > 0)

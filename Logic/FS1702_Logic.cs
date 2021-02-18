@@ -198,8 +198,6 @@ namespace Logic
         #region 确认单打印
         public void qrdPrint(List<Dictionary<string, Object>> checkedInfoData,string strUserId)
         {
-            //实现打印操作
-            
             //更新确认单打印时间
             fs1702_DataAccess.qrdPrint(checkedInfoData, strUserId);
         }
@@ -208,8 +206,6 @@ namespace Logic
         #region 出荷看板打印
         public void kbPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
-            //实现打印操作
-            
             //更新出荷看板打印时间
             fs1702_DataAccess.kbPrint(checkedInfoData, strUserId);
         }
@@ -227,8 +223,11 @@ namespace Logic
         {
             return fs1702_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
         }
+        public DataTable getKBData(string vcProject, string dChuHeDate)
+        {
+            return fs1702_DataAccess.getKBData(vcProject, dChuHeDate);
+        }
 
-    
         public string generateExcelWithXlt(string vcQueRenNo, DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
         {
             try

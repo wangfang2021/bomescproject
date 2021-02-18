@@ -59,7 +59,7 @@ namespace SPPSApi.Controllers.G06
                 List<Object> HaoJiuList = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
                 List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
                 List<Object> ChangesList = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
-                List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C051"));//包装工厂
+                List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装工厂
                 List<Object> OESPList = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
                 List<Object> OldProductionList = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//旧型年限生产区分
                 List<Object> BillTypeList = ComFunction.convertAllToResult(ComFunction.getTCode("C007"));//单据区分

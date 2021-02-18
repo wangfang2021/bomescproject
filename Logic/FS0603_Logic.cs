@@ -785,8 +785,8 @@ namespace Logic
                         string strSupplierPlant = listInfoData[i]["vcSupplierPlant"].ToString();
                         string strSupplierPlant_ed = listInfoData[i]["SupplierPlant_ed"].ToString();
                         string strSupplierPlantLinId_ed = listInfoData[i]["SupplierPlantLinId_ed"] == null ? "" : listInfoData[i]["SupplierPlantLinId_ed"].ToString();
-                        string strSupplierPlantFromTime_ed = Convert.ToDateTime(listInfoData[i]["SupplierPlantFromTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                        string strSupplierPlantToTime_ed = Convert.ToDateTime(listInfoData[i]["SupplierPlantToTime_ed"].ToString()).ToString("yyyy-MM-dd");
+                        string strSupplierPlantFromTime_ed = listInfoData[i]["SupplierPlantFromTime_ed"].ToString();
+                        string strSupplierPlantToTime_ed = listInfoData[i]["SupplierPlantToTime_ed"].ToString();
                         if (strSupplierPlantLinId_ed == "-1")
                         {
                             string strSupplierPlantLinId_before = "";
@@ -1471,69 +1471,69 @@ namespace Logic
             {
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    listInfoData[i]["LinId"] = listInfoData[i]["LinId"] == null ? "" : listInfoData[i]["LinId"].ToString();
-                    listInfoData[i]["dSyncTime"] = listInfoData[i]["dSyncTime"] == null ? "" : Convert.ToDateTime(listInfoData[i]["dSyncTime"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["vcChanges"] = listInfoData[i]["vcChanges"] == null ? "" : listInfoData[i]["vcChanges"].ToString();
-                    listInfoData[i]["vcPackingPlant"] = listInfoData[i]["vcPackingPlant"] == null ? "" : listInfoData[i]["vcPackingPlant"].ToString();
-                    listInfoData[i]["vcPartId"] = listInfoData[i]["vcPartId"] == null ? "" : listInfoData[i]["vcPartId"].ToString();
-                    listInfoData[i]["vcPartENName"] = listInfoData[i]["vcPartENName"] == null ? "" : listInfoData[i]["vcPartENName"].ToString();
-                    listInfoData[i]["vcCarfamilyCode"] = listInfoData[i]["vcCarfamilyCode"] == null ? "" : listInfoData[i]["vcCarfamilyCode"].ToString();
-                    listInfoData[i]["vcReceiver"] = listInfoData[i]["vcReceiver"] == null ? "" : listInfoData[i]["vcReceiver"].ToString();
-                    listInfoData[i]["dFromTime"] = listInfoData[i]["dFromTime"] == null ? "" : Convert.ToDateTime(listInfoData[i]["dFromTime"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["dToTime"] = listInfoData[i]["dToTime"] == null ? "" : Convert.ToDateTime(listInfoData[i]["dToTime"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["vcPartId_Replace"] = listInfoData[i]["vcPartId_Replace"] == null ? "" : listInfoData[i]["vcPartId_Replace"].ToString();
-                    listInfoData[i]["vcInOut"] = listInfoData[i]["vcInOut"] == null ? "" : listInfoData[i]["vcInOut"].ToString();
-                    listInfoData[i]["vcOESP"] = listInfoData[i]["vcOESP"] == null ? "" : listInfoData[i]["vcOESP"].ToString();
-                    listInfoData[i]["vcHaoJiu"] = listInfoData[i]["vcHaoJiu"] == null ? "" : listInfoData[i]["vcHaoJiu"].ToString();
-                    listInfoData[i]["vcOldProduction"] = listInfoData[i]["vcOldProduction"] == null ? "" : listInfoData[i]["vcOldProduction"].ToString();
-                    listInfoData[i]["dOldStartTime"] = listInfoData[i]["dOldStartTime"] == null ? "" : Convert.ToDateTime(listInfoData[i]["dOldStartTime"].ToString()).ToString("yyyy-MM-dd HH:mm");
-                    listInfoData[i]["dDebugTime"] = listInfoData[i]["dDebugTime"] == null ? "" : Convert.ToDateTime(listInfoData[i]["dDebugTime"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["vcSupplierId"] = listInfoData[i]["vcSupplierId"] == null ? "" : listInfoData[i]["vcSupplierId"].ToString();
-                    listInfoData[i]["dSupplierFromTime"] = listInfoData[i]["dSupplierFromTime"] == null ? "" : listInfoData[i]["dSupplierFromTime"].ToString();
-                    listInfoData[i]["dSupplierToTime"] = listInfoData[i]["dSupplierToTime"] == null ? "" : listInfoData[i]["dSupplierToTime"].ToString();
-                    listInfoData[i]["vcSupplierName"] = listInfoData[i]["vcSupplierName"] == null ? "" : listInfoData[i]["vcSupplierName"].ToString();
-                    listInfoData[i]["vcSupplierPlant"] = listInfoData[i]["vcSupplierPlant"] == null ? "" : listInfoData[i]["vcSupplierPlant"].ToString();
-                    listInfoData[i]["SupplierPlant_ed"] = listInfoData[i]["SupplierPlant_ed"] == null ? "" : listInfoData[i]["SupplierPlant_ed"].ToString();
-                    listInfoData[i]["SupplierPlantLinId_ed"] = listInfoData[i]["SupplierPlantLinId_ed"] == null ? "" : listInfoData[i]["SupplierPlantLinId_ed"].ToString();
-                    listInfoData[i]["SupplierPlantFromTime_ed"] = listInfoData[i]["SupplierPlantFromTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["SupplierPlantFromTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["SupplierPlantToTime_ed"] = listInfoData[i]["SupplierPlantToTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["SupplierPlantToTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["vcSupplierPlace"] = listInfoData[i]["vcSupplierPlace"] == null ? "" : listInfoData[i]["vcSupplierPlace"].ToString();
-                    listInfoData[i]["iPackingQty"] = listInfoData[i]["iPackingQty"] == null ? "" : listInfoData[i]["iPackingQty"].ToString();
-                    listInfoData[i]["vcBoxType"] = listInfoData[i]["vcBoxType"] == null ? "" : listInfoData[i]["vcBoxType"].ToString();
-                    listInfoData[i]["iLength"] = listInfoData[i]["iLength"] == null ? "" : listInfoData[i]["iLength"].ToString();
-                    listInfoData[i]["iWidth"] = listInfoData[i]["iWidth"] == null ? "" : listInfoData[i]["iWidth"].ToString();
-                    listInfoData[i]["iHeight"] = listInfoData[i]["iHeight"] == null ? "" : listInfoData[i]["iHeight"].ToString();
-                    listInfoData[i]["iVolume"] = listInfoData[i]["iVolume"] == null ? "" : listInfoData[i]["iVolume"].ToString();
-                    listInfoData[i]["BoxPackingQty_ed"] = listInfoData[i]["BoxPackingQty_ed"] == null ? "" : listInfoData[i]["BoxPackingQty_ed"].ToString();
-                    listInfoData[i]["BoxLinId_ed"] = listInfoData[i]["BoxLinId_ed"] == null ? "" : listInfoData[i]["BoxLinId_ed"].ToString();
-                    listInfoData[i]["BoxFromTime_ed"] = listInfoData[i]["BoxFromTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["BoxFromTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["BoxToTime_ed"] = listInfoData[i]["BoxToTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["BoxToTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["BoxType_ed"] = listInfoData[i]["BoxType_ed"] == null ? "" : listInfoData[i]["BoxType_ed"].ToString();
-                    listInfoData[i]["BoxLength_ed"] = listInfoData[i]["BoxLength_ed"] == null ? "" : listInfoData[i]["BoxLength_ed"].ToString();
-                    listInfoData[i]["BoxWidth_ed"] = listInfoData[i]["BoxWidth_ed"] == null ? "" : listInfoData[i]["BoxWidth_ed"].ToString();
-                    listInfoData[i]["BoxHeight_ed"] = listInfoData[i]["BoxHeight_ed"] == null ? "" : listInfoData[i]["BoxHeight_ed"].ToString();
-                    listInfoData[i]["BoxVolume_ed"] = listInfoData[i]["BoxVolume_ed"] == null ? "" : listInfoData[i]["BoxVolume_ed"].ToString();
-                    listInfoData[i]["vcSufferIn"] = listInfoData[i]["vcSufferIn"] == null ? "" : listInfoData[i]["vcSufferIn"].ToString();
-                    listInfoData[i]["SufferIn_ed"] = listInfoData[i]["SufferIn_ed"] == null ? "" : listInfoData[i]["SufferIn_ed"].ToString();
-                    listInfoData[i]["SufferInLinId_ed"] = listInfoData[i]["SufferInLinId_ed"] == null ? "" : listInfoData[i]["SufferInLinId_ed"].ToString();
-                    listInfoData[i]["SufferInFromTime_ed"] = listInfoData[i]["SufferInFromTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["SufferInFromTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["SufferInToTime_ed"] = listInfoData[i]["SufferInToTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["SufferInToTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["vcOrderPlant"] = listInfoData[i]["vcOrderPlant"] == null ? "" : listInfoData[i]["vcOrderPlant"].ToString();
-                    listInfoData[i]["OrderPlant_ed"] = listInfoData[i]["OrderPlant_ed"] == null ? "" : listInfoData[i]["OrderPlant_ed"].ToString();
-                    listInfoData[i]["OrderPlantLinId_ed"] = listInfoData[i]["OrderPlantLinId_ed"] == null ? "" : listInfoData[i]["OrderPlantLinId_ed"].ToString();
-                    listInfoData[i]["OrderPlantFromTime_ed"] = listInfoData[i]["OrderPlantFromTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["OrderPlantFromTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["OrderPlantToTime_ed"] = listInfoData[i]["OrderPlantToTime_ed"] == null ? "" : Convert.ToDateTime(listInfoData[i]["OrderPlantToTime_ed"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["vcInteriorProject"] = listInfoData[i]["vcInteriorProject"] == null ? "" : listInfoData[i]["vcInteriorProject"].ToString();
-                    listInfoData[i]["vcPassProject"] = listInfoData[i]["vcPassProject"] == null ? "" : listInfoData[i]["vcPassProject"].ToString();
-                    listInfoData[i]["vcFrontProject"] = listInfoData[i]["vcFrontProject"] == null ? "" : listInfoData[i]["vcFrontProject"].ToString();
-                    listInfoData[i]["dFrontProjectTime"] = listInfoData[i]["dFrontProjectTime"] == null ? "" : Convert.ToDateTime(listInfoData[i]["dFrontProjectTime"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["dShipmentTime"] = listInfoData[i]["dShipmentTime"] == null ? "" : Convert.ToDateTime(listInfoData[i]["dShipmentTime"].ToString()).ToString("yyyy-MM-dd");
-                    listInfoData[i]["vcPartImage"] = listInfoData[i]["vcPartImage"] == null ? "" : listInfoData[i]["vcPartImage"].ToString();
-                    listInfoData[i]["vcBillType"] = listInfoData[i]["vcBillType"] == null ? "" : listInfoData[i]["vcBillType"].ToString();
-                    listInfoData[i]["vcRemark1"] = listInfoData[i]["vcRemark1"] == null ? "" : listInfoData[i]["vcRemark1"].ToString();
-                    listInfoData[i]["vcRemark2"] = listInfoData[i]["vcRemark2"] == null ? "" : listInfoData[i]["vcRemark2"].ToString();
-                    listInfoData[i]["vcOrderingMethod"] = listInfoData[i]["vcOrderingMethod"] == null ? "" : listInfoData[i]["vcOrderingMethod"].ToString();
-                    listInfoData[i]["vcMandOrder"] = listInfoData[i]["vcMandOrder"] == null ? "" : listInfoData[i]["vcMandOrder"].ToString();
+                    listInfoData[i]["LinId"] = fs0603_DataAccess.setNullValue(listInfoData[i]["LinId"], "", "");
+                    listInfoData[i]["dSyncTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dSyncTime"], "date", "");
+                    listInfoData[i]["vcChanges"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcChanges"], "", "");
+                    listInfoData[i]["vcPackingPlant"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcPackingPlant"], "", "");
+                    listInfoData[i]["vcPartId"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcPartId"], "", "");
+                    listInfoData[i]["vcPartENName"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcPartENName"], "", "");
+                    listInfoData[i]["vcCarfamilyCode"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcCarfamilyCode"], "", "");
+                    listInfoData[i]["vcReceiver"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcReceiver"], "", "");
+                    listInfoData[i]["dFromTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dFromTime"], "date", "");
+                    listInfoData[i]["dToTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dToTime"], "date", "");
+                    listInfoData[i]["vcPartId_Replace"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcPartId_Replace"], "", "");
+                    listInfoData[i]["vcInOut"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcInOut"], "", "");
+                    listInfoData[i]["vcOESP"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcOESP"], "", "");
+                    listInfoData[i]["vcHaoJiu"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcHaoJiu"], "", "");
+                    listInfoData[i]["vcOldProduction"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcOldProduction"], "", "");
+                    listInfoData[i]["dOldStartTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dOldStartTime"], "date", "");
+                    listInfoData[i]["dDebugTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dDebugTime"], "date", "");
+                    listInfoData[i]["vcSupplierId"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSupplierId"], "", "");
+                    listInfoData[i]["dSupplierFromTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dSupplierFromTime"], "date", "");
+                    listInfoData[i]["dSupplierToTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dSupplierToTime"], "date", "");
+                    listInfoData[i]["vcSupplierName"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSupplierName"], "", "");
+                    listInfoData[i]["vcSupplierPlant"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSupplierPlant"], "", "");
+                    listInfoData[i]["SupplierPlant_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SupplierPlant_ed"], "", "");
+                    listInfoData[i]["SupplierPlantLinId_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SupplierPlantLinId_ed"], "", "");
+                    listInfoData[i]["SupplierPlantFromTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SupplierPlantFromTime_ed"], "date", "");
+                    listInfoData[i]["SupplierPlantToTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SupplierPlantToTime_ed"], "date", "");
+                    listInfoData[i]["vcSupplierPlace"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSupplierPlace"], "", "");
+                    listInfoData[i]["iPackingQty"] = fs0603_DataAccess.setNullValue(listInfoData[i]["iPackingQty"], "", "");
+                    listInfoData[i]["vcBoxType"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcBoxType"], "", "");
+                    listInfoData[i]["iLength"] = fs0603_DataAccess.setNullValue(listInfoData[i]["iLength"], "", "");
+                    listInfoData[i]["iWidth"] = fs0603_DataAccess.setNullValue(listInfoData[i]["iWidth"], "", "");
+                    listInfoData[i]["iHeight"] = fs0603_DataAccess.setNullValue(listInfoData[i]["iHeight"], "", "");
+                    listInfoData[i]["iVolume"] = fs0603_DataAccess.setNullValue(listInfoData[i]["iVolume"], "", "");
+                    listInfoData[i]["BoxPackingQty_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxPackingQty_ed"], "", "");
+                    listInfoData[i]["BoxLinId_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxLinId_ed"], "", "");
+                    listInfoData[i]["BoxFromTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxFromTime_ed"], "date", "");
+                    listInfoData[i]["BoxToTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxToTime_ed"], "date", "");
+                    listInfoData[i]["BoxType_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxType_ed"], "", "");
+                    listInfoData[i]["BoxLength_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxLength_ed"], "", "");
+                    listInfoData[i]["BoxWidth_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxWidth_ed"], "", "");
+                    listInfoData[i]["BoxHeight_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxHeight_ed"], "", "");
+                    listInfoData[i]["BoxVolume_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["BoxVolume_ed"], "", "");
+                    listInfoData[i]["vcSufferIn"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSufferIn"], "", "");
+                    listInfoData[i]["SufferIn_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SufferIn_ed"], "", "");
+                    listInfoData[i]["SufferInLinId_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SufferInLinId_ed"], "", "");
+                    listInfoData[i]["SufferInFromTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SufferInFromTime_ed"], "date", "");
+                    listInfoData[i]["SufferInToTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SufferInToTime_ed"], "date", "");
+                    listInfoData[i]["vcOrderPlant"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcOrderPlant"], "", "");
+                    listInfoData[i]["OrderPlant_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["OrderPlant_ed"], "", "");
+                    listInfoData[i]["OrderPlantLinId_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["OrderPlantLinId_ed"], "", "");
+                    listInfoData[i]["OrderPlantFromTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["OrderPlantFromTime_ed"], "date", "");
+                    listInfoData[i]["OrderPlantToTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["OrderPlantToTime_ed"], "date", "");
+                    listInfoData[i]["vcInteriorProject"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcInteriorProject"], "", "");
+                    listInfoData[i]["vcPassProject"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcPassProject"], "", "");
+                    listInfoData[i]["vcFrontProject"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcFrontProject"], "", "");
+                    listInfoData[i]["dFrontProjectTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dFrontProjectTime"], "date", "");
+                    listInfoData[i]["dShipmentTime"] = fs0603_DataAccess.setNullValue(listInfoData[i]["dShipmentTime"], "date", "");
+                    listInfoData[i]["vcPartImage"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcPartImage"], "", "");
+                    listInfoData[i]["vcBillType"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcBillType"], "", "");
+                    listInfoData[i]["vcRemark1"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcRemark1"], "", "");
+                    listInfoData[i]["vcRemark2"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcRemark2"], "", "");
+                    listInfoData[i]["vcOrderingMethod"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcOrderingMethod"], "", "");
+                    listInfoData[i]["vcMandOrder"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcMandOrder"], "", "");
                 }
                 return listInfoData;
             }
@@ -1627,6 +1627,57 @@ namespace Logic
                 dataTable.Columns.Add("dOutPutDate", typeof(string));
                 dataTable.Columns.Add("dReplyOverDate", typeof(string));
                 dataTable.Columns.Add("vcInputType", typeof(string));//company
+            }
+            if (strSpSub == "Query811")
+            {
+                dataTable.Columns.Add("uuid", typeof(string));
+                dataTable.Columns.Add("vcPackingPlant", typeof(string));
+                dataTable.Columns.Add("dHosDate", typeof(string));
+                dataTable.Columns.Add("vcBanZhi", typeof(string));
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcPartItem", typeof(string));
+                dataTable.Columns.Add("vcStandard", typeof(string));
+                dataTable.Columns.Add("decPackTotalNum", typeof(string));
+                dataTable.Columns.Add("decPlannedTime", typeof(string));
+                dataTable.Columns.Add("decPlannedPerson", typeof(string));
+                dataTable.Columns.Add("decInputPerson", typeof(string));
+                dataTable.Columns.Add("decInputTime", typeof(string));
+                dataTable.Columns.Add("decOverFlowTime", typeof(string));
+                dataTable.Columns.Add("decSysLander", typeof(string));
+                dataTable.Columns.Add("decDiffer", typeof(string));
+                dataTable.Columns.Add("bSelectFlag", typeof(string));
+            }
+            if (strSpSub == "Power1301")
+            {
+                dataTable.Columns.Add("vcInPut", typeof(string));
+                dataTable.Columns.Add("vcInPutUnLock", typeof(string));
+                dataTable.Columns.Add("vcCheck", typeof(string));
+                dataTable.Columns.Add("vcCheckUnLock", typeof(string));
+                dataTable.Columns.Add("vcPack", typeof(string));
+                dataTable.Columns.Add("vcPackUnLock", typeof(string));
+                dataTable.Columns.Add("vcOutPut", typeof(string));
+                dataTable.Columns.Add("vcOutPutUnLock", typeof(string));
+                dataTable.Columns.Add("LinId", typeof(string));
+            }
+            if (strSpSub == "SOQ602")
+            {
+                dataTable.Columns.Add("vcYearMonth", typeof(string));
+                dataTable.Columns.Add("vcDyState", typeof(string));
+                dataTable.Columns.Add("vcHyState", typeof(string));
+                dataTable.Columns.Add("vcPart_id", typeof(string));
+                dataTable.Columns.Add("iCbSOQN", typeof(string));
+                dataTable.Columns.Add("decCbBdl", typeof(string));
+                dataTable.Columns.Add("iCbSOQN1", typeof(string));
+                dataTable.Columns.Add("iCbSOQN2", typeof(string));
+                dataTable.Columns.Add("iTzhSOQN", typeof(string));
+                dataTable.Columns.Add("iTzhSOQN1", typeof(string));
+                dataTable.Columns.Add("iTzhSOQN2", typeof(string));
+                dataTable.Columns.Add("iHySOQN", typeof(string));
+                dataTable.Columns.Add("iHySOQN1", typeof(string));
+                dataTable.Columns.Add("iHySOQN2", typeof(string));
+                dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("dExpectTime", typeof(string));
+                dataTable.Columns.Add("vcInputType", typeof(string));
             }
             return dataTable;
         }

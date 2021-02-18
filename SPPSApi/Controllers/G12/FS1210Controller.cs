@@ -47,10 +47,14 @@ namespace SPPSApi.Controllers.G12
             {  
                 FS1209_Logic logic_1 = new FS1209_Logic();
                 List<Object> dataList_PorPlant = ComFunction.convertAllToResult(logic_1.dllPorPlant());
-                string[] userPorType = null;
-                List<Object> dataList_PorType = ComFunction.convertAllToResult(logic_1.dllPorType(loginInfo.UserId, ref userPorType));
-                Dictionary<string, object> res = new Dictionary<string, object>();
 
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dtportype = logic_1.dllPorType(RolePorType.Split('*'));
+                List<Object> dataList_PorType = ComFunction.convertAllToResult(dtportype);
+
+
+
+                Dictionary<string, object> res = new Dictionary<string, object>();
                 res.Add("dataList_PorPlant", dataList_PorPlant);
                 res.Add("dataList_PorType", dataList_PorType);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -106,8 +110,8 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 FS1209_Logic logic_1 = new FS1209_Logic();
-                string[] userPorType = null;
-                DataTable dt1 = logic_1.dllPorType(loginInfo.UserId, ref userPorType);
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dt1 = logic_1.dllPorType(RolePorType.Split('*'));
                 vcPartsNo_ = vcPartsNo.Replace("-", "").ToString();
                 DataTable dt = logic.PrintData(vcKbOrderId, vcTF, vcFBZ, vcTT, vcTBZ, vcPartsNo_, vcCarType, vcGC, vcType, vcPlant, dt1);
                 DtConverter dtConverter = new DtConverter();
@@ -174,8 +178,8 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 FS1209_Logic logic_1 = new FS1209_Logic();
-                string[] userPorType = null;
-                DataTable dt = logic_1.dllPorType(loginInfo.UserId, ref userPorType);
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dt = logic_1.dllPorType(RolePorType.Split('*'));
                 List<Object> dataList = ComFunction.convertAllToResult(dt);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -235,8 +239,8 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 FS1209_Logic logic_1 = new FS1209_Logic();
-                string[] userPorType = null;
-                DataTable dt1 = logic_1.dllPorType(loginInfo.UserId, ref userPorType);
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dt1 = logic_1.dllPorType(RolePorType.Split('*'));
                 vcPartsNo_ = vcPartsNo.Replace("-", "").ToString();
                 DataTable tb = logic.PrintData(vcKbOrderId, vcTF, vcFBZ, vcTT, vcTF, vcPartsNo_, vcCarType, vcGC, vcType, vcPlant, dt1);
                 List<Object> dataList = ComFunction.convertAllToResult(tb);
@@ -312,9 +316,9 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 FS1209_Logic logic_1 = new FS1209_Logic();
-                string[] userPorType = null;
-                DataTable dt1 = logic_1.dllPorType(loginInfo.UserId, ref userPorType);
-                DataTable tb = logic.SearchPrintTDB(vcPrint, userPorType);
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dt1 = logic_1.dllPorType(RolePorType.Split('*'));
+                DataTable tb = logic.SearchPrintTDB(vcPrint, RolePorType.Split('*'));
                 List<Object> dataList = ComFunction.convertAllToResult(tb);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

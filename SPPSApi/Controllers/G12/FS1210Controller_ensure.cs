@@ -53,8 +53,9 @@ namespace SPPSApi.Controllers.G12
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
                 FS1209_Logic logic_1 = new FS1209_Logic();
-                string[] userPorType = null;
-                List<Object> dataList_PorType = ComFunction.convertAllToResult(logic_1.dllPorType(loginInfo.UserId, ref userPorType));
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dt1 = logic_1.dllPorType(RolePorType.Split('*'));
+                List<Object> dataList_PorType = ComFunction.convertAllToResult(dt1);
                 res.Add("PorTypeSource", dataList_PorType);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

@@ -17,11 +17,11 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("SELECT '' as LinId,vcInPutOrderNo,vcPackMaterNo,vcTrolleyNo,vcPackPartId,vcLocation,sum(vcQty) as vcQty ");
+                strSql.AppendLine("SELECT '' as LinId,vcInPutOrderNo,vcPackMaterNo,vcTrolleyNo,vcPackPartId,vcLocation,sum(vcQty) as iQty,'1' as bSelectFlag ");
                 strSql.AppendLine("FROM (");
                 strSql.AppendLine("SELECT [vcInPutOrderNo] AS vcInPutOrderNo,[vcPackMaterNo] AS vcPackMaterNo,[vcTrolleyNo] AS vcTrolleyNo,[vcPackPartId] AS vcPackPartId");
                 strSql.AppendLine("      ,[vcQty] AS vcQty,[vcLocation] AS vcLocation");
-                strSql.AppendLine("  FROM [SPPSdb].[dbo].[TPackMaterInfo] ");
+                strSql.AppendLine("  FROM [dbo].[TPackMaterInfo] ");
                 strSql.AppendLine("  WHERE [dFirstPrintTime] IS NOT NULL ");
                 if (strPackMaterNo != "")
                 {

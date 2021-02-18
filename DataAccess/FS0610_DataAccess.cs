@@ -870,13 +870,12 @@ namespace DataAccess
                 updateOtherPlan("MonthProPlanTblTMP", "MonthP3PlanTblTMP", cmd, apt, dt, user);//工程3
                 updateOtherPlan("MonthProPlanTblTMP", "MonthTZPlanTblTMP", cmd, apt, dt, user);//涂装
                 updateOtherPlan("MonthProPlanTblTMP", "MonthKanBanPlanTblTMP", cmd, apt, dt, user);//看板打印计划 20180928看板打印计划不包含周度品番 - 李兴旺
-                deletePlan(cmd, mon, plant);//删除计划
                 updatePlan(cmd, mon, plant);//更新确定版计划
-                //deleteTMP(cmd, mon, plant);//删除临时计划
+                deleteTMP(cmd, mon, plant);//删除临时计划
                 deleteTMPplan(cmd, mon, plant);//删除多余计划
 
                 //UpdatePlanMST(cmd, mon, plant);//更新到计划品番数据表
-                updateSOQEX(cmd, mon, apt, user, plant);//更新SOQREPLY导出表
+                updateSoqReply(cmd, mon, apt, user, plant);//更新SOQREPLY表
                 #endregion
                 #region 生成打印数据
                 msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
@@ -1641,15 +1640,6 @@ namespace DataAccess
             }
             return msg;
         }
-        public void deletePlan(SqlCommand cmd, string mon, string plant)
-        {
-            cmd.CommandText = "delete from MonthKanBanPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthKanBanPlanTbl.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthP3PlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthP3PlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthPackPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthPackPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthProdPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthProdPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.CommandText += "delete from MonthTZPlanTbl where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthTZPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
-            cmd.ExecuteNonQuery();
-        }
         public void updatePlan(SqlCommand cmd, string mon, string plant)
         {
             cmd.CommandText = "insert into MonthKanBanPlanTbl select * from MonthKanBanPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "') and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = t.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
@@ -1724,17 +1714,20 @@ namespace DataAccess
             cmd.CommandText = sb.ToString();
             cmd.ExecuteNonQuery();
         }
-        public void updateSOQEX(SqlCommand cmd, string mon, SqlDataAdapter apt, string user, string plant)
+        public void updateSoqReply(SqlCommand cmd, string mon, SqlDataAdapter apt, string user, string plant)
         {
             try
             {
+                string vcCLYM = Convert.ToDateTime(mon + "-01").AddMonths(-1).ToString("yyyyMM");
+                string vcDXYM = Convert.ToDateTime(mon + "-01").ToString("yyyyMM");
+
                 // 设置对象月表
                 string sqlTblMonth = "";
                 string sqlPartType = "";
                 string sqlPartDate = "";
                 string strDate = "";
                 string[] montmp = mon.Split('-');
-
+                #region 获取月份日历
                 if (montmp[1] == "01")
                 {
                     sqlTblMonth = "tJanuary";
@@ -1783,11 +1776,12 @@ namespace DataAccess
                 {
                     sqlTblMonth = "tDecember";
                 }
+                #endregion
                 cmd.CommandText = " select * from MonthPackPlanTbl where vcMonth='" + mon + "' ";
                 DataTable dtPack = new DataTable();
                 apt.Fill(dtPack);
                 DataTable dt_Update = new DataTable();
-                cmd.CommandText = " select * from tSOQREPExport where NPCS<>'0' and vcMonth='" + mon + "' and vcPlant='" + plant + "' order by orderid ";
+                cmd.CommandText = " select * from TSoqReply where vcInOutFlag='0' and vcFZGC='" + plant + "' and vcDXYM='" + vcDXYM + "' and vcCLYM='" + vcCLYM + "' and iPartNums<>0 order by vcPart_id ";
                 apt.Fill(dt_Update);
                 for (int i = 0; i < dt_Update.Rows.Count; i++)
                 {
@@ -1796,13 +1790,13 @@ namespace DataAccess
                     //    i = i;
                     //}
                     int tmp = 0;
-                    string partsno = dt_Update.Rows[i]["PartsNo"].ToString();
-                    string cartype = dt_Update.Rows[i]["CFC"].ToString();
+                    string vcPart_id = dt_Update.Rows[i]["vcPart_id"].ToString();
+                    string vcCarType = dt_Update.Rows[i]["vcCarType"].ToString();
 
                     sqlPartType = "";
                     sqlPartType += "SELECT vcCalendar4 FROM ProRuleMst t1, tPartInfoMaster t2 ";
                     sqlPartType += "where t2.vcPorType=t1.vcPorType and t2.vcZB=t1.vcZB ";
-                    sqlPartType += "and t2.vcPartsNo='" + partsno + "' and t2.vcCarFamilyCode='" + cartype + "' ";
+                    sqlPartType += "and t2.vcPartsNo='" + vcPart_id + "' and t2.vcCarFamilyCode='" + vcCarType + "' ";
                     sqlPartType += "and t2.dTimeFrom<='" + mon + "-01" + "' and t2.dTimeTo>='" + mon + "-01" + "' ";
                     DataTable dt_Calendar4 = excute.ExcuteSqlWithSelectToDT(sqlPartType);
                     //cmd.CommandText = sqlPartType;
@@ -1823,104 +1817,104 @@ namespace DataAccess
                         {
                             if (dt_CalendarData.Rows[0]["D1b"].ToString() != "" || dt_CalendarData.Rows[0]["D1y"].ToString() != "")
                             {
-                                strDate = "D1";
+                                strDate = "iD1";
                             }
                             else if (dt_CalendarData.Rows[0]["D2b"].ToString() != "" || dt_CalendarData.Rows[0]["D2y"].ToString() != "")
                             {
-                                strDate = "D2";
+                                strDate = "iD2";
                             }
                             else if (dt_CalendarData.Rows[0]["D3b"].ToString() != "" || dt_CalendarData.Rows[0]["D3y"].ToString() != "")
                             {
-                                strDate = "D3";
+                                strDate = "iD3";
                             }
                             else if (dt_CalendarData.Rows[0]["D4b"].ToString() != "" || dt_CalendarData.Rows[0]["D4y"].ToString() != "")
                             {
-                                strDate = "D4";
+                                strDate = "iD4";
                             }
                             else if (dt_CalendarData.Rows[0]["D5b"].ToString() != "" || dt_CalendarData.Rows[0]["D5y"].ToString() != "")
                             {
-                                strDate = "D5";
+                                strDate = "iD5";
                             }
                             else if (dt_CalendarData.Rows[0]["D6b"].ToString() != "" || dt_CalendarData.Rows[0]["D6y"].ToString() != "")
                             {
-                                strDate = "D6";
+                                strDate = "iD6";
                             }
                             else if (dt_CalendarData.Rows[0]["D7b"].ToString() != "" || dt_CalendarData.Rows[0]["D7y"].ToString() != "")
                             {
-                                strDate = "D7";
+                                strDate = "iD7";
                             }
                             else if (dt_CalendarData.Rows[0]["D8b"].ToString() != "" || dt_CalendarData.Rows[0]["D8y"].ToString() != "")
                             {
-                                strDate = "D8";
+                                strDate = "iD8";
                             }
                             else if (dt_CalendarData.Rows[0]["D9b"].ToString() != "" || dt_CalendarData.Rows[0]["D9y"].ToString() != "")
                             {
-                                strDate = "D9";
+                                strDate = "iD9";
                             }
                             else if (dt_CalendarData.Rows[0]["D10b"].ToString() != "" || dt_CalendarData.Rows[0]["D10y"].ToString() != "")
                             {
-                                strDate = "D10";
+                                strDate = "iD10";
                             }
                             else if (dt_CalendarData.Rows[0]["D11b"].ToString() != "" || dt_CalendarData.Rows[0]["D11y"].ToString() != "")
                             {
-                                strDate = "D11";
+                                strDate = "iD11";
                             }
                             else if (dt_CalendarData.Rows[0]["D12b"].ToString() != "" || dt_CalendarData.Rows[0]["D12y"].ToString() != "")
                             {
-                                strDate = "D12";
+                                strDate = "iD12";
                             }
                             else if (dt_CalendarData.Rows[0]["D13b"].ToString() != "" || dt_CalendarData.Rows[0]["D13y"].ToString() != "")
                             {
-                                strDate = "D13";
+                                strDate = "iD13";
                             }
                             else if (dt_CalendarData.Rows[0]["D14b"].ToString() != "" || dt_CalendarData.Rows[0]["D14y"].ToString() != "")
                             {
-                                strDate = "D14";
+                                strDate = "iD14";
                             }
                             else if (dt_CalendarData.Rows[0]["D15b"].ToString() != "" || dt_CalendarData.Rows[0]["D15y"].ToString() != "")
                             {
-                                strDate = "D15";
+                                strDate = "iD15";
                             }
                             else if (dt_CalendarData.Rows[0]["D16b"].ToString() != "" || dt_CalendarData.Rows[0]["D16y"].ToString() != "")
                             {
-                                strDate = "D16";
+                                strDate = "iD16";
                             }
                             else if (dt_CalendarData.Rows[0]["D17b"].ToString() != "" || dt_CalendarData.Rows[0]["D17y"].ToString() != "")
                             {
-                                strDate = "D17";
+                                strDate = "iD17";
 
                             }
                             else if (dt_CalendarData.Rows[0]["D18b"].ToString() != "" || dt_CalendarData.Rows[0]["D18y"].ToString() != "")
                             {
-                                strDate = "D18";
+                                strDate = "iD18";
                             }
                             else if (dt_CalendarData.Rows[0]["D19b"].ToString() != "" || dt_CalendarData.Rows[0]["D19y"].ToString() != "")
                             {
-                                strDate = "D19";
+                                strDate = "iD19";
                             }
                             else if (dt_CalendarData.Rows[0]["D20b"].ToString() != "" || dt_CalendarData.Rows[0]["D20y"].ToString() != "")
                             {
-                                strDate = "D20";
+                                strDate = "iD20";
                             }
                             else if (dt_CalendarData.Rows[0]["D21b"].ToString() != "" || dt_CalendarData.Rows[0]["D21y"].ToString() != "")
                             {
-                                strDate = "D21";
+                                strDate = "iD21";
                             }
                             else if (dt_CalendarData.Rows[0]["D22b"].ToString() != "" || dt_CalendarData.Rows[0]["D22y"].ToString() != "")
                             {
-                                strDate = "D22";
+                                strDate = "iD22";
                             }
                             else if (dt_CalendarData.Rows[0]["D23b"].ToString() != "" || dt_CalendarData.Rows[0]["D23y"].ToString() != "")
                             {
-                                strDate = "D23";
+                                strDate = "iD23";
                             }
                             else if (dt_CalendarData.Rows[0]["D24b"].ToString() != "" || dt_CalendarData.Rows[0]["D24y"].ToString() != "")
                             {
-                                strDate = "D24";
+                                strDate = "iD24";
                             }
                             else if (dt_CalendarData.Rows[0]["D25b"].ToString() != "" || dt_CalendarData.Rows[0]["D25y"].ToString() != "")
                             {
-                                strDate = "D25";
+                                strDate = "iD25";
                             }
                             else if (dt_CalendarData.Rows[0]["D26b"].ToString() != "" || dt_CalendarData.Rows[0]["D26y"].ToString() != "")
                             {
@@ -1928,100 +1922,100 @@ namespace DataAccess
                             }
                             else if (dt_CalendarData.Rows[0]["D27b"].ToString() != "" || dt_CalendarData.Rows[0]["D27y"].ToString() != "")
                             {
-                                strDate = "D27";
+                                strDate = "iD27";
                             }
                             else if (dt_CalendarData.Rows[0]["D28b"].ToString() != "" || dt_CalendarData.Rows[0]["D28y"].ToString() != "")
                             {
-                                strDate = "D28";
+                                strDate = "iD28";
                             }
                             else if (dt_CalendarData.Rows[0]["D29b"].ToString() != "" || dt_CalendarData.Rows[0]["D29y"].ToString() != "")
                             {
-                                strDate = "D29";
+                                strDate = "iD29";
                             }
                             else if (dt_CalendarData.Rows[0]["D30b"].ToString() != "" || dt_CalendarData.Rows[0]["D30y"].ToString() != "")
                             {
-                                strDate = "D30";
+                                strDate = "iD30";
                             }
                             else if (dt_CalendarData.Rows[0]["D31b"].ToString() != "" || dt_CalendarData.Rows[0]["D31y"].ToString() != "")
                             {
-                                strDate = "D31";
+                                strDate = "iD31";
                             }
                         }
                     }
                     else
                     {
-                        throw new Exception("品番" + partsno + "工程4日历类型取得失败");
+                        throw new Exception("品番" + vcPart_id + "工程4日历类型取得失败");
                     }
-                    DataRow[] dr = dtPack.Select("vcMonth='" + mon + "' and vcPartsno='" + partsno + "' and vcCarType='" + cartype + "' ");
-                    dt_Update.Rows[i]["D1"] = Convert.ToInt32(dr[0]["vcD1b"].ToString().Length == 0 ? "0" : dr[0]["vcD1b"]) + Convert.ToInt32(dr[0]["vcD1y"].ToString().Length == 0 ? "0" : dr[0]["vcD1y"]);
-                    dt_Update.Rows[i]["D2"] = Convert.ToInt32(dr[0]["vcD2b"].ToString().Length == 0 ? "0" : dr[0]["vcD2b"]) + Convert.ToInt32(dr[0]["vcD2y"].ToString().Length == 0 ? "0" : dr[0]["vcD2y"]);
-                    dt_Update.Rows[i]["D3"] = Convert.ToInt32(dr[0]["vcD3b"].ToString().Length == 0 ? "0" : dr[0]["vcD3b"]) + Convert.ToInt32(dr[0]["vcD3y"].ToString().Length == 0 ? "0" : dr[0]["vcD3y"]);
-                    dt_Update.Rows[i]["D4"] = Convert.ToInt32(dr[0]["vcD4b"].ToString().Length == 0 ? "0" : dr[0]["vcD4b"]) + Convert.ToInt32(dr[0]["vcD4y"].ToString().Length == 0 ? "0" : dr[0]["vcD4y"]);
-                    dt_Update.Rows[i]["D5"] = Convert.ToInt32(dr[0]["vcD5b"].ToString().Length == 0 ? "0" : dr[0]["vcD5b"]) + Convert.ToInt32(dr[0]["vcD5y"].ToString().Length == 0 ? "0" : dr[0]["vcD5y"]);
-                    dt_Update.Rows[i]["D6"] = Convert.ToInt32(dr[0]["vcD6b"].ToString().Length == 0 ? "0" : dr[0]["vcD6b"]) + Convert.ToInt32(dr[0]["vcD6y"].ToString().Length == 0 ? "0" : dr[0]["vcD6y"]);
-                    dt_Update.Rows[i]["D7"] = Convert.ToInt32(dr[0]["vcD7b"].ToString().Length == 0 ? "0" : dr[0]["vcD7b"]) + Convert.ToInt32(dr[0]["vcD7y"].ToString().Length == 0 ? "0" : dr[0]["vcD7y"]);
-                    dt_Update.Rows[i]["D8"] = Convert.ToInt32(dr[0]["vcD8b"].ToString().Length == 0 ? "0" : dr[0]["vcD8b"]) + Convert.ToInt32(dr[0]["vcD8y"].ToString().Length == 0 ? "0" : dr[0]["vcD8y"]);
-                    dt_Update.Rows[i]["D9"] = Convert.ToInt32(dr[0]["vcD9b"].ToString().Length == 0 ? "0" : dr[0]["vcD9b"]) + Convert.ToInt32(dr[0]["vcD9y"].ToString().Length == 0 ? "0" : dr[0]["vcD9y"]);
-                    dt_Update.Rows[i]["D10"] = Convert.ToInt32(dr[0]["vcD10b"].ToString().Length == 0 ? "0" : dr[0]["vcD10b"]) + Convert.ToInt32(dr[0]["vcD10y"].ToString().Length == 0 ? "0" : dr[0]["vcD10y"]);
-                    dt_Update.Rows[i]["D11"] = Convert.ToInt32(dr[0]["vcD11b"].ToString().Length == 0 ? "0" : dr[0]["vcD11b"]) + Convert.ToInt32(dr[0]["vcD11y"].ToString().Length == 0 ? "0" : dr[0]["vcD11y"]);
-                    dt_Update.Rows[i]["D12"] = Convert.ToInt32(dr[0]["vcD12b"].ToString().Length == 0 ? "0" : dr[0]["vcD12b"]) + Convert.ToInt32(dr[0]["vcD12y"].ToString().Length == 0 ? "0" : dr[0]["vcD12y"]);
-                    dt_Update.Rows[i]["D13"] = Convert.ToInt32(dr[0]["vcD13b"].ToString().Length == 0 ? "0" : dr[0]["vcD13b"]) + Convert.ToInt32(dr[0]["vcD13y"].ToString().Length == 0 ? "0" : dr[0]["vcD13y"]);
-                    dt_Update.Rows[i]["D14"] = Convert.ToInt32(dr[0]["vcD14b"].ToString().Length == 0 ? "0" : dr[0]["vcD14b"]) + Convert.ToInt32(dr[0]["vcD14y"].ToString().Length == 0 ? "0" : dr[0]["vcD14y"]);
-                    dt_Update.Rows[i]["D15"] = Convert.ToInt32(dr[0]["vcD15b"].ToString().Length == 0 ? "0" : dr[0]["vcD15b"]) + Convert.ToInt32(dr[0]["vcD15y"].ToString().Length == 0 ? "0" : dr[0]["vcD15y"]);
-                    dt_Update.Rows[i]["D16"] = Convert.ToInt32(dr[0]["vcD16b"].ToString().Length == 0 ? "0" : dr[0]["vcD16b"]) + Convert.ToInt32(dr[0]["vcD16y"].ToString().Length == 0 ? "0" : dr[0]["vcD16y"]);
-                    dt_Update.Rows[i]["D17"] = Convert.ToInt32(dr[0]["vcD17b"].ToString().Length == 0 ? "0" : dr[0]["vcD17b"]) + Convert.ToInt32(dr[0]["vcD17y"].ToString().Length == 0 ? "0" : dr[0]["vcD17y"]);
-                    dt_Update.Rows[i]["D18"] = Convert.ToInt32(dr[0]["vcD18b"].ToString().Length == 0 ? "0" : dr[0]["vcD18b"]) + Convert.ToInt32(dr[0]["vcD18y"].ToString().Length == 0 ? "0" : dr[0]["vcD18y"]);
-                    dt_Update.Rows[i]["D19"] = Convert.ToInt32(dr[0]["vcD19b"].ToString().Length == 0 ? "0" : dr[0]["vcD19b"]) + Convert.ToInt32(dr[0]["vcD19y"].ToString().Length == 0 ? "0" : dr[0]["vcD19y"]);
-                    dt_Update.Rows[i]["D20"] = Convert.ToInt32(dr[0]["vcD20b"].ToString().Length == 0 ? "0" : dr[0]["vcD20b"]) + Convert.ToInt32(dr[0]["vcD20y"].ToString().Length == 0 ? "0" : dr[0]["vcD20y"]);
-                    dt_Update.Rows[i]["D21"] = Convert.ToInt32(dr[0]["vcD21b"].ToString().Length == 0 ? "0" : dr[0]["vcD21b"]) + Convert.ToInt32(dr[0]["vcD21y"].ToString().Length == 0 ? "0" : dr[0]["vcD21y"]);
-                    dt_Update.Rows[i]["D22"] = Convert.ToInt32(dr[0]["vcD22b"].ToString().Length == 0 ? "0" : dr[0]["vcD22b"]) + Convert.ToInt32(dr[0]["vcD22y"].ToString().Length == 0 ? "0" : dr[0]["vcD22y"]);
-                    dt_Update.Rows[i]["D23"] = Convert.ToInt32(dr[0]["vcD23b"].ToString().Length == 0 ? "0" : dr[0]["vcD23b"]) + Convert.ToInt32(dr[0]["vcD23y"].ToString().Length == 0 ? "0" : dr[0]["vcD23y"]);
-                    dt_Update.Rows[i]["D24"] = Convert.ToInt32(dr[0]["vcD24b"].ToString().Length == 0 ? "0" : dr[0]["vcD24b"]) + Convert.ToInt32(dr[0]["vcD24y"].ToString().Length == 0 ? "0" : dr[0]["vcD24y"]);
-                    dt_Update.Rows[i]["D25"] = Convert.ToInt32(dr[0]["vcD25b"].ToString().Length == 0 ? "0" : dr[0]["vcD25b"]) + Convert.ToInt32(dr[0]["vcD25y"].ToString().Length == 0 ? "0" : dr[0]["vcD25y"]);
-                    dt_Update.Rows[i]["D26"] = Convert.ToInt32(dr[0]["vcD26b"].ToString().Length == 0 ? "0" : dr[0]["vcD26b"]) + Convert.ToInt32(dr[0]["vcD26y"].ToString().Length == 0 ? "0" : dr[0]["vcD26y"]);
-                    dt_Update.Rows[i]["D27"] = Convert.ToInt32(dr[0]["vcD27b"].ToString().Length == 0 ? "0" : dr[0]["vcD27b"]) + Convert.ToInt32(dr[0]["vcD27y"].ToString().Length == 0 ? "0" : dr[0]["vcD27y"]);
-                    dt_Update.Rows[i]["D28"] = Convert.ToInt32(dr[0]["vcD28b"].ToString().Length == 0 ? "0" : dr[0]["vcD28b"]) + Convert.ToInt32(dr[0]["vcD28y"].ToString().Length == 0 ? "0" : dr[0]["vcD28y"]);
-                    dt_Update.Rows[i]["D29"] = Convert.ToInt32(dr[0]["vcD29b"].ToString().Length == 0 ? "0" : dr[0]["vcD29b"]) + Convert.ToInt32(dr[0]["vcD29y"].ToString().Length == 0 ? "0" : dr[0]["vcD29y"]);
-                    dt_Update.Rows[i]["D30"] = Convert.ToInt32(dr[0]["vcD30b"].ToString().Length == 0 ? "0" : dr[0]["vcD30b"]) + Convert.ToInt32(dr[0]["vcD30y"].ToString().Length == 0 ? "0" : dr[0]["vcD30y"]);
-                    dt_Update.Rows[i]["D31"] = Convert.ToInt32(dr[0]["vcD31b"].ToString().Length == 0 ? "0" : dr[0]["vcD31b"]) + Convert.ToInt32(dr[0]["vcD31y"].ToString().Length == 0 ? "0" : dr[0]["vcD31y"]);
+                    DataRow[] dr = dtPack.Select("vcMonth='" + mon + "' and vcPartsno='" + vcPart_id + "' and vcCarType='" + vcCarType + "' ");
+                    dt_Update.Rows[i]["iD1"] = Convert.ToInt32(dr[0]["vcD1b"].ToString().Length == 0 ? "0" : dr[0]["vcD1b"]) + Convert.ToInt32(dr[0]["vcD1y"].ToString().Length == 0 ? "0" : dr[0]["vcD1y"]);
+                    dt_Update.Rows[i]["iD2"] = Convert.ToInt32(dr[0]["vcD2b"].ToString().Length == 0 ? "0" : dr[0]["vcD2b"]) + Convert.ToInt32(dr[0]["vcD2y"].ToString().Length == 0 ? "0" : dr[0]["vcD2y"]);
+                    dt_Update.Rows[i]["iD3"] = Convert.ToInt32(dr[0]["vcD3b"].ToString().Length == 0 ? "0" : dr[0]["vcD3b"]) + Convert.ToInt32(dr[0]["vcD3y"].ToString().Length == 0 ? "0" : dr[0]["vcD3y"]);
+                    dt_Update.Rows[i]["iD4"] = Convert.ToInt32(dr[0]["vcD4b"].ToString().Length == 0 ? "0" : dr[0]["vcD4b"]) + Convert.ToInt32(dr[0]["vcD4y"].ToString().Length == 0 ? "0" : dr[0]["vcD4y"]);
+                    dt_Update.Rows[i]["iD5"] = Convert.ToInt32(dr[0]["vcD5b"].ToString().Length == 0 ? "0" : dr[0]["vcD5b"]) + Convert.ToInt32(dr[0]["vcD5y"].ToString().Length == 0 ? "0" : dr[0]["vcD5y"]);
+                    dt_Update.Rows[i]["iD6"] = Convert.ToInt32(dr[0]["vcD6b"].ToString().Length == 0 ? "0" : dr[0]["vcD6b"]) + Convert.ToInt32(dr[0]["vcD6y"].ToString().Length == 0 ? "0" : dr[0]["vcD6y"]);
+                    dt_Update.Rows[i]["iD7"] = Convert.ToInt32(dr[0]["vcD7b"].ToString().Length == 0 ? "0" : dr[0]["vcD7b"]) + Convert.ToInt32(dr[0]["vcD7y"].ToString().Length == 0 ? "0" : dr[0]["vcD7y"]);
+                    dt_Update.Rows[i]["iD8"] = Convert.ToInt32(dr[0]["vcD8b"].ToString().Length == 0 ? "0" : dr[0]["vcD8b"]) + Convert.ToInt32(dr[0]["vcD8y"].ToString().Length == 0 ? "0" : dr[0]["vcD8y"]);
+                    dt_Update.Rows[i]["iD9"] = Convert.ToInt32(dr[0]["vcD9b"].ToString().Length == 0 ? "0" : dr[0]["vcD9b"]) + Convert.ToInt32(dr[0]["vcD9y"].ToString().Length == 0 ? "0" : dr[0]["vcD9y"]);
+                    dt_Update.Rows[i]["iD10"] = Convert.ToInt32(dr[0]["vcD10b"].ToString().Length == 0 ? "0" : dr[0]["vcD10b"]) + Convert.ToInt32(dr[0]["vcD10y"].ToString().Length == 0 ? "0" : dr[0]["vcD10y"]);
+                    dt_Update.Rows[i]["iD11"] = Convert.ToInt32(dr[0]["vcD11b"].ToString().Length == 0 ? "0" : dr[0]["vcD11b"]) + Convert.ToInt32(dr[0]["vcD11y"].ToString().Length == 0 ? "0" : dr[0]["vcD11y"]);
+                    dt_Update.Rows[i]["iD12"] = Convert.ToInt32(dr[0]["vcD12b"].ToString().Length == 0 ? "0" : dr[0]["vcD12b"]) + Convert.ToInt32(dr[0]["vcD12y"].ToString().Length == 0 ? "0" : dr[0]["vcD12y"]);
+                    dt_Update.Rows[i]["iD13"] = Convert.ToInt32(dr[0]["vcD13b"].ToString().Length == 0 ? "0" : dr[0]["vcD13b"]) + Convert.ToInt32(dr[0]["vcD13y"].ToString().Length == 0 ? "0" : dr[0]["vcD13y"]);
+                    dt_Update.Rows[i]["iD14"] = Convert.ToInt32(dr[0]["vcD14b"].ToString().Length == 0 ? "0" : dr[0]["vcD14b"]) + Convert.ToInt32(dr[0]["vcD14y"].ToString().Length == 0 ? "0" : dr[0]["vcD14y"]);
+                    dt_Update.Rows[i]["iD15"] = Convert.ToInt32(dr[0]["vcD15b"].ToString().Length == 0 ? "0" : dr[0]["vcD15b"]) + Convert.ToInt32(dr[0]["vcD15y"].ToString().Length == 0 ? "0" : dr[0]["vcD15y"]);
+                    dt_Update.Rows[i]["iD16"] = Convert.ToInt32(dr[0]["vcD16b"].ToString().Length == 0 ? "0" : dr[0]["vcD16b"]) + Convert.ToInt32(dr[0]["vcD16y"].ToString().Length == 0 ? "0" : dr[0]["vcD16y"]);
+                    dt_Update.Rows[i]["iD17"] = Convert.ToInt32(dr[0]["vcD17b"].ToString().Length == 0 ? "0" : dr[0]["vcD17b"]) + Convert.ToInt32(dr[0]["vcD17y"].ToString().Length == 0 ? "0" : dr[0]["vcD17y"]);
+                    dt_Update.Rows[i]["iD18"] = Convert.ToInt32(dr[0]["vcD18b"].ToString().Length == 0 ? "0" : dr[0]["vcD18b"]) + Convert.ToInt32(dr[0]["vcD18y"].ToString().Length == 0 ? "0" : dr[0]["vcD18y"]);
+                    dt_Update.Rows[i]["iD19"] = Convert.ToInt32(dr[0]["vcD19b"].ToString().Length == 0 ? "0" : dr[0]["vcD19b"]) + Convert.ToInt32(dr[0]["vcD19y"].ToString().Length == 0 ? "0" : dr[0]["vcD19y"]);
+                    dt_Update.Rows[i]["iD20"] = Convert.ToInt32(dr[0]["vcD20b"].ToString().Length == 0 ? "0" : dr[0]["vcD20b"]) + Convert.ToInt32(dr[0]["vcD20y"].ToString().Length == 0 ? "0" : dr[0]["vcD20y"]);
+                    dt_Update.Rows[i]["iD21"] = Convert.ToInt32(dr[0]["vcD21b"].ToString().Length == 0 ? "0" : dr[0]["vcD21b"]) + Convert.ToInt32(dr[0]["vcD21y"].ToString().Length == 0 ? "0" : dr[0]["vcD21y"]);
+                    dt_Update.Rows[i]["iD22"] = Convert.ToInt32(dr[0]["vcD22b"].ToString().Length == 0 ? "0" : dr[0]["vcD22b"]) + Convert.ToInt32(dr[0]["vcD22y"].ToString().Length == 0 ? "0" : dr[0]["vcD22y"]);
+                    dt_Update.Rows[i]["iD23"] = Convert.ToInt32(dr[0]["vcD23b"].ToString().Length == 0 ? "0" : dr[0]["vcD23b"]) + Convert.ToInt32(dr[0]["vcD23y"].ToString().Length == 0 ? "0" : dr[0]["vcD23y"]);
+                    dt_Update.Rows[i]["iD24"] = Convert.ToInt32(dr[0]["vcD24b"].ToString().Length == 0 ? "0" : dr[0]["vcD24b"]) + Convert.ToInt32(dr[0]["vcD24y"].ToString().Length == 0 ? "0" : dr[0]["vcD24y"]);
+                    dt_Update.Rows[i]["iD25"] = Convert.ToInt32(dr[0]["vcD25b"].ToString().Length == 0 ? "0" : dr[0]["vcD25b"]) + Convert.ToInt32(dr[0]["vcD25y"].ToString().Length == 0 ? "0" : dr[0]["vcD25y"]);
+                    dt_Update.Rows[i]["iD26"] = Convert.ToInt32(dr[0]["vcD26b"].ToString().Length == 0 ? "0" : dr[0]["vcD26b"]) + Convert.ToInt32(dr[0]["vcD26y"].ToString().Length == 0 ? "0" : dr[0]["vcD26y"]);
+                    dt_Update.Rows[i]["iD27"] = Convert.ToInt32(dr[0]["vcD27b"].ToString().Length == 0 ? "0" : dr[0]["vcD27b"]) + Convert.ToInt32(dr[0]["vcD27y"].ToString().Length == 0 ? "0" : dr[0]["vcD27y"]);
+                    dt_Update.Rows[i]["iD28"] = Convert.ToInt32(dr[0]["vcD28b"].ToString().Length == 0 ? "0" : dr[0]["vcD28b"]) + Convert.ToInt32(dr[0]["vcD28y"].ToString().Length == 0 ? "0" : dr[0]["vcD28y"]);
+                    dt_Update.Rows[i]["iD29"] = Convert.ToInt32(dr[0]["vcD29b"].ToString().Length == 0 ? "0" : dr[0]["vcD29b"]) + Convert.ToInt32(dr[0]["vcD29y"].ToString().Length == 0 ? "0" : dr[0]["vcD29y"]);
+                    dt_Update.Rows[i]["iD30"] = Convert.ToInt32(dr[0]["vcD30b"].ToString().Length == 0 ? "0" : dr[0]["vcD30b"]) + Convert.ToInt32(dr[0]["vcD30y"].ToString().Length == 0 ? "0" : dr[0]["vcD30y"]);
+                    dt_Update.Rows[i]["iD31"] = Convert.ToInt32(dr[0]["vcD31b"].ToString().Length == 0 ? "0" : dr[0]["vcD31b"]) + Convert.ToInt32(dr[0]["vcD31y"].ToString().Length == 0 ? "0" : dr[0]["vcD31y"]);
                     //dt_Update.Rows[i]["updateFlag"] = "1";
-                    tmp = Convert.ToInt32(dt_Update.Rows[i]["D1"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D2"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D3"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D4"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D5"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D6"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D7"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D8"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D9"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D10"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D11"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D12"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D13"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D14"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D15"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D16"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D17"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D18"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D19"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D20"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D21"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D22"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D23"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D24"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D25"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D26"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D27"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D28"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D29"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D30"]) +
-                        Convert.ToInt32(dt_Update.Rows[i]["D31"]);
-                    dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["NPCS"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
+                    tmp = Convert.ToInt32(dt_Update.Rows[i]["iD1"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD2"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD3"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD4"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD5"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD6"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD7"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD8"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD9"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD10"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD11"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD12"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD13"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD14"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD15"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD16"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD17"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD18"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD19"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD20"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD21"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD22"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD23"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD24"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD25"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD26"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD27"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD28"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD29"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD30"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD31"]);
+                    dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
                 }
                 SqlCommandBuilder scb = new SqlCommandBuilder(apt);
                 apt.Update(dt_Update);
-                cmd.CommandText = "update tSOQREPExport set updateFlag='1' where vcMonth='" + mon + "' and vcPlant='" + plant + "'";
-                cmd.ExecuteNonQuery();
+                //cmd.CommandText = "update TSoqReply set updateFlag='1' where vcMonth='" + mon + "' and vcPlant='" + plant + "'";
+                //cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {

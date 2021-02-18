@@ -1198,5 +1198,52 @@ namespace DataAccess
         #endregion
 
 
+        #region 财务保存
+        public void SaveCaiWu(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("   decPriceOrigin_CW=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
+                    sql.Append("  ,vcOperatorID_CW='" + strUserId + "'   \r\n");
+                    sql.Append("  ,dOperatorTime_CW=getDate()   \r\n");
+                    sql.Append("  where iAutoId=" + iAutoId + " and vcPriceState='1'  ; \r\n");//有且只有已送信的才能修改
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 财务回复
+        public void OKCaiWu(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("  decPriceOrigin=decPriceOrigin_CW,vcPriceState='2'   \r\n");
+                    sql.Append("  where iAutoId=" + iAutoId + " and vcPriceState='1'  ; \r\n");//有且只有已送信的才能修改
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
 }

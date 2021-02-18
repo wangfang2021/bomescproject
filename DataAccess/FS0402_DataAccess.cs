@@ -288,7 +288,7 @@ namespace DataAccess
                 sql.Append("    )a     \r\n ");
                 sql.Append("    left join     \r\n ");
                 sql.Append("    (     \r\n ");
-                sql.Append("       select vcPart_id from TPrice where  convert(varchar(6),dUseBegin,112)<='" + strYearMonth + "' and convert(varchar(6),dUseEnd,112)>='" + strYearMonth + "'     \r\n ");
+                sql.Append("       select vcPart_id from TPrice where  convert(varchar(6),dPricebegin,112)<='" + strYearMonth + "' and convert(varchar(6),dPriceEnd,112)>='" + strYearMonth + "'     \r\n ");
                 sql.Append("    )b on a.vcPart_id=b.vcPart_id     \r\n ");
                 sql.Append("    left join       \n");
                 sql.Append("    (      \n");

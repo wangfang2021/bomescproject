@@ -158,7 +158,7 @@ namespace DataAccess
                 strSql.AppendLine("SELECT '' as LinId,'合计' as vcYearMonth,'' as vcDyState,'' as vcDyState_Name,'' as vcHyState,'' as vcHyState_Name,'' as vcPart_id");
                 strSql.AppendLine("		,'' as vcCarfamilyCode,'' as vcHaoJiu,'' as vcOrderingMethod,'' as vcOrderPlant,'' as vcInOut");
                 strSql.AppendLine("		,'' as vcSupplierId,'' as vcSupplierPlant,'' as iPackingQty");
-                strSql.AppendLine("		,sum(isnull(tt.iCbSOQN,0)) as iCbSOQN,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN1,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN2");
+                strSql.AppendLine("		,sum(isnull(tt.iCbSOQN,0)) as iCbSOQN,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN1,sum(isnull(tt.iCbSOQN2,0)) as iCbSOQN2");
                 strSql.AppendLine("		,sum(isnull(tt.iTzhSOQN,0)) as iTzhSOQN,sum(isnull(tt.iTzhSOQN1,0)) as iTzhSOQN1,sum(isnull(tt.iTzhSOQN2,0)) as iTzhSOQN2");
                 strSql.AppendLine("		,sum(isnull(tt.iHySOQN,0)) as iHySOQN,sum(isnull(tt.iHySOQN1,0)) as iHySOQN1,sum(isnull(tt.iHySOQN2,0)) as iHySOQN2");
                 strSql.AppendLine("		,'' as dExpectTime,'' as dSReplyTime,'' as vcOverDue,'' as dHyTime,");
@@ -422,7 +422,7 @@ namespace DataAccess
                 strSql.AppendLine("    select a.vcPart_id from");
                 strSql.AppendLine("       (select * from TSoq_temp where vcOperator='" + strOperId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN<>0)a");
                 strSql.AppendLine("    left join ");
-                strSql.AppendLine("       (select vcPart_id,vcSupplier_id from TPrice where  convert(varchar(6),dUseBegin,112)<='" + strYearMonth + "' and convert(varchar(6),dUseEnd,112)>='" + strYearMonth + "')b");
+                strSql.AppendLine("       (select vcPart_id,vcSupplier_id from TPrice where  convert(varchar(6),dPricebegin,112)<='" + strYearMonth + "' and convert(varchar(6),dPriceEnd,112)>='" + strYearMonth + "')b");
                 strSql.AppendLine("     on a.vcPart_id=b.vcPart_id  and a.vcSupplier_id=b.vcSupplier_id");
                 strSql.AppendLine("    left join");
                 strSql.AppendLine("    	(select vcPartId,vcMandOrder,vcSupplierId");

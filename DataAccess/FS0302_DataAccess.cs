@@ -122,7 +122,7 @@ namespace DataAccess
                     else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
                     {
                         DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_new + "'");
-                        DataRow[] tmpOrigin = origin.Select("vcPart_id = '" + vcPart_Id_old + "'");
+                        DataRow[] tmpOrigin = origin.Select("vcPart_id = '" + vcPart_Id_new + "'");
 
                         if (tmp.Length > 0)
                         {

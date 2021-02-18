@@ -182,11 +182,11 @@ namespace DataAccess
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append("'" + iJiuYear + "'" + ",   \r\n");
+                            sql.Append(",vcJiuYear = '" + iJiuYear + "'" + ",   \r\n");
                         }
                         else
                         {
-                            sql.Append("null,   \r\n");
+                            sql.Append(",vcJiuYear = null,   \r\n");
                         }
                         #endregion
 
@@ -266,11 +266,11 @@ namespace DataAccess
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append("'" + iJiuYear + "'" + ",   \r\n");
+                            sql.Append(",vcJiuYear = '" + iJiuYear + "'" + ",   \r\n");
                         }
                         else
                         {
-                            sql.Append("null,   \r\n");
+                            sql.Append(",vcJiuYear = null   \r\n");
                         }
                         #endregion
 
@@ -451,11 +451,11 @@ namespace DataAccess
                         DateTime datetime1 = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]);
                         DateTime datetime2 = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]);
                         int iJiuYear = datetime2.Year - datetime1.Year;
-                        sql.Append(",'" + iJiuYear + "'" + "   \r\n");
+                        sql.Append(",vcJiuYear = '" + iJiuYear + "'" + "   \r\n");
                     }
                     else
                     {
-                        sql.Append(",null   \r\n");
+                        sql.Append(",vcJiuYear = null   \r\n");
                     }
                     #endregion
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNXQF"], true) + "     \n");

@@ -49,7 +49,10 @@ namespace DataAccess
                 strSql.Append("       	  +CONVERT(int,vcNum7)+CONVERT(int,vcNum8)+CONVERT(int,vcNum9)      \r\n");
                 strSql.Append("       	  +CONVERT(int,vcNum10)) as 'vcSumLater_Name'      \r\n");
                 strSql.Append("       	,b.vcDownRecever from #Tunit_temp a      \r\n");
-                strSql.Append("       	inner join TCode2 b       \r\n");
+                strSql.Append("         inner join     \r\n");
+                strSql.Append("         (    \r\n");
+                strSql.Append("         	select vcValue1 as 'vcSYTCode',vcValue2 as 'vcRecever',vcValue3 as 'vcDownRecever' from TOutCode where vcCodeId = 'C004' and vcIsColum = 0    \r\n");
+                strSql.Append("         ) b            \r\n");
                 strSql.Append("       	on a.vcSYTCode = b.vcSYTCode      \r\n");
                 strSql.Append("       	and a.vcReceiver = b.vcRecever      \r\n");
                 strSql.Append("       ) a      \r\n");
@@ -113,10 +116,10 @@ namespace DataAccess
                 strSql.Append("       	+CONVERT(int,vcNum15)      \r\n");
                 strSql.Append("       	) as 'vcSumLater',vcDownRecever      \r\n");
                 strSql.Append("       	from #TUnit_temp a      \r\n");
-                strSql.Append("       	inner join       \r\n");
-                strSql.Append("       	(      \r\n");
-                strSql.Append("       		select vcSYTCode,vcRecever,vcDownRecever from TCode2      \r\n");
-                strSql.Append("       	) b      \r\n");
+                strSql.Append("         inner join     \r\n");
+                strSql.Append("         (    \r\n");
+                strSql.Append("         	select vcValue1 as 'vcSYTCode',vcValue2 as 'vcRecever',vcValue3 as 'vcDownRecever' from TOutCode where vcCodeId = 'C004' and vcIsColum = 0    \r\n");
+                strSql.Append("         ) b            \r\n");
                 strSql.Append("       	on a.vcSYTCode = b.vcSYTCode      \r\n");
                 strSql.Append("       	and a.vcReceiver = b.vcRecever      \r\n");
                 strSql.Append("       ) a      \r\n");

@@ -128,21 +128,135 @@ namespace Logic
         #endregion
 
         #region 销售展开（根据检索条件）
-        public int sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public void sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState,ref string strErr
             )
         {
-            return fs0309_DataAccess.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu
+            fs0309_DataAccess.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu
             , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
             , strReceiver, strPriceState, ref strErr);
         }
         #endregion
 
         #region 销售展开（根据所选）
-        public void sendMail(List<Dictionary<string,object>> listInfoData, ref string strErr)
+        public void sendMail(List<Dictionary<string,object>> listInfoData,string strUserEmail,string strUserId,string strUserName ,ref string strErr)
         {
+            #region 更新价格表
             fs0309_DataAccess.sendMail(listInfoData, ref strErr);
+            #endregion
+
+            #region 发送邮件
+
+            #region 邮件发送准备
+
+            #region 用户邮箱
+            string UserEmail = strUserEmail;
+            if (string.IsNullOrEmpty(strUserEmail))
+            {
+                strErr += "获取用户邮箱失败!\n";
+                return;
+            }
+            #endregion
+
+            #region 用户名称
+            string UserName = strUserName;
+            if (string.IsNullOrEmpty(strUserEmail))
+            {
+                strErr += "获取用户名称失败!\n";
+                return;
+            }
+            #endregion
+
+            #region 邮件内容
+            string EmailBody = fs0309_DataAccess.getEmailBody(strUserId);
+            if (string.IsNullOrEmpty(EmailBody))
+            {
+                strErr += "获取邮箱内容失败!\n";
+                return;
+            }
+            //这里做了年月的转换
+            EmailBody = EmailBody.Replace("##yearmonth##", DateTime.Now.ToString("yyyy年MM月"));
+            #endregion
+
+            #region 收件人
+            /*
+             * 修改时间：2020-2-18
+             * 修改人：董镇
+             * 修改内同：获取收件人时需要返回哪些收件人(收件人就是收货方)维护了，哪些收件人未维护，对于未维护的收件人要进行提示
+             * 功能描述：1、获取所有的维护了的收件人，从数据库获取
+             *           2、获取所选择的收件人，判断所选择的收件人是否在所有已维护收件人中存在
+             *           3、对于不存在的收件人进行提示，并停止继续销售展开
+             *           4、如果都存在，获取收件人邮箱，继续执行销售展开操作
+             */
+            #region 获取所有维护的收件人信息
+            DataTable allreceiverDt = fs0309_DataAccess.getreceiverDt();
+            if (allreceiverDt == null || allreceiverDt.Rows.Count <= 0)       //执行SQL查询，但未检索到任何数据，可能原因：未维护任何收件人邮箱信息
+            {
+                strErr = "未维护任何收货方邮箱信息";
+            }
+            #endregion
+
+            #region 获取所选择的收件人
+            List<string> lists = new List<string>();
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                lists.Add(listInfoData[i]["vcReceiver"].ToString());
+            }
+            lists = lists.Distinct().ToList();
+            #endregion
+
+            #region 判断所选择的收件人是否在所有已维护收件人中存在
+            List<string> Alllists = new List<string>();
+            for (int i = 0; i < allreceiverDt.Rows.Count; i++)
+            {
+                //Alllists.Add()
+            }
+
+            #endregion
+
+
+            #endregion
+
+            #region 抄送人
+            /*
+             * 注意：抄送人不需要判断是否拿到数据，如果没有拿到数据，说明没有添加抄送人，对于发送邮件无影响
+             */
+            DataTable cCDt = null;
+            #endregion
+
+            #region 邮件主题
+            string strSubject = "";
+            if (string.IsNullOrEmpty(strSubject))
+            {
+                
+            }
+            #endregion
+
+            #region 附件
+            /*
+             * 有附件给地址，无给null
+             */
+            string strFilePath = null;
+            #endregion
+
+            #region 传入附件后，是否需要删除附件
+            /*
+             * true:需要删除附件
+             * false:需要删除附件/没有附件
+             */
+            bool delFileNameFlag = false;
+            #endregion
+
+            #endregion
+
+            #region 开始发送邮件
+            //记录错误信息
+            
+            #endregion
+
+            #endregion
+
         }
         #endregion
 

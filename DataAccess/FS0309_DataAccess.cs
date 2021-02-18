@@ -498,7 +498,7 @@ namespace DataAccess
         /// <param name="strReceiver"></param>
         /// <param name="strPriceState"></param>
         /// <returns>返回受影响的行数</returns>
-        public int sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public void sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState,ref string strErr
             )
@@ -549,12 +549,11 @@ namespace DataAccess
                 }
                 if (strSql.Length>0)
                 {
-                    return excute.ExcuteSqlWithStringOper(strSql.ToString());
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
                 }
                 else
                 {
                     strErr += "未更改任何数据";
-                    return 0;
                 }
             }
             catch (Exception ex)
@@ -589,6 +588,53 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取邮件内容
+        public string getEmailBody(string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("      select vcContent from TMailMessageSetting where vcUserId = '" + strUserId+"' and vcChildFunID = 'FS0309'       ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (dt.Rows.Count>0)
+                {
+                    return dt.Rows[0][0].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取收件人
+        public DataTable getreceiverDt()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("       select vcValue2 as 'address',vcValue1 as 'displayName' from TOutCode where vcCodeId = 'C006' and vcIsColum = '0'      ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if(dt.Rows.Count>0)
+                {
+                    return dt;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
         #region 根据选择公式返回对应金额
         public DataTable getGSChangePrice(string strPartId,string strSupplier,int iAutoId,string strGSName,decimal decPriceOrigin)

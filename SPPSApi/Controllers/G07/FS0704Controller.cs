@@ -105,7 +105,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = FS0704_Logic.Search(PackSpot, FaZhu,  dFromB, dFromE, dToB, dToE);
+                DataTable dt = FS0704_Logic.Search(PackSpot, FaZhu, dFromB, dFromE, dToB, dToE);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -150,19 +150,21 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strChange = dataForm.Change;
-          
+
+            string PackSpot = dataForm.PackSpot;
+            string FaZhu = dataForm.PackNo;
+            string dFromB = dataForm.dFrom;
+            string dFromE = dataForm.dFrom;
+            string dToB = dataForm.dToB;
+            string dToE = dataForm.dToE;
+
             try
             {
-                //DataTable dt = FS0704_Logic.Search();
-                DataTable dt = null;
-                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
-                ,"vcOriginCompany_Name"
+                DataTable dt = FS0704_Logic.Search(PackSpot, FaZhu, dFromB, dFromE, dToB, dToE);
+                string[] fields = { "vcFaZhu","vcRuHeFromDay","dRuHeFromTime","vcRuHeToDay","druHeToTime","vcFaZhuFromDay","dFaZhuFromTime","vcFaZhuToDay","dFaZhuToTime","vcNaQiFromDay",
+                    "dNaQiFromTime","vcNaQiToDay","dNaQiToTime","vcBianCi","vcPackSpot","dFrom","dTo"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0704_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0704_Export.xlsx", 4, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -187,7 +189,7 @@ namespace SPPSApi.Controllers.G07
         #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -216,6 +218,49 @@ namespace SPPSApi.Controllers.G07
                     {//修改
                         hasFind = true;
                     }
+
+                    //判断对应逻辑下是否有重叠时间
+                    #region 判断对应逻辑下是否有重叠时间
+                    DataTable dtLJtime = FS0704_Logic.SearchLJTime(listInfoData[i]["vcFaZhu"].ToString(), listInfoData[i]["iAutoId"].ToString());
+                    DateTime dRuHeFromDay = DateTime.ParseExact(listInfoData[i]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                    DateTime dRuHeToDay = DateTime.ParseExact(listInfoData[i]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                    DateTime dFaZhuFromDay = DateTime.ParseExact(listInfoData[i]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                    DateTime dFaZhuToDay = DateTime.ParseExact(listInfoData[i]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                    DateTime dNaQiFromDay = DateTime.ParseExact(listInfoData[i]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                    DateTime dNaQiToDay = DateTime.ParseExact(listInfoData[i]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                   
+                    for (int j = 0; j < dtLJtime.Rows.Count; j++)
+                    {
+                        
+                        DateTime dRuHeFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dRuHeToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dFaZhuFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dFaZhuToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dNaQiFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dNaQiToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                      
+
+                        if (!(dRuHeFromDay < dRuHeFromDay1 && dRuHeToDay < dRuHeFromDay1) || !(dRuHeFromDay > dRuHeToDay1 && dRuHeToDay > dRuHeToDay1))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = listInfoData[i]["vcFaZhu"].ToString()+"部品入荷时间有重叠";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (!(dFaZhuFromDay < dFaZhuFromDay1 && dFaZhuToDay < dFaZhuFromDay1) || !(dFaZhuFromDay > dFaZhuToDay1 && dFaZhuToDay > dFaZhuToDay1))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = listInfoData[i]["vcFaZhu"].ToString() + "发注作业时间有重叠";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (!(dNaQiFromDay < dNaQiFromDay1 && dNaQiToDay < dNaQiFromDay1) || !(dNaQiFromDay > dNaQiToDay1 && dNaQiToDay > dNaQiToDay1))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = listInfoData[i]["vcFaZhu"].ToString() + "部品入荷时间有重叠";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    #endregion
+
                 }
                 if (!hasFind)
                 {
@@ -223,9 +268,9 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-             
+
                 string strErrorPartId = "";
-                FS0704_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
+                FS0704_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -250,7 +295,7 @@ namespace SPPSApi.Controllers.G07
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -287,6 +332,6 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-       
+
     }
 }

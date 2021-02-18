@@ -62,6 +62,8 @@ namespace DataAccess
 
                 dt.Columns.Add("vcDiff");
                 DataTable Diff = getDiff();
+                DataTable origin = getOriginCompany();
+
                 //for (int i = 0; i < dt.Rows.Count; i++)
                 //{
                 //    string vcPart_Id_old = ObjToString(dt.Rows[i]["vcPart_Id_old"]);
@@ -102,6 +104,7 @@ namespace DataAccess
                     if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
                     {
                         DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_old + "'");
+                        DataRow[] tmpOrigin = origin.Select("vcPart_id = '" + vcPart_Id_old + "'");
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -109,11 +112,18 @@ namespace DataAccess
                         else
                         {
                             dt.Rows[i]["vcDiff"] = "";
+                        }
+
+                        if (tmpOrigin.Length > 0)
+                        {
+                            dt.Rows[i]["vcUnit"] = tmpOrigin[0]["vcName"];
                         }
                     }
                     else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
                     {
                         DataRow[] tmp = Diff.Select("vcPart_id = '" + vcPart_Id_new + "'");
+                        DataRow[] tmpOrigin = origin.Select("vcPart_id = '" + vcPart_Id_old + "'");
+
                         if (tmp.Length > 0)
                         {
                             dt.Rows[i]["vcDiff"] = tmp[0]["vcDiff"];
@@ -121,6 +131,12 @@ namespace DataAccess
                         else
                         {
                             dt.Rows[i]["vcDiff"] = "";
+                        }
+
+
+                        if (tmpOrigin.Length > 0)
+                        {
+                            dt.Rows[i]["vcUnit"] = tmpOrigin[0]["vcName"];
                         }
                     }
                     else
@@ -180,8 +196,6 @@ namespace DataAccess
                         string partId = string.IsNullOrWhiteSpace(vcPart_Id_new) ? vcPart_Id_old : vcPart_Id_new;
                         refMsg += "品番" + partId + "变更事项选择有误;";
                     }
-
-
                     if (change != "1" && change != "2" && change != "10" && change != "12" && change != "8")
                     {
                         if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
@@ -200,7 +214,6 @@ namespace DataAccess
                         }
                     }
                 }
-
                 if (!string.IsNullOrWhiteSpace(refMsg))
                 {
                     return;
@@ -212,7 +225,7 @@ namespace DataAccess
                     string finishstate = getValue("C014", ObjToString(listInfoData[i]["FinishState"]).Trim());
                     string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
 
-                    if (!finishstate.Equals("1") && !finishstate.Equals("3"))
+                    if (finishstate.Equals("2"))
                     {
                         if (change.Equals("1") || change.Equals("2"))//新设
                         {
@@ -920,6 +933,30 @@ namespace DataAccess
                 }
 
                 return res;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 获取原单位
+
+        public DataTable getOriginCompany()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT a.vcPart_id,b.vcName FROM (");
+                sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcOriginCompany FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id");
+                sbr.AppendLine(") a");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006'");
+                sbr.AppendLine(") b ON a.vcOriginCompany = b.vcValue");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {

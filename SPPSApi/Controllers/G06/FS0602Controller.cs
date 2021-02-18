@@ -129,7 +129,7 @@ namespace SPPSApi.Controllers.G06
                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
                 DataTable dtHJ = fs0602_Logic.getHeJiInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
-                DtConverter dtConverter = new DtConverter(); 
+                DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
@@ -321,11 +321,10 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dtMultiple = fs0603_Logic.createTable("SOQ602");
                 dtMultiple = fs0602_Logic.setListInfo(listMultipleData, dtMultiple, strExpectTime);
-                bool bReault = true;
                 string strReceiver = "APC06";
                 DataTable dtImport = fs0602_Logic.checkSaveInfo(dtMultiple, strYearMonth, strYearMonth1, strYearMonth2,
                      loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref dtMessage);
-                if (!bReault)
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -516,11 +515,10 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
-                bool bReault = true;
                 string strReceiver = "APC06";
                 DataTable dtImport = fs0602_Logic.checkreplyplanInfo(listInfoData, dataTable, strExpectTime,
-                    loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref bReault, ref dtMessage);
-                if (!bReault)
+                    loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -604,11 +602,10 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "该对象月没有有效的内示情报";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                bool bReault = true;
                 string strReceiver = "APC06";
                 string strReturnym = fs0602_Logic.checkreturnplanInfo(listInfoData, dataTable, strExpectTime,
-                    ref bReault, ref dtMessage);
-                if (!bReault)
+                     ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -733,7 +730,7 @@ namespace SPPSApi.Controllers.G06
                 string[] fields = {"vcExportDate","vcRefDate","vcMonth_dx","vcMonth_ns","vcMonth_nns","decDXYNum","decNSYNum","decNNSYNum",
                     "vcProject","decSOQ_dx","decSOQ_ns_before","decSOQ_ns","decSOQ_nns_before","decSOQ_nns","decNNA_dx","decNNA_ns","decNNA_nns"};
 
-                string filepath = ComFunction.generateExcelWithXlt(dtRef, fields, _webHostEnvironment.ContentRootPath, "FTMS内示总结.xlsx", 1,1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dtRef, fields, _webHostEnvironment.ContentRootPath, "FTMS内示总结.xlsx", 1, 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

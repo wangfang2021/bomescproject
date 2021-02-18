@@ -324,6 +324,13 @@ namespace Logic
             fs1702_DataAccess.Save_jinji(listInfoData, strUserId);
         }
         #endregion
+
+        #region 删除
+        public void Del_jinji(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs1702_DataAccess.Del_jinji(checkedInfoData, strUserId);
+        }
+        #endregion
     }
 
 }

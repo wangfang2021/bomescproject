@@ -335,5 +335,29 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 删除
+        public void Del_jinji(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from tChuHe_jinji where iAutoId=" + iAutoId + "   \n");
+                   
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

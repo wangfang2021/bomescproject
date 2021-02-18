@@ -272,7 +272,7 @@ namespace SPPSApi.Controllers.G17
                         }
                     }
                 }
-                fs1702_Logic.chuheOK(checkedInfoData, loginInfo.UserId);
+                fs1702_Logic.chuheOK(checkedInfoData, loginInfo.UserId);//更新在库还没写呢
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

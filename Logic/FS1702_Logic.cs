@@ -33,6 +33,10 @@ namespace Logic
         {
             return fs1702_DataAccess.Search(vcProject, dChuHeDateFrom, dChuHeDateTo);
         }
+        public DataTable Search_jinji(string vcPart_id)
+        {
+            return fs1702_DataAccess.Search_jinji(vcPart_id);
+        }
         #endregion
 
         #region 按用户文件格式读取数据
@@ -313,6 +317,13 @@ namespace Logic
                 return "";
             }
         }
+
+        #region 保存
+        public void Save_jinji(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs1702_DataAccess.Save_jinji(listInfoData, strUserId);
+        }
+        #endregion
     }
 
 }

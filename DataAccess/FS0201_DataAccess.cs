@@ -171,6 +171,7 @@ namespace DataAccess
                     fileList.Add(vcFileNameTJ);
                 }
 
+                fileList = fileList.Distinct().ToList();
                 ////匹配原单位
                 //string list = "";
                 //fileList = fileList.Distinct().ToList();

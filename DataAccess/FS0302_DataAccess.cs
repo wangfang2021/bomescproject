@@ -229,49 +229,51 @@ namespace DataAccess
                     {
                         if (change.Equals("1") || change.Equals("2"))//新设
                         {
-                            string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
                             string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
-                            string vcType = ObjToString(listInfoData[i]["vcType"]).Trim();
-                            string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
-                            string vcStartYearMonth = ObjToString(listInfoData[i]["vcStartYearMonth"]).Trim();
-                            string vcPartNameEn = ObjToString(listInfoData[i]["vcPartName"]);
-                            string vcSPINo = ObjToString(listInfoData[i]["vcSPINo"]);
-                            string vcFXNo = ObjToString(listInfoData[i]["vcFXNo"]);
-                            string vcFXDiff = ObjToString(listInfoData[i]["vcFXDiff"]);
-                            string vcBJDiff = ObjToString(listInfoData[i]["vcBJDiff"]);
-
-                            if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
+                            if (!string.IsNullOrWhiteSpace(vcPart_Id))
                             {
-                                vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
+                                string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
+                                string vcType = ObjToString(listInfoData[i]["vcType"]).Trim();
+                                string vcNewProj = ObjToString(listInfoData[i]["vcNewProj"]).Trim();
+                                string vcStartYearMonth = ObjToString(listInfoData[i]["vcStartYearMonth"]).Trim();
+                                string vcPartNameEn = ObjToString(listInfoData[i]["vcPartName"]);
+                                string vcSPINo = ObjToString(listInfoData[i]["vcSPINo"]);
+                                string vcFXNo = ObjToString(listInfoData[i]["vcFXNo"]);
+                                string vcFXDiff = ObjToString(listInfoData[i]["vcFXDiff"]);
+                                string vcBJDiff = ObjToString(listInfoData[i]["vcBJDiff"]);
+
+                                if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
+                                {
+                                    vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
+                                }
+
+                                string partId = vcPart_Id;
+                                string NRPartId = "";
+                                if (vcType.Equals("1"))
+                                {
+                                    NRPartId = getPartId(CarType, vcPart_Id, vcNewProj);
+                                }
+
+                                sbr.Append(" INSERT INTO TUnit  \r\n");
+                                sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff) values\r\n");
+                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
+
+                                sbr.Append(" UPDATE TSBManager \r\n");
+                                sbr.Append(" SET vcFinishState = '3', \r\n");
+                                sbr.Append("     vcOperatorId = '" + strUserId + "', \r\n");
+                                sbr.Append("     dOperatorTime = GETDATE() \r\n");
+                                sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
+
+                                //添加到新品表
+                                sbr.Append("INSERT INTO TPartNameCN(vcPart_id,vcPartNameEn,vcOperator,dOperatorTime,vcIsLock)");
+                                sbr.Append("VALUES");
+                                sbr.Append("(");
+                                sbr.Append(ComFunction.getSqlValue(vcPart_Id, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcPartNameEn, false) + ",");
+                                sbr.Append("'" + strUserId + "'");
+                                sbr.Append(",GETDATE(),'0'");
+                                sbr.Append(") \r\n");
                             }
-
-                            string partId = vcPart_Id;
-                            string NRPartId = "";
-                            if (vcType.Equals("1"))
-                            {
-                                NRPartId = getPartId(CarType, vcPart_Id, vcNewProj);
-                            }
-
-                            sbr.Append(" INSERT INTO TUnit  \r\n");
-                            sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff) values\r\n");
-                            sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
-
-                            sbr.Append(" UPDATE TSBManager \r\n");
-                            sbr.Append(" SET vcFinishState = '3', \r\n");
-                            sbr.Append("     vcOperatorId = '" + strUserId + "', \r\n");
-                            sbr.Append("     dOperatorTime = GETDATE() \r\n");
-                            sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
-
-                            //添加到新品表
-                            sbr.Append("INSERT INTO TPartNameCN(vcPart_id,vcPartNameEn,vcOperator,dOperatorTime,vcIsLock)");
-                            sbr.Append("VALUES");
-                            sbr.Append("(");
-                            sbr.Append(ComFunction.getSqlValue(vcPart_Id, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcPartNameEn, false) + ",");
-                            sbr.Append("'" + strUserId + "'");
-                            sbr.Append(",GETDATE(),'0'");
-                            sbr.Append(") \r\n");
-
                         }
                         else if (change.Equals("4"))//废止
                         {
@@ -766,14 +768,14 @@ namespace DataAccess
                             sbr.AppendLine(" vcFinishState = " + ComFunction.getSqlValue(finishState, false) + ",");
                         }
                         sbr.AppendLine(" vcOriginCompany = " +
-                                       ComFunction.getSqlValue(getValue("C006", listInfoData[i]["vcUnit"].ToString()),
+                                       ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcUnit"])),
                                            false) + ",");
                         sbr.AppendLine(" vcDiff = " +
                                        ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + ",");
                         sbr.AppendLine(" vcCarType = " +
                                        ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + ",");
                         sbr.AppendLine(" vcTHChange = " +
-                                       ComFunction.getSqlValue(getValue("C002", listInfoData[i]["THChange"].ToString()),
+                                       ComFunction.getSqlValue(getValue("C002", ObjToString(listInfoData[i]["THChange"])),
                                            false) + ",");
                         sbr.AppendLine(" vcRemark = " +
                                        ComFunction.getSqlValue(listInfoData[i]["vcRemark"], false) + ",");

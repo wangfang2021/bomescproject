@@ -449,15 +449,15 @@ namespace DataAccess
                 sql.AppendLine("             ,[ChuKuGuanLiCode]   \r\n");
                 sql.AppendLine("             ,[ChuKuType])   \r\n");
                 sql.AppendLine("             VALUES   \r\n");
-
+             
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     sql.AppendLine("       (   \r\n");
-                    sql.AppendLine("     '" + dt.Rows[i]["vcOrderNo"].ToString() + "' ,\r\n");
+                    sql.AppendLine("     '"+ dt.Rows[i]["vcOrderNo"].ToString()+ "' ,\r\n");
                     sql.AppendLine("     'NULL' ,  \r\n");//申请号
                     sql.AppendLine("     'NULL' ,\r\n");//一级仓库代码
                     sql.AppendLine("     'NULL' , \r\n");//二级仓库代码
-                    sql.AppendLine("     '" + dt.Rows[i]["iOrderNumber"].ToString() + "' ,  \r\n");
+                    sql.AppendLine("     '"+ dt.Rows[i]["iOrderNumber"].ToString() + "' ,  \r\n");
                     sql.AppendLine("     '" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' ,  \r\n");
                     sql.AppendLine("     'NULL' , \r\n");//一级仓库库存标志
                     sql.AppendLine("     'NULL' ,  \r\n");//二级仓库库存标志
@@ -529,8 +529,7 @@ namespace DataAccess
             try
             {
                 DataSet ds = new DataSet();
-                //conn = Common.ComConnectionHelper.CreateConnection_MAPS();
-                conn = Common.ComConnectionHelper.CreateSqlConnection();
+                conn = Common.ComConnectionHelper.CreateConnection_MAPS();
                 SqlDataAdapter da = new SqlDataAdapter();
                 da.SelectCommand = new SqlCommand();
                 da.SelectCommand.Connection = conn;

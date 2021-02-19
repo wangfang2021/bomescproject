@@ -36,7 +36,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("SELECT iAutoId,vcYearMonth,vcDyState,vcHyState,vcPart_id,iCbSOQN,decCbBdl,iCbSOQN1,iCbSOQN2,iTzhSOQN,iTzhSOQN1,iTzhSOQN2        \n");
+                strSql.Append("SELECT iAutoId,vcYearMonth,vcDyState,vcHyState,vcPart_id,iCbSOQN,        \n");
+                strSql.Append("case when decCbBdl>999 then '>999' else cast(decCbBdl as varchar(5)) end as decCbBdl,iCbSOQN1,iCbSOQN2,iTzhSOQN,iTzhSOQN1,iTzhSOQN2    \n");
                 strSql.Append(",iHySOQN,iHySOQN1,iHySOQN2,dHyTime,b.vcName as 'vcDyState_Name',b2.vcName as 'vcHyState_Name'      \n");
                 strSql.Append(" ,case       \n");
                 strSql.Append(" when iTzhSOQN is null or iTzhSOQN1 is null or iTzhSOQN2 is null then 'partFS0402A' --无调整      \n");
@@ -745,7 +746,14 @@ namespace DataAccess
                 DateTime dLastMonth = (DateTime.Parse(strYear + "-" + strMonth + "-01")).AddMonths(-1);
                 string strLastYearMonth = dLastMonth.ToString("yyyyMM");
                 //波动率计算
-                sql.AppendLine("  update TSoq set decCbBdl=100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2)))/cast(b.iHySOQN as decimal(18,2))  from TSoq a    \r\n ");
+                //sql.AppendLine("  update TSoq set decCbBdl=100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2)))/cast(b.iHySOQN as decimal(18,2))  from TSoq a    \r\n ");
+                sql.AppendLine("  update TSoq set decCbBdl=     \r\n ");
+                sql.AppendLine("     case when a.iCbSOQN=0 or b.iHySOQN=0 then  \r\n ");
+                sql.AppendLine("     	ABS(100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2))))  \r\n ");
+                sql.AppendLine("     else \r\n ");
+                sql.AppendLine("     	ABS(100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2))))/cast(b.iHySOQN as decimal(18,2)) \r\n ");
+                sql.AppendLine("     end    \r\n ");
+                sql.AppendLine("  from TSoq a    \r\n ");
                 sql.AppendLine("  left join    \r\n ");
                 sql.AppendLine("  (    \r\n ");
                 sql.AppendLine("    select * from TSoq where vcYearMonth='"+ strLastYearMonth + "'    \r\n ");

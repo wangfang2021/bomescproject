@@ -19,9 +19,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strSellNo, string strStartTime, string strEndTime)
+        public DataTable Search(string strSellNo, string strStartTime, string strEndTime,string strYinQuType)
         {
-            return fs0813_DataAccess.Search(strSellNo, strStartTime, strEndTime);
+            return fs0813_DataAccess.Search(strSellNo, strStartTime, strEndTime, strYinQuType);
         }
         #endregion
 

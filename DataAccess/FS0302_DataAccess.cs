@@ -224,7 +224,7 @@ namespace DataAccess
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     string finishstate = getValue("C014", ObjToString(listInfoData[i]["FinishState"]).Trim());
                     string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
-
+                    string memo = ObjToString(listInfoData[i]["vcSPINo"]) + ObjToString(listInfoData[i]["THChange"]);
                     if (finishstate.Equals("2"))
                     {
                         if (change.Equals("1") || change.Equals("2"))//新设
@@ -241,7 +241,6 @@ namespace DataAccess
                                 string vcFXNo = ObjToString(listInfoData[i]["vcFXNo"]);
                                 string vcFXDiff = ObjToString(listInfoData[i]["vcFXDiff"]);
                                 string vcBJDiff = ObjToString(listInfoData[i]["vcBJDiff"]);
-
                                 if (!string.IsNullOrWhiteSpace(vcStartYearMonth))
                                 {
                                     vcStartYearMonth = vcStartYearMonth.Substring(0, 4) + "/" + vcStartYearMonth.Substring(4, 2) + "/01";
@@ -256,7 +255,8 @@ namespace DataAccess
 
                                 sbr.Append(" INSERT INTO TUnit  \r\n");
                                 sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff) values\r\n");
-                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
+                                //sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
+                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(memo + ";", false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
 
                                 sbr.Append(" UPDATE TSBManager \r\n");
                                 sbr.Append(" SET vcFinishState = '3', \r\n");
@@ -283,7 +283,8 @@ namespace DataAccess
                             //不更新使用结束时间
                             //sbr.Append(" a.dTimeTo = b.vcStartYearMonth, \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";', \r\n");
+                            //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";', \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";', \r\n");
                             sbr.Append(" a.vcSQState = '0', \r\n");
                             sbr.Append(" a.vcDiff = '4', \r\n");
                             //Add,TODO 工程结束时间
@@ -310,7 +311,8 @@ namespace DataAccess
                             sbr.Append(" a.dSyncTime = NULL, \r\n");
                             sbr.Append(" a.vcHaoJiu = 'Q', \r\n");
                             sbr.Append(" a.dJiuBegin = b.vcStartYearMonth,  \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                            //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";' , \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                             sbr.Append(" a.vcDiff = '9', \r\n");
                             sbr.Append(" a.vcSQState = '0', \r\n");
@@ -347,7 +349,8 @@ namespace DataAccess
                             sbr.Append(" a.dSyncTime = NULL, \r\n");
                             sbr.Append(" a.vcHaoJiu = 'H', \r\n");
                             sbr.Append(" a.dJiuEnd = b.vcStartYearMonth, \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                            //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";' , \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                             sbr.Append(" a.vcDiff = '1', \r\n");
                             sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");
@@ -375,7 +378,8 @@ namespace DataAccess
                             sbr.Append(" a.dTimeFrom = b.vcStartYearMonth, \r\n");
                             sbr.Append(" a.dTimeTo = CONVERT(DATE,'99991231'), \r\n");
                             sbr.Append(" a.vcHaoJiu = 'H', \r\n");
-                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                            //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                            sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";' , \r\n");
                             sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
                             sbr.Append(" a.vcDiff = '2', \r\n");
                             sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");

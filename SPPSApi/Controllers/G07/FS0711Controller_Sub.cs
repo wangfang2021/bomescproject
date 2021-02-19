@@ -22,17 +22,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G07
 {
-    [Route("api/FS0711/[action]")]
+    [Route("api/FS0711_Sub/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0711Controller : BaseController
+    public class FS0711Controller_Sub : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0711_Logic FS0711_Logic = new FS0711_Logic();
         private readonly string FunctionID = "FS0711";
 
-        public FS0711Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0711Controller_Sub(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -57,8 +57,6 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
 
                 res.Add("C023", dataList_C023);
-                List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0711_Logic.SearchSupplier());//供应商
-                res.Add("optionSupplier", dataList_Supplier);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

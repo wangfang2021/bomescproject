@@ -30,7 +30,18 @@ namespace Logic
         }
         #endregion
 
-    
+        #region 形成纵向导出
+
+
+        public DataTable SearchEXZ(string iautoID, string strNote, string strPackSpot, string strShouhuofang, string strPartsNo, string strCar, string strPackNO, string strPackGPSNo, string strFromBegin, string strFromEnd, string strToBegin, string strToEnd)
+        {
+            return FS0702_DataAccess.SearchEXZ(iautoID, strNote, strPackSpot, strShouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strFromEnd, strToBegin);
+        }
+        #endregion
+
+
+
+
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId)
@@ -74,6 +85,13 @@ namespace Logic
         }
         #endregion
 
+        #region 检查品番是否含有
+        public bool CheckPartsNo(string strShouhuofang, string strPartsNo)
+        {
+           return FS0702_DataAccess.CheckPartsNo(strShouhuofang, strPartsNo);
+        }
+
+        #endregion
 
     }
 }

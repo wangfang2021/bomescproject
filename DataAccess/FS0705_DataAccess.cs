@@ -83,9 +83,9 @@ namespace DataAccess
         #endregion
 
 
-       /// <summary>
-       /// 调整页面
-       /// </summary>
+        /// <summary>
+        /// 调整页面
+        /// </summary>
 
 
         #region 按检索条件检索,返回dt
@@ -128,7 +128,7 @@ namespace DataAccess
         }
         #endregion
 
-        
+
         #region 保存
         public void Save_TiaoZheng(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
@@ -241,7 +241,7 @@ namespace DataAccess
         /// 2 检索每个发注逻辑 最后一次的发注时间和编次 在TPack_FaZhu_BCSJ
         /// 3 循环每天的课发注编次 直到当天时间节点结束
 
-        public DataTable Search_BianCi( )
+        public DataTable Search_BianCi()
         {
             try
             {
@@ -251,18 +251,19 @@ namespace DataAccess
                 StringBuilder strSqlfazhu = new StringBuilder();
                 strSqlfazhu.AppendLine("     select vcFaZhuID,count(vcFaZhuID) as iBianCi from TPackFaZhuTime GROUP BY vcFaZhuID;");
 
-                dtFaZhu= excute.ExcuteSqlWithSelectToDT(strSqlfazhu.ToString());
+                dtFaZhu = excute.ExcuteSqlWithSelectToDT(strSqlfazhu.ToString());
 
-                if (dtFaZhu.Rows.Count > 0) {
+                if (dtFaZhu.Rows.Count > 0)
+                {
 
                     foreach (DataRow dr in dtFaZhu.Rows)
                     {
                         string vcFaZhuID = dr["vcFaZhuID"].ToString();//发注逻辑的ID
-                        int vcBianCi =int.Parse( dr["vcFaZhuID"].ToString());//该发注逻辑ID的编次总数
+                        int vcBianCi = int.Parse(dr["vcFaZhuID"].ToString());//该发注逻辑ID的编次总数
 
                         StringBuilder strSqlfazhuZuihou = new StringBuilder();
-                         strSqlfazhuZuihou.AppendLine($"     select * from TPack_FaZhu_BCSJ where vcFaZhuID='{vcFaZhuID}' ORDER BY iAutoID DESC;");//检索最后一次的发注时间
-                        DataTable dt= excute.ExcuteSqlWithSelectToDT(strSqlfazhuZuihou.ToString());
+                        strSqlfazhuZuihou.AppendLine($"     select * from TPack_FaZhu_BCSJ where vcFaZhuID='{vcFaZhuID}' ORDER BY iAutoID DESC;");//检索最后一次的发注时间
+                        DataTable dt = excute.ExcuteSqlWithSelectToDT(strSqlfazhuZuihou.ToString());
 
 
                         string vcday = dt.Rows[0]["dFaZhu"].ToString();//发注的最后时间
@@ -280,18 +281,20 @@ namespace DataAccess
                             { //为当天 编次检索结束
 
                             }
-                            else { 
-                               
+                            else
+                            {
 
-                            
+
+
                             }
 
 
                         }
-                        else { //当天编次全部发完
-                        
-                        
-                        
+                        else
+                        { //当天编次全部发完
+
+
+
                         }
 
 
@@ -329,9 +332,87 @@ namespace DataAccess
 
 
 
+        #region 获取当前时间所有维护的逻辑
+        public DataTable SearchFZTime(string PackSpot)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select CAST ( CAST ( DATEDIFF ( ss, dFrom, getdate()) / ( 60 * 60 * 24 ) AS INT ) AS VARCHAR )+1 as difftime,     \n");
+                strSql.AppendLine("  vcFaZhuID,vcFaZhu,dFaZhuFromTime,dFaZhuToTime,vcBianCi,vcPackSpot,dFrom,dTo,vcFaZhuFromDay,vcFaZhuToDay      \n");
+                strSql.AppendLine("  from TPackFaZhuTime where dFrom < getdate() and dTo> getdate()     \n");
+                strSql.AppendLine("  and vcPackSpot='" + PackSpot + "'     \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
+        #region 插入发注临时表
+        public void InsertFZ_Temp(DataTable dtFZTime)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                DateTime dd = Convert.ToDateTime("9999-01-01 00:00:00");
+                //difftime,vcFaZhuID,vcFaZhu,dFaZhuFromTime,dFaZhuToTime,vcBianCi,vcPackSpot,dFrom,dTo,vcFaZhuFromDay,vcFaZhuToDay
+                strSql.AppendLine("   delete from TPack_FaZhuBC_Temp \n");
+                for (int i = 0; i < dtFZTime.Rows.Count; i++)
+                {
+                    int count = Convert.ToInt32(dtFZTime.Rows[i]["difftime"].ToString());
+                    //逻辑开始时间
+                    DateTime d = Convert.ToDateTime(dtFZTime.Rows[i]["dFrom"].ToString().Substring(0, 9));
+                    for (int j = 0; j < count; j++)
+                    {
+                        //string strFZFDay = dtFZTime.Rows[i]["vcFaZhuFromDay"].ToString();//发注开始时间段
+                        //string strFZTDay = dtFZTime.Rows[i]["vcFaZhuToDay"].ToString();//发注结束时间段
+                        ////N-1
+                        DateTime dstart = Convert.ToDateTime("9999-01-01" + " " + dtFZTime.Rows[i]["dFrom"].ToString().Split(" ")[1]);
+                        DateTime dend = Convert.ToDateTime("9999-01-01" + " " + dtFZTime.Rows[i]["dTo"].ToString().Split(" ")[1]);
+                        DateTime drz = Convert.ToDateTime("9999-01-01" + " " + dtFZTime.Rows[i]["dFaZhuToTime"].ToString());
+                        //第一天判断第一条发注信息是否包括在此时间段
+                        if (j == 0 && dd <= drz && drz <= dstart)
+                        {
+                            strSql.AppendLine("    insert into TPack_FaZhuBC_Temp (vcFaZhuID,dFaZhuStart,dFaZhuEnd,vcFaZhuBCID) values('" + dtFZTime.Rows[i]["vcFaZhuID"].ToString() + "',  \n");
+                            strSql.AppendLine("    '" + (d.AddDays(j)).ToString().Split("00:00:00")[0] + " " + dtFZTime.Rows[i]["dFaZhuFromTime"].ToString() + "', \n");
+                            strSql.AppendLine("    '" + (d.AddDays(j)).ToString().Split("00:00:00")[0] + " " + dtFZTime.Rows[i]["dFaZhuToTime"].ToString() + "', \n");
+                            strSql.AppendLine("    '" + dtFZTime.Rows[i]["vcBianCi"].ToString() + "')   \n");
 
+                        }
+                        else if (j == count && dd <= drz && drz <= dend)
+                        {
+                            strSql.AppendLine("    insert into TPack_FaZhuBC_Temp (vcFaZhuID,dFaZhuStart,dFaZhuEnd,vcFaZhuBCID) values('" + dtFZTime.Rows[i]["vcFaZhuID"].ToString() + "',  \n");
+                            strSql.AppendLine("    '" + (d.AddDays(j)).ToString().Split("00:00:00")[0] + " " + dtFZTime.Rows[i]["dFaZhuFromTime"].ToString() + "', \n");
+                            strSql.AppendLine("    '" + (d.AddDays(j)).ToString().Split("00:00:00")[0] + " " + dtFZTime.Rows[i]["dFaZhuToTime"].ToString() + "', \n");
+                            strSql.AppendLine("    '" + dtFZTime.Rows[i]["vcBianCi"].ToString() + "')   \n");
 
+                        }
+                        else
+                        {
+                            strSql.AppendLine("    insert into TPack_FaZhuBC_Temp (vcFaZhuID,dFaZhuStart,dFaZhuEnd,vcFaZhuBCID) values('" + dtFZTime.Rows[i]["vcFaZhuID"].ToString() + "',  \n");
+                            strSql.AppendLine("    '" + (d.AddDays(j)).ToString().Split("00:00:00")[0] + " " + dtFZTime.Rows[i]["dFaZhuFromTime"].ToString() + "', \n");
+                            strSql.AppendLine("    '" + (d.AddDays(j)).ToString().Split("00:00:00")[0] + " " + dtFZTime.Rows[i]["dFaZhuToTime"].ToString() + "', \n");
+                            strSql.AppendLine("    '" + dtFZTime.Rows[i]["vcBianCi"].ToString() + "')   \n");
+
+                        }
+
+                    }
+                }
+                if (strSql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
 
 
 

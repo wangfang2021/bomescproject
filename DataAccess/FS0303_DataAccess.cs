@@ -182,11 +182,11 @@ namespace DataAccess
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append(",vcJiuYear = '" + iJiuYear + "'" + ",   \r\n");
+                            sql.Append("'" + iJiuYear + "',   \r\n");
                         }
                         else
                         {
-                            sql.Append(",vcJiuYear = null,   \r\n");
+                            sql.Append("null,   \r\n");
                         }
                         #endregion
 
@@ -266,7 +266,7 @@ namespace DataAccess
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append(",vcJiuYear = '" + iJiuYear + "'" + ",   \r\n");
+                            sql.Append(",vcJiuYear = '" + iJiuYear + "'   \r\n");
                         }
                         else
                         {
@@ -301,31 +301,31 @@ namespace DataAccess
                         sql.Append("      where iAutoId=" + listInfoData[i]["iAutoId"] + "   \r\n ");
                         sql.Append("      ;       \r\n ");
                     }
-                    //以下追加验证数据库中是否存在品番重叠判断，如果存在则终止提交，原单位数据唯一性：品番、包装工厂、供应商代码、收货方
-                    if (sql.Length > 0)
-                    {
-                        sql.Append("        declare @errorPart varchar(5000)        \r\n");
-                        sql.Append("        set @errorPart =         \r\n");
-                        sql.Append("        (        \r\n");
-                        sql.Append("        select a.vcPart_id+';' from         \r\n");
-                        sql.Append("        (        \r\n");
-                        sql.Append("           select distinct vcPart_id from         \r\n");
-                        sql.Append("           (         \r\n");
-                        sql.Append("               select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit          \r\n");
-                        sql.Append("         	  group by vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver                 \r\n");
-                        sql.Append("         	  having COUNT(*)>1                 \r\n");
-                        sql.Append("           )a         \r\n");
-                        sql.Append("        ) a for xml path('')        \r\n");
-                        sql.Append("        )        \r\n");
-                        sql.Append("        if @errorPart<>''        \r\n");
-                        sql.Append("        begin        \r\n");
-                        sql.Append("        select CONVERT(int,'-->'+@errorPart+'<--')        \r\n");
-                        sql.Append("        end        \r\n");
-
-                        excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
-                    }
+                   
                 }
+                //以下追加验证数据库中是否存在品番重叠判断，如果存在则终止提交，原单位数据唯一性：品番、包装工厂、供应商代码、收货方
+                if (sql.Length > 0)
+                {
+                    sql.Append("        declare @errorPart varchar(5000)        \r\n");
+                    sql.Append("        set @errorPart =         \r\n");
+                    sql.Append("        (        \r\n");
+                    sql.Append("        select a.vcPart_id+';' from         \r\n");
+                    sql.Append("        (        \r\n");
+                    sql.Append("           select distinct vcPart_id from         \r\n");
+                    sql.Append("           (         \r\n");
+                    sql.Append("               select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit          \r\n");
+                    sql.Append("         	  group by vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver                 \r\n");
+                    sql.Append("         	  having COUNT(*)>1                 \r\n");
+                    sql.Append("           )a         \r\n");
+                    sql.Append("        ) a for xml path('')        \r\n");
+                    sql.Append("        )        \r\n");
+                    sql.Append("        if @errorPart<>''        \r\n");
+                    sql.Append("        begin        \r\n");
+                    sql.Append("        select CONVERT(int,'-->'+@errorPart+'<--')        \r\n");
+                    sql.Append("        end        \r\n");
 
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+                }
             }
             catch (Exception ex)
             {

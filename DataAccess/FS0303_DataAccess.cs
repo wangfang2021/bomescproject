@@ -75,10 +75,10 @@ namespace DataAccess
                 strSql.Append("     )b10 on a.vcFXDiff = b10.vcValue    \n");
                 strSql.Append("     where     \n");
                 strSql.Append("     1=1    \n");
-                if (string.IsNullOrEmpty(strIsShowAll) || strIsShowAll == "0")//如果没点击显示全部，则附加两个常规条件：变更事项不为空，生确不等于OK/NG
+                if (string.IsNullOrEmpty(strIsShowAll) || strIsShowAll == "0")//如果没点击显示全部，则附加常规条件：变更事项不为空
                 {
                     strSql.Append("     and vcChange<>''    \n");
-                    strSql.Append("     and vcSQState not in('2','3')   \n");
+                    //strSql.Append("     and vcSQState not in('2','3')   \n");
                 }
                 if (!string.IsNullOrEmpty(strOriginCompany))
                 {

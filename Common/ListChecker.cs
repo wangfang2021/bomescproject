@@ -95,6 +95,12 @@ namespace Common
                             err_mes.Append(",");
                         err_mes.Append("必须是英数类型");
                     }
+                    else if (strField[2, j] == FieldCheck.PartLine && (Regex.Match(strValue, strField[2, j], RegexOptions.None).Success || strValue.IndexOf('-')==-1))
+                    {
+                        if (err_mes.Length > 0)
+                            err_mes.Append(",");
+                        err_mes.Append("必须是英数'-'类型，且必须带'-'");
+                    }
                     else if (strField[2, j] == FieldCheck.NumCharL && Regex.Match(strValue, strField[2, j], RegexOptions.None).Success)
                     {
                         if (err_mes.Length > 0)

@@ -1427,6 +1427,11 @@ namespace Common
 
         public static readonly string Decimal = "decimal";
 
+        /// <summary>
+        /// 英数 + "-",且必须有"-"
+        /// </summary>
+        public static readonly string PartLine = "PartLine";
+
     }
     #endregion
 

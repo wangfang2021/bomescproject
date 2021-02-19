@@ -137,7 +137,7 @@ namespace DataAccess
                         sql.Append("      )      \n");
                         sql.Append("      VALUES      \n");
                         sql.Append("      (      \n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dSyncTime"], false) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dSyncTime"], true) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSQState"], false) + ",   \r\n");
@@ -146,9 +146,9 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeName"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeFrom"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeTo"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeFromSJ"], false) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeFrom"], true) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeTo"], true) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeFromSJ"], true) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcBJDiff"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartReplace"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartNameEn"], false) + ",   \r\n");
@@ -163,13 +163,13 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSCSName"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSCSAdress"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dGYSTimeFrom"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dGYSTimeTo"], false) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dGYSTimeFrom"], true) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dGYSTimeTo"], true) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcHKPart_id"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcHaoJiu"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], false) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], true) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], true) + ",   \r\n");
                         //旧型经年由旧型开始和结束时间计算得出
                         #region 计算旧型经年
 
@@ -191,7 +191,7 @@ namespace DataAccess
                         #endregion
 
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcNXQF"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dSSDate"], false) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcMeno"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ",   \r\n");
@@ -252,8 +252,8 @@ namespace DataAccess
                         sql.Append("      ,vcOE = " + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "      \r\n");
                         sql.Append("      ,vcHKPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcHKPart_id"], false) + "      \r\n");
                         sql.Append("      ,vcHaoJiu = " + ComFunction.getSqlValue(listInfoData[i]["vcHaoJiu"], false) + "      \r\n");
-                        sql.Append("      ,dJiuBegin = " + ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], false) + "      \r\n");
-                        sql.Append("      ,dJiuEnd = " + ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], false) + "      \r\n");
+                        sql.Append("      ,dJiuBegin = " + ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], true) + "      \r\n");
+                        sql.Append("      ,dJiuEnd = " + ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], true) + "      \r\n");
                         //旧型经年由旧型开始和结束时间计算得出
                         #region 计算旧型经年
 
@@ -275,7 +275,7 @@ namespace DataAccess
                         #endregion
 
                         sql.Append("      ,vcNXQF = " + ComFunction.getSqlValue(listInfoData[i]["vcNXQF"], false) + "      \r\n");
-                        sql.Append("      ,dSSDate = " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], false) + "      \r\n");
+                        sql.Append("      ,dSSDate = " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "      \r\n");
                         sql.Append("      ,vcFXDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "      \r\n");
                         sql.Append("      ,vcFXNo = " + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "      \r\n");
                         sql.Append("      ,vcNum1 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + "      \r\n");

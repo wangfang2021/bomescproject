@@ -75,6 +75,19 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C019", dataList_C019);
                 res.Add("C028", dataList_C028);
 
+                DataTable errPartDt=fs0303_Logic.getErrPartId();
+                StringBuilder errPartSbr = new StringBuilder();
+                for(int i=0;i< errPartDt.Rows.Count; i++)
+                {
+                    errPartSbr.Append(errPartDt.Rows[i]["vcPart_id"].ToString());
+                    if (i != errPartDt.Rows.Count - 1)
+                        errPartSbr.Append(",");
+                }
+                if(errPartDt.Rows.Count>0)
+                    res.Add("ErrPart", "以下品番使用开始、结束区间存在重叠：<br/>"+ errPartSbr.ToString());
+                else
+                    res.Add("ErrPart", "");
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

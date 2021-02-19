@@ -2079,6 +2079,29 @@ namespace DataAccess
         }
         #endregion
 
+
+        #region 检查是否有异常数据
+        public DataTable getErrPartId()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      select distinct vcPart_id from              \n");
+                strSql.Append("      (               \n");
+                strSql.Append("          select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit      \n");
+                strSql.Append("    	  group by vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver               \n");
+                strSql.Append("    	  having COUNT(*)>1                      \n");
+                strSql.Append("      )a               \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
         #region 按检索条件返回dt
         public DataTable getEmailSetting(string strUserId)
         {

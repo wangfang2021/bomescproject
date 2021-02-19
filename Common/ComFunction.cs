@@ -900,7 +900,7 @@ namespace Common
                 {
                     fs.Close();
                 }
-
+                Console.WriteLine(ex.Message);
                 RetMsg = "导出文件失败";
                 return "";
             }
@@ -1073,6 +1073,7 @@ namespace Common
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return "";
             }
         }

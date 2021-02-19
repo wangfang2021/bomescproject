@@ -446,9 +446,12 @@ namespace Logic
                     dtMessage.Rows.Add(dataRow);
                     bReault = false;
                 }
-                string sYearMonth = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString()).ToString("yyyyMM");
-                string sYearMonth1 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString()).AddMonths(1).ToString("yyyyMM");
-                string sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString()).AddMonths(2).ToString("yyyyMM");
+
+                string sYearMonth = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").ToString("yyyyMM");
+                string sYearMonth1 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(1).ToString("yyyyMM");
+                string sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(2).ToString("yyyyMM");
+
+
 
                 dtImport = checkSaveInfo(dtImport, sYearMonth, sYearMonth1, sYearMonth2,
                      strOperId, strPackingPlant, strReceiver, ref bReault, ref dtMessage);

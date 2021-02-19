@@ -26,6 +26,13 @@ namespace Logic
         }
         #endregion
 
+        #region 检查是否有异常数据
+        public DataTable getErrPartId()
+        {
+            return fs0303_DataAccess.getErrPartId();
+        }
+        #endregion
+
         #region 检索特记
         public DataTable SearchTeji(string strPart_id)
         {

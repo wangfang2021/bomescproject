@@ -30,17 +30,19 @@ namespace DataAccess
                 //已完成
                 if (vcState == "0")
                 {
-                    sbr.Append(" AND (ISNULL(vcNum1,'') <> '' AND ISNULL(vcNum2,'') <> '' AND ISNULL(vcNum3,'') <> '' AND ISNULL(vcNum4,'') <> '' AND ISNULL(vcNum1,'') <> '' AND ISNULL(vcNum5,'') <> '' AND ISNULL(vcNum6,'') <> '' AND ISNULL(vcNum7,'') <> '' AND ISNULL(vcNum8,'') <> '' AND ISNULL(vcNum9,'') <> '' AND ISNULL(vcNum10,'') <> '')");
+                    //sbr.Append(" AND (ISNULL(vcNum1,'') <> '' AND ISNULL(vcNum2,'') <> '' AND ISNULL(vcNum3,'') <> '' AND ISNULL(vcNum4,'') <> '' AND ISNULL(vcNum1,'') <> '' AND ISNULL(vcNum5,'') <> '' AND ISNULL(vcNum6,'') <> '' AND ISNULL(vcNum7,'') <> '' AND ISNULL(vcNum8,'') <> '' AND ISNULL(vcNum9,'') <> '' AND ISNULL(vcNum10,'') <> '')");
+                    sbr.Append(" AND vcIsLock = '1' ");
                 }
                 //未完成
                 else if (vcState == "1")
                 {
-                    sbr.Append(" AND (ISNULL(vcNum1,'') = '' OR ISNULL(vcNum2,'') = '' OR ISNULL(vcNum3,'') = '' OR ISNULL(vcNum4,'') = '' OR ISNULL(vcNum1,'') = '' OR ISNULL(vcNum5,'') = '' OR ISNULL(vcNum6,'') = '' OR ISNULL(vcNum7,'') = '' OR ISNULL(vcNum8,'') = '' OR ISNULL(vcNum9,'') = '' OR ISNULL(vcNum10,'') = '')");
+                    //sbr.Append(" AND (ISNULL(vcNum1,'') = '' OR ISNULL(vcNum2,'') = '' OR ISNULL(vcNum3,'') = '' OR ISNULL(vcNum4,'') = '' OR ISNULL(vcNum1,'') = '' OR ISNULL(vcNum5,'') = '' OR ISNULL(vcNum6,'') = '' OR ISNULL(vcNum7,'') = '' OR ISNULL(vcNum8,'') = '' OR ISNULL(vcNum9,'') = '' OR ISNULL(vcNum10,'') = '')");
+                    sbr.Append(" AND vcIsLock = '0'  ");
                 }
 
                 sbr.Append(" ) a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C002' ) b ON a.vcChange = b.vcValue \r\n");
-
+                sbr.Append(" ORDER BY vcIsLock");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
@@ -169,7 +171,7 @@ namespace DataAccess
                     sbr.Append("AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " ");
                     sbr.Append("AND vcCarTypeDesign = " + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDesign"], false) + " ");
                     sbr.Append("AND dJiuBegin = " + ComFunction.getSqlValue(dt.Rows[i]["dJiuBegin"], true) + " ");
-                    sbr.Append("AND vcIsLock = '0' ");
+                    sbr.Append("AND vcIsLock = '0' \r\n");
                 }
                 if (sbr.Length > 0)
                 {

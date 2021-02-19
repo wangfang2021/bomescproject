@@ -75,10 +75,10 @@ namespace DataAccess
                 strSql.Append("     )b10 on a.vcFXDiff = b10.vcValue    \n");
                 strSql.Append("     where     \n");
                 strSql.Append("     1=1    \n");
-                if (string.IsNullOrEmpty(strIsShowAll) || strIsShowAll == "0")
+                if (string.IsNullOrEmpty(strIsShowAll) || strIsShowAll == "0")//如果没点击显示全部，则附加常规条件：变更事项不为空
                 {
-                    strSql.Append("     and dTimeFrom <= GETDATE()    \n");
-                    strSql.Append("     and dTimeTo >= GETDATE()    \n");
+                    strSql.Append("     and vcChange<>''    \n");
+                    //strSql.Append("     and vcSQState not in('2','3')   \n");
                 }
                 if (!string.IsNullOrEmpty(strOriginCompany))
                 {
@@ -2078,6 +2078,29 @@ namespace DataAccess
             }
         }
         #endregion
+
+
+        #region 检查是否有异常数据
+        public DataTable getErrPartId()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      select distinct vcPart_id from              \n");
+                strSql.Append("      (               \n");
+                strSql.Append("          select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit      \n");
+                strSql.Append("    	  group by vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver               \n");
+                strSql.Append("    	  having COUNT(*)>1                      \n");
+                strSql.Append("      )a               \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
 
         #region 按检索条件返回dt
         public DataTable getEmailSetting(string strUserId)

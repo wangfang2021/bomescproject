@@ -405,6 +405,360 @@ namespace Common
             {
 
                 Console.WriteLine("Exception: " + ex.Message);
+                throw ex;
+            }
+            finally
+            {
+                if (workbook != null)
+                {
+                    workbook.Close();
+                }
+                if (fs != null)
+                {
+                    fs.Close();
+                    fs.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 导入标准Excel，第一行为列头
+        /// </summary>
+        /// <param name="FileFullName">文件完整路径</param>
+        /// <param name="sheetName">指定sheet页名称，如未匹配则默认选择第一个sheet</param>
+        /// <param name="Header">5个数组,第一个为文件中列头，第二个为对应DataTable列头，第三个对应校验数据类型，第四个为最大长度限定（为0不校验），第五个为最小长度限定（为0不校验）</param>
+        /// <param name="RetMsg">返回信息</param>
+        /// <returns></returns>
+        public static DataTable ExcelToDataTableformRows(string FileFullName, string sheetName, string[,] Header, int heardrow, int datarow, ref string RetMsg)
+        {
+            FileStream fs = null;
+            IWorkbook workbook = null;
+            ISheet sheet = null;
+            List<int> index = new List<int>();
+            DataTable data = new DataTable();
+            RetMsg = "";
+            int startRow = 0;
+
+            try
+            {
+                fs = new FileStream(FileFullName, FileMode.Open, FileAccess.Read);
+
+                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0) // 2007版本
+                    workbook = new XSSFWorkbook(fs);
+                else if (FileFullName.IndexOf(".xls") > 0) // 2003版本
+                    workbook = new HSSFWorkbook(fs);
+
+                if (sheetName != null)
+                {
+                    sheet = workbook.GetSheet(sheetName);
+                    if (sheet == null) //如果没有找到指定的sheetName对应的sheet，则尝试获取第一个sheet
+                    {
+                        sheet = workbook.GetSheetAt(0);
+                    }
+                }
+                else
+                {
+                    sheet = workbook.GetSheetAt(0);
+                }
+
+                if (sheet != null)
+                {
+                    IRow firstRow = sheet.GetRow(heardrow - 1);
+                    int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+
+                    //对应索引
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        bool bFound = false;
+                        for (int j = 0; j < cellCount; j++)
+                        {
+                            ICell cell = firstRow.GetCell(j);
+                            string cellValue = cell.StringCellValue;
+                            if (!string.IsNullOrEmpty(cellValue))
+                            {
+                                if (Header[0, i] == cellValue)
+                                {
+                                    bFound = true;
+                                    index.Add(j);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bFound == false)
+                        {
+                            RetMsg = Header[0, i] + "列不存在";
+                            return null;
+                        }
+                    }
+
+                    //创建Datatable的列
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        data.Columns.Add(Header[1, i].ToString().Trim());
+                    }
+
+                    //获取数据首尾行
+                    startRow = datarow - 1;
+                    //startRow = sheet.FirstRowNum + 1;
+                    int rowCount = sheet.LastRowNum;
+
+                    //读取数据
+                    for (int i = startRow; i <= rowCount; ++i)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row == null) continue; //没有数据的行默认是null　　　　　　　
+
+                        DataRow dataRow = data.NewRow();
+                        for (int j = 0; j < Header.GetLength(1); j++)
+                        {
+                            ICell cell = row.GetCell(index[j]);
+                            if (cell != null) //同理，没有数据的单元格都默认是null
+                            {
+                                switch (cell.CellType)
+                                {
+                                    case CellType.Blank:
+                                        dataRow[j] = string.Empty;
+                                        break;
+                                    case CellType.Numeric:
+                                        //short format = cell.CellStyle.DataFormat;
+                                        ////对时间格式（2015.12.5、2015/12/5、2015-12-5等）的处理***
+                                        //if (format == 14 || format == 31 || format == 57 || format == 58 || format == 20 || format == 22)
+                                        //    dataRow[j] = cell.DateCellValue.ToString("yyyy-MM-dd HH:mm:ss");
+                                        //else
+                                        //    dataRow[j] = cell.NumericCellValue;
+                                        //NPOI中数字和日期都是NUMERIC类型的，这里对其进行判断是否是日期类型
+                                        if (HSSFDateUtil.IsCellDateFormatted(cell))//日期类型
+                                        {
+                                            //dataRow[j] = cell.DateCellValue;
+                                            var value = cell.NumericCellValue;
+                                            dataRow[j] = DateTime.FromOADate(value).ToString("yyyy-MM-dd HH:mm:ss");
+                                        }
+                                        else//其他数字类型
+                                        {
+                                            dataRow[j] = cell.NumericCellValue;
+                                        }
+                                        break;
+                                    case CellType.String:
+                                        dataRow[j] = cell.StringCellValue;
+                                        break;
+                                    //case CellType.Formula:
+                                    //    HSSFFormulaEvaluator eva = new HSSFFormulaEvaluator(workbook);
+                                    //    dataRow[j] = eva.Evaluate(cell).StringValue;
+                                    //    break;
+                                    default: 
+                                        dataRow[j] = cell.ToString();
+                                        break;
+                                }
+                            }
+                        }
+
+                        data.Rows.Add(dataRow);
+                    }
+                }
+
+                for (int i = 0; i < data.Columns.Count; i++)
+                {
+                    data.Columns[i].DataType = typeof(string);
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine("Exception: " + ex.Message);
+                return null;
+            }
+            finally
+            {
+                if (workbook != null)
+                {
+                    workbook.Close();
+                }
+                if (fs != null)
+                {
+                    fs.Close();
+                    fs.Dispose();
+                }
+            }
+        }
+
+        public static DataTable ExcelToDataTable(string FileFullName, string sheetName, string[,] Header, int startRow, ref string RetMsg)
+        {
+            FileStream fs = null;
+            IWorkbook workbook = null;
+            ISheet sheet = null;
+            List<int> index = new List<int>();
+            DataTable data = new DataTable();
+            RetMsg = "";
+            ////int startRow = 0;
+            try
+            {
+                fs = new FileStream(FileFullName, FileMode.Open, FileAccess.Read);
+
+                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0) // 2007版本
+                    workbook = new XSSFWorkbook(fs);
+                else if (FileFullName.IndexOf(".xls") > 0) // 2003版本
+                    workbook = new HSSFWorkbook(fs);
+
+                if (sheetName != null)
+                {
+                    sheet = workbook.GetSheet(sheetName);
+                    if (sheet == null) //如果没有找到指定的sheetName对应的sheet，则尝试获取第一个sheet
+                    {
+                        sheet = workbook.GetSheetAt(0);
+                    }
+                }
+                else
+                {
+                    sheet = workbook.GetSheetAt(0);
+                }
+
+                if (sheet != null)
+                {
+                    IRow firstRow = sheet.GetRow(startRow);
+                    int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+
+                    //对应索引
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        bool bFound = false;
+                        for (int j = 0; j < cellCount; j++)
+                        {
+                            ICell cell = firstRow.GetCell(j);
+                            //string cellValue = cell.StringCellValue;
+                            string cellValue = Header[0, j];
+                            if (!string.IsNullOrEmpty(cellValue))
+                            {
+                                if (Header[0, i] == cellValue)
+                                {
+                                    bFound = true;
+                                    index.Add(j);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bFound == false)
+                        {
+                            RetMsg = Header[0, i] + "列不存在";
+                            return null;
+                        }
+                    }
+
+                    //创建Datatable的列
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        data.Columns.Add(Header[1, i].ToString().Trim());
+                    }
+
+                    //获取数据首尾行
+                    //startRow = sheet.FirstRowNum + 1;
+                    int rowCount = sheet.LastRowNum;
+
+                    //读取数据
+                    for (int i = startRow; i <= rowCount; ++i)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row == null) continue; //没有数据的行默认是null　　　　　　　
+
+                        DataRow dataRow = data.NewRow();
+                        for (int j = 0; j < Header.GetLength(1); j++)
+                        {
+                            ICell cell = row.GetCell(index[j]);
+                            if (cell != null) //同理，没有数据的单元格都默认是null
+                            {
+
+                                if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
+                                {
+                                    dataRow[j] = DateTime.FromOADate(cell.NumericCellValue);
+                                }
+                                else
+                                {
+                                    dataRow[j] = cell.ToString();
+                                }
+                            }
+                        }
+
+                        data.Rows.Add(dataRow);
+                    }
+                }
+
+                for (int i = 0; i < data.Columns.Count; i++)
+                {
+                    data.Columns[i].DataType = typeof(string);
+                }
+
+                #region 校验格式
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    DataRow dr = data.Rows[i];
+                    for (int j = 0; j < Header.GetLength(1); j++)
+                    {
+                        if (Convert.ToInt32(Header[3, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length > Convert.ToInt32(Header[3, j]))
+                        {
+                            RetMsg = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
+                            return null;
+                        }
+
+                        if (Convert.ToInt32(Header[4, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
+                        {
+                            RetMsg = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
+                            return null;
+                        }
+
+                        switch (Header[2, j])
+                        {
+                            case "decimal":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDecimal(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                            case "d":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDate(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                            case "ym":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckYearMonth(dr[Header[1, j]].ToString()))
+                                {
+                                    RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                            default:
+                                if (Header[2, j].Length > 0 && Regex.Match(dr[Header[1, j]].ToString(), Header[2, j],
+                                    RegexOptions.None).Success)
+                                {
+                                    RetMsg = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
+                                    return null;
+                                }
+
+                                break;
+                        }
+                    }
+                }
+
+
+                #endregion
+
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine("Exception: " + ex.Message);
                 return null;
             }
             finally
@@ -421,6 +775,8 @@ namespace Common
             }
         }
         #endregion
+
+
 
         #region 导出
         /// <summary>
@@ -563,7 +919,7 @@ namespace Common
         /// <param name="strFunctionName"></param>
         /// <param name="RetMsg"></param>
         /// <returns>最终文件的全路径</returns>
-        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath,string fileName, string strUserId, string strFunctionName, ref string RetMsg)
+        public static string DataTableToExcel(string[] head, string[] field, DataTable dt, string rootPath, string fileName, string strUserId, string strFunctionName, ref string RetMsg)
         {
             bool result = false;
             RetMsg = "";
@@ -825,7 +1181,7 @@ namespace Common
                 MultiExcute excute = new MultiExcute();
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'  ORDER BY iAutoId    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -889,8 +1245,8 @@ namespace Common
                     MMge.To.Add(new MailAddress(receiverDt.Rows[i]["address"].ToString(), receiverDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
                 }
                 //添加抄送
-                if(cCDt!=null)
-                { 
+                if (cCDt != null)
+                {
                     for (var i = 0; i < cCDt.Rows.Count; i++)
                     {
                         MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
@@ -927,6 +1283,90 @@ namespace Common
                 }
             }
         }
+
+        /// <summary>
+        /// 发送邮件的方法
+        /// </summary>
+        /// <param name="strUserEmail">用户邮箱</param>
+        /// /// <param name="strUserName">用户name</param>
+        /// <param name="strEmailBody">邮件内容 支持html代码</param>
+        /// <param name="receiverDt">发件人Datatable存在两列：address,displayName 必须一样, address->邮件地址, displayName-->显示名称</param>
+        /// <param name="cCDt">抄送人Datatable存在两列：address,displayName 必须一样, address->邮件地址, displayName-->显示名称</param>
+        /// <param name="strSubject">邮件主题</param>
+        /// <param name="strFilePathArray">附件数组：需要发送附件就传入附件文件地址 不需要就空</param>
+        /// <param name="delFileNameFlag">默认为false, 如果传入了附件之后，需要删除文件就传true,没有附件或者不需要删除附件的就false</param>
+        /// <returns></returns>
+        public static string SendEmailInfo(string strUserEmail, string strUserName, string strEmailBody, DataTable receiverDt, DataTable cCDt, string strSubject, string[] strFilePathArray, bool delFileNameFlag)
+        {
+            MailMessage MMge = new MailMessage();
+            try
+            {
+                SmtpClient mailClient = new SmtpClient(ComConstant.strSmtp);//服务器地址
+                mailClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                System.Text.Encoding encoding = System.Text.Encoding.UTF8;
+                mailClient.UseDefaultCredentials = false;
+                mailClient.Timeout = 3600000;
+                mailClient.Credentials = new NetworkCredential(ComConstant.strComEmail, ComConstant.strComEmailPwd);  //发送人邮箱登陆用户名和密码
+
+                MMge.From = new MailAddress(strUserEmail, strUserName, Encoding.UTF8);
+
+                //清除MMge
+                MMge.To.Clear();          //收件
+                MMge.Attachments.Clear(); //附件
+                //添加发件人
+                for (var i = 0; i < receiverDt.Rows.Count; i++)
+                {
+                    MMge.To.Add(new MailAddress(receiverDt.Rows[i]["address"].ToString(), receiverDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
+                }
+                //添加抄送
+                if (cCDt != null)
+                {
+                    for (var i = 0; i < cCDt.Rows.Count; i++)
+                    {
+                        MMge.CC.Add(new MailAddress(cCDt.Rows[i]["address"].ToString(), cCDt.Rows[i]["displayName"].ToString(), Encoding.UTF8));
+                    }
+                }
+                foreach (string strFilePath in strFilePathArray)
+                {
+                    if (strFilePath != "")
+                    {
+                        MMge.Attachments.Add(new Attachment(strFilePath));//添加附件
+                    }
+                }
+
+                MMge.Subject = strSubject;//邮件主题
+
+                MMge.IsBodyHtml = true;//这里启用IsBodyHtml是为了支持内容中的Html
+
+                MMge.BodyEncoding = Encoding.Default;//将正文的编码形式设置为UTF8
+
+                MMge.Body = strEmailBody;
+
+                mailClient.Send(MMge);
+                return "Success";
+            }
+            catch (Exception ex)
+            {
+                MMge.Dispose();
+                return "Error";
+            }
+            finally
+            {
+                MMge.Dispose();
+                if (delFileNameFlag)
+                {
+                    foreach (string strFilePath in strFilePathArray)
+                    {
+                        if (System.IO.File.Exists(strFilePath))
+                        {
+                            System.IO.File.Delete(strFilePath);
+                        }
+                    }
+                    
+                }
+            }
+        }
+
         #endregion
 
     }
@@ -990,5 +1430,5 @@ namespace Common
     }
     #endregion
 
-    
+
 }

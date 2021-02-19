@@ -12,125 +12,93 @@ namespace DataAccess
     public class FS0617_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-
-        public DataTable getPlantInfo()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select '1' as plantcode,'泰达' as plantname");//plantcode\plantname
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public DataTable getCarTypeInfo()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select '1' as cartypecode,'卡罗拉' as cartypename");//cartypecode\cartypename
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                strSql.AppendLine("");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         
-        public DataTable getSuPartyInfo()
+        public DataTable getSearchInfo(string strPlantArea, string strOrderPlant, string strPartId, string strCarModel, string strReceiver, string strSupplier)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcSupplier_id as vcName,vcSupplier_id as vcValue from TSupplierInfo");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public DataTable getRePartyInfo()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcValue,vcName from TCustomerInfo where vcDisting='C' and vcDisable='0'");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public DataTable getSearchInfo(string strPlantArea, string vcFZPlant, string strPartId, string strCarType, string strReParty, string strSuparty)
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select '1' as Enum ,t1.[iAutoId] as LinId,vcPlantArea,T3.vcFZGC as vcFZPlant,vcPartId,vcFromTime,vcToTime,vcCarType,vcReparty,");
-                strSql.AppendLine("vcSuparty,t2.vcDock as vcReceiving,vcBF,T4.vcQty as vcQuantity,vcPartName,");
-                strSql.AppendLine("vcRoute,vcAdWorks,vcAdWorksTime,vcOutPutTime,vcItem1,vcItem2 from ");
-                strSql.AppendLine("(SELECT iAutoId,[PLANTCODE] as vcPlantArea,vcPlantCode as vcFZPlant,[PARTSNO] as vcPartId,[TIMEFROM] as vcFromTime,[TIMETO] as vcToTime,");
-                strSql.AppendLine("[CARFAMILYCODE] as vcCarType,");
-                strSql.AppendLine("[CPDCOMPANY] as vcReparty,[SUPPLIERCODE] as vcSuparty,[vcDockCode] as vcReceiving,'' as vcBF,vcQtyCode as vcQuantity,");
-                strSql.AppendLine("[PARTSNAMEEN] as vcPartName,[ROUTE] as vcRoute,FORMERPROCESS as vcAdWorks,PASSINGTIME as vcAdWorksTime,SHIPPINGTIME as vcOutPutTime,");
-                strSql.AppendLine("REMARK1 as vcItem1,REMARK2	as 	vcItem2 ");
-                strSql.AppendLine("from [SP_M_SITEM])T1");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(select * from SP_M_SITEM_Dock)T2");
-                strSql.AppendLine("on T1.vcReceiving =T2.LinId and T2.dFromTime<=Convert(varchar(10),GETDATE(),23) and T2.dToTime>=Convert(varchar(10),GETDATE(),23)");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(select * from SP_M_SITEM_Plant)T3");
-                strSql.AppendLine("on T1.vcFZPlant =T3.LinId and T3.dFromTime<=Convert(varchar(10),GETDATE(),23) and T3.dToTime>=Convert(varchar(10),GETDATE(),23)");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(select * from SP_M_SITEM_Qty)T4");
-                strSql.AppendLine("on T1.vcQuantity =T4.LinId and T4.dFromTime<=Convert(varchar(10),GETDATE(),23) and T4.dToTime>=Convert(varchar(10),GETDATE(),23)");
-                strSql.AppendLine("where 1=1");
+                strSql.AppendLine("SELECT  1 AS iEnum,");
+                strSql.AppendLine("		T1.LinId AS LinId,");
+                strSql.AppendLine("		T1.vcPackingPlant AS vcPlantArea,");
+                strSql.AppendLine("		T7.vcName AS vcPlantArea_name,");
+                strSql.AppendLine("		T5.vcOrderPlant,");
+                strSql.AppendLine("		T8.vcName AS vcOrderPlant_name,");
+                strSql.AppendLine("		T1.vcPartId AS vcPartId,");
+                strSql.AppendLine("		T1.dFromTime AS dFromTime,");
+                strSql.AppendLine("		T1.dToTime AS dToTime,");
+                strSql.AppendLine("		T1.vcCarfamilyCode AS vcCarModel,");
+                strSql.AppendLine("		T1.vcReceiver AS vcReceiver,");
+                strSql.AppendLine("		T1.vcSupplierId AS vcSupplierId,");
+                strSql.AppendLine("		T4.vcSufferIn AS vcSufferIn,");
+                strSql.AppendLine("		T3.iPackingQty AS iPackingQty,");
+                strSql.AppendLine("		T1.vcPartENName AS vcPartENName,");
+                strSql.AppendLine("		T1.vcPassProject AS vcPassProject,");
+                strSql.AppendLine("		T1.vcInteriorProject AS vcInteriorProject,");
+                strSql.AppendLine("		T1.dFrontProjectTime AS dFrontProjectTime,");
+                strSql.AppendLine("		T1.dShipmentTime AS dShipmentTime,");
+                strSql.AppendLine("		T1.vcRemark1,");
+                strSql.AppendLine("		T1.vcRemark2,");
+                strSql.AppendLine("		T6.vcImagePath AS vcImagePath,");
+                strSql.AppendLine("		'1' AS bSelectFlag");
+                strSql.AppendLine("		FROM ");
+                strSql.AppendLine("(SELECT *  FROM [TSPMaster] WHERE vcInOut='0' ");
                 if (strPlantArea != "")
                 {
-                    strSql.AppendLine("and t1.vcPlantArea='"+ strPlantArea + "'");
-                }
-                if (vcFZPlant != "")
-                {
-                    strSql.AppendLine("and T3.vcFZGC='"+ vcFZPlant + "'");
+                    strSql.AppendLine("AND vcPackingPlant='" + strPlantArea + "'");
                 }
                 if (strPartId != "")
                 {
-                    strSql.AppendLine("and t1.vcPartId like '"+ strPartId + "%'");
+                    strSql.AppendLine("AND vcPartId like '" + strPartId + "%'");
                 }
-                if (strCarType != "")
+                if (strCarModel != "")
                 {
-                    strSql.AppendLine("and t1.vcCarType='"+ strCarType + "'");
+                    strSql.AppendLine("AND vcCarfamilyCode='" + strCarModel + "'");
                 }
-                if (strReParty != "")
+                if (strReceiver != "")
                 {
-                    strSql.AppendLine("and t1.vcReparty='"+ strReParty + "'");
+                    strSql.AppendLine("AND vcReceiver='" + strReceiver + "'");
                 }
-                if (strSuparty != "")
+                if (strSupplier != "")
                 {
-                    strSql.AppendLine("and t1.vcSuparty='"+ strSuparty + "'");
+                    strSql.AppendLine("AND vcSupplierId='" + strSupplier + "'");
                 }
-                strSql.AppendLine("order by T3.vcFZGC,t2.vcDock,t1.vcPartId");
+                strSql.AppendLine(")T1");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT * FROM TSPMaster_SupplierPlant ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND dFromTime<=CONVERT(VARCHAR(10),GETDATE(),23) AND dToTime>=CONVERT(VARCHAR(10),GETDATE(),23))T2");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId]");
+                strSql.AppendLine("AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT * FROM TSPMaster_Box ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND dFromTime<=CONVERT(VARCHAR(10),GETDATE(),23) AND dToTime>=CONVERT(VARCHAR(10),GETDATE(),23))T3");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId]");
+                strSql.AppendLine("AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId] AND T2.vcSupplierPlant=T3.[vcSupplierPlant]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT * FROM TSPMaster_SufferIn ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND dFromTime<=CONVERT(VARCHAR(10),GETDATE(),23) AND dToTime>=CONVERT(VARCHAR(10),GETDATE(),23))T4");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] ");
+                strSql.AppendLine("AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT * FROM TSPMaster_OrderPlant ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND dFromTime<=CONVERT(VARCHAR(10),GETDATE(),23) AND dToTime>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T5.[vcPackingPlant] AND T1.[vcPartId]=T5.[vcPartId]");
+                strSql.AppendLine("AND T1.[vcReceiver]=T5.[vcReceiver] AND T1.[vcSupplierId]=T5.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT * FROM TSPMaster_ImagePath ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND dFromTime<=CONVERT(VARCHAR(10),GETDATE(),23) AND dToTime>=CONVERT(VARCHAR(10),GETDATE(),23))T6");
+                strSql.AppendLine("ON T1.[vcPartId]=T6.[vcPartId] ");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C051')T7--包装工厂");
+                strSql.AppendLine("ON T1.vcPackingPlant=T7.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T8--发注工厂");
+                strSql.AppendLine("ON T5.vcOrderPlant=T8.vcValue");
+                if (strOrderPlant != "")
+                {
+                    strSql.AppendLine("WHERE T5.vcOrderPlant='" + strOrderPlant + "'");
+                }
+                strSql.AppendLine("ORDER BY T1.vcPackingPlant,T5.vcOrderPlant,T1.vcReceiver,T1.vcSupplierId,T1.vcPartId");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

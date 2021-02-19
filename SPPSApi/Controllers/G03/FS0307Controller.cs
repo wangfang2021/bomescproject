@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -43,17 +44,19 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
-                List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
-                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
-                List<Object> dataList_C024 = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//包装事业体
+                List<Object> dataList_C024 = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//旧型年限进度
+                List<string> dataList_C006_Excel = convertTCodeToResult(getTCode("C006"));//原单位
+                List<string> dataList_C005_Excel = convertTCodeToResult(getTCode("C005"));//收货方
+                List<string> dataList_C016_Excel = convertTCodeToResult(getTCode("C016"));//包装事业体
+                List<string> dataList_C024_Excel = convertTCodeToResult(getTCode("C024"));//旧型年限进度
+                List<string> dataList_C003_Excel = convertTCodeToResult(getTCode("C003"));//内外
 
-
-                res.Add("C005", dataList_C005);
-                res.Add("C006", dataList_C006);
-                res.Add("C016", dataList_C016);
                 res.Add("C024", dataList_C024);
-
+                res.Add("C003_E", dataList_C003_Excel);
+                res.Add("C006_E", dataList_C006_Excel);
+                res.Add("C005_E", dataList_C005_Excel);
+                res.Add("C016_E", dataList_C016_Excel);
+                res.Add("C024_E", dataList_C024_Excel);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -68,43 +71,43 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-        #region 年限抽取
+        //#region 年限抽取
 
-        [HttpPost]
-        [EnableCors("any")]
-        public string extractApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            JArray listInfo = dataForm.vcOriginCompany;
-            List<string> vcOriginCompany = listInfo.ToObject<List<string>>();
-            try
-            {
-                fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany);
+        //[HttpPost]
+        //[EnableCors("any")]
+        //public string extractApi([FromBody]dynamic data)
+        //{
+        //    //验证是否登录
+        //    string strToken = Request.Headers["X-Token"];
+        //    if (!isLogin(strToken))
+        //    {
+        //        return error_login();
+        //    }
+        //    LoginInfo loginInfo = getLoginByToken(strToken);
+        //    //以下开始业务处理
+        //    ApiResult apiResult = new ApiResult();
+        //    dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        //    JArray listInfo = dataForm.vcOriginCompany;
+        //    List<string> vcOriginCompany = listInfo.ToObject<List<string>>();
+        //    try
+        //    {
+        //        fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany);
 
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0703", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "年限抽取失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
+        //        apiResult.code = ComConstant.SUCCESS_CODE;
+        //        apiResult.data = null;
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0701", ex, loginInfo.UserId);
+        //        apiResult.code = ComConstant.ERROR_CODE;
+        //        apiResult.data = "年限抽取失败";
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //}
+        //#endregion
 
-        #region 检索
+        #region 检索（分页缓存）
         [HttpPost]
         [EnableCors("any")]
         public string searchApi([FromBody] dynamic data)
@@ -117,33 +120,55 @@ namespace SPPSApi.Controllers.G03
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strYear = dataForm.strYear == null ? "" : dataForm.strYear;
-            string FinishFlag = dataForm.FinishFlag == null ? "" : dataForm.FinishFlag; ;
-            string SYT = dataForm.vcSYTCode == null ? "" : dataForm.vcSYTCode;
-            string Receiver = dataForm.vcReceiver == null ? "" : dataForm.vcReceiver;
-            JArray listInfo = dataForm.vcOriginCompany;
-            List<string> origin = listInfo.ToObject<List<string>>();
+            string strIsShowAll = dataForm.isShowAll;
+            string strSearchKey = dataForm.searchKey;
+            int iPage = dataForm.page == null ? 0 : dataForm.page;
+            int iPageSize = dataForm.pageSize;
+            string fileName = dataForm.fileName;
+            string strYear = dataForm.vcYear == null ? "" : dataForm.vcYear;
+            if (!string.IsNullOrWhiteSpace(strYear))
+            {
+                strYear = Convert.ToDateTime(strYear).AddHours(8).ToString("yyyy");
+            }
+            string FinishFlag = dataForm.vcFinish == null ? "" : dataForm.vcFinish; ;
 
             try
             {
-                DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag, SYT, Receiver, origin);
+                DataTable dt = null;
+                int pageTotal = 0;//总页数
+                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                {
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
+                }
+                else
+                {
+                    DataTable dtAll = fs0307_logic.searchApi(strYear, FinishFlag);
+                    initSearchCash(strSearchKey, dtAll);
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
+                }
+
                 DtConverter dtConverter = new DtConverter();
+
+                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcOld10", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcOld9", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcOld7", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFinishYMD", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
+                apiResult.field1 = pageTotal;//这块需要把总页数返回
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0701", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0702", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -168,15 +193,12 @@ namespace SPPSApi.Controllers.G03
 
             string strYear = dataForm.strYear;
             string FinishFlag = dataForm.FinishFlag;
-            string SYT = dataForm.vcSYTCode;
-            string Receiver = dataForm.vcReceiver;
-            JArray listInfo = dataForm.vcOriginCompany;
-            List<string> origin = listInfo.ToObject<List<string>>();
+
             try
             {
-                DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag, SYT, Receiver, origin);
+                DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag);
 
-                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcSupplier_id", "vcSYTCode", "vcReceiver", "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dTimeFrom", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
+                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcSupplier_id", "vcSYTCode", "vcReceiver", "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0307.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -190,60 +212,9 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region FTMS
-
-        [HttpPost]
-        [EnableCors("any")]
-        public string FTMSApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-
-                bool hasFind = false;//是否找到需要新增或者修改的数据
-
-                if (listInfoData.Count > 0)
-                {
-                    hasFind = true;
-                }
-
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选中一条数据！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-
-                fs0307_logic.FTMS(listInfoData, loginInfo.UserId);
-
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0703", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "FTMS层别失败";
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -269,10 +240,16 @@ namespace SPPSApi.Controllers.G03
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
+                bool bModFlag = false;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
+                    bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
                     }
@@ -286,13 +263,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    //TODO
-                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧"},
-                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu"},
-                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"" },
-                                                {"25","12","0","0","0","4","50","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","10","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7","8","9","10"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"进度","进度完成时间","厂家编码","品番","品名","内外区分","车种","旧型开始时间","备注","1年","2年","3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年","原单位","包装事业体","收货方"},
+                                                {"vcFinish","dFinishYMD","vcSupplier_id","vcPart_id","vcPartNameEn","vcInOutflag","vcCarTypeDev","dJiuBegin","vcRemark","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21","vcOriginCompany","vcSYTCode","vcReceiver"},
+                                                {"",FieldCheck.Date,FieldCheck.Num,FieldCheck.NumChar,"","",FieldCheck.NumChar,FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"","","" },
+                                                {"0","0","4","12","0","0","4","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","0","4","10","1","1","4","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","1","1","1"},//最小长度设定,可以为空用0
+                                                {"2","3","4","5","6","7","8","9","10","14","15","16","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
@@ -300,12 +276,11 @@ namespace SPPSApi.Controllers.G03
 
 
 
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0309");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0307");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = checkRes;
-                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        apiResult.data = ListChecker.listToString(checkRes);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -318,7 +293,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0705", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -327,8 +302,145 @@ namespace SPPSApi.Controllers.G03
 
         #endregion
 
+        #region 织入原单位
+        [HttpPost]
+        [EnableCors("any")]
+        public string InsertUnitApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                if (listInfoData.Count > 0)
+                {
+                    hasFind = true;
+                }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
+                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
+                                                {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num },
+                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
+                                                {"2","14","15","16","18","19","20","21","22","23","24","25","26","27","28","29","30","31"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    //需要判断时间区间先后关系的字段
+                    string[,] strDateRegion = { };
+                    string[,] strSpecialCheck = { };
 
 
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0307");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = ListChecker.listToString(checkRes);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                fs0307_logic.InsertUnitApi(listInfoData, loginInfo.UserId);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0706", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
+        #endregion
+
+        #region 获取数据字典--只取名字
+        public static DataTable getTCode(string strCodeId)
+        {
+            try
+            {
+                MultiExcute excute = new MultiExcute();
+                System.Data.DataTable dt = new System.Data.DataTable();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("   select vcName from TCode where vcCodeId='" + strCodeId + "'     \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 删除
+        [HttpPost]
+        [EnableCors("any")]
+        public string delApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs0307_logic.DelApi(listInfoData);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0707", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        public static List<string> convertTCodeToResult(DataTable dt)
+        {
+            List<string> res = new List<string>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                res.Add(dt.Rows[i]["vcName"].ToString());
+            }
+            return res;
+        }
 
 
     }

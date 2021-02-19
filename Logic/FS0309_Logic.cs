@@ -5,6 +5,9 @@ using System.Text;
 using System.Data;
 using DataAccess;
 using System.Collections;
+using NPOI.XSSF.UserModel;
+using System.IO;
+using NPOI.SS.UserModel;
 
 namespace Logic
 {
@@ -88,13 +91,6 @@ namespace Logic
         }
         #endregion
 
-        #region 检索所有的公式
-        public DataTable getAllGS()
-        {
-            return fs0309_DataAccess.getAllGS();
-        }
-        #endregion
-
         #region 按检索条件检索,返回dt
         public DataTable Search_GS(string strBegin, string strEnd )
         {
@@ -128,6 +124,233 @@ namespace Logic
         public DataTable test10W()
         {
             return fs0309_DataAccess.test10W();
+        }
+        #endregion
+
+        #region 销售展开（根据检索条件）
+        public void sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+            , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
+            , string strReceiver, string strPriceState,ref string strErr
+            )
+        {
+            fs0309_DataAccess.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu
+            , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
+            , strReceiver, strPriceState, ref strErr);
+        }
+        #endregion
+
+        #region 销售展开（根据所选）
+        public void sendMail(List<Dictionary<string,object>> listInfoData,string strUserEmail,string strUserId,string strUserName ,ref string strErr)
+        {
+            #region 更新价格表
+            fs0309_DataAccess.sendMail(listInfoData, ref strErr);
+            #endregion
+
+            #region 发送邮件
+
+            #region 邮件发送准备
+
+            #region 用户邮箱
+            string UserEmail = strUserEmail;
+            if (string.IsNullOrEmpty(strUserEmail))
+            {
+                strErr += "获取用户邮箱失败!\n";
+                return;
+            }
+            #endregion
+
+            #region 用户名称
+            string UserName = strUserName;
+            if (string.IsNullOrEmpty(strUserEmail))
+            {
+                strErr += "获取用户名称失败!\n";
+                return;
+            }
+            #endregion
+
+            #region 邮件内容
+            string EmailBody = fs0309_DataAccess.getEmailBody(strUserId);
+            if (string.IsNullOrEmpty(EmailBody))
+            {
+                strErr += "获取邮箱内容失败!\n";
+                return;
+            }
+            //这里做了年月的转换
+            EmailBody = EmailBody.Replace("##yearmonth##", DateTime.Now.ToString("yyyy年MM月"));
+            #endregion
+
+            #region 收件人
+            /*
+             * 修改时间：2020-2-18
+             * 修改人：董镇
+             * 修改内同：获取收件人时需要返回哪些收件人(收件人就是收货方)维护了，哪些收件人未维护，对于未维护的收件人要进行提示
+             * 功能描述：1、获取所有的维护了的收件人，从数据库获取
+             *           2、获取所选择的收件人，判断所选择的收件人是否在所有已维护收件人中存在
+             *           3、对于不存在的收件人进行提示，并停止继续销售展开
+             *           4、如果都存在，获取收件人邮箱，继续执行销售展开操作
+             */
+            #region 获取所有维护的收件人信息
+            DataTable allreceiverDt = fs0309_DataAccess.getreceiverDt();
+            if (allreceiverDt == null || allreceiverDt.Rows.Count <= 0)       //执行SQL查询，但未检索到任何数据，可能原因：未维护任何收件人邮箱信息
+            {
+                strErr = "未维护任何收货方邮箱信息";
+                return;
+            }
+
+            List<string> allLists = new List<string>();     //所有的不重复的收件人信息
+            for (int i = 0; i < allreceiverDt.Rows.Count; i++)
+            {
+                allLists.Add(allreceiverDt.Rows[i]["displayName"].ToString());
+            }
+            allLists = allLists.Distinct().ToList();
+            #endregion
+
+            #region 获取所选择的收件人
+            List<string> lists = new List<string>();
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                lists.Add(listInfoData[i]["vcReceiver"].ToString());
+            }
+            lists = lists.Distinct().ToList();
+
+            //判断所选的收件人是否存在，并记录未维护的收件人邮箱
+            for (int i = 0; i < lists.Count; i++)
+            {
+                if (!allLists.Contains(lists[i]))
+                {
+                    strErr += "收件人:" + lists[i].ToString() + "邮箱未维护！";
+                }
+            }
+            #endregion
+
+            #region 判断所选择的收件人是否在所有已维护收件人中存在
+            
+
+            #endregion
+
+
+            #endregion
+
+            #region 抄送人
+            /*
+             * 注意：抄送人不需要判断是否拿到数据，如果没有拿到数据，说明没有添加抄送人，对于发送邮件无影响
+             */
+            DataTable cCDt = null;
+            #endregion
+
+            #region 邮件主题
+            string strSubject = "";
+            if (string.IsNullOrEmpty(strSubject))
+            {
+                
+            }
+            #endregion
+
+            #region 附件
+            /*
+             * 有附件给地址，无给null
+             */
+            string strFilePath = null;
+            #endregion
+
+            #region 传入附件后，是否需要删除附件
+            /*
+             * true:需要删除附件
+             * false:需要删除附件/没有附件
+             */
+            bool delFileNameFlag = false;
+            #endregion
+
+            #endregion
+
+            #region 开始发送邮件
+            //记录错误信息
+            
+            #endregion
+
+            #endregion
+
+        }
+        #endregion
+
+        #region 导出带模板
+        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.BorderBottom = BorderStyle.Thin;
+                style.BorderLeft = BorderStyle.Thin;
+                style.BorderRight = BorderStyle.Thin;
+                style.BorderTop = BorderStyle.Thin;
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        ICell cell = row.CreateCell(j);
+                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        cell.CellStyle = style;
+                    }
+                }
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
+
+        #region 根据选择公式返回对应金额
+        public DataTable getGSChangePrice(string strPartId, string strSupplier, int iAutoId, string strGSName, decimal decPriceOrigin)
+        {
+            return fs0309_DataAccess.getGSChangePrice(strPartId,strSupplier,iAutoId,strGSName,decPriceOrigin);
+        }
+        #endregion
+
+
+        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        public bool getLastStateGsData(string strPartId, string strSupplier, int iAutoId)
+        {
+            DataTable dt=fs0309_DataAccess.getLastStateGsData(strPartId, strSupplier, iAutoId);
+            if (dt.Rows.Count == 0)
+                return false;
+            else
+                return true;
+        }
+        #endregion
+
+        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        public bool isGsExist(string strGs)
+        {
+            DataTable dt = fs0309_DataAccess.isGsExist(strGs);
+            if (dt.Rows.Count == 0)
+                return false;
+            else
+                return true;
         }
         #endregion
     }

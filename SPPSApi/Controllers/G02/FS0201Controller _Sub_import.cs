@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -59,12 +60,16 @@ namespace SPPSApi.Controllers.G02
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+
                 string strMsg = "";
 
                 //0 SPI导入
                 if (flag == "0")
                 {
                     fs0201_logic.importSPI(fileSavePath, loginInfo.UserId, ref strMsg);
+                    //存储文件到共享文件夹
+                    SaveFile(fileSavePath, "SPI");
                 }
                 //1 导出导入
                 if (flag == "1")
@@ -115,7 +120,7 @@ namespace SPPSApi.Controllers.G02
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0105", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0106", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -197,6 +202,36 @@ namespace SPPSApi.Controllers.G02
                 dellist.RemoveAt(0);
             }
         }
+        #endregion
+
+        #region 保存文件
+
+        public void SaveFile(string filePath, string Type)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                                      Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + Type + Path.DirectorySeparatorChar;
+
+                if (Directory.Exists(fileSavePath) == false)
+                {
+                    Directory.CreateDirectory(fileSavePath);
+                }
+
+                DirectoryInfo theFolder = new DirectoryInfo(filePath);
+
+                foreach (FileInfo info in theFolder.GetFiles())
+                {
+                    fileSavePath = fileSavePath + info.Name;
+                    System.IO.File.Copy(filePath+info.Name, fileSavePath, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
     }
 

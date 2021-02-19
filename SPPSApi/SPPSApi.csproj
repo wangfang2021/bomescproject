@@ -35,6 +35,7 @@
     <None Remove="Doc\Import\No.1_668WJ0030.xlsx" />
     <None Remove="Doc\Import\No.1_685WF0373.xlsx" />
     <None Remove="Doc\Import\No.1_HBV791.xlsx" />
+    <None Remove="Doc\Template\FS0307 - 复制.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,11 +48,13 @@
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\DataEntity\DataEntity.csproj" />
     <ProjectReference Include="..\Logic\Logic.csproj" />
+    <ProjectReference Include="..\SoqCompute\SoqCompute.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G17\" />
+    <Folder Include="Controllers\G99\" />
     <Folder Include="Doc\Export\" />
     <Folder Include="Doc\Image\PackingOper\" />
     <Folder Include="Doc\Image\Checking\" />

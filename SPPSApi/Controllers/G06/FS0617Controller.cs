@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G06
     [ApiController]
     public class FS0617Controller : BaseController
     {
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
         FS0617_Logic fS0617_Logic = new FS0617_Logic();
         private readonly string FunctionID = "FS0617";
 
@@ -48,16 +49,17 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> PlantAreaList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//工区vcValue   vcName
-                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//工厂vcValue   vcName
-                List<Object> CarTypeList = ComFunction.convertAllToResult(ComFunction.getTCode("C098"));//车种vcValue   vcName
-                List<Object> RePartyList = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方vcValue   vcName
-                List<Object> SupartyList = ComFunction.convertAllToResult(fS0617_Logic.getSuPartyInfo());//供应商vcValue   vcName
+
+                List<Object> PlantAreaList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//工区
+                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
+                List<Object> CarModelList = ComFunction.convertAllToResult(ComFunction.getTCode("C098"));//车种
+                List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
+                List<Object> SupplierList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Supplier"));//供应商
                 res.Add("PlantAreaList", PlantAreaList);
-                res.Add("PlantList", PlantList);
-                res.Add("CarTypeList", CarTypeList);
-                res.Add("RePartyList", RePartyList);
-                res.Add("SupartyList", SupartyList);
+                res.Add("OrderPlantList", OrderPlantList);
+                res.Add("CarModelList", CarModelList);
+                res.Add("ReceiverList", ReceiverList);
+                res.Add("SupplierList", SupplierList);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -91,16 +93,21 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strPlantArea = dataForm.PlantArea == null ? "" : dataForm.PlantArea;
-            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
-            string strCarType = dataForm.CarType == null ? "" : dataForm.CarType;
-            string strReParty = dataForm.ReParty == null ? "" : dataForm.ReParty;
-            string strSuparty = dataForm.Suparty == null ? "" : dataForm.Suparty;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
+            string strSupplier = dataForm.Supplier == null ? "" : dataForm.Supplier;
             try
             {
-                DataTable dt = fS0617_Logic.getSearchInfo(strPlantArea, strPlant, strPartId, strCarType, strReParty, strSuparty);
+                DataTable dataTable = fS0617_Logic.getSearchInfo(strPlantArea, strOrderPlant, strPartId, strCarModel, strReceiver, strSupplier);
                 DtConverter dtConverter = new DtConverter();
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFrontProjectTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
+                dtConverter.addField("dShipmentTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -139,10 +146,18 @@ namespace SPPSApi.Controllers.G06
                 if (listInfoData.Count != 0)
                 {
                     //获取待打印的数据
-                    DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
+                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
                     //执行打印操作
                     //===========================================
+                    DataTable dtMessage = fS0603_Logic.createTable("MES");
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "错误测试";
+                    dtMessage.Rows.Add(dataRow);
 
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
 
 

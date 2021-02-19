@@ -12,47 +12,47 @@ namespace DataAccess
     public class FS1301_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getRolerInfo()
+        public DataTable getSearchInfo(string strPackingPlant, string strUser, string strRoler)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcRoleID as vcValue,vcRoleName as vcName from SRole");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public DataTable getSearchInfo(string strPlant, string strUser, string strRoler)
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" SELECT distinct a.LinId as LinId,a.vcUserId as vcUserId,b.vcUserName as vcUserName,a.vcPlant as vcPlant");
-                strSql.AppendLine(" ,isnull(a.vcChecker,'0') as bChecker");
-                strSql.AppendLine(" ,isnull(a.vcUnLockChecker,'0') as bUnLockChecker");
-                strSql.AppendLine(" ,isnull(a.vcPacker,'0') as bPacker");
-                strSql.AppendLine(" ,isnull(a.vcUnLockPacker,'0') as bUnLockPacker FROM ");
-                strSql.AppendLine(" (select LinId,vcUserId,vcPlant,vcChecker,vcUnLockChecker,vcPacker,vcUnLockPacker from tPointPower)A");
-                strSql.AppendLine(" LEFT JOIN");
-                strSql.AppendLine(" (SELECT * FROM SUser)B");
-                strSql.AppendLine(" ON A.vcUserId=B.vcUserID");
-                strSql.AppendLine(" LEFT JOIN");
-                strSql.AppendLine(" (SELECT * FROM SUserRole)C");
-                strSql.AppendLine(" ON A.vcUserId=C.vcUserId");
-                strSql.AppendLine(" LEFT JOIN");
-                strSql.AppendLine(" (SELECT * FROM SRole)D");
-                strSql.AppendLine(" ON C.vcRoleID=D.vcRoleID");
-                strSql.AppendLine(" where 1=1 ");
-                if (strPlant != "")
+                strSql.AppendLine("SELECT distinct a.LinId as LinId ");
+                strSql.AppendLine(",a.vcPlant as vcPackingPlant ");
+                strSql.AppendLine(",e.vcName as vcPackingPlant_name ");
+                strSql.AppendLine(",a.vcUserId as vcUserId ");
+                strSql.AppendLine(",b.vcUserName as vcUserName ");
+                strSql.AppendLine(",isnull(a.vcInPut,'0') as bInPut ");
+                strSql.AppendLine(",isnull(a.vcInPutUnLock,'0') as bInPutUnLock ");
+                strSql.AppendLine(",isnull(a.vcCheck,'0') as bCheck ");
+                strSql.AppendLine(",isnull(a.vcCheckUnLock,'0') as bCheckUnLock ");
+                strSql.AppendLine(",isnull(a.vcPack,'0') as bPack ");
+                strSql.AppendLine(",isnull(a.vcPackUnLock,'0') as bPackUnLock ");
+                strSql.AppendLine(",isnull(a.vcOutPut,'0') as bOutPut ");
+                strSql.AppendLine(",isnull(a.vcOutPutUnLock,'0') as bOutPutUnLock");
+                strSql.AppendLine(",'1' as bSelectFlag  ");
+                strSql.AppendLine("FROM  ");
+                strSql.AppendLine("(select * from tPointPower)A ");
+                strSql.AppendLine("LEFT JOIN ");
+                strSql.AppendLine("(SELECT * FROM SUser)B ");
+                strSql.AppendLine("ON A.vcUserId=B.vcUserID ");
+                strSql.AppendLine("LEFT JOIN ");
+                strSql.AppendLine("(SELECT * FROM SUserRole)C ");
+                strSql.AppendLine("ON A.vcUserId=C.vcUserId ");
+                strSql.AppendLine("LEFT JOIN ");
+                strSql.AppendLine("(SELECT * FROM SRole)D ");
+                strSql.AppendLine("ON C.vcRoleID=D.vcRoleID ");
+                strSql.AppendLine(" LEFT JOIN ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C017')E ");
+                strSql.AppendLine("ON A.vcPlant=E.vcValue ");
+                strSql.AppendLine("where 1=1 ");
+                if (strPackingPlant != "")
                 {
-                    strSql.AppendLine("and a.vcPlant like '%"+ strPlant + "%'");
+                    strSql.AppendLine("and a.vcPlant like '" + strPackingPlant + "'");
                 }
                 if (strUser != "")
                 {
-                    strSql.AppendLine("and A.vcUserId='"+ strUser + "'");
+                    strSql.AppendLine("and a.vcUserId='"+ strUser + "'");
                 }
                 if (strRoler != "")
                 {
@@ -65,7 +65,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public bool saveDataInfo(DataTable dataTable, string strOperId)
+        public void saveDataInfo(DataTable dataTable, string strOperId)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
             Common.ComConnectionHelper.OpenConection_SQL(ref sqlConnection);
@@ -76,25 +76,31 @@ namespace DataAccess
                 sqlDataAdapter.InsertCommand = new SqlCommand();
                 sqlDataAdapter.InsertCommand.Connection = sqlConnection;
                 sqlDataAdapter.InsertCommand.CommandType = CommandType.Text;
-                sqlDataAdapter.InsertCommand.CommandText = "";
                 sqlDataAdapter.InsertCommand.CommandText += "UPDATE [dbo].[TPointPower]";
-                sqlDataAdapter.InsertCommand.CommandText += "   SET [vcChecker] = @vcChecker";
-                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcUnLockChecker] = @vcUnLockChecker";
-                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcPacker] = @vcPacker";
-                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcUnLockPacker] = @vcUnLockPacker";
+                sqlDataAdapter.InsertCommand.CommandText += "   SET [vcInPut] = @vcInPut";
+                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcInPutUnLock] = @vcInPutUnLock";
+                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcCheck] = @vcCheck";
+                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcCheckUnLock] = @vcCheckUnLock";
+                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcPack] = @vcPack";
+                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcPackUnLock] = @vcPackUnLock";
+                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcOutPut] = @vcOutPut";
+                sqlDataAdapter.InsertCommand.CommandText += "      ,[vcOutPutUnLock] = @vcOutPutUnLock";
                 sqlDataAdapter.InsertCommand.CommandText += "      ,[vcOperatorID] ='"+ strOperId + "'";
                 sqlDataAdapter.InsertCommand.CommandText += "      ,[dOperatorTime] =getdate()";
                 sqlDataAdapter.InsertCommand.CommandText += " WHERE [LinId]=@LinId";
-                sqlDataAdapter.InsertCommand.Parameters.Add("@vcChecker", SqlDbType.VarChar, 1, "vcChecker");
-                sqlDataAdapter.InsertCommand.Parameters.Add("@vcUnLockChecker", SqlDbType.VarChar, 1, "vcUnLockChecker");
-                sqlDataAdapter.InsertCommand.Parameters.Add("@vcPacker", SqlDbType.VarChar, 1, "vcPacker");
-                sqlDataAdapter.InsertCommand.Parameters.Add("@vcUnLockPacker", SqlDbType.VarChar, 1, "vcUnLockPacker");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcInPut", SqlDbType.VarChar, 1, "vcInPut");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcInPutUnLock", SqlDbType.VarChar, 1, "vcInPutUnLock");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcCheck", SqlDbType.VarChar, 1, "vcCheck");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcCheckUnLock", SqlDbType.VarChar, 1, "vcCheckUnLock");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcPack", SqlDbType.VarChar, 1, "vcPack");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcPackUnLock", SqlDbType.VarChar, 1, "vcPackUnLock");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcOutPut", SqlDbType.VarChar, 1, "vcOutPut");
+                sqlDataAdapter.InsertCommand.Parameters.Add("@vcOutPutUnLock", SqlDbType.VarChar, 1, "vcOutPutUnLock");
                 sqlDataAdapter.InsertCommand.Parameters.Add("@LinId", SqlDbType.VarChar, 18, "LinId");
                 sqlDataAdapter.InsertCommand.Transaction = sqlTransaction;
                 sqlDataAdapter.Update(dataTable);
                 sqlTransaction.Commit();
                 Common.ComConnectionHelper.CloseConnection_SQL(ref sqlConnection);
-                return true;
             }
             catch (Exception ex)
             {

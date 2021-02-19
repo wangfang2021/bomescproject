@@ -71,7 +71,7 @@ namespace SPPSApi.Controllers.G03
                                                 {"vcPart_id", "vcCarTypeDesign", "dJiuBegin","vcChange", "vcNum1","vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9","vcNum10"},
                                                 {FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
                                                 {"12","0","0","0", "0", "0", "0", "0","0", "0", "0", "0","0", "0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
+                                                {"1","1","1","1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -104,13 +104,13 @@ namespace SPPSApi.Controllers.G03
 
                 fs0306_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                apiResult.data = "保存成功,但旧型十年年计已填写数据不进行更新";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0605", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

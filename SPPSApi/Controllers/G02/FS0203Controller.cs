@@ -56,7 +56,7 @@ namespace SPPSApi.Controllers.G02
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0301", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -100,7 +100,67 @@ namespace SPPSApi.Controllers.G02
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0302", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+
+        #region SPRL导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string SPRLexportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string carType = dataForm.carType == null ? "" : dataForm.carType;
+            try
+            {
+
+                //转存下载
+                string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                                  Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar + carType + ".xlsx";
+
+                string filepath = "";
+                if (System.IO.File.Exists(realPath))
+                {
+                    filepath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                               Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar;
+
+                    if (Directory.Exists(filepath))
+                    {
+                        ComFunction.DeleteFolder(filepath);
+                    }
+
+                    Directory.CreateDirectory(filepath);
+
+                    filepath = filepath + System.IO.Path.GetFileName(realPath);
+                    System.IO.File.Copy(realPath, filepath, true);
+                    filepath = "SPRL" + Path.DirectorySeparatorChar + System.IO.Path.GetFileName(realPath);
+
+                }
+
+
+
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0302", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

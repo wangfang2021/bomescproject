@@ -25,6 +25,10 @@ namespace Common
         public const string strComEmail = "maps@tftm.com.cn";
         /// <summary>公共邮箱密码</summary>
         public const string strComEmailPwd = "";
+        /// <summary>NQC错误信息路径</summary>
+        public const string strNQCErrMsgPath = @"Z:\pic\";//具体路径还需要与前工程再确认
+        public const string strImagePath = @"Z:\";
+        public const string strOrderPath = @"Z:\";
 
     }
 }

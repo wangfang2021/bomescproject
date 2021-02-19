@@ -70,6 +70,8 @@ namespace DataAccess
             }
         }
 
+      
+
         /// <summary>
         /// 保存
         /// </summary>
@@ -242,7 +244,49 @@ namespace DataAccess
                 throw ex;
             }
         }
+        /// <summary>
+        /// 导入进度管理
+        /// </summary>
+        /// <param name="listInfoData"></param>
+        /// <param name="userId"></param>
+        public void ImportProgress(List<Dictionary<string, object>> listInfoData, string userId, string strUnitCode)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
 
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    sql.AppendLine("   insert into TOutsidePurchaseManage    ");
+                    sql.AppendLine("   ([vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea],    ");
+                    sql.AppendLine("   [vcDock], [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber],  [vcReceiveFlag],    ");
+                    sql.AppendLine("   [vcOperatorID], [dOperatorTime])    ");
+                    sql.AppendLine(" values (   ");
+                    sql.AppendLine("  '"+ strUnitCode + "',  ");
+                    sql.AppendLine(getSqlValue(listInfoData[i]["vcInjectionFactory"], false) +" ,    ");
+                    sql.AppendLine("   'convert(varchar(6), getdate(),112)',    ");
+                    sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(listInfoData[i]["vcDock"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(listInfoData[i]["vcOrderNo"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(listInfoData[i]["vcPartNo"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(listInfoData[i]["vcNewOldFlag"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(listInfoData[i]["vcOrderNum"], false) + ",  \r\n");
+                    sql.Append("  '0', '" + userId + "', GETDATE() \r\n");
+                    sql.Append(" );  \r\n");
+                    sql.AppendLine("   update TEmergentOrderManage set vcIsExportFlag='1' where vcOrderNo='"+listInfoData[i]["vcOrderNo"]+ "' and dOrderHandleDate='" + listInfoData[i]["dOrderHandleDate"] + "';   \r\n ");
+                }
+
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #region 返回insert语句值
         /// <summary>
         /// 返回insert语句值
@@ -260,5 +304,7 @@ namespace DataAccess
                 return "'" + obj.ToString() + "'";
         }
         #endregion
+
+
     }
 }

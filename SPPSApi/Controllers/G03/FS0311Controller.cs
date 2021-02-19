@@ -90,8 +90,8 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0311_logic.searchApi(PartId, Sale, allPartNo);
                 string resMsg = "";
-                string[] head = { "收货方", "补给品番", "车名", "中文品名", "执行标准", "生产商名称", "地址", "开始时间", "结束时间" };
-                string[] fields = { "vcCPDCompany", "vcPart_Id", "vcCarTypeName", "vcPartNameCN", "vcZXBZNo", "vcSCSName", "vcSCSAdress", "dTimeFrom", "dTimeTo" };
+                string[] head = { "收货方", "补给品番","供应商编号", "车名", "中文品名", "执行标准", "生产商名称", "地址", "开始时间", "结束时间" };
+                string[] fields = { "vcCPDCompany", "vcPart_Id", "vcSupplier_id", "vcCarTypeName", "vcPartNameCN", "vcZXBZNo", "vcSCSName", "vcSCSAdress", "dTimeFrom", "dTimeTo" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")
@@ -187,6 +187,42 @@ namespace SPPSApi.Controllers.G03
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+
+                List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
+
+
+                res.Add("C005", dataList_C005);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

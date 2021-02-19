@@ -32,6 +32,19 @@ namespace Logic
         }
         #endregion
 
+        #region  取soq结果
+        public DataTable GetSOQReply(string vcCLYM,string kind)
+        {
+            return fs0630_DataAccess.GetSOQReply(vcCLYM,kind);
+        }
+        #endregion
+
+        #region  取最大次数的内制结果
+        public DataTable GetMaxCLResult(string vcCLYM)
+        {
+            return fs0630_DataAccess.GetMaxCLResult(vcCLYM);
+        }
+        #endregion
     }
 
 }

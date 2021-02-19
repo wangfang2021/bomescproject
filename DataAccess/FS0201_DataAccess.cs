@@ -19,7 +19,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcBJDiff, ");
-                sbr.Append(" vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth, ");
+                sbr.Append(" vcDTDiff,vcPart_id_DT,vcPartName,CASE ISNULL(vcStartYearMonth,'') WHEN '' THEN '' ELSE SUBSTRING(RTRIM(LTRIM(vcStartYearMonth)),1,4)+'/'+SUBSTRING(RTRIM(LTRIM(vcStartYearMonth)),5,2) END AS vcStartYearMonth, ");
                 sbr.Append(" vcFXDiff,vcFXNo,vcChange,vcOldProj,vcOldProjTime,vcNewProj, ");
                 sbr.Append(" vcNewProjTime,vcCZYD,dHandleTime,vcSheetName, ");
                 sbr.Append(" vcFileName,'0' as vcModFlag,'0' as vcAddFlag FROM TSPIList ");
@@ -39,7 +39,8 @@ namespace DataAccess
                     sbr.Append(" AND SUBSTRING(vcSPINo,1,4) LIKE '" + vcCarType.Trim() + "%' ");
                 }
 
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                //return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -53,6 +54,7 @@ namespace DataAccess
         {
             try
             {
+                //DataTable ChangeList = getChange();
                 //存储SPI
                 StringBuilder sbr = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -64,10 +66,13 @@ namespace DataAccess
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
                     string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
                     string vcPartName = dt.Rows[i]["vcPartName"].ToString();
-                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString().Replace(@"/", "").Trim();
+                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString().Replace("/", "").Trim();
                     string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
                     string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
+                    //修改变更事项
                     string vcChange = dt.Rows[i]["vcChange"].ToString();
+                    //vcChange = getChangString(ChangeList, vcChange);
+                    //
                     string vcOldProj = dt.Rows[i]["vcOldProj"].ToString();
                     string vcOldProjTime = dt.Rows[i]["vcOldProjTime"].ToString();
                     string vcNewProj = dt.Rows[i]["vcNewProj"].ToString();
@@ -80,15 +85,6 @@ namespace DataAccess
                     sbr.Append(" INSERT INTO TSPIList(vcSPINo,vcPart_Id_old,vcPart_Id_new,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcChange,vcOldProj,vcOldProjTime,vcNewProj,vcNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcOperatorId,dOperatorTime) \r\n");
                     sbr.Append(" VALUES( '" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcChange + "','" + vcOldProj + "','" + vcOldProjTime + "','" + vcNewProj + "','" + vcNewProjTime + "','" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + userId + "',GETDATE()) \r\n");
 
-                    if (i % 1000 == 0)
-                    {
-                        excute.ExcuteSqlWithStringOper(sbr.ToString());
-                        sbr.Length = 0;
-                    }
-                }
-                if (sbr.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
                 }
 
                 //保存履历
@@ -98,13 +94,18 @@ namespace DataAccess
                     fileList.Add(dt.Rows[i]["vcFileName"].ToString());
                 }
                 fileList = fileList.Distinct().ToList();
-                StringBuilder sbrList = new StringBuilder();
                 for (int i = 0; i < fileList.Count; i++)
                 {
-                    sbrList.Append(" INSERT INTO TSPIHistory (vcFileName,vcRemark,vcType,vcOperatorID,dOperatorTime) \r\n");
-                    sbrList.Append(" VALUES ('" + fileList[i].ToString() + "','','0','" + userId + "',GETDATE()) \r\n");
+                    sbr.Append(" INSERT INTO TSPIHistory (vcFileName,vcRemark,vcType,vcOperatorID,dOperatorTime) \r\n");
+                    sbr.Append(" VALUES ('" + fileList[i].ToString() + "','','0','" + userId + "',GETDATE()) \r\n");
                 }
-                excute.ExcuteSqlWithStringOper(sbrList.ToString());
+
+                if (sbr.Length > 0)
+                {
+                    //excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                }
+
             }
             catch (Exception ex)
             {
@@ -125,7 +126,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 List<string> fileList = new List<string>();
 
-                DataTable change = getChange();
+                ///DataTable change = getChange();
                 //将spi表传到设变表
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -133,13 +134,17 @@ namespace DataAccess
                     string vcPart_Id_old = dt.Rows[i]["vcPart_Id_old"].ToString();
                     string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
-                    //string vcChange = dt.Rows[i]["vcChange"].ToString();
-                    string vcChange = getChangString(change, dt.Rows[i]["vcChange"].ToString());
+                    string vcChange = dt.Rows[i]["vcChange"].ToString();
+                    if (vcChange.Contains("/"))
+                    {
+                        vcChange = vcChange.Substring(0, vcChange.IndexOf('/'));
+                    }
+                    //string vcChange = getChangString(change, dt.Rows[i]["vcChange"].ToString());
                     string vcBJDiff = dt.Rows[i]["vcBJDiff"].ToString();
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
                     string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();
                     string vcPartName = dt.Rows[i]["vcPartName"].ToString();
-                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString();
+                    string vcStartYearMonth = dt.Rows[i]["vcStartYearMonth"].ToString().Replace("/", "");
                     string vcFXDiff = dt.Rows[i]["vcFXDiff"].ToString();
                     string vcFXNo = dt.Rows[i]["vcFXNo"].ToString();
                     string vcOldProj = dt.Rows[i]["vcOldProj"].ToString();
@@ -151,55 +156,52 @@ namespace DataAccess
                     string vcSheetName = dt.Rows[i]["vcSheetName"].ToString();
                     string vcFileName = dt.Rows[i]["vcFileName"].ToString();
                     string vcFileNameTJ = dt.Rows[i]["vcFileNameTJ"].ToString();
-                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime) values ");
-                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "',0,'" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE() ) \r\n");
+                    string vcPartId = "";
+                    if (!string.IsNullOrWhiteSpace(vcPart_Id_old))
+                    {
+                        vcPartId = vcPart_Id_old;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(vcPart_Id_new))
+                    {
+                        vcPartId = vcPart_Id_new;
+                    }
+                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType) values ");
+                    sbr.Append(" ('" + vcSPINo + "','" + vcPart_Id_old + "','" + vcPart_Id_new + "','','" + vcCarType + "','" + vcChange + "','" + vcBJDiff + "','" + vcDTDiff + "','" + vcPart_id_DT + "','" + vcPartName + "','" + vcStartYearMonth + "','" + vcFXDiff + "','" + vcFXNo + "','" + vcOldProj + "'," + dOldProjTime + ",'" + vcNewProj + "'," + dNewProjTime + ",'" + vcCZYD + "','" + dHandleTime + "','" + vcSheetName + "','" + vcFileName + "','" + vcFileNameTJ + "','" + userId + "',GETDATE(),'0' ) \r\n");
 
                     fileList.Add(vcFileNameTJ);
-                    if (i % 1000 == 0)
-                    {
-                        excute.ExcuteSqlWithStringOper(sbr.ToString());
-                        sbr.Length = 0;
-                    }
-                }
-                if (sbr.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
                 }
 
                 fileList = fileList.Distinct().ToList();
-
-                //TODO
                 ////匹配原单位
-                string list = "";
-                foreach (string fileName in fileList)
-                {
-                    if (!string.IsNullOrWhiteSpace(list))
-                    {
-                        list = list + ",";
-                    }
+                //string list = "";
+                //fileList = fileList.Distinct().ToList();
+                //foreach (string fileName in fileList)
+                //{
+                //    if (!string.IsNullOrWhiteSpace(list))
+                //    {
+                //        list = list + ",";
+                //    }
 
-                    list = list + "'" + fileName + "'";
-                }
-                sbr.Length = 0;
-                sbr.Append(" UPDATE TSBManager SET vcDiff = b.vcDiff,vcOriginCompany = b.vcOriginCompany \r\n");
-                sbr.Append(" from TSBManager a  \r\n");
-                sbr.Append(" LEFT JOIN TUnit B ON a.vcPart_Id_old = b.vcPart_id OR a.vcPart_Id_new = b.vcPart_id \r\n");
-                sbr.Append(" WHERE a.vcFileNameTJ IN (" + list + ") \r\n");
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
+                //    list = list + "'" + fileName + "'";
+                //}
+                //sbr.Append(" UPDATE TSBManager SET vcDiff = b.vcDiff,vcOriginCompany = b.vcOriginCompany \r\n");
+                //sbr.Append(" from TSBManager a  \r\n");
+                //sbr.Append(" LEFT JOIN TUnit B ON a.vcPart_Id_old = b.vcPart_id OR a.vcPart_Id_new = b.vcPart_id \r\n");
+                //sbr.Append(" WHERE a.vcFileNameTJ IN (" + list + ") \r\n");
 
-                //记录文件名
-                sbr.Length = 0;
                 for (int i = 0; i < fileList.Count; i++)
                 {
                     sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcOperatorId,dOperatorTime)  VALUES ('" + fileList[i] + "',0,'" + userId + "',GETDATE()) \r\n");
                 }
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
 
-                //清空SPI
-                sbr.Length = 0;
                 sbr.Append(" TRUNCATE TABLE TSPIList\r\n");
-                excute.ExcuteSqlWithStringOper(sbr.ToString());
 
+
+                if (sbr.Length > 0)
+                {
+                    //excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                }
             }
             catch (Exception ex)
             {
@@ -213,39 +215,39 @@ namespace DataAccess
 
         #region 获取变更事项
 
-        public DataTable getChange()
-        {
-            try
-            {
-                StringBuilder sbr = new StringBuilder();
-                sbr.Append("SELECT vcName,vcValue FROM  TCode WHERE vcCodeId = 'C025'");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //public DataTable getChange()
+        //{
+        //    try
+        //    {
+        //        StringBuilder sbr = new StringBuilder();
+        //        sbr.Append("SELECT vcName,vcValue FROM  TCode WHERE vcCodeId = 'C025'");
+        //        return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
-        public string getChangString(DataTable dt, string change)
-        {
-            try
-            {
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    if (dt.Rows[i]["vcValue"].ToString().Trim().Equals(change.Trim()))
-                    {
-                        return dt.Rows[i]["vcName"].ToString().Trim();
-                    }
-                }
+        //public string getChangString(DataTable dt, string change)
+        //{
+        //    try
+        //    {
+        //        for (int i = 0; i < dt.Rows.Count; i++)
+        //        {
+        //            if (dt.Rows[i]["vcValue"].ToString().Trim().Equals(change.Trim()))
+        //            {
+        //                return dt.Rows[i]["vcName"].ToString().Trim();
+        //            }
+        //        }
 
-                return change;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //        return change;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
         #endregion
 
 
@@ -269,7 +271,7 @@ namespace DataAccess
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_old"], false) + "," + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_new"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcBJDiff"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ",  \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + " \r\n");
-                        sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + "," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ", \r\n");
+                        sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + "," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcOldProj"], false) + ", " + ComFunction.getSqlValue(listInfoData[i]["vcOldProjTime"], false) + ", \r\n");
                         sbr.Append(" " + ComFunction.getSqlValue(listInfoData[i]["vcNewProj"], false) + ",  " + ComFunction.getSqlValue(listInfoData[i]["vcNewProjTime"], false) + ", \r\n");
@@ -284,7 +286,7 @@ namespace DataAccess
                         sbr.Append(" vcPart_Id_old = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_old"], false) + ",vcPart_Id_new = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_new"], false) + ",  \r\n");
                         sbr.Append(" vcBJDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcBJDiff"], false) + ",vcDTDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ",  \r\n");
                         sbr.Append(" vcPart_id_DT = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ",vcPartName = " + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + ",  \r\n");
-                        sbr.Append(" vcStartYearMonth = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ",vcFXDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ",  \r\n");
+                        sbr.Append(" vcStartYearMonth = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + ",vcFXDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ",  \r\n");
                         sbr.Append(" vcFXNo = " + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ",vcChange = " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",  \r\n");
                         sbr.Append(" vcOldProj = " + ComFunction.getSqlValue(listInfoData[i]["vcOldProj"], false) + ",vcOldProjTime = " + ComFunction.getSqlValue(listInfoData[i]["vcOldProjTime"], false) + ",  \r\n");
                         sbr.Append(" vcNewProj = " + ComFunction.getSqlValue(listInfoData[i]["vcNewProj"], false) + ",vcNewProjTime = " + ComFunction.getSqlValue(listInfoData[i]["vcNewProjTime"], false) + ",  \r\n");
@@ -292,16 +294,10 @@ namespace DataAccess
                         sbr.Append(" vcOperatorId = '" + strUserId + "',dOperatorTime  = GETDATE()  \r\n");
                         sbr.Append(" where iAutoId = '" + iAutoId + "' \r\n");
                     }
-
-                    if (i % 1000 == 0)
-                    {
-                        excute.ExcuteSqlWithStringOper(sbr.ToString());
-                        sbr.Length = 0;
-                    }
                 }
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -326,7 +322,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -357,7 +353,7 @@ namespace DataAccess
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + ",");
-                        sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ",");
                         sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",");
@@ -384,7 +380,7 @@ namespace DataAccess
                         sbr.Append(" vcDTDiff  = " + ComFunction.getSqlValue(listInfoData[i]["vcDTDiff"], false) + ", ");
                         sbr.Append(" vcPart_id_DT  = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id_DT"], false) + ", ");
                         sbr.Append(" vcPartName  = " + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + ", ");
-                        sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ", ");
+                        sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false).Replace("/", "") + ", ");
                         sbr.Append(" vcFXDiff  = " + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + ", ");
                         sbr.Append(" vcFXNo  = " + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + ", ");
                         sbr.Append(" vcChange  = " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ", ");
@@ -403,7 +399,7 @@ namespace DataAccess
                 }
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -440,7 +436,7 @@ namespace DataAccess
                     sbr.Append(" vcDTDiff  = " + ComFunction.getSqlValue(dt.Rows[i]["vcDTDiff"], false) + ", ");
                     sbr.Append(" vcPart_id_DT  = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id_DT"], false) + ", ");
                     sbr.Append(" vcPartName  = " + ComFunction.getSqlValue(dt.Rows[i]["vcPartName"], false) + ", ");
-                    sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"], false) + ", ");
+                    sbr.Append(" vcStartYearMonth  = " + ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"], false).Replace("/", "") + ", ");
                     sbr.Append(" vcFXDiff  = " + ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"], false) + ", ");
                     sbr.Append(" vcFXNo  = " + ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"], false) + ", ");
                     sbr.Append(" vcChange  = " + ComFunction.getSqlValue(dt.Rows[i]["vcChange"], false) + ", ");
@@ -454,12 +450,12 @@ namespace DataAccess
                     sbr.Append(" vcFileName  = " + ComFunction.getSqlValue(dt.Rows[i]["vcFileName"], false) + ", ");
                     sbr.Append(" vcOperatorId  = '" + strUserId + "', ");
                     sbr.Append(" dOperatorTime  = GETDATE() ");
-                    sbr.Append(" where  vcSPINo = '" + vcSPINo + "' AND (vcPart_Id_old = '" + vcPart_Id_old + "' OR vcPart_Id_new = '" + vcPart_Id_new + "') \r\n");
+                    sbr.Append(" where  vcSPINo = '" + vcSPINo + "' AND vcPart_Id_old = '" + vcPart_Id_old + "' AND vcPart_Id_new = '" + vcPart_Id_new + "' \r\n");
 
                 }
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -467,6 +463,29 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #endregion
+
+        #region 获取原单位区分
+
+        public string[] getOrigin(string partId)
+        {
+            string[] res = new string[] { "", "" };
+
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine("SELECT TOP(1) vcPart_id,vcOriginCompany,vcDiff FROM Tunit ");
+            sbr.AppendLine("WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
+            sbr.AppendLine("AND vcPart_id = '" + partId + "'");
+
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            if (dt.Rows.Count > 0)
+            {
+                res[0] = dt.Rows[0]["vcOriginCompany"].ToString();
+                res[1] = dt.Rows[0]["vcDiff"].ToString();
+            }
+
+            return res;
+        }
+
         #endregion
     }
 }

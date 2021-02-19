@@ -42,6 +42,50 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+
+        /// <summary>
+        ///  通过code 获取抄送者邮箱  vcMeaning='1' 启用中 默认为0 不启用
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        public DataTable getCCEmail(string code)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select vcValue as displayName ,vcName as address from TCode where vcCodeId='C053' and vcMeaning='1' ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        /// <summary>
+        /// 通过供应商 工区 获取指定邮箱
+        /// </summary>
+        /// <param name="vcSupplier_id"></param>
+        /// <param name="vcWorkArea"></param>
+        /// <returns></returns>
+        public DataTable getEmail(string vcSupplier_id, string vcWorkArea)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select vcLinkMan,vcEmail from [dbo].[TSupplierInfo] where vcSupplier_id='"+ vcSupplier_id + "' and vcWorkArea='"+ vcWorkArea + "'   ");
+                 
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 检索数据
         /// </summary>
@@ -290,6 +334,349 @@ namespace DataAccess
                 return "null";
             else
                 return "'" + obj.ToString() + "'";
+        }
+        #endregion
+
+        #region 报表相关
+        /// <summary>
+        /// 获取制定对象年的 发注工厂
+        /// </summary>
+        /// <param name="vcTargetYear"></param>
+        /// <returns></returns>
+        public DataTable getPlant(string vcTargetYear)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select distinct vcInjectionFactory from TAnnualManagement where vcTargetYear='"+ vcTargetYear + "'  ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getDtByTargetYearAndPlant(string vcTargetYear, string plantCode)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("   select vcInjectionFactory,vcSupplierId,  [1月] ,[2月],[3月],[4月], [5月],[6月],[7月],[8月], [9月],[10月], [11月],[12月] ,    ");
+                strSql.AppendLine("    cast(isnull(T.[1月],0) as decimal(18,6))+cast(isnull(T.[2月],0) as decimal(18,6))+cast(isnull(T.[3月],0) as decimal(18,6))    ");
+                strSql.AppendLine("  +cast(isnull(T.[4月],0) as decimal(18,6))+cast(isnull(T.[5月],0) as decimal(18,6))+cast(isnull(T.[6月],0) as decimal(18,6))+    ");
+                strSql.AppendLine("  cast(isnull(t.[7月],0) as decimal(18,6))+cast(isnull(T.[8月],0) as decimal(18,6))+cast(isnull(T.[9月],0) as decimal(18,6))    ");
+                strSql.AppendLine("  +cast(isnull(T.[10月],0) as decimal(18,6))+cast(isnull(T.[11月],0) as decimal(18,6))+cast(isnull(T.[12月],0) as decimal(18,6)) as  currentSum,    ");
+                strSql.AppendLine("   t.[vcNextOneYear],t.[vcNextTwoYear]     ");
+                strSql.AppendLine("   from    ");
+                strSql.AppendLine("   (    ");
+                strSql.AppendLine("   select vcInjectionFactory,vcSupplierId,     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJanuary],0) as decimal(18,6))) as  \"1月\",     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcFebruary],0) as decimal(18,6))) as  \"2月\",     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMarch],0) as decimal(18,6))) as  \"3月\",     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcApril],0) as decimal(18,6)))  as  \"4月\",     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMay],0) as decimal(18,6))) as  \"5月\",    ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJune],0) as decimal(18,6)))  as  \"6月\",     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJuly],0) as decimal(18,6)))  as  \"7月\",    ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcAugust],0) as decimal(18,6))) as  \"8月\",    ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcSeptember],0) as decimal(18,6))) as  \"9月\",     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcOctober],0) as decimal(18,6))) as  \"10月\",     ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNovember],0) as decimal(18,6))) as  \"11月\",    ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcDecember],0) as decimal(18,6))) as  \"12月\",    ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextOneYear],0) as decimal(18,6)) ) as  [vcNextOneYear],    ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextTwoYear],0) as decimal(18,6)) ) as  [vcNextTwoYear]    ");
+                strSql.AppendLine("  from (    ");
+                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory], [vcInsideOutsideType],    ");
+                strSql.AppendLine("   case when vcName is null then '外注'    ");
+                strSql.AppendLine("    else vcName end as [vcSupplierId],    ");
+                strSql.AppendLine("  [vcWorkArea], [vcCarType], [vcAcceptNum], [vcJanuary], [vcFebruary], [vcMarch],     ");
+                strSql.AppendLine("  [vcApril], [vcMay], [vcJune], [vcJuly], [vcAugust], [vcSeptember], [vcOctober], [vcNovember],    ");
+                strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*    ");
+                strSql.AppendLine("  from TAnnualManagement a     ");
+                strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue    ");
+                strSql.AppendLine("   where  b.vcValue is not null and vcTargetYear='"+ vcTargetYear + "' and vcInjectionFactory='"+ plantCode + "'    ");
+                strSql.AppendLine("   ) S group by vcInjectionFactory,vcSupplierId    ");
+                strSql.AppendLine("   ) T    ");
+                strSql.AppendLine("    union all   ");
+                strSql.AppendLine("     select '合计' as vcInjectionFactory,'' as vcSupplier_id,     ");
+                strSql.AppendLine("     sum(W.[1月]) as [1月], sum(W.[2月]) as [2月], sum(W.[3月]) as [3月],     "); 
+                strSql.AppendLine("     sum(W.[4月]) as [4月], sum(W.[5月]) as [5月], sum(W.[6月]) as [6月],     ");
+                strSql.AppendLine("     sum(W.[7月]) as [7月], sum(W.[8月]) as [8月], sum(W.[9月]) as [9月],     ");
+                strSql.AppendLine("     sum(W.[10月]) as [10月],sum(W.[11月]) as [11月], sum(W.[12月]) as [12月],   ");
+                strSql.AppendLine("     sum(W.currentSum) as currentSum,SUM(W.vcNextOneYear) as vcNextOneYear,   ");
+                strSql.AppendLine("     SUM(W.vcNextTwoYear) as vcNextTwoYear   ");
+                strSql.AppendLine("      ");
+                strSql.AppendLine("     from   ");
+                strSql.AppendLine("     (   ");
+                strSql.AppendLine("     select vcInjectionFactory,vcSupplierId,[1月] ,[2月],[3月],[4月], [5月],[6月],[7月],[8月], [9月],[10月], [11月],[12月] ,   ");
+                strSql.AppendLine("     cast(isnull(T.[1月],0) as decimal(18,6))+cast(isnull(T.[2月],0) as decimal(18,6))+cast(isnull(T.[3月],0) as decimal(18,6))   ");
+                strSql.AppendLine("   +cast(isnull(T.[4月],0) as decimal(18,6))+cast(isnull(T.[5月],0) as decimal(18,6))+cast(isnull(T.[6月],0) as decimal(18,6))+   ");
+                strSql.AppendLine("   cast(isnull(t.[7月],0) as decimal(18,6))+cast(isnull(T.[8月],0) as decimal(18,6))+cast(isnull(T.[9月],0) as decimal(18,6))   ");
+                strSql.AppendLine("   +cast(isnull(T.[10月],0) as decimal(18,6))+cast(isnull(T.[11月],0) as decimal(18,6))+cast(isnull(T.[12月],0) as decimal(18,6)) as  currentSum,   ");
+                strSql.AppendLine("    t.[vcNextOneYear],t.[vcNextTwoYear]    ");
+                strSql.AppendLine("    from   ");
+                strSql.AppendLine("    (   ");
+                strSql.AppendLine("    select vcInjectionFactory,vcSupplierId,    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcJanuary],0) as decimal(18,6))) as  \"1月\",    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcFebruary],0) as decimal(18,6))) as  \"2月\",    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcMarch],0) as decimal(18,6))) as  \"3月\",    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcApril],0) as decimal(18,6)))  as  \"4月\",    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcMay],0) as decimal(18,6))) as  \"5月\",   ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcJune],0) as decimal(18,6)))  as  \"6月\",    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcJuly],0) as decimal(18,6)))  as  \"7月\",   ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcAugust],0) as decimal(18,6))) as  \"8月\",   ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcSeptember],0) as decimal(18,6))) as  \"9月\",    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcOctober],0) as decimal(18,6))) as  \"10月\",    ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcNovember],0) as decimal(18,6))) as  \"11月\",   ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcDecember],0) as decimal(18,6))) as  \"12月\",   ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcNextOneYear],0) as decimal(18,6)) ) as  [vcNextOneYear],   ");
+                strSql.AppendLine("   sum(cast(isnull(S.[vcNextTwoYear],0) as decimal(18,6)) ) as  [vcNextTwoYear]   ");
+                strSql.AppendLine("   from (   ");
+                strSql.AppendLine("   select [iAutoId], [vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory], [vcInsideOutsideType],   ");
+                strSql.AppendLine("    case when vcName is null then '外注'   ");
+                strSql.AppendLine("     else vcName end as [vcSupplierId],   ");
+                strSql.AppendLine("   [vcWorkArea], [vcCarType], [vcAcceptNum], [vcJanuary], [vcFebruary], [vcMarch],    ");
+                strSql.AppendLine("   [vcApril], [vcMay], [vcJune], [vcJuly], [vcAugust], [vcSeptember], [vcOctober], [vcNovember],   ");
+                strSql.AppendLine("   [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*   ");
+                strSql.AppendLine("   from TAnnualManagement a    ");
+                strSql.AppendLine("    left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue   ");
+                strSql.AppendLine("    where  b.vcValue is not null and vcTargetYear='"+vcTargetYear+"' and vcInjectionFactory='"+plantCode+"'   ");
+                strSql.AppendLine("    ) S group by vcInjectionFactory,vcSupplierId   ");
+                strSql.AppendLine("    ) T   ");
+                strSql.AppendLine("     ) W   ");
+                strSql.AppendLine("      ");
+                strSql.AppendLine("      ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 发注数据
+        /// </summary>
+        /// <param name="vcTargetYear"></param>
+        /// <returns></returns>
+        public DataTable getWaiZhuDt(string vcTargetYear)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("   select vcInjectionFactory,vcSupplierId,[1月] ,[2月],[3月],[4月], [5月],[6月],[7月],[8月], [9月],[10月], [11月],[12月] ,  ");
+                strSql.AppendLine("    cast(isnull(T.[1月],0) as decimal(18,6))+cast(isnull(T.[2月],0) as decimal(18,6))+cast(isnull(T.[3月],0) as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(isnull(T.[4月],0) as decimal(18,6))+cast(isnull(T.[5月],0) as decimal(18,6))+cast(isnull(T.[6月],0) as decimal(18,6))+  ");
+                strSql.AppendLine("  cast(isnull(t.[7月],0) as decimal(18,6))+cast(isnull(T.[8月],0) as decimal(18,6))+cast(isnull(T.[9月],0) as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(isnull(T.[10月],0) as decimal(18,6))+cast(isnull(T.[11月],0) as decimal(18,6))+cast(isnull(T.[12月],0) as decimal(18,6)) as  currentSum,  ");
+                strSql.AppendLine("   t.[vcNextOneYear],t.[vcNextTwoYear]   ");
+                strSql.AppendLine("   from  ");
+                strSql.AppendLine("   (  ");
+                strSql.AppendLine("   select vcInjectionFactory,vcSupplierId,   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJanuary],0) as decimal(18,6))) as  \"1月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcFebruary],0) as decimal(18,6))) as  \"2月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMarch],0) as decimal(18,6))) as  \"3月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcApril],0) as decimal(18,6)))  as  \"4月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMay],0) as decimal(18,6))) as  \"5月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJune],0) as decimal(18,6)))  as  \"6月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJuly],0) as decimal(18,6)))  as  \"7月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcAugust],0) as decimal(18,6))) as  \"8月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcSeptember],0) as decimal(18,6))) as  \"9月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcOctober],0) as decimal(18,6))) as  \"10月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNovember],0) as decimal(18,6))) as  \"11月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcDecember],0) as decimal(18,6))) as  \"12月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextOneYear],0) as decimal(18,6)) ) as  [vcNextOneYear],  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextTwoYear],0) as decimal(18,6)) ) as  [vcNextTwoYear]  ");
+                strSql.AppendLine("  from (  ");
+                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory], [vcInsideOutsideType],  ");
+                strSql.AppendLine("   case when vcName is null then '外注'  ");
+                strSql.AppendLine("    else vcName end as [vcSupplierId],  ");
+                strSql.AppendLine("  [vcWorkArea], [vcCarType], [vcAcceptNum], [vcJanuary], [vcFebruary], [vcMarch],   ");
+                strSql.AppendLine("  [vcApril], [vcMay], [vcJune], [vcJuly], [vcAugust], [vcSeptember], [vcOctober], [vcNovember],  ");
+                strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*  ");
+                strSql.AppendLine("  from TAnnualManagement a   ");
+                strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue  ");
+                strSql.AppendLine("   where  b.vcValue is  null and vcTargetYear='2021'  ");
+                strSql.AppendLine("   ) S group by vcInjectionFactory,vcSupplierId  ");
+                strSql.AppendLine("   ) T  ");
+                strSql.AppendLine("    union all  ");
+                strSql.AppendLine("    select '合计' as vcInjectionFactory,'' as vcSupplier_id,    ");
+                strSql.AppendLine("    sum(W.[1月]) as [1月], sum(W.[2月]) as [2月], sum(W.[3月]) as [3月],    ");
+                strSql.AppendLine("    sum(W.[4月]) as [4月], sum(W.[5月]) as [5月], sum(W.[6月]) as [6月],    ");
+                strSql.AppendLine("    sum(W.[7月]) as [7月], sum(W.[8月]) as [8月], sum(W.[9月]) as [9月],    ");
+                strSql.AppendLine("    sum(W.[10月]) as [10月],sum(W.[11月]) as [11月], sum(W.[12月]) as [12月],  ");
+                strSql.AppendLine("    sum(W.currentSum) as currentSum,SUM(W.vcNextOneYear) as vcNextOneYear,  ");
+                strSql.AppendLine("    SUM(W.vcNextTwoYear) as vcNextTwoYear  ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    from  ");
+                strSql.AppendLine("    (  ");
+                strSql.AppendLine("    select vcInjectionFactory,vcSupplierId,[1月] ,[2月],[3月],[4月], [5月],[6月],[7月],[8月], [9月],[10月], [11月],[12月] ,  ");
+                strSql.AppendLine("    cast(isnull(T.[1月],0) as decimal(18,6))+cast(isnull(T.[2月],0) as decimal(18,6))+cast(isnull(T.[3月],0) as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(isnull(T.[4月],0) as decimal(18,6))+cast(isnull(T.[5月],0) as decimal(18,6))+cast(isnull(T.[6月],0) as decimal(18,6))+  ");
+                strSql.AppendLine("  cast(isnull(t.[7月],0) as decimal(18,6))+cast(isnull(T.[8月],0) as decimal(18,6))+cast(isnull(T.[9月],0) as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(isnull(T.[10月],0) as decimal(18,6))+cast(isnull(T.[11月],0) as decimal(18,6))+cast(isnull(T.[12月],0) as decimal(18,6)) as  currentSum,  ");
+                strSql.AppendLine("   t.[vcNextOneYear],t.[vcNextTwoYear]   ");
+                strSql.AppendLine("   from  ");
+                strSql.AppendLine("   (  ");
+                strSql.AppendLine("   select vcInjectionFactory,vcSupplierId,   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJanuary],0) as decimal(18,6))) as  \"1月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcFebruary],0) as decimal(18,6))) as  \"2月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMarch],0) as decimal(18,6))) as  \"3月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcApril],0) as decimal(18,6)))  as  \"4月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMay],0) as decimal(18,6))) as  \"5月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJune],0) as decimal(18,6)))  as  \"6月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJuly],0) as decimal(18,6)))  as  \"7月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcAugust],0) as decimal(18,6))) as  \"8月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcSeptember],0) as decimal(18,6))) as  \"9月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcOctober],0) as decimal(18,6))) as  \"10月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNovember],0) as decimal(18,6))) as  \"11月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcDecember],0) as decimal(18,6))) as  \"12月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextOneYear],0) as decimal(18,6)) ) as  [vcNextOneYear],  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextTwoYear],0) as decimal(18,6)) ) as  [vcNextTwoYear]  ");
+                strSql.AppendLine("  from (  ");
+                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory], [vcInsideOutsideType],  ");
+                strSql.AppendLine("   case when vcName is null then '外注'  ");
+                strSql.AppendLine("    else vcName end as [vcSupplierId],  ");
+                strSql.AppendLine("  [vcWorkArea], [vcCarType], [vcAcceptNum], [vcJanuary], [vcFebruary], [vcMarch],   ");
+                strSql.AppendLine("  [vcApril], [vcMay], [vcJune], [vcJuly], [vcAugust], [vcSeptember], [vcOctober], [vcNovember],  ");
+                strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*  ");
+                strSql.AppendLine("  from TAnnualManagement a   ");
+                strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue  ");
+                strSql.AppendLine("   where  b.vcValue is  null and vcTargetYear='2021'  ");
+                strSql.AppendLine("   ) S group by vcInjectionFactory,vcSupplierId  ");
+                strSql.AppendLine("   ) T  ");
+                strSql.AppendLine("    ) W  ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                strSql.AppendLine("    ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 最终合计数据
+        /// </summary>
+        /// <param name="vcTargetYear"></param>
+        /// <returns></returns>
+        public DataTable getHuiZongDt(string vcTargetYear)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                
+                strSql.AppendLine("   select vcInjectionFactory,vcSupplierId,[1月] ,[2月],[3月],[4月], [5月],[6月],[7月],[8月], [9月],[10月], [11月],[12月] ,  ");
+                strSql.AppendLine("    cast(isnull(T.[1月],0) as decimal(18,6))+cast(isnull(T.[2月],0) as decimal(18,6))+cast(isnull(T.[3月],0) as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(isnull(T.[4月],0) as decimal(18,6))+cast(isnull(T.[5月],0) as decimal(18,6))+cast(isnull(T.[6月],0) as decimal(18,6))+  ");
+                strSql.AppendLine("  cast(isnull(t.[7月],0) as decimal(18,6))+cast(isnull(T.[8月],0) as decimal(18,6))+cast(isnull(T.[9月],0) as decimal(18,6))  ");
+                strSql.AppendLine("  +cast(isnull(T.[10月],0) as decimal(18,6))+cast(isnull(T.[11月],0) as decimal(18,6))+cast(isnull(T.[12月],0) as decimal(18,6))  ");
+                strSql.AppendLine("  as  currentSum,  ");
+                strSql.AppendLine("   t.[vcNextOneYear],t.[vcNextTwoYear]   ");
+                strSql.AppendLine("   from  ");
+                strSql.AppendLine("   (  ");
+                strSql.AppendLine("   select '' as vcInjectionFactory,'' as vcSupplierId,   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJanuary],0) as decimal(18,6))) as  \"1月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcFebruary],0) as decimal(18,6))) as  \"2月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMarch],0) as decimal(18,6))) as  \"3月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcApril],0) as decimal(18,6)))  as  \"4月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcMay],0) as decimal(18,6))) as  \"5月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJune],0) as decimal(18,6)))  as  \"6月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcJuly],0) as decimal(18,6)))  as  \"7月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcAugust],0) as decimal(18,6))) as  \"8月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcSeptember],0) as decimal(18,6))) as  \"9月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcOctober],0) as decimal(18,6))) as  \"10月\",   ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNovember],0) as decimal(18,6))) as  \"11月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcDecember],0) as decimal(18,6))) as  \"12月\",  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextOneYear],0) as decimal(18,6)) ) as  [vcNextOneYear],  ");
+                strSql.AppendLine("  sum(cast(isnull(S.[vcNextTwoYear],0) as decimal(18,6)) ) as  [vcNextTwoYear]  ");
+                strSql.AppendLine("  from (  ");
+                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory], [vcInsideOutsideType],  ");
+                strSql.AppendLine("   case when vcName is null then '外注'  ");
+                strSql.AppendLine("    else vcName end as [vcSupplierId],  ");
+                strSql.AppendLine("  [vcWorkArea], [vcCarType], [vcAcceptNum], [vcJanuary], [vcFebruary], [vcMarch],   ");
+                strSql.AppendLine("  [vcApril], [vcMay], [vcJune], [vcJuly], [vcAugust], [vcSeptember], [vcOctober], [vcNovember],  ");
+                strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*  ");
+                strSql.AppendLine("  from TAnnualManagement a   ");
+                strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue  ");
+                strSql.AppendLine("   where   vcTargetYear='"+ vcTargetYear + "'  ");
+                strSql.AppendLine("   ) S   ");
+                strSql.AppendLine("   ) T  ");
+                
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         #endregion
     }

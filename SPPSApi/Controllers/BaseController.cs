@@ -19,6 +19,7 @@ namespace SPPSApi.Controllers
             public int code;
             public Object data;
             public int flag;//个别画面对于返回值类型特别判断用
+            public string type;//返回值类型
             public int field1;//预留1
         }
 
@@ -37,12 +38,7 @@ namespace SPPSApi.Controllers
             ICryptoTransform cryptoTransform = des.CreateEncryptor();
             byte[] res = cryptoTransform.TransformFinalBlock(bytedata, 0, bytedata.Length);
             string token = Convert.ToBase64String(res);
-
             byte[] res22 = Convert.FromBase64String(token);
-
-
-
-
             using (var entry = memoryCache_Login.CreateEntry(token))
             {
                 entry.Value = token;

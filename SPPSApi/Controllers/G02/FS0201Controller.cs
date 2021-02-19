@@ -56,7 +56,7 @@ namespace SPPSApi.Controllers.G02
 
 
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("dHandleTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("PartError", ConvertFieldType.BoolType, null);
@@ -70,6 +70,8 @@ namespace SPPSApi.Controllers.G02
                 dtConverter.addField("NewProjError", ConvertFieldType.BoolType, null);
                 dtConverter.addField("OldProjTimeError", ConvertFieldType.BoolType, null);
                 dtConverter.addField("NewProjTimeError", ConvertFieldType.BoolType, null);
+                dtConverter.addField("startYearMonthError", ConvertFieldType.BoolType, null);
+
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -78,7 +80,7 @@ namespace SPPSApi.Controllers.G02
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0101", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -110,8 +112,8 @@ namespace SPPSApi.Controllers.G02
             {
                 DataTable dt = fs0201_logic.searchApi(vcSPINo, vcPart_Id, vcCarType, vcState);
                 string resMsg = "";
-                string[] head = { "SPI NO", "旧品番", "新品番", "補給区分(新)", "代替区分", "代替品番(新)", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№(新)", "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名" };
-                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj", "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
+                string[] head = { "SPI NO", "状态", "错误信息", "旧品番", "新品番", "補給区分(新)", "代替区分", "代替品番(新)", "品名", "品番実施時期(新/ｶﾗ)", "防錆区分", "防錆指示書№(新)", "変更事項", "旧工程", "工程実施時期旧/ﾏﾃﾞ", "新工程", "工程実施時期新/ｶﾗ", "工程参照引当(直上品番)(新)", "処理日", "シート名", "ファイル名" };
+                string[] fields = { "vcSPINo", "State", "ErrorInfo", "vcPart_Id_old", "vcPart_Id_new", "vcBJDiff", "vcDTDiff", "vcPart_id_DT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcChange", "vcOldProj", "vcOldProjTime", "vcNewProj", "vcNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")
@@ -126,7 +128,7 @@ namespace SPPSApi.Controllers.G02
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0102", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -180,7 +182,7 @@ namespace SPPSApi.Controllers.G02
                                                 {"vcSPINo","vcPart_Id_old","vcPart_Id_new","vcBJDiff","vcDTDiff","vcPart_id_DT","vcPartName","vcStartYearMonth","vcFXDiff","vcFXNo","vcChange","vcOldProj","vcOldProjTime","vcNewProj","vcNewProjTime","vcCZYD","dHandleTime","vcSheetName","vcFileName"},
                                                 {"","","","","","","","","","","","","","","","","","",""},
                                                 {"0","12","12","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","0","0","1","1","0","1","0","1","0","1","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","0","0","1","0","0","1","0","1","0","1","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
@@ -215,7 +217,7 @@ namespace SPPSApi.Controllers.G02
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0103", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -255,7 +257,7 @@ namespace SPPSApi.Controllers.G02
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0100", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0104", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除SPI失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -298,7 +300,7 @@ namespace SPPSApi.Controllers.G02
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0201", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M02UE0205", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "传送失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

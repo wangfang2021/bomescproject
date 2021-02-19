@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G11
     [ApiController]
     public class FS1104Controller : BaseController
     {
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
         FS1104_Logic fS1104_Logic = new FS1104_Logic();
         FS0617_Logic fS0617_Logic = new FS0617_Logic();
         private readonly string FunctionID = "FS1104";
@@ -50,12 +51,13 @@ namespace SPPSApi.Controllers.G11
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
-                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发货方
-                List<Object> RePartyList = ComFunction.convertAllToResult(fS0617_Logic.getRePartyInfo());//客户代码
-                List<Object> PackPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装厂
-                res.Add("PlantList", PlantList);
-                res.Add("RePartyList", RePartyList);
-                res.Add("PackPlantList", PackPlantList);
+                List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
+                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
+                List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装厂
+
+                res.Add("ReceiverList", ReceiverList);
+                res.Add("OrderPlantList", OrderPlantList);
+                res.Add("PackingPlantList", PackingPlantList);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -66,55 +68,6 @@ namespace SPPSApi.Controllers.G11
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        /// <summary>
-        /// 刷新方法
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [EnableCors("any")]
-        public string refreshApi([FromBody]dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            Dictionary<string, object> res = new Dictionary<string, object>();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
-            string strReParty = dataForm.ReParty == null ? "" : dataForm.ReParty;
-            string strPackPlant = dataForm.PackPlant == null ? "" : dataForm.PackPlant;
-            try
-            {
-                if (strPlant == "" || strReParty == "" || strPackPlant == "")
-                {
-                    res.Add("CaseLianFanNoItem", "");
-                }
-                else
-                {
-                    res.Add("CaseLianFanNoItem", fS1104_Logic.getCaseLianFanInfo(strPlant, strReParty, strPackPlant));
-                }
-                res.Add("PlantItem", strPlant);
-                res.Add("RePartyItem", strReParty);
-                res.Add("PackPlantItem", strPackPlant);
-
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -138,49 +91,66 @@ namespace SPPSApi.Controllers.G11
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
-            string strReParty = dataForm.ReParty == null ? "" : dataForm.ReParty;
-            string strPackPlant = dataForm.PackPlant == null ? "" : dataForm.PackPlant;
-            string strCaseLianFanNo = dataForm.CaseLianFanNo == null ? "" : dataForm.CaseLianFanNo;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
+            string strPackingPlant = dataForm.PackingPlant == null ? "" : dataForm.PackingPlant;
+            string strLianFan = dataForm.LianFan == null ? "" : dataForm.LianFan;
             string strPrintNum = dataForm.PrintNum == null ? "" : dataForm.PrintNum;
             string strPrintCopy = dataForm.PrintCopy == null ? "" : dataForm.PrintCopy;
             try
             {
-                //判断是否可
-                strCaseLianFanNo = fS1104_Logic.getCaseLianFanInfo(strPlant, strReParty, strPackPlant);
-                if (strPlant == "" || strReParty == "" || strPackPlant == "" || strCaseLianFanNo == "")
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+
+                if (strOrderPlant == "")
                 {
-                    //报错:箱号信息不完整
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "发注工厂不能为空";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strReceiver == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "收货方不能为空";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strPackingPlant == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "包装工不能为空";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                //if (strLianFan == "")
+                //{
+                //    DataRow dataRow = dtMessage.NewRow();
+                //    dataRow["vcMessage"] = "连番不能为空";
+                //    dtMessage.Rows.Add(dataRow);
+                //}
+                if (strPrintNum == "" || strPrintNum == "0")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "打印数量不能为空(0)";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strPrintCopy == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "份数不能为空";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "箱号信息不完整";
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                else
-                {
-                    if (strPrintNum == "" || strPrintNum == "0")
-                    {
-                        //报错:打印数量不能小于1
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "打印数量不能小于1";
-                    }
-                    else
-                    {
-                        if (strPrintCopy == "")
-                        {
-                            //报错:请选择打印份数
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "请选择打印份数";
+                string strCaseLianFanNo = fS1104_Logic.getCaseNoInfo(strOrderPlant, strReceiver, strPackingPlant, strLianFan);
+                //======================打印方法=======================
 
-                        }
-                        else
-                        {
-                            DataTable dataPrint = fS1104_Logic.setPrintInfo(strPlant, strReParty, strPackPlant, strCaseLianFanNo, strPrintNum, "", strPrintCopy);
-                            //打印
 
-                            apiResult.code = ComConstant.SUCCESS_CODE;
-                            apiResult.data = "打印成功";
-                        }
-                    }
-                }
+                //=====================================================
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -198,7 +168,7 @@ namespace SPPSApi.Controllers.G11
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string resetprintApi([FromBody]dynamic data)
+        public string secondprintApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -214,31 +184,26 @@ namespace SPPSApi.Controllers.G11
             string strPrintCopy = dataForm.PrintCopy == null ? "" : dataForm.PrintCopy;
             try
             {
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (strCaseNo == "")
                 {
-                    //报错:箱号信息不能为空
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "箱号信息不能为空";
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "箱号不能为空";
+                    dtMessage.Rows.Add(dataRow);
                 }
-                else
+                if (strPrintCopy == "")
                 {
-                    DataTable dataPrint = fS1104_Logic.setPrintInfo("", "", "", "", "", strCaseNo, strPrintCopy);
-                    if (dataPrint.Rows.Count == 0)
-                    {
-                        //报错:无效箱号不能打印
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "无效箱号不能打印";
-                    }
-                    else
-                    {
-                        //打印
-
-                        apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = "打印成功";
-                    }
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "份数不能为空";
+                    dtMessage.Rows.Add(dataRow);
                 }
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //======================打印方法=======================
 
+
+                //=====================================================
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "打印成功";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {

@@ -12,6 +12,9 @@ namespace Logic
     {
         FS0315_DataAccess fs0315_dataAccess = new FS0315_DataAccess();
 
-
+        public List<DataTable> searchApi(string startTime, string endTime, List<string> Type, string vcOriginCompany)
+        {
+            return fs0315_dataAccess.searchApi(startTime, endTime, Type, vcOriginCompany);
+        }
     }
 }

@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataSet Search(string vcConsignee, string vcInjectionFactory, string vcTargetMonth, string vcLastTargetMonth)
         {
-            return fs0629_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+            return fs0629_DataAccess.Search(vcConsignee, vcInjectionFactory, vcTargetMonth, vcLastTargetMonth);
         }
 
         public bool isExistAddData(DataTable dtadd)

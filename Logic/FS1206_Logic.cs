@@ -42,9 +42,6 @@ namespace Logic
         }
         #endregion
 
-
-
-
         public string ExcelPos(int i)//取得列位置
         {
             string re = "error";

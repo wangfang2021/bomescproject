@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -10,6 +11,7 @@ using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -251,7 +253,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0703", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2804", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -291,10 +293,188 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0704", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2805", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导入进度管理 
+        [HttpPost]
+        [EnableCors("any")]
+        public string importProgressApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcIsExportFlag"].ToString() != "0")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcOrderNo"] + "的状态不正确,已经导入进度管理操作，不能进行重复操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                fs0628_Logic.ImportProgress(listInfoData, loginInfo.UserId,loginInfo.UnitCode);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2806", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导入进度管理操作失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region creatKBSApi
+        [HttpPost]
+        [EnableCors("any")]
+        public string creatKBSApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            JArray listInfo = dataForm.parentFormSelectItem;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            try
+            {
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先进行数据检索，再进行生成N-KBS文件操作！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string filepath = CreatKBS(listInfoData,loginInfo.UnitCode,loginInfo.UserId);
+               
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成N-KBS文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2807", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成N-KBS文件失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
+        private string CreatKBS(List<Dictionary<string, object>> listInfoData,string career,string userId)
+        {
+            String realPath = string.Empty;
+            realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "FS0628_KBS" + Path.DirectorySeparatorChar;
+            string filename = "紧急订单_" + userId+"_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            String dir = getDir(filename); // /f/e/d/c/4/9/8/4
+            String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
+            
+            if (!Directory.Exists(realPath))
+            {
+                Directory.CreateDirectory(realPath);
+            }
+
+            if (!System.IO.File.Exists(realPath+filename))
+            {
+                FileStream stream = System.IO.File.Create(realPath + filename);
+                stream.Close();
+                stream.Dispose();
+            }
+            using (StreamWriter writer = new StreamWriter(realPath + filename, true))
+            {
+                for (int i=0;i< listInfoData.Count;i++)
+                {
+                    if (listInfoData[i]["vcInsideOutsideType"].ToString()=="外注")
+                    {
+                        writer.Write(listInfoData[i]["vcDock"].ToString()+ "\t");
+                        writer.Write(listInfoData[i]["vcSupplier_id"].ToString() + "\t");
+                        writer.Write(listInfoData[i]["vcWorkArea"].ToString() + "\t\t");
+                        writer.Write(listInfoData[i]["vcOrderNo"].ToString() + "\t\t");
+                        writer.Write(listInfoData[i]["vcPartNo"].ToString() + "\t\t\t");
+                        writer.WriteLine(listInfoData[i]["vcOrderNum"].ToString());
+                    }
+                }
+                //清空缓冲区内容，并把缓冲区内容写入基础流 
+                writer.Flush();
+                //关闭写数据流 
+                writer.Close();
+
+            }
+            return filename;
+        }
+        public String getDir(String name)
+        {
+            //任意一个对象都有一个hash码   131313213
+            int i = name.GetHashCode();
+            //将hash码转成16禁止的字符串
+            //String hex = Integer.toHexString(i);
+            string hex = String.Format("{0:X}", i);
+            int j = hex.Length;
+            for (int k = 0; k < 8 - j; k++)
+            {
+                hex = "0" + hex;
+            }
+            return Path.DirectorySeparatorChar + hex.Substring(0, 1) + Path.DirectorySeparatorChar + hex.Substring(1, 1) + Path.DirectorySeparatorChar + hex.Substring(2, 1) + Path.DirectorySeparatorChar + hex.Substring(3, 1) + Path.DirectorySeparatorChar + hex.Substring(4, 1) + Path.DirectorySeparatorChar + hex.Substring(5, 1) + Path.DirectorySeparatorChar + hex.Substring(6, 1) + Path.DirectorySeparatorChar + hex.Substring(7, 1);
+        }
+        #endregion
+
+        #region 下载-txt,下载后会自动删除文件
+        [HttpGet]
+        [EnableCors("any")]
+        public IActionResult downloadTxtApi(string path)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "FS0628_KBS" + Path.DirectorySeparatorChar;//模板目录，读取模板供用户下载
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                ContentResult result = new ContentResult();
+                result.Content = "<script>alert('下载生成N-KBS文件失败,没有找到生成的文件！')</script>";
+                result.ContentType = "text/html;charset=utf-8";
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2808", ex, "system");
+                return result;
             }
         }
         #endregion

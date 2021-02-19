@@ -20,7 +20,7 @@ namespace DataAccess
         }
         public DataTable getPlantype()
         {
-            string ssql = " select '' as vcName ,'' as vcValue union all select planType,value from sPlanType where enable='1'";
+            string ssql = " select '' as vcName ,'' as vcValue union all select planType,value from sPlanType where enable='1' order by vcValue";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 
@@ -311,20 +311,20 @@ namespace DataAccess
                 else tmpT += "t1.vcD" + i + "b 	as	TD" + i + "b,	t1.vcD" + i + "y 	as	TD" + i + "y,";
             }
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("    select t2.vcMonth ,t5.vcData2 as vcPlant, SUBSTRING(t2.vcPartsno,0,6)+'-'+SUBSTRING(t2.vcPartsno,6,5)+'-'+SUBSTRING(t2.vcPartsno,11,2) as vcPartsno ,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
-            sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t4.vcProName1 as vcProject1,t3.vcProType+'-'+t3.vcZB as vcProjectName, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,");
+            sb.AppendLine(" select t2.vcMonth ,t5.vcData2 as vcPlant, SUBSTRING(t2.vcPartsno,0,6)+'-'+SUBSTRING(t2.vcPartsno,6,5)+'-'+SUBSTRING(t2.vcPartsno,11,2) as vcPartsno ,t2.vcDock,t2.vcCarType,t4.vcCalendar1,t4.vcCalendar2,t4.vcCalendar3,t4.vcCalendar4,");
+            sb.AppendLine(" t3.vcPartNameCN as vcPartsNameCHN, t4.vcProName1 as vcProject1,t3.vcProType+'-'+t3.vcZB as vcProjectName, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from {0} where montouch is not null) t1 ", tablename);
-            sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
-            sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendLine("  left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo) t3");
-            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType and  t3.vcMonth = '" + mon + "' ");
-            sb.AppendLine("  left join ProRuleMst t4");
-            sb.AppendLine("  on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
-            sb.AppendLine(" left join (select vcData1 ,vcData2 from ConstMst where vcDataId ='kbplant') t5");
-            sb.AppendLine(" on t3.vcPlant = t5.vcData1 ");
-            sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcPlant ='{1}' and t3.vcEDFlag ='S' ", mon, plant);
+            sb.AppendFormat(" from ( select * from {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat(" full join (select * from {0} where montouch is null) t2", tablename);
+            sb.AppendLine(" on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendLine(" left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo) t3");
+            sb.AppendLine(" on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarType=t2.vcCarType and t3.vcMonth='" + mon + "' ");
+            sb.AppendLine(" left join ProRuleMst t4");
+            sb.AppendLine(" on t4.vcPorType=t3.vcProType and t4.vcZB=t3.vcZB");
+            sb.AppendLine(" left join (select vcData1,vcData2 from ConstMst where vcDataId='kbplant') t5");
+            sb.AppendLine(" on t3.vcPlant=t5.vcData1 ");
+            sb.AppendFormat(" where t2.vcMonth='{0}' and t3.vcPlant='{1}' and t3.vcEDFlag='S' ", mon, plant);
             try
             {
                 return excute.ExcuteSqlWithSelectToDT(sb.ToString());

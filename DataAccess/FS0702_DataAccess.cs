@@ -12,6 +12,7 @@ namespace DataAccess
     public class FS0702_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
+
         #region 
         public DataTable SearchSupplier()
         {
@@ -81,7 +82,7 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
                 if (!string.IsNullOrEmpty(Note))
                     strSql.AppendLine($"      AND vcNote LIKE '%{Note}%'");
-                
+
                 strSql.AppendLine($"      AND dUsedFrom BETWEEN '{dtFromBegin}' and '{dtFromEnd}'");
                 strSql.AppendLine($"      AND dUsedTo BETWEEN '{dtToBegin}' and '{dtToEnd}'");
 
@@ -92,7 +93,78 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+
         #endregion
+
+
+        #region 纵向导出
+        public DataTable SearchEXZ(string iAutoID, string Note, string PackSpot, string Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
+        {
+            try
+            {
+
+                if (string.IsNullOrEmpty(dtFromBegin))
+                {
+                    dtFromBegin = "1990-01-01 0:00:00";
+
+                }
+
+                if (string.IsNullOrEmpty(dtFromEnd))
+                {
+                    dtFromEnd = "3000-01-01 0:00:00";
+
+                }
+                if (string.IsNullOrEmpty(dtToBegin))
+                {
+                    dtToBegin = "1990-01-01 0:00:00";
+
+                }
+
+                if (string.IsNullOrEmpty(dtToEnd))
+                {
+                    dtToEnd = "3000-01-01 0:00:00";
+
+                }
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ,[vcShouhuofangID]+':'+[vcShouhuofang] as [vcShouhuofang]");
+                strSql.AppendLine("      FROM");
+                strSql.AppendLine("      	TPackItem");
+                strSql.AppendLine("      WHERE");
+                strSql.AppendLine("      	1 = 1");
+                if (!string.IsNullOrEmpty(iAutoID))
+                    strSql.AppendLine($"      AND iAutoID in ('{iAutoID}')");
+                if (!string.IsNullOrEmpty(PackNO))
+                    strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNO}%'");
+                if (!string.IsNullOrEmpty(Pinfan))
+                    strSql.AppendLine($"      AND vcPartsNo LIKE '%{Pinfan}%'");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcShouhuofangID = '{Shouhuofang}'");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcCar = '{Car}'");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+                if (!string.IsNullOrEmpty(PackGPSNo))
+                    strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
+                if (!string.IsNullOrEmpty(Note))
+                    strSql.AppendLine($"      AND vcNote LIKE '%{Note}%'");
+
+                strSql.AppendLine($"      AND dUsedFrom BETWEEN '{dtFromBegin}' and '{dtFromEnd}'");
+                strSql.AppendLine($"      AND dUsedTo BETWEEN '{dtToBegin}' and '{dtToEnd}' order by vcPartsNo asc");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
@@ -105,53 +177,48 @@ namespace DataAccess
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    string strSHFID = ComFunction.getSqlValue(listInfoData[i]["vcShouhuofang"], true) == "null" ? listInfoData[i]["vcShouhuofang"].ToString().Split(':')[0] : "null";
+                    string strSHFName = ComFunction.getSqlValue(listInfoData[i]["vcShouhuofang"], true) == "null" ? listInfoData[i]["vcShouhuofang"].ToString().Split(':')[1] : "null";
                     if (bAddFlag == true)
                     {//新增
-                        sql.AppendLine("     INSERT INTO TPackBase( ");
-                        sql.AppendLine("      vcPackNo,");
-                        sql.AppendLine("      vcPackSpot,");
-                        sql.AppendLine("      dPackFrom,");
-                        sql.AppendLine("      dPackTo,");
-                        sql.AppendLine("      vcPackGPSNo,");
-                        sql.AppendLine("      vcSupplierCode,");
-                        sql.AppendLine("      vcSupplierPlant,");
-                        sql.AppendLine("      vcCycle,");
-                        sql.AppendLine("      vcSupplierName,");
-                        sql.AppendLine("      vcParstName,");
-                        sql.AppendLine("      vcPackLocation,");
-                        sql.AppendLine("      vcDistinguish,");
-                        sql.AppendLine("      vcFormat,");
-                        sql.AppendLine("      vcReleaseID,");
-                        sql.AppendLine("      vcReleaseName,");
-                        sql.AppendLine("      iRelease,");
-                        sql.AppendLine("      iZCRelease,");
-                        sql.AppendLine("      isYZC,");
-                        sql.AppendLine("      vcOperatorID,");
-                        sql.AppendLine("      dOperatorTime");
-                        sql.AppendLine("     )");
-                        sql.AppendLine("     VALUES");
-                        sql.AppendLine("     	(");
+                        sql.AppendLine("     INSERT INTO [TPackItem]( \r\n");
+                        sql.AppendLine("     ([vcPartsNo] \r\n");
+                        sql.AppendLine("     ,[vcPackNo] \r\n");
+                        sql.AppendLine("     ,[vcPackGPSNo] \r\n");
+                        sql.AppendLine("     ,[vcShouhuofangID] \r\n");
+                        sql.AppendLine("     ,[vcShouhuofang] \r\n");
+                        sql.AppendLine("     ,[vcCar] \r\n");
+                        sql.AppendLine("     ,[dUsedFrom] \r\n");
+                        sql.AppendLine("     ,[dUsedTo] \r\n");
+                        sql.AppendLine("     ,[dFrom] \r\n");
+                        sql.AppendLine("     ,[dTo] \r\n");
+                        sql.AppendLine("     ,[vcDistinguish] \r\n");
+                        sql.AppendLine("     ,[iBiYao] \r\n");
+                        sql.AppendLine("     ,[vcOperatorID] \r\n");
+                        sql.AppendLine("     ,[dOperatorTime] \r\n");
+                        sql.AppendLine("     ,[vcPackSpot] \r\n");
+                        sql.AppendLine("     ,[varChangedItem]) \r\n");
+                        sql.AppendLine("     VALUES \r\n");
+                        sql.AppendLine("     ( \r\n");
 
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackFrom"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcCycle"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierName"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcParstName"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackLocation"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcFormat"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcReleaseID"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcReleaseName"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iRelease"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iZCRelease"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["isYZC"], true) + ",");
-                        sql.AppendLine($"     		{strUserId},");
-                        sql.AppendLine("     		getDate()");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + ",\r\n");
+                        sql.AppendLine(" '" + strSHFID + "',\r\n");
+                        sql.AppendLine(" '" + strSHFName + "',\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcCar"], true) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dUsedFrom"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dUsedTo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dFrom"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dTo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iBiYao"], false) + ",\r\n");
+                        sql.AppendLine($"     		{strUserId},\r\n");
+                        sql.AppendLine("     		getDate(),\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], true) + "\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcNote"], true) + "\r\n");
                         sql.AppendLine("     	); ");
 
 
@@ -160,30 +227,27 @@ namespace DataAccess
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                        sql.AppendLine("  UPDATE TPackBase");
+                        sql.AppendLine("  UPDATE TPackItem");
                         sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPackNo = '{ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)}',");
-                        sql.AppendLine($"   vcPackSpot = '{ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)}',");
-                        sql.AppendLine($"   dPackFrom = '{ComFunction.getSqlValue(listInfoData[i]["dPackFrom"], true)}',");
-                        sql.AppendLine($"   dPackTo = '{ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true)}',");
-                        sql.AppendLine($"   vcPackGPSNo = '{ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false)}',");
-                        sql.AppendLine($"   vcSupplierCode = '{ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false)}',");
-                        sql.AppendLine($"   vcSupplierPlant = '{ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false)}',");
-                        sql.AppendLine($"   vcCycle = '{ComFunction.getSqlValue(listInfoData[i]["vcCycle"], false)}',");
-                        sql.AppendLine($"   vcSupplierName = '{ComFunction.getSqlValue(listInfoData[i]["vcSupplierName"], false)}',");
-                        sql.AppendLine($"   vcParstName = '{ComFunction.getSqlValue(listInfoData[i]["vcParstName"], false)}',");
-                        sql.AppendLine($"   vcPackLocation = '{ComFunction.getSqlValue(listInfoData[i]["vcPackLocation"], false)}',");
-                        sql.AppendLine($"   vcDistinguish = '{ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false)}',");
-                        sql.AppendLine($"   vcFormat = '{ComFunction.getSqlValue(listInfoData[i]["vcFormat"], false)}',");
-                        sql.AppendLine($"   vcReleaseID = '{ComFunction.getSqlValue(listInfoData[i]["vcReleaseID"], false)}',");
-                        sql.AppendLine($"   vcReleaseName = '{ComFunction.getSqlValue(listInfoData[i]["vcReleaseName"], false)}',");
-                        sql.AppendLine($"   iRelease = '{ComFunction.getSqlValue(listInfoData[i]["iRelease"], true)}',");
-                        sql.AppendLine($"   iZCRelease = '{ComFunction.getSqlValue(listInfoData[i]["iZCRelease"], true)}',");
-                        sql.AppendLine($"   isYZC = '{ComFunction.getSqlValue(listInfoData[i]["isYZC"], true)}',");
-                        sql.AppendLine($"   vcOperatorID = '{strUserId}',");
-                        sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
-                        sql.AppendLine($"  WHERE");
-                        sql.AppendLine($"  iAutoId='{iAutoId}';");
+                        sql.AppendLine($"   vcPartsNo = '{ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false)}',\r\n");
+                        sql.AppendLine($"   vcPackNo = '{ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)}',\r\n");
+                        sql.AppendLine($"   vcPackGPSNo = '{ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)}',\r\n");
+                        //sql.AppendLine($"   dPackTo = '{ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true)}',\r\n");
+                        sql.AppendLine($"   vcPackSpot = '{ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)}',\r\n");
+                        sql.AppendLine($"   vcShouhuofangID = '{strSHFID}',\r\n");
+                        sql.AppendLine($"   vcShouhuofang = '{strSHFName}',\r\n");
+                        sql.AppendLine($"   vcCar = '{ComFunction.getSqlValue(listInfoData[i]["vcCar"], true)}',\r\n");
+                        sql.AppendLine($"   dUsedFrom = '{ComFunction.getSqlValue(listInfoData[i]["dUsedFrom"], false)}',\r\n");
+                        sql.AppendLine($"   dUsedTo = '{ComFunction.getSqlValue(listInfoData[i]["dUsedTo"], false)}',\r\n");
+                        sql.AppendLine($"   dFrom = '{ComFunction.getSqlValue(listInfoData[i]["dFrom"], false)}',\r\n");
+                        sql.AppendLine($"   dTo = '{ComFunction.getSqlValue(listInfoData[i]["dTo"], false)}',\r\n");
+                        sql.AppendLine($"   vcDistinguish = '{ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false)}',\r\n");
+                        sql.AppendLine($"   iBiYao = '{ComFunction.getSqlValue(listInfoData[i]["iBiYao"], false)}',\r\n");
+                        sql.AppendLine($"   vcOperatorID = '{strUserId}',\r\n");
+                        sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}',\r\n");
+                        sql.AppendLine($"   varChangedItem = '{ComFunction.getSqlValue(listInfoData[i]["vcNote"], true)}'\r\n");
+                        sql.AppendLine($"  WHERE \r\n");
+                        sql.AppendLine($"  iAutoId='{iAutoId}'; \r\n");
 
 
                     }
@@ -206,14 +270,13 @@ namespace DataAccess
         }
         #endregion
 
-
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  delete TPackBase where iAutoId in(   \r\n ");
+                sql.Append("  delete from  TPackItem where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)
@@ -231,14 +294,67 @@ namespace DataAccess
         }
         #endregion
 
-
-
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)
         {
             try
             {
 
+                DataTable dtSH = ComFunction.getTCode("C018");//价格系数
+
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+
+                    sql.AppendLine("  delete  from TPackItem where vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "'and vcPackNo='" + dt.Rows[i]["vcPackNo"].ToString() + "' and vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "' and vcPackSpot='" + dt.Rows[i]["vcPackSpot"].ToString() + "' \r\n");
+                }
+               
+                    sql.AppendLine("     INSERT INTO [TPackItem]( \r\n");
+                    sql.AppendLine("     ([vcPartsNo] \r\n");
+                    sql.AppendLine("     ,[vcPackNo] \r\n");
+                    sql.AppendLine("     ,[vcPackGPSNo] \r\n");
+                    sql.AppendLine("     ,[vcShouhuofangID] \r\n");
+                    sql.AppendLine("     ,[vcShouhuofang] \r\n");
+                    sql.AppendLine("     ,[vcCar] \r\n");
+                    sql.AppendLine("     ,[dUsedFrom] \r\n");
+                    sql.AppendLine("     ,[dUsedTo] \r\n");
+                    sql.AppendLine("     ,[dFrom] \r\n");
+                    sql.AppendLine("     ,[dTo] \r\n");
+                    sql.AppendLine("     ,[vcDistinguish] \r\n");
+                    sql.AppendLine("     ,[iBiYao] \r\n");
+                    sql.AppendLine("     ,[vcOperatorID] \r\n");
+                    sql.AppendLine("     ,[dOperatorTime] \r\n");
+                    sql.AppendLine("     ,[varChangedItem] \r\n");
+                    sql.AppendLine("     ,[vcPackSpot]) \r\n");
+                    sql.AppendLine("     VALUES \r\n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string strSHFAll = dtSH.Select("vcValue='" + dt.Rows[i]["vcShouhuofangID"].ToString() + "'")[0]["vcName"].ToString()==""?
+                        "null": dtSH.Select("vcValue='" + dt.Rows[i]["vcShouhuofangID"].ToString() + "'")[0]["vcName"].ToString();
+                    string strSHFID = strSHFAll == "null" ? "" : strSHFAll.Split(":")[0];
+                    string strSHF = strSHFAll == "null" ? "" : strSHFAll.Split(":")[1];
+
+
+                    sql.AppendLine("     ( \r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPartsNo"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], false) + ",\r\n");
+                    sql.AppendLine("     '"+ strSHFID + "',  \r\n");
+                    sql.AppendLine("     '" + strSHF + "',   \r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcCar"], true) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dUsedFrom"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dUsedTo"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFrom"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dTo"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcDistinguish"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["iBiYao"], false) + ",\r\n");
+                    sql.AppendLine("     '"+ strUserId + "',  \r\n");
+                    sql.AppendLine("     getdate(),  \r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["varChangedItem"], false) + ",\r\n");
+                    sql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ",\r\n");
+                    sql.AppendLine("     )  \r\n");
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
@@ -371,6 +487,32 @@ namespace DataAccess
         }
         #endregion
 
+        #region 检查品番
+        public bool CheckPartsNo(string strShouhuofang, string strPartsNo)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                DataTable dt = new DataTable();
+                sql.Append("  select PARTSNO from SP_M_SITEM where PARTSNO='" + strPartsNo + "'and CPDCOMPANY='" + strShouhuofang + "'  \r\n ");
+
+                dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    return true;
+                }
+                else
+                {
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
     }
 }

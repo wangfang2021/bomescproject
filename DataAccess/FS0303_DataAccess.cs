@@ -182,7 +182,7 @@ namespace DataAccess
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append("'" + iJiuYear + "'" + ",   \r\n");
+                            sql.Append("'" + iJiuYear + "',   \r\n");
                         }
                         else
                         {
@@ -266,11 +266,11 @@ namespace DataAccess
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
                             DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
                             int iJiuYear = datetime2.Year - datetime1.Year;
-                            sql.Append("'" + iJiuYear + "'" + ",   \r\n");
+                            sql.Append(",vcJiuYear = '" + iJiuYear + "'   \r\n");
                         }
                         else
                         {
-                            sql.Append("null,   \r\n");
+                            sql.Append(",vcJiuYear = null   \r\n");
                         }
                         #endregion
 
@@ -301,31 +301,31 @@ namespace DataAccess
                         sql.Append("      where iAutoId=" + listInfoData[i]["iAutoId"] + "   \r\n ");
                         sql.Append("      ;       \r\n ");
                     }
-                    //以下追加验证数据库中是否存在品番重叠判断，如果存在则终止提交，原单位数据唯一性：品番、包装工厂、供应商代码、收货方
-                    if (sql.Length > 0)
-                    {
-                        sql.Append("        declare @errorPart varchar(5000)        \r\n");
-                        sql.Append("        set @errorPart =         \r\n");
-                        sql.Append("        (        \r\n");
-                        sql.Append("        select a.vcPart_id+';' from         \r\n");
-                        sql.Append("        (        \r\n");
-                        sql.Append("           select distinct vcPart_id from         \r\n");
-                        sql.Append("           (         \r\n");
-                        sql.Append("               select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit          \r\n");
-                        sql.Append("         	  group by vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver                 \r\n");
-                        sql.Append("         	  having COUNT(*)>1                 \r\n");
-                        sql.Append("           )a         \r\n");
-                        sql.Append("        ) a for xml path('')        \r\n");
-                        sql.Append("        )        \r\n");
-                        sql.Append("        if @errorPart<>''        \r\n");
-                        sql.Append("        begin        \r\n");
-                        sql.Append("        select CONVERT(int,'-->'+@errorPart+'<--')        \r\n");
-                        sql.Append("        end        \r\n");
-
-                        excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
-                    }
+                   
                 }
+                //以下追加验证数据库中是否存在品番重叠判断，如果存在则终止提交，原单位数据唯一性：品番、包装工厂、供应商代码、收货方
+                if (sql.Length > 0)
+                {
+                    sql.Append("        declare @errorPart varchar(5000)        \r\n");
+                    sql.Append("        set @errorPart =         \r\n");
+                    sql.Append("        (        \r\n");
+                    sql.Append("        select a.vcPart_id+';' from         \r\n");
+                    sql.Append("        (        \r\n");
+                    sql.Append("           select distinct vcPart_id from         \r\n");
+                    sql.Append("           (         \r\n");
+                    sql.Append("               select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TUnit          \r\n");
+                    sql.Append("         	  group by vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver                 \r\n");
+                    sql.Append("         	  having COUNT(*)>1                 \r\n");
+                    sql.Append("           )a         \r\n");
+                    sql.Append("        ) a for xml path('')        \r\n");
+                    sql.Append("        )        \r\n");
+                    sql.Append("        if @errorPart<>''        \r\n");
+                    sql.Append("        begin        \r\n");
+                    sql.Append("        select CONVERT(int,'-->'+@errorPart+'<--')        \r\n");
+                    sql.Append("        end        \r\n");
 
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+                }
             }
             catch (Exception ex)
             {
@@ -401,7 +401,7 @@ namespace DataAccess
                     sql.Append("       ,vcMeno,vcFXDiff,vcFXNo,vcNum1,vcNum2,vcNum3,vcNum4         \n");
                     sql.Append("       ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10         \n");
                     sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo         \n");
-                    sql.Append("       ,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime         \n");
+                    sql.Append("       ,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime,vcRemark         \n");
                     sql.Append("       ) values         \n");
                     sql.Append("                ");
                     sql.Append("      (      \n");
@@ -442,16 +442,20 @@ namespace DataAccess
 
                     //旧型经年由旧型开始和结束时间计算得出
                     #region 计算旧型经年
-                    if (dt.Rows[i]["dJiuBegin"].ToString() != "" && dt.Rows[i]["dJiuEnd"].ToString() != "")
+                    if (
+                        (dt.Rows[i]["dJiuBegin"]!=null && dt.Rows[i]["dJiuBegin"].ToString() != "" ) 
+                        && 
+                        (dt.Rows[i]["dJiuEnd"] !=null && dt.Rows[i]["dJiuEnd"].ToString() != "")
+                        )
                     {
                         DateTime datetime1 = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]);
                         DateTime datetime2 = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]);
                         int iJiuYear = datetime2.Year - datetime1.Year;
-                        sql.Append(",'" + iJiuYear + "'" + "   \r\n");
+                        sql.Append(",vcJiuYear = '" + iJiuYear + "'" + "   \r\n");
                     }
                     else
                     {
-                        sql.Append(",null   \r\n");
+                        sql.Append(",vcJiuYear = null   \r\n");
                     }
                     #endregion
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNXQF"], true) + "     \n");
@@ -479,6 +483,7 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcOriginCompany_Name"], true) + "     \n");
                     sql.Append("      ,'" + strUserId + "'      \n");
                     sql.Append("      ,GETDATE()      \n");
+                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcRemark"], false) + "     \n");
                     sql.Append("      );      \n");
                     #endregion
 
@@ -545,6 +550,7 @@ namespace DataAccess
                 sql.Append("      ,vcOriginCompany=b.vcOriginCompany          \n");
                 sql.Append("      ,vcOperator=b.vcOperator          \n");
                 sql.Append("      ,dOperatorTime=b.dOperatorTime          \n");
+                sql.Append("      ,vcRemark=b.vcRemark          \n");
                 sql.Append("      from TUnit a      \n");
                 sql.Append("      inner join       \n");
                 sql.Append("      (      \n");
@@ -561,7 +567,7 @@ namespace DataAccess
                 sql.Append("      ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDate,vcMeno,vcFXDiff,vcFXNo      \n");
                 sql.Append("      ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11      \n");
                 sql.Append("      ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator      \n");
-                sql.Append("      ,dOperatorTime      \n");
+                sql.Append("      ,dOperatorTime,vcRemark      \n");
                 sql.Append("      )       \n");
                 sql.Append("      select a.dSyncTime,a.vcChange,a.vcSPINo,a.vcSQState,a.vcDiff,a.vcPart_id,a.vcCarTypeDev,a.vcCarTypeDesign      \n");
                 sql.Append("      ,a.vcCarTypeName,a.dTimeFrom,a.dTimeTo,a.dTimeFromSJ,a.vcBJDiff,a.vcPartReplace,a.vcPartNameEn      \n");
@@ -570,7 +576,7 @@ namespace DataAccess
                 sql.Append("      ,a.vcHaoJiu,a.dJiuBegin,a.dJiuEnd,a.vcJiuYear,a.vcNXQF,a.dSSDate,a.vcMeno,a.vcFXDiff,a.vcFXNo      \n");
                 sql.Append("      ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcNum11      \n");
                 sql.Append("      ,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15,a.vcZXBZNo,a.vcReceiver,a.vcOriginCompany,a.vcOperator      \n");
-                sql.Append("      ,a.dOperatorTime from #TUnit_temp a      \n");
+                sql.Append("      ,a.dOperatorTime,vcRemark from #TUnit_temp a      \n");
                 sql.Append("      left join       \n");
                 sql.Append("      (          \n");
                 sql.Append("          select iAutoId from TUnit           \n");

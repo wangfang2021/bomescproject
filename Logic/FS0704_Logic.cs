@@ -70,7 +70,17 @@ namespace Logic
         {
             FS0704_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName);
         }
+
+
         #endregion
+
+        #region 判断逻辑时间重复
+        public DataTable SearchLJTime(string strFaZhu,string iAutoId)
+        {
+            return FS0704_DataAccess.SearchLJTime(strFaZhu, iAutoId);
+        }
+        #endregion 
+
 
 
     }

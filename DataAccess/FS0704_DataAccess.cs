@@ -68,7 +68,7 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcFaZhuID = '{FaZhu}'");
                 if (!string.IsNullOrEmpty(PackSpot))
                     strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
-               
+
                 strSql.AppendLine($"      AND dFrom BETWEEN '{dFromB}' and '{dFromE}'");
                 strSql.AppendLine($"      AND dTo BETWEEN '{dToB}' and '{dToE}'");
 
@@ -79,6 +79,8 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+
         #endregion
 
         #region 保存
@@ -144,6 +146,11 @@ namespace DataAccess
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
+
+                        //限制
+
+
+
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
                         sql.AppendLine("  UPDATE TPackFaZhuTime");
@@ -192,7 +199,6 @@ namespace DataAccess
         }
         #endregion
 
-
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -217,14 +223,84 @@ namespace DataAccess
         }
         #endregion
 
+        #region 判断时间重复性
+        public DataTable SearchLJTime(string strFaZhu, string iAutoId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                if (iAutoId == "")
+                {
+                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhu='" + strFaZhu + "'   order by dRuHeFromTime asc      \n");
+                }
+                else
+                {
+                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhu='" + strFaZhu + "' and iAutoId <>'" + iAutoId + "'  order by dRuHeFromTime asc    \n");
+                }
 
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)
         {
             try
             {
-
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("  insert into TPackFaZhuTime    \n");
+                strSql.Append("       ( vcFaZhuID     \n");
+                strSql.Append("        , vcFaZhu     \n");
+                strSql.Append("        , vcRuHeFromDay     \n");
+                strSql.Append("        , dRuHeFromTime     \n");
+                strSql.Append("        , vcRuHeToDay     \n");
+                strSql.Append("        , druHeToTime     \n");
+                strSql.Append("        , vcFaZhuFromDay     \n");
+                strSql.Append("        , dFaZhuFromTime     \n");
+                strSql.Append("        , vcFaZhuToDay     \n");
+                strSql.Append("        , dFaZhuToTime     \n");
+                strSql.Append("        , vcNaQiFromDay     \n");
+                strSql.Append("        , dNaQiFromTime     \n");
+                strSql.Append("        , vcNaQiToDay     \n");
+                strSql.Append("        , dNaQiToTime     \n");
+                strSql.Append("        , vcBianCi     \n");
+                strSql.Append("        , vcPackSpot     \n");
+                strSql.Append("        , dFrom     \n");
+                strSql.Append("        , dTo     \n");
+                strSql.Append("        , vcOperatorID     \n");
+                strSql.Append("        , dOperatorTime )    \n");
+                strSql.Append("  	  values    \n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.AppendLine("     	( ");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhuID"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhu"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcRuHeFromDay"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dRuHeFromTime"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcRuHeToDay"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["druHeToTime"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhuFromDay"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFaZhuFromTime"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhuToDay"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFaZhuToTime"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcNaQiFromDay"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dNaQiFromTime"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcNaQiToDay"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dNaQiToTime"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcBianCi"], false) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFrom"], true) + ",");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dTo"], true) + ",");
+                    strSql.AppendLine($"     		{strUserId},");
+                    strSql.AppendLine("     		getDate()");
+                    strSql.AppendLine("     	); ");
+                }
+                excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
             {

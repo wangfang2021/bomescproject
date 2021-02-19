@@ -37,7 +37,6 @@ namespace SPPSApi.Controllers.G03
             _webHostEnvironment = webHostEnvironment;
         }
 
-
         #region 导入之后点保存
         [HttpPost]
         [EnableCors("any")]
@@ -76,7 +75,7 @@ namespace SPPSApi.Controllers.G03
                                                     {"iAutoId"         ,"dSyncTime"    ,"vcChange","vcSPINo","vcSQState","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE" ,"vcHKPart_id","vcHaoJiu","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" ,"vcZXBZNo"  ,"vcReceiver","vcOriginCompany","vcRemark"},
                                                     {FieldCheck.Num    ,FieldCheck.Date,""        ,""       ,""         ,""      ,""         ,""            ,""               ,""             ,FieldCheck.Date,FieldCheck.Date,FieldCheck.Date,""        ,""             ,""            ,""            ,""        ,""        ,""           ,""             ,""               ,""         ,""         ,""         ,""          ,""           ,FieldCheck.Date,FieldCheck.Date,""     ,""           ,""        ,FieldCheck.Date,FieldCheck.Date,""         ,""                ,FieldCheck.Date ,""      ,""        ,""            ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""        ,""        ,""        ,""        ,""        ,""        ,""          ,""          ,""               ,""               },
                                                     {"0"               ,"0"            ,"0"       ,"20"     ,"0"        ,"1"     ,"12"       ,"4"           ,"4"              ,"10"           ,"0"            ,"0"            ,"0"            ,"4"       ,"12"           ,"100"         ,"100"         ,"20"      ,"20"      ,"0"          ,"4"            ,"100"            ,"20"       ,"20"       ,"0"        ,"100"       ,"100"        ,"0"            ,"0"            ,"0"    ,"12"         ,"0"       ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"50"        ,"10"        ,"0"              ,"0"              },//最大长度设定,不校验最大长度用0
-                                                    {"0"               ,"0"            ,"0"       ,"0"      ,"0"        ,"0"     ,"1"        ,"0"           ,"0"              ,"0"            ,"0"            ,"0"            ,"0"            ,"0"       ,"0"            ,"0"           ,"0"           ,"0"       ,"0"       ,"0"          ,"0"            ,"0"              ,"0"        ,"0"        ,"0"        ,"0"         ,"0"          ,"0"            ,"0"            ,"0"    ,"0"          ,"0"       ,"0"            ,"0"            ,"0"        ,"0"               ,"0"             ,"0"     ,"0"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"0"         ,"0"              ,"0"              }//最小长度设定,可以为空用0
+                                                    {"0"               ,"0"            ,"0"       ,"0"      ,"0"        ,"0"     ,"1"        ,"0"           ,"0"              ,"0"            ,"0"            ,"0"            ,"0"            ,"0"       ,"0"            ,"0"           ,"0"           ,"0"       ,"0"       ,"0"          ,"0"            ,"0"              ,"0"        ,"0"        ,"0"        ,"0"         ,"0"          ,"0"            ,"0"            ,"0"    ,"0"          ,"0"       ,"0"            ,"0"            ,"0"        ,"0"               ,"0"             ,"0"     ,"0"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"1"         ,"1"              ,"0"              }//最小长度设定,可以为空用0
                                                     
                     };
                 DataTable importDt = new DataTable();
@@ -161,8 +160,6 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
-
-
 
     }
 }

@@ -32,6 +32,8 @@ namespace DataAccess
             {
                 sbr.Append(" AND ISNULL(vcPartNameCn,'') LIKE '" + vcPartNameCn + "%' ");
             }
+
+            sbr.Append(" ORDER BY vcIsLock ");
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
 
@@ -50,10 +52,9 @@ namespace DataAccess
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                        sbr.Append(" UPDATE TPartNameCN SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",dOperatorTime = GETDATE(),vcOperator = '" + strUserId + "' WHERE iAutoId = " + iAutoId + " \r\n");
+                        sbr.Append(" UPDATE TPartNameCN SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",dOperatorTime = GETDATE(),vcOperator = '" + strUserId + "',vcIsLock = '1' WHERE iAutoId = " + iAutoId + "  \r\n");
                         sbr.Append(" UPDATE TUnit SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",vcOperator = '" + strUserId + "',dOperatorTime = GETDATE() ");
-                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
-
+                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "\r\n");
                     }
                     else
                     {
@@ -70,6 +71,8 @@ namespace DataAccess
                         excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                     }
                 }
+
+
             }
             catch (Exception ex)
             {

@@ -39,6 +39,21 @@ namespace Logic
         }
         #endregion
 
+        #region 获取数据字典
+        public DataTable getTCode(string strCodeId)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                return fs0810_DataAccess.getTCode(strCodeId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 检索_品目
         public DataTable Search_PM(string smallpm, string bigpm)
         {

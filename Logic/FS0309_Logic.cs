@@ -194,7 +194,15 @@ namespace Logic
             if (allreceiverDt == null || allreceiverDt.Rows.Count <= 0)       //执行SQL查询，但未检索到任何数据，可能原因：未维护任何收件人邮箱信息
             {
                 strErr = "未维护任何收货方邮箱信息";
+                return;
             }
+
+            List<string> allLists = new List<string>();     //所有的不重复的收件人信息
+            for (int i = 0; i < allreceiverDt.Rows.Count; i++)
+            {
+                allLists.Add(allreceiverDt.Rows[i]["displayName"].ToString());
+            }
+            allLists = allLists.Distinct().ToList();
             #endregion
 
             #region 获取所选择的收件人
@@ -204,14 +212,19 @@ namespace Logic
                 lists.Add(listInfoData[i]["vcReceiver"].ToString());
             }
             lists = lists.Distinct().ToList();
+
+            //判断所选的收件人是否存在，并记录未维护的收件人邮箱
+            for (int i = 0; i < lists.Count; i++)
+            {
+                if (!allLists.Contains(lists[i]))
+                {
+                    strErr += "收件人:" + lists[i].ToString() + "邮箱未维护！";
+                }
+            }
             #endregion
 
             #region 判断所选择的收件人是否在所有已维护收件人中存在
-            List<string> Alllists = new List<string>();
-            for (int i = 0; i < allreceiverDt.Rows.Count; i++)
-            {
-                //Alllists.Add()
-            }
+            
 
             #endregion
 

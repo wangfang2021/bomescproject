@@ -451,11 +451,11 @@ namespace DataAccess
                         DateTime datetime1 = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]);
                         DateTime datetime2 = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]);
                         int iJiuYear = datetime2.Year - datetime1.Year;
-                        sql.Append(",vcJiuYear = '" + iJiuYear + "'" + "   \r\n");
+                        sql.Append(",'" + iJiuYear + "'   \r\n");
                     }
                     else
                     {
-                        sql.Append(",vcJiuYear = null   \r\n");
+                        sql.Append(",null   \r\n");
                     }
                     #endregion
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNXQF"], true) + "     \n");

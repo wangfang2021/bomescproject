@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace DataAccess
 {
-    public class FS0701_DataAccess
+    public class FS0708_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 
@@ -31,53 +31,85 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
+        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string OrderFrom, string OrderTo, string Type, List<Object> OrderState, string IsQianPin, string SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
         {
             try
             {
-
-                if (string.IsNullOrEmpty(dFromB))
+                string strState = string.Join(",", OrderState);
+                if (string.IsNullOrEmpty(dFaZhuFrom))
                 {
-                    dFromB = "1990-01-01 0:00:00";
+                    dFaZhuFrom = "1990-01-01 0:00:00";
 
                 }
 
-                if (string.IsNullOrEmpty(dFromE))
+                if (string.IsNullOrEmpty(dFaZhuTo))
                 {
-                    dFromE = "3000-01-01 0:00:00";
+                    dFaZhuTo = "3000-01-01 0:00:00";
 
                 }
-                if (string.IsNullOrEmpty(dToB))
+                if (string.IsNullOrEmpty(dNaQiFrom))
                 {
-                    dToB = "1990-01-01 0:00:00";
+                    dNaQiFrom = "1990-01-01 0:00:00";
 
                 }
-
-                if (string.IsNullOrEmpty(dToE))
+                if (string.IsNullOrEmpty(dNaQiTo))
                 {
-                    dToE = "3000-01-01 0:00:00";
+                    dFaZhuTo = "3000-01-01 0:00:00";
+
+                }
+                if (string.IsNullOrEmpty(dNaRuFrom))
+                {
+                    dNaQiFrom = "1990-01-01 0:00:00";
+
+                }
+                if (string.IsNullOrEmpty(dNaRuTo))
+                {
+                    dNaRuTo = "3000-01-01 0:00:00";
 
                 }
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
                 strSql.AppendLine("      FROM");
-                strSql.AppendLine("      	TPackBase");
+                strSql.AppendLine("      	TPack_FaZhu_ShiJi");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
-                if (!string.IsNullOrEmpty(strSupplierCode))
+                if (!string.IsNullOrEmpty(SupplierName))
                 {
 
-                    strSql.AppendLine($"      AND vcSupplierCode LIKE '{strSupplierCode}'");
+                    strSql.AppendLine($"      AND vcSupplierCode LIKE '{SupplierName}'");
                 }
                 if (!string.IsNullOrEmpty(PackNo))
+                {
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
+                }
+                   
                 if (!string.IsNullOrEmpty(PackSpot))
+                {
                     strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
-                if (!string.IsNullOrEmpty(PackNo))
+                }
+                if (!string.IsNullOrEmpty(PackGPSNo))
+                {
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
-                strSql.AppendLine($"      AND dPackFrom BETWEEN '{dFromB}' and '{dFromE}'");
-                strSql.AppendLine($"      AND dPackTo BETWEEN '{dToB}' and '{dToE}'");
-
+                }
+                if (!string.IsNullOrEmpty(Type))
+                {
+                    strSql.AppendLine($"      AND vcType = '{Type}'");
+                }
+                if (!string.IsNullOrEmpty(IsQianPin))
+                {
+                    strSql.AppendLine($"      AND isQianPin = '{IsQianPin}'");
+                }
+                if (!string.IsNullOrEmpty(ZuCode))
+                {
+                    strSql.AppendLine($"      AND vcZuCode = '{ZuCode}'");
+                }
+                if (!string.IsNullOrEmpty(strState))
+                {
+                    strSql.AppendLine($"      AND vcState LIKE '%{strState}%'");
+                }
+                strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
+                strSql.AppendLine($"      AND dFaZhuTime BETWEEN '{dFaZhuFrom}' and '{dFaZhuTo}'");
+                strSql.AppendLine($"      AND dNaRuShiJi BETWEEN '{dNaQiFrom}' and '{dNaQiTo}'");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -206,7 +238,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  delete TPackBase where iAutoId in(   \r\n ");
+                sql.Append("  delete TPack_FaZhu_ShiJi where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)

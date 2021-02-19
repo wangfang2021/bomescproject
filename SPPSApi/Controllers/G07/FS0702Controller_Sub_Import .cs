@@ -20,19 +20,19 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G08
+namespace SPPSApi.Controllers.G07
 {
-    [Route("api/FS0810_Sub_StandardTime_Import/[action]")]
+    [Route("api/FS0702_Sub_Import/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0810Controller_Sub_StandardTime_Import : BaseController
+    public class FS0702Controller_Sub_Import : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS0810_Logic fs0810_Logic = new FS0810_Logic();
-        private readonly string FunctionID = "FS0810";
+        FS0702_Logic FS0702_Logic = new FS0702_Logic();
+        private readonly string FunctionID = "FS0702";
 
-        public FS0810Controller_Sub_StandardTime_Import(IWebHostEnvironment webHostEnvironment)
+        public FS0702Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -41,7 +41,7 @@ namespace SPPSApi.Controllers.G08
         #region 导入之后点保存
         [HttpPost]
         [EnableCors("any")]
-        public string importSaveApi([FromBody]dynamic data)
+        public string importSaveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -67,11 +67,10 @@ namespace SPPSApi.Controllers.G08
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"大品目","基准时间(秒)"},
-                                                {"vcBigPM", "vcStandardTime"},
-                                                {"",""},
-                                                {"25","25"},//最大长度设定,不校验最大长度用0
-                                                {"1","1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"变更事项","包装场","收货方","品番","车型", "开始时间", "结束时间","包装材品番","GPS品番","开始时间","结束时间","包装材区分","必要在库天数"},
+                                                {"varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
+                                                {"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Num},
+                                               };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -99,8 +98,9 @@ namespace SPPSApi.Controllers.G08
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
+
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcBigPM") } into g
+                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcPackNo"), r4 = r.Field<string>("vcPackGPSNo") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -109,27 +109,26 @@ namespace SPPSApi.Controllers.G08
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("大品目:" + item.Key.r2 + "<br/>");
+                        sbr.Append("品番:" + item.Key.r2 + " 包材品番:" + item.Key.r3 + " GPS品番:" + item.Key.r4 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                //判断大品目是否存在
-                DataTable dtBigPM = fs0810_Logic.getTCode("C003");
-                for (int i = 0; i < importDt.Rows.Count; i++)
-                {
-                    DataRow[] drs = dtBigPM.Select("vcValue='" + importDt.Rows[i]["vcBigPM"].ToString() + "' ");
-                    if (drs.Length == 0)
-                    {//导入文件中大品目在DB中不存在
+                for (int i=0;i< importDt.Rows.Count;i++) {
+                    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofang"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString());
+                    if (!isok)
+                    {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "大品目：" + importDt.Rows[i]["vcBigPM"].ToString() + " 在系统中不存在。";
+                        apiResult.data = "第"+(i+1)+"行的"+"品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "有误！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
                 }
 
-                fs0810_Logic.importSave_StandardTime(importDt, loginInfo.UserId);
+
+                FS0702_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -139,7 +138,7 @@ namespace SPPSApi.Controllers.G08
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导入基准时间失败" + ex.Message;
+                apiResult.data = "保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

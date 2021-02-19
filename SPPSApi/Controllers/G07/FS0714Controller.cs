@@ -141,17 +141,17 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strChange = dataForm.Change;
-          
+            string PackSpot = dataForm.PackSpot;
+            string PackNo = dataForm.PackNo;
+            string PackGPSNo = dataForm.PackGPSNo;
+            string dFromB = dataForm.dFrom;
+            string dToE = dataForm.dToE;
+
+
             try
             {
-                //DataTable dt = FS0714_Logic.Search();
-                DataTable dt = null;
-                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
-                ,"vcOriginCompany_Name"
+                DataTable dt = FS0714_Logic.Search(PackSpot, PackNo, PackGPSNo, dFromB, dToE); ;
+                string[] fields = { "vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierID","vcXiuZhengFlag","iNumber","dBuJiTime","vcXiuZhengNote"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0714_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
                 if (filepath == "")

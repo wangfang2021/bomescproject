@@ -72,6 +72,16 @@ namespace Logic
         {
             FS0712_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName);
         }
+
+
+        #endregion
+
+
+        #region
+        public DataTable SearchZuoYeQuFen()
+        {
+            return FS0712_DataAccess.SearchZuoYeQuFen();
+        }
         #endregion
 
 

@@ -33,6 +33,44 @@ namespace SPPSApi.Controllers.G08
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //if (loginInfo.Special == "财务用户")
+                //    res.Add("caiWuBtnVisible", false);
+                //else
+                //    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_C058 = ComFunction.convertAllToResult(ComFunction.getTCode("C058"));//收货方
+                res.Add("C058", dataList_C058);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -51,10 +89,11 @@ namespace SPPSApi.Controllers.G08
             string strSellNo = dataForm.vcSellNo;
             string strStartTime = dataForm.StartTime;
             string strEndTime= dataForm.EndTime;
+            string strYinQuType = dataForm.vcYinQuType;
 
             try
             {
-                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime);
+                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime,strYinQuType);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
@@ -91,12 +130,13 @@ namespace SPPSApi.Controllers.G08
             string strSellNo = dataForm.vcSellNo;
             string strStartTime = dataForm.StartTime;
             string strEndTime = dataForm.EndTime;
+            string strYinQuType = dataForm.vcYinQuType;
 
             try
             {
-                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime);
-                string[] heads = { "便次", "销售单号", "卡车号", "生成时间"};
-                string[] fields = { "vcBianCi", "vcSellNo", "vcTruckNo", "dOperatorTime"};
+                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime, strYinQuType);
+                string[] heads = { "引取类别","便次", "销售单号", "卡车号", "生成时间","传送人"};
+                string[] fields = { "vcYinQuTypeName","vcBianCi", "vcSellNo", "vcTruckNo", "dOperatorTime", "vcSender" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")

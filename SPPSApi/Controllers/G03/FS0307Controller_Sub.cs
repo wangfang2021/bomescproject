@@ -113,13 +113,13 @@ namespace SPPSApi.Controllers.G03
 
                 if (!strMsg.Equals("账票展开成功。"))
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = strMsg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "账票展开成功。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

@@ -39,6 +39,7 @@ namespace DataAccess
                     OriginCompany = "";
                     foreach (string str in vcOriginCompany)
                     {
+
                         if (!string.IsNullOrWhiteSpace(OriginCompany))
                         {
                             OriginCompany += ",";
@@ -47,7 +48,36 @@ namespace DataAccess
                         OriginCompany += "'" + str + "'";
                     }
                 }
+                sbr.Append(" SELECT vcOriginCompany,COUNT(*) AS num FROM TOldYearManager WHERE vcYear =SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4) AND vcOriginCompany IN (" + OriginCompany + ") GROUP BY vcOriginCompany ");
+                DataTable tmp = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                sbr.Length = 0;
+                Hashtable tmp1 = new Hashtable();
+                for (int i = 0; i < tmp.Rows.Count; i++)
+                {
+                    tmp1.Add(tmp.Rows[i]["vcOriginCompany"].ToString(), tmp.Rows[i]["num"].ToString());
+                }
 
+                if (vcOriginCompany.Count > 0)
+                {
+                    OriginCompany = "";
+                    foreach (string str in vcOriginCompany)
+                    {
+                        if (!tmp1.Contains(str))
+                        {
+                            if (!string.IsNullOrWhiteSpace(OriginCompany))
+                            {
+                                OriginCompany += ",";
+                            }
+
+                            OriginCompany += "'" + str + "'";
+                        }
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(OriginCompany))
+                {
+                    OriginCompany = "''";
+                }
                 sbr.Append("  DECLARE @Year VARCHAR(4);  \r\n");
                 sbr.Append("  DECLARE @7Year VARCHAR(4);  \r\n");
                 sbr.Append("  DECLARE @9Year VARCHAR(4);  \r\n");
@@ -76,10 +106,10 @@ namespace DataAccess
                 sbr.Append("  INTO #temp  \r\n");
                 sbr.Append("  FROM TUnit  \r\n");
                 //sbr.Append("  WHERE vcChange IN (SELECT vcValue FROM TCode WHERE vcName like'%旧型%' AND vcCodeId='C002') AND vcOriginCompany in (" + OriginCompany + ") AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ;  \r\n");
-                sbr.Append("  WHERE vcOriginCompany in (" + OriginCompany + ") AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ;  \r\n");
+                sbr.Append("  WHERE vcOriginCompany in (" + OriginCompany + ") AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE();  \r\n");
 
-                sbr.Append("  INSERT INTO TOldYearManager(vcYear, vcFinish,dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7,vcNXQF, vcOperatorID, dOperatorTime,vcSYTCode,vcReceiver,vcOriginCompany)  \r\n");
-                sbr.Append("  SELECT @Year AS vcYear, '0' AS vcFinish,GETDATE() AS dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, CASE vcNXQF WHEN '继续生产' THEN '往年持续生产' ELSE '' END AS vcRemark, vcOld10, vcOld9, vcOld7, vcNXQF,'" + strUserId + "' AS vcOperatorID, GETDATE() AS dOperatorTime,vcSYTCode,vcReceiver,vcOriginCompany  \r\n");
+                sbr.Append("  INSERT INTO TOldYearManager(vcYear, vcFinish,dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7, vcOperatorID, dOperatorTime,vcSYTCode,vcReceiver,vcOriginCompany,vcIsLock)  \r\n");
+                sbr.Append("  SELECT @Year AS vcYear, '0' AS vcFinish,GETDATE() AS dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, CASE vcNXQF WHEN '继续生产' THEN '往年持续生产' ELSE '' END AS vcRemark, vcOld10, vcOld9, vcOld7,'" + strUserId + "' AS vcOperatorID, GETDATE() AS dOperatorTime,vcSYTCode,vcReceiver,vcOriginCompany,'0' as vcIsLock  \r\n");
                 sbr.Append("  FROM(SELECT vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcNXQF, vcCarTypeDev, dJiuBegin, '1' AS vcOld7, '0' AS vcOld9, '0' AS vcOld10,vcSYTCode,vcReceiver,vcOriginCompany  \r\n");
                 sbr.Append("       FROM #temp  \r\n");
                 sbr.Append("       WHERE CONVERT(VARCHAR(12), dJiuBegin, 111)>=@7B AND CONVERT(VARCHAR(12), dJiuBegin, 111)<=@7E  \r\n");
@@ -99,8 +129,23 @@ namespace DataAccess
                 excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
 
                 sbr.Length = 0;
+
+                if (vcOriginCompany.Count > 0)
+                {
+                    OriginCompany = "";
+                    foreach (string str in vcOriginCompany)
+                    {
+
+                        if (!string.IsNullOrWhiteSpace(OriginCompany))
+                        {
+                            OriginCompany += ",";
+                        }
+
+                        OriginCompany += "'" + str + "'";
+                    }
+                }
                 sbr.Append(" SELECT vcOriginCompany,COUNT(*) AS num FROM TOldYearManager WHERE vcYear =SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4) AND vcOriginCompany IN (" + OriginCompany + ") GROUP BY vcOriginCompany ");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
 
                 Hashtable table = new Hashtable();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -128,22 +173,40 @@ namespace DataAccess
                 throw ex;
             }
         }
+
         //FTMS层别
         public void FTMSCB(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
+                List<int> idList = FTMSId();
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" UPDATE TOldYearManager SET vcFinish = '1',dFinishYMD = GETDATE(),vcOperatorID = '" + strUserId + "',dOperatorTime = GETDATE() WHERE iAuto_Id IN (  \r\n ");
+
+                string id = "";
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (i != 0)
-                        sql.Append(",");
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAuto_id"]);
-                    sql.Append(iAutoId);
+
+                    if (idList.Contains(iAutoId))
+                    {
+                        if (!string.IsNullOrWhiteSpace(id))
+                            id += ",";
+                        id += iAutoId;
+                    }
                 }
-                sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    sql.Append(" UPDATE TOldYearManager SET vcFinish = '1',dFinishYMD = GETDATE(),vcOperatorID = '" + strUserId + "',dOperatorTime = GETDATE() WHERE iAuto_Id IN (  \r\n ");
+                    sql.Append(id);
+                    sql.Append("  )   \r\n ");
+
+                    sql.Append("  INSERT INTO TOldYearManager_FTMS(vcYear, vcFinish, dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7, vcNum1, vcNum2, vcNum3, vcNXQF, dSSDate, vcDY, vcNum11, vcNum12, vcNum13, vcNum14, vcNum15, vcNum16, vcNum17, vcNum18, vcNum19, vcNum20, vcNum21, vcSYTCode, vcReceiver, vcOriginCompany, vcOperatorID, dOperatorTime,vcIsLock) \r\n");
+                    sql.Append("(SELECT vcYear, vcFinish, dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7, vcNum1, vcNum2, vcNum3, vcNXQF, dSSDate, vcDY, vcNum11, vcNum12, vcNum13, vcNum14, vcNum15, vcNum16, vcNum17, vcNum18, vcNum19, vcNum20, vcNum21, vcSYTCode, vcReceiver, vcOriginCompany, vcOperatorID, dOperatorTime,'0' as vcIsLock FROM TOldYearManager WHERE iAuto_id IN (" + id + ")) \r\n");
+
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+                }
+
             }
             catch (Exception ex)
             {
@@ -151,7 +214,7 @@ namespace DataAccess
             }
         }
         //检索
-        public DataTable searchApi(string strYear, string FinishFlag)
+        public DataTable searchApi(string strYear, string FinishFlag, string OriginCompany)
         {
             try
             {
@@ -169,6 +232,18 @@ namespace DataAccess
                 //        OriginCompany += "'" + str + "'";
                 //    }
                 //}
+
+                int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
+                string tmp = "";
+                for (int i = 0; i < arrInt.Length; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(tmp))
+                    {
+                        tmp += ",";
+                    }
+                    tmp += "'" + arrInt[i].ToString() + "'";
+                }
+
                 StringBuilder sbr = new StringBuilder();
 
                 sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,e.vcName AS vcSYTCode,f.vcName AS vcReceiver,g.vcName AS vcOriginCompany,   \r\n");
@@ -176,7 +251,8 @@ namespace DataAccess
                 sbr.Append("  case a.vcOld10 when '0' then '' when '1' then '●' else '' end as vcOld10, \r\n");
                 sbr.Append("  case a.vcOld9 when '0' then '' when '1' then '●' else '' end as vcOld9, \r\n");
                 sbr.Append("  case a.vcOld7 when '0' then '' when '1' then '●' else '' end as vcOld7, \r\n");
-                sbr.Append("  c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3,  CAST((CAST((CASE isnull(A.vcNum1,'') WHEN '' THEN '0' ELSE A.vcNum1 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum2,'') WHEN '' THEN '0'  ELSE A.vcNum2 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum3,'') WHEN '' THEN '0'  ELSE A.vcNum3 END ) as decimal(18,2)))/3 AS decimal(18,2)) AS vcNumAvg, a.vcNXQF,  \r\n");
+                //sbr.Append("  c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3,  CAST((CAST((CASE isnull(A.vcNum1,'') WHEN '' THEN '0' ELSE A.vcNum1 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum2,'') WHEN '' THEN '0'  ELSE A.vcNum2 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum3,'') WHEN '' THEN '0'  ELSE A.vcNum3 END ) as decimal(18,2)))/3 AS decimal(18,2)) AS vcNumAvg, a.vcNXQF,  \r\n");
+                sbr.Append("  c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3,  a.vcNumAvg, a.vcNXQF,  \r\n");
                 sbr.Append(" a.dSSDate, a.vcDY, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 \r\n");
                 sbr.Append(" FROM TOldYearManager a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C024') b ON a.vcFinish = b.vcValue \r\n");
@@ -187,6 +263,8 @@ namespace DataAccess
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
+                sbr.Append(" AND a.vcOriginCompany in (" + tmp + ") \r\n");
+
                 if (!string.IsNullOrWhiteSpace(strYear))
                 {
                     sbr.Append(" AND a.vcYear = '" + strYear + "' \r\n");
@@ -203,11 +281,6 @@ namespace DataAccess
                 //{
                 //    sbr.Append(" AND a.vcReceiver = '" + Receiver + "' \r\n");
                 //}
-                //if (!string.IsNullOrWhiteSpace(OriginCompany))
-                //{
-                //    sbr.Append(" AND a.vcOriginCompany in (" + OriginCompany + ") \r\n");
-                //}
-
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
@@ -308,6 +381,8 @@ namespace DataAccess
                     sql.Append(" vcNum19=" + ComFunction.getSqlValue(dt.Rows[i]["vcNum19"], false) + ", \r\n");
                     sql.Append(" vcNum20=" + ComFunction.getSqlValue(dt.Rows[i]["vcNum20"], false) + ", \r\n");
                     sql.Append(" vcNum21=" + ComFunction.getSqlValue(dt.Rows[i]["vcNum21"], false) + ", \r\n");
+                    sql.Append(" vcNumAvg=" + ComFunction.getSqlValue(dt.Rows[i]["vcNumAvg"], false) + ", \r\n");
+                    sql.Append(" vcRemark=" + ComFunction.getSqlValue(dt.Rows[i]["vcRemark"], false) + ", \r\n");
                     sql.Append(" vcOperatorID='" + strUserId + "', \r\n");
                     sql.Append(" dOperatorTime = GETDATE() \r\n");
                     sql.Append(" WHERE \r\n");
@@ -422,6 +497,7 @@ namespace DataAccess
                         sql.Append(" vcNum1 = " + ComFunction.getSqlValue(list[i]["vcNum1"], false) + ", \r\n");
                         sql.Append(" vcNum2 = " + ComFunction.getSqlValue(list[i]["vcNum2"], false) + ", \r\n");
                         sql.Append(" vcNum3 = " + ComFunction.getSqlValue(list[i]["vcNum3"], false) + ", \r\n");
+                        sql.Append(" vcNumAvg = " + ComFunction.getSqlValue(list[i]["vcNumAvg"], false) + ", \r\n");
                         sql.Append(" vcNXQF = " + ComFunction.getSqlValue(list[i]["vcNXQF"], false) + ", \r\n");
                         sql.Append(" dSSDate = " + ComFunction.getSqlValue(list[i]["dSSDate"], true) + ", \r\n");
                         sql.Append(" vcDY = " + ComFunction.getSqlValue(list[i]["vcDY"], false) + ", \r\n");
@@ -436,6 +512,7 @@ namespace DataAccess
                         sql.Append(" vcNum19=" + ComFunction.getSqlValue(list[i]["vcNum19"], false) + ", \r\n");
                         sql.Append(" vcNum20=" + ComFunction.getSqlValue(list[i]["vcNum20"], false) + ", \r\n");
                         sql.Append(" vcNum21=" + ComFunction.getSqlValue(list[i]["vcNum21"], false) + ", \r\n");
+                        sql.Append(" vcRemark=" + ComFunction.getSqlValue(list[i]["vcRemark"], false) + ", \r\n");
                         sql.Append(" vcOperatorID='" + strUserId + "', \r\n");
                         sql.Append(" dOperatorTime = GETDATE() \r\n");
                         sql.Append(" WHERE \r\n");
@@ -474,7 +551,7 @@ namespace DataAccess
 
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" UPDATE TOldYearManager SET vcFinish = '3',dFinishYMD = GETDATE(),vcOperatorID = '" + strUserId + "',dOperatorTime = GETDATE() \r\n");
-                sbr.Append(" WHERE iAuto_id in ( " + id + " ) \r\n");
+                sbr.Append(" WHERE iAuto_id in ( " + id + " ) AND vcFinish <> '4' \r\n");
 
                 excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
             }
@@ -533,43 +610,54 @@ namespace DataAccess
         }
 
         //织入原单位
-        public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string Msg)
         {
             try
             {
+                DataTable dt = getChange();
+
                 StringBuilder sbr = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAuto_id"]);
                     string vcNXQF = listInfoData[i]["vcNXQF"].ToString();
-
-                    sbr.AppendLine("UPDATE TUnit SET ");
-                    sbr.AppendLine("vcNXQF = " + ComFunction.getSqlValue(listInfoData[i]["vcNXQF"], false) + ", ");
-                    sbr.AppendLine("vcNum11 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum11"], false) + ", ");
-                    sbr.AppendLine("vcNum12 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum12"], false) + ", ");
-                    sbr.AppendLine("vcNum13 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum13"], false) + ", ");
-                    sbr.AppendLine("vcNum14 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum14"], false) + ", ");
-                    sbr.AppendLine("vcNum15 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum15"], false) + ", ");
-                    sbr.AppendLine("vcChange = '8', ");
-                    sbr.AppendLine("dSSDate = " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + ",");
-                    if (vcNXQF.Equals("一括生产") || vcNXQF.Equals("生产打切"))
+                    string change = getValue(dt, vcNXQF);
+                    if (!string.IsNullOrWhiteSpace(change))
                     {
-                        sbr.AppendLine("vcDiff = '4', ");
+                        sbr.AppendLine("UPDATE TUnit SET ");
+                        sbr.AppendLine("vcNXQF = " + ComFunction.getSqlValue(listInfoData[i]["vcNXQF"], false) + ", ");
+                        sbr.AppendLine("vcNum11 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum11"], false) + ", ");
+                        sbr.AppendLine("vcNum12 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum12"], false) + ", ");
+                        sbr.AppendLine("vcNum13 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum13"], false) + ", ");
+                        sbr.AppendLine("vcNum14 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum14"], false) + ", ");
+                        sbr.AppendLine("vcNum15 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum15"], false) + ", ");
+                        sbr.AppendLine("vcChange = '" + change + "', ");
+                        sbr.AppendLine("dSSDate = " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + ",");
+                        if (vcNXQF.Equals("生产打切"))
+                        {
+                            sbr.AppendLine("vcDiff = '4', ");
+                            sbr.AppendLine("dTimeTo = DATEADD(dd,-1," + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "), ");
+                        }
+                        //sbr.AppendLine("vcMeno = isnull(vcMeno,'')+'年限区分;' , \r\n");
+                        sbr.AppendLine("vcOperator = '" + strUserId + "', ");
+                        sbr.AppendLine("dOperatorTime = GETDATE()");
+                        sbr.AppendLine("WHERE ");
+                        sbr.AppendLine("vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "");
+                        sbr.AppendLine("AND vcReceiver = " + ComFunction.getSqlValue(getValue("C005", ObjToString(listInfoData[i]["vcReceiver"])), false) + " ");
+                        sbr.AppendLine("AND vcSYTCode = " + ComFunction.getSqlValue(getValue("C016", ObjToString(listInfoData[i]["vcSYTCode"])), false) + " ");
+                        sbr.AppendLine("AND vcOriginCompany = " + ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcOriginCompany"])), false) + " ");
+                        sbr.AppendLine("AND vcSupplier_id = " + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + " ");
+                        sbr.AppendLine("AND vcCarTypeDev = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + " ");
+                        sbr.AppendLine("AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
+
+                        sbr.AppendLine(" UPDATE TOldYearManager SET vcFinish = '4' WHERE iAuto_id = " + iAutoId + " ");
                     }
-                    sbr.AppendLine("vcMeno = isnull(vcMeno,'')+'年限区分;' , \r\n");
-                    sbr.AppendLine("vcOperator = '" + strUserId + "', ");
-                    sbr.AppendLine("dOperatorTime = GETDATE()");
-                    sbr.AppendLine("WHERE ");
-                    sbr.AppendLine("vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "");
-                    sbr.AppendLine("AND vcReceiver = " + ComFunction.getSqlValue(getValue("C005", ObjToString(listInfoData[i]["vcReceiver"])), false) + " ");
-                    sbr.AppendLine("AND vcSYTCode = " + ComFunction.getSqlValue(getValue("C016", ObjToString(listInfoData[i]["vcSYTCode"])), false) + " ");
-                    sbr.AppendLine("AND vcOriginCompany = " + ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcOriginCompany"])), false) + " ");
-                    sbr.AppendLine("AND vcSupplier_id = " + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + " ");
-                    sbr.AppendLine("AND vcCarTypeDev = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + " ");
-                    sbr.AppendLine("AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
-
-                    sbr.AppendLine(" UPDATE TOldYearManager SET vcFinish = '4' WHERE iAuto_id = " + iAutoId + " ");
-
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(Msg))
+                            Msg += ",";
+                        Msg += listInfoData[i]["vcPart_id"];
+                    }
                 }
 
                 if (sbr.Length > 0)
@@ -640,7 +728,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = '" + CodeId + "'");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(),"TK");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -670,6 +758,69 @@ namespace DataAccess
 
         #endregion
 
-      
+        #region 获取可进行FTMS层别的id
+
+        public List<int> FTMSId()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.Append("SELECT iAuto_id FROM TOldYearManager WHERE  vcFinish = '0' AND vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                List<int> list = new List<int>();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    list.Add(Convert.ToInt32(dt.Rows[i]["iAuto_id"]));
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        public DataTable getChange()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.Append(" SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C002' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getCompany(string OriginCompany)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
+                string tmp = "";
+                for (int i = 0; i < arrInt.Length; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(tmp))
+                    {
+                        tmp += ",";
+                    }
+                    tmp += "'" + arrInt[i].ToString() + "'";
+                }
+
+                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' AND vcValue IN (" + tmp + ")");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

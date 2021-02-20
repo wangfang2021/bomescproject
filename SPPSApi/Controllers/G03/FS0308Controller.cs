@@ -212,12 +212,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","实施时间","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
-                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
-                                                {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num },
+                    string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年","平均"},
+                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21","vcNumAvg"},
+                                                {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.NumChar },
                                                 {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
-                                                {"2","14","15","16","18","19","21","22","23","24","25","26","27","28","29","30","31"}//前台显示列号，从0开始计算,注意有选择框的是0
+                                                {"1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
+                                                {"2","14","15","16","18","21","22","23","24","25","26","27","28","29","30","31","17"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };

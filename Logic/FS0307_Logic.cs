@@ -45,13 +45,18 @@ namespace Logic
             return res;
         }
 
+        public DataTable getCompany(string OriginCompany)
+        {
+            return fs0307_dataAccess.getCompany(OriginCompany);
+        }
+
         #endregion
 
         #region 检索
 
-        public DataTable searchApi(string strYear, string FinishFlag)
+        public DataTable searchApi(string strYear, string FinishFlag, string OriginCompany)
         {
-            return fs0307_dataAccess.searchApi(strYear, FinishFlag);
+            return fs0307_dataAccess.searchApi(strYear, FinishFlag, OriginCompany);
         }
 
         #endregion
@@ -225,7 +230,7 @@ namespace Logic
                     receiverDt.Columns.Add("address");
                     receiverDt.Columns.Add("displayName");
 
-                    DataRow[] dr = dtEmail.Select("vcSupplier_id = " + list[i].supplierId + "");
+                    DataRow[] dr = dtEmail.Select("vcSupplier_id = '" + list[i].supplierId + "'");
 
                     for (int j = 0; j < dr.Length; j++)
                     {
@@ -237,7 +242,7 @@ namespace Logic
 
                     DataTable cCDt = null;
 
-                    string strSubject = "供应商账票发行。";
+                    string strSubject = "旧型年限制度联络单。";
 
                     string result = ComFunction.SendEmailInfo(Email, unit, emailBody, receiverDt, cCDt, strSubject, file, true);
 
@@ -245,7 +250,7 @@ namespace Logic
                     //失败记录失败供应商
                     if (result.Equals("Error"))
                     {
-                        if (string.IsNullOrWhiteSpace(errorList))
+                        if (!string.IsNullOrWhiteSpace(errorList))
                         {
                             errorList += ";";
                         }
@@ -303,9 +308,9 @@ namespace Logic
 
         #region 织入原单位
 
-        public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string Msg)
         {
-            fs0307_dataAccess.InsertUnitApi(listInfoData, strUserId);
+            fs0307_dataAccess.InsertUnitApi(listInfoData, strUserId, ref Msg);
         }
 
         #endregion

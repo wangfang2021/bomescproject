@@ -60,8 +60,8 @@ namespace DataAccess
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     string vcSPINo = dt.Rows[i]["vcSPINo"].ToString().Trim();
-                    string vcPart_Id_old = dt.Rows[i]["vcPart_Id_old"].ToString().Replace("-", "").Trim();
-                    string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString().Replace("-", "").Trim();
+                    string vcPart_Id_old = dt.Rows[i]["vcPart_Id_old"].ToString();
+                    string vcPart_Id_new = dt.Rows[i]["vcPart_Id_new"].ToString();
                     string vcBJDiff = dt.Rows[i]["vcBJDiff"].ToString();
                     string vcDTDiff = dt.Rows[i]["vcDTDiff"].ToString();
                     string vcPart_id_DT = dt.Rows[i]["vcPart_id_DT"].ToString();

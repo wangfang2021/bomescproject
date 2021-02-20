@@ -157,7 +157,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbrDiff = new StringBuilder();
-                sbrDiff.AppendLine("SELECT vcPart_id,vcDiff FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE()");
+                sbrDiff.AppendLine("SELECT vcPart_id,vcDiff FROM TUnit ");
                 sbrDiff.AppendLine("ORDER BY vcPart_id,");
                 sbrDiff.AppendLine("CASE vcDiff ");
                 sbrDiff.AppendLine("	WHEN '1' then 1");
@@ -290,7 +290,7 @@ namespace DataAccess
                             //Add,TODO 工程结束时间
                             sbr.Append(" a.vcBJDiff = b.vcBJDiff, \r\n");
                             sbr.Append(" a.vcPartReplace = b.vcPart_id_DT, \r\n");
-                            sbr.Append(" a.dGYSTimeTo = b.vcStartYearMonth, ");
+                            //sbr.Append(" a.dGYSTimeTo = b.vcStartYearMonth, ");
                             //
                             sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
                             sbr.Append(" a.dOperatorTime = GETDATE() \r\n");

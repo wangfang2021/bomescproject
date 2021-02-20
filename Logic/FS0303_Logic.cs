@@ -178,11 +178,11 @@ namespace Logic
                             string strValue = fs0303_DataAccess.Name2Value(item.strCodeid, strName, true);
                             #endregion
 
-                            if (!item.isNull && strValue == null)
-                            {
-                                strErr = "编辑行中第" + (i + 1) + "行" + item.strTitle + "不能为空";
-                                return null;
-                            }
+                            //if (!item.isNull && strValue == null)
+                            //{
+                            //    strErr = "编辑行中第" + (i + 1) + "行" + item.strTitle + "不能为空";
+                            //    return null;
+                            //}
                             #region 更新Key对应的值
                             listData[i][item.strHeader] = strValue;
                             #endregion

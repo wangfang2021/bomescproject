@@ -210,7 +210,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcNum13"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcNum14"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcNum15"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + ",   \r\n");
+                        sql.Append(@""+ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + ",   \r\n");
                         sql.Append("'" + strUserId + "',     \r\n");
@@ -293,7 +293,7 @@ namespace DataAccess
                         sql.Append("      ,vcNum13 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum13"], false) + "      \r\n");
                         sql.Append("      ,vcNum14 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum14"], false) + "      \r\n");
                         sql.Append("      ,vcNum15 = " + ComFunction.getSqlValue(listInfoData[i]["vcNum15"], false) + "      \r\n");
-                        sql.Append("      ,vcZXBZNo = " + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "      \r\n");
+                        sql.Append(@"      ,vcZXBZNo = " + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "      \r\n");
                         sql.Append("      ,vcReceiver = " + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "      \r\n");
                         sql.Append("      ,vcOriginCompany = " + ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + "      \r\n");
                         sql.Append("      ,vcOperator = '" + strUserId + "'      \r\n");
@@ -478,7 +478,7 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum13"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum14"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum15"], true) + "      \n");
-                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcZXBZNo"], true) + "       \n");
+                    sql.Append(@"      ," + ComFunction.getSqlValue(dt.Rows[i]["vcZXBZNo"], true) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcReceiver_Name"], true) + "     \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcOriginCompany_Name"], true) + "     \n");
                     sql.Append("      ,'" + strUserId + "'      \n");
@@ -496,7 +496,6 @@ namespace DataAccess
                 sql.Append("      ,vcSPINo=b.vcSPINo          \n");
                 sql.Append("      ,vcSQState=b.vcSQState          \n");
                 sql.Append("      ,vcDiff=b.vcDiff          \n");
-                //sql.Append("      ,vcPart_id=b.vcPart_id          \n");品番不能改
                 sql.Append("      ,vcCarTypeDev=b.vcCarTypeDev          \n");
                 sql.Append("      ,vcCarTypeDesign=b.vcCarTypeDesign          \n");
                 sql.Append("      ,vcCarTypeName=b.vcCarTypeName          \n");

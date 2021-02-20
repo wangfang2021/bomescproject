@@ -559,7 +559,7 @@ namespace SPPSApi.Controllers.G03
 
                 string strErr = "";
                 fs0303_Logic.sqSend(listInfoData, strSqDate, loginInfo.UserId,loginInfo.Email,loginInfo.UserName,ref strErr);
-                if (strErr!=null)
+                if (strErr!="")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strErr;

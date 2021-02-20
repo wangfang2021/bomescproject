@@ -190,14 +190,15 @@ namespace Logic
              *           4、如果都存在，获取收件人邮箱，继续执行销售展开操作
              */
             #region 获取所有维护的收件人信息
+            //获取数据库中所有已经维护的收件人信息（收件人、邮箱）
             DataTable allreceiverDt = fs0309_DataAccess.getreceiverDt();
             if (allreceiverDt == null || allreceiverDt.Rows.Count <= 0)       //执行SQL查询，但未检索到任何数据，可能原因：未维护任何收件人邮箱信息
             {
                 strErr = "未维护任何收货方邮箱信息";
                 return;
             }
-
-            List<string> allLists = new List<string>();     //所有的不重复的收件人信息
+            //获取数据库中所有已经维护的收件人信息（收件人）
+            List<string> allLists = new List<string>();
             for (int i = 0; i < allreceiverDt.Rows.Count; i++)
             {
                 allLists.Add(allreceiverDt.Rows[i]["displayName"].ToString());
@@ -206,6 +207,7 @@ namespace Logic
             #endregion
 
             #region 获取所选择的收件人
+            //界面中用户勾选的收件人
             List<string> lists = new List<string>();
             for (int i = 0; i < listInfoData.Count; i++)
             {
@@ -221,10 +223,15 @@ namespace Logic
                     strErr += "收件人:" + lists[i].ToString() + "邮箱未维护！";
                 }
             }
+            if (string.IsNullOrEmpty(strErr))
+            {
+                return;
+            }
             #endregion
 
-            #region 判断所选择的收件人是否在所有已维护收件人中存在
-            
+            #region 获取用户勾选的收件人的邮箱
+            DataTable areceiverDt = allreceiverDt.Clone();
+            allreceiverDt.Select("displayName=''");
 
             #endregion
 

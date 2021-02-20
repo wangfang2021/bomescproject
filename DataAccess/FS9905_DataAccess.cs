@@ -88,7 +88,7 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcPart_id like '" + strPart_id + "%'       ");
                 }
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -128,7 +128,7 @@ namespace DataAccess
                 }
                 if (sqlStr.Length>0)
                 {
-                    excute.CommonExcuteNonQuery(sqlStr.ToString());
+                    excute.CommonExcuteNonQuery(sqlStr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -161,7 +161,7 @@ namespace DataAccess
                     sql.Append("      dOperatorTime = GETDATE()      \n");
                     sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -208,7 +208,7 @@ namespace DataAccess
                     sql.AppendLine("      where iAutoId = '" + iAutoId + "'      \n");
                     sql.AppendLine("       and vcJD in ('1','3')         ");
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {

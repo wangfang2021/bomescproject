@@ -95,7 +95,7 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcSupplier_id like '"+ strSupplier_id + "%'   ");
                 }
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
             {
@@ -150,7 +150,7 @@ namespace DataAccess
                         sql.Append("       and vcJD not in ('3')          ");
                     }
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -174,7 +174,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -203,7 +203,7 @@ namespace DataAccess
                     sql.Append("      ,dOperatorTime = GETDATE()      \n");
                     sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -230,7 +230,7 @@ namespace DataAccess
                     sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
                     sql.Append("      and vcJD != '3'      \n");
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -445,7 +445,7 @@ namespace DataAccess
                 #endregion
                 if (sql.Length>0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -462,7 +462,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='" + strSupplierId + "'   \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -478,7 +478,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("    select vcTitle,vcContent from TMailMessageSetting where vcUserId='" + strUserId + "' and vcChildFunID = 'FS0304'  \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
             {

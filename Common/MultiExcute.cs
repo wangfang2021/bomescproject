@@ -1073,6 +1073,55 @@ namespace Common
             }
         }
         #endregion
+        #region 带事务,执行SQL语句,返回int
+        /// <summary>
+        /// 返回int
+        /// </summary>
+        public int CommonExcuteNonQuery(string strSQL,string vcSYTCode)
+        {
+            SqlTransaction MyTran = null;
+            SqlCommand cmd = null;
+            try
+            {
+                DataTable newDt = new DataTable();
+
+                Sqlcon = GetConnect(vcSYTCode);
+                Sqlcon.Open();
+                MyTran = Sqlcon.BeginTransaction();
+                cmd = new SqlCommand(strSQL, Sqlcon);
+                cmd.CommandTimeout = 0;
+                cmd.Transaction = MyTran;
+
+                Int32 rowsAffected = 0;
+                rowsAffected = cmd.ExecuteNonQuery();
+                MyTran.Commit();
+                return rowsAffected;
+
+            }
+            catch (Exception ex)
+            {
+                if (MyTran != null)
+                {
+                    MyTran.Rollback();
+                }
+                throw ex;
+            }
+            finally
+            {
+                if (ConnectionState.Open == Sqlcon.State)
+                {
+                    Sqlcon.Close();
+                    Sqlcon = null;
+                }
+
+                MyTran.Dispose();
+                MyTran = null;
+
+                cmd.Dispose();
+                cmd = null;
+            }
+        }
+        #endregion
 
     }
 }

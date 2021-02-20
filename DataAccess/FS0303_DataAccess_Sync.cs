@@ -236,7 +236,7 @@ namespace DataAccess
             {
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string iAuto = listInfoData[i]["iAuto"].ToString();
+                    string iAuto = listInfoData[i]["iAutoId"].ToString();
                     strSql.AppendLine("      update TUnit set dNqDate = '"+strNqDate+"' where iAutoId = '"+iAuto+"'       \n");
                 }
                 return strSql;
@@ -372,11 +372,11 @@ namespace DataAccess
                  * 内容描述：获取一个临时表，先判断临时表是否存在，如果存在，则删除；再创建临时表。
                  *           此临时表与原表结构相同，作为局部临时表存在,表里无数据
                  */
-                strSql.Append("        if object_id('tempdb..#" + tempTableName + "') is not null        \r\n");
+                strSql.Append("        if object_id('tempdb.." + tempTableName + "') is not null        \r\n");
                 strSql.Append("        begin         \r\n");
-                strSql.Append("        drop table #" + tempTableName + "        \r\n");
+                strSql.Append("        drop table " + tempTableName + "        \r\n");
                 strSql.Append("        end        \r\n");
-                strSql.Append("        select * into #" + tempTableName + " from         \r\n");
+                strSql.Append("        select * into " + tempTableName + " from         \r\n");
                 strSql.Append("        (        \r\n");
                 strSql.Append("        select * from " + TableName + " where 1=0        \r\n");
                 strSql.Append("        ) a ;       \r\n");

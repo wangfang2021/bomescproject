@@ -201,7 +201,7 @@ namespace Logic
                         string strTzhSOQN2 = dataTable.Rows[i]["iTzhSOQN2"].ToString() == "" ? "0" : dataTable.Rows[i]["iTzhSOQN2"].ToString();
                         string strExpectTime = fs0603_DataAccess.setNullValue(dExpectTime, "", "");
                         string strInputType = "company";
-                        if (strDyState == "0" && (strHyState == "0" || strHyState == "3"))
+                        if ((strDyState == "0"|| strDyState == "2"|| strDyState == "3") && (strHyState == "0" || strHyState == "3"))
                         {
                             DataRow drImport = dtImport.NewRow();
                             drImport["vcYearMonth"] = strYearMonth;
@@ -227,7 +227,8 @@ namespace Logic
                     int count = dtImport.Rows.Count;
                     for (int i = count - 1; i >= 0; i--)
                     {
-                        if (!(dtImport.Rows[i]["vcDyState"].ToString() == "0" && (dtImport.Rows[i]["vcHyState"].ToString() == "0" || dtImport.Rows[i]["vcHyState"].ToString() == "3")))
+                        if (!((dtImport.Rows[i]["vcDyState"].ToString() == "0"|| dtImport.Rows[i]["vcDyState"].ToString() == "2"|| dtImport.Rows[i]["vcDyState"].ToString() == "3")
+                            && (dtImport.Rows[i]["vcHyState"].ToString() == "0" || dtImport.Rows[i]["vcHyState"].ToString() == "3")))
                             dtImport.Rows.RemoveAt(i);
                     }
                 }
@@ -238,10 +239,15 @@ namespace Logic
                     dtMessage.Rows.Add(dataRow);
                     bReault = false;
                 }
-                string sYearMonth = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").ToString("yyyyMM");
-                string sYearMonth1 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(1).ToString("yyyyMM");
-                string sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(2).ToString("yyyyMM");
-
+                string sYearMonth = "";
+                string sYearMonth1 = "";
+                string sYearMonth2 = "";
+                if (dtImport.Rows.Count != 0)
+                {
+                    sYearMonth = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").ToString("yyyyMM");
+                    sYearMonth1 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(1).ToString("yyyyMM");
+                    sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(2).ToString("yyyyMM");
+                }
                 dtImport = checkSaveInfo(dtImport, sYearMonth, sYearMonth1, sYearMonth2,
                      strOperId, strPackingPlant, strReceiver, ref bReault, ref dtMessage);
                 return dtImport;
@@ -447,12 +453,15 @@ namespace Logic
                     bReault = false;
                 }
 
-                string sYearMonth = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").ToString("yyyyMM");
-                string sYearMonth1 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(1).ToString("yyyyMM");
-                string sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(2).ToString("yyyyMM");
-
-
-
+                string sYearMonth = "";
+                string sYearMonth1 = "";
+                string sYearMonth2 = "";
+                if (dtImport.Rows.Count != 0)
+                {
+                    sYearMonth = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").ToString("yyyyMM");
+                    sYearMonth1 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(1).ToString("yyyyMM");
+                    sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(2).ToString("yyyyMM");
+                }
                 dtImport = checkSaveInfo(dtImport, sYearMonth, sYearMonth1, sYearMonth2,
                      strOperId, strPackingPlant, strReceiver, ref bReault, ref dtMessage);
                 return dtImport;

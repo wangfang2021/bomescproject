@@ -721,14 +721,14 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("      ,[dOpenTime] = GETDATE()");
                 strSql_modinfo.AppendLine("      ,[vcOpenUser] = '" + strOperId + "'");
                 strSql_modinfo.AppendLine(" WHERE [vcYearMonth] = @vcYearMonth");
-                strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id and vcHyState in ('0','3') and vcDyState='0'");
+                strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id and vcHyState in ('0','3') and vcDyState in ('0','2','3')");
                 //strSql_modinfo.AppendLine(" declare @flag int");
                 //strSql_modinfo.AppendLine(" set @flag=(select Count(*) from [TSoq_OperHistory] where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id)");
                 //strSql_modinfo.AppendLine(" if(@flag=0)");
                 //strSql_modinfo.AppendLine(" begin");
                 strSql_modinfo.AppendLine(" INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
                 strSql_modinfo.AppendLine(" select [vcYearMonth],[vcPart_id],iCbSOQN,iCbSOQN1,iCbSOQN2,'supplier' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
-                strSql_modinfo.AppendLine(" from TSoq_temp where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcHyState in ('0','3') and vcDyState='0' AND vcOperator='" + strOperId + "' ");
+                strSql_modinfo.AppendLine(" from TSoq_temp where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcHyState in ('0','3') and vcDyState in ('0','2','3') AND vcOperator='" + strOperId + "' ");
                 //strSql_modinfo.AppendLine(" end");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@dExpectTime", "");

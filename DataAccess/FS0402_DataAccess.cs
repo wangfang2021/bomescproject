@@ -705,7 +705,7 @@ namespace DataAccess
                 sql.Append("update t1 set     \n");
                 sql.Append("t1.vcCarFamilyCode=t2.vcCarfamilyCode,    \n");
                 sql.Append("t1.vcCurrentPastcode=t2.vcHaoJiu,    \n");
-                sql.Append("t1.vcMakingOrderType=t2.vcReceiver,    \n");
+                sql.Append("t1.vcMakingOrderType=t2.vcOrderingMethod,    \n");
                 sql.Append("t1.vcFZGC=t3.vcOrderPlant,    \n");
                 sql.Append("t1.vcInOutFlag=t2.vcInOut,    \n");
                 sql.Append("t1.vcSupplier_id=t2.vcSupplierId,    \n");
@@ -714,7 +714,7 @@ namespace DataAccess
                 sql.Append("from (    \n");
                 sql.Append("	select * from TSoq where vcYearMonth='"+ strYearMonth + "')t1    \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut    \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,vcOrderingMethod    \n");
                 sql.Append("	from TSPMaster     \n");
                 sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06'     \n");
                 sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");

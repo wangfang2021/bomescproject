@@ -201,14 +201,17 @@ namespace DataAccess
                 string strLastTimeFlag = DateTime.Now.ToString("yyyyMMddHHmmss");
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine(" UPDATE TSoq SET ");
-                strSql.Append("      vcDyState=case when iCbSOQN!=iTzhSOQN or iCbSOQN1!=iTzhSOQN1 or iCbSOQN2!=iTzhSOQN2 then '2' else '3' end, ");//0：未发送；1：待回复；2：有调整；3：无调整
-                strSql.Append("      vcSReplyUser='" + strUserId + "', ");
-                strSql.Append("      dSReplyTime=getdate(), ");
-                strSql.Append("      vcOperator='" + strUserId + "', ");
-                strSql.Append("      dOperatorTime=getDate(), ");
-                strSql.Append("      vcLastTimeFlag='" + strLastTimeFlag + "' ");
-                strSql.AppendLine(" WHERE (vcDyState='1' and vcHyState in ('0','3')) ");//这几个状态(1,0,3)是可操作的状态
+                strSql.Append("update t1 set     \n");
+                strSql.Append("      t1.vcDyState=case when t1.iCbSOQN!=t2.iTzhSOQN or t1.iCbSOQN1!=t2.iTzhSOQN1 or t1.iCbSOQN2!=t2.iTzhSOQN2 then '2' else '3' end, ");//0：未发送；1：待回复；2：有调整；3：无调整
+                strSql.Append("      t1.vcSReplyUser='" + strUserId + "', ");
+                strSql.Append("      t1.dSReplyTime=getdate(), ");
+                strSql.Append("      t1.vcOperator='" + strUserId + "', ");
+                strSql.Append("      t1.dOperatorTime=getDate(), ");
+                strSql.Append("      t1.vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                strSql.Append("from     \n");
+                strSql.Append("(   \n");
+                strSql.Append(" select * from TSoq   \n");
+                strSql.Append(" WHERE (vcDyState='1' and vcHyState in ('0','3')) ");//这几个状态(1,0,3)是可操作的状态
                 strSql.Append("	and vcYearMonth='" + strYearMonth + "'     \n");
                 strSql.Append("	and vcSupplier_id='" + strSupplier_id + "'    \n");
                 if (strOperState == "Y")
@@ -219,10 +222,40 @@ namespace DataAccess
                     strSql.Append(" and vcDyState='" + strDyState + "' ");
                 if (!string.IsNullOrEmpty(strPart_id))//品番
                     strSql.Append(" and vcPart_id like '%" + strPart_id + "%'");
+                strSql.Append(")t1     \n");
+                strSql.Append("left join (    \n");
+                strSql.Append("select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2        \n");
+                strSql.Append("from (       \n");
+                strSql.Append("	select * from TSoq_OperHistory where vcInputType='supplier'       \n");
+                strSql.Append(")a       \n");
+                strSql.Append("inner join (       \n");
+                strSql.Append("	select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory        \n");
+                strSql.Append("	where vcInputType='supplier'       \n");
+                strSql.Append("	group by vcYearMonth,vcPart_id       \n");
+                strSql.Append(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id and a.dOperatorTime=b.dOperatorTime       \n");
+                strSql.Append(")t2 on t1.vcYearMonth=t2.vcYearMonth and t1.vcPart_id=t2.vcPart_id    \n");
+                //strSql.Append(" UPDATE TSoq SET ");
+                //strSql.Append("      vcDyState=case when iCbSOQN!=iTzhSOQN or iCbSOQN1!=iTzhSOQN1 or iCbSOQN2!=iTzhSOQN2 then '2' else '3' end, ");//0：未发送；1：待回复；2：有调整；3：无调整
+                //strSql.Append("      vcSReplyUser='" + strUserId + "', ");
+                //strSql.Append("      dSReplyTime=getdate(), ");
+                //strSql.Append("      vcOperator='" + strUserId + "', ");
+                //strSql.Append("      dOperatorTime=getDate(), ");
+                //strSql.Append("      vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                //strSql.Append(" WHERE (vcDyState='1' and vcHyState in ('0','3')) ");//这几个状态(1,0,3)是可操作的状态
+                //strSql.Append("	and vcYearMonth='" + strYearMonth + "'     \n");
+                //strSql.Append("	and vcSupplier_id='" + strSupplier_id + "'    \n");
+                //if (strOperState == "Y")
+                //    strSql.Append("	and vcDyState='1' and vcHyState in ('0','3')    \n");
+                //else if (strOperState == "N")
+                //    strSql.Append("	and (vcDyState!='1' or vcHyState not in ('0','3'))    \n");
+                //if (!string.IsNullOrEmpty(strDyState))//对应状态
+                //    strSql.Append(" and vcDyState='" + strDyState + "' ");
+                //if (!string.IsNullOrEmpty(strPart_id))//品番
+                //    strSql.Append(" and vcPart_id like '%" + strPart_id + "%'");
 
                 //记录日志
-                strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
-                strSql.AppendLine("  select vcYearMonth,vcPart_id,'供应商提交','" + strUserId + "',getDate() from TSoq  where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "' ");
+                strSql.Append("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
+                strSql.Append("  select vcYearMonth,vcPart_id,'供应商提交','" + strUserId + "',getDate() from TSoq  where vcLastTimeFlag='" + strLastTimeFlag + "' and vcOperator='" + strUserId + "' ");
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)

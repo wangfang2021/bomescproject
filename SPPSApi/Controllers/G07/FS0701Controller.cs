@@ -58,6 +58,7 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
 
                 res.Add("C023", dataList_C023);
+
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0701_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
@@ -94,10 +95,10 @@ namespace SPPSApi.Controllers.G07
             string PackNo = dataForm.PackNo;//包材品番
             string PackGPSNo = dataForm.PackGPSNo;//GPS品番
             string strSupplierCode = dataForm.SupplierCode;//供应商
-            string dFromB = dataForm.dFrom;
-            string dFromE = dataForm.dFrom;
-            string dToB = dataForm.dToB;
-            string dToE = dataForm.dToE;
+            string dFromB = dataForm.dtKaishiBegin;
+            string dFromE = dataForm.dtKaishiEnd;
+            string dToB = dataForm.dtJieshuBegin;
+            string dToE = dataForm.dtJieshuEnd;
 
             try
             {

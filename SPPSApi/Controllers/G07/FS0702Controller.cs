@@ -190,6 +190,12 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray listInfo = dataForm.multipleSelection;
+            if (listInfo == null)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "没有可导出数据！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             string iautoID = "";
             for (int i = 0; i < listInfoData.Count; i++)
@@ -256,6 +262,12 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray listInfo = dataForm.multipleSelection;
+            if (listInfo == null)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "没有可导出数据！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             string iautoID = "";
             for (int i = 0; i < listInfoData.Count; i++)
@@ -408,7 +420,7 @@ namespace SPPSApi.Controllers.G07
                         hasFind = true;
                     }
                     //判断品番是否存在
-                    bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString());
+                    bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString(), listInfoData[i]["vcPackSpot"].ToString());
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

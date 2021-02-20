@@ -73,7 +73,7 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
                 if (!string.IsNullOrEmpty(PackSpot))
                     strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
-                if (!string.IsNullOrEmpty(PackNo))
+                if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
                 strSql.AppendLine($"      AND dPackFrom BETWEEN '{dFromB}' and '{dFromE}'");
                 strSql.AppendLine($"      AND dPackTo BETWEEN '{dToB}' and '{dToE}'");
@@ -129,8 +129,8 @@ namespace DataAccess
 
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackFrom"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], true) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0], true) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false) + ",");
@@ -158,8 +158,8 @@ namespace DataAccess
                         sql.AppendLine("  SET ");
                         sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},");
                         sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
-                        sql.AppendLine($"   dPackFrom = {ComFunction.getSqlValue(listInfoData[i]["dPackFrom"], true)},");
-                        sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true)},");
+                        sql.AppendLine($"   dPackFrom = {ComFunction.getSqlValue(listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], true)},");
+                        sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(listInfoData[i]["dPackTo"].ToString().Split(' ')[0], true)},");
                         sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false)},");
                         sql.AppendLine($"   vcSupplierCode = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false)},");
                         sql.AppendLine($"   vcSupplierPlant = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false)},");

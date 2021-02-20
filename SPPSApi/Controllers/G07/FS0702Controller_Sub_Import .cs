@@ -70,6 +70,8 @@ namespace SPPSApi.Controllers.G07
                 string[,] headers = new string[,] {{"变更事项","包装场","收货方","品番","车型", "开始时间", "结束时间","包装材品番","GPS品番","开始时间","结束时间","包装材区分","必要在库天数"},
                                                 {"varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
                                                 {"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Num},
+                                                {"50","50","50","50","0","0","0","0","0","0","0","0","0"},
+                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0"}
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -117,7 +119,7 @@ namespace SPPSApi.Controllers.G07
                 }
 
                 for (int i=0;i< importDt.Rows.Count;i++) {
-                    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofang"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString());
+                    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofangID"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString(), importDt.Rows[i]["vcPackSpot"].ToString());
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

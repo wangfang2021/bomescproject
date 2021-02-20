@@ -488,13 +488,13 @@ namespace DataAccess
         #endregion
 
         #region 检查品番
-        public bool CheckPartsNo(string strShouhuofang, string strPartsNo)
+        public bool CheckPartsNo(string strShouhuofang, string strPartsNo,string vcPackSpot)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 DataTable dt = new DataTable();
-                sql.Append("  select PARTSNO from SP_M_SITEM where PARTSNO='" + strPartsNo + "'and CPDCOMPANY='" + strShouhuofang + "'  \r\n ");
+                sql.Append("  select vcPartId from TSPMaster where vcPartId='" + strPartsNo + "'and vcChanges='" + strShouhuofang + "' and vcPartImage='"+ vcPackSpot + "' \r\n ");
 
                 dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 if (dt.Rows.Count > 0)

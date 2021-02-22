@@ -320,7 +320,7 @@ namespace Logic
 
                 if (dt.Rows.Count > 2)
                 {
-                    sheet.ShiftRows(startRowIndex, sheet.LastRowNum, dt.Rows.Count - 2, true, false);
+                    sheet.ShiftRows(startRowIndex, sheet.LastRowNum, dt.Rows.Count - 1, true, false);
                     for (int i = startRowIndex; i < startRowIndex + dt.Rows.Count - 3; i++)
                     {
                         var rowInsert = sheet.CreateRow(i);

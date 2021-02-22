@@ -54,5 +54,9 @@ namespace Logic
         {
             return fs0625_DataAccess.getCCEmail(code);
         }
+        public DataTable getHSHD(string vcCodeID)
+        {
+            return fs0625_DataAccess.getHSHD(vcCodeID);
+        }
     }
 }

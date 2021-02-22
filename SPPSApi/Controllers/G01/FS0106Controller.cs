@@ -114,7 +114,7 @@ namespace SPPSApi.Controllers.G00
                 }
                 //构建检索体
                 DataRow[] drArrayContent = dtContent.Select("vcIsColum<>'1'");
-                DataTable dtContentNew = drArrayContent[0].Table.Clone(); // 复制DataRow的表结构
+                DataTable dtContentNew = dtContent.Clone(); // 复制DataRow的表结构
                 foreach (DataRow dr in drArrayContent)
                 {
                     dtContentNew.ImportRow(dr);
@@ -207,7 +207,7 @@ namespace SPPSApi.Controllers.G00
                 }
                 //构建检索体
                 DataRow[] drArrayContent = dtContent.Select("vcIsColum<>'1'");
-                DataTable dtContentNew = drArrayContent[0].Table.Clone(); // 复制DataRow的表结构
+                DataTable dtContentNew = dtContent.Clone(); // 复制DataRow的表结构
                 foreach (DataRow dr in drArrayContent)
                 {
                     dtContentNew.ImportRow(dr);

@@ -67,24 +67,32 @@ namespace DataAccess
                     {
                         vcIsSureFlag = "0";
                     }
-                    string vcLinkMan = dt.Rows[i]["vcLinkMan"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan"].ToString();
-                    string vcPhone = dt.Rows[i]["vcPhone"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone"].ToString();
-                    string vcEmail = dt.Rows[i]["vcEmail"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail"].ToString();
+                    string vcLinkMan1 = dt.Rows[i]["vcLinkMan1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan1"].ToString();
+                    string vcPhone1 = dt.Rows[i]["vcPhone1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone1"].ToString();
+                    string vcEmail1 = dt.Rows[i]["vcEmail1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail1"].ToString();
+
+                    string vcLinkMan2 = dt.Rows[i]["vcLinkMan2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan2"].ToString();
+                    string vcPhone2 = dt.Rows[i]["vcPhone2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone2"].ToString();
+                    string vcEmail2 = dt.Rows[i]["vcEmail2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail2"].ToString();
+
+                    string vcLinkMan3 = dt.Rows[i]["vcLinkMan3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan3"].ToString();
+                    string vcPhone3 = dt.Rows[i]["vcPhone3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone3"].ToString();
+                    string vcEmail3 = dt.Rows[i]["vcEmail3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail3"].ToString();
 
                     strSql.AppendLine("  declare @isExist int =0;   ");
                     strSql.AppendLine("  select @isExist=COUNT(*) from TSupplierInfo where vcSupplier_id='" + vcSupplier_id + "' and vcWorkArea='"+ vcWorkArea + "'   ");
                     strSql.AppendLine("     ");
                     strSql.AppendLine("  if @isExist>0   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		update TSupplierInfo set vcIsSureFlag = '" + vcIsSureFlag + "',vcLinkMan='" + vcLinkMan + "',vcPhone='" + vcPhone + "',vcEmail='" + vcEmail + "',  ");
+                    strSql.AppendLine("  		update TSupplierInfo set vcIsSureFlag = '" + vcIsSureFlag + "',vcLinkMan1='" + vcLinkMan1 + "',vcPhone1='" + vcPhone1 + "',vcEmail1='" + vcEmail1 + "',vcLinkMan2='" + vcLinkMan2 + "',vcPhone2='" + vcPhone2 + "',vcEmail2='" + vcEmail2 + "',vcLinkMan3='" + vcLinkMan3 + "',vcPhone3='" + vcPhone3 + "',vcEmail3='" + vcEmail3 + "',  ");
                     strSql.AppendLine("  		vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE() where vcSupplier_id='" + vcSupplier_id + "' and vcWorkArea='" + vcWorkArea + "' ;  ");
                     strSql.AppendLine("  end   ");
                     strSql.AppendLine("  else   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		insert into dbo.TSupplierInfo (vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone,    ");
-                    strSql.AppendLine("  		vcEmail, vcOperatorID, dOperatorTime )    ");
+                    strSql.AppendLine("  		insert into dbo.TSupplierInfo (vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan1, vcPhone1,vcEmail1, vcLinkMan2, vcPhone2,vcEmail2, vcLinkMan3, vcPhone3,vcEmail3,    ");
+                    strSql.AppendLine("  		 vcOperatorID, dOperatorTime )    ");
                     strSql.AppendLine("  		values   ");
-                    strSql.AppendLine("  		('" + vcSupplier_id + "','" + vcWorkArea + "','" + vcIsSureFlag + "','" + vcLinkMan + "','" + vcPhone + "','" + vcEmail + "','" + strUserId + "',GETDATE()) ;   ");
+                    strSql.AppendLine("  		('" + vcSupplier_id + "','" + vcWorkArea + "','" + vcIsSureFlag + "','" + vcLinkMan1 + "','" + vcPhone1 + "','" + vcEmail1 + "','" + vcLinkMan2 + "','" + vcPhone2 + "','" + vcEmail2 + "','" + vcLinkMan3 + "','" + vcPhone3 + "','" + vcEmail3 + "','" + strUserId + "',GETDATE()) ;   ");
                     strSql.AppendLine("  end ;  ");
                     strSql.AppendLine("     ");
 
@@ -107,11 +115,11 @@ namespace DataAccess
                 {
                     if (strSql.Length > 0)
                     {
-                        strSql.AppendLine("  union all SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
+                        strSql.AppendLine("  union all SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
                     }
                     else
                     {
-                        strSql.AppendLine("  SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
+                        strSql.AppendLine("  SELECT vcSupplier_id, vcWorkArea, vcIsSureFlag  FROM [dbo].[TSupplierInfo] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "'  ");
                     }
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -133,7 +141,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select iAutoId,  [vcSupplier_id], [vcWorkArea], vcIsSureFlag, [vcLinkMan], [vcPhone], [vcEmail], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag From [dbo].[TSupplierInfo] where 1=1   ");
+                strSql.AppendLine("   select iAutoId,  [vcSupplier_id], [vcWorkArea], vcIsSureFlag,[vcLinkMan1] ,[vcPhone1] ,[vcEmail1],[vcLinkMan2] ,[vcPhone2] ,[vcEmail2],[vcLinkMan3] ,[vcPhone3],[vcEmail3], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag From [dbo].[TSupplierInfo] where 1=1   ");
 
                 if (vcSupplier_id.Length > 0)
                 {
@@ -198,14 +206,20 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                     {//新增
-                        sql.Append("insert into [TSupplierInfo] (vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan, vcPhone, vcEmail, vcOperatorID, dOperatorTime)  \n");
+                        sql.Append("insert into [TSupplierInfo] (vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan1, vcPhone1, vcEmail1, vcLinkMan2, vcPhone2, vcEmail2,vcLinkMan3, vcPhone3, vcEmail3,vcOperatorID, dOperatorTime)  \n");
                         sql.Append(" values (  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcIsSureFlag"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcLinkMan"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcPhone"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcEmail"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcLinkMan1"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcPhone1"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcEmail1"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcLinkMan2"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcPhone2"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcEmail2"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcLinkMan3"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcPhone3"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcEmail3"], false) + ",  \r\n");
                         sql.Append("   '" + userId + "', GETDATE() \r\n");
                         sql.Append(" );  \r\n");
                     }
@@ -215,9 +229,15 @@ namespace DataAccess
 
                         sql.Append("  update TSupplierInfo set    \r\n");
                         sql.Append("  vcIsSureFlag=" + getSqlValue(listInfoData[i]["vcIsSureFlag"], false) + "   \r\n");
-                        sql.Append("  ,vcLinkMan=" + getSqlValue(listInfoData[i]["vcLinkMan"], false) + "   \r\n");
-                        sql.Append("  ,vcPhone=" + getSqlValue(listInfoData[i]["vcPhone"], false) + "   \r\n");
-                        sql.Append("  ,vcEmail=" + getSqlValue(listInfoData[i]["vcEmail"], false) + "   \r\n");
+                        sql.Append("  ,vcLinkMan1=" + getSqlValue(listInfoData[i]["vcLinkMan1"], false) + "   \r\n");
+                        sql.Append("  ,vcPhone1=" + getSqlValue(listInfoData[i]["vcPhone1"], false) + "   \r\n");
+                        sql.Append("  ,vcEmail1=" + getSqlValue(listInfoData[i]["vcEmail1"], false) + "   \r\n");
+                        sql.Append("  ,vcLinkMan2=" + getSqlValue(listInfoData[i]["vcLinkMan2"], false) + "   \r\n");
+                        sql.Append("  ,vcPhone2=" + getSqlValue(listInfoData[i]["vcPhone2"], false) + "   \r\n");
+                        sql.Append("  ,vcEmail2=" + getSqlValue(listInfoData[i]["vcEmail2"], false) + "   \r\n");
+                        sql.Append("  ,vcLinkMan3=" + getSqlValue(listInfoData[i]["vcLinkMan3"], false) + "   \r\n");
+                        sql.Append("  ,vcPhone3=" + getSqlValue(listInfoData[i]["vcPhone3"], false) + "   \r\n");
+                        sql.Append("  ,vcEmail3=" + getSqlValue(listInfoData[i]["vcEmail3"], false) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() \r\n");
                         sql.Append(" where iAutoId=" + iAutoId + " ;  \n");
 

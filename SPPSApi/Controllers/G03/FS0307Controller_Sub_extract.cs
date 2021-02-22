@@ -80,10 +80,18 @@ namespace SPPSApi.Controllers.G03
             List<string> vcOriginCompany = listInfo.ToObject<List<string>>();
             try
             {
-                fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany);
-
+                string msg = "";
+                fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany, ref msg);
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    msg = "年限抽取成功，但原单位" + msg + "未抽取到数据。";
+                }
+                else
+                {
+                    msg = "年限抽取成功";
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

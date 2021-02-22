@@ -60,6 +60,12 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0712_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
+                List<Object> dataList_ZuoYeQuFen = ComFunction.convertAllToResult(FS0712_Logic.SearchZuoYeQuFen());//作业区分
+                res.Add("ZuoYeQuFen", dataList_ZuoYeQuFen);
+
+
+
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -144,19 +150,21 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strChange = dataForm.Change;
-          
+            string PackSpot = dataForm.PackSpot;
+            string PackNo = dataForm.PackNo;
+            string PackGPSNo = dataForm.PackGPSNo;
+            string ZuoYeQuFen = dataForm.ZuoYeQuFen;
+            string PackSupplier = dataForm.PackSupplier;
+            string dFrom = dataForm.dFrom;
+            string dTo = dataForm.dTo;
+
             try
             {
-                //DataTable dt = FS0712_Logic.Search();
-                DataTable dt = null;
-                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
-                ,"vcOriginCompany_Name"
+                DataTable dt = FS0712_Logic.Search(PackSpot, PackNo, PackGPSNo, ZuoYeQuFen, PackSupplier, dFrom, dTo);
+                string[] fields = { "vcZuoYeQuFen","vcOrderNo","vcPackNo","vcPackGPSNo","vcSupplierID","vcPackSpot","iNumber","dBuJiTime",
+                    "dZiCaiTime","vcYanShouID"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0712_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0712_Export.xlsx", 1,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

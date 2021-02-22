@@ -15,7 +15,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT iAuto_Id,vcPart_Id,vcCPDCompany,vcCarTypeName,\r\n");
+                sbr.Append(" SELECT iAuto_Id,vcPart_Id,vcSupplier_id,vcCPDCompany,vcCarTypeName,\r\n");
                 sbr.Append(" vcPartNameCN,vcZXBZNo,vcSCSName,vcSCSAdress,dTimeFrom,dTimeTo,'0' as vcModFlag,'0' as vcAddFlag\r\n");
                 sbr.Append(" FROM TtagMaster \r\n");
                 sbr.Append(" Where 1=1 \r\n");
@@ -82,5 +82,43 @@ namespace DataAccess
             }
         }
         #endregion
+
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sbr.Append(" UPDATE TtagMaster SET \r\n");
+                    sbr.Append(" vcCarTypeName= " + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeName"], false) + ", ");
+                    sbr.Append(" vcPartNameCN= " + ComFunction.getSqlValue(dt.Rows[i]["vcPartNameCN"], false) + ", ");
+                    sbr.Append(" vcZXBZNo= " + ComFunction.getSqlValue(dt.Rows[i]["vcZXBZNo"], false) + ", ");
+                    sbr.Append(" vcSCSName= " + ComFunction.getSqlValue(dt.Rows[i]["vcSCSName"], false) + ", ");
+                    sbr.Append(" vcSCSAdress= " + ComFunction.getSqlValue(dt.Rows[i]["vcSCSAdress"], false) + ", ");
+                    sbr.Append(" dTimeFrom= " + ComFunction.getSqlValue(dt.Rows[i]["dTimeFrom"], true) + ", ");
+                    sbr.Append(" dTimeTo= " + ComFunction.getSqlValue(dt.Rows[i]["dTimeTo"], true) + ", ");
+                    sbr.Append(" vcOperator = '" + strUserId + "', ");
+                    sbr.Append(" dOperatorTime = GETDATE() ");
+                    sbr.Append(" WHERE vcPart_Id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id"], false) + " \r\n");
+                    sbr.Append(" AND vcCPDCompany = " + ComFunction.getSqlValue(dt.Rows[i]["vcCPDCompany"], false) + " \r\n");
+                    sbr.Append(" AND vcSupplier_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false) + " \r\n");
+                }
+
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
 }

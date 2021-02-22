@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strSSDateMonth,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id)
+        public DataTable Search(string strSSDate,string strJD, string strPart_id, string strInOutFlag, string strIsDYJG, string strCarType, string strSupplier_id)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace DataAccess
                 strSql.Append("     )b5 on a.vcSYTCode = b5.vcValue    \n");
                 strSql.Append("     left join     ");
                 strSql.Append("     (    ");
-                strSql.Append("     	select SUBSTRING(vcValue,1,4) as 'vcValue',vcName from TCode where vcCodeId = 'C098'    ");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C098'    ");
                 strSql.Append("     )b6 on a.vcCarType = b6.vcValue    ");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
@@ -67,9 +67,9 @@ namespace DataAccess
                 strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
                 strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
                 strSql.Append("   where 1=1  \n");
-                if (!string.IsNullOrEmpty(strSSDateMonth))
+                if (!string.IsNullOrEmpty(strSSDate))
                 {
-                    strSql.Append("      and dSSDate = '" + strSSDateMonth + "'  ");
+                    strSql.Append("      and dSSDate = '" + strSSDate + "'  ");
                 }
                 if (!string.IsNullOrEmpty(strJD))
                 {
@@ -77,7 +77,7 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(strPart_id))
                 {
-                    strSql.Append("      and vc Part_id = '" + strPart_id + "'   ");
+                    strSql.Append("      and vcPart_id like '" + strPart_id + "%'   ");
                 }
                 if (!string.IsNullOrEmpty(strInOutFlag))
                 {
@@ -89,13 +89,13 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(strCarType))
                 {
-                    strSql.Append("      and vcCarType='" + strCarType + "'   ");
+                    strSql.Append("      and vcCarType like '%" + strCarType + "%'   ");
                 }
                 if (!string.IsNullOrEmpty(strSupplier_id))
                 {
-                    strSql.Append("      and vcSupplier_id='"+ strSupplier_id + "'   ");
+                    strSql.Append("      and vcSupplier_id like '"+ strSupplier_id + "%'   ");
                 }
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
             {
@@ -117,7 +117,7 @@ namespace DataAccess
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("      update TSQJD set       \n");
-                        sql.Append("      dSSDateMonth = "+ ComFunction.getSqlValue(listInfoData[i]["dSSDateMonth"], true) + "      \n");
+                        sql.Append("      dSSDate = "+ ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "      \n");
                         sql.Append("      ,vcJD = " + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "      \n");
                         sql.Append("      ,vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "      \n");
                         sql.Append("      ,vcSPINo = " + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "      \n");
@@ -147,31 +147,45 @@ namespace DataAccess
                         sql.Append("      ,vcOperatorId = '" + strUserId + "'      \n");
                         sql.Append("      ,dOperatorTime = GETDATE()      \n");
                         sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
+                        sql.Append("       and vcJD not in ('3')          ");
                     }
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
-                if (ex.Message.IndexOf("-->") != -1)
-                {//主动判断抛出的异常
-                    int startIndex = ex.Message.IndexOf("-->");
-                    int endIndex = ex.Message.LastIndexOf("<--");
-                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete TSQJD where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
                 }
-                else
-                    throw ex;
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion
 
         #region 退回
-        public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strTH)
         {
-            #region 给供应商发送邮件提醒
-
-            #endregion
-
             #region 将进度变为已退回
             try
             {
@@ -183,30 +197,24 @@ namespace DataAccess
                     sql.Append("      update TSQJD set vcJD =      \n");
                     sql.Append("      (      \n");
                     sql.Append("      select vcValue from TCode where vcCodeId = 'C026' and vcName = '已退回'      \n");
-                    sql.Append("      ),      \n");
-                    sql.Append("      vcOperatorId = '" + strUserId + "',      \n");
-                    sql.Append("      dOperatorTime = GETDATE()      \n");
+                    sql.Append("      )      \n");
+                    sql.Append("      ,vcTH = '"+strTH+"'      \n");
+                    sql.Append("      ,vcOperatorId = '" + strUserId + "'      \n");
+                    sql.Append("      ,dOperatorTime = GETDATE()      \n");
                     sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
-                if (ex.Message.IndexOf("-->") != -1)
-                {//主动判断抛出的异常
-                    int startIndex = ex.Message.IndexOf("-->");
-                    int endIndex = ex.Message.LastIndexOf("<--");
-                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
-                }
-                else
-                    throw ex;
+                throw ex;
             }
             #endregion
 
         }
         #endregion
 
-        #region 付与日期一括付与
+        #region 日期一括付与
         public void DateKFY(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string dTFTM_BJ)
         {
             try
@@ -220,38 +228,32 @@ namespace DataAccess
                     sql.Append("      vcOperatorId = '" + strUserId + "',      \n");
                     sql.Append("      dOperatorTime = GETDATE()      \n");
                     sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
+                    sql.Append("      and vcJD != '3'      \n");
                 }
-                excute.ExcuteSqlWithStringOper(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)
             {
-                if (ex.Message.IndexOf("-->") != -1)
-                {//主动判断抛出的异常
-                    int startIndex = ex.Message.IndexOf("-->");
-                    int endIndex = ex.Message.LastIndexOf("<--");
-                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
-                }
-                else
-                    throw ex;
+                throw ex;
             }
         }
         #endregion
 
         #region 织入原单位
-        public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
 
                 #region 创建临时表
-                sql.Append("        if object_id('tempdb..#TUnit_temp') is not null  \n");
+                sql.Append("        if object_id('tempdb..#TSQJD_temp') is not null  \n");
                 sql.Append("        Begin  \n");
-                sql.Append("        drop  table #TUnit_temp  \n");
+                sql.Append("        drop  table #TSQJD_temp  \n");
                 sql.Append("        End  \n");
-                sql.Append("        select * into #TUnit_temp from       \n");
+                sql.Append("        select * into #TSQJD_temp from       \n");
                 sql.Append("        (      \n");
-                sql.Append("      	  select * from TUnit where 1=0      \n");
+                sql.Append("      	  select * from TSQJD where 1=0      \n");
                 sql.Append("        ) a      ;\n");
 
 
@@ -274,49 +276,49 @@ namespace DataAccess
                     sql.Append("        )        \n");
                     sql.Append("        values        \n");
                     sql.Append("        (        \n");
-                    sql.Append("        '" + listInfoData[i]["dSSDate"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcJD"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcPart_id"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSPINo"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcChange"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcCarType"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcInOutflag"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcPartName"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcOE"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSupplier_id"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcFXDiff"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcFXNo"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSumLater"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum1"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum2"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum3"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum4"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum5"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum6"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum7"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum8"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum9"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcNum10"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcIsDYJG"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcIsDYFX"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcYQorNG"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcTH"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSCPlace_City"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSCPlace_Province"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcCHPlace_City"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcCHPlace_Province"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSYTCode"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSCSName"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcSCSPlace"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["dSupplier_BJ"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["dSupplier_HK"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["dTFTM_BJ"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcZXBZDiff"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcZXBZNo"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcReceiver"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["dNqDate"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["vcOperatorId"] + "'        \n");
-                    sql.Append("        '" + listInfoData[i]["dOperatorTime"] + "'        \n");
+                    sql.Append("        '"  + ComFunction.getSqlValue(listInfoData[i]["dSSDate"] ,true)+ "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcInOutflag"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSumLater"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum3"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum4"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum5"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum6"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum7"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum8"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcIsDYJG"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcIsDYFX"],false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcYQorNG"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcTH"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_City"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_Province"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_City"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_Province"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCSName"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCSPlace"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dSupplier_BJ"], true) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dSupplier_HK"], true) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dTFTM_BJ"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcZXBZDiff"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "'        \n");
+                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "'        \n");
+                    sql.Append("        ,'" + strUserId + "'        \n");
+                    sql.Append("        ,GETDATE()        \n");
                     sql.Append("        )        \n");
                     
                 }
@@ -327,6 +329,8 @@ namespace DataAccess
                 sql.Append("       update TUnit set        \n");
                 sql.Append("        vcSYTCode = a.vcSYTCode       \n");
                 sql.Append("       ,dTimeFrom = a.dTFTM_BJ       \n");
+                sql.Append("       ,dGYSTimeFrom = a.dTFTM_BJ       \n");
+                sql.Append("       ,dGYSTimeTo = '9999-12-31'       \n");
                 sql.Append("       ,vcSCPlace = a.vcSCPlace_City       \n");
                 sql.Append("       ,vcCHPlace = a.vcCHPlace_City       \n");
                 sql.Append("       ,vcSCSName = a.vcSCSName       \n");
@@ -400,10 +404,31 @@ namespace DataAccess
                 sql.Append("       and a.dSSDate = b.dSSDate       \n");
                 #endregion
                 #region 工程变更-废止
-
+                sql.Append("       update TUnit set        \n");
+                sql.Append("        dGYSTimeTo = a.dTFTM_BJ       \n");
+                sql.Append("       from        \n");
+                sql.Append("       (       \n");
+                sql.Append("       	select * from #TSQJD_temp       \n");
+                sql.Append("       	where vcChange = '9'       \n");
+                sql.Append("       ) a       \n");
+                sql.Append("       inner join TUnit b       \n");
+                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
+                sql.Append("       and a.dSSDate = b.dSSDate       \n");
                 #endregion
                 #region 工程变更-新设
-
+                sql.Append("       update TUnit set        \n");
+                sql.Append("        dGYSTimeFrom = a.dTFTM_BJ       \n");
+                sql.Append("       ,dGYSTimeTo = '9999/12/31'       \n");
+                sql.Append("       from        \n");
+                sql.Append("       (       \n");
+                sql.Append("       	select * from #TSQJD_temp       \n");
+                sql.Append("       	where vcChange = '9'       \n");
+                sql.Append("       ) a       \n");
+                sql.Append("       inner join TUnit b       \n");
+                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
+                sql.Append("       and a.dSSDate = b.dSSDate       \n");
                 #endregion
                 #endregion
 
@@ -420,19 +445,44 @@ namespace DataAccess
                 #endregion
                 if (sql.Length>0)
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
                 }
             }
             catch (Exception ex)
             {
-                if (ex.Message.IndexOf("-->") != -1)
-                {//主动判断抛出的异常
-                    int startIndex = ex.Message.IndexOf("-->");
-                    int endIndex = ex.Message.LastIndexOf("<--");
-                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
-                }
-                else
-                    throw ex;
+                strErr = ex.Message;
+            }
+        }
+        #endregion
+
+        #region 按检索条件返回dt
+        public DataTable getSupplierEmail(string strSupplierId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='" + strSupplierId + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 按检索条件返回dt
+        public DataTable getEmailSetting(string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select vcTitle,vcContent from TMailMessageSetting where vcUserId='" + strUserId + "' and vcChildFunID = 'FS0304'  \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         #endregion

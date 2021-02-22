@@ -10,12 +10,15 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        public DataTable searchApi(string vcPart_id, string vcPartNameEn, string vcPartNameCn)
+        public DataTable searchApi(string vcPart_id, string vcPartNameEn, string vcPartNameCn, string vcState)
         {
             StringBuilder sbr = new StringBuilder();
             sbr.Append(" SELECT iAutoId,vcPart_id,vcPartNameEn,LEFT(vcPart_id,5) AS vcPart_id_short,vcPartNameCn,'0' as vcModFlag,'0' as vcAddFlag,vcIsLock FROM TPartNameCN \r\n ");
-            sbr.Append(" WHERE 1=1 ");
-
+            sbr.Append(" WHERE 1=1  ");
+            if (!string.IsNullOrWhiteSpace(vcState))
+            {
+                sbr.Append(" AND vcIsLock = '" + vcState + "'");
+            }
             //TODO 有效时间是否需要
             if (!string.IsNullOrWhiteSpace(vcPart_id))
             {
@@ -29,6 +32,8 @@ namespace DataAccess
             {
                 sbr.Append(" AND ISNULL(vcPartNameCn,'') LIKE '" + vcPartNameCn + "%' ");
             }
+
+            sbr.Append(" ORDER BY vcIsLock ");
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
 
@@ -42,17 +47,32 @@ namespace DataAccess
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     string flag = listInfoData[i]["vcIsLock"].ToString();
+                    string vcPart_id = listInfoData[i]["vcPart_id"].ToString();
                     if (bModFlag == true && flag.Equals("0"))
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                        sbr.Append(" UPDATE TPartNameCN SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",dOperatorTime = GETDATE(),vcOperator = '" + strUserId + "' WHERE iAutoId = " + iAutoId + " \r\n");
+                        sbr.Append(" UPDATE TPartNameCN SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",dOperatorTime = GETDATE(),vcOperator = '" + strUserId + "',vcIsLock = '1' WHERE iAutoId = " + iAutoId + "  \r\n");
                         sbr.Append(" UPDATE TUnit SET vcPartNameCn = " + ComFunction.getSqlValue(listInfoData[i]["vcPartNameCn"], false) + ",vcOperator = '" + strUserId + "',dOperatorTime = GETDATE() ");
-                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
-
+                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "\r\n");
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(strErrorPartId))
+                        {
+                            strErrorPartId += ",";
+                        }
+
+                        strErrorPartId += vcPart_id;
+                    }
+
+                    if (sbr.Length > 0)
+                    {
+                        excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                    }
                 }
+
+
             }
             catch (Exception ex)
             {
@@ -84,12 +104,12 @@ namespace DataAccess
                 }
                 if (sbr.Length > 0)
                 {
-                    sbr.Append("UPDATE TUnit SET vcPartNameCn = b.vcPartNameCn from  ");
-                    sbr.Append("TUnit a");
-                    sbr.Append("LEFT JOIN ");
-                    sbr.Append("(SELECT vcPart_id,vcPartNameCn,vcIsLock FROM TPartNameCN) b ON a.vcPart_id = b.vcPart_id");
-                    sbr.Append("WHERE b.vcIsLock = '2'");
-                    sbr.Append("UPDATE TPartNameCN SET vcIsLock = '1' WHERE vcIsLock = '2'");
+                    sbr.Append(" UPDATE TUnit SET vcPartNameCn = b.vcPartNameCn from  ");
+                    sbr.Append(" TUnit a");
+                    sbr.Append(" LEFT JOIN ");
+                    sbr.Append(" (SELECT vcPart_id,vcPartNameCn,vcIsLock FROM TPartNameCN) b ON a.vcPart_id = b.vcPart_id");
+                    sbr.Append(" WHERE b.vcIsLock = '2'");
+                    sbr.Append(" UPDATE TPartNameCN SET vcIsLock = '1' WHERE vcIsLock = '2'");
 
                     excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }

@@ -106,6 +106,23 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取数据字典
+        public DataTable getTCode(string strCodeId)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("select vcValue1 as vcName,vcValue1 as vcValue from TOutCode where vcCodeId='"+strCodeId+"' and vcIsColum='0' order by vcValue2,vcValue1    \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 检索_品目
         public DataTable Search_PM(string smallpm, string bigpm)
         {

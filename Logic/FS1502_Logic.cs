@@ -7,6 +7,10 @@ using DataAccess;
 using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
+using NPOI.SS.UserModel;
+using NPOI.SS.Util;
+using NPOI.XSSF.UserModel;
+using NPOI.HSSF.UserModel;
 
 namespace Logic
 {
@@ -26,6 +30,13 @@ namespace Logic
         }
         #endregion
 
+        #region 检索_报表
+        public DataTable Search_report(string dBZDate)
+        {
+            return fs1502_DataAccess.Search_report(dBZDate);
+        }
+        #endregion
+
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -33,15 +44,8 @@ namespace Logic
         }
         #endregion
 
-        #region 删除
-        public void Del(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
-        {
-            fs1502_DataAccess.Del(checkedInfoData, strUserId);
-        }
-        #endregion
-
         #region 读取txt文件
-        public DataTable ReadTxtFile(string FileName,ref string strMsg)
+        public DataTable ReadTxtFile(string FileName, ref string strMsg)
         {
             //从指定的目录以打开或者创建的形式读取csv文件
             FileStream fs = new FileStream(FileName, FileMode.Open, FileAccess.Read);
@@ -119,11 +123,131 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave_Sub(DataTable dt,string vcFZPlant,string dBZDate, string strUserId)
+        public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId)
         {
-            fs1502_DataAccess.importSave_Sub(dt, vcFZPlant, dBZDate ,strUserId);
+            fs1502_DataAccess.importSave_Sub(dt, vcFZPlant, dBZDate, strUserId);
         }
         #endregion
 
+        #region 计算
+        public void Cal(string dBZDate, string strUserId)
+        {
+            fs1502_DataAccess.Cal(dBZDate, strUserId);
+        }
+        #endregion
+
+        #region 导出带模板
+        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+
+                //设置合并后居中样式
+                ICellStyle cellstyle = hssfworkbook.CreateCellStyle();
+                cellstyle.VerticalAlignment = VerticalAlignment.Center;
+                cellstyle.Alignment = HorizontalAlignment.Center;
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        string value = dt.Rows[i][field[j]].ToString();
+                        ICell cell = row.CreateCell(j);
+                        if (j == 0)
+                            cell.SetCellValue(value);
+                        else
+                            cell.SetCellValue(Convert.ToInt32(value==""?"0":value));//设置数字格式
+                    }
+                    string strBigPM = dt.Rows[i]["vcBigPM"].ToString();
+                    if (strBigPM.Contains("合计"))
+                    {
+                        //合并操作
+                        sheet.AddMergedRegion(new CellRangeAddress(startRow + i, startRow + i, 0, 6));//起始行，结束行，起始列，结束列
+                        // 设置合并后style
+                        var cell = sheet.GetRow(startRow + i).GetCell(0);
+                        cell.CellStyle = cellstyle;
+                    }
+                }
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
+        #region 导出带模板_报表
+        public string generateExcelWithXlt_report(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                HSSFWorkbook hssfworkbook = new HSSFWorkbook();
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new HSSFWorkbook(fs);
+                    fs.Close();
+                }
+                ISheet sheet = hssfworkbook.GetSheet("数据源");
+                ICellStyle dateStyle = hssfworkbook.CreateCellStyle();
+                IDataFormat dataFormat = hssfworkbook.CreateDataFormat();
+                dateStyle.DataFormat = dataFormat.GetFormat("d日");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        ICell cell = row.CreateCell(j);
+                        if (j == 3)
+                            cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));//设置数字格式
+                        else if(j==1)
+                        {//设置日期格式
+                            cell.CellStyle = dateStyle;
+                            cell.SetCellValue(Convert.ToDateTime(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                    }
+                }
+                //源行数赋值
+                ICell cell2 = sheet.GetRow(1).CreateCell(4);
+                cell2.SetCellValue(dt.Rows.Count + 1);
+
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xls";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据 
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
     }
 }

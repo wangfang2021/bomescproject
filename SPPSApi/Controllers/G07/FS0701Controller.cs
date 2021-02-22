@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Common;
 using Logic;
@@ -53,10 +54,11 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-             
+
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
 
                 res.Add("C023", dataList_C023);
+
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0701_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
@@ -89,17 +91,18 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;
-            string PackNo = dataForm.PackNo;
-            string PackGPSNo = dataForm.PackGPSNo;
-            string dFromB = dataForm.dFrom;
-            string dFromE = dataForm.dFrom;
-            string dToB = dataForm.dToB;
-            string dToE = dataForm.dToE;
+            string PackSpot = dataForm.PackSpot;//包装厂
+            string PackNo = dataForm.PackNo;//包材品番
+            string PackGPSNo = dataForm.PackGPSNo;//GPS品番
+            string strSupplierCode = dataForm.SupplierCode;//供应商
+            string dFromB = dataForm.dtKaishiBegin;
+            string dFromE = dataForm.dtKaishiEnd;
+            string dToB = dataForm.dtJieshuBegin;
+            string dToE = dataForm.dtJieshuEnd;
 
             try
             {
-                DataTable dt = FS0701_Logic.Search(PackSpot, PackNo, PackGPSNo, dFromB, dFromE, dToB, dToE);
+                DataTable dt = FS0701_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, dFromB, dFromE, dToB, dToE);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -144,19 +147,30 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strChange = dataForm.Change;
-          
+            string PackSpot = dataForm.PackSpot;
+            string PackNo = dataForm.PackNo;
+            string PackGPSNo = dataForm.PackGPSNo;
+            string strSupplierCode = dataForm.SupplierCode;
+            string dFromB = dataForm.dtKaishiBegin;
+            string dFromE = dataForm.dtKaishiEnd;
+            string dToB = dataForm.dtJieshuBegin;
+            string dToE = dataForm.dtJieshuEnd;
+
             try
             {
-                //DataTable dt = FS0701_Logic.Search();
-                DataTable dt = null;
-                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
-                ,"vcOriginCompany_Name"
+                DataTable dt = FS0701_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, dFromB, dFromE, dToB, dToE);
+
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可导出数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+                string[] fields = { "vcPackSpot","vcPackNo","vcPackGPSNo","dPackFrom","dPackTo","vcParstName","vcSupplierName",
+                    "vcSupplierCode","iRelease","iZCRelease","vcCycle","vcDistinguish","vcPackLocation","vcFormat","vcReleaseName"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0701_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0701_Export.xlsx", 1, loginInfo.UserId, "包装材基础数据");
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -181,7 +195,7 @@ namespace SPPSApi.Controllers.G07
         #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -210,6 +224,14 @@ namespace SPPSApi.Controllers.G07
                     {//修改
                         hasFind = true;
                     }
+                    Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
+                    bool b = regex.IsMatch(listInfoData[i]["iRelease"].ToString());
+                    if (!b)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "请填写正常的发住收容数格式！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 if (!hasFind)
                 {
@@ -217,9 +239,9 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-             
+
                 string strErrorPartId = "";
-                FS0701_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
+                FS0701_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -244,7 +266,7 @@ namespace SPPSApi.Controllers.G07
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -281,6 +303,6 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-       
+
     }
 }

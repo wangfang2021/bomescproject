@@ -36,7 +36,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("SELECT iAutoId,vcYearMonth,vcDyState,vcHyState,vcPart_id,iCbSOQN,decCbBdl,iCbSOQN1,iCbSOQN2,iTzhSOQN,iTzhSOQN1,iTzhSOQN2        \n");
+                strSql.Append("SELECT iAutoId,vcYearMonth,vcDyState,vcHyState,vcPart_id,iCbSOQN,        \n");
+                strSql.Append("case when decCbBdl>999 then '>999' else cast(decCbBdl as varchar(5)) end as decCbBdl,iCbSOQN1,iCbSOQN2,iTzhSOQN,iTzhSOQN1,iTzhSOQN2    \n");
                 strSql.Append(",iHySOQN,iHySOQN1,iHySOQN2,dHyTime,b.vcName as 'vcDyState_Name',b2.vcName as 'vcHyState_Name'      \n");
                 strSql.Append(" ,case       \n");
                 strSql.Append(" when iTzhSOQN is null or iTzhSOQN1 is null or iTzhSOQN2 is null then 'partFS0402A' --无调整      \n");
@@ -108,21 +109,21 @@ namespace DataAccess
                 sql.Append(" delete TSoq_temp where vcOperator='"+strUserId+"' and vcYearMonth='" + strYearMonth + "' ;  \r\n ");
 
                 #region 先插入临时表
-                sql.Append("  INSERT INTO TSoq_temp( ");
-                sql.Append("vcYearMonth,");
-                sql.Append("vcDyState,");
-                sql.Append("vcHyState,");
-                sql.Append("vcPart_id,");
-                sql.Append("iCbSOQN,");
-                sql.Append("iCbSOQN1,");
-                sql.Append("iCbSOQN2,");
-                sql.Append("dDrTime,");
-                sql.Append("vcOperator,");
-                sql.Append("dOperatorTime");
-                sql.Append(")");
-                sql.Append("VALUES");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    sql.Append("  INSERT INTO TSoq_temp( ");
+                    sql.Append("vcYearMonth,");
+                    sql.Append("vcDyState,");
+                    sql.Append("vcHyState,");
+                    sql.Append("vcPart_id,");
+                    sql.Append("iCbSOQN,");
+                    sql.Append("iCbSOQN1,");
+                    sql.Append("iCbSOQN2,");
+                    sql.Append("dDrTime,");
+                    sql.Append("vcOperator,");
+                    sql.Append("dOperatorTime");
+                    sql.Append(")");
+                    sql.Append("VALUES");
                     sql.Append("('" + strYearMonth + "',");
                     sql.Append("'0',");
                     sql.Append("'0',");
@@ -135,10 +136,10 @@ namespace DataAccess
                     sql.Append("getDate()");
                     sql.Append(")");
 
-                    if (i < dt.Rows.Count - 1)
-                    {
-                        sql.Append(",");
-                    }
+                    //if (i < dt.Rows.Count - 1)
+                    //{
+                    //    sql.Append(",");
+                    //}
                 }
                 sql.Append("; \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());//先导入临时表，然后check
@@ -159,7 +160,7 @@ namespace DataAccess
                 for(int i = 0; i < dt1.Rows.Count; i++) 
                 {
                     string strPart_id=dt1.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add(strPart_id+ "在品番基础信息里不存在");
+                    errMessageList.Add(strPart_id+ "在品番基础信息里不存在");//此品番不存在
                 }
                 #endregion
 
@@ -169,7 +170,7 @@ namespace DataAccess
                 sql.Append("    (    \r\n ");
                 sql.Append("       select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iCbSOQN<>0    \r\n ");
                 sql.Append("    )a    \r\n ");
-                sql.Append("    inner join      \r\n ");
+                sql.Append("    left join      \r\n ");
                 sql.Append("    (      \r\n ");
                 sql.Append("       select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and '"+ strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)   \r\n ");
                 sql.Append("    )b on a.vcPart_id=b.vcPartId      \r\n ");
@@ -178,7 +179,7 @@ namespace DataAccess
                 for (int i = 0; i < dt2.Rows.Count; i++)
                 {
                     string strPart_id = dt2.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足"+ strYearMonth + "月有效性条件");
+                    errMessageList.Add(strPart_id + "在品番基础信息存在，但不满足"+ strYearMonth + "月有效性条件");//不满足XX月有效性(最后3个月在一条上显示)
                 }
                 #endregion
 
@@ -188,7 +189,7 @@ namespace DataAccess
                 sql.Append("    (    \r\n ");
                 sql.Append("       select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iCbSOQN1<>0   \r\n ");
                 sql.Append("    )a    \r\n ");
-                sql.Append("    inner join      \r\n ");
+                sql.Append("    left join      \r\n ");
                 sql.Append("    (      \r\n ");
                 sql.Append("       select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)  \r\n ");
                 sql.Append("    )b on a.vcPart_id=b.vcPartId      \r\n ");
@@ -207,7 +208,7 @@ namespace DataAccess
                 sql.Append("    (    \r\n ");
                 sql.Append("       select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iCbSOQN2<>0    \r\n ");
                 sql.Append("    )a    \r\n ");
-                sql.Append("    inner join      \r\n ");
+                sql.Append("    left join      \r\n ");
                 sql.Append("    (      \r\n ");
                 sql.Append("       select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and '" + strYearMonth_3 + "'  between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)       \r\n ");
                 sql.Append("    )b on a.vcPart_id=b.vcPartId      \r\n ");
@@ -242,7 +243,7 @@ namespace DataAccess
                 for (int i = 0; i < dt5.Rows.Count; i++)
                 {
                     string strPart_id = dt5.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add(strPart_id + "在" + strYearMonth + "月没有维护价格");
+                    errMessageList.Add(strPart_id + "在" + strYearMonth + "月没有维护价格");//XX月没有价格
                 }
                 #endregion
 
@@ -293,11 +294,11 @@ namespace DataAccess
                     string iPackingQty = dt6_1.Rows[i]["iPackingQty"].ToString();//收容数
                     string vcSufferIn = dt6_1.Rows[i]["vcSufferIn"].ToString();//受入
                     if (vcSufferIn == "")
-                        errMessageList.Add("品番"+strPart_id+"在"+ strYearMonth + "月没有维护受入");
+                        errMessageList.Add("品番"+strPart_id+"在"+ strYearMonth + "月没有维护受入");//无手配信息
                     if(iPackingQty=="")
-                        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth + "月没有维护收容数");
+                        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth + "月没有维护收容数");//无手配信息
                     if (vcOrderPlant == "")
-                        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth + "月没有维护发注工厂");
+                        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth + "月没有维护发注工厂");//无手配信息
                 }
                 #endregion
                 #region N+1月的
@@ -518,7 +519,7 @@ namespace DataAccess
                     string vcSupplierPlant_1 = dt7.Rows[i]["vcSupplierPlant_1"].ToString();//供应商工区 N+1月
                     string vcSupplierPlant_2 = dt7.Rows[i]["vcSupplierPlant_2"].ToString();//供应商工区 N+2月
                     if (vcOrderPlant !=vcOrderPlant_1 || vcOrderPlant != vcOrderPlant_2)
-                        errMessageList.Add("品番" + strPart_id + "在3个月维护的发注工厂不一致");
+                        errMessageList.Add("品番" + strPart_id + "在3个月维护的发注工厂不一致");//不需要这个校验，删掉
                     if (iPackingQty != iPackingQty_1 || iPackingQty!= iPackingQty_2)
                         errMessageList.Add("品番" + strPart_id + "在3个月维护的收容数不一致");
                     if (vcSufferIn != vcSufferIn_1 || vcSufferIn != vcSufferIn_2)
@@ -536,7 +537,7 @@ namespace DataAccess
                 for (int i = 0; i < dt8.Rows.Count; i++)
                 {
                     string strPart_id = dt8.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add(strPart_id + "的3个月数量不能全部为0");
+                    errMessageList.Add(strPart_id + "的3个月数量不能全部为0");//3个月数量全为0
                 }
                 #endregion
 
@@ -571,7 +572,7 @@ namespace DataAccess
                 for (int i = 0; i < dt9.Rows.Count; i++)
                 {
                     string strPart_id = dt9.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add(strPart_id + "数量不是收容数的整数倍。");
+                    errMessageList.Add(strPart_id + "数量不是收容数的整数倍。");//订货数量不是收容数的整数倍
                 }
                 #endregion
 
@@ -593,7 +594,7 @@ namespace DataAccess
                 for (int i = 0; i < dt10.Rows.Count; i++)
                 {
                     string strPart_id = dt10.Rows[i]["vcPart_id"].ToString();
-                    errMessageList.Add("品番" + strPart_id + "在" + strYearMonth + "月不能订货。");
+                    errMessageList.Add("品番" + strPart_id + "在" + strYearMonth + "月不能订货。");//在XX(实施年月)以后不能订货
                 }
                 #endregion
                 #region N+1月
@@ -659,24 +660,22 @@ namespace DataAccess
                 sql.Append(" delete TSoq where vcYearMonth='" + strYearMonth + "' ;  \r\n ");
 
                 //1、先插入
-                sql.Append("  INSERT INTO TSoq( ");
-                sql.Append("vcYearMonth,");
-                sql.Append("vcDyState,");
-                sql.Append("vcHyState,");
-                sql.Append("vcPart_id,");
-                sql.Append("iCbSOQN,");
-                sql.Append("iCbSOQN1,");
-                sql.Append("iCbSOQN2,");
-                sql.Append("dDrTime,");
-                sql.Append("vcOperator,");
-                sql.Append("dOperatorTime,");
-                sql.Append("vcLastTimeFlag");
-                sql.Append(")");
-
-                sql.Append("VALUES");
-
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    sql.Append("  INSERT INTO TSoq( ");
+                    sql.Append("vcYearMonth,");
+                    sql.Append("vcDyState,");
+                    sql.Append("vcHyState,");
+                    sql.Append("vcPart_id,");
+                    sql.Append("iCbSOQN,");
+                    sql.Append("iCbSOQN1,");
+                    sql.Append("iCbSOQN2,");
+                    sql.Append("dDrTime,");
+                    sql.Append("vcOperator,");
+                    sql.Append("dOperatorTime,");
+                    sql.Append("vcLastTimeFlag");
+                    sql.Append(")");
+                    sql.Append("VALUES");
                     sql.Append("('"+ strYearMonth + "',");
                     sql.Append("'0',");
                     sql.Append("'0',");
@@ -690,9 +689,9 @@ namespace DataAccess
                     sql.Append("'" + strLastTimeFlag + "'");
                     sql.Append(")");
 
-                    if (i < dt.Rows.Count - 1) {
-                        sql.Append(",");
-                    }
+                    //if (i < dt.Rows.Count - 1) {
+                    //    sql.Append(",");
+                    //}
                 }
                 sql.Append("; \r\n ");
 
@@ -706,7 +705,7 @@ namespace DataAccess
                 sql.Append("update t1 set     \n");
                 sql.Append("t1.vcCarFamilyCode=t2.vcCarfamilyCode,    \n");
                 sql.Append("t1.vcCurrentPastcode=t2.vcHaoJiu,    \n");
-                sql.Append("t1.vcMakingOrderType=t2.vcReceiver,    \n");
+                sql.Append("t1.vcMakingOrderType=t2.vcOrderingMethod,    \n");
                 sql.Append("t1.vcFZGC=t3.vcOrderPlant,    \n");
                 sql.Append("t1.vcInOutFlag=t2.vcInOut,    \n");
                 sql.Append("t1.vcSupplier_id=t2.vcSupplierId,    \n");
@@ -715,7 +714,7 @@ namespace DataAccess
                 sql.Append("from (    \n");
                 sql.Append("	select * from TSoq where vcYearMonth='"+ strYearMonth + "')t1    \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut    \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,vcOrderingMethod    \n");
                 sql.Append("	from TSPMaster     \n");
                 sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06'     \n");
                 sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
@@ -745,7 +744,14 @@ namespace DataAccess
                 DateTime dLastMonth = (DateTime.Parse(strYear + "-" + strMonth + "-01")).AddMonths(-1);
                 string strLastYearMonth = dLastMonth.ToString("yyyyMM");
                 //波动率计算
-                sql.AppendLine("  update TSoq set decCbBdl=100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2)))/cast(b.iHySOQN as decimal(18,2))  from TSoq a    \r\n ");
+                //sql.AppendLine("  update TSoq set decCbBdl=100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2)))/cast(b.iHySOQN as decimal(18,2))  from TSoq a    \r\n ");
+                sql.AppendLine("  update TSoq set decCbBdl=     \r\n ");
+                sql.AppendLine("     case when a.iCbSOQN=0 or b.iHySOQN=0 then  \r\n ");
+                sql.AppendLine("     	ABS(100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2))))  \r\n ");
+                sql.AppendLine("     else \r\n ");
+                sql.AppendLine("     	ABS(100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2))))/cast(b.iHySOQN as decimal(18,2)) \r\n ");
+                sql.AppendLine("     end    \r\n ");
+                sql.AppendLine("  from TSoq a    \r\n ");
                 sql.AppendLine("  left join    \r\n ");
                 sql.AppendLine("  (    \r\n ");
                 sql.AppendLine("    select * from TSoq where vcYearMonth='"+ strLastYearMonth + "'    \r\n ");

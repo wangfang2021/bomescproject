@@ -434,7 +434,7 @@ namespace SPPSApi.Controllers.G03
                     string strReceiver = dataForm.Receiver;
                     string strPriceState = dataForm.PriceState;
                     string strErr = "";
-                    var temp = fs0309_Logic.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu, strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id, strReceiver, strPriceState, ref strErr);
+                    //var temp = fs0309_Logic.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu, strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id, strReceiver, strPriceState, ref strErr);
                     if (strErr!="")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -449,7 +449,7 @@ namespace SPPSApi.Controllers.G03
 
                     string strErr = "";
                     string strAutoId = dataForm.iAutoId;
-                    fs0309_Logic.sendMail(listInfoData,ref strErr);
+                    //fs0309_Logic.sendMail(listInfoData,loginInfo.Email,loginInfo.UserName, ref strErr);
                     if (strErr!="")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

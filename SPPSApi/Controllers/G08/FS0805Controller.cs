@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G08
     [ApiController]
     public class FS0805Controller : BaseController
     {
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
         FS0805_Logic fS0805_Logic = new FS0805_Logic();
         private readonly string FunctionID = "FS0805";
 
@@ -48,6 +49,7 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
+                //无初始化交互
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -78,22 +80,23 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
             string strSellNo = dataForm.SellNo == null ? "" : dataForm.SellNo;
             try
             {
-                if (strSellNo != "")
-                {
-                    DataTable dt = fS0805_Logic.getSearchInfo(strSellNo);
-                    DtConverter dtConverter = new DtConverter();
-                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = dataList;
-                }
-                else
+                if (strSellNo == string.Empty)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请输入销售单号";
+                    apiResult.type = "info";
+                    apiResult.data = "销售单号不能为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                DataTable dataTable = fS0805_Logic.getSearchInfo(strSellNo);
+                DtConverter dtConverter = new DtConverter();
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -123,38 +126,32 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
             string strSellNo = dataForm.SellNo == null ? "" : dataForm.SellNo;
             try
             {
-                if (strSellNo != "")
-                {
-                    DataTable dataTable = fS0805_Logic.getSearchInfo(strSellNo);
-                    if (dataTable != null && dataTable.Rows.Count != 0)
-                    {
-                        //执行打印操作
-                        //===========================================
-
-
-
-
-
-                        //===========================================
-                        apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = "打印成功";
-                    }
-                    else
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "请输入正确的销售单号";
-                    }
-                }
-                else
+                if (strSellNo == string.Empty)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请输入销售单号,在进行打印";
+                    apiResult.type = "info";
+                    apiResult.data = "销售单号不能为空";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                DataTable dataTable = fS0805_Logic.getSearchInfo(strSellNo);
+                if(dataTable.Rows.Count==0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "info";
+                    apiResult.data = "没有可供打印的数据，请确认销售单号";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //执行打印操作
+                //===========================================
 
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {

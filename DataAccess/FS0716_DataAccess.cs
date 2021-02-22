@@ -162,6 +162,36 @@ namespace DataAccess
         {
             try
             {
+                StringBuilder strSql = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.AppendLine("  delete  from TPackSupplier where vcPerson='" + dt.Rows[i]["vcPerson"].ToString() + "' \r\n");
+                }
+                strSql.AppendLine("    insert into \r\n");
+                strSql.AppendLine("    TPackSupplier \r\n");
+                strSql.AppendLine("   ( vcPackSupplierCode  \r\n");
+                strSql.AppendLine("   , vcPackSupplierName  \r\n");
+                strSql.AppendLine("   , vcPerson  \r\n");
+                strSql.AppendLine("   , vcPhone  \r\n");
+                strSql.AppendLine("   , vcEmail  \r\n");
+                strSql.AppendLine("   , vcAddress  \r\n");
+                strSql.AppendLine("   , vcOperatorID  \r\n");
+                strSql.AppendLine("   , dOperatorTime ) \r\n");
+                strSql.AppendLine("   values \r\n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.AppendLine("   ( \r\n");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSupplierCode"], false) + ",\r\n");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSupplierName"], false) + ",\r\n");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPerson"], false) + ",\r\n");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPhone"], false) + ",\r\n");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcEmail"], false) + ",\r\n");
+                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcAddress"], false) + ",\r\n");
+                    strSql.AppendLine("  '"+ strUserId + "'  ,  \r\n");
+                    strSql.AppendLine(" getdate()  ) \r\n");
+                }
+
+                excute.ExcuteSqlWithStringOper(strSql.ToString());
 
             }
             catch (Exception ex)

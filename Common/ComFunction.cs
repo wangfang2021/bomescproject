@@ -900,7 +900,7 @@ namespace Common
                 {
                     fs.Close();
                 }
-
+                Console.WriteLine(ex.Message);
                 RetMsg = "导出文件失败";
                 return "";
             }
@@ -1073,6 +1073,7 @@ namespace Common
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return "";
             }
         }
@@ -1426,6 +1427,11 @@ namespace Common
         public static readonly string NumCharLLL = "[^A-Z^a-z^0-9^/^_^-]+";
 
         public static readonly string Decimal = "decimal";
+
+        /// <summary>
+        /// 英数 + "-",且必须有"-"
+        /// </summary>
+        public static readonly string PartLine = "PartLine";
 
     }
     #endregion

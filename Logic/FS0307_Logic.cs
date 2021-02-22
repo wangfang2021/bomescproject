@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using Common;
@@ -44,13 +45,18 @@ namespace Logic
             return res;
         }
 
+        public DataTable getCompany(string OriginCompany)
+        {
+            return fs0307_dataAccess.getCompany(OriginCompany);
+        }
+
         #endregion
 
         #region 检索
 
-        public DataTable searchApi(string strYear, string FinishFlag)
+        public DataTable searchApi(string strYear, string FinishFlag, string OriginCompany)
         {
-            return fs0307_dataAccess.searchApi(strYear, FinishFlag);
+            return fs0307_dataAccess.searchApi(strYear, FinishFlag, OriginCompany);
         }
 
         #endregion
@@ -64,9 +70,9 @@ namespace Logic
 
         #region 年限抽取
 
-        public void extractPart(string strUserId, List<string> vcOriginCompany)
+        public void extractPart(string strUserId, List<string> vcOriginCompany, ref string message)
         {
-            fs0307_dataAccess.extractPart(strUserId, vcOriginCompany);
+            fs0307_dataAccess.extractPart(strUserId, vcOriginCompany, ref message);
         }
 
         #endregion
@@ -95,9 +101,9 @@ namespace Logic
             }
             else if (flag == "1")
             {
-                sbr.AppendLine("<p>各位供应商殿&nbsp;&nbsp;&nbsp;（请转发给贵司社内相关人员）</p><p><br></p>");
+                sbr.AppendLine("<p>各位供应商殿&nbsp;（请转发给贵司社内相关人员）</p>");
                 sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
-                sbr.AppendLine("<p><br></p><p><br></p><p><br></p>");
+                sbr.AppendLine("<p><br></p>");
                 sbr.AppendLine("<p>关于标题一事，</p>");
                 sbr.AppendLine("<p>本年度的年限调整工作开始展开。 </p>");
                 sbr.AppendLine("<p>附件为本年度贵司的旧型年限制度联络单，请查收。</p>");
@@ -115,15 +121,33 @@ namespace Logic
 
         #region FTMS
 
-        public void FTMS(List<Dictionary<string, Object>> listInfoData, string EmailBody, string strUserId, ref string refMsg)
+        public void FTMS(List<Dictionary<string, Object>> listInfoData, string EmailBody, string strUserId, ref string refMsg, string Email, string unit)
         {
             try
             {
                 fs0307_dataAccess.FTMSCB(listInfoData, strUserId);
+
                 //TODO 发送邮件
+                string strSubject = "FTMS层别展开。";
+                DataTable cCDt = null;
+
+                DataTable receiverDt = new DataTable();
+                receiverDt.Columns.Add("address");
+                receiverDt.Columns.Add("displayName");
+                DataTable dt = fs0307_dataAccess.getReceiverEmail();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    DataRow dr = receiverDt.NewRow();
+                    dr["address"] = dt.Rows[i]["vcValue2"].ToString();
+                    dr["displayName"] = dt.Rows[i]["vcValue1"].ToString();
+                    receiverDt.Rows.Add(dr);
+                }
+
+
+                string result = ComFunction.SendEmailInfo(Email, unit, EmailBody, receiverDt, cCDt, strSubject, "", false);
 
                 //邮件发送失败
-                if (false)
+                if (result.Equals("Error"))
                 {
                     refMsg = "FTMS层别展开成功，但邮件发送失败。";
                 }
@@ -144,10 +168,12 @@ namespace Logic
 
 
 
-        public void ZKZP(List<Dictionary<string, Object>> listInfoData, string strUserId, string emailBody, string path, ref string refMsg)
+        public void ZKZP(List<Dictionary<string, Object>> listInfoData, string strUserId, string emailBody, string path, ref string refMsg, string Email, string unit, string Filepath)
         {
             try
             {
+
+
                 //记录列表
                 List<MailSend> list = new List<MailSend>();
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -184,26 +210,58 @@ namespace Logic
                 //账票展开
                 fs0307_dataAccess.ZKZP(id, strUserId);
 
+                DataTable dtEmail = fs0307_dataAccess.getSupplierEmail();
+
+                refMsg = "账票展开成功。";
+                string errorList = "";
+
                 //对每个供应商发送邮件，记录失败供应商前台显示
                 for (int i = 0; i < list.Count; i++)
                 {
                     //TODO 生成附件
                     DataTable dt = fs0307_dataAccess.getFile(list[i].id);
                     string file = generateExcelWithXlt(dt, path, "FS0307_template.xlsx", list[i].supplierId);
-
-                    //TODO 发送邮件
-
-                    //失败记录失败供应商
-                    if (false)
+                    if (!string.IsNullOrWhiteSpace(file))
                     {
-                        if (string.IsNullOrWhiteSpace(refMsg))
-                        {
-                            refMsg = "账票展开成功，但以下供应商邮件发送失败。";
-                        }
+                        file = Filepath + file;
+                    }
+                    //TODO 发送邮件
+                    DataTable receiverDt = new DataTable();
+                    receiverDt.Columns.Add("address");
+                    receiverDt.Columns.Add("displayName");
 
-                        refMsg += list[i].supplierId + ";";
+                    DataRow[] dr = dtEmail.Select("vcSupplier_id = '" + list[i].supplierId + "'");
+
+                    for (int j = 0; j < dr.Length; j++)
+                    {
+                        DataRow dr1 = receiverDt.NewRow();
+                        dr1["address"] = dr[j]["vcEmail1"].ToString();
+                        dr1["displayName"] = dr[j]["vcLXR1"].ToString();
+                        receiverDt.Rows.Add(dr1);
                     }
 
+                    DataTable cCDt = null;
+
+                    string strSubject = "旧型年限制度联络单。";
+
+                    string result = ComFunction.SendEmailInfo(Email, unit, emailBody, receiverDt, cCDt, strSubject, file, true);
+
+
+                    //失败记录失败供应商
+                    if (result.Equals("Error"))
+                    {
+                        if (!string.IsNullOrWhiteSpace(errorList))
+                        {
+                            errorList += ";";
+                        }
+
+                        errorList += list[i].supplierId;
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(errorList))
+                {
+                    refMsg += "但以下供应商:" + errorList + "邮件发送失败。";
                 }
             }
             catch (Exception ex)
@@ -250,9 +308,9 @@ namespace Logic
 
         #region 织入原单位
 
-        public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void InsertUnitApi(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string Msg)
         {
-            fs0307_dataAccess.InsertUnitApi(listInfoData, strUserId);
+            fs0307_dataAccess.InsertUnitApi(listInfoData, strUserId, ref Msg);
         }
 
         #endregion
@@ -277,23 +335,28 @@ namespace Logic
 
                 sheet.GetRow(1).GetCell(27).SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));
 
+
                 ICellStyle borderStyle = xssfworkbook.CreateCellStyle();
                 borderStyle.BorderBottom = BorderStyle.Thin;
                 borderStyle.BorderLeft = BorderStyle.Thin;
                 borderStyle.BorderRight = BorderStyle.Thin;
                 borderStyle.BorderTop = BorderStyle.Thin;
+
                 borderStyle.BottomBorderColor = HSSFColor.Black.Index;
                 borderStyle.LeftBorderColor = HSSFColor.Black.Index;
                 borderStyle.RightBorderColor = HSSFColor.Black.Index;
                 borderStyle.TopBorderColor = HSSFColor.Black.Index;
 
+
                 ICellStyle borderStyleLeft = xssfworkbook.CreateCellStyle();
                 borderStyleLeft.BorderBottom = BorderStyle.Thin;
                 borderStyleLeft.BorderLeft = BorderStyle.Thin;
                 borderStyleLeft.BorderTop = BorderStyle.Thin;
+
                 borderStyleLeft.BottomBorderColor = HSSFColor.Black.Index;
                 borderStyleLeft.LeftBorderColor = HSSFColor.Black.Index;
                 borderStyleLeft.TopBorderColor = HSSFColor.Black.Index;
+
 
                 ICellStyle borderStyleLeftl = xssfworkbook.CreateCellStyle();
                 borderStyleLeftl.BorderBottom = BorderStyle.Thin;
@@ -303,6 +366,7 @@ namespace Logic
                 borderStyleLeftl.LeftBorderColor = HSSFColor.Black.Index;
                 borderStyleLeftl.TopBorderColor = HSSFColor.Black.Index;
 
+
                 ICellStyle borderStyleRight = xssfworkbook.CreateCellStyle();
                 borderStyleRight.BorderBottom = BorderStyle.Thin;
                 borderStyleRight.BorderRight = BorderStyle.Thick;
@@ -310,6 +374,8 @@ namespace Logic
                 borderStyleRight.BottomBorderColor = HSSFColor.Black.Index;
                 borderStyleRight.RightBorderColor = HSSFColor.Black.Index;
                 borderStyleRight.TopBorderColor = HSSFColor.Black.Index;
+
+
 
                 ICellStyle borderStyleMiddle = xssfworkbook.CreateCellStyle();
                 borderStyleMiddle.BorderBottom = BorderStyle.Thin;

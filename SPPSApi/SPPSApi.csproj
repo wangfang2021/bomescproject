@@ -16,6 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Doc\Export\预留.txt" />
+    <None Remove="Doc\Image\HeZiImages\预留.txt" />
+    <None Remove="Doc\Image\PackingOper\预留.txt" />
+    <None Remove="Doc\Image\SPPartImage\预留.txt" />
+    <None Remove="Doc\Image\预留.txt" />
     <None Remove="Doc\Import\No.1_000GF9MDL.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT07.xlsx" />
     <None Remove="Doc\Import\No.1_16ZCKZT11.xlsx" />
@@ -35,7 +40,117 @@
     <None Remove="Doc\Import\No.1_668WJ0030.xlsx" />
     <None Remove="Doc\Import\No.1_685WF0373.xlsx" />
     <None Remove="Doc\Import\No.1_HBV791.xlsx" />
+    <None Remove="Doc\orders\预留.txt" />
+    <None Remove="Doc\Template\FS0201.xlsm" />
+    <None Remove="Doc\Template\FS0203.xlsx" />
+    <None Remove="Doc\Template\FS0300.xlsx" />
+    <None Remove="Doc\Template\FS0302.xlsx" />
+    <None Remove="Doc\Template\FS0303.xlsx" />
+    <None Remove="Doc\Template\FS0303_Export.xlsx" />
+    <None Remove="Doc\Template\fs0304_Export.xlsx" />
+    <None Remove="Doc\Template\fs0305_Export.xlsx" />
     <None Remove="Doc\Template\FS0307 - 复制.xlsx" />
+    <None Remove="Doc\Template\FS0307.xlsx" />
+    <None Remove="Doc\Template\FS0307_template.xlsx" />
+    <None Remove="Doc\Template\FS0308.xlsx" />
+    <None Remove="Doc\Template\FS0309.xlsx" />
+    <None Remove="Doc\Template\FS0309_DiaoDa.xlsx" />
+    <None Remove="Doc\Template\FS0309_Export.xlsx" />
+    <None Remove="Doc\Template\FS0312.xlsx" />
+    <None Remove="Doc\Template\FS0312_Export.xlsx" />
+    <None Remove="Doc\Template\FS0401.xlsx" />
+    <None Remove="Doc\Template\FS0402.xlsx" />
+    <None Remove="Doc\Template\FS0402_Export.xlsx" />
+    <None Remove="Doc\Template\FS0403.xlsx" />
+    <None Remove="Doc\Template\FS0407.xlsx" />
+    <None Remove="Doc\Template\FS0501_Export.xlsx" />
+    <None Remove="Doc\Template\FS0503.xlsx" />
+    <None Remove="Doc\Template\FS0602_Export.xlsx" />
+    <None Remove="Doc\Template\FS0603.xlsx" />
+    <None Remove="Doc\Template\FS0603_Export.xlsx" />
+    <None Remove="Doc\Template\FS0603_Template.xlsx" />
+    <None Remove="Doc\Template\FS0604.xlsx" />
+    <None Remove="Doc\Template\FS0605.xlsx" />
+    <None Remove="Doc\Template\FS0606.xlsx" />
+    <None Remove="Doc\Template\FS0607.xlsx" />
+    <None Remove="Doc\Template\FS0610_Download.xlsx" />
+    <None Remove="Doc\Template\FS0610_ImPro.xlsx" />
+    <None Remove="Doc\Template\FS0610_PlanMake.xlsx" />
+    <None Remove="Doc\Template\FS0611_Download.xlsx" />
+    <None Remove="Doc\Template\FS0616_Export.xlsx" />
+    <None Remove="Doc\Template\FS0618_Export.xlsx" />
+    <None Remove="Doc\Template\FS0620.xlsx" />
+    <None Remove="Doc\Template\FS0620_Report - 副本.xlsx" />
+    <None Remove="Doc\Template\FS0620_Report.xlsx" />
+    <None Remove="Doc\Template\FS0622.xlsx" />
+    <None Remove="Doc\Template\FS0625.xlsx" />
+    <None Remove="Doc\Template\FS0626.xlsx" />
+    <None Remove="Doc\Template\FS0628.xlsx" />
+    <None Remove="Doc\Template\FS0701.xlsx" />
+    <None Remove="Doc\Template\FS0701_Export.xlsx" />
+    <None Remove="Doc\Template\FS0702.xlsx" />
+    <None Remove="Doc\Template\FS0702_Export.xlsx" />
+    <None Remove="Doc\Template\FS0702_Export_H.xlsx" />
+    <None Remove="Doc\Template\FS0704.xlsx" />
+    <None Remove="Doc\Template\FS0704_Export.xlsx" />
+    <None Remove="Doc\Template\FS0708_Export.xlsx" />
+    <None Remove="Doc\Template\FS0711_Export.xlsx" />
+    <None Remove="Doc\Template\FS0712_Export.xlsx" />
+    <None Remove="Doc\Template\FS0713.xlsx" />
+    <None Remove="Doc\Template\FS0713_Export.xlsx" />
+    <None Remove="Doc\Template\FS0714.xlsx" />
+    <None Remove="Doc\Template\FS0714_Export.xlsx" />
+    <None Remove="Doc\Template\FS0716.xlsx" />
+    <None Remove="Doc\Template\FS0716_Export.xlsx" />
+    <None Remove="Doc\Template\FS0719.xlsx" />
+    <None Remove="Doc\Template\FS0801.xlsx" />
+    <None Remove="Doc\Template\FS0810.xlsx" />
+    <None Remove="Doc\Template\FS0810_PM.xlsx" />
+    <None Remove="Doc\Template\FS0810_StandardTime.xlsx" />
+    <None Remove="Doc\Template\FS0814.xlsx" />
+    <None Remove="Doc\Template\FS1201_Calendar.xlsx" />
+    <None Remove="Doc\Template\FS1202_Import.xlsx" />
+    <None Remove="Doc\Template\FS1203_Edit.xlsx" />
+    <None Remove="Doc\Template\FS1203_PlanMake.xlsx" />
+    <None Remove="Doc\Template\FS1205.xlsx" />
+    <None Remove="Doc\Template\FS1205_Exp.xlsx" />
+    <None Remove="Doc\Template\FS1205_Export.xlsx" />
+    <None Remove="Doc\Template\FS1205_PlanMake.xlsx" />
+    <None Remove="Doc\Template\FS1206.xlsx" />
+    <None Remove="Doc\Template\FS1206_Export.xlsx" />
+    <None Remove="Doc\Template\FS1207_Export.xlsx" />
+    <None Remove="Doc\Template\FS1207_Sub1_Export.xlsx" />
+    <None Remove="Doc\Template\FS1207_Sub1_Import.xlsx" />
+    <None Remove="Doc\Template\FS1207_Sub2_Import.xlsx" />
+    <None Remove="Doc\Template\FS1208_EDPlanExprot.xlsx" />
+    <None Remove="Doc\Template\FS1208_EDPlanImport.xlsx" />
+    <None Remove="Doc\Template\FS1209_Print.xlsx" />
+    <None Remove="Doc\Template\FS1210_Import.xlsx" />
+    <None Remove="Doc\Template\FS1211_ALLExport.xlsx" />
+    <None Remove="Doc\Template\FS1211_ItemExport.xlsx" />
+    <None Remove="Doc\Template\FS1211_PartList.xlsx" />
+    <None Remove="Doc\Template\FS1212_Export.xlsx" />
+    <None Remove="Doc\Template\FS1212_Import.xlsx" />
+    <None Remove="Doc\Template\FS1310_Export.xlsx" />
+    <None Remove="Doc\Template\FS1402_Export.xlsx" />
+    <None Remove="Doc\Template\FS1501.xlsx" />
+    <None Remove="Doc\Template\FS1502_Export.xlsx" />
+    <None Remove="Doc\Template\FS1701.xlsx" />
+    <None Remove="Doc\Template\MessageList.xlsx" />
+    <None Remove="Doc\Template\年计导出报表.xls" />
+    <None Remove="Doc\upload\预留.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Doc\Template\FS0711_Export.xlsx" />
+    <Content Include="Doc\Template\FS0712_Export.xlsx" />
+    <Content Include="Doc\Template\FS0713.xlsx" />
+    <Content Include="Doc\Template\FS0713_Export.xlsx" />
+    <Content Include="Doc\Template\FS0714.xlsx" />
+    <Content Include="Doc\Template\FS0714_Export.xlsx" />
+    <Content Include="Doc\Template\FS0716.xlsx" />
+    <Content Include="Doc\Template\FS0716_Export.xlsx" />
+    <Content Include="Doc\Template\FS0719.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +160,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BatchProcess\BatchProcess.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\DataEntity\DataEntity.csproj" />
     <ProjectReference Include="..\Logic\Logic.csproj" />
@@ -55,11 +171,280 @@
     <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G17\" />
     <Folder Include="Controllers\G99\" />
-    <Folder Include="Doc\Export\" />
-    <Folder Include="Doc\Image\PackingOper\" />
     <Folder Include="Doc\Image\Checking\" />
     <Folder Include="Doc\Import\" />
-    <Folder Include="Doc\upload\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Doc\Export\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Image\HeZiImages\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Image\PackingOper\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Image\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\orders\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0201.xlsm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0203.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0300.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0302.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0303.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0303_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\fs0304_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\fs0305_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0307.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0307_template.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0308.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0309.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0309_DiaoDa.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0309_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0312.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0312_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0401.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0402.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0402_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0403.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0407.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0501_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0503.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0602_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0603.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0603_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0603_Template.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0604.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0605.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0606.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0607.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0610_Download.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0610_ImPro.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0610_PlanMake.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0611_Download.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0616_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0618_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0620.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0620_Report - 副本.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0620_Report.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0622.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0625.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0626.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0628.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0701.xlsx" />
+    <Content Include="Doc\Template\FS0701_Export.xlsx" />
+    <Content Include="Doc\Template\FS0702.xlsx" />
+    <Content Include="Doc\Template\FS0702_Export.xlsx" />
+    <Content Include="Doc\Template\FS0702_Export_H.xlsx" />
+    <Content Include="Doc\Template\FS0704.xlsx" />
+    <Content Include="Doc\Template\FS0704_Export.xlsx" />
+    <Content Include="Doc\Template\FS0708_Export.xlsx" />
+    <Content Include="Doc\Template\FS0801.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0810.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0810_PM.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0810_StandardTime.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0814.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1201_Calendar.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1202_Import.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1203_Edit.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1203_PlanMake.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1205.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1205_Exp.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1205_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1205_PlanMake.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1206.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1206_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1207_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1207_Sub1_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1207_Sub1_Import.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1207_Sub2_Import.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1208_EDPlanExprot.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1208_EDPlanImport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1209_Print.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1210_Import.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1211_ALLExport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1211_ItemExport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1211_PartList.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1212_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1212_Import.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1310_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1402_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1501.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1502_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1701.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\MessageList.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\年计导出报表.xls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\upload\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Doc\Image\SPPartImage\预留.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 

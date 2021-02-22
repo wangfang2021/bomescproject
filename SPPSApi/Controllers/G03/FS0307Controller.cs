@@ -44,11 +44,19 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> dataList_C024 = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//包装事业体
-                List<string> dataList_C024_Excel = convertTCodeToResult(getTCode("C024"));//变更事项
-
+                List<Object> dataList_C024 = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//旧型年限进度
+                //List<string> dataList_C006_Excel = convertTCodeToResult(getTCode("C006"));//原单位
+                List<string> dataList_C006_Excel = convertTCodeToResult(fs0307_logic.getCompany(loginInfo.PlantCode));//原单位
+                List<string> dataList_C005_Excel = convertTCodeToResult(getTCode("C005"));//收货方
+                List<string> dataList_C016_Excel = convertTCodeToResult(getTCode("C016"));//包装事业体
+                List<string> dataList_C024_Excel = convertTCodeToResult(getTCode("C024"));//旧型年限进度
+                List<string> dataList_C003_Excel = convertTCodeToResult(getTCode("C003"));//内外
 
                 res.Add("C024", dataList_C024);
+                res.Add("C003_E", dataList_C003_Excel);
+                res.Add("C006_E", dataList_C006_Excel);
+                res.Add("C005_E", dataList_C005_Excel);
+                res.Add("C016_E", dataList_C016_Excel);
                 res.Add("C024_E", dataList_C024_Excel);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -64,41 +72,41 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-        #region 年限抽取
+        //#region 年限抽取
 
-        [HttpPost]
-        [EnableCors("any")]
-        public string extractApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            JArray listInfo = dataForm.vcOriginCompany;
-            List<string> vcOriginCompany = listInfo.ToObject<List<string>>();
-            try
-            {
-                fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany);
+        //[HttpPost]
+        //[EnableCors("any")]
+        //public string extractApi([FromBody]dynamic data)
+        //{
+        //    //验证是否登录
+        //    string strToken = Request.Headers["X-Token"];
+        //    if (!isLogin(strToken))
+        //    {
+        //        return error_login();
+        //    }
+        //    LoginInfo loginInfo = getLoginByToken(strToken);
+        //    //以下开始业务处理
+        //    ApiResult apiResult = new ApiResult();
+        //    dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        //    JArray listInfo = dataForm.vcOriginCompany;
+        //    List<string> vcOriginCompany = listInfo.ToObject<List<string>>();
+        //    try
+        //    {
+        //        fs0307_logic.extractPart(loginInfo.UserId, vcOriginCompany);
 
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0701", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "年限抽取失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
+        //        apiResult.code = ComConstant.SUCCESS_CODE;
+        //        apiResult.data = null;
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0701", ex, loginInfo.UserId);
+        //        apiResult.code = ComConstant.ERROR_CODE;
+        //        apiResult.data = "年限抽取失败";
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //}
+        //#endregion
 
         #region 检索（分页缓存）
         [HttpPost]
@@ -138,7 +146,7 @@ namespace SPPSApi.Controllers.G03
                 }
                 else
                 {
-                    DataTable dtAll = fs0307_logic.searchApi(strYear, FinishFlag);
+                    DataTable dtAll = fs0307_logic.searchApi(strYear, FinishFlag, loginInfo.PlantCode);
                     initSearchCash(strSearchKey, dtAll);
                     dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
                 }
@@ -189,9 +197,9 @@ namespace SPPSApi.Controllers.G03
 
             try
             {
-                DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag);
+                DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag, loginInfo.PlantCode);
 
-                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcSupplier_id", "vcSYTCode", "vcReceiver", "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
+                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcSupplier_id", "vcSYTCode", "vcReceiver", "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNumAvg", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0307.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -233,10 +241,16 @@ namespace SPPSApi.Controllers.G03
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
+                bool bModFlag = false;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
+                    bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
                     }
@@ -250,12 +264,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"进度","1年","2年","3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年"},
-                                                {"vcFinish","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21"},
-                                                {"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num },
-                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","0","0","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
-                                                {"2","14","15","16","18","19","20","21","22","23","24","25","26","27","28","29","30","31"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"进度","进度完成时间","厂家编码","品番","品名","内外区分","车种","旧型开始时间","备注","1年","2年","3年","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年","原单位","包装事业体","收货方","平均"},
+                                                {"vcFinish","dFinishYMD","vcSupplier_id","vcPart_id","vcPartNameEn","vcInOutflag","vcCarTypeDev","dJiuBegin","vcRemark","vcNum1","vcNum2","vcNum3","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21","vcOriginCompany","vcSYTCode","vcReceiver","vcNumAvg"},
+                                                {"",FieldCheck.Date,FieldCheck.Num,FieldCheck.NumChar,"","",FieldCheck.NumChar,FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"","","",FieldCheck.NumChar },
+                                                {"0","0","4","12","0","0","4","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","0","4","10","1","1","4","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","1","1","1","0"},//最小长度设定,可以为空用0
+                                                {"2","3","4","5","6","7","8","9","10","14","15","16","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","17"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
@@ -344,7 +358,16 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
 
-                fs0307_logic.InsertUnitApi(listInfoData, loginInfo.UserId);
+                string Msg = "";
+                fs0307_logic.InsertUnitApi(listInfoData, loginInfo.UserId, ref Msg);
+
+                if (!string.IsNullOrWhiteSpace(Msg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    Msg = "品番" + Msg + "年限区分填写有误";
+                    apiResult.data = Msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

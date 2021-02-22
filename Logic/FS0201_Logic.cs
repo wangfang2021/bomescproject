@@ -311,16 +311,16 @@ namespace Logic
 
                 }
                 //代替区分为空
-                if (string.IsNullOrWhiteSpace(vcDTDiff))
-                {
-                    DTDiffError = 1;
-                    errorlist.Add("代替区分必填");
-                }
+                //if (string.IsNullOrWhiteSpace(vcDTDiff))
+                //{
+                //    DTDiffError = 1;
+                //    errorlist.Add("代替区分必填");
+                //}
                 //代替区分为HD/NR时代替品番为空
-                if ((vcDTDiff.Contains("HD") || vcDTDiff.Contains("NR")) && string.IsNullOrWhiteSpace(vcPart_id_DT))
+                if ((vcDTDiff.Contains("HD") && string.IsNullOrWhiteSpace(vcPart_id_DT)))
                 {
                     DTPartError = 1;
-                    errorlist.Add("代替区分为HD/NR时,代替品番必填");
+                    errorlist.Add("代替区分为HD时,代替品番必填");
                 }
                 //品名为空
                 if (string.IsNullOrWhiteSpace(vcPartName))

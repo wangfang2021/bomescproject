@@ -133,8 +133,15 @@ namespace SPPSApi.Controllers.G03
                 string strErrorPartId = "";
                 fs0314_logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
 
+                if (!string.IsNullOrWhiteSpace(strErrorPartId))
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "保存成功,但供应商" + strErrorPartId + "已存在,不进行该供应商保存";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

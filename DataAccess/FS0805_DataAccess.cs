@@ -12,24 +12,26 @@ namespace DataAccess
     public class FS0805_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getSearchInfo(string strSaleno)
+        public DataTable getSearchInfo(string strSellNo)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("SELECT [iAutoId] as LinId");
-                strSql.AppendLine("      ,[vcSHF] as vcSHF");
+                strSql.AppendLine("      ,[vcSHF] as vcReceiver");
                 strSql.AppendLine("      ,[vcPart_id] as vcPartId");
                 strSql.AppendLine("      ,[vcOrderNo] as vcOrderNo");
                 strSql.AppendLine("      ,[vcLianFanNo] as vcLianFanNo");
                 strSql.AppendLine("      ,[vcInvoiceNo] as vcInvoiceNo");
                 strSql.AppendLine("      ,[vcBoxNo] as vcBoxNo ");
-                strSql.AppendLine("      ,[vcPartsNameEN] as vcPartsNameEN");
-                strSql.AppendLine("      ,[iQuantity] as vcQuantity");
-                strSql.AppendLine("      ,[decPriceWithTax] as vcPriceWithTax");
-                strSql.AppendLine("      ,[decMoney] as vcMoney");
+                strSql.AppendLine("      ,[vcPartsNameEN] as vcPartENName");
+                strSql.AppendLine("      ,[iQuantity] as iQuantity");
+                strSql.AppendLine("      ,[decPriceWithTax] as decPriceWithTax");
+                strSql.AppendLine("      ,[decMoney] as decMoney");
+                strSql.AppendLine("	  ,'1' AS bSelectFlag");
                 strSql.AppendLine("  FROM [TSell]");
-                strSql.AppendLine("  WHERE vcSellNo ='"+ strSaleno + "' ");
+                strSql.AppendLine("  WHERE vcSellNo ='"+ strSellNo + "' ");
+                strSql.AppendLine("  ORDER BY [vcSHF],[vcOrderNo],[vcLianFanNo]");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

@@ -26,6 +26,13 @@ namespace Logic
         }
         #endregion
 
+        #region 检查是否有异常数据
+        public DataTable getErrPartId()
+        {
+            return fs0303_DataAccess.getErrPartId();
+        }
+        #endregion
+
         #region 检索特记
         public DataTable SearchTeji(string strPart_id)
         {
@@ -171,11 +178,11 @@ namespace Logic
                             string strValue = fs0303_DataAccess.Name2Value(item.strCodeid, strName, true);
                             #endregion
 
-                            if (!item.isNull && strValue == null)
-                            {
-                                strErr = "编辑行中第" + (i + 1) + "行" + item.strTitle + "不能为空";
-                                return null;
-                            }
+                            //if (!item.isNull && strValue == null)
+                            //{
+                            //    strErr = "编辑行中第" + (i + 1) + "行" + item.strTitle + "不能为空";
+                            //    return null;
+                            //}
                             #region 更新Key对应的值
                             listData[i][item.strHeader] = strValue;
                             #endregion
@@ -224,7 +231,7 @@ namespace Logic
             //1、更新原单位纳期 2、更新生确单
             fs0303_DataAccess.sqSend(listInfoData, strSqDate, strUserId);
 
-            DataTable dtSetting = getEmailSetting(strUserId);
+            DataTable dtSetting = getEmailSetting(strUserId,"FS0303");
             string strTitle = "";//邮件标题
             string strContent = "";//邮件内容
             if (dtSetting == null || dtSetting.Rows.Count == 0)
@@ -361,7 +368,7 @@ namespace Logic
         #endregion
 
         #region 获取发件人的邮件内容配置
-        public DataTable getEmailSetting(string strUserId)
+        public DataTable getEmailSetting(string strUserId,string strChildID)
         {
             DataTable dt = fs0303_DataAccess.getEmailSetting(strUserId);
             if (dt == null || dt.Rows.Count == 0)

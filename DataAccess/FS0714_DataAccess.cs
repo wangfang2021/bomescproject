@@ -42,7 +42,7 @@ namespace DataAccess
 
                 }
 
-             
+
                 if (string.IsNullOrEmpty(dToE))
                 {
                     dToE = "3000-01-01 0:00:00";
@@ -184,7 +184,39 @@ namespace DataAccess
         {
             try
             {
-
+                StringBuilder strSql = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.AppendLine("    delete TPackPanKui where vcPackSpot='"+ dt.Rows[i]["vcPackSpot"].ToString()+ "'and vcPackNo='" + dt.Rows[i]["vcPackNo"].ToString() + "'and vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'   \r\n");
+                }
+                strSql.AppendLine("   insert into TPackPanKui   \r\n");
+                strSql.AppendLine("     ( vcPackSpot    \r\n");
+                strSql.AppendLine("     , vcPackNo    \r\n");
+                strSql.AppendLine("     , vcPackGPSNo    \r\n");
+                strSql.AppendLine("     , vcSupplierID    \r\n");
+                strSql.AppendLine("     , vcXiuZhengFlag    \r\n");
+                strSql.AppendLine("     , iNumber    \r\n");
+                strSql.AppendLine("     , dBuJiTime    \r\n");
+                strSql.AppendLine("     , vcXiuZhengNote    \r\n");
+                strSql.AppendLine("     , vcOperatorID    \r\n");
+                strSql.AppendLine("     , dOperatorTime )   \r\n");
+                strSql.AppendLine("     values   \r\n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.AppendLine("     (   \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + ", \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + ", \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], false) + ", \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplierID"], false) + ", \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcXiuZhengFlag"], false) + ", \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["iNumber"], false) + ", \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["dBuJiTime"], false) + ", \r\n");
+                    strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcXiuZhengNote"], false) + ", \r\n");
+                    strSql.AppendLine("    '"+ strUserId + "',  \r\n");
+                    strSql.AppendLine("     getdate()  \r\n");
+                    strSql.AppendLine("      )\r\n");
+                }
+                excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
             {

@@ -198,7 +198,7 @@ namespace SPPSApi.Controllers.G03
                                                         {"FinishState" ,"vcUnit"    ,"vcCarType","THChange"    ,"vcRemark"},
                                                         {""            ,""       ,FieldCheck.NumChar,""  ,""  },
                                                         {"0"           ,"0"      ,"10"       ,"0"           ,"0"  },//最大长度设定,不校验最大长度用0
-                                                        {"0"           ,"1"      ,"1"        ,"1"           ,"0"  },//最小长度设定,可以为空用0
+                                                        {"1"           ,"0"      ,"0"        ,"0"           ,"0"  },//最小长度设定,可以为空用0
                                                         {"4"           ,"5"      ,"7"        ,"8"           ,"10" }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
@@ -253,7 +253,7 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0302_logic.SearchApi(fileName);
                 string resMsg = "";
-                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime" };
+                string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime", "vcNum" };
                 //string[] fields = { "vcSPINo", "vcPart_Id_old", "vcPart_Id_new", "FinishState", "vcUnit", "vcDiff", "vcCarType", "THChange", "vcDD", "vcRemark", "vcChange", "vcBJDiff", "vcDT", "vcPartName", "vcStartYearMonth", "vcFXDiff", "vcFXNo", "vcOldProj", "dOldProjTime", "vcNewProj", "dNewProjTime", "vcCZYD", "dHandleTime", "vcSheetName", "vcFileName" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0302.xlsx", 1, loginInfo.UserId, FunctionID);

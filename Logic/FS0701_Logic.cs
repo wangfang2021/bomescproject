@@ -24,9 +24,9 @@ namespace Logic
         }
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(string  PackSpot, string PackNo, string PackGPSNo, string dFromB, string dFromE, string dToB, string dToE)
+        public DataTable Search(string  PackSpot, string PackNo, string PackGPSNo,string strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
         {
-            return FS0701_DataAccess.Search(PackSpot, PackNo, PackGPSNo, dFromB, dFromE, dToB, dToE);
+            return FS0701_DataAccess.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, dFromB, dFromE, dToB, dToE);
         }
         #endregion
 
@@ -72,8 +72,15 @@ namespace Logic
         {
             FS0701_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName);
         }
+
         #endregion
 
+        #region 查找工厂
+        public DataTable SearchPackSpot()
+        {
+            return FS0701_DataAccess.SearchPackSpot();
+        }
+        #endregion
 
     }
 }

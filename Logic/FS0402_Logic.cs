@@ -420,6 +420,7 @@ namespace Logic
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Exception: " + ex.Message);
                 return "";
             }
         }

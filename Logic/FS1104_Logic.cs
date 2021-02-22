@@ -18,9 +18,9 @@ namespace Logic
         {
             fs1104_DataAccess = new FS1104_DataAccess();
         }
-        public string getCaseLianFanInfo(string strPlant, string strReParty, string strPackPlant)
+        public string getCaseNoInfo(string strOrderPlant, string strReceiver, string strPackingPlant, string strLianFan)
         {
-            return fs1104_DataAccess.getCaseLianFanInfo(strPlant, strReParty, strPackPlant);
+            return fs1104_DataAccess.getCaseNoInfo(strOrderPlant, strReceiver, strPackingPlant, strLianFan);
         }
         public DataTable setPrintInfo(string strPlant, string strReParty, string strPackPlant, string strCaseLianFanNo, string strPrintNum, string strCaseNo, string strPrintCopy)
         {

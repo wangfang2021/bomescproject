@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G13
     [ApiController]
     public class FS1301Controller : BaseController
     {
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
         FS1301_Logic fS1301_Logic = new FS1301_Logic();
         private readonly string FunctionID = "FS1301";
 
@@ -48,9 +49,10 @@ namespace SPPSApi.Controllers.G13
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//工厂vcValue   vcName
-                List<Object> RolerList = ComFunction.convertAllToResult(fS1301_Logic.getRolerInfo());//角色vcValue   vcName
-                res.Add("PlantList", PlantList);
+
+                List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装厂
+                List<Object> RolerList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Role"));//角色Role
+                res.Add("PackingPlantList", PackingPlantList);
                 res.Add("RolerList", RolerList);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -83,22 +85,25 @@ namespace SPPSApi.Controllers.G13
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strPlant = dataForm.Plant == null ? "" : dataForm.Plant;
-            string strUserId = dataForm.UserId == null ? "" : dataForm.UserId;
+
+            string strPackingPlant = dataForm.PackingPlant == null ? "" : dataForm.PackingPlant;
+            string strUser = dataForm.User == null ? "" : dataForm.User;
             string strRoler = dataForm.Roler == null ? "" : dataForm.Roler;
             try
             {
-                DataTable dt = fS1301_Logic.getSearchInfo(strPlant, strUserId, strRoler);
-                List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "LinId", "vcUserId", "vcUserName", "vcPlant", "bChecker", "bUnLockChecker", "bPacker", "bUnLockPacker" });
-                for (int i = 0; i < dataList.Count; i++)
-                {
-                    //vcRead vcWrite字段需要从 0 1转换成false true
-                    Dictionary<string, object> row = (Dictionary<string, object>)dataList[i];
-                    row["bChecker"] = row["bChecker"].ToString() == "1" ? true : false;
-                    row["bUnLockChecker"] = row["bUnLockChecker"].ToString() == "1" ? true : false;
-                    row["bPacker"] = row["bPacker"].ToString() == "1" ? true : false;
-                    row["bUnLockPacker"] = row["bUnLockPacker"].ToString() == "1" ? true : false;
-                }
+                DataTable dataTable = fS1301_Logic.getSearchInfo(strPackingPlant, strUser, strRoler);
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bInPut", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bInPutUnLock", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bCheck", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bCheckUnLock", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bPack", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bPackUnLock", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bOutPut", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bOutPutUnLock", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -132,18 +137,11 @@ namespace SPPSApi.Controllers.G13
             try
             {
                 dynamic temp = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = temp.list;
+                JArray listInfo = temp.alltemp.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool bResult= fS1301_Logic.saveDataInfo(listInfoData, loginInfo.UserId);
-                if(bResult)
-                {
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = null;
-                }else
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "更新失败";
-                }
+                fS1301_Logic.saveDataInfo(listInfoData, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "更新成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

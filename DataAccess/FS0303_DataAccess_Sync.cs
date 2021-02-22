@@ -194,7 +194,7 @@ namespace DataAccess
                 strSql.AppendLine("         ,vcSCSPlace,vcReceiver,dNqDate         ");
                 strSql.AppendLine("        )         ");
                 strSql.AppendLine("        select          ");
-                strSql.AppendLine("        	a.dSSDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDesign         ");
+                strSql.AppendLine("        	a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDesign         ");
                 strSql.AppendLine("           ,a.vcInOutflag,a.vcPartNameEn,a.vcOE,a.vcSupplier_id,a.vcFXDiff,a.vcFXNo         ");
                 strSql.AppendLine("           ,a.vcSumLater_Name         ");
                 strSql.AppendLine("           ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");

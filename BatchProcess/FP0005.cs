@@ -89,7 +89,7 @@ namespace BatchProcess
                 sql.Append("        ,[isYZC]  \n");
                 sql.Append("        ,[vcOperatorID]  \n");
                 sql.Append("        ,[dOperatorTime]  \n");
-                sql.Append("    FROM [SPPSdb].[dbo].[TPackBase] where vcPackGPSNo is not null  \n");
+                sql.Append("    FROM [TPackBase] where vcPackGPSNo is not null  \n");
                 dtBC = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 for (int i = 0; i < dtBC.Rows.Count; i++)
                 {
@@ -179,7 +179,7 @@ namespace BatchProcess
                 for (int i = 0; i < dtPack.Rows.Count; i++)
                 {
                     DataRow[] dr = dtMAPS.Select("PART_NO='" + dtPack.Rows[i]["vcPackGPSNo"].ToString() + "'");
-                    if (dr.Length >= 0)
+                    if (dr.Length > 0)
                     {
                         sql.Append("   insert into [TPackBase]  \n");
                         sql.Append("       ([vcPackNo]  \n");

@@ -103,7 +103,7 @@ namespace Common
         public static string GetConnectionString_MAPS()
         {
             //临时
-            return "Persist Security Info = False; User ID = sa; Password = Server2017; Initial Catalog = MAPS; Data Source =172.23.238.175";
+            return "Persist Security Info = False; User ID = sa; Password = maps0426; Initial Catalog = MAPS_20210205; Data Source =172.23.129.80";
         }
         #endregion
 

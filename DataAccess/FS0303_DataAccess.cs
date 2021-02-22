@@ -135,7 +135,7 @@ namespace DataAccess
                         sql.Append("       ,vcJiuYear,vcNXQF,dSSDate,vcMeno,vcFXDiff,vcFXNo,vcNum1      \n");
                         sql.Append("       ,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8      \n");
                         sql.Append("       ,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15      \n");
-                        sql.Append("       ,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime      \n");
+                        sql.Append("       ,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime,vcRemark      \n");
                         sql.Append("      )      \n");
                         sql.Append("      VALUES      \n");
                         sql.Append("      (      \n");
@@ -216,7 +216,8 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + ",   \r\n");
                         sql.Append("'" + strUserId + "',     \r\n");
-                        sql.Append("GETDATE()     \r\n");
+                        sql.Append("GETDATE(),     \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcRemark"], false) + "     \r\n");
                         sql.Append(");   \r\n");
                     }
                     //修改
@@ -300,6 +301,7 @@ namespace DataAccess
                         sql.Append("      ,vcOriginCompany = " + ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + "      \r\n");
                         sql.Append("      ,vcOperator = '" + strUserId + "'      \r\n");
                         sql.Append("      ,dOperatorTime = GETDATE()      \r\n");//按品番、包装工厂、供应商代码、收货方 更新
+                        sql.Append("      ,vcRemark = " + ComFunction.getSqlValue(listInfoData[i]["vcRemark"], false) + "      \r\n");
                         sql.Append("      where iAutoId=" + listInfoData[i]["iAutoId"] + "   \r\n ");
                         sql.Append("      ;       \r\n ");
                     }

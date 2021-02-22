@@ -537,7 +537,8 @@ namespace SPPSApi.Controllers.G03
                         strChange != "9" &&
                         strChange != "10" &&
                         strChange != "11" &&
-                        strChange != "16" )
+                        strChange != "16" &&
+                        strChange != "17")
                     {
                         strChangeSum++;
                     }
@@ -552,7 +553,7 @@ namespace SPPSApi.Controllers.G03
                 if (strChangeSum>=1)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "只可发行变更事项为新设、废止、旧型、复活、工程变更、供应商变更的信息";
+                    apiResult.data = "只可发行变更事项为新设、废止、旧型、防锈、复活、工程变更、供应商变更的信息";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion

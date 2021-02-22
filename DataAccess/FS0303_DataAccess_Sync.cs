@@ -22,7 +22,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                #region 获取临时表，将数据插入临时表
+                #region 获取临时表并将数据插入临时表
                 strSql.Append(getTUnitTempTableSql(listInfoData));
                 #endregion
 
@@ -148,6 +148,26 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取原单位向采购表同步的逻辑Sql语句
+        public StringBuilder getDataSyncForSPMasterSql(List<Dictionary<string, Object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                #region 获取临时表并将数据插入临时表
+                strSql.Append(getTUnitTempTableSql(listInfoData));
+                #endregion
+
+                return strSql;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 获取原单位生确单发行的逻辑Sql语句
         /// <summary>
         /// 获取原单位生确单发行的逻辑Sql语句
@@ -164,53 +184,44 @@ namespace DataAccess
                 #endregion
 
                 #region 根据品番、供应商、收货方，将原单位数据插入生确表
-                strSql.AppendLine("        insert into TSQJD         \n");
-                strSql.AppendLine("        (         \n");
-                strSql.AppendLine("         dSSDate,vcJD,vcPart_id,vcSPINo,vcChange,vcCarType         \n");
-                strSql.AppendLine("         ,vcInOutflag,vcPartName,vcOE,vcSupplier_id,vcFXDiff,vcFXNo         \n");
-                strSql.AppendLine("         ,vcSumLater         \n");
-                strSql.AppendLine("         ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6         \n");
-                strSql.AppendLine("         ,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcSCSName         \n");
-                strSql.AppendLine("         ,vcSCSPlace,vcReceiver,dNqDate         \n");
-                strSql.AppendLine("        )         \n");
-                strSql.AppendLine("        select          \n");
-                strSql.AppendLine("        	a.dSSDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDesign         \n");
-                strSql.AppendLine("           ,a.vcInOutflag,a.vcPartNameEn,a.vcOE,a.vcSupplier_id,a.vcFXDiff,a.vcFXNo         \n");
-                strSql.AppendLine("           ,a.vcSumLater_Name         \n");
-                strSql.AppendLine("           ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         \n");
-                strSql.AppendLine("           ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcSYTCode,a.vcProduct_name         \n");
-                strSql.AppendLine("           ,a.vcAddress,a.vcReceiver,a.dNqDate         \n");
-                strSql.AppendLine("         from          \n");
-                strSql.AppendLine("        (         \n");
-                strSql.AppendLine("        	select a.*         \n");
-                strSql.AppendLine("        	,(CONVERT(int,vcNum1)+CONVERT(int,vcNum2)+CONVERT(int,vcNum3)          \n");
-                strSql.AppendLine("        	  +CONVERT(int,vcNum4)+CONVERT(int,vcNum5)+CONVERT(int,vcNum6)         \n");
-                strSql.AppendLine("        	  +CONVERT(int,vcNum7)+CONVERT(int,vcNum8)+CONVERT(int,vcNum9)         \n");
-                strSql.AppendLine("        	  +CONVERT(int,vcNum10)) as 'vcSumLater_Name',b.vcProduct_name,b.vcAddress         \n");
-                strSql.AppendLine("        	from #TUnit_temp a         \n");
-                strSql.AppendLine("        	 inner join          \n");
-                strSql.AppendLine("        	 (         \n");
-                strSql.AppendLine("        		select vcsupplier_id,vcProduct_name,vcAddress from TSupplier         \n");
-                strSql.AppendLine("        	 ) b on a.vcSupplier_id = b.vcSupplier_id         \n");
-                strSql.AppendLine("                 \n");
-                strSql.AppendLine("        ) a         \n");
-                strSql.AppendLine("        left join         \n");
-                strSql.AppendLine("        (         \n");
-                strSql.AppendLine("        	select vcPart_id,vcSupplier_id,vcReceiver from TSQJD         \n");
-                strSql.AppendLine("        ) b on a.vcPart_id = b.vcPart_id         \n");
-                strSql.AppendLine("        	and a.vcSupplier_id = b.vcSupplier_id         \n");
-                strSql.AppendLine("        	and a.vcReceiver = b.vcReceiver         \n");
-                strSql.AppendLine("        where b.vcPart_id is null         \n");
-                strSql.AppendLine("                 \n");
-                strSql.AppendLine("        select a.* from TUnit a         \n");
-                strSql.AppendLine("        left join          \n");
-                strSql.AppendLine("        (         \n");
-                strSql.AppendLine("        	select vcPart_id,vcSupplier_id,vcReceiver from TSQJD         \n");
-                strSql.AppendLine("        ) b         \n");
-                strSql.AppendLine("        on a.vcPart_id = b.vcPart_id         \n");
-                strSql.AppendLine("        and a.vcSupplier_id = b.vcSupplier_id         \n");
-                strSql.AppendLine("        and a.vcReceiver = b.vcReceiver         \n");
-                strSql.AppendLine("        where b.vcPart_id is null         \n");
+                strSql.AppendLine("        insert into TSQJD         ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("         dSSDate,vcJD,vcPart_id,vcSPINo,vcChange,vcCarType         ");
+                strSql.AppendLine("         ,vcInOutflag,vcPartName,vcOE,vcSupplier_id,vcFXDiff,vcFXNo         ");
+                strSql.AppendLine("         ,vcSumLater         ");
+                strSql.AppendLine("         ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6         ");
+                strSql.AppendLine("         ,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcSCSName         ");
+                strSql.AppendLine("         ,vcSCSPlace,vcReceiver,dNqDate         ");
+                strSql.AppendLine("        )         ");
+                strSql.AppendLine("        select          ");
+                strSql.AppendLine("        	a.dSSDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDesign         ");
+                strSql.AppendLine("           ,a.vcInOutflag,a.vcPartNameEn,a.vcOE,a.vcSupplier_id,a.vcFXDiff,a.vcFXNo         ");
+                strSql.AppendLine("           ,a.vcSumLater_Name         ");
+                strSql.AppendLine("           ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");
+                strSql.AppendLine("           ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcSYTCode,a.vcProduct_name         ");
+                strSql.AppendLine("           ,a.vcAddress,a.vcReceiver,a.dNqDate         ");
+                strSql.AppendLine("         from          ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("        	select a.*         ");
+                strSql.AppendLine("        	,(CONVERT(int,vcNum1)+CONVERT(int,vcNum2)+CONVERT(int,vcNum3)          ");
+                strSql.AppendLine("        	  +CONVERT(int,vcNum4)+CONVERT(int,vcNum5)+CONVERT(int,vcNum6)         ");
+                strSql.AppendLine("        	  +CONVERT(int,vcNum7)+CONVERT(int,vcNum8)+CONVERT(int,vcNum9)         ");
+                strSql.AppendLine("        	  +CONVERT(int,vcNum10)) as 'vcSumLater_Name',b.vcProduct_name,b.vcAddress         ");
+                strSql.AppendLine("        	from #TUnit_temp a         ");
+                strSql.AppendLine("        	 inner join          ");
+                strSql.AppendLine("        	 (         ");
+                strSql.AppendLine("        		select vcsupplier_id,vcProduct_name,vcAddress from TSupplier         ");
+                strSql.AppendLine("        	 ) b on a.vcSupplier_id = b.vcSupplier_id         ");
+                strSql.AppendLine("                 ");
+                strSql.AppendLine("        ) a         ");
+                strSql.AppendLine("        left join         ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("        	select vcPart_id,vcSupplier_id,vcReceiver from TSQJD         ");
+                strSql.AppendLine("        ) b on a.vcPart_id = b.vcPart_id         ");
+                strSql.AppendLine("        	and a.vcSupplier_id = b.vcSupplier_id         ");
+                strSql.AppendLine("        	and a.vcReceiver = b.vcReceiver         ");
+                strSql.AppendLine("        where b.vcPart_id is null         ");
+                strSql.AppendLine("                 ");
                 #endregion
 
                 return strSql;

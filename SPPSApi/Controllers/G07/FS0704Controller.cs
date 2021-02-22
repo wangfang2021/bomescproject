@@ -97,7 +97,7 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string PackSpot = dataForm.PackSpot;
-            string FaZhu = dataForm.PackNo;
+            string FaZhu = dataForm.FaZhu;
             string dFromB = dataForm.dFrom;
             string dFromE = dataForm.dFrom;
             string dToB = dataForm.dToB;
@@ -161,10 +161,10 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = FS0704_Logic.Search(PackSpot, FaZhu, dFromB, dFromE, dToB, dToE);
-                string[] fields = { "vcFaZhu","vcRuHeFromDay","dRuHeFromTime","vcRuHeToDay","druHeToTime","vcFaZhuFromDay","dFaZhuFromTime","vcFaZhuToDay","dFaZhuToTime","vcNaQiFromDay",
+                string[] fields = { "vcFaZhuID","vcRuHeFromDay","dRuHeFromTime","vcRuHeToDay","druHeToTime","vcFaZhuFromDay","dFaZhuFromTime","vcFaZhuToDay","dFaZhuToTime","vcNaQiFromDay",
                     "dNaQiFromTime","vcNaQiToDay","dNaQiToTime","vcBianCi","vcPackSpot","dFrom","dTo"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0704_Export.xlsx", 4, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0704_Export.xlsx", 3, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

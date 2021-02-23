@@ -57,6 +57,9 @@ namespace DataAccess
         {
             try
             {
+                DataTable SYT = getTable("C016");
+                DataTable vcOriginCompany = getTable("C006");
+                DataTable vcReceiver = getTable("C005");
 
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -87,7 +90,12 @@ namespace DataAccess
                     sql.Append(" WHERE \r\n");
                     sql.Append(" vcYear = " + ComFunction.getSqlValue(dt.Rows[i]["vcYear"], false) + " \r\n");
                     sql.Append(" AND vcPart_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + " \r\n");
-                    sql.Append(" AND vcReceiver = '" + getValue("C005", receiver) + "' \r\n");
+                    //sql.Append(" AND isnull(vcSYTCode,'') = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
+                    //sql.Append(" AND isnull(vcOriginCompany,'') = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
+                    //sql.Append(" AND isnull(vcReceiver,'') = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcSYTCode,'') = '" + getVal(SYT, dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcOriginCompany,'') = '" + getVal(vcOriginCompany, dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcReceiver,'') = '" + getVal(vcReceiver, dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
                     sql.Append(" AND vcFinish = '1' \r\n");
 
                 }
@@ -226,6 +234,34 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
                 dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcName"].ToString().Equals(vcName))
+                    {
+                        return dt.Rows[i]["vcValue"].ToString();
+                    }
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getTable(string strCodeId)
+        {
+            DataTable dt = new DataTable();
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+            dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            return dt;
+        }
+
+        public string getVal(DataTable dt, string vcName)
+        {
+            try
+            {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (dt.Rows[i]["vcName"].ToString().Equals(vcName))

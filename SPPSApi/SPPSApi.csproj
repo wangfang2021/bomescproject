@@ -153,12 +153,6 @@
     <Content Include="Doc\Template\FS0716.xlsx" />
     <Content Include="Doc\Template\FS0716_Export.xlsx" />
     <Content Include="Doc\Template\FS0719.xlsx" />
-    <Content Include="Doc\Template\FS1502_Report.xls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Doc\Template\FS1704.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -331,14 +325,30 @@
     <Content Include="Doc\Template\FS0628.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Doc\Template\FS0701.xlsx" />
-    <Content Include="Doc\Template\FS0701_Export.xlsx" />
-    <Content Include="Doc\Template\FS0702.xlsx" />
-    <Content Include="Doc\Template\FS0702_Export.xlsx" />
-    <Content Include="Doc\Template\FS0702_Export_H.xlsx" />
-    <Content Include="Doc\Template\FS0704.xlsx" />
-    <Content Include="Doc\Template\FS0704_Export.xlsx" />
-    <Content Include="Doc\Template\FS0708_Export.xlsx" />
+    <Content Include="Doc\Template\FS0701.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0701_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0702.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0702_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0702_Export_H.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0704.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0704_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0708_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Doc\Template\FS0801.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

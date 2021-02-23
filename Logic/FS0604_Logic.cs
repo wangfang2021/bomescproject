@@ -45,6 +45,31 @@ namespace Logic
             fs0604_DataAccess.importSave(importDt, userId);
         }
 
+        public DataTable GetSupplier()
+        {
+            return fs0604_DataAccess.GetSupplier();
+        }
+
+        public DataTable GetExpectDeliveryDate()
+        {
+            return fs0604_DataAccess.GetExpectDeliveryDate();
+        }
+
+        public DataTable GetWorkArea()
+        {
+            return fs0604_DataAccess.GetWorkArea();
+        }
+
+        public DataTable GetTaskNum1()
+        {
+            return fs0604_DataAccess.GetTaskNum1();
+        }
+
+        public DataTable GetWorkAreaBySupplier(string vcSupplier_id)
+        {
+            return fs0604_DataAccess.GetWorkAreaBySupplier(vcSupplier_id);
+        }
+
         public DataTable GetTaskNum()
         {
             return fs0604_DataAccess.GetTaskNum();
@@ -66,6 +91,17 @@ namespace Logic
         public void weaveHandle(List<Dictionary<string, object>> listInfoData, string userId)
         {
             fs0604_DataAccess.weaveHandle(listInfoData, userId);
+        }
+
+        public void sdweaveHandle(List<Dictionary<string, object>> listInfoData, string userId)
+        {
+            fs0604_DataAccess.sdweaveHandle(listInfoData, userId);
+        }
+
+        public bool isCheckImportAddData(string vcPackingPlant, string vcReceiver, string vcSupplier_id, string vcPartNo)
+        {
+            DataTable dt = fs0604_DataAccess.isCheckImportAddData(vcPackingPlant, vcReceiver, vcSupplier_id, vcPartNo);
+            return dt.Rows.Count > 0;
         }
     }
 }

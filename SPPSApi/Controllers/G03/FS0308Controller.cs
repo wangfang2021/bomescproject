@@ -153,7 +153,7 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0308_logic.searchApi(strYear, Receiver);
 
-                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
+                string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNumAvg", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21", "vcSYTCode", "vcReceiver", "vcOriginCompany" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0308.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

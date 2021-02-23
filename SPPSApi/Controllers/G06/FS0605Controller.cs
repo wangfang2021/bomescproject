@@ -128,8 +128,8 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
 
-                head = new string[] { "供应商代码", "工区", "生产能力&纳期确认", "联系人", "电话", "邮箱" };
-                field = new string[] { "vcSupplier_id", "vcWorkArea", "vcIsSureFlag", "vcLinkMan", "vcPhone", "vcEmail" };
+                head = new string[] { "供应商代码", "工区", "生产能力&纳期确认", "联系人1", "电话1", "邮箱1", "联系人2", "电话2", "邮箱2", "联系人3", "电话3", "邮箱3" };
+                field = new string[] { "vcSupplier_id", "vcWorkArea", "vcIsSureFlag", "vcLinkMan1", "vcPhone1", "vcEmail1", "vcLinkMan2", "vcPhone2", "vcEmail2", "vcLinkMan3", "vcPhone3", "vcEmail3" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -237,6 +237,21 @@ namespace SPPSApi.Controllers.G06
                     //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     //}
                     #endregion
+                    for (int m=0; m < dtadd.Rows.Count; m++)
+                    {
+                        if (dtadd.Rows[m]["vcSupplier_id"].ToString()=="")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "供应商代码" + dtadd.Rows[m]["vcSupplier_id"].ToString() + "不允许为空，请确认！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (dtadd.Rows[m]["vcWorkArea"].ToString() == "")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "工区不能为空，如未确定，请写无！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
                     //数据库验证  true  存在重复项
                     DataTable dt = fs0605_Logic.CheckDistinctByTable(dtadd);
                     if (dt.Rows.Count > 0)
@@ -258,12 +273,12 @@ namespace SPPSApi.Controllers.G06
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"供应商代码","工区","生产能力&纳期确认", "联系人", "电话","邮箱"},
-                                                {"vcSupplier_id", "vcWorkArea", "vcIsSureFlag", "vcLinkMan", "vcPhone", "vcEmail"},
-                                                {"","","","","","" },
-                                                {"4","50","1","100","100","100"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","0","0","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"供应商代码","工区","生产能力&纳期确认", "联系人1", "电话1","邮箱1", "联系人2", "电话2","邮箱2", "联系人3", "电话3","邮箱3"},
+                                                {"vcSupplier_id", "vcWorkArea", "vcIsSureFlag", "vcLinkMan1", "vcPhone1", "vcEmail1", "vcLinkMan2", "vcPhone2", "vcEmail2", "vcLinkMan3", "vcPhone3", "vcEmail3"},
+                                                {"","","","","","","","","","","","" },
+                                                {"4","50","1","100","100","100","100","100","100","100","100","100"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8","9","10","11","12"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };

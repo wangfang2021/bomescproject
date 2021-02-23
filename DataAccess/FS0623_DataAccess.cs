@@ -178,6 +178,16 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
+
+                sql.Append("  delete [TOrderGoodsAndDifferentiation] where vcOrderDifferentiationId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
@@ -197,10 +207,10 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select  [iAutoId], [vcOrderGoods] as dhfs, '0' as show,'0' as vcModFlag,'0' as vcAddFlag from [dbo].[TOrderGoods];    ");
+                strSql.AppendLine("   select  [iAutoId], vcName as dhfs, '0' as show,'0' as vcModFlag,'0' as vcAddFlag from (select iAutoId, vcValue,vcName from TCode where  vcCodeId='C047') b;    ");
                 strSql.AppendLine("   select  [vcOrderDifferentiation] from [dbo].[TOrderDifferentiation] order by iAutoId asc;    ");
                 strSql.AppendLine("   select  b.vcOrderGoods,c.vcOrderDifferentiation from [dbo].[TOrderGoodsAndDifferentiation] a    ");
-                strSql.AppendLine("   left join [dbo].[TOrderGoods] b on a.vcOrderGoodsId=b.iAutoId    ");
+                strSql.AppendLine("   left join (select iAutoId,vcName as vcOrderGoods  from TCode where  vcCodeId='C047') b on a.vcOrderGoodsId=b.iAutoId    ");
                 strSql.AppendLine("   left join [dbo].[TOrderDifferentiation] c on a.vcOrderDifferentiationId=c.iAutoId ;   ");
                 strSql.AppendLine("   select  vcOrderDifferentiation as prop,vcOrderDifferentiation as label,vcOrderInitials as ddszm from [dbo].[TOrderDifferentiation] order by iAutoId asc    ");
 
@@ -296,13 +306,13 @@ namespace DataAccess
                 for (int i = 0; i < dtamodify.Rows.Count; i++)
                 {
                     DataRow dr = dtamodify.Rows[i];
-                    sql.Append("delete from [dbo].[TOrderGoodsAndDifferentiation] where vcOrderGoodsId=( select iAutoId from [dbo].[TOrderGoods] where vcOrderGoods='" + dr["vcOrderGoods"].ToString() + "');  \n");
+                    sql.Append("delete from [dbo].[TOrderGoodsAndDifferentiation] where vcOrderGoodsId=(select iAutoId from TCode where vcCodeId='C047' and vcName='" + dr["vcOrderGoods"].ToString() + "');  \n");
                 }
                 for (int i = 0; i < dtamodifyZJB.Rows.Count; i++)
                 {
                     DataRow dr = dtamodifyZJB.Rows[i];
                     sql.Append("insert into [dbo].[TOrderGoodsAndDifferentiation] (vcOrderGoodsId,vcOrderDifferentiationId,vcOperatorID,dOperatorTime)  \n");
-                    sql.Append(" values((select iAutoId from [dbo].[TOrderGoods] where vcOrderGoods='" + dr["vcOrderGoods"].ToString() + "' ),(select iAutoId from [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='" + dr["vcOrderDifferentiation"].ToString() + "'),'000000',getdate()); \n");
+                    sql.Append(" values((select iAutoId from TCode where vcCodeId='C047' and vcName='" + dr["vcOrderGoods"].ToString() + "' ),(select iAutoId from [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='" + dr["vcOrderDifferentiation"].ToString() + "'),'"+ userId + "',getdate()); \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -334,7 +344,7 @@ namespace DataAccess
                     sql.Append(iAutoId);
                 }
                 sql.Append("  );   \r\n ");
-                sql.Append("  delete [TOrderGoodsAndDifferentiation] where vcOrderGoodsId in(   \r\n ");
+                sql.Append("  delete [TOrderGoodsAndDifferentiation] where vcOrderDifferentiationId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)

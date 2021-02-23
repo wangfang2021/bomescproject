@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"包装工厂","收货方","供应商代码","品番","要望纳期","要望收容数","收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)"},
-                                                {"vcPackingPlant","vcReceiver","vcSupplier_id","vcPartNo","dExpectDeliveryDate", "vcExpectIntake","vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight"},
-                                                {"","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Num, FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
-                                                {"20","10","4","12","0","0","20","20","20","50", "20", "20", "20", "20"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","0","0","0","0","0","0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"状态","包装工厂","收货方","供应商代码","品番","要望纳期","要望收容数","收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)","备注"},
+                                                {"vcOperWay","vcPackingPlant","vcReceiver","vcSupplier_id","vcPartNo","dExpectDeliveryDate", "vcExpectIntake","vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcMemo"},
+                                                {"","","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Num, FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,""},
+                                                {"20","20","10","4","12","0","0","20","20","20","50", "20", "20", "20", "20","500"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","1","1","0","0","0","0","0","0", "0", "0", "0", "0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -116,10 +116,19 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-
-
-
+                //判断新增的数据四个主键是否在数存在重复
+                for (int i=0;i< importDt.Rows.Count;i++)
+                {
+                    if (importDt.Rows[i]["vcOperWay"].ToString().Trim()=="新增")
+                    {
+                        if (fs0604_Logic.isCheckImportAddData(importDt.Rows[i]["vcPackingPlant"].ToString().Trim(), importDt.Rows[i]["vcReceiver"].ToString().Trim(), importDt.Rows[i]["vcSupplier_id"].ToString().Trim(), importDt.Rows[i]["vcPartNo"].ToString().Trim()))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "新增状态的数据,包装工厂"+ importDt.Rows[i]["vcPackingPlant"].ToString().Trim()+",收货方"+ importDt.Rows[i]["vcReceiver"].ToString().Trim()+",供应商代码"+ importDt.Rows[i]["vcSupplier_id"].ToString().Trim()+"品番"+importDt.Rows[i]["vcPartNo"].ToString().Trim()+"数据库主键重复,不能新增！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                }
                 fs0604_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

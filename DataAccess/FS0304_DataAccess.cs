@@ -104,6 +104,76 @@ namespace DataAccess
         }
         #endregion
 
+        #region 检索处理中的数据
+        /// <summary>
+        /// 界面打开时执行的检索，检索处理中的数据。处理中：进度状态只要不是已织入的都是处理中
+        /// </summary>
+        /// <returns></returns>
+        public DataTable Search()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("     select *    \n");
+                strSql.Append("     ,b.vcName as 'vcJD_Name'    \n");
+                strSql.Append("     ,b2.vcName as 'vcChange_Name'    \n");
+                strSql.Append("     ,b3.vcName as 'vcInOutflag_Name'    \n");
+                strSql.Append("     ,b4.vcName as 'vcOE_Name'    \n");
+                strSql.Append("     ,b5.vcName as 'vcSYTCode_Name'    \n");
+                strSql.Append("     ,b6.vcName as 'vcCarType_Name'    \n");
+                strSql.Append("     ,b7.vcName as 'vcFXDiff_Name'    \n");
+                strSql.Append("     ,b8.vcName as 'vcIsDYJG_Name'    \n");
+                strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
+                strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     from TSQJD a    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C026'    \n");
+                strSql.Append("     )b on a.vcJD = b.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C002'    \n");
+                strSql.Append("     )b2 on a.vcChange = b2.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue, vcName from TCode where vcCodeId = 'C003'    \n");
+                strSql.Append("     )b3 on a.vcInOutflag = b3.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C012'    \n");
+                strSql.Append("     )b4 on a.vcOE = b4.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C023'    \n");
+                strSql.Append("     )b5 on a.vcSYTCode = b5.vcValue    \n");
+                strSql.Append("     left join     ");
+                strSql.Append("     (    ");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C098'    ");
+                strSql.Append("     )b6 on a.vcCarType = b6.vcValue    ");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C028'    \n");
+                strSql.Append("     )b7 on a.vcFXDiff = b7.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C029'    \n");
+                strSql.Append("     )b8 on a.vcIsDYJG = b8.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
+                strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
+                strSql.Append("   where 1=1  \n");
+                strSql.Append("   and vcJD <> 4  \n");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
@@ -118,7 +188,7 @@ namespace DataAccess
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("      update TSQJD set       \n");
                         sql.Append("      dSSDate = "+ ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "      \n");
-                        sql.Append("      ,vcJD = " + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "      \n");
+                        sql.Append("      ,vcJD = " + ComFunction.getSqlValue(listInfoData[i]["vcJD"], true) + "      \n");
                         sql.Append("      ,vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "      \n");
                         sql.Append("      ,vcSPINo = " + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "      \n");
                         sql.Append("      ,vcChange = " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "      \n");

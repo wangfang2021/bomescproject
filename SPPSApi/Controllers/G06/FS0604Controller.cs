@@ -52,16 +52,27 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtSupplier = fs0604_Logic.GetSupplier();
+                DataTable dtExpectDeliveryDate = fs0604_Logic.GetExpectDeliveryDate();
+                DataTable dtWorkArea = fs0604_Logic.GetWorkArea();
                 DataTable dt = fs0604_Logic.GetBoxType();//箱种的
                 DataTable task = fs0604_Logic.GetTaskNum();//未发送的数据
+                DataTable task1 = fs0604_Logic.GetTaskNum1();//待回复 含退回
                 List<Object> dataList_BoxType = ComFunction.convertToResult(dt, new string[] { "vcValue", "vcName" });
+
+                List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_ExpectDeliveryDate = ComFunction.convertToResult(dtExpectDeliveryDate, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
 
                 List<Object> dataList_C033 = ComFunction.convertAllToResult(ComFunction.getTCode("C033"));//荷姿状态
 
                 res.Add("BoxType", dataList_BoxType);
                 res.Add("C033", dataList_C033);
+                res.Add("Supplier", dataList_Supplier);
+                res.Add("ExpectDeliveryDate", dataList_ExpectDeliveryDate);
+                res.Add("WorkArea", dataList_WorkArea);
                 res.Add("taskNum", task.Rows.Count);
-
+                res.Add("taskNum1", task1.Rows.Count);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -471,7 +482,7 @@ namespace SPPSApi.Controllers.G06
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请先选中数据，再进行承认操作！";
+                    apiResult.data = "请先选中数据，再进行织入操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //织入操作的前提是已承认状态
@@ -499,8 +510,60 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+        #region 手动织入原单位
+        [HttpPost]
+        [EnableCors("any")]
+        public string sdweaveHandleApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                //以下开始业务处理
+                //以下开始业务处理
 
-       
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先选中数据，再进行手动织入操作！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //织入操作的前提是已承认状态
+                //vcValue vcName 0   未发送1 待回复2   已回复3 已承认4   已退回5 已织入
+                for (var i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcState"].ToString() != "已承认")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是已承认，才能进行织入操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                fs0604_Logic.sdweaveHandle(listInfoData, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0408", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "织入操作失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
 
         #region 一括赋予
         [HttpPost]

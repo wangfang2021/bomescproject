@@ -71,11 +71,13 @@ namespace SPPSApi.Controllers.G07
 
 
 
-                string[,] headers = new string[,] {{"逻辑名称","部品入荷日期(起)","部品入荷时刻(起)","部品入荷日期(止) ","部品入荷时刻(止)", "发注作业日期(起)", "发注作业时刻(起)","发注作业日期(止)"
+                string[,] headers = new string[,] {{"逻辑名称","部品入荷日期(起)","部品入荷时刻(起)","部品入荷日期(止)","部品入荷时刻(止)", "发注作业日期(起)", "发注作业时刻(起)","发注作业日期(止)"
                                                     ,"发注作业时刻(止)","包材纳期日期(起)","包材纳期时刻(起)","包材纳期日期(止)","包材纳期时刻(止)","包材纳入便次名称","包装厂","TC(FROM)","TC(TO)"},
-                                                {"vcFaZhu","vcRuHeFromDay","dRuHeFromTime","vcRuHeToDay","druHeToTime","vcFaZhuFromDay","dFaZhuFromTime",
+                                                {"vcFaZhuID","vcRuHeFromDay","dRuHeFromTime","vcRuHeToDay","druHeToTime","vcFaZhuFromDay","dFaZhuFromTime",
                                                  "vcFaZhuToDay","dFaZhuToTime","vcNaQiFromDay","dNaQiFromTime","vcNaQiToDay","dNaQiToTime","vcBianCi","vcPackSpot","dFrom","dTo"},
                                                 {"","",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"","","","",FieldCheck.Date,FieldCheck.Date},
+                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0" },
+                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0" }
                                                    };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -106,97 +108,112 @@ namespace SPPSApi.Controllers.G07
 
                 #region  检查本身导入文件时间重叠行
                 DataTable dtcope = importDt.Copy();
-                int i = 0;
-                //检查本身导入文件时间重叠行
-                for (i = 0; i < dtcope.Rows.Count; i++)
+                dtcope.Clear();
+                for (int i = 0; i < importDt.Rows.Count; i++)
                 {
-                    i = 0;
-                    DataRow[] dr = dtcope.Select("vcFaZhu='" + dtcope.Rows[i]["vcFaZhu"].ToString() + "'");
-                    DateTime dRuHeFromDay = DateTime.ParseExact(dr[0]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dRuHeToDay = DateTime.ParseExact(dr[0]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dFaZhuFromDay = DateTime.ParseExact(dr[0]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dFaZhuToDay = DateTime.ParseExact(dr[0]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dNaQiFromDay = DateTime.ParseExact(dr[0]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dNaQiToDay = DateTime.ParseExact(dr[0]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    foreach (DataRow dr1 in dr)
+                    DataRow[] dr = importDt.Select("vcFaZhuID='" + importDt.Rows[i]["vcFaZhuID"].ToString() + "'");
+                    //dtcope.Rows.Add(dr);
+                    i = dr.Length;
+                    int j = dr.Length - 1;
+                    while (j > 0)
                     {
-                        DateTime dRuHeFromDay1 = DateTime.ParseExact(dr1["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dRuHeToDay1 = DateTime.ParseExact(dr1["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuFromDay1 = DateTime.ParseExact(dr1["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuToDay1 = DateTime.ParseExact(dr1["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiFromDay1 = DateTime.ParseExact(dr1["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiToDay1 = DateTime.ParseExact(dr1["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        if (!(dRuHeFromDay < dRuHeFromDay1 && dRuHeToDay < dRuHeFromDay1) || !(dRuHeFromDay > dRuHeToDay1 && dRuHeToDay > dRuHeToDay1))
+                        DateTime dRuHeFromDay = DateTime.ParseExact(dr[j]["dRuHeFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dRuHeToDay = DateTime.ParseExact(dr[j]["druHeToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dFaZhuFromDay = DateTime.ParseExact(dr[j]["dFaZhuFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dFaZhuToDay = DateTime.ParseExact(dr[j]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dNaQiFromDay = DateTime.ParseExact(dr[j]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dNaQiToDay = DateTime.ParseExact(dr[j]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        for (int z = 0; z <= j - 1; z++)
                         {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = dr[0]["vcFaZhu"].ToString() + "部品入荷时间有重叠";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        else if (!(dFaZhuFromDay < dFaZhuFromDay1 && dFaZhuToDay < dFaZhuFromDay1) || !(dFaZhuFromDay > dFaZhuToDay1 && dFaZhuToDay > dFaZhuToDay1))
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = dr[0]["vcFaZhu"].ToString().ToString() + "发注作业时间有重叠";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        else if (!(dNaQiFromDay < dNaQiFromDay1 && dNaQiToDay < dNaQiFromDay1) || !(dNaQiFromDay > dNaQiToDay1 && dNaQiToDay > dNaQiToDay1))
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = dr[0]["vcFaZhu"].ToString() + "部品入荷时间有重叠";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        else
-                        {
-                            dtcope.Rows.Remove(dr1);
-                        }
-                    }
-                }
-                #endregion
-                //判断对应逻辑下是否有重叠时间
-                #region 判断对应逻辑下是否有重叠时间
-                for (int z = 0; z < importDt.Rows.Count; z++)
-                {
-                    DataTable dtLJtime = FS0704_Logic.SearchLJTime(importDt.Rows[i]["vcFaZhu"].ToString(), importDt.Rows[i]["iAutoId"].ToString());
-                    if (dtLJtime.Rows.Count > 0)
-                    {
-                        DateTime dRuHeFromDay = DateTime.ParseExact(importDt.Rows[i]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dRuHeToDay = DateTime.ParseExact(importDt.Rows[i]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuFromDay = DateTime.ParseExact(importDt.Rows[i]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuToDay = DateTime.ParseExact(importDt.Rows[i]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiFromDay = DateTime.ParseExact(importDt.Rows[i]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiToDay = DateTime.ParseExact(importDt.Rows[i]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-
-                        for (int j = 0; j < dtLJtime.Rows.Count; j++)
-                        {
-
-                            DateTime dRuHeFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dRuHeToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dFaZhuFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dFaZhuToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dNaQiFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                            DateTime dNaQiToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-
-
+                            DateTime dRuHeFromDay1 = DateTime.ParseExact(dr[z]["dRuHeFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dRuHeToDay1 = DateTime.ParseExact(dr[z]["druHeToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dFaZhuFromDay1 = DateTime.ParseExact(dr[z]["dFaZhuFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dFaZhuToDay1 = DateTime.ParseExact(dr[z]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dNaQiFromDay1 = DateTime.ParseExact(dr[z]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                            DateTime dNaQiToDay1 = DateTime.ParseExact(dr[z]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
                             if (!(dRuHeFromDay < dRuHeFromDay1 && dRuHeToDay < dRuHeFromDay1) || !(dRuHeFromDay > dRuHeToDay1 && dRuHeToDay > dRuHeToDay1))
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = importDt.Rows[i]["vcFaZhu"].ToString() + "部品入荷时间有重叠";
+                                apiResult.data = dr[0]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
-                            if (!(dFaZhuFromDay < dFaZhuFromDay1 && dFaZhuToDay < dFaZhuFromDay1) || !(dFaZhuFromDay > dFaZhuToDay1 && dFaZhuToDay > dFaZhuToDay1))
+                            else if (!(dFaZhuFromDay < dFaZhuFromDay1 && dFaZhuToDay < dFaZhuFromDay1) || !(dFaZhuFromDay > dFaZhuToDay1 && dFaZhuToDay > dFaZhuToDay1))
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = importDt.Rows[i]["vcFaZhu"].ToString() + "发注作业时间有重叠";
+                                apiResult.data = dr[0]["vcFaZhuID"].ToString().ToString() + "发注作业时间有重叠";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
-                            if (!(dNaQiFromDay < dNaQiFromDay1 && dNaQiToDay < dNaQiFromDay1) || !(dNaQiFromDay > dNaQiToDay1 && dNaQiToDay > dNaQiToDay1))
+                            else if (!(dNaQiFromDay < dNaQiFromDay1 && dNaQiToDay < dNaQiFromDay1) || !(dNaQiFromDay > dNaQiToDay1 && dNaQiToDay > dNaQiToDay1))
                             {
                                 apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = importDt.Rows[i]["vcFaZhu"].ToString() + "部品入荷时间有重叠";
+                                apiResult.data = dr[0]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
                         }
+                        j--;
                     }
                 }
+
+                #endregion
+                //判断对应逻辑下是否有重叠时间
+                #region 判断对应逻辑下是否有重叠时间
+                //for (int a = 0; a < importDt.Rows.Count; a++)
+                //{
+                //    DataTable dtLJtime = FS0704_Logic.SearchLJTime(importDt.Rows[a]["vcFaZhuID"].ToString(), "");
+                //    int count = dtcope.Rows.Count - 1;
+                //    a = dtLJtime.Rows.Count;
+                //    while (count > 0)
+                //    {
+                //        DateTime dRuHeFromDay = DateTime.ParseExact(importDt.Rows[i]["dRuHeFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dRuHeToDay = DateTime.ParseExact(importDt.Rows[i]["druHeToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dFaZhuFromDay = DateTime.ParseExact(importDt.Rows[i]["dFaZhuFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dFaZhuToDay = DateTime.ParseExact(importDt.Rows[i]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dNaQiFromDay = DateTime.ParseExact(importDt.Rows[i]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dNaQiToDay = DateTime.ParseExact(importDt.Rows[i]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+
+
+                //    }
+                //    if (dtLJtime.Rows.Count > 0)
+                //    {
+                //        DateTime dRuHeFromDay = DateTime.ParseExact(importDt.Rows[i]["dRuHeFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dRuHeToDay = DateTime.ParseExact(importDt.Rows[i]["druHeToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dFaZhuFromDay = DateTime.ParseExact(importDt.Rows[i]["dFaZhuFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dFaZhuToDay = DateTime.ParseExact(importDt.Rows[i]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dNaQiFromDay = DateTime.ParseExact(importDt.Rows[i]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //        DateTime dNaQiToDay = DateTime.ParseExact(importDt.Rows[i]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+
+                //        for (int j = 0; j < dtLJtime.Rows.Count; j++)
+                //        {
+
+                //            DateTime dRuHeFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dRuHeFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //            DateTime dRuHeToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["druHeToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //            DateTime dFaZhuFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //            DateTime dFaZhuToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //            DateTime dNaQiFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiFromTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                //            DateTime dNaQiToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiToTime"].ToString().Split(" ")[1], "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+
+
+                //            if (!(dRuHeFromDay < dRuHeFromDay1 && dRuHeToDay < dRuHeFromDay1) || !(dRuHeFromDay > dRuHeToDay1 && dRuHeToDay > dRuHeToDay1))
+                //            {
+                //                apiResult.code = ComConstant.ERROR_CODE;
+                //                apiResult.data = importDt.Rows[i]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";
+                //                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //            }
+                //            if (!(dFaZhuFromDay < dFaZhuFromDay1 && dFaZhuToDay < dFaZhuFromDay1) || !(dFaZhuFromDay > dFaZhuToDay1 && dFaZhuToDay > dFaZhuToDay1))
+                //            {
+                //                apiResult.code = ComConstant.ERROR_CODE;
+                //                apiResult.data = importDt.Rows[i]["vcFaZhuID"].ToString() + "发注作业时间有重叠";
+                //                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //            }
+                //            if (!(dNaQiFromDay < dNaQiFromDay1 && dNaQiToDay < dNaQiFromDay1) || !(dNaQiFromDay > dNaQiToDay1 && dNaQiToDay > dNaQiToDay1))
+                //            {
+                //                apiResult.code = ComConstant.ERROR_CODE;
+                //                apiResult.data = importDt.Rows[i]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";
+                //                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //            }
+                //        }
+                //    }
+                //}
                 #endregion
 
 

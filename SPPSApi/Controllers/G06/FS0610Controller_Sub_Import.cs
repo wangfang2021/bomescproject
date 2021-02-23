@@ -84,7 +84,7 @@ namespace SPPSApi.Controllers.G04
                                                 {FieldCheck.NumCharLLL,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
+                FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num,FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num},
                                                 {"0","0","0","0","0","0","0","0","0","0","0","0","0",
                 "0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",
                 "0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0

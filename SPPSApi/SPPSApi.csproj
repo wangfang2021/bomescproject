@@ -135,7 +135,9 @@
     <None Remove="Doc\Template\FS1402_Export.xlsx" />
     <None Remove="Doc\Template\FS1501.xlsx" />
     <None Remove="Doc\Template\FS1502_Export.xlsx" />
+    <None Remove="Doc\Template\FS1502_Report.xls" />
     <None Remove="Doc\Template\FS1701.xlsx" />
+    <None Remove="Doc\Template\FS1704.xlsx" />
     <None Remove="Doc\Template\MessageList.xlsx" />
     <None Remove="Doc\Template\年计导出报表.xls" />
     <None Remove="Doc\upload\预留.txt" />
@@ -151,6 +153,12 @@
     <Content Include="Doc\Template\FS0716.xlsx" />
     <Content Include="Doc\Template\FS0716_Export.xlsx" />
     <Content Include="Doc\Template\FS0719.xlsx" />
+    <Content Include="Doc\Template\FS1502_Report.xls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS1704.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

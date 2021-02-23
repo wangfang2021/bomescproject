@@ -396,7 +396,7 @@ namespace DataAccess
                 strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30,");
                 strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31,");
                 strSql.AppendLine("   iAutoId");
-                strSql.AppendLine("   FROM TSOQReply WHERE vcInOutFlag='0'  AND vcDXYM='" + strYearMonth + "' and vcFZGC in ("+ plants + ") ");//内制
+                strSql.AppendLine("   FROM TSOQReply WHERE vcInOutFlag='0'  AND vcDXYM in ('" + strYearMonth + "','"+strYearMonth_2+"','"+strYearMonth_3+"') and vcFZGC in ("+ plants + ") ");//内制
                 strSql.AppendLine(" ) a ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");

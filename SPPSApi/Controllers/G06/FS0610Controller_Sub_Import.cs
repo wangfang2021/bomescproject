@@ -148,7 +148,9 @@ namespace SPPSApi.Controllers.G04
                     for (int j = 1; j < 32; j++)
                     {
                         string strIDTemp = importDt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : importDt.Rows[i]["iD" + j].ToString();
-                        int iD = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim());
+                        string strSRS= importDt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : importDt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
+                        int iSRS= strSRS.Trim() == "" ? 1 : Convert.ToInt32(strSRS.Trim());//收容数
+                        int iD = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim())/ iSRS;
                         iCheck = iCheck + iD;
                     }
                     if (iBoxes != iCheck)

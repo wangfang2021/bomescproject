@@ -67,7 +67,7 @@ namespace DataAccess
         public DataTable GetSpecialSupplier(string strYearMonth)
         {
             StringBuilder sql = new StringBuilder();
-            sql.Append("   select a.vcPartId,c.dBeginDate,c.dEndDate from TSPMaster a    \n");
+            sql.Append("   select a.vcPartId,c.dBeginDate,c.dEndDate,c.vcSupplier_id from TSPMaster a    \n");
             sql.Append("   left join    \n");
             sql.Append("   (    \n");
             sql.Append("      select * from TSPMaster_SupplierPlant    \n");

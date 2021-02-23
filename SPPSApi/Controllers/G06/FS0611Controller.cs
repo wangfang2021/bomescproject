@@ -166,27 +166,20 @@ namespace SPPSApi.Controllers.G06
                     string strCheckSpecial_3 = "";
 
                     strCheckSpecial = ComputeUtil.checkSpecial(dtCalendar, dtSpecialSupplier, dtSpecialPart);
-                    if (strCheckSpecial != null)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strCheckSpecial;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
                     strCheckSpecial_2 = ComputeUtil.checkSpecial(dtCalendar_2, dtSpecialSupplier_2, dtSpecialPart_2);
-                    if (strCheckSpecial_2 != null)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strCheckSpecial_2;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
                     strCheckSpecial_3 = ComputeUtil.checkSpecial(dtCalendar_3, dtSpecialSupplier_3, dtSpecialPart_3);
-                    if (strCheckSpecial_3 != null)
+                    if (strCheckSpecial != null&& strCheckSpecial_2!=null&& strCheckSpecial_3!=null)
                     {
+                        string err = "";
+                        err = strCheckSpecial == null ? err : err + strCheckSpecial;
+                        err = strCheckSpecial_2 == null ? err: err + strCheckSpecial_2;
+                        err = strCheckSpecial_3 == null ? err: err + strCheckSpecial_3;
+
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strCheckSpecial_3;
+                        apiResult.data = err;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-
+               
                 }
 
  

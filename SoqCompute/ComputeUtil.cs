@@ -13,6 +13,8 @@ namespace SoqCompute
 			for (int i = 0; i < dtSpecialSupplier.Rows.Count; i++)
 			{
 				string strPart_id = dtSpecialSupplier.Rows[i]["vcPartId"].ToString();
+				string strSupplier_id = dtSpecialSupplier.Rows[i]["vcSupplier_id"].ToString();
+
 				int startDay = Convert.ToDateTime(dtSpecialSupplier.Rows[i]["dBeginDate"]).Day;
 				int endDay = Convert.ToDateTime(dtSpecialSupplier.Rows[i]["dEndDate"]).Day;
 
@@ -30,7 +32,7 @@ namespace SoqCompute
 					}
 				}
 				if (decTotalWorkDays == 0)
-					return "特殊厂家区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
+					return "特殊厂家"+ strSupplier_id + "区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
 			}
 			for (int i = 0; i < dtSpecialPart.Rows.Count; i++)
 			{
@@ -52,7 +54,7 @@ namespace SoqCompute
 					}
 				}
 				if (decTotalWorkDays == 0)
-					return "特殊品番区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
+					return "特殊品番"+ strPart_id + "区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
 			}
 			return null;
 		}

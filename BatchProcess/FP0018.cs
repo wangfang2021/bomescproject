@@ -88,8 +88,8 @@ namespace BatchProcess
                 sql.Append("      vcCarModel as [vcCar],    \n");
                 sql.Append("      dFromTime as [dUsedFrom],   \n");
                 sql.Append("      dToTime as [dUsedTo],   \n");
-                sql.Append("      '' as [dFrom],--自己填写？   \n");
-                sql.Append("      '' as [dTo],   \n");
+                sql.Append("      '1990-01-01 0:00:00' as [dFrom],--自己填写？   \n");
+                sql.Append("      '3000-01-01 0:00:00' as [dTo],   \n");
                 sql.Append("       '' as [vcDistinguish],    \n");
                 sql.Append("       '' as [iBiYao],    \n");
                 sql.Append("    '" + strUserId + "' as  [vcOperatorID],  \n");
@@ -123,6 +123,9 @@ namespace BatchProcess
                 sql.Append("  truncate  table TPackItem   \n");
                 for (int i = 0; i < dtNewItem.Rows.Count; i++)
                 {
+         
+                    string dTo = dtNewItem.Rows[i]["dTo"].ToString() == "" ? "9999-12-31 23:59:59" : dtNewItem.Rows[i]["dTo"].ToString();
+
                     sql.Append("  insert into TPackItem  \n");
                     sql.Append("  ([vcPartsNo],  \n");
                     sql.Append("   [vcPackNo],  \n");
@@ -148,7 +151,7 @@ namespace BatchProcess
                     sql.Append("  '" + dtNewItem.Rows[i]["dUsedFrom"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["dUsedTo"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["dFrom"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["dTo"].ToString() + "',  \n");
+                    sql.Append("  '" + dTo + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["vcDistinguish"].ToString() + "',   \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["iBiYao"].ToString() + "',  \n");
                     sql.Append("  '" + strUserId + "', \n");

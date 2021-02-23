@@ -227,6 +227,26 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
+        #region SpreadJs传过来的日期格式OADate格式转文本格式
+        public void OADateConvert(ref List<Dictionary<string, Object>> listInfoData)
+        {
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                Dictionary<string, Object> dic =(Dictionary<string, Object>)listInfoData[i];
+                for(int j=0;j<dic.Count;j++)
+                {
+                    var item = dic.ElementAt(j);
+                    if (item.Value!=null&&item.Value.ToString().IndexOf("OADate(") != -1)
+                    {
+                        string strTemp = item.Value.ToString().Substring(item.Value.ToString().IndexOf("OADate(")+7, item.Value.ToString().Length- item.Value.ToString().IndexOf("OADate(")-7-1-1);
+                        DateTime d = System.DateTime.FromOADate(Convert.ToInt32(strTemp));
+                        dic[item.Key] = d.ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                }
+            }
+        }
+        #endregion
+
         #region 保存
         [HttpPost]
         [EnableCors("any")]
@@ -246,6 +266,8 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                OADateConvert(ref listInfoData);
+
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 bool bModFlag = false;
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -537,7 +559,8 @@ namespace SPPSApi.Controllers.G03
                         strChange != "9" &&
                         strChange != "10" &&
                         strChange != "11" &&
-                        strChange != "16" )
+                        strChange != "16" &&
+                        strChange != "17")
                     {
                         strChangeSum++;
                     }
@@ -552,7 +575,7 @@ namespace SPPSApi.Controllers.G03
                 if (strChangeSum>=1)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "只可发行变更事项为新设、废止、旧型、复活、工程变更、供应商变更的信息";
+                    apiResult.data = "只可发行变更事项为新设、废止、旧型、防锈、复活、工程变更、供应商变更的信息";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 #endregion

@@ -45,10 +45,11 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("   select [iAutoId], [dExportDate], [vcCarType], [vcPartNo], [vcPartName], [vcInsideOutsideType],   ");
-                strSql.AppendLine("   [vcSupplier_id], [vcWorkArea], [vcIsNewRulesFlag], [vcOEOrSP], [vcDock], [vcNumber], [vcPurposes],   ");
+                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea], [vcIsNewRulesFlag], [vcOEOrSP], [vcDock], [vcNumber], [vcPurposes],   ");
                 strSql.AppendLine("   [dOrderPurposesDate], [dOrderReceiveDate], [vcReceiveTimes], [dActualReceiveDate], [vcAccountOrderNo],    ");
-                strSql.AppendLine("   [dAccountOrderReceiveDate], [dOrderSendDate], [vcMemo], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
-                strSql.AppendLine("   from TOralTestManage where 1=1   ");
+                strSql.AppendLine("   [dAccountOrderReceiveDate], [dOrderSendDate], [vcMemo],b.vcSupplier_name, [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
+                strSql.AppendLine("   from TOralTestManage a    ");
+                strSql.AppendLine("   left join (select vcSupplier_id,vcSupplier_name from Tsupplier) b on a.vcSupplier_id = b.vcSupplier_id  where 1=1  ");
 
                 if (dExportDate.Length > 0)
                 {
@@ -345,5 +346,21 @@ namespace DataAccess
             }
         }
 
+        public DataTable getHSHD(string vcCodeID)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select vcValue,vcName from TCode where vcCodeId='"+ vcCodeID + "'  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
     }
 }

@@ -51,29 +51,43 @@ namespace Common
                 case "TFTM":
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
                 case "SFTM":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTM; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTM_TEST; Data Source =172.23.140.169";
                 case "SFTMCF":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTMCF; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTMCF_TEST; Data Source =172.23.140.169";
                 case "TK":
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TK_TEST; Data Source =172.23.140.169";
                 default:
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
             }
+            //switch (strUnitCode)
+            //{
+            //    case "TFTM":
+            //        return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =.";
+            //    case "SFTM":
+            //        return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTM_TEST; Data Source =.";
+            //    case "SFTMCF":
+            //        return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTMCF_TEST; Data Source =.";
+            //    case "TK":
+            //        return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TK_TEST; Data Source =.";
+            //    default:
+            //        return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =.";
+            //}
         }
         #endregion
 
         #region 获取数据库连接字符串 子获取主
         public static string GetConnectionString_UnitToMain(string strUnitCode)
         {
-            return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =172.23.140.169";
+            return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
+            //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =.";
         }
         #endregion
 
         #region 获取数据库连接字符串 
         public static string GetConnectionString()
         {
-            //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =.";
             return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
+            //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =.";
             //return "Persist Security Info = False; User ID = sa; Password = Server2008; Initial Catalog = SPPSdb001; Data Source =TJQM-FY\\SQLEXPRESS";
         }
         #endregion
@@ -89,7 +103,7 @@ namespace Common
         public static string GetConnectionString_MAPS()
         {
             //临时
-            return "Persist Security Info = False; User ID = sa; Password = Server2017; Initial Catalog = MAPS; Data Source =172.23.238.175";
+            return "Persist Security Info = False; User ID = sa; Password = maps0426; Initial Catalog = MAPS_20210205; Data Source =172.23.129.80";
         }
         #endregion
 

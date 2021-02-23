@@ -255,7 +255,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("  insert into TPackFaZhuTime    \n");
                 strSql.Append("       ( vcFaZhuID     \n");
-                strSql.Append("        , vcFaZhu     \n");
+               // strSql.Append("        , vcFaZhu     \n");
                 strSql.Append("        , vcRuHeFromDay     \n");
                 strSql.Append("        , dRuHeFromTime     \n");
                 strSql.Append("        , vcRuHeToDay     \n");
@@ -279,7 +279,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine("     	( ");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhuID"], false) + ",");
-                    strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhu"], false) + ",");
+                    //strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhu"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcRuHeFromDay"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dRuHeFromTime"], true) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcRuHeToDay"], false) + ",");

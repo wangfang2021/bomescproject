@@ -57,6 +57,7 @@ namespace SPPSApi.Controllers.G99
                 List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE
+                List<Object> dataList_C015 = ComFunction.convertAllToResult(ComFunction.getTCode("C015"));//省
                 List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
                 List<Object> dataList_C098 = ComFunction.convertAllToResult(ComFunction.getTCode("C098"));//车种
                 List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));//防锈指示
@@ -66,6 +67,7 @@ namespace SPPSApi.Controllers.G99
                 res.Add("C026", dataList_C026);
                 res.Add("C002", dataList_C002);
                 res.Add("C003", dataList_C003);
+                res.Add("C015", dataList_C015);
                 res.Add("C012", dataList_C012);
                 res.Add("C016", dataList_C016);
                 res.Add("C098", dataList_C098);
@@ -141,6 +143,52 @@ namespace SPPSApi.Controllers.G99
         }
         #endregion
 
+        #region 初始化检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string loadSearchApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            try
+            {
+                DataTable dt = fs9905_Logic.Search();
+                DtConverter dtConverter = new DtConverter();
+
+                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSCSNameModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSCSPlaceModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0502", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 保存
         [HttpPost]
         [EnableCors("any")]
@@ -179,12 +227,12 @@ namespace SPPSApi.Controllers.G99
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"对应可否确认结果"    ,"防锈对应可否","延期说明/NG理由","对应不可理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂"     ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
-                                                        {"vcIsDYJG"            ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcNotDY"     ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode"    ,"vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
-                                                        {""                    ,""            ,""               ,""            ,""              ,""                  ,""              ,""                  ,""             ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
-                                                        {"1"                   ,"1"           ,"100"            ,"100"         ,"100"           ,"100"               ,"100"           ,"100"               ,"100"          ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
-                                                        {"1"                   ,"1"           ,"0"              ,"0"           ,"1"             ,"1"                 ,"1"             ,"1"                 ,"1"            ,"1"         ,"1"         ,"1"                  ,"1"                  ,"1"                ,"0"           ,"0"         },//最小长度设定,可以为空用0
-                                                        {"14"                  ,"15"          ,"17"             ,"18"          ,"19"            ,"20"                ,"21"            ,"22"                ,"23"           ,"24"        ,"25"        ,"26"                 ,"27"                 ,"28"               ,"29"          ,"30"        }//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"对应可否确认结果"    ,"防锈对应可否","延期说明/NG理由","对应不可理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂"     ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","执行标准区分","执行标准NO"},
+                                                        {"vcIsDYJG"            ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcNotDY"     ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode"    ,"vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"vcZXBZDiff"  ,"vcZXBZNo"  },
+                                                        {""                    ,""            ,""               ,""            ,""              ,""                  ,""              ,""                  ,""             ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,""            ,""          },
+                                                        {"1"                   ,"1"           ,"100"            ,"100"         ,"100"           ,"100"               ,"100"           ,"100"               ,"100"          ,"100"       ,"100"       ,"0"                  ,"0"                  ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
+                                                        {"0"                   ,"0"           ,"0"              ,"0"           ,"0"             ,"0"                 ,"0"             ,"0"                 ,"0"            ,"0"         ,"0"         ,"0"                  ,"0"                  ,"0"           ,"0"         },//最小长度设定,可以为空用0
+                                                        {"14"                  ,"15"          ,"17"             ,"18"          ,"19"            ,"20"                ,"21"            ,"22"                ,"23"           ,"24"        ,"25"        ,"26"                 ,"27"                 ,"29"          ,"30"        }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = null;
@@ -192,10 +240,17 @@ namespace SPPSApi.Controllers.G99
                     /*
                      * 执行标准区分为CCC时，执行标准No必填
                      */
-                    /*                                   验证vcChange字段             当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
-                    string[,] strSpecialCheck = {{ "执行标准区分"    ,"vcZXBZDiff",  "CCC"     ,"CCC",   "执行标准NO"  ,"vcZXBZNo", "1",                      "","" }
-                                                ,{ "对应可否确认结果","vcIsDYJG"  ,  "不可对应","2"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
-                                                ,{ "防锈对应可否    ","vcIsDYFX"  ,  "不可对应","2"  ,   "对应不可理由","vcNotDY" , "1",                      "","" }
+                    /*                         验证vcChange字段     当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
+                    string[,] strSpecialCheck = {
+                         { "执行标准区分"    ,"vcZXBZDiff","CCC"     ,"CCC","执行标准NO"         ,"vcZXBZNo"          ,"1",                      "","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应","2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
+                        ,{ "防锈对应可否    ","vcIsDYFX"  ,"不可对应","2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"生产地-市"          ,"vcSCPlace_City"    ,"1",                      "","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"生产地-省"          ,"vcSCPlace_Province","1",                      "","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"出荷地-市"          ,"vcCHPlace_City"    ,"1",                      "","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"出荷地-省"          ,"vcCHPlace_Province","1",                      "","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"供应商切替日期-补给","dSupplier_BJ"      ,"1",                      "","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"供应商切替日期-号口","dSupplier_HK"      ,"1",                      "","" }
                         };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
@@ -312,7 +367,35 @@ namespace SPPSApi.Controllers.G99
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                string strErr = "";
+                #region 数据校验
+                string[,] strField = new string[,] {{"对应可否确认结果"    ,"防锈对应可否"},
+                                                    {"vcIsDYJG"            ,"vcIsDYFX"    },
+                                                    {""                    ,""            },
+                                                    {"1"                   ,"1"           },//最大长度设定,不校验最大长度用0
+                                                    {"1"                   ,"0"           },//最小长度设定,可以为空用0
+                                                    {"14"                  ,"15"          }//前台显示列号，从0开始计算,注意有选择框的是0
+                };
+                //需要判断时间区间先后关系的字段
+                string[,] strDateRegion = null;
+
+                /*
+                 * 执行标准区分为CCC时，执行标准No必填
+                 */
+                /*                                   验证vcChange字段             当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
+                string[,] strSpecialCheck = null;
+
+                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
+                if (checkRes != null)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = checkRes;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
+
+                    string strErr = "";
                 fs9905_Logic.Send(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {

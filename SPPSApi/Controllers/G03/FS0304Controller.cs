@@ -53,26 +53,21 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                //生确进度
-                List<Object> dataList_C026 = ComFunction.convertAllToResult(ComFunction.getTCode("C026"));
-                //变更事项
-                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));
-                //内外
-                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));
-                //OE
-                List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));
-                //包装厂
-                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));
-                //防锈指示
-                List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));
-                //对应可否确认结果
-                List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));
-                //防锈对应可否
-                List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));
-
+                
+                List<Object> dataList_C026 = ComFunction.convertAllToResult(ComFunction.getTCode("C026"));      //生确进度
+                List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));      //变更事项
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));      //内外                
+                List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));      //OE                
+                List<Object> dataList_C015 = ComFunction.convertAllToResult(ComFunction.getTCode("C015"));      //省份                
+                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));      //包装厂               
+                List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));      //防锈指示
+                List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));      //对应可否确认结果
+                List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));      //防锈对应可否
+                
                 res.Add("C026", dataList_C026);
                 res.Add("C002", dataList_C002);
                 res.Add("C003", dataList_C003);
+                res.Add("C015", dataList_C015);
                 res.Add("C012", dataList_C012);
                 res.Add("C016", dataList_C016);
                 res.Add("C028", dataList_C028);
@@ -119,6 +114,50 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 DataTable dt = fs0304_Logic.Search(strSSDate, strJD, strPart_id, strInOutFlag, strIsDYJG, strCarType, strSupplier_id);
+                DtConverter dtConverter = new DtConverter();
+
+                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0402", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 初始化检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string loadSearchApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            try
+            {
+                DataTable dt = fs0304_Logic.Search();
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -439,7 +478,7 @@ namespace SPPSApi.Controllers.G03
                                                     {"vcSYTCode","dTFTM_BJ"         },
                                                     {""         ,FieldCheck.Date    },
                                                     {"100"      ,"0"                },//最大长度设定,不校验最大长度用0
-                                                    {"1"        ,"1"                },//最小长度设定,可以为空用0
+                                                    {"0"        ,"1"                },//最小长度设定,可以为空用0
                                                     {"22"       ,"27"               } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 //需要判断时间区间先后关系的字段

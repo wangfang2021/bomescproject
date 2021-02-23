@@ -24,6 +24,13 @@ namespace Logic
         }
         #endregion
 
+        #region 初始化检索
+        public DataTable Search()
+        {
+            return fs9905_DataAccess.Search();
+        }
+        #endregion
+
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
         {

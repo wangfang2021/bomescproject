@@ -142,7 +142,7 @@ namespace DataAccess
                 {
                     if (i != 0)
                         sql.Append(",");
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoid"]);
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");

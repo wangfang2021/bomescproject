@@ -100,12 +100,16 @@ namespace SPPSApi.Controllers.G07
             string OrderFrom = dataForm.OrderFrom;
             string OrderTo = dataForm.OrderTo;
             string PackNo = dataForm.PackNo;
-            string PackGPSNo=dataForm.PackGPSNo;
+            string PackGPSNo = dataForm.PackGPSNo;
             string Type = dataForm.Type;
-            List<Object> OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
+            List<Object> OrderState = new List<object>();
+            if (OrderState == null)
+            {
+                OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
+            }
             string IsQianPin = dataForm.IsQianPin;
-            string SupplierName=dataForm.SupplierName ;
-            string ZuCode=dataForm.ZuCode;
+            string SupplierName = dataForm.SupplierName;
+            string ZuCode = dataForm.ZuCode;
             string dFaZhuFrom = dataForm.dFaZhuFrom;
             string dFaZhuTo = dataForm.dFaZhuTo;
             string dNaQiFrom = dataForm.dNaQiFrom;

@@ -315,13 +315,14 @@ namespace Logic
             }
             catch (Exception ex)
             {
-                strMessage += "发送成功！ \n";
+                strMessage += "发送失败！ \n";
                 throw ex;
             }
 
 
         }
         #endregion
+
         /// <summary>
         /// 获取在集合中属于该事业体的数据集
         /// </summary>

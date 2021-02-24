@@ -309,16 +309,38 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (listInfoData.Count != 0)
                 {
-                    string[,] strField = new string[,] {{"完成状态"     ,"原单位名" , "区分"    ,"车型代码"   ,"变更事项(统合)" ,"备注" },
-                        {"FinishState" ,"vcUnit" ,"vcDiff"   ,"vcCarType","THChange"    ,"vcRemark"},
-                        {""            ,""       ,FieldCheck.Num,FieldCheck.NumChar,""  ,""  },
-                        {"0"           ,"0"      ,"0"        ,"10"       ,"0"           ,"0"  },//最大长度设定,不校验最大长度用0
-                        {"0"           ,"1"      ,"0"        ,"1"        ,"1"           ,"0"  },//最小长度设定,可以为空用0
-                        {"4"           ,"5"      ,"6"        ,"7"        ,"8"           ,"10" }//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"完成状态"     ,"原单位名" , "区分"    ,"车型代码"   ,"变更事项(统合)" ,"备注" ,"旧品番","新品番" },
+                        {"FinishState" ,"vcUnit" ,"vcDiff"   ,"vcCarType","THChange"    ,"vcRemark","vcPart_Id_old","vcPart_Id_new"},
+                        {""            ,""       ,FieldCheck.Num,FieldCheck.NumChar,""  ,"" ,"","" },
+                        {"0"           ,"0"      ,"0"        ,"10"       ,"0"           ,"0" ,"0","0" },//最大长度设定,不校验最大长度用0
+                        {"0"           ,"1"      ,"0"        ,"1"        ,"1"           ,"0" ,"0","0" },//最小长度设定,可以为空用0
+                        {"4"           ,"5"      ,"6"        ,"7"        ,"8"           ,"10","3","4" }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
-                    string[,] strSpecialCheck = { };
+                    string[,] strSpecialCheck =
+                    {
+                        { "变更事项（统合）",
+                            "THChange",//验证vcChange字段
+                            "新车新设",
+                            "新车新设",//当vcChange=1时
+                            "新品番",
+                            "vcPart_Id_new",//判断字段
+                            "1", //1:该字段不能为空 0:该字段必须为空
+                            "新品番",
+                            "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                        },
+                        { "变更事项（统合）",
+                            "THChange",//验证vcChange字段
+                            "设变新设",
+                            "设变新设",//当vcChange=1时
+                            "新品番",
+                            "vcPart_Id_new",//判断字段
+                            "1", //1:该字段不能为空 0:该字段必须为空
+                            "新品番",
+                            "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                        }
+                    };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0302");
                     if (checkRes != null)

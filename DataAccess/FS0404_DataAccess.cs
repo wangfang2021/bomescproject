@@ -32,9 +32,9 @@ namespace DataAccess
                 strSql.AppendLine("    	when vcOrderType='1' then [vcTargetYear]+'/'+[vcTargetMonth]+''+c.vcName   ");
                 strSql.AppendLine("    	when vcOrderType='2' then [vcTargetYear]+'/'+[vcTargetMonth]  ");
                 strSql.AppendLine("    else '' end as [dTargetDate],  ");
-                strSql.AppendLine("  b.vcName as [vcOrderType],e.vcName as  vcInOutFlag, case when [vcOrderState]=2 then '撤销' when [vcOrderState]=3 then '已修正' else '已上传' end as vcOrderState, [vcMemo],   ");
+                strSql.AppendLine("  b.vcOrderDifferentiation as [vcOrderType],e.vcName as  vcInOutFlag, case when [vcOrderState]=2 then '撤销' when [vcOrderState]=3 then '已修正' else '已上传' end as vcOrderState, [vcMemo],   ");
                 strSql.AppendLine("  [dUploadDate], [vcFilePath], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[TOrderUploadManage]  a  ");
-                strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C045' )b on a.vcOrderType= b.vcValue     ");
+                strSql.AppendLine("  left join (select vcOrderDifferentiation,vcOrderInitials from [dbo].[TOrderDifferentiation] )b on a.vcOrderType= b.vcOrderInitials     ");
                 strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C046' )c on a.vcTargetWeek= c.vcValue      ");
                 strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C003' )e on a.vcInOutFlag= e.vcValue      ");
                 strSql.AppendLine("  left join ( select vcUnitCode,vcUserID from [dbo].[SUser] )d on a.vcOperatorID= d.vcUserID  where d.vcUnitCode=( select vcUnitCode from [dbo].[SUser] where vcUserID = '"+ userID + "')    ");
@@ -74,7 +74,39 @@ namespace DataAccess
             }
         }
 
-      
+        public DataTable getOrderCodeByName(string name)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select vcOrderInitials from [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='"+ name + "' ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getOrderType()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select vcOrderInitials+convert(varchar(10),iAutoId) as vcValue,vcOrderDifferentiation as vcName from [dbo].[TOrderDifferentiation] order by iAutoId asc  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
         #region 返回insert语句值
         /// <summary>
@@ -182,33 +214,123 @@ namespace DataAccess
         /// <param name="vcMemo"></param>
         /// <param name="fileList"></param>
         /// <param name="userId"></param>
-        public void addOrderNo(string vcOrderType,string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId)
+        public void addOrderNo(string realPath, string vcOrderType,string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage)
         {
             try
             {
+                StringBuilder strSql1 = new StringBuilder();
+                strSql1.AppendLine(" select b.vcValue,c.vcOrderInitials from [dbo].[TOrderGoodsAndDifferentiation] a  ");
+                strSql1.AppendLine(" left join TCode b on a.vcOrderGoodsId=b.iAutoId  ");
+                strSql1.AppendLine(" left join [dbo].[TOrderDifferentiation] c on a.vcOrderDifferentiationId = c.iAutoId  ");
+
+                DataTable dtOrderType= excute.ExcuteSqlWithSelectToDT(strSql1.ToString());
+
                 StringBuilder strSql = new StringBuilder();
                 string vcTargetYear = string.Empty;
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
-                if (vcOrderType == "0")
-                {
-                    vcTargetYear = dTargetDate.Substring(0, 4);
-                    vcTargetMonth = dTargetDate.Substring(4, 2);
-                    vcTargetDay = dTargetDate.Substring(6, 2);
 
-                }
-                else if (vcOrderType == "1")
-                {
-                    vcTargetYear = dTargetDate.Substring(0, 4);
-                }
-                else if (vcOrderType == "2") {
-                    vcTargetYear = dTargetDate.Substring(0, 4);
-                    vcTargetMonth = dTargetDate.Substring(4, 2);
-                }
+                vcTargetYear = dTargetDate.Replace("-","").Substring(0, 4);
+                vcTargetMonth = dTargetDate.Replace("-", "").Substring(4, 2);
+                vcTargetDay = dTargetDate.Replace("-", "").Substring(6, 2);
+                dTargetWeek = getWeekNumInMonth(Convert.ToDateTime(dTargetDate)).ToString();
+                //if (vcOrderType == "0")
+                //{
+                //    vcTargetYear = dTargetDate.Substring(0, 4);
+                //    vcTargetMonth = dTargetDate.Substring(4, 2);
+                //    vcTargetDay = dTargetDate.Substring(6, 2);
+
+                //}
+                //else if (vcOrderType == "1")
+                //{
+                //    vcTargetYear = dTargetDate.Substring(0, 4);
+                //}
+                //else if (vcOrderType == "2") {
+                //    vcTargetYear = dTargetDate.Substring(0, 4);
+                //    vcTargetMonth = dTargetDate.Substring(4, 2);
+                //}
 
                 string fileName = string.Empty;
                 string filePath = string.Empty;
-                string fileOrderNo = string.Empty; 
+                string fileOrderNo = string.Empty;
+                for (int i = 0; i < fileList.Count; i++)
+                {
+                    filePath = fileList[i]["filePath"].ToString();
+                    fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                    fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
+                    DataTable dockTmp = getDockTable();
+                    //读取文件
+
+                    string vcPackingFactory = uionCode;
+                    string vcOrderNo = fileName;
+                    string msg = string.Empty;
+                    //读取Order
+                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    StringBuilder sbr = new StringBuilder();
+                    //判断头
+                    foreach (Detail detail in order.Details)
+                    {
+                        string tmp = "";
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        string vcSupplierId = "";
+                        //string vcCarType = "";
+                        //string vcPartId_Replace = "";
+                        //string inout = "";
+                        string vcSupplierPlant = "";//工区
+                        string vcSupplierPlace = "";//出荷场
+                        string vcOrderNum = detail.QTY;
+                        string vcOrderingMethod = "";
+
+                        string dateTime = detail.Date.Trim();
+                        string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                        //检测品番表是否存在该品番
+                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                        if (hashtable.Keys.Count > 0)
+                        {
+                            //inout = hashtable["vcInOut"].ToString();
+                            //vcDock = hashtable["vcSufferIn"].ToString();
+                            vcSupplierId = hashtable["vcSupplierId"].ToString();
+                            vcSupplierPlant = hashtable["vcSupplierPlant"].ToString();
+                            vcSupplierPlace = hashtable["vcSupplierPlace"].ToString();
+                            //vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            bool IsHanYouOrderMethod = false;
+                            for (int m = 0; m < dtOrderType.Rows.Count; m++)
+                            {
+                                if (vcOrderingMethod == dtOrderType.Rows[m]["vcValue"].ToString())
+                                {
+                                    if (vcOrderType == dtOrderType.Rows[m]["vcOrderInitials"].ToString())
+                                    {
+                                        IsHanYouOrderMethod = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!IsHanYouOrderMethod)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = "选中的订单类型与"+fileName+"文件中品番" + vcPart_id + "的订单方式不匹配";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                        else
+                        {
+                            tmp += "品番基础数据表不包含品番" + vcPart_id + ";\r\n";
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = fileName+"文件中品番基础数据表不包含品番" + vcPart_id;
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                    }
+                    
+                }
+                if (!bReault)
+                {
+                    return;
+                }
                 for (int i=0;i< fileList.Count;i++)
                 {
                    
@@ -257,7 +379,30 @@ namespace DataAccess
                 throw ex;
             }
         }
+        /// <summary>  
+        /// 计算当前是本月第几周 getWeekNumInMonth(DateTime.Now)  
+        /// </summary>  
+        /// <param name="daytime"></param>  
+        /// <returns></returns>  
+        public static int getWeekNumInMonth(DateTime daytime)
+        {
+            int dayInMonth = daytime.Day;
+            //本月第一天  
+            DateTime firstDay = daytime.AddDays(1 - daytime.Day);
+            //本月第一天是周几  
+            int weekday = (int)firstDay.DayOfWeek == 0 ? 7 : (int)firstDay.DayOfWeek;
+            //本月第一周有几天  
+            int firstWeekEndDay = 7 - (weekday - 1);
+            //当前日期和第一周之差  
+            int diffday = dayInMonth - firstWeekEndDay;
+            diffday = diffday > 0 ? diffday : 1;
+            //当前是第几周,如果整除7就减一天  
+            int WeekNumInMonth = ((diffday % 7) == 0
+                                        ? (diffday / 7 - 1)
+                                        : (diffday / 7)) + 1 + (dayInMonth > firstWeekEndDay ? 1 : 0);
+            return WeekNumInMonth;
 
+        }
         /// <summary>
         /// 紧急订单
         /// </summary>
@@ -271,34 +416,120 @@ namespace DataAccess
         /// <param name="vcMemo"></param>
         /// <param name="fileList"></param>
         /// <param name="userId"></param>
-        public void addJinJiOrderNo(string realPath, string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref string msg)
+        public void addJinJiOrderNo(string realPath, string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref string msg)
         {
             try
             {
+                StringBuilder strSql1 = new StringBuilder();
+                strSql1.AppendLine(" select b.vcValue,c.vcOrderInitials from [dbo].[TOrderGoodsAndDifferentiation] a  ");
+                strSql1.AppendLine(" left join TCode b on a.vcOrderGoodsId=b.iAutoId  ");
+                strSql1.AppendLine(" left join [dbo].[TOrderDifferentiation] c on a.vcOrderDifferentiationId = c.iAutoId  ");
+
+                DataTable dtOrderType = excute.ExcuteSqlWithSelectToDT(strSql1.ToString());
                 StringBuilder strSql = new StringBuilder();
                 string vcTargetYear = string.Empty;
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
-                if (vcOrderType == "0")
-                {
-                    vcTargetYear = dTargetDate.Substring(0, 4);
-                    vcTargetMonth = dTargetDate.Substring(4, 2);
-                    vcTargetDay = dTargetDate.Substring(6, 2);
+                vcTargetYear = dTargetDate.Replace("-", "").Substring(0, 4);
+                vcTargetMonth = dTargetDate.Replace("-", "").Substring(4, 2);
+                vcTargetDay = dTargetDate.Replace("-", "").Substring(6, 2);
+                dTargetWeek = getWeekNumInMonth(Convert.ToDateTime(dTargetDate)).ToString();
+                //if (vcOrderType == "0")
+                //{
+                //    vcTargetYear = dTargetDate.Substring(0, 4);
+                //    vcTargetMonth = dTargetDate.Substring(4, 2);
+                //    vcTargetDay = dTargetDate.Substring(6, 2);
 
-                }
-                else if (vcOrderType == "1")
-                {
-                    vcTargetYear = dTargetDate.Substring(0, 4);
-                }
-                else if (vcOrderType == "2")
-                {
-                    vcTargetYear = dTargetDate.Substring(0, 4);
-                    vcTargetMonth = dTargetDate.Substring(4, 2);
-                }
+                //}
+                //else if (vcOrderType == "1")
+                //{
+                //    vcTargetYear = dTargetDate.Substring(0, 4);
+                //}
+                //else if (vcOrderType == "2")
+                //{
+                //    vcTargetYear = dTargetDate.Substring(0, 4);
+                //    vcTargetMonth = dTargetDate.Substring(4, 2);
+                //}
 
                 string fileName = string.Empty;
                 string filePath = string.Empty;
                 string fileOrderNo = string.Empty;
+                for (int i = 0; i < fileList.Count; i++)
+                {
+                    filePath = fileList[i]["filePath"].ToString();
+                    fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                    fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
+                    DataTable dockTmp = getDockTable();
+                    //读取文件
+
+                    string vcPackingFactory = uionCode;
+                    string vcOrderNo = fileName;
+                    //读取Order
+                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    StringBuilder sbr = new StringBuilder();
+                    //判断头
+                    foreach (Detail detail in order.Details)
+                    {
+                        string tmp = "";
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        string vcSupplierId = "";
+                        //string vcCarType = "";
+                        //string vcPartId_Replace = "";
+                        //string inout = "";
+                        string vcSupplierPlant = "";//工区
+                        string vcSupplierPlace = "";//出荷场
+                        string vcOrderNum = detail.QTY;
+                        string vcOrderingMethod = "";
+
+                        string dateTime = detail.Date.Trim();
+                        string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                        //检测品番表是否存在该品番
+                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                        if (hashtable.Keys.Count > 0)
+                        {
+                            //inout = hashtable["vcInOut"].ToString();
+                            //vcDock = hashtable["vcSufferIn"].ToString();
+                            vcSupplierId = hashtable["vcSupplierId"].ToString();
+                            vcSupplierPlant = hashtable["vcSupplierPlant"].ToString();
+                            vcSupplierPlace = hashtable["vcSupplierPlace"].ToString();
+                            //vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            bool IsHanYouOrderMethod = false;
+                            for (int m = 0; m < dtOrderType.Rows.Count; m++)
+                            {
+                                if (vcOrderingMethod == dtOrderType.Rows[m]["vcValue"].ToString())
+                                {
+                                    if (vcOrderType == dtOrderType.Rows[m]["vcOrderInitials"].ToString())
+                                    {
+                                        IsHanYouOrderMethod = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!IsHanYouOrderMethod)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = "选中的订单类型与"+ fileName + "文件中品番" + vcPart_id + "的订单方式不匹配";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                        else
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = fileName+"文件中品番基础数据表不包含品番" + vcPart_id;
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                    }
+                }
+                if (!bReault)
+                {
+                    return;
+                }
+
                 for (int i = 0; i < fileList.Count; i++)
                 {
 
@@ -409,10 +640,16 @@ namespace DataAccess
             }
         }
 
-        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref string msg)
+        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool  bReault, ref DataTable dtMessage, ref string msg)
         {
             try
             {
+                StringBuilder strSql1 = new StringBuilder();
+                strSql1.AppendLine(" select b.vcValue,c.vcOrderInitials from [dbo].[TOrderGoodsAndDifferentiation] a  ");
+                strSql1.AppendLine(" left join TCode b on a.vcOrderGoodsId=b.iAutoId  ");
+                strSql1.AppendLine(" left join [dbo].[TOrderDifferentiation] c on a.vcOrderDifferentiationId = c.iAutoId  ");
+                DataTable dtOrderType = excute.ExcuteSqlWithSelectToDT(strSql1.ToString());
+
                 StringBuilder strSql = new StringBuilder();
                 string vcTargetYear = string.Empty;
                 string vcTargetMonth = string.Empty;
@@ -421,6 +658,82 @@ namespace DataAccess
                 string fileName = string.Empty;
                 string filePath = string.Empty;
                 string fileOrderNo = string.Empty;
+                for (int i = 0; i < fileList.Count; i++)
+                {
+                    filePath = fileList[i]["filePath"].ToString();
+                    fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
+                    fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
+                    DataTable dockTmp = getDockTable();
+                    //读取文件
+
+                    string vcPackingFactory = uionCode;
+                    string vcOrderNo = fileName;
+                    //读取Order
+                    Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    StringBuilder sbr = new StringBuilder();
+                    //判断头
+                    foreach (Detail detail in order.Details)
+                    {
+                        string tmp = "";
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        string vcSupplierId = "";
+                        //string vcCarType = "";
+                        //string vcPartId_Replace = "";
+                        //string inout = "";
+                        string vcSupplierPlant = "";//工区
+                        string vcSupplierPlace = "";//出荷场
+                        string vcOrderNum = detail.QTY;
+                        string vcOrderingMethod = "";
+
+                        string dateTime = detail.Date.Trim();
+                        string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                        //检测品番表是否存在该品番
+                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                        if (hashtable.Keys.Count > 0)
+                        {
+                            //inout = hashtable["vcInOut"].ToString();
+                            //vcDock = hashtable["vcSufferIn"].ToString();
+                            vcSupplierId = hashtable["vcSupplierId"].ToString();
+                            vcSupplierPlant = hashtable["vcSupplierPlant"].ToString();
+                            vcSupplierPlace = hashtable["vcSupplierPlace"].ToString();
+                            //vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            bool IsHanYouOrderMethod = false;
+                            for (int m = 0; m < dtOrderType.Rows.Count; m++)
+                            {
+                                if (vcOrderingMethod == dtOrderType.Rows[m]["vcValue"].ToString())
+                                {
+                                    if (vcOrderType == dtOrderType.Rows[m]["vcOrderInitials"].ToString())
+                                    {
+                                        IsHanYouOrderMethod = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!IsHanYouOrderMethod)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = "选中的订单类型与" + fileName + "文件中品番" + vcPart_id + "的订单方式不匹配";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                        else
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = fileName + "文件中品番基础数据表不包含品番" + vcPart_id;
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                    }
+                }
+                if (!bReault)
+                {
+                    return;
+                }
+
                 for (int i = 0; i < fileList.Count; i++)
                 {
 
@@ -569,7 +882,7 @@ namespace DataAccess
                             hashtable.Add("vcSupplierPlace", dt.Rows[i]["vcSupplierPlace"].ToString());
                             hashtable.Add("vcSufferIn", dt.Rows[i]["vcSufferIn"].ToString());
                             hashtable.Add("iPackingQty", dt.Rows[i]["iPackingQty"].ToString());
-
+                            hashtable.Add("vcOrderingMethod", dt.Rows[i]["vcOrderingMethod"].ToString());
                             break;
                         }
                     }

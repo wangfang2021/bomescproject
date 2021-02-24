@@ -55,7 +55,7 @@ namespace DataAccess
 
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id  like  '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  vcSupplier_id  =  '" + vcSupplier_id + "' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
@@ -67,10 +67,9 @@ namespace DataAccess
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPartNo = '" + vcPartNo + "' ");
+                    strSql.AppendLine("  and  vcPartNo like '%" + vcPartNo + "%' ");
                 }
                 
-               
                 if (vcCarType.Length > 0)
                 {
                     strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
@@ -80,7 +79,7 @@ namespace DataAccess
                     strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExpectDeliveryDate.Replace("-", "") + "' ");
                 }
 
-                strSql.AppendLine("  order by  dSendDate desc ");
+                strSql.AppendLine("  order by a.vcState asc, dSendDate desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -88,6 +87,59 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable GetCarType(string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select vcCarType as vcValue,vcCarType as vcName from(    ");
+                strSql.AppendLine("    	select distinct isnull(vcCarType,'') as vcCarType from [THeZiManage] where vcSupplier_id='" + userId + "'   ");
+                strSql.AppendLine("  ) t order by vcValue desc  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetExpectDeliveryDate(string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select dExpectDeliveryDate as vcValue,dExpectDeliveryDate as vcName from(    ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dExpectDeliveryDate,120) as dExpectDeliveryDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("  ) t order by vcValue desc  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetTaskNum1( string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select * from [dbo].[THeZiManage] where vcState='3' and vcSupplier_id='" + userId + "'  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 获取工区
         /// </summary>
@@ -264,13 +316,13 @@ namespace DataAccess
         /// <summary>
         /// 获取未发送的数据
         /// </summary>
-        public DataTable GetTaskNum()
+        public DataTable GetTaskNum(string userId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select * from [dbo].[THeZiManage] where vcState='1'  ");
+                strSql.AppendLine("  select * from [dbo].[THeZiManage] where vcState='1' and vcSupplier_id='"+ userId + "'  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

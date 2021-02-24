@@ -25,10 +25,15 @@ namespace SoqCompute
 			for (int i = 0; i < beginData.Count; i++)
 			{
 				string[] temp = (string[])beginData[i];
+				//if (temp[0] == "G90101201000")
+				//{
+				//	int a = 0;
+				//	a = 1;
+				//}
 				int iBox_Last_PZ = Convert.ToInt32(temp[35]);//剩余需要平准化的箱数
 				if (iBox_Last_PZ == 0)
 					continue;//没有剩余的箱子要分配，跳过
-				//返回某周分配总数最少的一天
+							 //返回某周分配总数最少的一天
 				int iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList);
 				if (iMinDay == -1)//有可能这周不存在，则遍历的品番不变，周数--
 				{
@@ -49,7 +54,6 @@ namespace SoqCompute
 					nowWeek--;
 					nowWeek = nowWeek == 0 ? 5 : nowWeek;//到1时再减变成0，此时需要设定下次从5开始
 				}
-
 			}
 		}
 		//平准平均分配每一天	

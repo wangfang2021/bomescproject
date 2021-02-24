@@ -246,7 +246,7 @@ namespace DataAccess
         #endregion
 
         #region 一括付与
-        public void SetFY(List<Dictionary<string, Object>> listInfoData, string strSupplier_BJ, string strSupplier_HK, string strUserId, ref string strErr)
+        public void SetFY(List<Dictionary<string, Object>> listInfoData, string strSupplier_BJ, string strSupplier_HK,string strSCPlace_City, string strSCPlace_Province, string strCHPlace_City, string strCHPlace_Province, string strUserId, ref string strErr)
         {
             try
             {
@@ -263,6 +263,10 @@ namespace DataAccess
                     if (!string.IsNullOrEmpty(strSupplier_HK))
                     {
                         sql.AppendLine("  ,dSupplier_HK = '" + strSupplier_HK + "'          ");
+                    }
+                    if (!string.IsNullOrEmpty(strSCPlace_City))
+                    {
+                        sql.AppendLine("  ,vcSCPlace_City = '" + strSCPlace_City + "'          ");
                     }
                     if (!string.IsNullOrEmpty(strSupplier_BJ) || !string.IsNullOrEmpty(strSupplier_HK))
                     {

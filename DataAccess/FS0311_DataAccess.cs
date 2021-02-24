@@ -28,11 +28,11 @@ namespace DataAccess
                     sbr.Append("  AND vcCPDCompany LIKE '" + strSHF + "%' \r\n");
                 }
 
-                if (!vcFlag)
-                {
-                    sbr.Append("  AND dTimeFrom<=GETDATE() AND dTimeTo>= GETDATE() \r\n");
-                }
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                //if (!vcFlag)
+                //{
+                //    sbr.Append("  AND dTimeFrom<=GETDATE() AND dTimeTo>= GETDATE() \r\n");
+                //}
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TFTM");
             }
             catch (Exception ex)
             {

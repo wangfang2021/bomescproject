@@ -34,6 +34,10 @@ namespace DataAccess
                 {
                     strSql.AppendLine("select vcRoleID as vcValue,vcRoleName as vcName from SRole");
                 }
+                if (strType == "TPMRelation")//品目
+                {
+                    strSql.AppendLine("select distinct vcBigPM as vcValue,vcBigPM as vcName from TPMRelation");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
 
             }

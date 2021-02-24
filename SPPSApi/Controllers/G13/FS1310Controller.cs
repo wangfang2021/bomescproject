@@ -372,32 +372,32 @@ namespace SPPSApi.Controllers.G13
         {
             try
             {
-                string the_rar;
-                RegistryKey the_Reg;
-                object the_Obj;
-                string the_Info;
+                //string the_rar;
+                //RegistryKey the_Reg;
+                //object the_Obj;
+                //string the_Info;
 
-                the_Reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WinRAR.exe");
-                the_Obj = the_Reg.GetValue("");
-                the_rar = the_Obj.ToString();
-                the_Reg.Close();
+                //the_Reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WinRAR.exe");
+                //the_Obj = the_Reg.GetValue("");
+                //the_rar = the_Obj.ToString();
+                //the_Reg.Close();
 
-                if (Directory.Exists(unRarPatch) == false)
-                {
-                    Directory.CreateDirectory(unRarPatch);
-                }
-                the_Info = "x  -y  " + rarName + " " + unRarPatch;
-                ProcessStartInfo the_StartInfo = new ProcessStartInfo();
-                the_StartInfo.FileName = the_rar;
-                the_StartInfo.Arguments = the_Info;
-                the_StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                the_StartInfo.WorkingDirectory = rarPatch;//获取压缩包路径
+                //if (Directory.Exists(unRarPatch) == false)
+                //{
+                //    Directory.CreateDirectory(unRarPatch);
+                //}
+                //the_Info = "x  -y  " + rarName + " " + unRarPatch;
+                //ProcessStartInfo the_StartInfo = new ProcessStartInfo();
+                //the_StartInfo.FileName = the_rar;
+                //the_StartInfo.Arguments = the_Info;
+                //the_StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                //the_StartInfo.WorkingDirectory = rarPatch;//获取压缩包路径
 
-                Process the_Process = new Process();
-                the_Process.StartInfo = the_StartInfo;
-                the_Process.Start();
-                the_Process.WaitForExit();
-                the_Process.Close();
+                //Process the_Process = new Process();
+                //the_Process.StartInfo = the_StartInfo;
+                //the_Process.Start();
+                //the_Process.WaitForExit();
+                //the_Process.Close();
             }
             catch (Exception ex)
             {

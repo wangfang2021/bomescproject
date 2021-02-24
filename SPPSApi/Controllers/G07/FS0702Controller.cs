@@ -122,7 +122,7 @@ namespace SPPSApi.Controllers.G07
         [EnableCors("any")]
         public string searchApi([FromBody] dynamic data)
         {
-                string strToken = Request.Headers["X-Token"];
+            string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
                 return error_login();
@@ -291,7 +291,7 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, strShouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
-                
+
                 DataTable dtcope = dt.Copy();
                 dtcope.Clear();
 
@@ -340,7 +340,8 @@ namespace SPPSApi.Controllers.G07
                         else
                         {
                             dtcope.Rows.Add(dt.Rows[i]);
-                            for (int z=0;z<j;z++) {
+                            for (int z = 0; z < j; z++)
+                            {
                                 dt.Rows.RemoveAt(z);
                             }
                             break;
@@ -417,14 +418,15 @@ namespace SPPSApi.Controllers.G07
                     }
                     //判断品番是否存在
                     bool isok = true;
-                   // bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString(), listInfoData[i]["vcPackSpot"].ToString());
+                    // bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString(), listInfoData[i]["vcPackSpot"].ToString());
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "品番:" + listInfoData[i]["vcPartsNo"].ToString() + "有误！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (listInfoData[i]["dFrom"].ToString()==""|| listInfoData[i]["dTo"].ToString() == "") {
+                    if (listInfoData[i]["dFrom"].ToString() == "" || listInfoData[i]["dTo"].ToString() == "")
+                    {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "请输入开始/结束时间！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -524,7 +526,8 @@ namespace SPPSApi.Controllers.G07
                 //List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                 BatchProcess.FP0018 fp0018 = new BatchProcess.FP0018();
 
-                if (!fp0018.main(loginInfo.UserId)) {
+                if (!fp0018.main(loginInfo.UserId))
+                {
 
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "更新失败";

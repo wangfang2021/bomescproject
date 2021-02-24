@@ -53,31 +53,61 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtOptionsList = fs0603_Logic.getFormOptions();
+                List<Object> CarModelForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcCarModel_Name", "vcCarModel_Value"));//车种选项
+                List<Object> ReceiverForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcReceiver_Name", "vcReceiver_Value"));//收货方选项
+                List<Object> InOutForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcInOut_Name", "vcInOut_Value"));//内外区分选项
+                List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商编码选项
+                List<Object> FromTimeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcFromTime_Name", "vcFromTime_Value"));//开始使用选项
+                List<Object> ToTimeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcToTime_Name", "vcToTime_Value"));//结束使用选项
+                List<Object> HaoJiuForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcHaoJiu_Name", "vcHaoJiu_Value"));//号旧区分选项
+                List<Object> OrderPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderPlant_Name", "vcOrderPlant_Value"));//发注工厂选项
+                List<Object> SufferInForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSufferIn_Name", "vcSufferIn_Value"));//受入选项
+                List<Object> SupplierPackingForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierPacking_Name", "vcSupplierPacking_Value"));//供应商包装选项
+                List<Object> OldProductionForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOldProduction_Name", "vcOldProduction_Value"));//旧型年限生产区分选项
+                List<Object> DebugTimeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcDebugTime_Name", "vcDebugTime_Value"));//实施年月选项
 
-                List<Object> ReceiverList = ComFunction.convertAllToResult(fs0603_Logic.getCodeInfo("Receiver"));//收货方
-                List<Object> InOutList = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-                List<Object> HaoJiuList = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
-                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
                 List<Object> ChangesList = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
                 List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装工厂
+                List<Object> ReceiverList = ComFunction.convertAllToResult(fs0603_Logic.getCodeInfo("Receiver"));//收货方
+                List<Object> InOutList = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> OESPList = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
+                List<Object> HaoJiuList = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
                 List<Object> OldProductionList = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//旧型年限生产区分
                 List<Object> BillTypeList = ComFunction.convertAllToResult(ComFunction.getTCode("C007"));//单据区分
                 List<Object> OrderingMethodList = ComFunction.convertAllToResult(ComFunction.getTCode("C047"));//订货方式
                 List<Object> MandOrderList = ComFunction.convertAllToResult(ComFunction.getTCode("C048"));//强制订货
+                List<Object> SupplierPackingList = ComFunction.convertAllToResult(ComFunction.getTCode("C059"));//供应商包装
+                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
 
-                res.Add("ReceiverList", ReceiverList);
-                res.Add("InOutList", InOutList);
-                res.Add("HaoJiuList", HaoJiuList);
-                res.Add("OrderPlantList", OrderPlantList);
+                res.Add("CarModelForForm", CarModelForForm);
+                res.Add("ReceiverForForm", ReceiverForForm);
+                res.Add("InOutForForm", InOutForForm);
+                res.Add("SupplierIdForForm", SupplierIdForForm);
+                res.Add("FromTimeForForm", FromTimeForForm);
+                res.Add("ToTimeForForm", ToTimeForForm);
+                res.Add("HaoJiuForForm", HaoJiuForForm);
+                res.Add("OrderPlantForForm", OrderPlantForForm);
+                res.Add("SufferInForForm", SufferInForForm);
+                res.Add("SupplierPackingForForm", SupplierPackingForForm);
+                res.Add("OldProductionForForm", OldProductionForForm);
+                res.Add("DebugTimeForForm", DebugTimeForForm);
+
                 res.Add("ChangesList", ChangesList);
                 res.Add("PackingPlantList", PackingPlantList);
+                res.Add("ReceiverList", ReceiverList);
+                res.Add("InOutList", InOutList);
                 res.Add("OESPList", OESPList);
+                res.Add("HaoJiuList", HaoJiuList);
                 res.Add("OldProductionList", OldProductionList);
                 res.Add("BillTypeList", BillTypeList);
                 res.Add("OrderingMethodList", OrderingMethodList);
                 res.Add("MandOrderList", MandOrderList);
+                res.Add("SupplierPackingList", SupplierPackingList);
+                res.Add("OrderPlantList", OrderPlantList);
 
+                res.Add("taskNum", fs0603_Logic.gettaskNum());
+                res.Add("synclist", fs0603_Logic.getSyncInfo());
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -108,40 +138,47 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
 
             string strSyncTime = dataForm.SyncTime;
             string strPartId = dataForm.PartId;
             string strCarModel = dataForm.CarModel;
             string strReceiver = dataForm.Receiver;
             string strInOut = dataForm.InOut;
+            string strHaoJiu = dataForm.HaoJiu;
             string strSupplierId = dataForm.SupplierId;
             string strSupplierPlant = dataForm.SupplierPlant;
+            string strOrderPlant = dataForm.OrderPlant;
             string strFromTime = dataForm.FromTime;
             string strToTime = dataForm.ToTime;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strOrderPlant = dataForm.OrderPlant;
-
+            string strBoxType = dataForm.BoxType;
+            string strSufferIn = dataForm.SufferIn;
+            string strSupplierPacking = dataForm.SupplierPacking;
+            string strOldProduction = dataForm.OldProduction;
+            string strDebugTime = dataForm.DebugTime;
             try
             {
-                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut,
-                    strSupplierId, strSupplierPlant, strFromTime, strToTime, strHaoJiu, strOrderPlant);
+                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
+
                 DtConverter dtConverter = new DtConverter();
-
-
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dOldStartTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dDebugTime", ConvertFieldType.DateType, "yyyy/MM");
-                dtConverter.addField("dSupplierFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSupplierToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dFrontProjectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dShipmentTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
 
+                //dtConverter.addField("dSyncTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dDebugTime", ConvertFieldType.DateType, "yyyy/MM");
+                //dtConverter.addField("dSupplierFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dSupplierToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dFrontProjectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dShipmentTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+                res.Add("tempList", dataList);
+                res.Add("taskNum", fs0603_Logic.gettaskNum());
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -176,23 +213,29 @@ namespace SPPSApi.Controllers.G06
             string strCarModel = dataForm.CarModel;
             string strReceiver = dataForm.Receiver;
             string strInOut = dataForm.InOut;
+            string strHaoJiu = dataForm.HaoJiu;
             string strSupplierId = dataForm.SupplierId;
             string strSupplierPlant = dataForm.SupplierPlant;
+            string strOrderPlant = dataForm.OrderPlant;
             string strFromTime = dataForm.FromTime;
             string strToTime = dataForm.ToTime;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strOrderPlant = dataForm.OrderPlant;
+            string strBoxType = dataForm.BoxType;
+            string strSufferIn = dataForm.SufferIn;
+            string strSupplierPacking = dataForm.SupplierPacking;
+            string strOldProduction = dataForm.OldProduction;
+            string strDebugTime = dataForm.DebugTime;
             try
             {
-                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut,
-                   strSupplierId, strSupplierPlant, strFromTime, strToTime, strHaoJiu, strOrderPlant);
+                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
 
-                string[] fields = {"dSyncTime","vcChanges_name","vcPackingPlant_name","vcPartId","vcPartENName","vcCarfamilyCode","vcReceiver_name","dFromTime","dToTime",
-                    "vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dOldStartTime","dDebugTime","vcSupplierId",
-                    "dSupplierFromTime","dSupplierToTime","vcSupplierName","vcSupplierPlant","vcSupplierPlace",
-                    "iPackingQty","vcBoxType","iLength","iWidth","iHeight","iVolume","vcSufferIn","vcOrderPlant_name",
+                string[] fields = {"dSyncTime","vcChanges_name","vcPackingPlant_name","vcPartId","vcPartENName","vcCarfamilyCode","vcReceiver","dFromTime","dToTime",
+                    "vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dDebugTime","vcSupplierId",
+                    "dSupplierFromTime","dSupplierToTime","vcSupplierName","vcSupplierPlant",
+                    "iPackingQty","vcBoxType","iLength","iWidth","iHeight","iVolume",
+                    "vcSufferIn","vcOrderPlant_name",
                     "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime","vcPartImage","vcBillType_name",
-                    "vcRemark1","vcRemark2","vcOrderingMethod_name","vcMandOrder_name"
+                    "vcRemark1","vcRemark2","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name"
                 };
 
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0603_Export.xlsx", 1, loginInfo.UserId, FunctionID);
@@ -255,29 +298,6 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //开始数据验证
-                if (hasFind)
-                {
-                    #region 数据校验
-                    //string[,] strField = new string[,] {{"同步时间","变更事项","包装工厂","补给品番","品名","车种代码","收货方","使用开始","使用结束","替代品番","内外区分","OE=SP","号旧区分","旧型年限生产区分","旧型开始时间","实施年月","供应商编号","供应商使用开始","供应商使用结束","供应商名称"},
-                    //                            {"dSyncTime","vcChanges","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode","vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcInOut","vcOESP","vcHaoJiu","vcOldProduction","dOldStartTime","dDebugTime","vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName"},
-                    //                            {FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.YearMonth,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar},
-                    //                            {"0","0","0","12","200","0","0","0","0","0","0","0","0","0","0","0","10","0","0","0"},//最大长度设定,不校验最大长度用0
-                    //                            {"0","1","1","12","1","0","1","1","1","0","1","1","1","0","0","0","1","1","1","1"},//最小长度设定,可以为空用0
-                    //                            {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"}//前台显示列号，从0开始计算,注意有选择框的是0
-                    //};
-                    ////需要判断时间区间先后关系的字段
-                    //string[,] strDateRegion = { { "dFromTime", "dToTime" }, { "dSupplierFromTime", "dSupplierToTime" } };
-                    //string[,] strSpecialCheck = { };
-                    //List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0603");
-                    //if (checkRes != null)
-                    //{
-                    //    apiResult.code = ComConstant.ERROR_CODE;
-                    //    apiResult.data = checkRes;
-                    //    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    //}
-                    #endregion
-                }
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 bool bReault = true;
                 DataTable dtImport = fs0603_Logic.checkDataInfo(listInfoData, ref bReault, ref dtMessage);
@@ -377,23 +397,72 @@ namespace SPPSApi.Controllers.G06
                 string strEditType = dataForm.type;//维护类型
                 dynamic dRowinfo = dataForm.rowinfo;//维护数据信息
 
-                string strLinId = dRowinfo.LinId == null ? "" : dRowinfo.LinId.ToString();//维护数据LinId
-                string strPackingPlant = dRowinfo.vcPackingPlant == null ? "" : dRowinfo.vcPackingPlant.ToString();//包装工厂value
-                string strPackingPlant_name = dRowinfo.vcPackingPlant_name == null ? "" : dRowinfo.vcPackingPlant_name.ToString();//包装工厂name
-                string strPartId = dRowinfo.vcPartId == null ? "" : dRowinfo.vcPartId.ToString().ToUpper();//品番
-                string strReceiver = dRowinfo.vcReceiver == null ? "" : dRowinfo.vcReceiver.ToString();//收货方value
-                string strReceiver_name = dRowinfo.vcReceiver_name == null ? "" : dRowinfo.vcReceiver_name.ToString();// 收货方name
-                string strSupplierId = dRowinfo.vcSupplierId == null ? "" : dRowinfo.vcSupplierId.ToString();// 供应商
+                string strPackingPlant = dRowinfo.vcPackingPlant == null ? "" : dRowinfo.vcPackingPlant.ToString().Trim();
+                string strPackingPlant_name = dRowinfo.vcPackingPlant_name == null ? "" : dRowinfo.vcPackingPlant_name.ToString().Trim();
+
+                string strPartId = dRowinfo.vcPartId == null ? "" : dRowinfo.vcPartId.ToString().ToUpper().Trim();
+                string strReceiver = dRowinfo.vcReceiver == null ? "" : dRowinfo.vcReceiver.ToString().Trim();
+                string strSupplierId = dRowinfo.vcSupplierId == null ? "" : dRowinfo.vcSupplierId.ToString().Trim();
+
+                string strFromTime = dRowinfo.dFromTime == null ? "" : dRowinfo.dFromTime.ToString().Trim();
+                string strToTime = dRowinfo.dToTime == null ? "" : dRowinfo.dToTime.ToString().Trim();
+
+
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+
+                if (strPackingPlant == "" || strPartId == "" || strReceiver == "" || strSupplierId == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "原单位4Key未维护完整不能进行手配维护";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strFromTime == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "原单位开始使用时间未维护完整不能进行手配维护";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                else
+                    strFromTime = Convert.ToDateTime(strFromTime).ToString("yyyy-MM-dd");
+                if (strToTime == "")
+                    strToTime = "9999-12-31";
+                else
+                    strToTime = Convert.ToDateTime(strToTime).ToString("yyyy-MM-dd");
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                bool bAddFlag = (bool)dRowinfo.bAddFlag;//true可编辑,false不可编辑
+                if (bAddFlag == true)
+                {
+                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant);
+                    if (dtSPInfo.Rows.Count != 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "追加的原单位信息4key重复，禁止操作";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 if (strEditType == "SupplierPlantEdit")
                 {
-                    string strSupplierPlant = dRowinfo.vcSupplierPlant == "待维护" ? "" : dRowinfo.vcSupplierPlant.ToString();// 供应商
-
                     string SupplierPlant_ed = dRowinfo.SupplierPlant_ed == null ? "" : dRowinfo.SupplierPlant_ed.ToString();
                     string SupplierPlantLinId_ed = dRowinfo.SupplierPlantLinId_ed == null ? "" : dRowinfo.SupplierPlantLinId_ed.ToString();
                     string SupplierPlantFromTime_ed = dRowinfo.SupplierPlantFromTime_ed == null ? "" : dRowinfo.SupplierPlantFromTime_ed.ToString();
                     string SupplierPlantToTime_ed = dRowinfo.SupplierPlantToTime_ed == null ? "" : dRowinfo.SupplierPlantToTime_ed.ToString();
 
-                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                     if (SupplierPlantLinId_ed != "" && dataTable.Select("LinId='" + SupplierPlantLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     {
                         DataRow dataRow = dataTable.NewRow();
@@ -411,29 +480,19 @@ namespace SPPSApi.Controllers.G06
                     dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                     List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                     res.Add("packingPlantItem", strPackingPlant);
+                    res.Add("packingPlant_nameItem", strPackingPlant_name);
                     res.Add("partIdItem", strPartId);
                     res.Add("receiverItem", strReceiver);
                     res.Add("supplierIdItem", strSupplierId);
-                    res.Add("supplierPlantItem", strSupplierPlant);
+                    res.Add("fromtimeItem", strFromTime);
+                    res.Add("totimeItem", strToTime);
                     res.Add("tempList", dataList);
-                    //这些作为子页面固定值
-                    res.Add("packingPlant_nameItem", strPackingPlant_name);
-                    res.Add("receiver_nameItem", strReceiver_name);
-                    res.Add("linid_mainItem", strLinId);
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = res;
 
                 }
                 if (strEditType == "PackingQtyEdit")
                 {
-                    string strSupplierPlant = dRowinfo.vcSupplierPlant == "待维护" ? "" : dRowinfo.vcSupplierPlant.ToString();// 供应商
-                    if (strSupplierPlant == "")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "未维护工区信息，请先维护工区。";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //string SupplierPlant_ed = dRowinfo.SupplierPlant_ed == null ? "" : dRowinfo.SupplierPlant_ed.ToString();
                     string iPackingQty = dRowinfo.iPackingQty == null ? "" : dRowinfo.iPackingQty.ToString();
                     string vcBoxType = dRowinfo.vcBoxType == null ? "" : dRowinfo.vcBoxType.ToString();
                     string iLength = dRowinfo.iLength == null ? "" : dRowinfo.iLength.ToString();
@@ -451,7 +510,7 @@ namespace SPPSApi.Controllers.G06
                     string BoxHeight_ed = dRowinfo.BoxHeight_ed == null ? "" : dRowinfo.BoxHeight_ed.ToString();
                     string BoxVolume_ed = dRowinfo.BoxVolume_ed == null ? "" : dRowinfo.BoxVolume_ed.ToString();
 
-                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                     if (BoxPackingQty_ed != "" && dataTable.Select("LinId='" + BoxLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     {
                         DataRow dataRow = dataTable.NewRow();
@@ -474,29 +533,25 @@ namespace SPPSApi.Controllers.G06
                     dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                     List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                     res.Add("packingPlantItem", strPackingPlant);
+                    res.Add("packingPlant_nameItem", strPackingPlant_name);
                     res.Add("partIdItem", strPartId);
                     res.Add("receiverItem", strReceiver);
                     res.Add("supplierIdItem", strSupplierId);
-                    res.Add("supplierPlantItem", strSupplierPlant);
+                    res.Add("fromtimeItem", strFromTime);
+                    res.Add("totimeItem", strToTime);
                     res.Add("tempList", dataList);
-                    //这些作为子页面固定值
-                    res.Add("packingPlant_nameItem", strPackingPlant_name);
-                    res.Add("receiver_nameItem", strReceiver_name);
-                    res.Add("linid_mainItem", strLinId);
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = res;
 
                 }
                 if (strEditType == "SufferInEdit")
                 {
-                    string strSupplierPlant = dRowinfo.vcSupplierPlant == "待维护" ? "" : dRowinfo.vcSupplierPlant.ToString();// 供应商
-
                     string SufferIn_ed = dRowinfo.SufferIn_ed == null ? "" : dRowinfo.SufferIn_ed.ToString();
                     string SufferInLinId_ed = dRowinfo.SufferInLinId_ed == null ? "" : dRowinfo.SufferInLinId_ed.ToString();
                     string SufferInFromTime_ed = dRowinfo.SufferInFromTime_ed == null ? "" : dRowinfo.SufferInFromTime_ed.ToString();
                     string SufferInToTime_ed = dRowinfo.SufferInToTime_ed == null ? "" : dRowinfo.SufferInToTime_ed.ToString();
 
-                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                     if (SufferInLinId_ed != "" && dataTable.Select("LinId='" + SufferInLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     {
                         DataRow dataRow = dataTable.NewRow();
@@ -514,29 +569,25 @@ namespace SPPSApi.Controllers.G06
                     dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                     List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                     res.Add("packingPlantItem", strPackingPlant);
+                    res.Add("packingPlant_nameItem", strPackingPlant_name);
                     res.Add("partIdItem", strPartId);
                     res.Add("receiverItem", strReceiver);
                     res.Add("supplierIdItem", strSupplierId);
-                    res.Add("supplierPlantItem", strSupplierPlant);
+                    res.Add("fromtimeItem", strFromTime);
+                    res.Add("totimeItem", strToTime);
                     res.Add("tempList", dataList);
-                    //这些作为子页面固定值
-                    res.Add("packingPlant_nameItem", strPackingPlant_name);
-                    res.Add("receiver_nameItem", strReceiver_name);
-                    res.Add("linid_mainItem", strLinId);
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = res;
 
                 }
                 if (strEditType == "OrderPlantEdit")
                 {
-                    string strSupplierPlant = dRowinfo.vcSupplierPlant == "待维护" ? "" : dRowinfo.vcSupplierPlant.ToString();// 供应商
-
                     string OrderPlant_ed = dRowinfo.OrderPlant_ed == null ? "" : dRowinfo.OrderPlant_ed.ToString();
                     string OrderPlantLinId_ed = dRowinfo.OrderPlantLinId_ed == null ? "" : dRowinfo.OrderPlantLinId_ed.ToString();
                     string OrderPlantFromTime_ed = dRowinfo.OrderPlantFromTime_ed == null ? "" : dRowinfo.OrderPlantFromTime_ed.ToString();
                     string OrderPlantToTime_ed = dRowinfo.OrderPlantToTime_ed == null ? "" : dRowinfo.OrderPlantToTime_ed.ToString();
 
-                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                     if (OrderPlantLinId_ed != "" && dataTable.Select("LinId='" + OrderPlantLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     {
                         DataRow dataRow = dataTable.NewRow();
@@ -554,15 +605,13 @@ namespace SPPSApi.Controllers.G06
                     dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                     List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                     res.Add("packingPlantItem", strPackingPlant);
+                    res.Add("packingPlant_nameItem", strPackingPlant_name);
                     res.Add("partIdItem", strPartId);
                     res.Add("receiverItem", strReceiver);
                     res.Add("supplierIdItem", strSupplierId);
-                    res.Add("supplierPlantItem", strSupplierPlant);
+                    res.Add("fromtimeItem", strFromTime);
+                    res.Add("totimeItem", strToTime);
                     res.Add("tempList", dataList);
-                    //这些作为子页面固定值
-                    res.Add("packingPlant_nameItem", strPackingPlant_name);
-                    res.Add("receiver_nameItem", strReceiver_name);
-                    res.Add("linid_mainItem", strLinId);
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = res;
 
@@ -599,111 +648,19 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 string strEditType = dataForm.type;//维护类型
-                dynamic dRowinfo = dataForm.subform;//维护数据信息
-
-                string strLinId = dRowinfo.LinId_main == null ? "" : dRowinfo.LinId_main.ToString();//维护数据LinId
-                string strPackingPlant = dRowinfo.PackingPlant == null ? "" : dRowinfo.PackingPlant.ToString();//维护数据LinId
-                string strPartId = dRowinfo.PartId == null ? "" : dRowinfo.PartId.ToString().ToUpper();//维护数据LinId
-                string strReceiver = dRowinfo.Receiver == null ? "" : dRowinfo.Receiver.ToString();//维护数据LinId
-                string strSupplierId = dRowinfo.SupplierId == null ? "" : dRowinfo.SupplierId.ToString();//维护数据LinId
-                string strSupplierPlant = dRowinfo.SupplierPlant == "待维护" ? "" : dRowinfo.SupplierPlant.ToString();//维护数据LinId
-                #region 
-                //if (strEditType == "SupplierPlantEdit")
-                //{
-                //    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
-                //    DtConverter dtConverter = new DtConverter();
-                //    dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
-                //    dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-
-                //    res.Add("packingPlantItem", strPackingPlant);
-                //    res.Add("partIdItem", strPartId);
-                //    res.Add("receiverItem", strReceiver);
-                //    res.Add("supplierIdItem", strSupplierId);
-                //    res.Add("supplierPlantItem", strSupplierPlant);
-                //    res.Add("tempList", dataList);
-                //    //这些作为子页面固定值
-                //    res.Add("linid_mainItem", strLinId);
-                //    apiResult.code = ComConstant.SUCCESS_CODE;
-                //    apiResult.data = res;
-                //}
-                //if (strEditType == "PackingQtyEdit")
-                //{
-                //    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
-                //    DtConverter dtConverter = new DtConverter();
-                //    dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
-                //    dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-
-                //    res.Add("packingPlantItem", strPackingPlant);
-                //    res.Add("partIdItem", strPartId);
-                //    res.Add("receiverItem", strReceiver);
-                //    res.Add("supplierIdItem", strSupplierId);
-                //    res.Add("supplierPlantItem", strSupplierPlant);
-                //    res.Add("tempList", dataList);
-                //    //这些作为子页面固定值
-                //    res.Add("linid_mainItem", strLinId);
-                //    apiResult.code = ComConstant.SUCCESS_CODE;
-                //    apiResult.data = res;
-                //}
-                //if (strEditType == "SufferInEdit")
-                //{
-                //    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
-                //    DtConverter dtConverter = new DtConverter();
-                //    dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
-                //    dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-
-                //    res.Add("packingPlantItem", strPackingPlant);
-                //    res.Add("partIdItem", strPartId);
-                //    res.Add("receiverItem", strReceiver);
-                //    res.Add("supplierIdItem", strSupplierId);
-                //    res.Add("supplierPlantItem", strSupplierPlant);
-                //    res.Add("tempList", dataList);
-                //    //这些作为子页面固定值
-                //    res.Add("linid_mainItem", strLinId);
-                //    apiResult.code = ComConstant.SUCCESS_CODE;
-                //    apiResult.data = res;
-                //}
-                //if (strEditType == "OrderPlantEdit")
-                //{
-                //    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
-                //    DtConverter dtConverter = new DtConverter();
-                //    dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
-                //    dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //    List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-
-                //    res.Add("packingPlantItem", strPackingPlant);
-                //    res.Add("partIdItem", strPartId);
-                //    res.Add("receiverItem", strReceiver);
-                //    res.Add("supplierIdItem", strSupplierId);
-                //    res.Add("supplierPlantItem", strSupplierPlant);
-                //    res.Add("tempList", dataList);
-                //    //这些作为子页面固定值
-                //    res.Add("linid_mainItem", strLinId);
-                //    apiResult.code = ComConstant.SUCCESS_CODE;
-                //    apiResult.data = res;
-                //}
-                #endregion
-                DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                string strPackingPlant_fixed = dataForm.mainform.PackingPlant;
+                string strPartId_fixed = dataForm.mainform.PartId;
+                string strReceiver_fixed = dataForm.mainform.Receiver;
+                string strSupplierId_fixed = dataForm.mainform.SupplierId;
+                string strFromTime_fixed = dataForm.mainform.FromTime;
+                string strToTime_fixed = dataForm.mainform.ToTime;
+                DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-
-                res.Add("packingPlantItem", strPackingPlant);
-                res.Add("partIdItem", strPartId);
-                res.Add("receiverItem", strReceiver);
-                res.Add("supplierIdItem", strSupplierId);
-                res.Add("supplierPlantItem", strSupplierPlant);
                 res.Add("tempList", dataList);
-                //这些作为子页面固定值
-                res.Add("linid_mainItem", strLinId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -712,7 +669,7 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "重置失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -737,26 +694,31 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
-                string strEditType = dataForm.type;//维护类型
-                dynamic dSubform = dataForm.subform.list;//维护页面数据列表
+                dynamic dSubform = dataForm.subform.list;
                 List<Dictionary<string, Object>> listSubInfo = dSubform.ToObject<List<Dictionary<string, Object>>>();
 
-                string LinId_main = dataForm.subform.LinId_main;//隐藏维护数据信息
-                string PackingPlant = dataForm.subform.PackingPlant;
-                string PartId = dataForm.subform.PartId;
-                string Receiver = dataForm.subform.Receiver;
-                string SupplierId = dataForm.subform.SupplierId;
-                string SupplierPlant = dataForm.subform.SupplierPlant;
+                string strEditType = dataForm.type;//维护类型
+                string strPackingPlant_fixed = dataForm.mainform.PackingPlant;
+                string strPartId_fixed = dataForm.mainform.PartId;
+                string strReceiver_fixed = dataForm.mainform.Receiver;
+                string strSupplierId_fixed = dataForm.mainform.SupplierId;
+                string strFromTime_fixed = dataForm.mainform.FromTime;
+                string strToTime_fixed = dataForm.mainform.ToTime;
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+
                 if (strEditType == "SupplierPlantEdit")
                 {
+                    res.Add("PackingPlant_fixed", strPackingPlant_fixed);
+                    res.Add("PartId_fixed", strPartId_fixed);
+                    res.Add("Receiver_fixed", strReceiver_fixed);
+                    res.Add("SupplierId_fixed", strSupplierId_fixed);
                     if (listSubInfo.Count == 0)//不存任何有效期履历
                     {
-                        res.Add("SupplierPlant", "待维护");
+                        res.Add("SupplierPlant", "");
                         res.Add("SupplierPlant_ed", "");
                         res.Add("SupplierPlantLinId_ed", "");
                         res.Add("SupplierPlantFromTime_ed", "");
                         res.Add("SupplierPlantToTime_ed", "");
-                        res.Add("LinId_mainItem", LinId_main);
                         apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = res;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -764,38 +726,55 @@ namespace SPPSApi.Controllers.G06
                     else
                     {
                         //只取第一行数据（每次只能追加一条数据有效期）
+
                         string strLinId = listSubInfo[0]["LinId"].ToString();
                         string strSupplierPlant = listSubInfo[0]["vcSupplierPlant"].ToString();
-                        string dFromTime = listSubInfo[0]["dFromTime"].ToString();
-                        string dToTime = listSubInfo[0]["dToTime"].ToString();
-                        DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, PackingPlant, PartId, Receiver, SupplierId, SupplierPlant);
-                        if (dataTable.Rows.Count > 0 && Convert.ToInt32(strLinId) < 0)
+                        if (strSupplierPlant == "")
                         {
-                            if (Convert.ToDateTime(dataTable.Rows[dataTable.Rows.Count - 1]["dFromTime"].ToString()) >= Convert.ToDateTime(dFromTime))
-                            {
-                                //报错：不符合上一个当前有效的开始使用时间小于维护的开始使用时间
-                            }
-                            dataTable.Rows[dataTable.Rows.Count - 1]["dToTime"] = Convert.ToDateTime(dFromTime).AddDays(-1);
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "未维护工区信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
                         }
-                        if (Convert.ToInt32(strLinId) < 0)
+                        if (dtMessage != null && dtMessage.Rows.Count != 0)
                         {
+                            //弹出错误dtMessage
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.type = "list";
+                            apiResult.data = dtMessage;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
+                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
+                        DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
+                        if (Convert.ToInt32(strLinId) == -1)
+                        {
+                            if (dtCheckTime.Rows.Count > 0)
+                            {
+                                string strSupplierPlantFromTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dFromTime"].ToString();
+                                if (Convert.ToDateTime(strSupplierPlantFromTime_before) >= Convert.ToDateTime(dFromTime))
+                                {
+                                    //DataRow dataRow = dtMessage.NewRow();
+                                    //dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                    //dtMessage.Rows.Add(dataRow);
+                                }
+                                dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dToTime"] = Convert.ToDateTime(dFromTime).AddDays(-1);
+                            }
                             //判断当前生效的数据
-                            DataRow dataRow = dataTable.NewRow();
+                            DataRow dataRow = dtCheckTime.NewRow();
                             dataRow["LinId"] = strLinId;
                             dataRow["dFromTime"] = dFromTime;
                             dataRow["dToTime"] = dToTime;
                             dataRow["vcSupplierPlant"] = strSupplierPlant;
                             dataRow["bAddFlag"] = "1";
                             dataRow["vcBgColor"] = "";
-                            dataTable.Rows.InsertAt(dataRow, 0);//插入到第一行
+                            dtCheckTime.Rows.InsertAt(dataRow, 0);//插入到第一行
                         }
-                        res.Add("SupplierPlant", "待维护");
-                        foreach (DataRow item in dataTable.Rows)
+                        res.Add("SupplierPlant", "");
+                        foreach (DataRow item in dtCheckTime.Rows)
                         {
                             if (Convert.ToDateTime(item["dFromTime"].ToString()) <= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd"))
                                 && Convert.ToDateTime(item["dToTime"].ToString()) >= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd")))
                             {
-                                //当前有效的
                                 res.Remove("SupplierPlant");
                                 res.Add("SupplierPlant", item["vcSupplierPlant"].ToString());
                                 break;
@@ -805,7 +784,6 @@ namespace SPPSApi.Controllers.G06
                         res.Add("SupplierPlantLinId_ed", strLinId);
                         res.Add("SupplierPlantFromTime_ed", dFromTime);
                         res.Add("SupplierPlantToTime_ed", dToTime);
-                        res.Add("LinId_mainItem", LinId_main);
                         apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = res;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -813,9 +791,13 @@ namespace SPPSApi.Controllers.G06
                 }
                 if (strEditType == "PackingQtyEdit")
                 {
+                    res.Add("PackingPlant_fixed", strPackingPlant_fixed);
+                    res.Add("PartId_fixed", strPartId_fixed);
+                    res.Add("Receiver_fixed", strReceiver_fixed);
+                    res.Add("SupplierId_fixed", strSupplierId_fixed);
                     if (listSubInfo.Count == 0)//不存任何有效期履历
                     {
-                        res.Add("iPackingQty", "待维护");
+                        res.Add("iPackingQty", "");
                         res.Add("vcBoxType", "");
                         res.Add("iLength", "");
                         res.Add("iWidth", "");
@@ -830,7 +812,6 @@ namespace SPPSApi.Controllers.G06
                         res.Add("BoxWidth_ed", "");
                         res.Add("BoxHeight_ed", "");
                         res.Add("BoxVolume_ed", "");
-                        res.Add("LinId_mainItem", LinId_main);
                         apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = res;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -844,22 +825,39 @@ namespace SPPSApi.Controllers.G06
                         string strLength = listSubInfo[0]["iLength"].ToString();
                         string strWidth = listSubInfo[0]["iWidth"].ToString();
                         string strHeight = listSubInfo[0]["iHeight"].ToString();
-                        string strVolume = (Convert.ToInt32(listSubInfo[0]["iLength"].ToString()) * Convert.ToInt32(listSubInfo[0]["iWidth"].ToString()) * Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())).ToString();
-                        string dFromTime = listSubInfo[0]["dFromTime"].ToString();
-                        string dToTime = listSubInfo[0]["dToTime"].ToString();
-                        DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, PackingPlant, PartId, Receiver, SupplierId, SupplierPlant);
-                        if (dataTable.Rows.Count > 0 && Convert.ToInt32(strLinId) < 0)
+                        if (strPackingQty == "" || strBoxType == "" || strLength == "" || strWidth == "" || strHeight == "")
                         {
-                            if (Convert.ToDateTime(dataTable.Rows[dataTable.Rows.Count - 1]["dFromTime"].ToString()) >= Convert.ToDateTime(dFromTime))
-                            {
-                                //报错：不符合上一个当前有效的开始使用时间小于维护的开始使用时间
-                            }
-                            dataTable.Rows[dataTable.Rows.Count - 1]["dToTime"] = Convert.ToDateTime(dFromTime).AddDays(-1);
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "未维护收容数或者箱种信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
                         }
-                        if (Convert.ToInt32(strLinId) < 0)
+                        if (dtMessage != null && dtMessage.Rows.Count != 0)
                         {
+                            //弹出错误dtMessage
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.type = "list";
+                            apiResult.data = dtMessage;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        string strVolume = ((Convert.ToInt32(listSubInfo[0]["iLength"].ToString()) * Convert.ToInt32(listSubInfo[0]["iWidth"].ToString()) * Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())) / 1000000000).ToString();
+                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
+                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
+                        DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
+                        if (Convert.ToInt32(strLinId) == -1)
+                        {
+                            if (dtCheckTime.Rows.Count > 0)
+                            {
+                                string strPackingQtyFromTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dFromTime"].ToString();
+                                if (Convert.ToDateTime(strPackingQtyFromTime_before) >= Convert.ToDateTime(dFromTime))
+                                {
+                                    //DataRow dataRow = dtMessage.NewRow();
+                                    //dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                    //dtMessage.Rows.Add(dataRow);
+                                }
+                                dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dToTime"] = Convert.ToDateTime(dFromTime).AddDays(-1);
+                            }
                             //判断当前生效的数据
-                            DataRow dataRow = dataTable.NewRow();
+                            DataRow dataRow = dtCheckTime.NewRow();
                             dataRow["LinId"] = strLinId;
                             dataRow["iPackingQty"] = strPackingQty;
                             dataRow["vcBoxType"] = strBoxType;
@@ -871,15 +869,15 @@ namespace SPPSApi.Controllers.G06
                             dataRow["dToTime"] = dToTime;
                             dataRow["bAddFlag"] = "1";
                             dataRow["vcBgColor"] = "";
-                            dataTable.Rows.InsertAt(dataRow, 0);//插入到第一行
+                            dtCheckTime.Rows.InsertAt(dataRow, 0);//插入到第一行
                         }
-                        res.Add("iPackingQty", "待维护");
+                        res.Add("iPackingQty", "");
                         res.Add("vcBoxType", "");
                         res.Add("iLength", "");
                         res.Add("iWidth", "");
                         res.Add("iHeight", "");
                         res.Add("iVolume", "");
-                        foreach (DataRow item in dataTable.Rows)
+                        foreach (DataRow item in dtCheckTime.Rows)
                         {
                             if (Convert.ToDateTime(item["dFromTime"].ToString()) <= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd"))
                                 && Convert.ToDateTime(item["dToTime"].ToString()) >= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd")))
@@ -909,7 +907,6 @@ namespace SPPSApi.Controllers.G06
                         res.Add("BoxWidth_ed", strWidth);
                         res.Add("BoxHeight_ed", strHeight);
                         res.Add("BoxVolume_ed", strVolume);
-                        res.Add("LinId_mainItem", LinId_main);
                         apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = res;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -917,14 +914,17 @@ namespace SPPSApi.Controllers.G06
                 }
                 if (strEditType == "SufferInEdit")
                 {
+                    res.Add("PackingPlant_fixed", strPackingPlant_fixed);
+                    res.Add("PartId_fixed", strPartId_fixed);
+                    res.Add("Receiver_fixed", strReceiver_fixed);
+                    res.Add("SupplierId_fixed", strSupplierId_fixed);
                     if (listSubInfo.Count == 0)//不存任何有效期履历
                     {
-                        res.Add("SufferIn", "待维护");
+                        res.Add("SufferIn", "");
                         res.Add("SufferIn_ed", "");
                         res.Add("SufferInLinId_ed", "");
                         res.Add("SufferInFromTime_ed", "");
                         res.Add("SufferInToTime_ed", "");
-                        res.Add("LinId_mainItem", LinId_main);
                         apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = res;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -934,31 +934,48 @@ namespace SPPSApi.Controllers.G06
                         //只取第一行数据（每次只能追加一条数据有效期）
                         string strLinId = listSubInfo[0]["LinId"].ToString();
                         string strSufferIn = listSubInfo[0]["vcSufferIn"].ToString();
-                        string dFromTime = listSubInfo[0]["dFromTime"].ToString();
-                        string dToTime = listSubInfo[0]["dToTime"].ToString();
-                        DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, PackingPlant, PartId, Receiver, SupplierId, SupplierPlant);
-                        if (dataTable.Rows.Count > 0 && Convert.ToInt32(strLinId) < 0)
+                        if (strSufferIn == "")
                         {
-                            if (Convert.ToDateTime(dataTable.Rows[dataTable.Rows.Count - 1]["dFromTime"].ToString()) >= Convert.ToDateTime(dFromTime))
-                            {
-                                //报错：不符合上一个当前有效的开始使用时间小于维护的开始使用时间
-                            }
-                            dataTable.Rows[dataTable.Rows.Count - 1]["dToTime"] = Convert.ToDateTime(dFromTime).AddDays(-1);
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "未维护受入信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
                         }
-                        if (Convert.ToInt32(strLinId) < 0)
+                        if (dtMessage != null && dtMessage.Rows.Count != 0)
                         {
+                            //弹出错误dtMessage
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.type = "list";
+                            apiResult.data = dtMessage;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
+                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
+                        DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
+                        if (Convert.ToInt32(strLinId) == -1)
+                        {
+                            if (dtCheckTime.Rows.Count > 0)
+                            {
+                                string strSufferInFromTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dFromTime"].ToString();
+                                if (Convert.ToDateTime(strSufferInFromTime_before) >= Convert.ToDateTime(dFromTime))
+                                {
+                                    //DataRow dataRow = dtMessage.NewRow();
+                                    //dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                    //dtMessage.Rows.Add(dataRow);
+                                }
+                                dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dToTime"] = Convert.ToDateTime(dFromTime).AddDays(-1);
+                            }
                             //判断当前生效的数据
-                            DataRow dataRow = dataTable.NewRow();
+                            DataRow dataRow = dtCheckTime.NewRow();
                             dataRow["LinId"] = strLinId;
                             dataRow["dFromTime"] = dFromTime;
                             dataRow["dToTime"] = dToTime;
                             dataRow["vcSufferIn"] = strSufferIn;
                             dataRow["bAddFlag"] = "1";
                             dataRow["vcBgColor"] = "";
-                            dataTable.Rows.InsertAt(dataRow, 0);//插入到第一行
+                            dtCheckTime.Rows.InsertAt(dataRow, 0);//插入到第一行
                         }
-                        res.Add("SufferIn", "待维护");
-                        foreach (DataRow item in dataTable.Rows)
+                        res.Add("SufferIn", "");
+                        foreach (DataRow item in dtCheckTime.Rows)
                         {
                             if (Convert.ToDateTime(item["dFromTime"].ToString()) <= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd"))
                                 && Convert.ToDateTime(item["dToTime"].ToString()) >= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd")))
@@ -973,7 +990,6 @@ namespace SPPSApi.Controllers.G06
                         res.Add("SufferInLinId_ed", strLinId);
                         res.Add("SufferInFromTime_ed", dFromTime);
                         res.Add("SufferInToTime_ed", dToTime);
-                        res.Add("LinId_mainItem", LinId_main);
                         apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = res;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -981,68 +997,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 if (strEditType == "OrderPlantEdit")
                 {
-                    //DataTable dtOrderPlant = ComFunction.getTCode("C000");
-                    if (listSubInfo.Count == 0)//不存任何有效期履历
-                    {
-                        res.Add("OrderPlant", "待维护");
-                        res.Add("OrderPlant_ed", "");
-                        res.Add("OrderPlantLinId_ed", "");
-                        res.Add("OrderPlantFromTime_ed", "");
-                        res.Add("OrderPlantToTime_ed", "");
-                        res.Add("LinId_mainItem", LinId_main);
-                        apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = res;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    else
-                    {
-                        //只取第一行数据（每次只能追加一条数据有效期）
-                        string strLinId = listSubInfo[0]["LinId"].ToString();
-                        string strOrderPlant = listSubInfo[0]["vcOrderPlant"].ToString();
-                        string dFromTime = listSubInfo[0]["dFromTime"].ToString();
-                        string dToTime = listSubInfo[0]["dToTime"].ToString();
-                        DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, PackingPlant, PartId, Receiver, SupplierId, SupplierPlant);
-                        if (dataTable.Rows.Count > 0 && Convert.ToInt32(strLinId) < 0)
-                        {
-                            if (Convert.ToDateTime(dataTable.Rows[dataTable.Rows.Count - 1]["dFromTime"].ToString()) >= Convert.ToDateTime(dFromTime))
-                            {
-                                //报错：不符合上一个当前有效的开始使用时间小于维护的开始使用时间
-                            }
-                            dataTable.Rows[dataTable.Rows.Count - 1]["dToTime"] = Convert.ToDateTime(dFromTime).AddDays(-1);
-                        }
-                        if (Convert.ToInt32(strLinId) < 0)
-                        {
-                            //判断当前生效的数据
-                            DataRow dataRow = dataTable.NewRow();
-                            dataRow["LinId"] = strLinId;
-                            dataRow["dFromTime"] = dFromTime;
-                            dataRow["dToTime"] = dToTime;
-                            dataRow["vcOrderPlant"] = strOrderPlant;
-                            dataRow["bAddFlag"] = "1";
-                            dataRow["vcBgColor"] = "";
-                            dataTable.Rows.InsertAt(dataRow, 0);//插入到第一行
-                        }
-                        res.Add("OrderPlant", "待维护");
-                        foreach (DataRow item in dataTable.Rows)
-                        {
-                            if (Convert.ToDateTime(item["dFromTime"].ToString()) <= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd"))
-                                && Convert.ToDateTime(item["dToTime"].ToString()) >= Convert.ToDateTime(System.DateTime.Now.ToString("yyyy-MM-dd")))
-                            {
-                                //当前有效的
-                                res.Remove("OrderPlant");
-                                res.Add("OrderPlant", item["vcOrderPlant"].ToString());
-                                break;
-                            }
-                        }
-                        res.Add("OrderPlant_ed", strOrderPlant);
-                        res.Add("OrderPlantLinId_ed", strLinId);
-                        res.Add("OrderPlantFromTime_ed", dFromTime);
-                        res.Add("OrderPlantToTime_ed", dToTime);
-                        res.Add("LinId_mainItem", LinId_main);
-                        apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = res;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+
                 }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -1055,15 +1010,14 @@ namespace SPPSApi.Controllers.G06
             }
         }
         /// <summary>
-        /// 一括赋予有效期
+        /// 履历下载
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string saveallinApi([FromBody]dynamic data)
+        public string exportoperhistoryApi([FromBody]dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -1072,64 +1026,51 @@ namespace SPPSApi.Controllers.G06
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strFromTime = dataForm.searchform.FromTime == null ? "" : dataForm.searchform.FromTime;
+            string strToTime = dataForm.searchform.ToTime == null ? "" : dataForm.searchform.ToTime;
             try
             {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-                dynamic dsearchform = dataForm.searchform;//检索条件
-                dynamic dallininfo = dataForm.allininfo;//allin条件
-
-                string strSyncTime = dsearchform.SyncTime;
-                string strPartId = dsearchform.PartId;
-                string strCarModel = dsearchform.CarModel;
-                string strReceiver = dsearchform.Receiver;
-                string strInOut = dsearchform.InOut;
-                string strSupplierId = dsearchform.SupplierId;
-                string strSupplierPlant = dsearchform.SupplierPlant;
-                string strFromTime = dsearchform.FromTime;
-                string strToTime = dsearchform.ToTime;
-                string strHaoJiu = dsearchform.HaoJiu;
-                string strOrderPlant = dsearchform.OrderPlant;
-
-                string dFromTime = dallininfo.FromTime == null ? "" : dallininfo.FromTime;
-                string dToTime = dallininfo.ToTime == null ? "" : dallininfo.ToTime;
-                if (dFromTime == "" || dToTime == "")
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                if (strFromTime == "" || strToTime == "")
                 {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请输入下载的起止时间";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                DataTable dataTable = fs0603_Logic.searchOperHistory(strFromTime, strToTime, loginInfo.UserId);
+                if (dataTable.Rows.Count == 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "没有可供下载的履历信息";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "有效期不能为空";
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DateTime FromTime = Convert.ToDateTime(dFromTime);
-                DateTime ToTime = Convert.ToDateTime(dToTime);
-                if (FromTime > ToTime)
+                string[] fields = { "vcPackingPlant", "vcPartId", "vcReceiver", "vcSupplierId", "vcAction", "dOperatorTime" };
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0603_OperHistory.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "品番有效期的开始时间不能大于结束时间";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut,
-                    strSupplierId, strSupplierPlant, strFromTime, strToTime, strHaoJiu, strOrderPlant);
-
-                string strErrorPartId = "";
-                fs0603_Logic.setAllInTime(dataTable, FromTime, ToTime, loginInfo.UserId, ref strErrorPartId,
-                    strSyncTime, strPartId, strCarModel, strReceiver, strInOut,
-                    strSupplierId, strSupplierPlant, strFromTime, strToTime, strHaoJiu, strOrderPlant);
-                if (strErrorPartId != "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -1166,7 +1107,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut,
-                   strSupplierId, strSupplierPlant, strFromTime, strToTime, strHaoJiu, strOrderPlant);
+                   strSupplierId, strSupplierPlant, strFromTime, strToTime, strHaoJiu, strOrderPlant, "", "", "", "", "", "");
 
                 string[] fields = {"dSyncTime","vcChanges_name","vcPackingPlant","vcPackingPlant_name","vcPartId","vcPartENName","vcCarfamilyCode",
                     "vcReceiver","vcReceiver_name","dFromTime","dToTime","vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name",
@@ -1235,61 +1176,56 @@ namespace SPPSApi.Controllers.G06
                 string strMsg = "";
                 #region  string[,] headers = new string[,] {}
                 string[,] headers = new string[,] {
-                    {"同步时间","变更事项","包装工厂","补给品番","品名(英文)","车种代码",
+                    {"操作类型","同步时间","变更事项","包装工厂","补给品番","品名(英文)","车种代码",
                         "收货方","品番-使用开始","品番-使用结束","替代品番",
-                        "内外区分","OE=SP","号旧区分","旧型年限生产区分","旧型开始时间","实施年月(年限)",
+                        "内外区分","OE=SP","号旧区分","旧型年限生产区分","实施年月(年限)",
                         "供应商编号","供应商使用开始","供应商使用结束","供应商名称",
                         "工区","工区-使用开始","工区-使用结束",
-                        "供应商出荷地",
-                        "补给收容数","收容数-使用开始","收容数-使用结束","箱种","长（mm)","宽（mm)","高（mm)","体积（mm³)",
+                        "补给收容数","收容数-使用开始","收容数-使用结束","箱种","长(mm)","宽(mm)","高(mm)","体积(m³)",
                         "受入","受入-使用开始","受入-使用结束",
-                        "发注工厂","发注工厂-使用开始","发注工厂-使用结束",
-                        "内制工程","通过工程","前工程","前工程通过时间","自工程出货时间",
-                        "单据区分","备注1","备注2","订货方式","强制订货"},
-                    {"dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
+                        "发注工厂",
+                        "内制工程","通过工程","前工程","前工程通过时间","自工程出货时间","照片",
+                        "单据区分","备注1","备注2","订货方式","强制订货","供应商包装"},
+                    {"vcType","dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
                         "vcReceiver","dFromTime","dToTime","vcPartId_Replace",
-                        "vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dOldStartTime","dDebugTime",
+                        "vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dDebugTime",
                         "vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName",
                         "SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed",
-                        "vcSupplierPlace",
                         "BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed",
                         "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",
-                        "vcOrderPlant_name","OrderPlantFromTime_ed","OrderPlantToTime_ed",
-                        "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime",
-                        "vcBillType_name","vcRemark1","vcRemark2","vcOrderingMethod_name","vcMandOrder_name"},
-                    {"","","","","","",
+                        "vcOrderPlant_name",
+                        "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime","vcPartImage",
+                        "vcBillType_name","vcRemark1","vcRemark2","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name"},
+                    {"","","","","","","",
                         "","","","",
-                        "","","","","","",
+                        "","","","","",
                         "","","","",
                         FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,
-                        "",
                         FieldCheck.Num,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",
                         FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,
-                        "",FieldCheck.Date,FieldCheck.Date,
-                        "","","",FieldCheck.Date,FieldCheck.Date,
-                        "","","","",""},
-                    {"0","0","0","0","0","0",
+                        "",
+                        "","","",FieldCheck.Date,FieldCheck.Date,"",
+                        "","","","","",""},
+                    {"0","0","0","0","0","0","0",
                         "0","0","0","0",
-                        "0","0","0","0","0","0",
+                        "0","0","0","0","0",
                         "0","0","0","0",
                         "1","0","0",
-                        "50",
-                        "5","0","0","5","5","5","5","0",
-                        "2","0","0",
-                        "20","0","0",
-                        "50","50","50","0","0",
-                        "10","100","100","10","10"},//最大长度设定,不校验最大长度用0
-                    {"0","0","0","0","0","0",
-                        "0","0","0","0",
-                        "0","0","0","0","0","0",
-                        "0","0","0","0",
-                        "1","1","1",
+                        "0","0","0","0","0","0","0","0",
+                        "0","0","0",
                         "0",
-                        "1","1","1","1","1","1","1","0",
-                        "1","1","1",
-                        "1","1","1",
+                        "0","0","0","0","0","0",
+                        "0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                    {"0","0","0","0","0","0","0",
+                        "0","0","0","0",
                         "0","0","0","0","0",
-                        "1","0","0","1","1"}};//最小长度设定,可以为空用0
+                        "0","0","0","0",
+                        "1","0","0",
+                        "0","0","0","0","0","0","0","0",
+                        "0","0","0",
+                        "0",
+                        "0","0","0","0","0","0",
+                        "0","0","0","0","0","0"}};//最小长度设定,可以为空用0
                 #endregion
                 DataTable importDt = new DataTable();
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
@@ -1328,7 +1264,7 @@ namespace SPPSApi.Controllers.G06
                     }
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                apiResult.data = "导入成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -1337,7 +1273,7 @@ namespace SPPSApi.Controllers.G06
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.type = "info";
-                apiResult.data = "保存失败" + ex.Message;
+                apiResult.data = "导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             //finally

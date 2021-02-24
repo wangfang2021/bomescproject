@@ -86,9 +86,9 @@ namespace Logic
         #endregion
 
         #region 检查品番是否含有
-        public bool CheckPartsNo(string strShouhuofang, string strPartsNo,string vcPackSpot)
+        public bool CheckPartsNo(string strShouhuofang, string strPartsNo)
         {
-           return FS0702_DataAccess.CheckPartsNo(strShouhuofang, strPartsNo, vcPackSpot);
+           return FS0702_DataAccess.CheckPartsNo(strShouhuofang, strPartsNo);
         }
 
         #endregion

@@ -253,45 +253,52 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("  insert into TPackFaZhuTime    \n");
-                strSql.Append("       ( vcFaZhuID     \n");
-               // strSql.Append("        , vcFaZhu     \n");
-                strSql.Append("        , vcRuHeFromDay     \n");
-                strSql.Append("        , dRuHeFromTime     \n");
-                strSql.Append("        , vcRuHeToDay     \n");
-                strSql.Append("        , druHeToTime     \n");
-                strSql.Append("        , vcFaZhuFromDay     \n");
-                strSql.Append("        , dFaZhuFromTime     \n");
-                strSql.Append("        , vcFaZhuToDay     \n");
-                strSql.Append("        , dFaZhuToTime     \n");
-                strSql.Append("        , vcNaQiFromDay     \n");
-                strSql.Append("        , dNaQiFromTime     \n");
-                strSql.Append("        , vcNaQiToDay     \n");
-                strSql.Append("        , dNaQiToTime     \n");
-                strSql.Append("        , vcBianCi     \n");
-                strSql.Append("        , vcPackSpot     \n");
-                strSql.Append("        , dFrom     \n");
-                strSql.Append("        , dTo     \n");
-                strSql.Append("        , vcOperatorID     \n");
-                strSql.Append("        , dOperatorTime )    \n");
-                strSql.Append("  	  values    \n");
+                
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    strSql.Append("  insert into TPackFaZhuTime    \n");
+                    strSql.Append("       ( vcFaZhuID     \n");
+
+                    strSql.Append("        , vcRuHeFromDay     \n");
+                    strSql.Append("        , dRuHeFromTime     \n");
+                    strSql.Append("        , vcRuHeToDay     \n");
+                    strSql.Append("        , druHeToTime     \n");
+
+                    strSql.Append("        , vcFaZhuFromDay     \n");
+                    strSql.Append("        , dFaZhuFromTime     \n");
+                    strSql.Append("        , vcFaZhuToDay     \n");
+                    strSql.Append("        , dFaZhuToTime     \n");
+
+                    strSql.Append("        , vcNaQiFromDay     \n");
+                    strSql.Append("        , dNaQiFromTime     \n");
+                    strSql.Append("        , vcNaQiToDay     \n");
+                    strSql.Append("        , dNaQiToTime     \n");
+                    strSql.Append("        , vcBianCi     \n");
+
+                    strSql.Append("        , vcPackSpot     \n");
+                    strSql.Append("        , dFrom     \n");
+                    strSql.Append("        , dTo     \n");
+                    strSql.Append("        , vcOperatorID     \n");
+                    strSql.Append("        , dOperatorTime )    \n");
+                    strSql.Append("  	  values    \n");
                     strSql.AppendLine("     	( ");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhuID"], false) + ",");
-                    //strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhu"], false) + ",");
+
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcRuHeFromDay"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dRuHeFromTime"], true) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcRuHeToDay"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["druHeToTime"], true) + ",");
+
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhuFromDay"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFaZhuFromTime"], true) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcFaZhuToDay"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFaZhuToTime"], true) + ",");
+
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcNaQiFromDay"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dNaQiFromTime"], true) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcNaQiToDay"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dNaQiToTime"], true) + ",");
+
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcBianCi"], false) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], true) + ",");
                     strSql.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dFrom"], true) + ",");

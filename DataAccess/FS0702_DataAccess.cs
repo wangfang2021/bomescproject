@@ -61,7 +61,7 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("    select a.vcModFlag,a.vcAddFlag,a.varChangedItem,a.vcPackSpot,a.vcPartsNo,   ");
+                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,a.vcPackSpot,a.vcPartsNo,   ");
                 strSql.AppendLine("    a.vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
                 strSql.AppendLine("    ,b.vcName as vcShouhuofang from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
@@ -185,10 +185,10 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     string strSHFID = "";
 
-                    string dfrom = listInfoData[i]["dUsedFrom"].ToString() == "" ? "1900-01-01 00:00:00.000" : listInfoData[i]["dUsedFrom"].ToString();
-                    string dto = listInfoData[i]["dUsedTo"].ToString() == "" ? "9999-12-31 00:00:00.000" : listInfoData[i]["dUsedFrom"].ToString(); ;
+                    string dfrom = listInfoData[i]["dFrom"].ToString() == "" ? "1990-01-01 0:00:00" : listInfoData[i]["dFrom"].ToString();
+                    string dto = listInfoData[i]["dTo"].ToString() == "" ? "3000-01-01 0:00:00" : listInfoData[i]["dTo"].ToString(); ;
 
-                    if (listInfoData[i]["vcShouhuofang"] != "")
+                    if (listInfoData[i]["vcShouhuofang"].ToString() != "")
                     {
                         strSHFID = ComFunction.getSqlValue(listInfoData[i]["vcShouhuofang"], true) != "" ? listInfoData[i]["vcShouhuofang"].ToString() : "";
 
@@ -214,9 +214,9 @@ namespace DataAccess
                         sql.AppendLine("     VALUES \r\n");
                         sql.AppendLine("     ( \r\n");
 
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false) + ",\r\n");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",\r\n");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"].ToString().Trim(), false) + ",\r\n");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"].ToString().Trim(), false) + ",\r\n");
+                        sql.AppendLine("select vcPackGPSNo from TPackBase where vcPackNo='"+ listInfoData[i]["vcPackNo"] + "',\r\n");
                         sql.AppendLine(" '" + strSHFID + "',\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcCar"], true) + ",\r\n");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dUsedFrom"], false) + ",\r\n");
@@ -241,7 +241,7 @@ namespace DataAccess
                         sql.AppendLine("  SET ");
                         sql.AppendLine($"   vcPartsNo = {ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false)},\r\n");
                         sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},\r\n");
-                        sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)},\r\n");
+                        sql.AppendLine($"   vcPackGPSNo = select vcPackGPSNo from TPackBase where vcPackNo='" + listInfoData[i]["vcPackNo"] + "',\r\n");
                         //sql.AppendLine($"   dPackTo = '{ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true)}',\r\n");
                         sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},\r\n");
                         sql.AppendLine($"   vcShouhuofangID = '{strSHFID}',\r\n");
@@ -495,14 +495,14 @@ namespace DataAccess
         #endregion
 
         #region 检查品番
-        public bool CheckPartsNo(string strShouhuofang, string strPartsNo, string vcPackSpot)
+        public bool CheckPartsNo(string strShouhuofang, string strPartsNo)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 DataTable dt = new DataTable();
                 //and vcReceiver='" + strShouhuofang + "'
-                sql.Append("  select vcPartId from TSPMaster where vcPartId='" + strPartsNo + "'  \r\n ");
+                sql.Append("  select vcPartsNo from TPackItem where vcPartsNo='" + strPartsNo + "' \r\n ");
 
                 dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 if (dt.Rows.Count > 0)

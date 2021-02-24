@@ -111,7 +111,8 @@ namespace SPPSApi.Controllers.G03
 
                 List<string> dataList_C006 = convertTCodeToResult(getTCode("C006"));//原单位
                 List<string> dataList_C014 = convertTCodeToResult(getTCode("C014"));//完成状态
-                List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
+                //List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
+                List<string> dataList_C002 = convertTCodeToResult(getTCode("C060"));//变更事项
 
 
                 res.Add("C006", dataList_C006);

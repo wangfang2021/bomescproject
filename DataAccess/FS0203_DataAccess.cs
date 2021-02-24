@@ -252,31 +252,35 @@ namespace DataAccess
                         vcPlant = dt.Rows[i]["vcPlant"].ToString();
                     }
                     string FileNameTJ = vcPlant + "_" + "SPRL" + "_" + carType;
-                    sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType,vcDiff) \r\n");
-                    sbr.Append(" values ( \r\n");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"].ToString().Trim(), false) + ",");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_new"].ToString().Trim(), false) + ",");
-                    sbr.Append("'0',");
-                    sbr.Append("'" + carType + "',");
-                    sbr.Append("'新车新设',");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcBJDiff"].ToString().Trim(), false) + ",");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPartName"].ToString().Trim(), false) + ",");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("*", "").Replace("/", "").Trim(), false) + ",");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"].ToString().Trim(), false) + ",");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"].ToString().Trim(), false) + ",");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcNewProj"].ToString().Trim(), false) + ",");
-                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("**", "/01").Replace("/", "").Trim(), true) + ",");
-                    sbr.Append("'" + fileName + "',");
-                    sbr.Append("'" + FileNameTJ + "',");
-                    sbr.Append("'" + userId + "',");
-                    sbr.Append(" GETDATE(),'1','2'");
-                    sbr.Append(" ) \r\n");
 
+                    string GC = FileNameTJ.Substring(0, 2);
+                    if (GC.Equals("WB") || GC.Equals("WD") || GC.Equals("WF") || GC.Equals("WL"))
+                    {
+                        sbr.Append(" INSERT INTO TSBManager (vcSPINo,vcPart_Id_new,vcFinishState,vcCarType,vcChange,vcBJDiff,vcPartName,vcStartYearMonth,vcFXDiff,vcFXNo,vcNewProj,dNewProjTime,vcFileName,vcFileNameTJ,vcOperatorId,dOperatorTime,vcType,vcDiff,vcTHChange) \r\n");
+                        sbr.Append(" values ( \r\n");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"].ToString().Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_new"].ToString().Trim(), false) + ",");
+                        sbr.Append("'0',");
+                        sbr.Append("'" + carType + "',");
+                        sbr.Append("'新车新设',");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcBJDiff"].ToString().Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPartName"].ToString().Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("*", "").Replace("/", "").Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"].ToString().Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"].ToString().Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcNewProj"].ToString().Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("**", "/01").Replace("/", "").Trim(), true) + ",");
+                        sbr.Append("'" + fileName + "',");
+                        sbr.Append("'" + FileNameTJ + "',");
+                        sbr.Append("'" + userId + "',");
+                        sbr.Append(" GETDATE(),'1','2','1'");
+                        sbr.Append(" ) \r\n");
 
-                    FileNameTJs.Add(FileNameTJ);
-                    FileNameTJs = FileNameTJs.Distinct().ToList();
+                        FileNameTJs.Add(FileNameTJ);
+                    }
                 }
 
+                FileNameTJs = FileNameTJs.Distinct().ToList();
 
                 for (int i = 0; i < FileNameTJs.Count; i++)
                 {

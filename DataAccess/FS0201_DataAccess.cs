@@ -487,5 +487,23 @@ namespace DataAccess
         }
 
         #endregion
+
+        #region 获取SPI导入列表
+
+        public DataTable getSPIList()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.Append("SELECT distinct vcFileName FROM TSPIList");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(),"TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 }

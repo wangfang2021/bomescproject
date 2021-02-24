@@ -26,12 +26,12 @@ namespace DataAccess
                 sbr.Append(" WHEN (ISNULL(a.vcDTDiff,'') <> '' AND  ISNULL(a.vcPart_id_DT,'') <> '') THEN a.vcDTDiff+'/'+a.vcPart_id_DT  \r\n");
                 sbr.Append(" WHEN ISNULL(a.vcDTDiff,'') <> '' THEN a.vcDTDiff WHEN ISNULL(a.vcPart_id_DT,'') <> '' THEN a.vcPart_id_DT END AS vcDT, \r\n");
                 sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.vcOldProj,a.dOldProjTime,a.vcNewProj, \r\n");
-                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag,a.vcType  \r\n");
+                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag,a.vcType,a.vcFileNameTJ  \r\n");
                 sbr.Append(" FROM \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcOriginCompany,vcDiff,vcCarType,vcTHChange, \r\n");
                 sbr.Append(" vcRemark,vcChange,vcBJDiff,vcDTDiff,vcPart_id_DT,vcPartName,vcStartYearMonth,vcFXDiff, \r\n");
-                sbr.Append(" vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcType \r\n");
+                sbr.Append(" vcFXNo,vcOldProj,dOldProjTime,vcNewProj,dNewProjTime,vcCZYD,dHandleTime,vcSheetName,vcFileName,vcType,vcFileNameTJ \r\n");
                 sbr.Append(" FROM TSBManager WHERE vcFileNameTJ = '" + fileNameTJ + "' \r\n");
                 sbr.Append(" ) a \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
@@ -224,7 +224,7 @@ namespace DataAccess
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     string finishstate = getValue("C014", ObjToString(listInfoData[i]["FinishState"]).Trim());
                     string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
-                    string memo = ObjToString(listInfoData[i]["vcSPINo"]) + ObjToString(listInfoData[i]["THChange"]);
+                    string memo = ObjToString(listInfoData[i]["vcFileNameTJ"]) + ObjToString(listInfoData[i]["THChange"]);
                     if (finishstate.Equals("2"))
                     {
                         if (change.Equals("1") || change.Equals("2"))//新设

@@ -50,6 +50,7 @@ namespace SPPSApi.Controllers.G02
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             string flag = dataForm.flag;
+            string errorList = "";
             try
             {
                 if (!Directory.Exists(fileSavePath))
@@ -85,6 +86,7 @@ namespace SPPSApi.Controllers.G02
                     DataTable importDt = new DataTable();
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
+
                         DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
                         if (strMsg != "")
                         {
@@ -106,11 +108,19 @@ namespace SPPSApi.Controllers.G02
                         {
                             importDt.ImportRow(row);
                         }
+
                     }
                     ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
 
                     fs0201_logic.importSave(importDt, loginInfo.UserId);
+                }
+
+                if (!string.IsNullOrWhiteSpace(strMsg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导入成功,但文件" + strMsg + "已上传过,本次不进行上传。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

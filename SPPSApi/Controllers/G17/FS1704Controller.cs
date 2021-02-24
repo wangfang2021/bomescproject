@@ -99,8 +99,9 @@ namespace SPPSApi.Controllers.G17
             try
             {
                 DataTable dt = fs1704_Logic.Search(vcNaRuPart_id, vcChuHePart_id, vcSupplierName, vcCarType, vcProject);
-                string[] heads = { "受入号", "品番前五位", "包材品番", "大品目","小品目"};
-                string[] fields = { "vcSR","vcPartsNoBefore5","vcBCPartsNo","vcBigPM","vcSmallPM"};
+                string[] heads = { "纳入品番", "出荷品番", "背番", "品名", "收容数", "箱种", "厂家名称", "车型", "工程", "工程所番地", "受入", "所番地", "看板打印方式" };
+                string[] fields = { "vcNaRuPart_id", "vcChuHePart_id", "vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
+                "vcProject","vcProjectPlace","vcSR","vcPlace","vcKBPrintWay"};
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -168,12 +169,18 @@ namespace SPPSApi.Controllers.G17
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"受入号","品番前五位","包材品番","小品目"},//中文字段名
-                        {"vcSR","vcPartsNoBefore5","vcBCPartsNo","vcSmallPM"},//英文字段名
-                        {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,""},//数据类型校验
-                        {"2","5","50","25"},//最大长度设定,不校验最大长度用0
-                        {"1","1","1","1"},//最小长度设定,可以为空用0
-                        {"1","2","3","5"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"背番", "品名", "收容数", "箱种", "厂家名称", "车型",
+                         "工程", "工程所番地", "受入", "所番地", "看板打印方式"},//中文字段名
+                        {"vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
+                         "vcProject","vcProjectPlace","vcSR","vcPlace","vcKBPrintWay"},//英文字段名
+                        {FieldCheck.NumChar,"",FieldCheck.Num,"","","",
+                         "","","","",""},//数据类型校验
+                        {"25","25","0","25","25","25",
+                         "25","25","25","25","25"},//最大长度设定,不校验最大长度用0
+                        {"1","1","1","0","0","0",
+                         "0","0","0","0","0"},//最小长度设定,可以为空用0
+                        {"1","2","3","4","5","6",
+                         "7","8","9","10","11"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1704");
                     if (checkRes != null)
@@ -182,31 +189,6 @@ namespace SPPSApi.Controllers.G17
                         apiResult.data = checkRes;
                         apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    #endregion
-
-                    #region 与DB交互校验
-                    for (int i = 0; i < listInfoData.Count; i++)
-                    {
-                        bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                        bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                        string vcSR = listInfoData[i]["vcSR"].ToString();
-                        string vcPartsNoBefore5 = listInfoData[i]["vcPartsNoBefore5"].ToString();
-                        string vcBCPartsNo = listInfoData[i]["vcBCPartsNo"].ToString();
-
-                        if (bAddFlag == true)
-                        {//新增 
-                            //校验 受入号+品番前5位+包材品番 不能重复
-                            bool isRepeat = fs1704_Logic.RepeatCheck(vcSR, vcPartsNoBefore5, vcBCPartsNo);
-                            if (isRepeat)
-                            {//有重复数据  
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = string.Format("保存失败，有重复数据[受入号-品番前5位-包材品番]：{0}-{1}-{2}",
-                                vcSR, vcPartsNoBefore5, vcBCPartsNo);
-                                apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                        }
                     }
                     #endregion
                 }

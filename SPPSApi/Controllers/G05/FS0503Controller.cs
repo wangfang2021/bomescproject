@@ -59,13 +59,21 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                DataTable task = fs0503_Logic.GetTaskNum();//待回复的数据
+                DataTable task = fs0503_Logic.GetTaskNum(loginInfo.UserId);//待回复的数据
+                DataTable task1 = fs0503_Logic.GetTaskNum1(loginInfo.UserId);//待回复的数据
                 DataTable WorkArea = fs0503_Logic.GetWorkArea(loginInfo.UserId);
+                DataTable dtCarType = fs0503_Logic.GetCarType(loginInfo.UserId);
+                DataTable dtExpectDeliveryDate = fs0503_Logic.GetExpectDeliveryDate(loginInfo.UserId);
                 List<Object> dataList_C034 = ComFunction.convertAllToResult(ComFunction.getTCode("C034"));//荷姿状态
                 List<Object> dataList_WorkAreae = ComFunction.convertToResult(WorkArea, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_CarType = ComFunction.convertToResult(dtCarType, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_ExpectDeliveryDate = ComFunction.convertToResult(dtExpectDeliveryDate, new string[] { "vcValue", "vcName" });
                 res.Add("C034", dataList_C034);
-                res.Add("taskNum", task.Rows.Count); 
+                res.Add("taskNum", task.Rows.Count);
+                res.Add("taskNum1", task1.Rows.Count);
                 res.Add("WorkArea", dataList_WorkAreae);
+                res.Add("ExpectDeliveryDate", dataList_ExpectDeliveryDate);
+                res.Add("CarType", dataList_CarType);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -294,7 +302,7 @@ namespace SPPSApi.Controllers.G05
                     {
                         if (vcDelImageRoutes.LastIndexOf(",") > 0)
                         {
-                            string[] imsges = dataForm.vcDelImageRoutes.Split(",");
+                            string[] imsges = vcDelImageRoutes.Split(",");
                             for (int i = 0; i < imsges.Length; i++)
                             {
                                 String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
@@ -465,10 +473,10 @@ namespace SPPSApi.Controllers.G05
                 }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "已退回")
+                    if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "退回")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = listInfoData[i]["vcPartNo"] +"状态不正确,必须是待回复或已退回，才能进行回复操作！";
+                        apiResult.data = listInfoData[i]["vcPartNo"] +"状态不正确,必须是待回复或退回，才能进行回复操作！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

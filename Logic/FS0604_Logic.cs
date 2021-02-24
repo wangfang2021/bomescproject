@@ -19,7 +19,7 @@ namespace Logic
 
         }
 
-        public DataTable Search(string dSynchronizationDate, string vcState, string vcPartNo,  string vcSupplier_id, string vcWorkArea,string vcCarType, string dExpectDeliveryDate, string vcOEOrSP,string vcBoxType)
+        public DataTable Search(string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType)
         {
             return fs0604_DataAccess.Search(dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
         }
@@ -36,9 +36,9 @@ namespace Logic
         {
             fs0604_DataAccess.Del(listInfoData, userId);
         }
-        public void allInstall(List<Dictionary<string, object>> listInfoData,  string vcIntake, string userId)
+        public void allInstall(List<Dictionary<string, object>> listInfoData, string vcIntake, string userId)
         {
-            fs0604_DataAccess.allInstall(listInfoData,  vcIntake, userId);
+            fs0604_DataAccess.allInstall(listInfoData, vcIntake, userId);
         }
         public void importSave(DataTable importDt, string userId)
         {
@@ -48,6 +48,11 @@ namespace Logic
         public DataTable GetSupplier()
         {
             return fs0604_DataAccess.GetSupplier();
+        }
+
+        public DataTable GetCarType()
+        {
+            return fs0604_DataAccess.GetCarType();
         }
 
         public DataTable GetExpectDeliveryDate()
@@ -79,6 +84,10 @@ namespace Logic
         {
             fs0604_DataAccess.hZZK(listInfoData, dExpectDeliveryDate, userId);
         }
+        public void hZZK(DataTable dtNewSupplierand, string dExpectDeliveryDate, string userId)
+        {
+            fs0604_DataAccess.hZZK(dtNewSupplierand, dExpectDeliveryDate, userId);
+        }
 
         public void admit(List<Dictionary<string, object>> listInfoData, string userId)
         {
@@ -88,9 +97,9 @@ namespace Logic
         {
             fs0604_DataAccess.returnHandle(listInfoData, userId);
         }
-        public void weaveHandle(List<Dictionary<string, object>> listInfoData, string userId)
+        public void weaveHandle(List<Dictionary<string, object>> listInfoData, string userId, ref bool bReault, ref DataTable dtMessage)
         {
-            fs0604_DataAccess.weaveHandle(listInfoData, userId);
+            fs0604_DataAccess.weaveHandle(listInfoData, userId, ref bReault, ref dtMessage);
         }
 
         public void sdweaveHandle(List<Dictionary<string, object>> listInfoData, string userId)
@@ -102,6 +111,12 @@ namespace Logic
         {
             DataTable dt = fs0604_DataAccess.isCheckImportAddData(vcPackingPlant, vcReceiver, vcSupplier_id, vcPartNo);
             return dt.Rows.Count > 0;
+        }
+
+        public DataTable CheckEmail(string strSupplier)
+        {
+            DataTable dt = fs0604_DataAccess.CheckEmail(strSupplier);
+            return dt;
         }
     }
 }

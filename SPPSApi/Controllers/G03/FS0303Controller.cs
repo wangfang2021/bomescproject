@@ -360,7 +360,7 @@ namespace SPPSApi.Controllers.G03
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-
+           
                 string strErrorPartId = "";
                 fs0303_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")

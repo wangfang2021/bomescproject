@@ -119,7 +119,7 @@ namespace SPPSApi.Controllers.G07
                 }
 
                 for (int i=0;i< importDt.Rows.Count;i++) {
-                    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofangID"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString(), importDt.Rows[i]["vcPackSpot"].ToString());
+                    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofangID"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString());
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

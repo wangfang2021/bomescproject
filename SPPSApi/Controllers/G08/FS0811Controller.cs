@@ -62,7 +62,7 @@ namespace SPPSApi.Controllers.G08
                 //包装厂下拉
                 List<Object> PackingPlantList = ComFunction.convertAllToResult(dtPackingPlant);//包装厂
                 res.Add("PackingPlantList", PackingPlantList);
-                string strPackingPlant = "H1";
+                string strPackingPlant = dtPackingPlant.Rows[0][0].ToString();
                 int code = 0;
                 string type = "";
                 res = fS0811_Logic.setLoadPage(res, strPackingPlant, ref type, ref code);

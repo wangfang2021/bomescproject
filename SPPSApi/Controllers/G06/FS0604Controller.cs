@@ -53,19 +53,21 @@ namespace SPPSApi.Controllers.G06
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dtSupplier = fs0604_Logic.GetSupplier();
+                DataTable dtCarType = fs0604_Logic.GetCarType();
                 DataTable dtExpectDeliveryDate = fs0604_Logic.GetExpectDeliveryDate();
                 DataTable dtWorkArea = fs0604_Logic.GetWorkArea();
                 DataTable dt = fs0604_Logic.GetBoxType();//箱种的
                 DataTable task = fs0604_Logic.GetTaskNum();//未发送的数据
                 DataTable task1 = fs0604_Logic.GetTaskNum1();//待回复 含退回
                 List<Object> dataList_BoxType = ComFunction.convertToResult(dt, new string[] { "vcValue", "vcName" });
-
+                List<Object> dataList_CarType = ComFunction.convertToResult(dtCarType, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_ExpectDeliveryDate = ComFunction.convertToResult(dtExpectDeliveryDate, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
 
                 List<Object> dataList_C033 = ComFunction.convertAllToResult(ComFunction.getTCode("C033"));//荷姿状态
 
+                res.Add("CarType", dataList_CarType);
                 res.Add("BoxType", dataList_BoxType);
                 res.Add("C033", dataList_C033);
                 res.Add("Supplier", dataList_Supplier);
@@ -86,6 +88,41 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+
+        [HttpPost]
+        [EnableCors("any")]
+        public string changeSupplieridApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string supplierCode = dataForm.supplierCode == null ? "" : dataForm.supplierCode;
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtWorkAreaBySupplier = fs0604_Logic.GetWorkAreaBySupplier(supplierCode);
+              
+                List<Object> dataList_WorkAreaBySupplier = ComFunction.convertToResult(dtWorkAreaBySupplier, new string[] { "vcValue", "vcName" });
+
+                res.Add("WorkAreaBySupplier", dataList_WorkAreaBySupplier);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0410", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "选择供应商联动工区失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
 
         #region 检索
         [HttpPost]
@@ -339,7 +376,137 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                fs0604_Logic.hZZK(listInfoData, dExpectDeliveryDate, loginInfo.UserId);
+                //构建 Datablt
+                DataTable dt = new DataTable();
+                //"dExportDate", "", "", "", ""
+                dt.Columns.Add("iAutoId");
+                dt.Columns.Add("vcSupplier_id");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    dr["iAutoId"] = listInfoData[i]["iAutoId"] == null ? "" : listInfoData[i]["iAutoId"].ToString();
+                    dr["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"] == null ? "" : listInfoData[i]["vcSupplier_id"].ToString();
+                    dt.Rows.Add(dr);
+                }
+                string[] columnArray = { "vcSupplier_id" };
+                DataView dtSelectView = dt.DefaultView;
+                DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt 
+                bool bReault = true;
+                FS0603_Logic fs0603_Logic = new FS0603_Logic();
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                for (int i=0;i<dtSelect.Rows.Count;i++)
+                {
+                    string strSupplier = dtSelect.Rows[i]["vcSupplier_id"].ToString();
+                    DataTable dtCheckSupplier =  fs0604_Logic.CheckEmail(strSupplier);
+                    if (dtCheckSupplier.Rows.Count == 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商" + strSupplier + "在供应商表中信息不存在，请维护信息及其邮箱";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    else
+                    {
+                        bool isYouXiaoEmail = false;
+                        for (int j=0;j<dtCheckSupplier.Rows.Count;j++)
+                        {
+                            if (dtCheckSupplier.Rows[j]["vcEmail1"].ToString()!=""|| dtCheckSupplier.Rows[j]["vcEmail2"].ToString() != ""|| dtCheckSupplier.Rows[j]["vcEmail3"].ToString() != "")
+                            {
+                                isYouXiaoEmail = true;
+                                break;
+                            }
+                        }
+                        if (!isYouXiaoEmail)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "供应商" + strSupplier + "在供应商表中邮箱信息不存在，请维护邮箱";
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                    }
+                }
+                if (!bReault)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                bool bReaultEmail = true;
+                DataTable dtMessageEmail = fs0603_Logic.createTable("MES");
+                for (int i = 0; i < dtSelect.Rows.Count; i++)
+                {
+                    string strSupplier = dtSelect.Rows[i]["vcSupplier_id"].ToString();
+                    DataTable dtCheckSupplier = fs0604_Logic.CheckEmail(strSupplier);
+                    DataRow[] drArray = dt.Select("vcSupplier_id='" + strSupplier + "' ");
+                    DataTable dtNewSupplierand = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                    string msg = string.Empty;
+                    foreach (DataRow dr in drArray)
+                    {
+                        dtNewSupplierand.ImportRow(dr);
+                    }
+                    fs0604_Logic.hZZK(dtNewSupplierand, dExpectDeliveryDate, loginInfo.UserId);
+                    //收件人dt
+                    DataTable receiverDt = new DataTable();
+                    receiverDt.Columns.Add("address");
+                    receiverDt.Columns.Add("displayName");
+                    for (int j = 0; j < dtCheckSupplier.Rows.Count; j++)
+                    {
+                        if (dtCheckSupplier.Rows[j]["vcEmail1"].ToString().Length > 0)
+                        {
+                            DataRow dr = receiverDt.NewRow();
+                            dr["address"] = dtCheckSupplier.Rows[j]["vcEmail1"].ToString();
+                            dr["displayName"] = dtCheckSupplier.Rows[j]["vcLinkMan1"].ToString();
+                            receiverDt.Rows.Add(dr);
+                        }
+                        if (dtCheckSupplier.Rows[j]["vcEmail2"].ToString().Length > 0)
+                        {
+                            DataRow dr = receiverDt.NewRow();
+                            dr["address"] = dtCheckSupplier.Rows[j]["vcEmail2"].ToString();
+                            dr["displayName"] = dtCheckSupplier.Rows[j]["vcLinkMan2"].ToString();
+                            receiverDt.Rows.Add(dr);
+                        }
+                        if (dtCheckSupplier.Rows[j]["vcEmail3"].ToString().Length > 0)
+                        {
+                            DataRow dr = receiverDt.NewRow();
+                            dr["address"] = dtCheckSupplier.Rows[j]["vcEmail3"].ToString();
+                            dr["displayName"] = dtCheckSupplier.Rows[j]["vcLinkMan3"].ToString();
+                            receiverDt.Rows.Add(dr);
+                        }
+                    }
+                    //邮件主题
+                    string strSubject = "荷姿展开邮件";
+                    //邮件内容
+                    string strEmailBody = "";
+                    strEmailBody += "<div style='font-family:宋体;font-size:12'>各位供应商 殿：大家好 <br /><br />";
+                    strEmailBody += loginInfo.UnitCode +"补给 " + loginInfo.UserName + "<br />";
+                    strEmailBody += "  感谢大家一直以来对"+ loginInfo.UnitCode + "补给业务的协力！<br /><br />";
+                    strEmailBody += "  一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，<br />";
+                    strEmailBody += "  一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，<br />";
+                    strEmailBody += "  请填写完整后，于<span style='font-family:宋体;font-size:12;color:red'>" + dExpectDeliveryDate + "日前在系统上给予回复</span>，谢谢！<br /><br /></div>";
+                    string result = "Success";
+                    result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UnitName, strEmailBody, receiverDt, null, strSubject, "", false);
+                    if (result == "Success")
+                    {
+                    }
+                    else
+                    {
+                        DataRow dataRowEmail = dtMessageEmail.NewRow();
+                        dataRowEmail["vcMessage"] = "供应商" + strSupplier + "发送邮件失败";
+                        dtMessageEmail.Rows.Add(dataRowEmail);
+                        bReaultEmail = false;
+                    }
+                }
+                if (!bReaultEmail)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessageEmail;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -486,7 +653,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //织入操作的前提是已承认状态
-                //vcValue vcName 0   未发送1 待回复2   已回复3 已承认4   已退回5 已织入
+                //vcValue vcName 0   未发送1 待回复2   已回复3 已承认4   退回5 已织入
                 for (var i=0;i<listInfoData.Count;i++)
                 {
                     if (listInfoData[i]["vcState"].ToString() != "已承认")
@@ -496,7 +663,18 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                fs0604_Logic.weaveHandle(listInfoData, loginInfo.UserId);
+                FS0603_Logic fs0603_Logic = new FS0603_Logic();
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                bool bReault = true;
+                fs0604_Logic.weaveHandle(listInfoData, loginInfo.UserId, ref bReault, ref dtMessage);
+                if (!bReault)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -539,7 +717,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //织入操作的前提是已承认状态
-                //vcValue vcName 0   未发送1 待回复2   已回复3 已承认4   已退回5 已织入
+                //vcValue vcName 0   未发送1 待回复2   已回复3 已承认4   退回5 已织入
                 for (var i = 0; i < listInfoData.Count; i++)
                 {
                     if (listInfoData[i]["vcState"].ToString() != "已承认")

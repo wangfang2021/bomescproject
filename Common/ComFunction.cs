@@ -1118,6 +1118,23 @@ namespace Common
         #endregion
 
         #region 校验6位年月
+        public static bool CheckYMonth(string value)
+        {
+            if (value.Length != 7)
+                return false;
+            try
+            {
+                Convert.ToDateTime(string.Format("{0}-{1}-01", value.Substring(0, 4), value.Substring(5, 2)));
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        #endregion
+
+        #region 校验6位年月
         public static bool CheckYearMonth(string value)
         {
             if (value.Length != 6)

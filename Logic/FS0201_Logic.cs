@@ -404,8 +404,12 @@ namespace Logic
         {
             try
             {
-                DataTable dt = getData(fileSavePath);
-                fs0201_DataAccess.importSPI(dt, strUserId);
+                DataTable dt = getData(fileSavePath, ref reMsg);
+                if (dt.Rows.Count > 0)
+                {
+                    fs0201_DataAccess.importSPI(dt, strUserId);
+
+                }
 
             }
             catch (Exception ex)
@@ -415,6 +419,10 @@ namespace Logic
 
         }
 
+        public DataTable getSPIList()
+        {
+            return fs0201_DataAccess.getSPIList();
+        }
         #endregion
 
         #endregion
@@ -428,19 +436,35 @@ namespace Logic
         private int ST = 51;
         private int SS = 81;
         #endregion
-        public DataTable getData(string fileSavePath)
+        public DataTable getData(string fileSavePath, ref string Msg)
         {
             try
             {
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 ArrayList list1 = new ArrayList();
+                DataTable getSPIList = this.getSPIList();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
                     if (info.Extension.ToUpper() == ".XLSX")
                     {
-                        list1.Add(fileSavePath + info.Name);
+                        if (getSPIList.Select("vcFileName = '" + info.Name + "'").Length == 0)
+                        {
+                            list1.Add(fileSavePath + info.Name);
+
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrWhiteSpace(Msg))
+                            {
+                                Msg = Msg + ",";
+                            }
+
+                            Msg = Msg + info.Name;
+                        }
                     }
                 }
+
+
                 FS0201_DataEntity.Entity en = new FS0201_DataEntity.Entity();
                 List<FS0201_DataEntity.Part> list = new List<FS0201_DataEntity.Part>();
                 DataTable dt = new DataTable();

@@ -37,17 +37,17 @@ namespace Logic
         
 
         #region 取特殊厂家对应的品番
-        public DataTable GetSpecialSupplier(string strYearMonth)
+        public DataTable GetSpecialSupplier(string strPlant, string strDXYearMonth, string strYearMonth)
         {
-            return fs0611_DataAccess.GetSpecialSupplier(strYearMonth);
+            return fs0611_DataAccess.GetSpecialSupplier(strPlant, strDXYearMonth, strYearMonth);
         }
         #endregion
 
 
         #region 取特殊品番
-        public DataTable GetSpecialPartId(string strYearMonth)
+        public DataTable GetSpecialPartId(string strPlant, string strDXYearMonth, string strYearMonth)
         {
-            return fs0611_DataAccess.GetSpecialPartId(strYearMonth);
+            return fs0611_DataAccess.GetSpecialPartId(strPlant, strDXYearMonth, strYearMonth);
         }
         #endregion
 

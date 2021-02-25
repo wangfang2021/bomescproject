@@ -8,7 +8,7 @@ namespace SoqCompute
     public class ComputeUtil
     {
 		//验证特殊品番特殊厂家维护区间是否有稼动
-		public static string checkSpecial(DataTable dtCalendar, DataTable dtSpecialSupplier, DataTable dtSpecialPart)
+		public static string checkSpecial(string strPlant,DataTable dtCalendar, DataTable dtSpecialSupplier, DataTable dtSpecialPart)
 		{
 			for (int i = 0; i < dtSpecialSupplier.Rows.Count; i++)
 			{
@@ -32,7 +32,7 @@ namespace SoqCompute
 					}
 				}
 				if (decTotalWorkDays == 0)
-					return "特殊厂家"+ strSupplier_id + "区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
+					return strPlant+"厂 特殊厂家" + strSupplier_id + "区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
 			}
 			for (int i = 0; i < dtSpecialPart.Rows.Count; i++)
 			{
@@ -54,7 +54,7 @@ namespace SoqCompute
 					}
 				}
 				if (decTotalWorkDays == 0)
-					return "特殊品番"+ strPart_id + "区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
+					return strPlant + "厂 特殊品番" + strPart_id + "区间" + startDay + "日到" + endDay + "日没有稼动，请确认！";
 			}
 			return null;
 		}

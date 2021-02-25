@@ -19,7 +19,8 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
+                sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,a.vcOriginCompany AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
+                //sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,a.vcCarType,ISNULL(f.num,'0') AS vcNum, \r\n");
                 //sbr.Append(" SELECT a.iAutoId,'0' AS selected,a.vcSPINo,a.vcPart_Id_old,a.vcPart_Id_new,b.vcName as FinishState,e.vcName AS vcUnit,f.vcDiff,a.vcCarType, \r\n");
                 sbr.Append(" d.vcName AS THChange,c.vcName AS vcDD,a.vcRemark,a.vcChange,a.vcBJDiff, \r\n");
                 sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
@@ -47,10 +48,10 @@ namespace DataAccess
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C002' \r\n");
                 sbr.Append(" ) d ON a.vcTHChange = d.vcValue \r\n");
-                sbr.Append(" LEFT JOIN  \r\n");
-                sbr.Append(" ( \r\n");
-                sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
-                sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN  \r\n");
+                //sbr.Append(" ( \r\n");
+                //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006' \r\n");
+                //sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() AND ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
@@ -259,7 +260,7 @@ namespace DataAccess
                                 sbr.Append(" INSERT INTO TUnit  \r\n");
                                 sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDev,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff) values\r\n");
                                 //sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
-                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(memo + ";", false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
+                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(memo + ";", false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + listInfoData[i]["vcUnit"].ToString() + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
 
                                 sbr.Append(" UPDATE TSBManager \r\n");
                                 sbr.Append(" SET vcFinishState = '3', \r\n");
@@ -791,9 +792,8 @@ namespace DataAccess
                         {
                             sbr.AppendLine(" vcFinishState = " + ComFunction.getSqlValue(finishState, false) + ",");
                         }
-                        sbr.AppendLine(" vcOriginCompany = " +
-                                       ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcUnit"])),
-                                           false) + ",");
+                        //sbr.AppendLine(" vcOriginCompany = " + ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcUnit"])), false) + ",");
+                        sbr.AppendLine(" vcOriginCompany = " + ComFunction.getSqlValue(listInfoData[i]["vcUnit"], false) + ",");
                         sbr.AppendLine(" vcDiff = " +
                                        ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + ",");
                         sbr.AppendLine(" vcCarType = " +
@@ -975,13 +975,15 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT a.vcPart_id,b.vcName FROM (");
-                sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcOriginCompany FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id");
-                sbr.AppendLine(") a");
-                sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(");
-                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006'");
-                sbr.AppendLine(") b ON a.vcOriginCompany = b.vcValue");
+                //sbr.AppendLine("SELECT a.vcPart_id,b.vcName FROM (");
+                //sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcOriginCompany FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id");
+                //sbr.AppendLine(") a");
+                //sbr.AppendLine("LEFT JOIN");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006'");
+                //sbr.AppendLine(") b ON a.vcOriginCompany = b.vcValue");
+                sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcName FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id");
+
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)

@@ -67,8 +67,8 @@ namespace SPPSApi.Controllers.G12
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"生产部署", "组别", "稼动类别", "名称", "与后工程LT(值)", "稼动形态","名称", "与后工程LT(值)", "稼动形态",
-                         "名称", "与后工程LT(值)", "稼动形态","名称", "与后工程LT(值)", "稼动形态", "名称", "与后工程LT(值)", "稼动形态"
+                string[,] headers = new string[,] {{"生产部署", "组别", "稼动类别", "名称0", "与后工程LT(值)0", "稼动形态0","名称1", "与后工程LT(值)1", "稼动形态1",
+                         "名称2", "与后工程LT(值)2", "稼动形态2","名称3", "与后工程LT(值)3", "稼动形态3", "名称4", "与后工程LT(值)4", "稼动形态4"
                         },
                         { "vcPorType", "vcZB", "KBpartType", "vcProName0", "vcLT0", "vcCalendar0", "vcProName1", "vcLT1", "vcCalendar1",
                         "vcProName2", "vcLT2", "vcCalendar2","vcProName3", "vcLT3", "vcCalendar3","vcProName4", "vcLT4", "vcCalendar4"},

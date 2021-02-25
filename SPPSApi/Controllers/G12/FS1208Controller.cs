@@ -26,7 +26,7 @@ namespace SPPSApi.Controllers.G12
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         public FS1208Controller(IWebHostEnvironment webHostEnvironment)
-        {
+        { 
             _webHostEnvironment = webHostEnvironment;
         }
 

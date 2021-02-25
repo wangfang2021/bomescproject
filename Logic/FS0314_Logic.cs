@@ -31,5 +31,13 @@ namespace Logic
         }
         #endregion
 
+        #region 导入保存
+
+        public void importSave(DataTable dt, string userId)
+        {
+            fs0314_dataAccess.importSave(dt, userId);
+        }
+
+        #endregion
     }
 }

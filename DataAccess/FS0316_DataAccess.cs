@@ -81,6 +81,8 @@ namespace DataAccess
                     sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C004') f ON b.vcHaoJiu = f.vcValue");
                     sbr.AppendLine("LEFT JOIN");
                     sbr.AppendLine("(SELECT vcName,vcValue,vcMeaning FROM TCode WHERE vcCodeId = 'C012') g ON c.vcOE = g.vcValue");
+                    sbr.AppendLine(
+                        "WHERE ISNULL(a.vcOriginCompany,'') <> '' AND ISNULL(a.vcInOutflag,'') <> '' AND ISNULL(b.vcHaoJiu,'') <> '' AND ISNULL(c.vcOE,'') <> ''");
                     sbr.AppendLine("ORDER BY a.vcOriginCompany,a.vcInOutflag,b.vcHaoJiu,c.vcOE");
 
                 }
@@ -102,14 +104,16 @@ namespace DataAccess
                         string tmp = "";
                         foreach (string s in project)
                         {
-                            if (tmp.Length > 0)
+                            if (!string.IsNullOrWhiteSpace(tmp))
                             {
-                                tmp += ",";
+                                tmp += " OR ";
                             }
-                            tmp += "'" + s + "'";
+                            tmp += "vcBJGC like '%" + s + "%' ";
                         }
-                        sbr.AppendLine("AND vcBJGC IN (" + tmp + ")");
+
+                        sbr.AppendLine(" AND ( " + tmp + " )");
                     }
+
                     sbr.AppendLine("AND dTimeFrom <= GETDATE()");
                     sbr.AppendLine("AND dTimeTo >= GETDATE()");
                     sbr.AppendLine("");
@@ -130,7 +134,8 @@ namespace DataAccess
                     sbr.AppendLine(") b ON a.vcSupplier_id = b.vcSupplier_id");
                     sbr.AppendLine("LEFT JOIN");
                     sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C004') c ON b.vcHaoJiu = c.vcValue");
-
+                    sbr.AppendLine(" WHERE ISNULL(a.vcSupplier_id,'') <> '' AND   b.Total <> 0");
+                    sbr.AppendLine(" ORDER BY a.vcSupplier_id ");
                 }
 
                 if (sbr.Length > 0)

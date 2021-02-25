@@ -173,6 +173,45 @@ namespace DataAccess
 
         #endregion
 
+        public void importSave(DataTable dt, string userId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sbr.AppendLine("DELETE TSupplier WHERE vcSupplier_id = " + ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false));
 
+                    sbr.Append(" INSERT INTO dbo.TSupplier(vcSupplier_id, vcSupplier_name, vcProduct_name, vcAddress, vcLXR1, vcPhone1, vcEmail1, vcLXR2, vcPhone2, vcEmail2, vcLXR3, vcPhone3, vcEmail3, dOperatorTime, vcOperatorID) ");
+                    sbr.Append(" values ( ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_id"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSupplier_name"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcProduct_name"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcAddress"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcLXR1"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPhone1"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcEmail1"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcLXR2"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPhone2"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcEmail2"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcLXR3"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPhone3"], false) + ", ");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcEmail3"], false) + ", ");
+                    sbr.Append(" GETDATE(),");
+                    sbr.Append(" '" + userId + "'");
+                    sbr.Append(" )");
+
+                }
+
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

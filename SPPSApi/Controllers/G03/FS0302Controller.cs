@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using Common;
 using Logic;
@@ -111,7 +112,8 @@ namespace SPPSApi.Controllers.G03
 
                 List<string> dataList_C006 = convertTCodeToResult(getTCode("C006"));//原单位
                 List<string> dataList_C014 = convertTCodeToResult(getTCode("C014"));//完成状态
-                List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
+                //List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
+                List<string> dataList_C002 = convertTCodeToResult(getTCode("C060"));//变更事项
 
 
                 res.Add("C006", dataList_C006);
@@ -171,6 +173,9 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                OADateConvert(ref listInfoData);
+
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -297,7 +302,7 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-
+                OADateConvert(ref listInfoData);
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -308,16 +313,38 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (listInfoData.Count != 0)
                 {
-                    string[,] strField = new string[,] {{"完成状态"     ,"原单位名" , "区分"    ,"车型代码"   ,"变更事项(统合)" ,"备注" },
-                        {"FinishState" ,"vcUnit" ,"vcDiff"   ,"vcCarType","THChange"    ,"vcRemark"},
-                        {""            ,""       ,FieldCheck.Num,FieldCheck.NumChar,""  ,""  },
-                        {"0"           ,"0"      ,"0"        ,"10"       ,"0"           ,"0"  },//最大长度设定,不校验最大长度用0
-                        {"0"           ,"1"      ,"0"        ,"1"        ,"1"           ,"0"  },//最小长度设定,可以为空用0
-                        {"4"           ,"5"      ,"6"        ,"7"        ,"8"           ,"10" }//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"完成状态"     ,"原单位名" , "区分"    ,"车型代码"   ,"变更事项(统合)" ,"备注" ,"旧品番","新品番" },
+                        {"FinishState" ,"vcUnit" ,"vcDiff"   ,"vcCarType","THChange"    ,"vcRemark","vcPart_Id_old","vcPart_Id_new"},
+                        {""            ,""       ,FieldCheck.Num,FieldCheck.NumChar,""  ,"" ,"","" },
+                        {"0"           ,"0"      ,"0"        ,"10"       ,"0"           ,"0" ,"0","0" },//最大长度设定,不校验最大长度用0
+                        {"0"           ,"1"      ,"0"        ,"1"        ,"1"           ,"0" ,"0","0" },//最小长度设定,可以为空用0
+                        {"4"           ,"5"      ,"6"        ,"7"        ,"8"           ,"10","3","4" }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
-                    string[,] strSpecialCheck = { };
+                    string[,] strSpecialCheck =
+                    {
+                        { "变更事项（统合）",
+                            "THChange",//验证vcChange字段
+                            "新车新设",
+                            "新车新设",//当vcChange=1时
+                            "新品番",
+                            "vcPart_Id_new",//判断字段
+                            "1", //1:该字段不能为空 0:该字段必须为空
+                            "新品番",
+                            "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                        },
+                        { "变更事项（统合）",
+                            "THChange",//验证vcChange字段
+                            "设变新设",
+                            "设变新设",//当vcChange=1时
+                            "新品番",
+                            "vcPart_Id_new",//判断字段
+                            "1", //1:该字段不能为空 0:该字段必须为空
+                            "新品番",
+                            "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                        }
+                    };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0302");
                     if (checkRes != null)
@@ -361,6 +388,24 @@ namespace SPPSApi.Controllers.G03
             }
             return res;
         }
-
+        #region SpreadJs传过来的日期格式OADate格式转文本格式
+        public void OADateConvert(ref List<Dictionary<string, Object>> listInfoData)
+        {
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                Dictionary<string, Object> dic = (Dictionary<string, Object>)listInfoData[i];
+                for (int j = 0; j < dic.Count; j++)
+                {
+                    var item = dic.ElementAt(j);
+                    if (item.Value != null && item.Value.ToString().IndexOf("OADate(") != -1)
+                    {
+                        string strTemp = item.Value.ToString().Substring(item.Value.ToString().IndexOf("OADate(") + 7, item.Value.ToString().Length - item.Value.ToString().IndexOf("OADate(") - 7 - 1 - 1);
+                        DateTime d = System.DateTime.FromOADate(Convert.ToInt32(strTemp));
+                        dic[item.Key] = d.ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+                }
+            }
+        }
+        #endregion
     }
 }

@@ -50,6 +50,7 @@ namespace SPPSApi.Controllers.G02
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             string flag = dataForm.flag;
+            string errorList = "";
             try
             {
                 if (!Directory.Exists(fileSavePath))
@@ -72,7 +73,7 @@ namespace SPPSApi.Controllers.G02
                     SaveFile(fileSavePath, "SPI");
                 }
                 //1 导出导入
-                if (flag == "1")
+                else if (flag == "1")
                 {
 
                     string[,] headers = new string[,] {{"SPI NO","旧品番","新品番","補給区分(新)","代替区分","代替品番(新)","品名","品番実施時期(新/ｶﾗ)","防錆区分","防錆指示書№(新)","変更事項","旧工程","工程実施時期旧/ﾏﾃﾞ","新工程","工程実施時期新/ｶﾗ","工程参照引当(直上品番)(新)","処理日","シート名","ファイル名"},
@@ -85,6 +86,7 @@ namespace SPPSApi.Controllers.G02
                     DataTable importDt = new DataTable();
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
+
                         DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
                         if (strMsg != "")
                         {
@@ -106,11 +108,59 @@ namespace SPPSApi.Controllers.G02
                         {
                             importDt.ImportRow(row);
                         }
+
                     }
                     ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
 
                     fs0201_logic.importSave(importDt, loginInfo.UserId);
+                }
+                else if (flag == "2")
+                {
+                    string[,] headers = new string[,] {{"SPI No","旧品番","新品番","補給区分（新）","代替区分","代替品番（新）","品名","品番実施時期 (新/ｶﾗ)","防錆区分","防錆指示書№（新）","変更事項","旧工程","工程実施時期旧/ﾏﾃﾞ","新工程","工程実施時期新/ｶﾗ","工程参照引当(直上品番)(新)","処理日","シート名","ファイル名"},
+                        {"vcSPINo","vcPart_Id_old","vcPart_Id_new","vcBJDiff","vcDTDiff","vcPart_id_DT","vcPartName","vcStartYearMonth","vcFXDiff","vcFXNo","vcChange","vcOldProj","vcOldProjTime","vcNewProj","vcNewProjTime","vcCZYD","dHandleTime","vcSheetName","vcFileName"},
+                        {FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"","","","","","","","","","","","","",FieldCheck.Date,"",""},
+                        {"0","14","14","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                        {"1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                    };
+
+                    DataTable importDt = new DataTable();
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+
+                        DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                        if (strMsg != "")
+                        {
+                            ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (importDt.Columns.Count == 0)
+                            importDt = dt.Clone();
+                        if (dt.Rows.Count == 0)
+                        {
+                            ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导入终止，文件" + info.Name + "没有要导入的数据";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            importDt.ImportRow(row);
+                        }
+
+                    }
+                    ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
+
+
+                    fs0201_logic.importTFTM(importDt, loginInfo.UserId);
+                }
+                if (!string.IsNullOrWhiteSpace(strMsg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导入成功,但文件" + strMsg + "已上传过,本次不进行上传。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

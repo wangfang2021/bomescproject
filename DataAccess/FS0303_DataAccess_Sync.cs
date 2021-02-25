@@ -168,6 +168,26 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取原单位向标签表同步的逻辑Sql语句
+        public StringBuilder getDataSyncForTagMasterSql(List<Dictionary<string, Object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                #region 获取临时表并将数据插入临时表
+                strSql.Append(getTempTableSql("TUnit"));
+                #endregion
+
+                return strSql;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 获取原单位生确单发行的逻辑Sql语句
         /// <summary>
         /// 获取原单位生确单发行的逻辑Sql语句
@@ -183,7 +203,7 @@ namespace DataAccess
                 strSql.Append(getTUnitTempTableSql(listInfoData));
                 #endregion
 
-                #region 根据品番、供应商、收货方，将原单位数据插入生确表
+                #region 根据品番、供应商、收货方、包装事业体，将原单位数据插入生确表
                 strSql.AppendLine("        insert into TSQJD         ");
                 strSql.AppendLine("        (         ");
                 strSql.AppendLine("         dSSDate,vcJD,vcPart_id,vcSPINo,vcChange,vcCarType         ");
@@ -191,15 +211,15 @@ namespace DataAccess
                 strSql.AppendLine("         ,vcSumLater         ");
                 strSql.AppendLine("         ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6         ");
                 strSql.AppendLine("         ,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcSCSName         ");
-                strSql.AppendLine("         ,vcSCSPlace,vcReceiver,dNqDate         ");
+                strSql.AppendLine("         ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate         ");
                 strSql.AppendLine("        )         ");
                 strSql.AppendLine("        select          ");
-                strSql.AppendLine("        	a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDesign         ");
+                strSql.AppendLine("        	a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDev         ");
                 strSql.AppendLine("           ,a.vcInOutflag,a.vcPartNameEn,a.vcOE,a.vcSupplier_id,a.vcFXDiff,a.vcFXNo         ");
                 strSql.AppendLine("           ,a.vcSumLater_Name         ");
                 strSql.AppendLine("           ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");
                 strSql.AppendLine("           ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcSYTCode,a.vcProduct_name         ");
-                strSql.AppendLine("           ,a.vcAddress,a.vcReceiver,a.dNqDate         ");
+                strSql.AppendLine("           ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate         ");
                 strSql.AppendLine("         from          ");
                 strSql.AppendLine("        (         ");
                 strSql.AppendLine("        	select a.*         ");
@@ -216,9 +236,10 @@ namespace DataAccess
                 strSql.AppendLine("        ) a         ");
                 strSql.AppendLine("        left join         ");
                 strSql.AppendLine("        (         ");
-                strSql.AppendLine("        	select vcPart_id,vcSupplier_id,vcReceiver from TSQJD         ");
+                strSql.AppendLine("        	select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TSQJD         ");
                 strSql.AppendLine("        ) b on a.vcPart_id = b.vcPart_id         ");
                 strSql.AppendLine("        	and a.vcSupplier_id = b.vcSupplier_id         ");
+                strSql.AppendLine("        	and a.vcSYTCode = b.vcSYTCode         ");
                 strSql.AppendLine("        	and a.vcReceiver = b.vcReceiver         ");
                 strSql.AppendLine("        where b.vcPart_id is null         ");
                 strSql.AppendLine("                 ");
@@ -369,7 +390,7 @@ namespace DataAccess
         /// <summary>
         /// 获取一个临时表
         /// </summary>
-        /// <param name="TableName">数据库中真实存在的表名称</param>
+        /// <param name="TableName">临时表名称</param>
         /// <returns>与此表结构相同的临时表，临时表名称#TableName_temp</returns>
         public StringBuilder getTempTableSql(string TableName)
         {
@@ -400,5 +421,41 @@ namespace DataAccess
         }
         #endregion
 
+        //#region 获取一个临时表
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="tempTableName">临时表名称</param>
+        ///// <param name="tableName">数据库中存在</param>
+        ///// <returns></returns>
+        //public StringBuilder getTempTableSql(string tempTableName,string tableName)
+        //{
+        //    StringBuilder strSql = new StringBuilder();
+        //    try
+        //    {
+        //        string tempTableName = "#" + TableName + "_temp";
+        //        /*
+        //         * 时间：2021-02-05
+        //         * 修改人：董镇
+        //         * 内容描述：获取一个临时表，先判断临时表是否存在，如果存在，则删除；再创建临时表。
+        //         *           此临时表与原表结构相同，作为局部临时表存在,表里无数据
+        //         */
+        //        strSql.Append("        if object_id('tempdb.." + tempTableName + "') is not null        \r\n");
+        //        strSql.Append("        begin         \r\n");
+        //        strSql.Append("        drop table " + tempTableName + "        \r\n");
+        //        strSql.Append("        end        \r\n");
+        //        strSql.Append("        select * into " + tempTableName + " from         \r\n");
+        //        strSql.Append("        (        \r\n");
+        //        strSql.Append("        select * from " + TableName + " where 1=0        \r\n");
+        //        strSql.Append("        ) a ;       \r\n");
+        //        return strSql;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+        //#endregion
+        
     }
 }

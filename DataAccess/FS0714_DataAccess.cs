@@ -101,10 +101,10 @@ namespace DataAccess
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierID"], true) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], true) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcXiuZhengFlag"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iNumber"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dBuJiTime"], true) + ",");
+                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dXiuZheng"], true) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcXiuZhengNote"], false) + ",");
                         sql.AppendLine($"     		{strUserId},");
                         sql.AppendLine("     		getDate()");

@@ -140,12 +140,12 @@ namespace DataAccess
                     //类别区分
                     if (listInfoData[i]["vcOrderType"].Equals("月度"))
                     {
-                        //判断头
-                        if (order.Head.Type != "3")
-                        {
-                            msg = "订单" + vcOrderNo + "类型不正确";
-                            return false;
-                        }
+                        ////判断头
+                        //if (order.Head.Type != "3")
+                        //{
+                        //    msg = "订单" + vcOrderNo + "类型不正确";
+                        //    return false;
+                        //}
 
                         string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
 
@@ -181,11 +181,11 @@ namespace DataAccess
                                 tmp += "品番基础数据表不包含品番" + vcPart_id + ";\r\n";
                             }
 
-                            //检测数量
-                            if (!CheckTotalNumEqual(OrderTargetYM, vcPart_id, vcOrderingMethod, SoqDt, detail.QTY))
-                            {
-                                tmp += "品番" + vcPart_id + "订单数量不正确;\r\n";
-                            }
+                            ////检测数量
+                            //if (!CheckTotalNumEqual(OrderTargetYM, vcPart_id, vcOrderingMethod, SoqDt, detail.QTY))
+                            //{
+                            //    tmp += "品番" + vcPart_id + "订单数量不正确;\r\n";
+                            //}
 
                             if (!string.IsNullOrWhiteSpace(tmp))
                             {
@@ -233,12 +233,12 @@ namespace DataAccess
                     }
                     else if (listInfoData[i]["vcOrderType"].Equals("紧急"))
                     {
-                        //判断头
-                        if (order.Head.Type != "2")
-                        {
-                            msg = "订单" + vcOrderNo + "类型不正确";
-                            return false;
-                        }
+                        ////判断头
+                        //if (order.Head.Type != "2")
+                        //{
+                        //    msg = "订单" + vcOrderNo + "类型不正确";
+                        //    return false;
+                        //}
 
                         string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
 

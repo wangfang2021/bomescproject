@@ -28,12 +28,15 @@ namespace SoqCompute
         {
             decimal decTotalWorkDays = 0;//可能会有小数0.5出现													
             decTotalWorkDays = Convert.ToDecimal(dtCalendar.Rows[0]["TOTALWORKDAYS"]);
+            ArrayList beginData_0 = new ArrayList();//0箱处理数据	
             ArrayList beginData_1 = new ArrayList();//1箱处理数据													
             ArrayList beginData_2 = new ArrayList();//2箱处理数据													
             ArrayList beginData_3 = new ArrayList();//3箱到稼动处理数据													
             ArrayList beginData_4 = new ArrayList();//大于稼动日箱数处理数据													
-            getBeginData(dtSoq, decTotalWorkDays, ref beginData_1, ref beginData_2, ref beginData_3, ref beginData_4);
-            ArrayList result = new ArrayList();//1箱处理数据											
+            getBeginData(dtSoq, decTotalWorkDays,ref beginData_0, ref beginData_1, ref beginData_2, ref beginData_3, ref beginData_4);
+            ArrayList result = new ArrayList();
+            result.AddRange(beginData_0);//0箱的不处理，直接放到结果里
+
             compute_1.pinZhun_1(ref beginData_1, dtCalendar, decTotalWorkDays);
             if (beginData_1.Count > 0)
                 result.AddRange(beginData_1);
@@ -60,7 +63,7 @@ namespace SoqCompute
         }
 
         //根据soq以及类别，返回要处理的原始二维数组													
-        private void getBeginData(DataTable dtSoq, decimal decTotalWorkDays, ref ArrayList beginData_1, ref ArrayList beginData_2, ref ArrayList beginData_3, ref ArrayList beginData_4)
+        private void getBeginData(DataTable dtSoq, decimal decTotalWorkDays,ref ArrayList beginData_0, ref ArrayList beginData_1, ref ArrayList beginData_2, ref ArrayList beginData_3, ref ArrayList beginData_4)
         {
             for (int i = 0; i < dtSoq.Rows.Count; i++)
             {
@@ -75,8 +78,12 @@ namespace SoqCompute
                 temp[3] = iBox.ToString();
                 for (int j = 4; j < 35; j++)//初始化31天为0													
                     temp[j] = "0";
-                temp[35] = iBox.ToString();//当前剩余分配箱子													
-                if (iBox == 1)
+                temp[35] = iBox.ToString();//当前剩余分配箱子
+                if (iBox == 0)
+                {
+                    beginData_0.Add(temp);
+                }
+                else if (iBox == 1)
                 {
                     beginData_1.Add(temp);
                 }

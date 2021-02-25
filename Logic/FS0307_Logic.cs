@@ -221,11 +221,22 @@ namespace Logic
                     //TODO 生成附件
                     DataTable dt = fs0307_dataAccess.getFile(list[i].id);
                     string file = generateExcelWithXlt(dt, path, "FS0307_template.xlsx", list[i].supplierId);
+                    string fileName = file;
                     if (!string.IsNullOrWhiteSpace(file))
                     {
                         file = Filepath + file;
                     }
-                    //TODO 发送邮件
+                    //存储文件到固定位置
+                    string fileSavePath = path + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "ZPZK" + Path.DirectorySeparatorChar;
+
+                    if (Directory.Exists(fileSavePath) == false)
+                    {
+                        Directory.CreateDirectory(fileSavePath);
+                    }
+
+                    fileSavePath = fileSavePath + fileName;
+                    System.IO.File.Copy(file, fileSavePath, true);
+                    //
                     DataTable receiverDt = new DataTable();
                     receiverDt.Columns.Add("address");
                     receiverDt.Columns.Add("displayName");

@@ -24,10 +24,10 @@ namespace Logic
         {
             return dataAccess.isKanBanSea(vcKBorderno, vcKBSerial, vcPartsNo, vcDock);
         }
-            /// <summary>
-            /// 检索数据
-            /// </summary>
-            public DataTable PrintData(string vcKbOrderId, string vcTF, string vcFBZ, string vcTT, string vcTFZ, string vcPartsNo, string vcCarType, string vcGC, string vcType, string vcplant, DataTable dtflag)
+        /// <summary>
+        /// 检索数据
+        /// </summary>
+        public DataTable PrintData(string vcKbOrderId, string vcTF, string vcFBZ, string vcTT, string vcTFZ, string vcPartsNo, string vcCarType, string vcGC, string vcType, string vcplant, DataTable dtflag)
         {
             return dataAccess.PrintData(vcKbOrderId, vcTF, vcFBZ, vcTT, vcTFZ, vcPartsNo, vcCarType, vcGC, vcType, vcplant, dtflag);
         }
@@ -1055,6 +1055,7 @@ namespace Logic
             return dtPorType;
         }
 
+
         //private DataTable dtPrintRE(PrinterCR print, string vcSupplierCode, string vcCpdCompany, string vcCarFamilyCode, string vcPartsNo, string vcPartsNameEN, string vcPartsNameCHN, string vcLogisticRoute,
         //   string iQuantityPerContainer, string vcProject01, string vcComDate01, string vcBanZhi01, string vcProject02, string vcComDate02, string vcBanZhi02, string vcProject03,
         //   string vcComDate03, string vcBanZhi03, string vcProject04, string vcComDate04, string vcBanZhi04, string vcRemark1, string vcRemark2, string vcKBSerial, byte[] vcPhotoPath,
@@ -1695,7 +1696,7 @@ namespace Logic
         //        }
 
         //        dtPrint = print.orderDataTable(dtPrint);//排序
-                
+
         //        print.insertTableCRExcep(dtPrint);//插入打印临时子表
         //        dtPorType = QueryGroupTS(dtPrint);//用订单号 生产部署 生产日期 生产班值分组,修改不在数据库中取值
 
@@ -1739,11 +1740,12 @@ namespace Logic
             dtPorType.Columns.Add(dc3);
             dtPorType.Columns.Add(dc4);
             var query = from t in dt.AsEnumerable()
-                        group t by new { 
-                            t1 = t.Field<string>("vcorderno"), 
-                            t2 = t.Field<string>("vcPorType"), 
-                            t3 = t.Field<string>("vcComDate01"), 
-                            t4 = t.Field<string>("vcBanZhi01") 
+                        group t by new
+                        {
+                            t1 = t.Field<string>("vcorderno"),
+                            t2 = t.Field<string>("vcPorType"),
+                            t3 = t.Field<string>("vcComDate01"),
+                            t4 = t.Field<string>("vcBanZhi01")
                         } into m
                         select new
                         {
@@ -1801,7 +1803,7 @@ namespace Logic
                     else
                     {
                         bool ruturn = dataAccess.InUpdeOldData(dt, "");
-                        return  "";
+                        return "";
                     }
                 }
                 else

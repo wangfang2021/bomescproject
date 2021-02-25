@@ -22,14 +22,34 @@ namespace SoqCompute
 			}
 			//剩余箱子按照"品番内部"5-4-3-2-1顺序，按顺序分配到每周最少的稼动日中
 			int nowWeek = 5;//按照5-4-3-2-1进行处理
+
+			Hashtable hash_week1 = null;//第1周包装数总和缓存
+			Hashtable hash_week2 = null;//第2周包装数总和缓存
+			Hashtable hash_week3 = null;//第3周包装数总和缓存
+			Hashtable hash_week4 = null;//第4周包装数总和缓存
+			Hashtable hash_week5 = null;//第5周包装数总和缓存
+
 			for (int i = 0; i < beginData.Count; i++)
 			{
 				string[] temp = (string[])beginData[i];
+				//if (temp[0] == "G90101201000")
+				//{
+				//	int a = 0;
+				//	a = 1;
+				//}
 				int iBox_Last_PZ = Convert.ToInt32(temp[35]);//剩余需要平准化的箱数
 				if (iBox_Last_PZ == 0)
 					continue;//没有剩余的箱子要分配，跳过
-				//返回某周分配总数最少的一天
-				int iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList);
+							 //返回某周分配总数最少的一天
+
+				int iMinDay = -1;
+				switch (nowWeek.ToString()) {
+					case "1": iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList, ref hash_week1); break;
+					case "2": iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList, ref hash_week2); break;
+					case "3": iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList, ref hash_week3); break;
+					case "4": iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList, ref hash_week4); break;
+					case "5": iMinDay = getWeekMinDay(dtCalendar, nowWeek.ToString(), beginData, beforeTotalList, ref hash_week5); break;
+				}
 				if (iMinDay == -1)//有可能这周不存在，则遍历的品番不变，周数--
 				{
 					i--;
@@ -49,7 +69,6 @@ namespace SoqCompute
 					nowWeek--;
 					nowWeek = nowWeek == 0 ? 5 : nowWeek;//到1时再减变成0，此时需要设定下次从5开始
 				}
-
 			}
 		}
 		//平准平均分配每一天	

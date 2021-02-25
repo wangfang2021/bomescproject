@@ -16,13 +16,20 @@ namespace DataAccess
         public DataTable getExtractState()
         {
             StringBuilder sbr = new StringBuilder();
-            sbr.AppendLine("SELECT a.vcName,a.vcValue,CASE WHEN a.isFinish>0 THEN '已抽取' WHEN a.isFinish = 0 THEN '未抽取' END AS isFinish  FROM ");
-            sbr.AppendLine("(");
-            sbr.AppendLine("SELECT a.*,ISNULL(b.vcOriginCompany,'0') AS isFinish FROM ");
-            sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') a");
-            sbr.AppendLine("LEFT JOIN ");
-            sbr.AppendLine("(SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcName = b.vcOriginCompany");
-            sbr.AppendLine(") a");
+            sbr.AppendLine(" SELECT a.vcName,a.vcValue,CASE WHEN ISNULL(a.isFinish,'') <> '' THEN '已抽取' WHEN ISNULL(a.isFinish,'') = '' THEN '未抽取' END AS isFinish  FROM ");
+            sbr.AppendLine(" (");
+            sbr.AppendLine(" SELECT a.*,b.vcOriginCompany AS isFinish FROM ");
+            sbr.AppendLine(" (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') a");
+            sbr.AppendLine(" LEFT JOIN ");
+            sbr.AppendLine(" (SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcName = b.vcOriginCompany");
+            sbr.AppendLine(" ) a");
+            //sbr.AppendLine("SELECT a.vcName,a.vcValue,CASE WHEN a.isFinish>0 THEN '已抽取' WHEN a.isFinish = 0 THEN '未抽取' END AS isFinish  FROM ");
+            //sbr.AppendLine("(");
+            //sbr.AppendLine("SELECT a.*,ISNULL(b.vcOriginCompany,'0') AS isFinish FROM ");
+            //sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') a");
+            //sbr.AppendLine("LEFT JOIN ");
+            //sbr.AppendLine("(SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcName = b.vcOriginCompany");
+            //sbr.AppendLine(") a");
 
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
@@ -161,7 +168,7 @@ namespace DataAccess
                         {
                             Message += ",";
                         }
-                        Message += getName("C006", vcOriginCompany[i]);
+                        Message += vcOriginCompany[i].ToString();
 
                     }
                 }
@@ -233,6 +240,8 @@ namespace DataAccess
                 //    }
                 //}
 
+                DataTable CompanyTable = getTable("C006");
+
                 int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
                 string tmp = "";
                 for (int i = 0; i < arrInt.Length; i++)
@@ -241,7 +250,7 @@ namespace DataAccess
                     {
                         tmp += ",";
                     }
-                    tmp += "'" + arrInt[i].ToString() + "'";
+                    tmp += "'" + getName(CompanyTable, arrInt[i].ToString()) + "'";
                 }
 
                 StringBuilder sbr = new StringBuilder();
@@ -865,6 +874,23 @@ namespace DataAccess
                 throw ex;
             }
         }
-
+        public string getName(DataTable dt, string vcName)
+        {
+            try
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcValue"].ToString().Equals(vcName))
+                    {
+                        return dt.Rows[i]["vcName"].ToString();
+                    }
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

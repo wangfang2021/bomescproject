@@ -595,6 +595,10 @@ namespace Logic
         {
             return dataAccess.dllLB1(vcPorType);
         }
+        public DataTable ddlPartFrequence()
+        {
+            return dataAccess.ddlPartFrequence();
+        }
 
         public bool checkmod(string vcPartsNo)
         {
@@ -621,9 +625,9 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public int Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+            return dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
 
@@ -645,7 +649,7 @@ namespace Logic
         /// </summary>
         /// <param name="InputFile">导入Html控件</param>
         /// <param name="vcCreaterId">创建者ID</param>
-        public int ImportStandTime(DataTable dt, string vcCreaterId)
+        public string ImportStandTime(DataTable dt, string vcCreaterId)
         {
             return dataAccess.ImportStandTime(dt, vcCreaterId);
         }

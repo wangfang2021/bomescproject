@@ -134,7 +134,7 @@ namespace DataAccess
                         sql.Append("  ,DUPDTIME=getdate()   \r\n");
                         sql.Append("  ,CUPDUSER='" + strUserId + "'   \r\n");
                         sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
-                       
+
                     }
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());
@@ -171,7 +171,7 @@ namespace DataAccess
         {
             try
             {
-                string ssql = " select '' as vcValue,'' as vcName union all select distinct vcData3 as vcValue,vcData3 as vcName from ConstMst where vcDataID='ProType'";
+                string ssql = " select distinct vcData3 as vcValue,vcData3 as vcName from ConstMst where vcDataID='ProType'";
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql);
             }
@@ -231,16 +231,15 @@ namespace DataAccess
             {
                 DataTable dt = new DataTable();
                 string ssql = "";
-                ssql += " select '' as state union";
-                ssql += " select vcData1+'-'+vcData3 as state from ConstMst ";
-                ssql += " where vcDataId='ProType' or vcDataId='CalendarType' ";
-                ssql += " and vcData10 is null ";
+                ssql += " select '' as vcValue, '' as vcName ";
+                ssql += " union ";
+                ssql += " select vcData1+'-'+vcData3, vcData1+'-'+vcData3 from ConstMst where vcDataId='ProType' or vcDataId='CalendarType' and vcData10 is null";
                 ssql += " union";
-                ssql += " select AA+'-'+BB as state from ";
-                ssql += " (SELECT distinct [vcData2] as AA FROM [ConstMst] where vcDataId='KBpartType' and vcData1 ='1') a";
+                ssql += " select AA+'-'+BB as vcValue, AA+'-'+BB as vcName from ";
+                ssql += " (SELECT distinct [vcData2] as AA FROM [ConstMst] where vcDataId='KBpartType' and vcData1='1') a";
                 ssql += " CROSS JOIN ";
-                ssql += " (SELECT distinct [vcData2] As BB FROM [ConstMst] where vcDataId='KBPlant') b";
-                ssql += " order by state";
+                ssql += " (SELECT distinct [vcData2] as BB FROM [ConstMst] where vcDataId='KBPlant') b";
+                ssql += " order by vcValue";
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());
             }
             catch (Exception ex)
@@ -250,110 +249,97 @@ namespace DataAccess
         }
         public string Updatepro(DataTable dt, string user)
         {
-            string msg = "";
             SqlCommand cmd = new SqlCommand();
             try
             {
+                DataTable dttmp = new DataTable();
                 cmd.Connection = new SqlConnection(ComConnectionHelper.GetConnectionString());
                 cmd.CommandTimeout = 0;
                 cmd.Connection.Open();
-                cmd.Transaction = cmd.Connection.BeginTransaction();
+                //   cmd.Connection.BeginTransaction();
+                cmd.CommandText = "select vcPorType, vcZB, KBpartType, vcProName0, vcLT0, vcCalendar0, vcProName1, vcLT1, vcCalendar1, vcProName2, vcLT2, vcCalendar2, vcProName3, vcLT3, vcCalendar3, vcProName4, vcLT4, vcCalendar4, LogicType, DADDTIME, DUPDTIME, CUPDUSER from ProRuleMst";
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);
+                apt.Fill(dttmp);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (dt.Rows[i]["iflag"].ToString() == "1")//新增
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        sb.AppendFormat(" select * from  ProRuleMst where vcPorType='{0}' and vcZB='{1}'", dt.Rows[i]["vcPorType"].ToString(), dt.Rows[i]["vcZB"].ToString());
-                        DataTable tmp = new DataTable();
-                        cmd.CommandText = sb.ToString();
-                        apt.Fill(tmp);
-                        if (tmp.Rows.Count > 0)
-                        {
-                            msg = "\"" + dt.Rows[i]["vcPorType"].ToString() + "-" + dt.Rows[i]["vcZB"].ToString() + "\"存在相同部署和组别,更新失败！";
-                            cmd.Transaction.Rollback();
-                            cmd.Connection.Close();
-                            return msg;
-                        }
-                        sb.Length = 0;
-                        sb.AppendLine("  INSERT INTO ProRuleMst");
-                        sb.AppendLine("             ([vcPorType],[vcZB],KBpartType,[vcProName0],[vcLT0],[vcCalendar0],[vcProName1],[vcLT1] ");
-                        sb.AppendLine("  ,[vcCalendar1],[vcProName2],[vcLT2],[vcCalendar2],[vcProName3],[vcLT3],[vcCalendar3] ");
-                        sb.AppendLine("  ,[vcProName4],[vcLT4],[vcCalendar4],[LogicType],[DADDTIME],[CUPDUSER]) ");
-                        sb.AppendFormat("       VALUES('{0}' ", dt.Rows[i]["vcPorType"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcZB"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["KBpartType"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcProName0"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcLT0"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcCalendar0"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcProName1"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcLT1"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcCalendar1"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcProName2"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcLT2"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcCalendar2"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcProName3"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcLT3"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcCalendar3"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcProName4"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcLT4"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcCalendar4"].ToString());
-                        sb.AppendFormat("      , '{0}' ", dt.Rows[i]["LogicType"].ToString());
-                        sb.AppendFormat("             ,getdate() ");
-                        sb.AppendFormat("             ,'{0}') ", user);
-                        cmd.CommandText = sb.ToString();
-                        cmd.ExecuteNonQuery();
-                    }
-                    if (dt.Rows[i]["iflag"].ToString() == "2")//修改
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        sb.AppendLine(" UPDATE ProRuleMst");
-                        sb.AppendFormat("    SET[KBpartType] = '{0}' ", dt.Rows[i]["KBpartType"].ToString());
-                        sb.AppendFormat("       ,[vcProName0] = '{0}' ", dt.Rows[i]["vcProName0"].ToString());
-                        sb.AppendFormat("       ,[vcLT0] = '{0}' ", dt.Rows[i]["vcLT0"].ToString());
-                        sb.AppendFormat("       ,[vcCalendar0] = '{0}' ", dt.Rows[i]["vcCalendar0"].ToString());
-                        sb.AppendFormat("       ,[vcProName1] = '{0}' ", dt.Rows[i]["vcProName1"].ToString());
-                        sb.AppendFormat("       ,[vcLT1] = '{0}' ", dt.Rows[i]["vcLT1"].ToString());
-                        sb.AppendFormat("       ,[vcCalendar1] = '{0}' ", dt.Rows[i]["vcCalendar1"].ToString());
-                        sb.AppendFormat("       ,[vcProName2] = '{0}' ", dt.Rows[i]["vcProName2"].ToString());
-                        sb.AppendFormat("       ,[vcLT2] = '{0}' ", dt.Rows[i]["vcLT2"].ToString());
-                        sb.AppendFormat("       ,[vcCalendar2] = '{0}' ", dt.Rows[i]["vcCalendar2"].ToString());
-                        sb.AppendFormat("       ,[vcProName3] = '{0}' ", dt.Rows[i]["vcProName3"].ToString());
-                        sb.AppendFormat("       ,[vcLT3] = '{0}' ", dt.Rows[i]["vcLT3"].ToString());
-                        sb.AppendFormat("       ,[vcCalendar3] = '{0}' ", dt.Rows[i]["vcCalendar3"].ToString());
-                        sb.AppendFormat("       ,[vcProName4] = '{0}' ", dt.Rows[i]["vcProName4"].ToString());
-                        sb.AppendFormat("       ,[vcLT4] = '{0}' ", dt.Rows[i]["vcLT4"].ToString());
-                        sb.AppendFormat("       ,[vcCalendar4] = '{0}' ", dt.Rows[i]["vcCalendar4"].ToString());
-                        sb.AppendFormat("       ,[LogicType] = '{0}' ", dt.Rows[i]["LogicType"].ToString());
-                        sb.AppendLine("       ,[DUPDTIME] = getdate() ");
-                        sb.AppendFormat("       ,[CUPDUSER] = '{0}' ", user);
-                        sb.AppendFormat("  WHERE [vcPorType] ='{0}' and [vcZB]='{1}' ", dt.Rows[i]["vcPorType"].ToString(), dt.Rows[i]["vcZB"].ToString());
-                        cmd.CommandText = sb.ToString();
-                        cmd.ExecuteNonQuery();
+                    if (dt.Rows[i][0].ToString() == "")
+                        break;
 
-                    }
-                    if (dt.Rows[i]["iflag"].ToString() == "3")//删除
+                    if (dt.Rows[i][2].ToString() == "指定")
                     {
-                        StringBuilder sb = new StringBuilder();
-                        sb.AppendLine(" DELETE FROM ProRuleMst ");
-                        sb.AppendFormat("  WHERE [vcPorType] ='{0}' and [vcZB]='{1}' ", dt.Rows[i]["vcPorType"].ToString(), dt.Rows[i]["vcZB"].ToString());
-                        cmd.CommandText = sb.ToString();
-                        cmd.ExecuteNonQuery();
+                        dt.Rows[i][2] = "0";
+                    }
+                    else if (dt.Rows[i][2].ToString() == "非指定")
+                    {
+                        dt.Rows[i][2] = "1";
+                    }
+                    else
+                    {
+                        dt.Rows[i][2] = "";
+                    }
+                    DataRow[] dr = dttmp.Select("vcPorType ='" + dt.Rows[i][0].ToString() + "' and vcZB ='" + dt.Rows[i][1].ToString() + "'");
+                    if (dr.Length > 0)
+                    {
+                        dr[0]["KBpartType"] = dt.Rows[i][2].ToString();
+                        dr[0]["vcProName0"] = dt.Rows[i][3].ToString();
+                        dr[0]["vcLT0"] = dt.Rows[i][4].ToString();
+                        dr[0]["vcCalendar0"] = dt.Rows[i][5].ToString().ToUpper();
+
+                        dr[0]["vcProName1"] = dt.Rows[i][6].ToString();
+                        dr[0]["vcLT1"] = dt.Rows[i][7].ToString();
+                        dr[0]["vcCalendar1"] = dt.Rows[i][8].ToString().ToUpper();
+
+                        dr[0]["vcProName2"] = dt.Rows[i][9].ToString();
+                        dr[0]["vcLT2"] = dt.Rows[i][10].ToString();
+                        dr[0]["vcCalendar2"] = dt.Rows[i][11].ToString().ToUpper();
+
+                        dr[0]["vcProName3"] = dt.Rows[i][12].ToString();
+                        dr[0]["vcLT3"] = dt.Rows[i][13].ToString();
+                        dr[0]["vcCalendar3"] = dt.Rows[i][14].ToString().ToUpper();
+
+                        dr[0]["vcProName4"] = dt.Rows[i][15].ToString();
+                        dr[0]["vcLT4"] = dt.Rows[i][16].ToString();
+                        dr[0]["vcCalendar4"] = dt.Rows[i][17].ToString().ToUpper();
+
+                        // dr[0]["LogicType"] = dt.Rows[i][2].ToString();
+                        dr[0]["DUPDTIME"] = DateTime.Now.ToString();
+                        dr[0]["CUPDUSER"] = user;
+                    }
+                    else
+                    {
+                        dttmp.Rows.Add(dt.Rows[i][0].ToString().ToUpper(),
+                                        dt.Rows[i][1].ToString(),
+                                        dt.Rows[i][2].ToString().ToUpper(),
+                                        dt.Rows[i][3].ToString(),
+                                        dt.Rows[i][4].ToString(),
+                                        dt.Rows[i][5].ToString().ToUpper(),
+                                        dt.Rows[i][6].ToString(),
+                                        dt.Rows[i][7].ToString(),
+                                        dt.Rows[i][8].ToString().ToUpper(),
+                                        dt.Rows[i][9].ToString(),
+                                        dt.Rows[i][10].ToString(),
+                                        dt.Rows[i][11].ToString().ToUpper(),
+                                        dt.Rows[i][12].ToString(),
+                                        dt.Rows[i][13].ToString(),
+                                        dt.Rows[i][14].ToString().ToUpper(),
+                                        dt.Rows[i][15].ToString(),
+                                        dt.Rows[i][16].ToString(),
+                                        dt.Rows[i][17].ToString().ToUpper(),
+                                        null,
+                                        DateTime.Now,
+                                        DateTime.Now,
+                                        user);
                     }
                 }
-                cmd.Transaction.Commit();
-                cmd.Connection.Close();
+                SqlCommandBuilder cmdbuild = new SqlCommandBuilder(apt);
+                cmd.Dispose();
+                apt.Update(dttmp);
+                return "";
             }
             catch (Exception ex)
             {
-                if (cmd.Connection.State == ConnectionState.Open)
-                {
-                    cmd.Transaction.Rollback();
-                    cmd.Connection.Close();
-                }
-                msg = ex.ToString();
+                throw ex;
             }
-            return msg;
         }
         public string UpdateTable(DataTable dt, string user)
         {
@@ -481,9 +467,7 @@ namespace DataAccess
         public DataTable getPartType()
         {
             DataTable dt = new DataTable();
-            string ssql = "";
-            ssql += " select distinct vcData1,vcData2 from ConstMst ";
-            ssql += " where vcDataId='KBpartType' ";
+            string ssql = " select distinct vcData1 as vcValue, vcData2 as vcName from ConstMst where vcDataId='KBpartType'";
             try
             {
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());

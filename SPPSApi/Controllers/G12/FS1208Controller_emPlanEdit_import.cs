@@ -69,7 +69,7 @@ namespace SPPSApi.Controllers.G12
                                                 {"vcMonth","vcPartsno","vcDock","vcCarType","vcNum","vcOrderNo","vcPro0Day","vcPro0Zhi","vcPro1Day","vcPro1Zhi","vcPro2Day","vcPro2Zhi","vcPro3Day","vcPro3Zhi","vcPro4Day","vcPro4Zhi"},
                                                 {"","","","",FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,"",FieldCheck.Date,""},
                                                 {"7","12","2","5","10","12","10","2","10","2","10","2","10","2","10","2"},//最大长度设定,不校验最大长度用0
-                                                {"6","12","2","1","1","1","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"7","12","2","1","1","1","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"}//前台显示列号，从0开始计算,注意有选择框的是0
                 };
                 DataTable importDt = new DataTable();
@@ -100,7 +100,12 @@ namespace SPPSApi.Controllers.G12
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartsNo") } into g
+                             group r by new
+                             {
+                                 r2 = r.Field<string>("vcPartsNo"),
+                                 r3 = r.Field<string>("vcDock"),
+                                 r6 = r.Field<string>("vcOrderNo"),
+                             } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -110,15 +115,32 @@ namespace SPPSApi.Controllers.G12
                     foreach (var item in result)
                     {
                         sbr.Append("品番:" + item.Key.r2 + "<br/>");
+                        sbr.Append("受入:" + item.Key.r3 + "<br/>");
+                        sbr.Append("订单:" + item.Key.r6 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                fs1208_Logic.UpdateEDPlan(importDt, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
+                string strErrorName = fs1208_Logic.checkExcelData(importDt);
+                if (strErrorName != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败：<br/>" + strErrorName;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                strErrorName = fs1208_Logic.UpdateEDPlan(importDt, loginInfo.UserId);
+                if (strErrorName != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败：<br/>" + strErrorName;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存成功";
+                apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

@@ -31,7 +31,6 @@ namespace SPPSApi.Controllers.G12
         FS1209_Logic logic = new FS1209_Logic();
         private readonly string FunctionID = "FS1209";
         private readonly IWebHostEnvironment _webHostEnvironment;
-
         public FS1209Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
@@ -175,6 +174,7 @@ namespace SPPSApi.Controllers.G12
         #endregion
     }
 
+    #region 类
     public class FS1209_Logic
     {
         public string getRoleTip(string ID)
@@ -186,9 +186,15 @@ namespace SPPSApi.Controllers.G12
             return string.Empty;
         }
 
-        public int Create_uuidTable(DataTable pDt, string uuid_Name)
+        /// <summary>
+        /// 创建临时表
+        /// </summary>
+        /// <param name="pDt">检索到的数据表模板</param>
+        /// <param name="tmpName">临时表名</param>
+        /// <returns></returns>
+        public int Create_tmpTable(DataTable pDt, string tmpName)
         {
-            string sql = "CREATE TABLE " + uuid_Name + @" (";
+            string sql = "CREATE TABLE " + tmpName + @" (";
             foreach (DataColumn col in pDt.Columns)
             {
                 sql = sql + col.ColumnName;
@@ -198,14 +204,29 @@ namespace SPPSApi.Controllers.G12
             return excute.ExecuteSQLNoQuery(sql);
         }
 
-        public string CreateTempTable(DataTable dt, out string uuid)
+        /// <summary>
+        /// 删除临时表
+        /// </summary>
+        /// <param name="tmpName"></param>
+        public void DropTempTable(string tmpName)
         {
-            uuid = "FS1209" + System.Guid.NewGuid().ToString().Replace("-", "");
-            DataTable uuid_tb = excute.ExcuteSqlWithSelectToDT("select * from sysobjects where id=object_id(N'" + uuid + "') and OBJECTPROPERTY(id, N'IsUserTable')=1");
-            if (uuid_tb != null && uuid_tb.Rows.Count > 0)
-                return "已在被打印中";
-            Create_uuidTable(uuid_tb, uuid);
+            string sql = "drop table " + tmpName;
+            excute.ExecuteSQLNoQuery(sql);
+        }
 
+        /// <summary>
+        /// 创建临时打印报表
+        /// </summary>
+        /// <param name="dt">检索水晶报表数据</param>
+        /// <param name="funName">创建临时表_打印功能名</param>
+        /// <param name="tmpName">根据水晶报表数据，创建临时打印表</param>
+        /// <returns></returns>
+        public string CreateTempTable(DataTable dt, string funName, out string tmpName)
+        {
+            tmpName = funName + System.Guid.NewGuid().ToString().Replace("-", "");
+            int counts = excute.ExecuteScalar("select count(*) from sysobjects where id=object_id(N'" + tmpName + "') and OBJECTPROPERTY(id, N'IsUserTable')=1");
+            if (counts > 0) return "已在被打印中";
+            Create_tmpTable(dt, tmpName);
             using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
             {
                 conn.Open();
@@ -213,7 +234,7 @@ namespace SPPSApi.Controllers.G12
                 SqlBulkCopy bulkCopy = new SqlBulkCopy(conn);
                 try
                 {
-                    bulkCopy.DestinationTableName = uuid;//要插入的SQL表的表名
+                    bulkCopy.DestinationTableName = tmpName;//要插入的SQL表的表名
                     bulkCopy.BatchSize = dt.Rows.Count;
                     for (int i = 0; i < dt.Columns.Count; i++)
                     {
@@ -229,7 +250,6 @@ namespace SPPSApi.Controllers.G12
             }
             return string.Empty;
         }
-
 
         #region 检索
         /// <summary>
@@ -268,7 +288,7 @@ namespace SPPSApi.Controllers.G12
         #endregion
 
         #region 打印
-        public string BtnPrintAll(DataTable dt, string vctype, string root, string printerName, string userId)
+        public string BtnPrintAll(DataTable dt, string vctype, string root, string strPrinterName, string userId)
         {
             try
             {
@@ -277,7 +297,6 @@ namespace SPPSApi.Controllers.G12
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string picnull = root + "\\images\\picnull.JPG";
                 string tmplatePath = root + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
-
                 string gud = "";
                 PrinterCR print = new PrinterCR();
                 DataTable dtPrint = new DataTable();
@@ -522,7 +541,7 @@ namespace SPPSApi.Controllers.G12
                     //DataTable dtPorType = print.searchPorType();//用订单号 生产部署 生产日期 生产班值分组
                     print.insertTableCRMain(dtPrint, dtPorType);//插入打印临时主表
                     string printDay = KanBIfPrintDay();//获取班值信息
-                    string reportPath = root + "\\CrReport.rpt";
+                    string reportPath = "CrReport.rpt";
                     string strLoginId = userId;
 
                     for (int z = 0; z < dtPorType.Rows.Count; z++)
@@ -535,94 +554,150 @@ namespace SPPSApi.Controllers.G12
                         string vcorderno = dtPorType.Rows[z]["vcorderno"].ToString();
                         string vcComDate01 = dtPorType.Rows[z]["vcComDate01"].ToString();
                         string vcBanZhi01 = dtPorType.Rows[z]["vcBanZhi01"].ToString();
-                        msg = print.printCr(reportPath, vcPorType, vcorderno, vcComDate01, vcBanZhi01, "", "", strLoginId, printerName);//打印水晶报表
-   
-                        #region 打印看板确认单
-                        if (vctype != "3")//打印秦风非ED的数据不需要看板确认单
+
+                        #region 打印水晶报表 WebService 
+                        msg = print.printCr(reportPath, vcPorType, vcorderno, vcComDate01, vcBanZhi01, "", "", strLoginId, strPrinterName);//打印水晶报表
+                        #endregion
+                        if (msg == "打印成功")
                         {
-                            //数据库取出Excel的数据进行打印
-                            DataSet ds = PrintExcel(vcPorType, vcorderno, vcComDate01, vcBanZhi01);
-                            exdttt = ds.Tables[0];
-                            exdthj = ds.Tables[1];
-                            for (int p = 0; p < exdttt.Rows.Count; p++)
+                            #region 打印看板确认单
+                            if (vctype != "3")//打印秦风非ED的数据不需要看板确认单
                             {
-                                exdttt.Rows[p]["no"] = p + 1;
-                            }
-                            int dsRowsCount = exdttt.Rows.Count;
-                            int dsRow = dsRowsCount / 43;
-                            int dsrows = dsRowsCount % 43;
-                            //总页数
-                            int pagetotle = 0;
-                            //页数
-                            int pageno = 0;
-                            if (dsRow != 0)
-                            {
-                                pagetotle = ((dsrows + exdthj.Rows.Count + 3) / 43) == 0 ? (dsRow + 1) : (dsRow + 1 + (((exdthj.Rows.Count + 3) / 43) == 0 ? 1 : ((exdthj.Rows.Count + 3) / 43) + 1));
-                            }
-                            else
-                            {
-                                pagetotle = ((dsRowsCount + exdthj.Rows.Count + 3) / 43) == 0 ? 1 : (1 + (((exdthj.Rows.Count + 3) / 43) == 0 ? 1 : ((exdthj.Rows.Count + 3) / 43) + 1));
-                            }
-                            if (dsRow > 0)
-                            {
-                                DataTable inTable = exdttt.Clone();
-                                for (int i = 0; i < exdttt.Rows.Count; i++)
+                                //数据库取出Excel的数据进行打印
+                                DataSet ds = PrintExcel(vcPorType, vcorderno, vcComDate01, vcBanZhi01);
+                                exdttt = ds.Tables[0];
+                                exdthj = ds.Tables[1];
+
+                                for (int p = 0; p < exdttt.Rows.Count; p++)
                                 {
-                                    DataRow dr = exdttt.Rows[i];
-                                    DataRow add = inTable.NewRow();
-                                    add.ItemArray = dr.ItemArray;
-                                    inTable.Rows.Add(add);
-                                    if (inTable.Rows.Count >= 43 || exdttt.Rows.Count - 1 == i)
+                                    exdttt.Rows[p]["no"] = p + 1;
+                                }
+                                int dsRowsCount = exdttt.Rows.Count;
+                                int dsRow = dsRowsCount / 43;
+                                int dsrows = dsRowsCount % 43;
+                                //总页数
+                                int pagetotle = 0;
+                                //页数
+                                int pageno = 0;
+                                if (dsRow != 0)
+                                {
+                                    pagetotle = ((dsrows + exdthj.Rows.Count + 3) / 43) == 0 ? (dsRow + 1) : (dsRow + 1 + (((exdthj.Rows.Count + 3) / 43) == 0 ? 1 : ((exdthj.Rows.Count + 3) / 43) + 1));
+                                }
+                                else
+                                {
+                                    pagetotle = ((dsRowsCount + exdthj.Rows.Count + 3) / 43) == 0 ? 1 : (1 + (((exdthj.Rows.Count + 3) / 43) == 0 ? 1 : ((exdthj.Rows.Count + 3) / 43) + 1));
+                                }
+                                if (dsRow > 0)
+                                {
+                                    DataTable inTable = exdttt.Clone();
+                                    for (int i = 0; i < exdttt.Rows.Count; i++)
                                     {
-                                        pageno = pageno + 1;
-                                        string pageB = "0";
-                                        if (inTable.Rows.Count < 43)
+                                        DataRow dr = exdttt.Rows[i];
+                                        DataRow add = inTable.NewRow();
+                                        add.ItemArray = dr.ItemArray;
+                                        inTable.Rows.Add(add);
+                                        if (inTable.Rows.Count >= 43 || exdttt.Rows.Count - 1 == i)
                                         {
-                                            pageB = inTable.Rows.Count + exdthj.Rows.Count + 3 <= 43 ? "1" : "2";
+                                            pageno = pageno + 1;
+                                            string pageB = "0";
+                                            if (inTable.Rows.Count < 43)
+                                            {
+                                                pageB = inTable.Rows.Count + exdthj.Rows.Count + 3 <= 43 ? "1" : "2";
+                                            }
+
+                                            //打印传值有：订单号、生产部署、计划打印日期 printIme、计划打印班值 printDay 、计划生产日期 、计划生产班值、页码
+                                            //exprint.PrintTemplateFromDataTable(inTable, exdthj, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+
+                                            #region 创建打印临时表并打印 WebService
+                                            FS1209_Logic lg = new FS1209_Logic();
+                                            string exdthj_tmp = string.Empty;
+                                            string inTable_tmp = string.Empty;
+                                            string exdthj_msg = lg.CreateTempTable(exdthj, "FS1209_Excel_", out exdthj_tmp);//创建打印临时表  
+                                            string inTable_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out inTable_tmp);//创建打印临时表                 
+                                            if (inTable_msg.Length == 0)
+                                            {
+                                                BasicHttpBinding binding = new BasicHttpBinding();
+                                                binding.CloseTimeout = TimeSpan.MaxValue;
+                                                binding.OpenTimeout = TimeSpan.MaxValue;
+                                                binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                                binding.SendTimeout = TimeSpan.MaxValue;
+                                                EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                                FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                                msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                            }
+                                            lg.DropTempTable(inTable_tmp);//删除打印临时表
+                                            lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                            #endregion
+
+                                            DataTable checkorderno = new DataTable();
+                                            checkorderno = check(vcorderno, vcPorType);
+                                            int rows;
+                                            rows = checkorderno.Rows.Count;
+                                            //向tKanBanQrTbl表中插入数据
+                                            if (rows == 0)
+                                            {
+                                                //将testprinterExcel表中数据存入到testprinterExcel1中
+                                                InsertInto(vcorderno, vcPorType);
+                                                InsertDate(vcorderno, vcPorType, printIme, printDay == "白值" ? "0" : "1", vcComDate01, vcBanZhi01 == "白" ? "0" : "1");
+                                            }
+                                            inTable = exdt.Clone();
                                         }
-                                        //打印传值有：订单号、生产部署、计划打印日期 printIme、计划打印班值 printDay 、计划生产日期 、计划生产班值、页码
-                                        //exprint.PrintTemplateFromDataTable(inTable, exdthj, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
-                                        DataTable checkorderno = new DataTable();
-                                        checkorderno = check(vcorderno, vcPorType);
-                                        int rows;
-                                        rows = checkorderno.Rows.Count;
-                                        //向tKanBanQrTbl表中插入数据
-                                        if (rows == 0)
-                                        {
-                                            //将testprinterExcel表中数据存入到testprinterExcel1中
-                                            InsertInto(vcorderno, vcPorType);
-                                            InsertDate(vcorderno, vcPorType, printIme, printDay == "白值" ? "0" : "1", vcComDate01, vcBanZhi01 == "白" ? "0" : "1");
-                                        }
-                                        inTable = exdt.Clone();
+                                    }
+                                }
+                                else
+                                {
+                                    string pageB = "0";
+                                    pageno = pageno + 1;
+                                    pageB = exdttt.Rows.Count + exdthj.Rows.Count + 3 <= 43 ? "1" : "2";
+                                    //打印传值有：订单号、生产部署、计划打印日期 printIme、计划打印班值 printDay 、计划生产日期 、计划生产班值、页码
+                                    //exprint.PrintTemplateFromDataTable(exdttt, exdthj, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+
+                                    #region 创建打印临时表并打印 WebService
+                                    FS1209_Logic lg = new FS1209_Logic();
+                                    string exdttt_tmp = string.Empty;
+                                    string exdthj_tmp = string.Empty;
+                                    string exdttt_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out exdttt_tmp);//创建打印临时表
+                                    string exdthj_msg = lg.CreateTempTable(exdthj, "FS1209_Excel_", out exdthj_tmp);//创建打印临时表                
+                                    if (exdthj_msg.Length == 0)
+                                    {
+                                        BasicHttpBinding binding = new BasicHttpBinding();
+                                        binding.CloseTimeout = TimeSpan.MaxValue;
+                                        binding.OpenTimeout = TimeSpan.MaxValue;
+                                        binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                        binding.SendTimeout = TimeSpan.MaxValue;
+                                        EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                        FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                        exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                    }
+                                    lg.DropTempTable(exdttt_tmp);//删除打印临时表
+                                    lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                    #endregion
+
+
+                                    DataTable checkorderno = new DataTable();
+                                    //判断是否存在重复单号
+                                    checkorderno = check(vcorderno, vcPorType);
+                                    int rows;
+                                    rows = checkorderno.Rows.Count;
+
+                                    //向tKanBanQrTbl表中插入数据
+                                    if (rows == 0)
+                                    {
+                                        //将testprinterExcel表中数据存入到testprinterExcel1中
+                                        InsertInto(vcorderno, vcPorType);
+                                        InsertDate(vcorderno, vcPorType, printIme, printDay == "白值" ? "0" : "1", vcComDate01, vcBanZhi01 == "白" ? "0" : "1");
                                     }
                                 }
                             }
-                            else
-                            {
-                                string pageB = "0";
-                                pageno = pageno + 1;
-                                pageB = exdttt.Rows.Count + exdthj.Rows.Count + 3 <= 43 ? "1" : "2";
-                                //打印传值有：订单号、生产部署、计划打印日期 printIme、计划打印班值 printDay 、计划生产日期 、计划生产班值、页码
-                                //exprint.PrintTemplateFromDataTable(exdttt, exdthj, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
-
-                                DataTable checkorderno = new DataTable();
-                                //判断是否存在重复单号
-                                checkorderno = check(vcorderno, vcPorType);
-                                int rows;
-                                rows = checkorderno.Rows.Count;
-
-                                //向tKanBanQrTbl表中插入数据
-                                if (rows == 0)
-                                {
-                                    //将testprinterExcel表中数据存入到testprinterExcel1中
-                                    InsertInto(vcorderno, vcPorType);
-                                    InsertDate(vcorderno, vcPorType, printIme, printDay == "白值" ? "0" : "1", vcComDate01, vcBanZhi01 == "白" ? "0" : "1");
-                                }
-                            }
+                            #endregion
+                            //删除看板打印的临时文件
+                            DeleteprinterCREX(vcPorType, vcorderno, vcComDate01, vcBanZhi01);
                         }
-                        #endregion
-                        //删除看板打印的临时文件
-                        DeleteprinterCREX(vcPorType, vcorderno, vcComDate01, vcBanZhi01);
+                        else
+                        {
+                            return msg;
+                        }
+
                     }
                     print.UpdatePrintKANB(dtPrint, vctype);
                     if (vctype == "3")
@@ -633,7 +708,6 @@ namespace SPPSApi.Controllers.G12
                     {
 
                     }
-                    msg = "打印成功";
                 }
                 else
                 {
@@ -644,16 +718,6 @@ namespace SPPSApi.Controllers.G12
             catch (Exception ex)
             {
                 throw ex;
-                //Log.OutputLog(ModuleType.WebPage, "FS0160", "", LogLevel.Error, "M2UE050", ex);
-                //if (Session["dtPorType000"] != null)
-                //{
-                //    DataTable dt = Session["dtPorType000"] as DataTable;
-                //    for (int i = 0; i < dt.Rows.Count; i++)
-                //    {
-                //        DeleteprinterCREX(dt.Rows[i]["vcPorType"].ToString(), dt.Rows[i]["vcorderno"].ToString(), dt.Rows[i]["vcComDate01"].ToString(), dt.Rows[i]["vcBanZhi01"].ToString());
-                //    }
-                //}
-                //ShowMessage("打印失败", QMWebCommon.MessageType.Error, ex);
             }
         }
         #endregion
@@ -1740,7 +1804,6 @@ namespace SPPSApi.Controllers.G12
 
         #endregion
     }
-
     public class PrinterCR
     {
         private MultiExcute excute = new MultiExcute();
@@ -1840,12 +1903,13 @@ namespace SPPSApi.Controllers.G12
             throw new NotImplementedException();
         }
 
+        #region 打印水晶报表
         /// <summary>
         /// 打印水晶报表
         /// </summary>
-        /// <param name="reportPath"></param>
+        /// <param name="reportName">报表模板名称</param>
         /// <returns></returns>
-        public string printCr(string reportPath, string vcProType, string vcorderno, string vcComDate01, string vcBanZhi01, string vcComDate00, string vcBanZhi00, string vcUser, string strPrinterName)
+        public string printCr(string reportName, string vcProType, string vcorderno, string vcComDate01, string vcBanZhi01, string vcComDate00, string vcBanZhi00, string vcUser, string strPrinterName)
         {
             try
             {
@@ -1853,23 +1917,21 @@ namespace SPPSApi.Controllers.G12
                 if (dt.Rows.Count > 0)
                 {
                     FS1209_Logic lg = new FS1209_Logic();
-                    string uuidTb = string.Empty;
-                    string msg = lg.CreateTempTable(dt, out uuidTb);
-                    //if (msg.Length == 0)
-                    //{
-                    //    BasicHttpBinding binding = new BasicHttpBinding();
-                    //    binding.CloseTimeout = TimeSpan.MaxValue;
-                    //    binding.OpenTimeout = TimeSpan.MaxValue;
-                    //    binding.ReceiveTimeout = TimeSpan.MaxValue;
-                    //    binding.SendTimeout = TimeSpan.MaxValue;
-                    //    EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
-                    //    SPPSPrint.PrintTableSoapClient client = new SPPSPrint.PrintTableSoapClient(binding, address);
-                    //    Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, strPrinterName, reportPath, "172.23.140.169", "SPPSdb", "sa", "Sa123");
-                    //    //Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
-                    //    SPPSPrint.PrinterResponse response = responseTask.Result;
-                    //    // 获取HelloWorld方法的返回值
-                    //    return response.Body.PrinterResult;
-                    //}
+                    string tempTb = string.Empty;
+                    string msg = lg.CreateTempTable(dt, "FS1209_CR_", out tempTb);//创建打印临时表
+                    if (msg.Length == 0)
+                    {
+                        BasicHttpBinding binding = new BasicHttpBinding();
+                        binding.CloseTimeout = TimeSpan.MaxValue;
+                        binding.OpenTimeout = TimeSpan.MaxValue;
+                        binding.ReceiveTimeout = TimeSpan.MaxValue;
+                        binding.SendTimeout = TimeSpan.MaxValue;
+                        EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
+                        PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
+                        msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.140.169", "SPPSdb", "sa", "Sa123");
+                        //Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
+                    }
+                    lg.DropTempTable(tempTb);//删除打印临时表
                     return msg;
                 }
                 return "检索不到数据，打印失败";
@@ -1879,7 +1941,9 @@ namespace SPPSApi.Controllers.G12
                 throw ex;
             }
         }
+        #endregion
 
+        #region 检索打印数据主表
         /// <summary>
         /// 检索打印数据主表
         /// </summary>
@@ -1912,6 +1976,7 @@ namespace SPPSApi.Controllers.G12
             }
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
+        #endregion
 
         public DataTable searchPorTypeExcep()
         {
@@ -2841,7 +2906,7 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select top(1)* from testprinterCR");
+            strSQL.AppendLine("select top(1) * from testprinterCR");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
         #endregion
@@ -2956,4 +3021,5 @@ namespace SPPSApi.Controllers.G12
         }
 
     }
+    #endregion
 }

@@ -42,7 +42,7 @@ namespace Logic
             //    if (dt != null && dt.Rows.Count > 0)
             //    {
             //        QMCommon.OfficeCommon.QMExcel oQMExcel = new QMCommon.OfficeCommon.QMExcel();
-                    
+
             //        string tmplatePath = System.Web.HttpContext.Current.Server.MapPath("~/Templates/FS1211_PartList.xlt");
             //        string path = System.Web.HttpContext.Current.Server.MapPath("~/Temps/" + exlName);
             //        oQMExcel.ExportFromTemplate(dt, tmplatePath, path, 2, 1, true);
@@ -643,9 +643,9 @@ namespace Logic
             return dataAccess.SearchItemData(vcMon, vcTF, vcTO, vcType, vcPartsno, vcDock, vcSerial, vcOrder, vcProType, plant, ed);
         }
 
-        public DataTable getPartListCount(string mon, string partNo, string plant, string GC, string KbOrderId, string packdiv, string PlanProductionDateFrom, string PlanProductionBZFrom, string PlanPackDateFrom, string PlanPackBZFrom, string PlanProductionDateTo, string PlanProductionBZTo, string PlanPackDateTo, string PlanPackBZTo, string PlanProductionAB, string PlanPackAB)
+        public DataTable getPartListCount(string mon, string partNo, string plant, string GC, string KbOrderId, string packdiv, string PlanProductionDateFrom, string PlanProductionBZFrom, string PlanPackDateFrom, string PlanPackBZFrom, string PlanProductionDateTo, string PlanProductionBZTo, string PlanPackDateTo, string PlanPackBZTo, string PlanProductionAB, string PlanPackAB, ref string msg)
         {
-            return dataAccess.getPartListCount(mon, partNo, plant, GC, KbOrderId, packdiv, PlanProductionDateFrom, PlanProductionBZFrom, PlanPackDateFrom, PlanPackBZFrom, PlanProductionDateTo, PlanProductionBZTo, PlanPackDateTo, PlanPackBZTo, PlanProductionAB, PlanPackAB);
+            return dataAccess.getPartListCount(mon, partNo, plant, GC, KbOrderId, packdiv, PlanProductionDateFrom, PlanProductionBZFrom, PlanPackDateFrom, PlanPackBZFrom, PlanProductionDateTo, PlanProductionBZTo, PlanPackDateTo, PlanPackBZTo, PlanProductionAB, PlanPackAB, ref msg);
         }
 
         public void deletetKanbanPrintTbl(List<Dictionary<string, Object>> listInfoData, string strUserId)

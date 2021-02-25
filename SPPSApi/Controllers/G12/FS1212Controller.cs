@@ -56,9 +56,11 @@ namespace SPPSApi.Controllers.G12
                 List<Object> dataList_ProTypeSource = ComFunction.convertAllToResult(logic.dllPorType(""));
                 List<Object> dataList_ZBSource = ComFunction.convertAllToResult(logic.dllZB(""));
                 List<Object> dataList_LBSource = ComFunction.convertAllToResult(logic.dllLB1(""));
+                List<Object> dataList_PartFrequenceSource = ComFunction.convertAllToResult(logic.ddlPartFrequence());
                 res.Add("ProTypeSource", dataList_ProTypeSource);
                 res.Add("ZBSource", dataList_ZBSource);
                 res.Add("LBSource", dataList_LBSource);
+                res.Add("PartFrequenceSource", dataList_PartFrequenceSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -188,16 +190,16 @@ namespace SPPSApi.Controllers.G12
                 //    }
                 //}
                 string strErrorPartId = "";
-                logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
-                if (strErrorPartId != "")
+                int j = logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                if (j > 0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = null;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
+                apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -275,8 +277,18 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 DataTable dt = logic.SearchPartData(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcLB, vcPartFrequence);
-                string[] fields = { "vcPartsNo","dTimeFrom","dTimeTo","vcDock","vcPartPlant","vcCarFamilyCode","vcPartsNameEN","vcPartsNameCHN",
-                                    "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcPartFrequence" };
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i]["vcPartsNo"] = dt.Rows[i]["vcPartsNo"].ToString().Replace("-", "");
+                    if (dt.Rows[i]["vcPartPlant"] != null && dt.Rows[i]["vcPartPlant"].ToString().Trim() != "")
+                        dt.Rows[i]["vcPartPlant"] = "#" + dt.Rows[i]["vcPartPlant"].ToString();
+                    if (dt.Rows[i]["vcQFflag"] != null && dt.Rows[i]["vcQFflag"].ToString() == "1")
+                        dt.Rows[i]["vcQFflag"] = "○";
+                    else if (dt.Rows[i]["vcQFflag"] != null && dt.Rows[i]["vcQFflag"].ToString() == "2")
+                        dt.Rows[i]["vcQFflag"] = "×";
+                }
+                string[] fields = { "vcPartsNo","dFromTime","dToTime","vcDock","vcPartPlant","vcCarFamilyCode","vcPartENName",
+                                    "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcOrderingMethod","vcReceiver","vcSupplierId" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1212_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -293,6 +305,40 @@ namespace SPPSApi.Controllers.G12
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 联动取得组别
+        [HttpPost]
+        [EnableCors("any")]
+        public string getZB([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPorType = dataForm.vcPorType == null ? "" : dataForm.vcPorType;
+            try
+            {
+                DataTable dt = logic.dllZB(vcPorType);
+                DtConverter dtConverter = new DtConverter();
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

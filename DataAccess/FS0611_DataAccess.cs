@@ -64,7 +64,7 @@ namespace DataAccess
 
 
         #region 取特殊厂家对应的品番
-        public DataTable GetSpecialSupplier(string strYearMonth)
+        public DataTable GetSpecialSupplier(string strPlant,string strDXYearMonth, string strYearMonth)
         {
             StringBuilder sql = new StringBuilder();
             sql.Append("   select a.vcPartId,c.dBeginDate,c.dEndDate,c.vcSupplier_id from TSPMaster a    \n");
@@ -76,15 +76,24 @@ namespace DataAccess
             sql.Append("   (    \n");
             sql.Append("     select vcSupplier_id,vcWorkArea,dBeginDate,dEndDate from TSpecialSupplier where convert(varchar(6),dBeginDate,112)='"+ strYearMonth + "' and convert(varchar(6),dEndDate,112)='"+ strYearMonth + "'   \n");
             sql.Append("   )c on b.vcSupplierId=c.vcSupplier_id and b.vcSupplierPlant=c.vcWorkArea   \n");
+            sql.Append("   inner join     \n");
+            sql.Append("   (     \n");
+            sql.Append("     select vcPart_id from TSoq  where vcFZGC='" + strPlant + "' and vcYearMonth='" + strDXYearMonth + "'       \n");
+            sql.Append("   )d on a.vcPartId=d.vcPart_id     \n");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
         #endregion
 
         #region 取特殊品番
-        public DataTable GetSpecialPartId(string strYearMonth)
+        public DataTable GetSpecialPartId(string strPlant,string strDXYearMonth, string strYearMonth)
         {
             StringBuilder sql = new StringBuilder();
-            sql.Append("   select vcPartNo as vcPartId,dBeginDate,dEndDate from TSpecialPartNo where convert(varchar(6),dBeginDate,112)='" + strYearMonth + "' and convert(varchar(6),dEndDate,112)='" + strYearMonth + "'   \n");
+            sql.Append("   select vcPartNo as vcPartId,dBeginDate,dEndDate from TSpecialPartNo a     \n");
+            sql.Append("   inner join     \n");
+            sql.Append("   (     \n");
+            sql.Append("     select vcPart_id from TSoq  where vcFZGC='"+ strPlant + "' and vcYearMonth='"+ strDXYearMonth + "'       \n");
+            sql.Append("   )b on a.vcPartNo=b.vcPart_id     \n");
+            sql.Append("   where convert(varchar(6),dBeginDate,112)='" + strYearMonth + "' and convert(varchar(6),dEndDate,112)='" + strYearMonth + "'     \n");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
         #endregion

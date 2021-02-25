@@ -1279,6 +1279,312 @@ namespace Logic
 
             #endregion
 
+            //#region 获取下半部分数据
+            //string tempPart_id = "";
+
+            //for (int i = ST; i < SS; i += 2)
+            //{
+            //    tempPart_id = prePart_idS;
+
+            //    row = sheet.GetRow(i);
+            //    IRow rowtemp = sheet.GetRow(i + 1);
+
+            //    //根据品番添加
+            //    if (!string.IsNullOrWhiteSpace(row.GetCell(0).ToString()))
+            //    {
+            //        int flag = 0;
+            //        int flagN = 1;
+            //        if (row.GetCell(0 + flag).ToString() == "")
+            //        {
+            //            tempPart_id = row.GetCell(0 + flagN).ToString();
+            //        }
+            //        else
+            //        {
+            //            tempPart_id = row.GetCell(0 + flag).ToString();
+            //        }
+            //        int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old));
+
+            //        //temp[index].vcOldProj = row.GetCell(15 + flag).ToString();
+            //        //temp[index].vcOldProj = "";
+            //        //if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
+            //        //{
+            //        //    temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+            //        //}
+            //        temp[index].vcOldProj = "";
+            //        if (!row.GetCell(15 + flag).ToString().Contains("("))
+            //        {
+            //            if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WV"))
+            //            {
+            //                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+            //            }
+            //        }
+
+
+            //        temp[index].ZSPF = row.GetCell(50 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].ZSPF))
+            //            {
+            //                temp[index].ZSPF += ",";
+            //            }
+            //        }
+            //        temp[index].ZSPF += rowtemp.GetCell(50 + flag).ToString();
+
+            //        temp[index].OGCSSFrom = row.GetCell(57 + flag).ToString();
+            //        temp[index].vcOldProjTime = row.GetCell(61 + flag).ToString();
+
+            //        //---------------------(新)
+            //        temp[index].vcNewProj = row.GetCell(15 + flagN).ToString();
+            //        temp[index].vcCZYD = row.GetCell(50 + flagN).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flagN).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+            //            {
+            //                temp[index].vcCZYD += ",";
+            //            }
+            //        }
+            //        temp[index].vcCZYD += rowtemp.GetCell(50 + flagN).ToString();
+
+            //        temp[index].vcNewProjTime = row.GetCell(57 + flagN).ToString();
+            //        temp[index].NGCSSTo = row.GetCell(61 + flagN).ToString();
+            //        //----------------------
+            //        prePart_idS = tempPart_id;
+            //    }
+            //    #region flag=1
+            //    //根据品番添加
+            //    else if (!string.IsNullOrWhiteSpace(row.GetCell(1).ToString()))
+            //    {
+            //        int flag = 1;
+            //        tempPart_id = row.GetCell(0 + flag).ToString();
+            //        int n = temp.Count();
+            //        int index = temp.FindIndex(item => item.vcPart_Id_new.Equals(tempPart_id));
+            //        temp[index].vcNewProj = row.GetCell(15 + flag).ToString();
+            //        temp[index].vcCZYD = row.GetCell(50 + flag).ToString();
+            //        if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+            //            {
+            //                temp[index].vcCZYD += ",";
+            //            }
+            //        }
+
+            //        temp[index].vcCZYD += rowtemp.GetCell(50 + flag).ToString();
+
+            //        temp[index].vcNewProjTime = row.GetCell(57 + flag).ToString();
+            //        temp[index].NGCSSTo = row.GetCell(61 + flag).ToString();
+            //        prePart_idS = tempPart_id;
+            //    }
+            //    #endregion
+
+            //    //根据品番修改
+            //    else if (!string.IsNullOrWhiteSpace(row.GetCell(6).ToString()))
+            //    {
+            //        int flag = 0;
+            //        int flagN = 1;
+            //        int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old) || tempPart_id.Equals(item.vcPart_Id_new));
+
+            //        if (!string.IsNullOrWhiteSpace(row.GetCell(15 + flag).ToString()))
+            //        {
+            //            //工程含有两个及以上的第二个除了含有WB，WL,WF,WD，其余的不显示
+            //            //if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WD") || row.GetCell(15 + flag).ToString().Contains("WL") || row.GetCell(15 + flag).ToString().Contains("WF"))
+            //            //{
+            //            //    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+            //            //    {
+            //            //        temp[index].vcOldProj += ",";
+            //            //        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+
+            //            //    }
+            //            //    else
+            //            //    {
+            //            //        temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+            //            //    }
+            //            //}
+            //            //if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WF") || row.GetCell(15 + flag).ToString().Contains("WL"))
+            //            //{
+            //            //    if (temp[index].vcOldProj != "" && !row.GetCell(15 + flag).ToString().Contains("("))
+            //            //    {
+            //            //        if (!row.GetCell(15 + flag).ToString().Contains("(WV"))
+            //            //        {
+            //            //            if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+            //            //            {
+            //            //                temp[index].vcOldProj += ",";
+            //            //                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+            //            //                if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+            //            //                {
+            //            //                    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+            //            //                    {
+            //            //                        temp[index].vcOldProjTime += ",";
+            //            //                    }
+            //            //                }
+            //            //                temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+            //            //            }
+            //            //            else
+            //            //            {
+            //            //                temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+            //            //            }
+            //            //        }
+            //            //    }
+            //            //}
+
+            //            if (row.GetCell(15 + flag).ToString().Contains("WB") || row.GetCell(15 + flag).ToString().Contains("WV") || row.GetCell(15 + flag).ToString().Contains("WL"))
+            //            {
+            //                //Boolean flaga = row.GetCell(15 + flag).ToString().Contains("(");
+            //                if (temp[index].vcOldProj != "")
+            //                {
+            //                    if (!row.GetCell(15 + flag).ToString().Contains("(WV") && !row.GetCell(15 + flag).ToString().Contains("(WL"))
+            //                    {
+            //                        if (!string.IsNullOrWhiteSpace(temp[index].vcOldProj))
+            //                        {
+            //                            temp[index].vcOldProj += ",";
+            //                            temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+            //                            if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+            //                            {
+            //                                if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+            //                                {
+            //                                    temp[index].vcOldProjTime += ",";
+            //                                }
+            //                            }
+            //                            temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+            //                        }
+            //                        else
+            //                        {
+            //                            temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
+            //                        }
+            //                    }
+            //                }
+            //            }
+
+            //        }
+
+            //        if (!string.IsNullOrWhiteSpace(temp[index].ZSPF))
+            //        {
+            //            temp[index].ZSPF += ",";
+            //        }
+            //        temp[index].ZSPF += row.GetCell(50 + flag).ToString();
+            //        if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].ZSPF))
+            //            {
+            //                temp[index].ZSPF += ",";
+            //            }
+            //        }
+
+            //        temp[index].ZSPF += rowtemp.GetCell(50 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(temp[index].OGCSSFrom))
+            //        {
+            //            temp[index].OGCSSFrom += ",";
+            //        }
+            //        temp[index].OGCSSFrom += row.GetCell(57 + flag).ToString();
+
+            //        //if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+            //        //{
+            //        //    if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
+            //        //    {
+            //        //        temp[index].vcOldProjTime += ",";
+            //        //    }
+            //        //}
+
+            //        //temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
+            //    }
+            //    #region flag=1
+            //    //根据品番修改
+            //    else if (!string.IsNullOrWhiteSpace(row.GetCell(7).ToString()))
+            //    {
+            //        int flag = 1;
+
+            //        int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old) || tempPart_id.Equals(item.vcPart_Id_new));
+            //        if (!string.IsNullOrWhiteSpace(temp[index].vcNewProj))
+            //        {
+            //            temp[index].vcNewProj += ",";
+            //        }
+            //        temp[index].vcNewProj += row.GetCell(15 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+            //        {
+            //            temp[index].vcCZYD += ",";
+            //        }
+            //        temp[index].vcCZYD += row.GetCell(50 + flag).ToString();
+            //        if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+            //            {
+            //                temp[index].vcCZYD += ",";
+            //            }
+            //        }
+
+            //        temp[index].vcCZYD += rowtemp.GetCell(50 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(temp[index].vcNewProjTime))
+            //        {
+            //            temp[index].vcNewProjTime += ",";
+            //        }
+            //        temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].NGCSSTo))
+            //            {
+            //                temp[index].NGCSSTo += ",";
+            //            }
+            //        }
+
+            //        temp[index].NGCSSTo += row.GetCell(61 + flag).ToString();
+            //    }
+            //    #endregion
+
+            //    //根据品番修改------------CHENYING
+            //    else if (!string.IsNullOrWhiteSpace(row.GetCell(58).ToString()))
+            //    {
+            //        int flag = 1;
+
+            //        int index = temp.FindIndex(item => tempPart_id.Equals(item.vcPart_Id_old) || tempPart_id.Equals(item.vcPart_Id_new));
+            //        if (!string.IsNullOrWhiteSpace(temp[index].vcNewProj))
+            //        {
+            //            temp[index].vcNewProj += ",";
+            //        }
+            //        temp[index].vcNewProj += row.GetCell(15 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+            //        {
+            //            temp[index].vcCZYD += ",";
+            //        }
+            //        temp[index].vcCZYD += row.GetCell(50 + flag).ToString();
+            //        if (!string.IsNullOrWhiteSpace(rowtemp.GetCell(50 + flag).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].vcCZYD))
+            //            {
+            //                temp[index].vcCZYD += ",";
+            //            }
+            //        }
+
+            //        temp[index].vcCZYD += rowtemp.GetCell(50 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(temp[index].vcNewProjTime))
+            //        {
+            //            temp[index].vcNewProjTime += ",";
+            //        }
+            //        temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+
+            //        if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+            //        {
+            //            if (!string.IsNullOrWhiteSpace(temp[index].NGCSSTo))
+            //            {
+            //                temp[index].NGCSSTo += ",";
+            //            }
+            //        }
+
+            //        temp[index].NGCSSTo += row.GetCell(61 + flag).ToString();
+            //    }
+            //    else
+            //    {
+            //        break;
+            //    }
+            //}
+
+            //#endregion
             #region 获取下半部分数据
             string tempPart_id = "";
 
@@ -1439,14 +1745,14 @@ namespace Logic
                                     {
                                         temp[index].vcOldProj += ",";
                                         temp[index].vcOldProj += row.GetCell(15 + flag).ToString();
-                                        if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
+                                        if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()) && !temp[index].vcOldProjTime.Contains(row.GetCell(61 + flag).ToString()))
                                         {
                                             if (!string.IsNullOrWhiteSpace(temp[index].vcOldProjTime))
                                             {
                                                 temp[index].vcOldProjTime += ",";
                                             }
+                                            temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
                                         }
-                                        temp[index].vcOldProjTime += row.GetCell(61 + flag).ToString();
                                     }
                                     else
                                     {
@@ -1519,10 +1825,16 @@ namespace Logic
 
                     if (!string.IsNullOrWhiteSpace(temp[index].vcNewProjTime))
                     {
-                        temp[index].vcNewProjTime += ",";
+                        if (!string.IsNullOrWhiteSpace(row.GetCell(57 + flag).ToString()) && !temp[index].vcNewProjTime.Contains(row.GetCell(57 + flag).ToString()))
+                        {
+                            temp[index].vcNewProjTime += ",";
+                            temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+                        }
                     }
-                    temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
-
+                    else
+                    {
+                        temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+                    }
                     if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
                     {
                         if (!string.IsNullOrWhiteSpace(temp[index].NGCSSTo))
@@ -1564,9 +1876,16 @@ namespace Logic
 
                     if (!string.IsNullOrWhiteSpace(temp[index].vcNewProjTime))
                     {
-                        temp[index].vcNewProjTime += ",";
+                        if (!string.IsNullOrWhiteSpace(row.GetCell(57 + flag).ToString()) && !temp[index].vcNewProjTime.Contains(row.GetCell(57 + flag).ToString()))
+                        {
+                            temp[index].vcNewProjTime += ",";
+                            temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+                        }
                     }
-                    temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+                    else
+                    {
+                        temp[index].vcNewProjTime += row.GetCell(57 + flag).ToString();
+                    }
 
                     if (!string.IsNullOrWhiteSpace(row.GetCell(61 + flag).ToString()))
                     {
@@ -1585,8 +1904,63 @@ namespace Logic
             }
 
             #endregion
-
         }
+
+        //public static DataTable ListToDataTable1(List<FS0201_DataEntity.Part> list, FS0201_DataEntity.Entity en)
+        //{
+        //    //创建一个名为"tableName"的空表
+        //    //DataTable dt = new DataTable("tableName");
+        //    DataTable dt = new DataTable();
+        //    FS0201_DataEntity.Part part = new FS0201_DataEntity.Part();
+        //    //创建传入对象名称的列
+        //    string name = list.FirstOrDefault().GetType().ToString();
+        //    FS0201_DataEntity.Part p = list.FirstOrDefault();
+        //    dt.Columns.Add("vcPart_Id_old");
+        //    dt.Columns.Add("vcPart_Id_new");
+        //    dt.Columns.Add("vcBJDiff");
+        //    dt.Columns.Add("vcDTDiff");
+        //    dt.Columns.Add("vcPart_id_DT");
+        //    dt.Columns.Add("vcPartName");
+        //    dt.Columns.Add("vcStartYearMonth");
+        //    dt.Columns.Add("vcFXDiff");
+        //    dt.Columns.Add("vcFXNo");
+        //    dt.Columns.Add("vcChange");
+        //    dt.Columns.Add("vcNewProj");
+        //    dt.Columns.Add("vcNewProjTime");
+        //    dt.Columns.Add("vcOldProj");
+        //    dt.Columns.Add("vcOldProjTime");
+        //    dt.Columns.Add("vcCZYD");
+        //    dt.Columns.Add("vcSheetName");
+        //    dt.Columns.Add("vcSPINo");
+        //    dt.Columns.Add("vcFileName");
+        //    dt.Columns.Add("dHandleTime");
+
+        //    for (int i = 0; i < list.Count; i++)
+        //    {
+        //        DataRow dr = dt.NewRow();
+        //        dr["vcPart_Id_old"] = list[i].vcPart_Id_old;
+        //        dr["vcPart_Id_new"] = list[i].vcPart_Id_new;
+        //        dr["vcBJDiff"] = list[i].vcBJDiff;
+        //        dr["vcDTDiff"] = list[i].vcDTDiff;
+        //        dr["vcPart_id_DT"] = list[i].vcPart_id_DT;
+        //        dr["vcPartName"] = list[i].vcPartName;
+        //        dr["vcStartYearMonth"] = list[i].vcStartYearMonth;
+        //        dr["vcFXDiff"] = list[i].vcFXDiff;
+        //        dr["vcFXNo"] = list[i].vcFXNo;
+        //        dr["vcChange"] = list[i].vcChange;
+        //        dr["vcNewProj"] = list[i].vcNewProj;
+        //        dr["vcNewProjTime"] = list[i].vcNewProjTime;
+        //        dr["vcOldProj"] = list[i].vcOldProj;
+        //        dr["vcOldProjTime"] = list[i].vcOldProjTime;
+        //        dr["vcCZYD"] = list[i].vcCZYD;
+        //        dr["vcSheetName"] = list[i].vcSheetName;
+        //        dr["vcSPINo"] = en.vcSPINo;
+        //        dr["vcFileName"] = en.vcFileName;
+        //        dr["dHandleTime"] = en.dHandleTime;
+        //        dt.Rows.Add(dr);
+        //    }
+        //    return dt;
+        //}
 
         public static DataTable ListToDataTable1(List<FS0201_DataEntity.Part> list, FS0201_DataEntity.Entity en)
         {
@@ -1622,13 +1996,112 @@ namespace Logic
                 DataRow dr = dt.NewRow();
                 dr["vcPart_Id_old"] = list[i].vcPart_Id_old;
                 dr["vcPart_Id_new"] = list[i].vcPart_Id_new;
-                dr["vcBJDiff"] = list[i].vcBJDiff;
-                dr["vcDTDiff"] = list[i].vcDTDiff;
-                dr["vcPart_id_DT"] = list[i].vcPart_id_DT;
+                dr["vcBJDiff"] = "";
+
+                if (toString(list[i].vcBJDiff).Length == 0 && toString(list[i].BJQF).Length > 0)
+                {
+                    dr["vcBJDiff"] += list[i].BJQF;
+                }
+                else if (toString(list[i].vcBJDiff).Length > 0 && toString(list[i].BJQF).Length > 0)
+                {
+                    dr["vcBJDiff"] += list[i].vcBJDiff;
+                }
+                else if (toString(list[i].vcBJDiff).Length > 0 && toString(list[i].BJQF).Length == 0)
+                {
+                    dr["vcBJDiff"] += list[i].vcBJDiff;
+                }
+                else
+                {
+                    dr["vcBJDiff"] += list[i].vcBJDiff;
+                }
+
+                dr["vcDTDiff"] = "";
+                if (toString(list[i].vcDTDiff).Length == 0 && toString(list[i].DTQF).Length > 0)
+                {
+                    dr["vcDTDiff"] += list[i].DTQF;
+                }
+                else if (toString(list[i].vcDTDiff).Length > 0 && toString(list[i].DTQF).Length > 0)
+                {
+                    dr["vcDTDiff"] += list[i].vcDTDiff;
+                }
+                else if (toString(list[i].vcDTDiff).Length > 0 && toString(list[i].DTQF).Length == 0)
+                {
+                    dr["vcDTDiff"] += list[i].vcDTDiff;
+                }
+                else
+                {
+                    dr["vcDTDiff"] += list[i].vcDTDiff;
+                }
+
+                dr["vcPart_id_DT"] = "";
+                if (toString(list[i].vcPart_id_DT).Length == 0 && toString(list[i].DTPart_Id).Length > 0)
+                {
+                    dr["vcPart_id_DT"] += list[i].DTPart_Id;
+                }
+                else if (toString(list[i].vcPart_id_DT).Length > 0 && toString(list[i].DTPart_Id).Length > 0)
+                {
+                    dr["vcPart_id_DT"] += list[i].vcPart_id_DT;
+                }
+                else if (toString(list[i].vcPart_id_DT).Length > 0 && toString(list[i].DTPart_Id).Length == 0)
+                {
+                    dr["vcPart_id_DT"] += list[i].vcPart_id_DT;
+                }
+                else
+                {
+                    dr["vcPart_id_DT"] += list[i].vcPart_id_DT;
+                }
                 dr["vcPartName"] = list[i].vcPartName;
-                dr["vcStartYearMonth"] = list[i].vcStartYearMonth;
-                dr["vcFXDiff"] = list[i].vcFXDiff;
-                dr["vcFXNo"] = list[i].vcFXNo;
+                dr["vcStartYearMonth"] = "";
+                if (toString(list[i].vcStartYearMonth).Length == 0 && toString(list[i].PFSSFrom).Length > 0)
+                {
+                    dr["vcStartYearMonth"] += list[i].PFSSFrom;
+                }
+                else if (toString(list[i].vcStartYearMonth).Length > 0 && toString(list[i].PFSSFrom).Length > 0)
+                {
+                    dr["vcStartYearMonth"] += list[i].vcStartYearMonth;
+                }
+                else if (toString(list[i].vcStartYearMonth).Length > 0 && toString(list[i].PFSSFrom).Length == 0)
+                {
+                    dr["vcStartYearMonth"] += list[i].vcStartYearMonth;
+                }
+                else
+                {
+                    dr["vcStartYearMonth"] += list[i].vcStartYearMonth;
+                }
+                dr["vcFXDiff"] = "";
+                if (toString(list[i].vcFXDiff).Length == 0 && toString(list[i].FXQF).Length > 0)
+                {
+                    dr["vcFXDiff"] += list[i].FXQF;
+                }
+                else if (toString(list[i].vcFXDiff).Length > 0 && toString(list[i].FXQF).Length == 0)
+                {
+                    dr["vcFXDiff"] += list[i].vcFXDiff;
+                }
+                else if (toString(list[i].vcFXDiff).Length > 0 && toString(list[i].FXQF).Length > 0)
+                {
+                    dr["vcFXDiff"] += list[i].vcFXDiff;
+                }
+                else
+                {
+                    dr["vcFXDiff"] += list[i].vcFXDiff;
+                }
+                dr["vcFXNo"] = "";
+                if (toString(list[i].vcFXNo).Length == 0 && toString(list[i].FXNO).Length > 0)
+                {
+                    dr["vcFXNo"] += list[i].FXNO;
+                }
+                else if (toString(list[i].vcFXNo).Length > 0 && toString(list[i].FXNO).Length > 0)
+                {
+                    dr["vcFXNo"] += list[i].vcFXNo;
+                }
+                else if (toString(list[i].vcFXNo).Length > 0 && toString(list[i].FXNO).Length == 0)
+                {
+                    dr["vcFXNo"] += list[i].vcFXNo;
+                }
+                else
+                {
+                    dr["vcFXNo"] += list[i].vcFXNo;
+                }
                 dr["vcChange"] = list[i].vcChange;
                 dr["vcNewProj"] = list[i].vcNewProj;
                 dr["vcNewProjTime"] = list[i].vcNewProjTime;
@@ -1642,6 +2115,10 @@ namespace Logic
                 dt.Rows.Add(dr);
             }
             return dt;
+        }
+        public static String toString(object s)
+        {
+            return (s == null ? "" : s.ToString());
         }
 
         public static DataTable ListToDataTable1(List<DataRow> list)
@@ -1713,6 +2190,10 @@ namespace Logic
             }
         }
 
+        public void importTFTM(DataTable dt, string strUserId)
+        {
+            fs0201_DataAccess.importTFTM(dt, strUserId);
+        }
 
     }
 }

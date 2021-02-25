@@ -465,6 +465,55 @@ namespace DataAccess
         }
         #endregion
 
+        public void importTFTM(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder delSbr = new StringBuilder();
+                delSbr.Append(" TRUNCATE TABLE TSPIList \r\n");
+
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sbr.Append("INSERT INTO TSPIList(vcSPINo, vcPart_Id_old, vcPart_Id_new, vcBJDiff, vcDTDiff, vcPart_id_DT, vcPartName, vcStartYearMonth, vcFXDiff, vcFXNo, vcChange, vcOldProj, vcOldProjTime, vcNewProj, vcNewProjTime, vcCZYD, dHandleTime, vcSheetName, vcFileName, vcOperatorId, dOperatorTime)");
+                    sbr.Append("VALUES(");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_old"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_Id_new"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcBJDiff"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcDTDiff"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPart_id_DT"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcPartName"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("/", ""), false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcChange"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcOldProj"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcOldProjTime"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcNewProj"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcNewProjTime"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcCZYD"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["dHandleTime"], true) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcSheetName"], false) + ",");
+                    sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFileName"], false) + ",");
+                    sbr.Append("'" + strUserId + "', ");
+                    sbr.Append("GETDATE() ");
+                    sbr.Append(") \r\n");
+                }
+
+                if (sbr.Length > 0)
+                {
+                    string sql = delSbr.ToString() + sbr.ToString();
+                    excute.ExcuteSqlWithStringOper(sql,"TK");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region 获取原单位区分
 
         public string[] getOrigin(string partId)
@@ -496,7 +545,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append("SELECT distinct vcFileName FROM TSPIList");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(),"TK");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {

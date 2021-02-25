@@ -113,7 +113,7 @@ namespace DataAccess
             strSQL.Append("left join (select * from TSPMaster_SufferIn where vcOperatorType='1') c ");
             strSQL.Append("on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId ");
             strSQL.Append("left join TPartInfoMaster d ");
-            strSQL.Append("on a.vcPartId=d.vcPartsNo and a.vcReceiver=d.vcCpdCompany and a.vcSupplierId=d.vcSupplierCode ");
+            strSQL.Append("on a.vcPartId=d.vcPartsNo and a.vcReceiver=d.vcCpdCompany and a.vcSupplierId=d.vcSupplierCode and a.dFromTime=d.dTimeFrom and a.dToTime=d.dTimeTo ");
             strSQL.Append("where 1=1 ");
             if (!string.IsNullOrEmpty(vcPartsNo))
             {

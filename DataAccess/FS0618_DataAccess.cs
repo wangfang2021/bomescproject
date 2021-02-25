@@ -25,7 +25,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select [iAutoId], [vcPackingFactory], [vcTargetYearMonth], [vcDock],c.vcName as [vcCpdcompany],b.vcName as [vcOrderType],    ");
+                strSql.AppendLine("  select [iAutoId], [vcPackingFactory], left([vcTargetYearMonth],4)+'/'+right([vcTargetYearMonth],2) as [vcTargetYearMonth], [vcDock],a.vcCpdcompany as [vcCpdcompany],b.vcName as [vcOrderType],    ");
                 strSql.AppendLine("  [vcOrderNo], [vcSeqno], [dOrderDate], [dOrderExportDate], [vcPartNo],d.vcName as [vcInsideOutsideType],    ");
                 strSql.AppendLine("  [vcCarType], [vcLastPartNo], [vcPackingSpot], [vcSupplier_id], [vcPlantQtyDaily1], [vcInputQtyDaily1],   ");
                 strSql.AppendLine("  [vcResultQtyDaily1], [vcPlantQtyDaily2], [vcInputQtyDaily2], [vcResultQtyDaily2], [vcPlantQtyDaily3],   ");
@@ -83,7 +83,7 @@ namespace DataAccess
                 strSql.AppendLine("  from [dbo].[SP_M_ORD] a    ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C045') b on a.vcOrderType = b.vcValue   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C018') c on a.vcCpdcompany = c.vcValue   ");
-                strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C003') d on a.vcInsideOutsideType = d.vcValue    ");
+                strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C003') d on a.vcInsideOutsideType = d.vcValue where 1=1    ");
                 //string vcTargetYearMonth, string vcCpdcompany, string vcOrderNo, string vcDock, string vcPartNo, string vcOrderType, string vcSupplier_id, string dOrderExportDate
                 if (vcTargetYearMonth.Length > 0)
                 {
@@ -111,7 +111,7 @@ namespace DataAccess
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  vcSupplier_id = '" + vcSupplier_id + "' ");
                 }
                 if (dOrderExportDate.Length > 0)
                 {
@@ -119,6 +119,41 @@ namespace DataAccess
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getSupplier()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine(" select a.vcSupplier_id as vcValue,a.vcSupplier_id+':'+b.vcSupplier_name as vcName from   ");
+                strSql.AppendLine(" (select distinct vcSupplier_id from SP_M_ORD) a  ");
+                strSql.AppendLine(" left join (select vcSupplier_id,vcSupplier_name from TSupplier) b  ");
+                strSql.AppendLine(" on a.vcSupplier_id =b.vcSupplier_id order by a.vcSupplier_id asc  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getDock()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select a.vcDock as vcValue,a.vcDock as vcName from ( select distinct vcDock from SP_M_ORD) a  ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

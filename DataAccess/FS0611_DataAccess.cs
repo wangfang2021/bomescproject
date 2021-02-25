@@ -368,13 +368,13 @@ namespace DataAccess
                 strSql.AppendLine("   SELECT ");
                 strSql.AppendLine("   vcPart_id as 'PartsNo',");
                 //发注工厂
-                strSql.AppendLine("   vcFZGC as '发注工厂',");
+                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂',");
                 //订货频度
-                strSql.AppendLine("   vcMakingOrderType as '订货频度',");
+                strSql.AppendLine("   cast(vcMakingOrderType as int) as '订货频度',");
                 strSql.AppendLine("   vcCarType as 'CFC',");
-                strSql.AppendLine("   iQuantityPercontainer as 'OrdLot',");
-                strSql.AppendLine("   iBoxes as 'N Units',");
-                strSql.AppendLine("   iPartNums as 'N PCS',");
+                strSql.AppendLine("   isnull(iQuantityPercontainer,0) as 'OrdLot',");
+                strSql.AppendLine("   isnull(iBoxes,0) as 'N Units',");
+                strSql.AppendLine("   isnull(iPartNums,0) as 'N PCS',");
                 strSql.AppendLine("   isnull(iD1,0)*isnull(iQuantityPercontainer,0) as iD1,");
                 strSql.AppendLine("   isnull(iD2,0)*isnull(iQuantityPercontainer,0) as iD2,");
                 strSql.AppendLine("   isnull(iD3,0)*isnull(iQuantityPercontainer,0) as iD3,");
@@ -411,14 +411,14 @@ namespace DataAccess
                 strSql.AppendLine(" ) a ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
-                strSql.AppendLine("   SELECT vcPart_id,vcCarType as 'N+1 O/L',iBoxes as 'N+1 Units',iPartNums as 'N+1 PCS' ");
+                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+1 O/L',isnull(iBoxes,0) as 'N+1 Units',isnull(iPartNums,0) as 'N+1 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
                 strSql.AppendLine("   WHERE vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_2 + "' ");//外注
                 strSql.AppendLine("  ) b ");
                 strSql.AppendLine(" ON a.PartsNo=b.vcPart_id ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
-                strSql.AppendLine("   SELECT vcPart_id,vcCarType as 'N+2 O/L',iBoxes as 'N+2 Units',iPartNums as 'N+2 PCS' ");
+                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+2 O/L',isnull(iBoxes,0) as 'N+2 Units',isnull(iPartNums,0) as 'N+2 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
                 strSql.AppendLine("   WHERE vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_3 + "' ");//外注
                 strSql.AppendLine("  ) c ");

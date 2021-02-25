@@ -437,6 +437,10 @@ namespace SPPSApi.Controllers.G99
                 JArray listInfo = dataForm.multipleSelection;
                 string dSupplier_BJ = dataForm.dSupplier_BJ;
                 string dSupplier_HK = dataForm.dSupplier_HK;
+                string vcSCPlace_City = dataForm.vcSCPlace_City;
+                string vcSCPlace_Province = dataForm.vcSCPlace_Province;
+                string vcCHPlace_City = dataForm.vcCHPlace_City;
+                string vcCHPlace_Province = dataForm.vcCHPlace_Province;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 //判断至少勾选了一条数据

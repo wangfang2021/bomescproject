@@ -159,12 +159,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"品番"     ,"号旧"    ,"旧型开始时间" ,"供应商代码"   ,"供应商名称"     ,"车型(开发代码)"  ,"品名"      ,"旧型今后必要数(合计)","受入"      ,"送信时间"     },
-                                                        {"vcPart_id","vcHaoJiu","dJiuBegin"    ,"vcSupplier_id","vcSupplier_Name","vcCarTypeDesign" ,"vcPartName","vcSumLater"          ,"vcInput_No","dSendTime"    },
-                                                        {""         ,""        ,FieldCheck.Date,""             ,""               ,""                ,""          ,""                    ,""          ,FieldCheck.Date},
-                                                        {"12"       ,"1"       ,"0"            ,"4"            ,"100"            ,"4"               ,"100"       ,"20"                  ,"2"         ,"0"            },//最大长度设定,不校验最大长度用0
-                                                        {"1"        ,"1"       ,"1"            ,"1"            , "1"             ,"1"               , "1"        ,"1"                   ,"1"         ,"1"            },//最小长度设定,可以为空用0
-                                                        {"1"        ,"2"       ,"3"            ,"4"            , "5"             ,"6"               , "7"        ,"8"                   ,"9"         ,"10"           }//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"品番"     ,"号旧"    ,"旧型开始时间" ,"供应商代码"   ,"供应商名称"     ,"车型(开发代码)"  ,"品名"      ,"旧型1年"     ,"旧型2年"     ,"旧型3年"     ,"旧型4年"     ,"旧型5年"     ,"旧型6年"     ,"旧型7年"     ,"旧型8年"     ,"旧型9年"     ,"旧型10年"     ,"送信时间"     },
+                                                        {"vcPart_id","vcHaoJiu","dJiuBegin"    ,"vcSupplier_id","vcSupplier_Name","vcCarTypeDesign" ,"vcPartName","vcNum1"      ,"vcNum2"      ,"vcNum3"      ,"vcNum4"      ,"vcNum5"      ,"vcNum6"      ,"vcNum7"      ,"vcNum8"      ,"vcNum9"      ,"vcNum10"      ,"dSendTime"    },
+                                                        {""         ,""        ,FieldCheck.Date,""             ,""               ,""                ,""          ,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num ,FieldCheck.Date},
+                                                        {"12"       ,"1"       ,"0"            ,"4"            ,"100"            ,"4"               ,"100"       ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"            ,"0"            },//最大长度设定,不校验最大长度用0
+                                                        {"1"        ,"0"       ,"1"            ,"0"            ,"0"              ,"0"               ,"0"         ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"            ,"0"            },//最小长度设定,可以为空用0
+                                                        {"1"        ,"2"       ,"3"            ,"4"            ,"5"              ,"6"               ,"7"         ,"8"           ,"9"           ,"10"          ,"11"          ,"12"          ,"13"          ,"14"          ,"15"          ,"16"          ,"17"           ,"18"           }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = null;
@@ -181,6 +181,7 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 string strErrorPartId = "";
+                
                 fs0312_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
@@ -264,7 +265,7 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0312_Logic.Search(strPart_id,strSupplier_id);
                 string[] fields = { "vcPart_id", "vcHaoJiu_Name", "dJiuBegin", "vcSupplier_id", "vcSupplier_Name", "vcCarTypeDesign"
-                ,"vcPartName","vcSumLater","vcInput_No","dSendTime"
+                ,"vcPartName","vcNum1","vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9","vcNum10","dSendTime"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0312_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")

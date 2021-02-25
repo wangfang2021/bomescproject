@@ -57,7 +57,10 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
 
                 res.Add("C023", dataList_C023);
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
 
+                List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0701_Logic.SearchSupplier());//供应商
+                res.Add("optionSupplier", dataList_Supplier);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

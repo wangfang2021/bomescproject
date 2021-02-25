@@ -383,7 +383,6 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-
         #region 保存
         [HttpPost]
         [EnableCors("any")]
@@ -417,8 +416,8 @@ namespace SPPSApi.Controllers.G07
                         hasFind = true;
                     }
                     //判断品番是否存在
-                    bool isok = true;
-                    // bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString(), listInfoData[i]["vcPackSpot"].ToString());
+                   
+                    bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString());
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

@@ -38,6 +38,8 @@ namespace SoqCompute
                             decTotalWorkDays = decTotalWorkDays + 1.0m;
                     }
                 }
+                if (decTotalWorkDays == 0)
+                    continue;//如果稼动日合计为0，证明区间内没有稼动日，不应该继续计算
                 dtCalendar_temp.Rows.Add(row);
                 //合计稼动日计算decTotalWorkDays			
                 ArrayList beginData_temp = new ArrayList();

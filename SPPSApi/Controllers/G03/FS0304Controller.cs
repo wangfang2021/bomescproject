@@ -119,7 +119,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -163,7 +163,7 @@ namespace SPPSApi.Controllers.G03
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -362,8 +362,8 @@ namespace SPPSApi.Controllers.G03
                     string[,] strField = new string[,] {{"实施日期"     ,"进度","补给品番" ,"设变号" ,"变更事项","车种"     ,"内外区分"   ,"品名"      ,"OE=SP","供应商代码"   ,"防锈指示","防锈指示书","旧型今后必要预测数","对应可否确认结果","防锈对应可否","延期说明/NG理由","退回理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂" ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
                                                         {"dSSDate"      ,"vcJD","vcPart_id","vcSPINo","vcChange","vcCarType","vcInOutflag","vcPartName","vcOE" ,"vcSupplier_id","vcFXDiff","vcFXNo"    ,"vcSumLater"        ,"vcIsDYJG"        ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcTH"    ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode","vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
                                                         {FieldCheck.Date,""    ,""         ,""       ,""        ,""         ,""           ,""          ,""     ,""             ,""        ,""          ,""                  ,""                ,""            ,""               ,""        ,""              ,""                  ,""              ,""                  ,""         ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
-                                                        {"0"            ,"2"   ,"12"       ,"20"     ,"1"       ,"4"        ,"1"          ,"100"       ,"1"    ,"4"            ,"1"       ,"12"        ,"20"                ,"1"               ,"1"           ,"100"            ,"100"     ,"100"           ,"100"               ,"100"           ,"100"               ,"100"      ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
-                                                        {"1"            ,"1"   ,"1"        ,"1"      ,"1"       ,"1"        ,"1"          ,"1"         ,"1"    ,"1"            ,"1"       ,"1"         ,"1"                 ,"1"               ,"1"           ,"0"              ,"0"       ,"1"             ,"1"                 ,"1"             ,"1"                 ,"1"        ,"1"         ,"1"         ,"1"                  ,"1"                  ,"1"                ,"1"           ,"1"         },//最小长度设定,可以为空用0
+                                                        {"0"            ,"2"   ,"12"       ,"20"     ,"2"       ,"4"        ,"1"          ,"100"       ,"1"    ,"4"            ,"1"       ,"12"        ,"20"                ,"1"               ,"1"           ,"100"            ,"100"     ,"100"           ,"100"               ,"100"           ,"100"               ,"100"      ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
+                                                        {"0"            ,"1"   ,"0"        ,"0"      ,"0"       ,"0"        ,"0"          ,"0"         ,"0"    ,"0"            ,"0"       ,"0"         ,"0"                 ,"0"               ,"0"           ,"0"              ,"0"       ,"0"             ,"0"                 ,"0"             ,"0"                 ,"0"        ,"0"         ,"0"         ,"0"                  ,"0"                  ,"0"                ,"0"           ,"0"         },//最小长度设定,可以为空用0
                                                         {"1"            ,"2"   ,"3"        ,"4"      ,"5"       ,"6"        ,"7"          ,"8"         ,"9"    ,"10"           ,"11"      ,"12"        ,"13"                ,"14"              ,"15"          ,"16"             ,"17"      ,"18"            ,"19"                ,"20"            ,"21"                ,"22"       ,"23"        ,"24"        ,"25"                 ,"26"                 ,"27"               ,"28"          ,"29"       }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
@@ -483,7 +483,18 @@ namespace SPPSApi.Controllers.G03
                     };
                 //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = null;
-                string[,] strSpecialCheck = null;
+                string[,] strSpecialCheck = {
+                { "对应可否确认结果",
+                  "vcIsDYJG",//验证vcHaoJiu字段
+                  "对应可否确认结果", //填验证值对应的中文名
+                  "1",//填验证值，当vcHaoJiu=Q时
+                  "TFTM补给日期",
+                  "dTFTM_BJ",//判断字段
+                  "1", //1:该字段不能为空 0:该字段必须为空
+                  "",
+                  ""
+                }
+                };
 
                 List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0304");
                 if (checkRes != null)
@@ -516,7 +527,7 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-        #region 日期一括付与
+        #region 一括付与
         [HttpPost]
         [EnableCors("any")]
         public string dateKFYApi([FromBody] dynamic data)
@@ -535,6 +546,7 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 string dTFTM_BJ = dataForm.dTFTM_BJ;
+
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 //开始数据验证

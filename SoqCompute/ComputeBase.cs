@@ -90,6 +90,8 @@ namespace SoqCompute
 				for (int j = iStartDay; j <= iEndDay; j++)//遍历当前周日期范围	
 				{
 					string strNowDay = dtCalendar.Rows[0]["TARGETDAY" + j] == System.DBNull.Value ? "0" : dtCalendar.Rows[0]["TARGETDAY" + j].ToString();
+					if (strNowDay == "0")//如果是非稼动日，则不应该纳入判断最小范围内
+						continue;
 					int iBox = Convert.ToInt32(temp[j + 3]);//这个地方+3，因为i从1开始，且稼动日左边有4个位置存其他信息	
 					int iQuantityPercontainer = Convert.ToInt32(temp[2]);//收容数
 					if (strNowDay.IndexOf('*') != -1)
@@ -107,6 +109,8 @@ namespace SoqCompute
 				for (int j = iStartDay; j <= iEndDay; j++)//遍历当前周日期范围	
 				{
 					string strNowDay = dtCalendar.Rows[0]["TARGETDAY" + j] == System.DBNull.Value ? "0" : dtCalendar.Rows[0]["TARGETDAY" + j].ToString();
+					if (strNowDay == "0")//如果是非稼动日，则不应该纳入判断最小范围内
+						continue;
 					int iBox = Convert.ToInt32(temp[j + 3]);//这个地方+3，因为i从1开始，且稼动日左边有4个位置存其他信息	
 					int iQuantityPercontainer = Convert.ToInt32(temp[2]);//收容数
 					if (strNowDay.IndexOf('*') != -1)

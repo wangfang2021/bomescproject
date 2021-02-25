@@ -219,7 +219,7 @@ namespace DataAccess
                     {//新增
                         sql.Append("insert into ConstMst([vcDataName],[vcDataId],[vcData1],[vcData2],[vcData3],[vcData4],[vcData5],[vcData6],  \r\n");
                         sql.Append("[vcData7],[vcData8],[vcData9],[vcData10],[dCreateTime],[vcCreateUserId])  \r\n");
-                        sql.Append(" values (  \r\n");  
+                        sql.Append(" values (  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcDataName"], false) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcDataId"], false) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData1"], true) + ",  \r\n");
@@ -232,7 +232,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData8"], true) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData9"], false) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData10"], false) + ",  \r\n");
-                        sql.Append("getdate(),  \r\n"); 
+                        sql.Append("getdate(),  \r\n");
                         sql.Append("'" + strUserId + "'  \r\n");
                         sql.Append(" );  \r\n");
                     }
@@ -256,7 +256,8 @@ namespace DataAccess
                         sql.Append("  ,dUpdateTime=getdate()   \r\n");
                         sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
                     }
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    if (sql.ToString().Length > 0)
+                        excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
             }
             catch (Exception ex)

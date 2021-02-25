@@ -28,10 +28,8 @@ namespace SPPSApi.Controllers.G12
     public class FS1211Controller_inDetail : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-
         FS1211_Logic logic = new FS1211_Logic();
         private readonly string FunctionID = "FS1211Controller_inDetail";
-
         public FS1211Controller_inDetail(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
@@ -105,13 +103,20 @@ namespace SPPSApi.Controllers.G12
             string vcPlanPackAB = dataForm.vcPlanPackAB;
             try
             {
+                string msg = string.Empty;
                 DataTable dt = logic.getPartListCount(vcMon, vcPartNo, vcPlant, vcGC, vcKbOrderId,
                     vcPackdiv, vcPlanProductionDateFrom, vcPlanProductionBZFrom,
                     vcPlanPackDateFrom, vcPlantPackBZFrom, vcPlanProductionDateTo, vcPlanProductionBZTo,
-                    vcPlanPackDateTo, vcPlantPackBZTo, vcPlanProductAB, vcPlanPackAB);
+                    vcPlanPackDateTo, vcPlantPackBZTo, vcPlanProductAB, vcPlanPackAB, ref msg);
                 DtConverter dtConverter = new DtConverter();
                 //dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                if (msg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -198,10 +203,17 @@ namespace SPPSApi.Controllers.G12
             string vcPlanPackAB = dataForm.vcPlanPackAB;
             try
             {
+                string msg = string.Empty;
                 DataTable dt = logic.getPartListCount(vcMon, vcPartNo, vcPlant, vcGC, vcKbOrderId,
                     vcPackdiv, vcPlanProductionDateFrom, vcPlanProductionBZFrom,
                     vcPlanPackDateFrom, vcPlantPackBZFrom, vcPlanProductionDateTo, vcPlanProductionBZTo,
-                    vcPlanPackDateTo, vcPlantPackBZTo, vcPlanProductAB, vcPlanPackAB);
+                    vcPlanPackDateTo, vcPlantPackBZTo, vcPlanProductAB, vcPlanPackAB, ref msg);
+                if (msg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 string[] fields = { "vcMonth","vcGC","vcPlant","vcPartNo","vcDock","vcOrderNo","vcSerial","vcRealPrintTime","vcPlanPrintAB","vcRealPrintTime",
                                     "vcPlanProductionDate","vcPlanProductionAB","vcPlanProcDate","vcPlanProcAB","vcRealProcTime"
                 };

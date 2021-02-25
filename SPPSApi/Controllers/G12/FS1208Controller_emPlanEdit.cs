@@ -220,10 +220,10 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strMon = dataForm.vcMon;
+            string strMon = dataForm.vcMon; 
+            string strMsg = "";
             try
             {
-                string strMsg = "";
                 strMsg = logic.UpdatePlan(strMon, loginInfo.UserId);
                 if (strMsg != "")
                 {
@@ -233,14 +233,15 @@ namespace SPPSApi.Controllers.G12
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "计划削减成功！";
+                apiResult.data = "更新成功！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "计划削减失败！";
+                apiResult.data = "生成失败：<br/>" + strMsg;
+                apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

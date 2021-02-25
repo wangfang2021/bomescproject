@@ -881,7 +881,8 @@ namespace Logic
                             }
                         }
                         Totalnum -= k;
-                        dr[0][j] = dt.Rows[i][j];
+                        if (dt.Rows[i][j] != null && dt.Rows[i][j].ToString() != "")
+                            dr[0][j] = dt.Rows[i][j];
                     }
                     if (Totalnum != 0)
                     {

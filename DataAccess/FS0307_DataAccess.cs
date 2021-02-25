@@ -317,7 +317,7 @@ namespace DataAccess
                 sbr.AppendLine("SELECT a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn, a.vcCarTypeDev,CONVERT(varchar(100),a.dJiuBegin, 111) as dJiuBegin,");
                 sbr.AppendLine(" CASE b.vcName WHEN '机能' THEN '1' WHEN '内外装' THEN '2' ELSE '' END AS vcPM, ");
                 sbr.AppendLine("a.vcNum1, a.vcNum2, a.vcNum3,  a.vcNumAvg, ");
-                sbr.AppendLine(" a.vcNXQF, a.dSSDate, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 ");
+                sbr.AppendLine(" a.vcNXQF,CONVERT(varchar(100),a.dSSDate, 111) as dSSDate, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 ");
                 sbr.AppendLine("FROM TOldYearManager a");
                 //sbr.AppendLine("     LEFT JOIN(SELECT vcName, vcValue FROM TCode WHERE vcCodeId='C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
                 sbr.AppendLine("     LEFT JOIN(SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");

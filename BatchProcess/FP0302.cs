@@ -103,7 +103,7 @@ namespace BatchProcess
             //旧型
             else if (flag == 0)
             {
-                sbr.Append("<p>晶文：</p>");
+                sbr.Append("<p>FTMS 相关各位殿：</p>");
                 sbr.Append("<p>你好！</p>");
                 sbr.Append("<p><br></p>");
                 sbr.Append("<p>补给工作长期支持感谢！</p>");

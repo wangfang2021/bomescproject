@@ -17,7 +17,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
 
-                sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,e.vcName AS vcSYTCode,f.vcName AS vcReceiver,g.vcName AS vcOriginCompany,   \r\n");
+                sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,a.vcSYTCode AS vcSYTCode,a.vcReceiver AS vcReceiver,a.vcOriginCompany AS vcOriginCompany,   \r\n");
                 sbr.Append(" a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn,d.vcName AS vcInOutflag, a.vcCarTypeDev,a.dJiuBegin, a.vcRemark, \r\n");
                 sbr.Append("  case a.vcOld10 when '0' then '' when '1' then '●' else '' end as vcOld10, \r\n");
                 sbr.Append("  case a.vcOld9 when '0' then '' when '1' then '●' else '' end as vcOld9, \r\n");
@@ -30,9 +30,9 @@ namespace DataAccess
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C003') d ON a.vcInOutflag = d.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016') e ON a.vcSYTCode = e.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016') e ON a.vcSYTCode = e.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
                 //sbr.Append(" AND a.vcFinish in ('1','2','3','4') \r\n");
                 //sbr.Append(" AND a.vcReceiver = " + ComFunction.getSqlValue(getValue("C005", Receiver), false) + " \r\n");
@@ -57,9 +57,9 @@ namespace DataAccess
         {
             try
             {
-                DataTable SYT = getTable("C016");
-                DataTable vcOriginCompany = getTable("C006");
-                DataTable vcReceiver = getTable("C005");
+                //DataTable SYT = getTable("C016");
+                //DataTable vcOriginCompany = getTable("C006");
+                //DataTable vcReceiver = getTable("C005");
 
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -93,9 +93,9 @@ namespace DataAccess
                     //sql.Append(" AND isnull(vcSYTCode,'') = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
                     //sql.Append(" AND isnull(vcOriginCompany,'') = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
                     //sql.Append(" AND isnull(vcReceiver,'') = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
-                    sql.Append(" AND isnull(vcSYTCode,'') = '" + getVal(SYT, dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
-                    sql.Append(" AND isnull(vcOriginCompany,'') = '" + getVal(vcOriginCompany, dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
-                    sql.Append(" AND isnull(vcReceiver,'') = '" + getVal(vcReceiver, dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcSYTCode,'') = '" + dt.Rows[i]["vcSYTCode"].ToString() + "' \r\n");
+                    sql.Append(" AND isnull(vcOriginCompany,'') = '" + dt.Rows[i]["vcOriginCompany"].ToString() + "' \r\n");
+                    sql.Append(" AND isnull(vcReceiver,'') = '" + dt.Rows[i]["vcReceiver"].ToString() + "' \r\n");
                     sql.Append(" AND vcFinish = '1' \r\n");
 
                 }

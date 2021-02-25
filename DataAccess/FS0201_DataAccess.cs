@@ -191,7 +191,7 @@ namespace DataAccess
 
                 for (int i = 0; i < fileList.Count; i++)
                 {
-                    sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcOperatorId,dOperatorTime)  VALUES ('" + fileList[i] + "',0,'" + userId + "',GETDATE()) \r\n");
+                    sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcOperatorId,dOperatorTime,dUploadTime)  VALUES ('" + fileList[i] + "',0,'" + userId + "',GETDATE(),GETDATE()) \r\n");
                 }
 
                 sbr.Append(" TRUNCATE TABLE TSPIList\r\n");

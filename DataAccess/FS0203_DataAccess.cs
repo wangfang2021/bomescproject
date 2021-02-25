@@ -284,11 +284,11 @@ namespace DataAccess
 
                 for (int i = 0; i < FileNameTJs.Count; i++)
                 {
-                    sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcRemark,vcOperatorId,dOperatorTime) \r\n");
+                    sbr.Append(" INSERT INTO dbo.TSBFile (vcFileNameTJ,vcState,vcRemark,vcOperatorId,dOperatorTime,dUploadTime) \r\n");
 
                     sbr.Append(" values ( \r\n");
 
-                    sbr.Append(" '" + FileNameTJs[i] + "','0','','" + userId + "',GETDATE()) \r\n ");
+                    sbr.Append(" '" + FileNameTJs[i] + "','0','','" + userId + "',GETDATE(),GETDATE()) \r\n ");
                 }
 
                 sbr.Append(" INSERT INTO TSPIHistory (vcFileName,vcRemark,vcType,vcOperatorID,dOperatorTime) \r\n");

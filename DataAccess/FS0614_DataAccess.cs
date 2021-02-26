@@ -170,6 +170,26 @@ namespace DataAccess
                                 vcSupplierId = hashtable["vcSupplierId"].ToString();
                                 vcCarType = hashtable["vcCarfamilyCode"].ToString();
                                 vcPartId_Replace = hashtable["vcPartId_Replace"].ToString();
+<<<<<<< HEAD
+                                vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                            }
+                            else
+                            {
+                                tmp += "品番基础数据表不包含品番" + vcPart_id + ";\r\n";
+                            }
+
+                            ////检测数量
+                            if (!CheckTotalNumEqual(OrderTargetYM, vcPart_id, vcOrderingMethod, SoqDt, detail.QTY))
+                            {
+                                tmp += "品番" + vcPart_id + "订单数量不正确;\r\n";
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(tmp))
+                            {
+                                msg += tmp;
+                                continue;
+=======
+>>>>>>> c97439587b0afdd3944f079e4876ebbe3aeaed29
                             }
                             //新增订单
                             sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily1,vcPlantQtyDaily2,vcPlantQtyDaily3,vcPlantQtyDaily4,vcPlantQtyDaily5,vcPlantQtyDaily6,vcPlantQtyDaily7,vcPlantQtyDaily8,vcPlantQtyDaily9,vcPlantQtyDaily10,vcPlantQtyDaily11,vcPlantQtyDaily12,vcPlantQtyDaily13,vcPlantQtyDaily14,vcPlantQtyDaily15,vcPlantQtyDaily16,vcPlantQtyDaily17,vcPlantQtyDaily18,vcPlantQtyDaily19,vcPlantQtyDaily20,vcPlantQtyDaily21,vcPlantQtyDaily22,vcPlantQtyDaily23,vcPlantQtyDaily24,vcPlantQtyDaily25,vcPlantQtyDaily26,vcPlantQtyDaily27,vcPlantQtyDaily28,vcPlantQtyDaily29,vcPlantQtyDaily30,vcPlantQtyDaily31,  vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime)");

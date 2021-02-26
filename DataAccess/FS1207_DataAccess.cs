@@ -46,24 +46,24 @@ namespace DataAccess
             string str = "select distinct vcData1 as vcSource,vcData2 as vcDock from ConstMst where vcDataId='vcDockPj' and vcData6='0'";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
         }
-        public DataTable search(string Mon, string ddlType, string Partsno)
+        public DataTable search(string Mon, string ddlType, string Partsno, string vcPlant)
         {
             SqlParameter[] paras = new SqlParameter[3];
             try
             {
                 string str = "select vcMonth,vcPartsNo,vcData3 as vcClass,vcDock,vcData5 as vcProject,Total,D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,D12,D13,D14,D15,D16,															\r\n";
-                str += "	D17,D18,D19,D20,D21,D22,D23,D24,D25,D26,D27,D28,D29,D30,D31  from (															\r\n";
+                str += "	D17,D18,D19,D20,D21,D22,D23,D24,D25,D26,D27,D28,D29,D30,D31,vcPlant from (															\r\n";
                 str += "	select  distinct t2.vcPartsNo,t2.vcSource,t2.vcDock,vcMonth,t2.Total,t2.D1,t2.D2,t2.D3,t2.D4,t2.D5,t2.D6,t2.D7,t2.D8,t2.D9,t2.D10,t2.D11,t2.D12,t2.D13,															\r\n";
-                str += "	t2.D14,t2.D15,t2.D16,t2.D17,t2.D18,t2.D19,t2.D20,t2.D21,t2.D22,t2.D23,t2.D24,t2.D25,t2.D26,t2.D27,t2.D28,t2.D29,t2.D30,t2.D31															\r\n";
+                str += "	t2.D14,t2.D15,t2.D16,t2.D17,t2.D18,t2.D19,t2.D20,t2.D21,t2.D22,t2.D23,t2.D24,t2.D25,t2.D26,t2.D27,t2.D28,t2.D29,t2.D30,t2.D31,t2.vcPlant														\r\n";
                 str += "	from tResult t1															\r\n";
                 str += "	inner join 															\r\n";
-                str += "	(select vcPartsNo ,vcSource,vcDock, 															\r\n";
+                str += "	(select vcPartsNo ,vcSource,vcDock, vcPlant,															\r\n";
                 str += "	SUM(Total) as Total,SUM(D1)	 as D1,SUM(D2)	 as D2,SUM(D3)	 as D3,SUM(D4)	 as D4,SUM(D5)	 as D5,SUM(D6)	 as D6,SUM(D7)	 as D7,SUM(D8)	 as D8,							\r\n";
                 str += "	SUM(D9)	 as D9,SUM(D10)	 as D10,SUM(D11)	 as D11,SUM(D12)	 as D12,SUM(D13)	 as D13,SUM(D14)	 as D14,SUM(D15)	 as D15,								\r\n";
                 str += "	SUM(D16)	 as D16,SUM(D17)	 as D17,SUM(D18)	 as D18,SUM(D19)	 as D19,SUM(D20)	 as D20,SUM(D21)	 as D21,SUM(D22)	 as D22,								\r\n";
                 str += "	SUM(D23)	 as D23,SUM(D24)	 as D24,SUM(D25)	 as D25,SUM(D26)	 as D26,SUM(D27)	 as D27,SUM(D28)	 as D28,SUM(D29)	 as D29,								\r\n";
                 str += "	SUM(D30)	 as D30,SUM(D31)	 as D31													\r\n";
-                str += "	from  tResult where vcMonth='" + Mon + "' group by vcPartsNo ,vcSource,vcDock )t2															\r\n";
+                str += "	from  tResult where vcMonth='" + Mon + "' group by vcPartsNo ,vcSource, vcDock, vcplant)t2															\r\n";
                 str += "	on t1.vcPartsNo=t2.vcPartsNo 															\r\n";
                 str += "	and t1.vcSource=t2.vcSource															\r\n";
                 str += "	and t1.vcDock=t2.vcDock 															\r\n";
@@ -79,6 +79,8 @@ namespace DataAccess
                     str += " and vcData3='" + ddlType + "'";
                 if (Partsno != "")
                     str += " and vcPartsNo='" + Partsno + "'";
+                if (vcPlant != "")
+                    str += " and vcPlant='" + vcPlant + "' ";
                 str += " order by vcPartsNo";
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
@@ -277,13 +279,13 @@ namespace DataAccess
         {
             try
             {
-                string str = "select vcPartsNo  from ( \r\n";
+                string str = "select vcPartsNo from ( \r\n";
                 str += "select vcMonth,vcPartsNo from tSSP where iFZFlg='0') t1 \r\n";
                 //str += "join \r\n";
                 //str += "( select vcData1,vcData2   from ConstMst where vcDataId='vcDockPj' and vcData3 in ('MSP构成','JSP构成'))t2 \r\n";
                 //str += " on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2 \r\n";
-                str += "where t1.vcPartsNo  not in (select vcPartsNo  from tSSPMaster )\r\n";
-                str += "and   vcMonth='" + mon + "'";
+                str += "where t1.vcPartsNo not in (select vcPartsNo from tSSPMaster) \r\n";
+                str += "and vcMonth='" + mon + "'";
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
             catch (Exception ex)
@@ -473,29 +475,29 @@ namespace DataAccess
                         //string iFlag = rowdselect["iFlag"].ToString();
                         //if (iFlag == "1")
                         //{
-                            string str1 = "select vcPartsNo ,iSRNum from tSSPMaster where vcPartsNo='" + partsno + "' ";
-                            DataTable dttmp = excute.ExcuteSqlWithSelectToDT(str1.ToString());
-                            if (dttmp.Rows.Count == 0)
-                            {
-                                msg = "品番：" + partsno + "发注基础信息未维护";
-                                return msg;
-                            }
-                            int SRNum = Convert.ToInt32(dttmp.Rows[0]["iSRNum"]);
-                            if (fznum % SRNum != 0)
-                            {
-                                msg = "品番：" + partsno + "数量应为收容数的倍数。";
-                                return msg;
-                            }
-                            string str = "select vcPartsNo from tAddSSP where vcMonth='" + mon + "' and vcPartsNo='" + partsno + "' and iFZFlag='0'";
-                            DataTable dtExist = excute.ExcuteSqlWithSelectToDT(str.ToString());
-                            if (dtExist.Rows.Count > 0)
-                            {
-                                msg = "对象月" + mon + ",品番：" + partsno + " 未发注数据已存在重复";
-                                return msg;
-                            }
-                            strSqlIn = "INSERT INTO [tAddSSP]([vcMonth] ,[vcPartsNo],[iFZNum] ,[vcCreater] ,[dCreaterDate],[iFZFlag]) ";
-                            strSqlIn += " VALUES('" + mon + "','" + partsno + "','" + fznum + "' ,'" + useid + "',GETDATE(),'0')";
-                            excute.ExcuteSqlWithStringOper(strSqlIn);
+                        string str1 = "select vcPartsNo ,iSRNum from tSSPMaster where vcPartsNo='" + partsno + "' ";
+                        DataTable dttmp = excute.ExcuteSqlWithSelectToDT(str1.ToString());
+                        if (dttmp.Rows.Count == 0)
+                        {
+                            msg = "品番：" + partsno + "发注基础信息未维护";
+                            return msg;
+                        }
+                        int SRNum = Convert.ToInt32(dttmp.Rows[0]["iSRNum"]);
+                        if (fznum % SRNum != 0)
+                        {
+                            msg = "品番：" + partsno + "数量应为收容数的倍数。";
+                            return msg;
+                        }
+                        string str = "select vcPartsNo from tAddSSP where vcMonth='" + mon + "' and vcPartsNo='" + partsno + "' and iFZFlag='0'";
+                        DataTable dtExist = excute.ExcuteSqlWithSelectToDT(str.ToString());
+                        if (dtExist.Rows.Count > 0)
+                        {
+                            msg = "对象月" + mon + ",品番：" + partsno + " 未发注数据已存在重复";
+                            return msg;
+                        }
+                        strSqlIn = "INSERT INTO [tAddSSP]([vcMonth] ,[vcPartsNo],[iFZNum] ,[vcCreater] ,[dCreaterDate],[iFZFlag]) ";
+                        strSqlIn += " VALUES('" + mon + "','" + partsno + "','" + fznum + "' ,'" + useid + "',GETDATE(),'0')";
+                        excute.ExcuteSqlWithStringOper(strSqlIn);
                         //}
                     }
                     trans.Commit();

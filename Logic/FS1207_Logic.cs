@@ -812,9 +812,9 @@ namespace Logic
         {
             return dataAccess.ddlSaleuser();
         }
-        public DataTable search(string Mon, string ddlType, string Partsno)
+        public DataTable search(string Mon, string ddlType, string Partsno,string vcPlant)
         {
-            return dataAccess.search(Mon, ddlType, Partsno);
+            return dataAccess.search(Mon, ddlType, Partsno, vcPlant);
         }
         public DataTable dtResultClone()
         {

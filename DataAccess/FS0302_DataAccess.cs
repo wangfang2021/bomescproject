@@ -184,7 +184,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 //可选择的变更事项
-                List<string> changeList = new List<string>() { "1", "2", "4", "5", "6", "16" };
+                List<string> changeList = new List<string>() { "1", "2","3", "4", "5", "6", "16" };
                 //品番check
                 List<string> partCheck = getPart();
                 List<string> partList = getPartList();

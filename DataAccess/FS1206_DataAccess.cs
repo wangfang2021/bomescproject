@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder ssql = new StringBuilder();
-                ssql.AppendLine(" select t1.vcPartsNo,vcPartsNoFZ,vcSource,vcFactory,vcBF,iSRNum,");
+                ssql.AppendLine(" select t1.vcPartsNo,vcPartsNoFZ,vcSource,vcFactory,vcBF,convert(int,iSRNum) iSRNum,");
                 ssql.AppendLine("isnull(t2.iCONum,0) as iCONum, '0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from tSSPMaster t1");
                 ssql.AppendLine(" left join (");
                 ssql.AppendLine("		select distinct C.vcPartsNo,C.iCONum from tSSP C");
@@ -31,7 +31,7 @@ namespace DataAccess
                 ssql.AppendLine("on t1.vcPartsNo=t2.vcPartsNo");
                 if (!string.IsNullOrEmpty(strPartsNo))
                 {
-                    ssql.AppendLine("where t1.vcPartsNo='" + strPartsNo + "'");
+                    ssql.AppendLine("where t1.vcPartsNo like '" + strPartsNo + "%'");
                 }
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());
@@ -79,6 +79,13 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                     {//新增
+                        bool b = isExists(listInfoData[i]["vcPartsNo"] != null ? listInfoData[i]["vcPartsNo"].ToString() : "");
+                        if (b)
+                        {
+                            strErrorPartId = "第" + (i + 1).ToString() + "行，品番已存在！";
+                            return;
+                        }
+
                         sql.Append("insert into tSSPMaster(vcPartsNo, vcPartsNoFZ, vcSource, vcFactory, vcBF, iSRNum, vcCreateUser, dCreateTime)  \r\n");
                         sql.Append(" values (  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false) + ",  \r\n");
@@ -120,6 +127,21 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public bool isExists(string vcPartsNo)
+        {
+            try
+            {
+                string ssql = "select count(*) from tSSPMaster where vcPartsNo='" + vcPartsNo + "'";
+                if (excute.ExecuteScalar(ssql) > 0)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region 导入后保存
         public string UpdateTable(DataTable dt, string user)

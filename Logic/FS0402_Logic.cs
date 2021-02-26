@@ -447,5 +447,16 @@ namespace Logic
             return fs0402_DataAccess.getReciveEmail();
         }
         #endregion
+
+        #region 校验是否导入过
+        public bool isRepeatImport(string strYearMonth)
+        {
+            int num = fs0402_DataAccess.isRepeatImport(strYearMonth);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
+        #endregion
     }
 }

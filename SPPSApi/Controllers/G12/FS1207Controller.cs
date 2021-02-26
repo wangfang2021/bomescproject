@@ -46,8 +46,10 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_ClassSource = ComFunction.convertAllToResult(logic.getPlant());
-                res.Add("ClassSource", dataList_ClassSource);
+                List<Object> dataList_TypeSource = ComFunction.convertAllToResult(logic.getClass());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.getPlant());
+                res.Add("TypeSource", dataList_TypeSource);
+                res.Add("PlantSource", dataList_PlantSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -76,19 +78,17 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMon = dataForm.vcMon;
-            string vcType = dataForm.vcType;
-            string vcPartsNo = dataForm.vcPartsNo;
-            vcMon = vcMon == null ? "" : vcMon;
-            vcType = vcType == null ? "" : vcType;
-            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
+            string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
                 vcPartsNo = vcPartsNo.Replace("-", "").ToString();
             }
             try
             {
-                DataTable dt = logic.search(vcMon, vcType, vcPartsNo);
+                DataTable dt = logic.search(vcMon, vcType, vcPartsNo, vcPlant);
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -122,6 +122,7 @@ namespace SPPSApi.Controllers.G12
             string vcMon = dataForm.vcMon;
             string vcType = dataForm.vcType;
             string vcPartsNo = dataForm.vcPartsNo;
+            string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
             vcMon = vcMon == null ? "" : vcMon;
             vcType = vcType == null ? "" : vcType;
             vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
@@ -131,8 +132,8 @@ namespace SPPSApi.Controllers.G12
             }
             try
             {
-                DataTable dt = logic.search(vcMon, vcType, vcPartsNo);
-                string[] fields = { "vcMonth", "vcPartsNo", "vcClass", "vcProject", "vcDock", "Total",
+                DataTable dt = logic.search(vcMon, vcType, vcPartsNo, vcPlant);
+                string[] fields = { "vcMonth", "vcPartsNo", "vcPlant", "vcClass", "vcDock", "vcProject", "Total",
                 "D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","D14","D15","D16","D17","D18","D19","D20","D21","D22","D23",
                 "D24","D25","D26","D27","D28","D29","D30","D31"
                 };

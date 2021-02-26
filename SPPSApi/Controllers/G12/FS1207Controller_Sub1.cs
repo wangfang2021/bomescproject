@@ -143,7 +143,7 @@ namespace SPPSApi.Controllers.G12
                 string _msg;
                 DataTable dt = logic.GetFzjsRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
                 string[] fields = { "vcMonth", "vcPartsNo","iSRNum","Total","iXZNum","iBYNum",
-                "iFZNum","syco","iCONum","iFlag","vcPartsNoFZ", "vcSource"
+                "iFZNum","syco","iCONum"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub1_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -259,15 +259,27 @@ namespace SPPSApi.Controllers.G12
             string vcType = dataForm.vcType;
             string vcOrder = dataForm.vcOrder;
             string vcSaleUser = dataForm.vcSaleUser;
-            DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
+            JArray listInfo = dataForm.temp;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            DataTable dt = ListToDataTable(listInfoData);
+
+           // DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
             vcType = vcType == null ? "" : vcType;
             vcOrder = vcOrder == null ? "" : vcOrder;
             vcSaleUser = vcSaleUser == null ? "" : vcSaleUser;
+            string msg = string.Empty;
             try
             {
                 string exlName;
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = logic.UpdateFZJSEditFZ(dt, vcType, vcOrder, loginInfo.UserId, out exlName);
+                msg = logic.UpdateFZJSEditFZ(dt, vcType, vcOrder, loginInfo.UserId, out exlName);
+                if (msg == "")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "发注成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

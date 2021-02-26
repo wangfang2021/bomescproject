@@ -143,7 +143,7 @@ namespace DataAccess
             apt.Fill(dt);
             return dt;
         }
-         
+
         public DataTable getMonPackPlanTMP(string mon, string tablename, SqlCommand cmd, SqlDataAdapter apt, string plant)//获取临时表的值别计划
         {
             DataTable dt = new DataTable();
@@ -551,23 +551,23 @@ namespace DataAccess
                 sbSQL.AppendLine("    on t1.[vcPartsNo] = t2.[vcPartsNo] and t1.[vcDock] = t2.[vcDock]");
                 sbSQL.AppendLine("   and t2.[dTimeFrom] <= t1.[vcPlanMonth] + '-01' and t2.dTimeTo >=  t1.[vcPlanMonth] + '-01' ");//01改为-01
                 sbSQL.AppendLine(" where 1=1 ");
-                if (mon.Trim() != "")
+                if (mon != null && mon.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t1.vcPlanMonth = '" + mon + "' ");
                 }
-                if (partNo.Trim() != "")
+                if (partNo != null && partNo.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t1.vcPartsNo like '" + partNo + "%' ");
                 }
-                if (plant.Trim() != "")
+                if (plant != null && plant.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t2.vcPartPlant = '" + plant + "' ");
                 }
-                if (GC.Trim() != "")
+                if (GC != null && GC.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t2.vcPorType = '" + GC + "' ");
                 }
-                if (KbOrderId.Trim() != "")
+                if (KbOrderId != null && KbOrderId.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t1.[vcKBorderno] like '" + KbOrderId + "%'  ");
                 }
@@ -583,11 +583,11 @@ namespace DataAccess
                 //{
                 //    sbSQL.AppendLine(" and vcComDate00+vcBanZhi00 <= '" + PlanPrintDateTo + PlanPrintBZTo + "' ");
                 //}
-                if (PlanProductionDateFrom.Trim() != "")
+                if (PlanProductionDateFrom != null && PlanProductionDateFrom.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate01+vcBanZhi01 >= '" + PlanProductionDateFrom + PlanProductionBZFrom + "' ");//20181007 李兴旺
                 }
-                if (PlanProductionDateTo.Trim() != "")
+                if (PlanProductionDateTo != null && PlanProductionDateTo.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate01+vcBanZhi01 <= '" + PlanProductionDateTo + PlanProductionBZTo + "' ");//20181007 李兴旺
                 }
@@ -599,11 +599,11 @@ namespace DataAccess
                 //{
                 //    sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 <= '" + PlanPackDateTo + PlanPackBZTo + "' ");
                 //}
-                if (PlanPackDateFrom.Trim() != "")
+                if (PlanPackDateFrom != null && PlanPackDateFrom.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 >= '" + PlanPackDateFrom + PlanPackBZFrom + "' ");//20181007 李兴旺
                 }
-                if (PlanPackDateTo.Trim() != "")
+                if (PlanPackDateTo != null && PlanPackDateTo.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 <= '" + PlanPackDateTo + PlanPackBZTo + "' ");//20181007 李兴旺
                 }
@@ -619,12 +619,12 @@ namespace DataAccess
                 //    sbSQL.AppendLine(" and vcComDate01 = '" + PlanProductionDate + "' ");
                 //}
                 //20180911增加计划生产班直 - 李兴旺
-                if (PlanProductionAB != "")//计划生产班直（AB）
+                if (PlanProductionAB != null && PlanProductionAB.Trim() != "")//计划生产班直（AB）
                 {
                     sbSQL.AppendLine(" and vcAB01 = '" + PlanProductionAB + "' ");
                 }
                 //增加计划包装班直 - 刘刚
-                if (PlanPackAB != "")//计划包装班直（AB）
+                if (PlanPackAB != null && PlanPackAB.Trim() != "")//计划包装班直（AB）
                 {
                     sbSQL.AppendLine(" and vcAB04 = '" + PlanPackAB + "' ");
                 }
@@ -664,23 +664,23 @@ namespace DataAccess
                 sbSQL.AppendLine("    on t1.[vcPartsNo] = t2.[vcPartsNo] and t1.[vcDock] = t2.[vcDock] ");
                 sbSQL.AppendLine("   and t2.[dTimeFrom] <= t1.[vcPlanMonth] + '-01' and t2.dTimeTo >=  t1.[vcPlanMonth] + '-01' ");//01改为-01
                 sbSQL.AppendLine(" where 1=1  ");
-                if (mon.Trim() != "")
+                if (mon != null && mon.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t1.vcPlanMonth = '" + mon + "' ");
                 }
-                if (partNo.Trim() != "")
+                if (partNo != null && partNo.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t1.vcPartsNo like '" + partNo + "%' ");
                 }
-                if (plant.Trim() != "")
+                if (plant != null && plant.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t2.vcPartPlant = '" + plant + "' ");
                 }
-                if (GC.Trim() != "")
+                if (GC != null && GC.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t2.vcPorType = '" + GC + "' ");
                 }
-                if (KbOrderId.Trim() != "")
+                if (KbOrderId != null && KbOrderId.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t1.[vcKBorderno] like '" + KbOrderId + "%' ");
                 }
@@ -696,11 +696,11 @@ namespace DataAccess
                 //{
                 //    sbSQL.AppendLine(" and vcComDate00+vcBanZhi00 <= '" + PlanPrintDateTo + PlanPrintBZTo + "' ");
                 //}
-                if (PlanProductionDateFrom.Trim() != "")
+                if (PlanProductionDateFrom != null && PlanProductionDateFrom.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate01+vcBanZhi01 >= '" + PlanProductionDateFrom + PlanProductionBZFrom + "' ");//20181007 李兴旺
                 }
-                if (PlanProductionDateTo.Trim() != "")
+                if (PlanProductionDateTo != null && PlanProductionDateTo.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate01+vcBanZhi01 <= '" + PlanProductionDateTo + PlanProductionBZTo + "' ");//20181007 李兴旺
                 }
@@ -712,11 +712,11 @@ namespace DataAccess
                 //{
                 //    sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 <= '" + PlanPackDateTo + PlanPackBZTo + "' ");
                 //}
-                if (PlanPackDateFrom.Trim() != "")
+                if (PlanPackDateFrom != null && PlanPackDateFrom.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 >= '" + PlanPackDateFrom + PlanPackBZFrom + "' ");//20181007 李兴旺
                 }
-                if (PlanPackDateTo.Trim() != "")
+                if (PlanPackDateTo != null && PlanPackDateTo.Trim() != "")
                 {
                     sbSQL.AppendLine(" and vcComDate04+vcBanZhi04 <= '" + PlanPackDateTo + PlanPackBZTo + "' ");//20181007 李兴旺
                 }
@@ -731,12 +731,12 @@ namespace DataAccess
                 //    sbSQL.AppendLine(" and vcComDate01 = '" + PlanProductionDate + "' ");
                 //}
                 //20180911增加计划生产班直 - 李兴旺
-                if (PlanProductionAB != "")//计划生产班直
+                if (PlanProductionAB != null && PlanProductionAB != "")//计划生产班直
                 {
                     sbSQL.AppendLine(" and vcAB01 = '" + PlanProductionAB + "' ");
                 }
                 //增加计划包装班直 - 刘刚
-                if (PlanPackAB != "")//计划包装班直
+                if (PlanPackAB != null && PlanPackAB != "")//计划包装班直
                 {
                     sbSQL.AppendLine(" and vcAB04 = '" + PlanPackAB + "' ");
                 }
@@ -756,17 +756,17 @@ namespace DataAccess
                 sbSQL.AppendLine("              where a.vcInOut='0') t2 ");
                 sbSQL.AppendLine("   on t.vcPart_id=t2.vcPartId and t.vcSR=t2.vcSufferIn and t.vcSHF=t2.vcReceiver");
                 sbSQL.AppendLine("  where 1=1 and vcZYType='S0' ");
-                if (mon.Trim() != "")
+                if (mon != null && mon.Trim() != "")
                 {
                     string monfrom = Convert.ToDateTime(mon + "-01").AddMonths(-1).ToString("yyyyMM");
                     string monTo = Convert.ToDateTime(mon + "-01").ToString("yyyyMM");
                     sbSQL.AppendLine(" and substring(vcKBOrderNo, 0, 6)>= '" + monfrom + "' and substring(vcKBOrderNo, 0, 6)<= '" + monTo + "' ");
                 }
-                if (partNo.Trim() != "")
+                if (partNo != null && partNo.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t.vcPart_id like '" + partNo + "%' ");
                 }
-                if (plant.Trim() != "")
+                if (plant != null && plant.Trim() != "")
                 {
                     if (plant == "1")
                     {
@@ -781,7 +781,7 @@ namespace DataAccess
                         sbSQL.AppendLine(" and t2.vcSupplierPlant='8' ");
                     }
                 }
-                if (KbOrderId.Trim() != "")
+                if (KbOrderId!=null&& KbOrderId.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t.vcKBOrderNo like '" + KbOrderId + "%' ");
                 }

@@ -109,6 +109,7 @@ namespace SPPSApi.Controllers.G12
                     vcPlanPackDateFrom, vcPlantPackBZFrom, vcPlanProductionDateTo, vcPlanProductionBZTo,
                     vcPlanPackDateTo, vcPlantPackBZTo, vcPlanProductAB, vcPlanPackAB, ref msg);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcRealPrintTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
                 //dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 if (msg != "")

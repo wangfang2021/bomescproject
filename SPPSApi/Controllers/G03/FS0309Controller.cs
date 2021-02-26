@@ -59,6 +59,11 @@ namespace SPPSApi.Controllers.G03
                     res.Add("caiWuBtnVisible", true);
 
                 List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
+                Dictionary<string, object> row = new Dictionary<string, object>();
+                row["vcName"] = "空";
+                row["vcValue"] = "空";
+                dataList_C002.Add(row);
+
                 List<Object> dataList_C004 = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
@@ -265,12 +270,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧"},
-                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu"},
-                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"" },
-                                                {"25","12","0","0","0","4","50","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","10","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7","8","9","10"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧","TNP含税","价格开始","价格结束"},
+                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","decPriceTNPWithTax","dPricebegin","dPriceEnd"},
+                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"","","","" },
+                                                {"25","12","0","0","0","4","50","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"0","10","1","1","1","1","1","1","1","1","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8","9","10","20","21","22"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
@@ -280,7 +285,7 @@ namespace SPPSApi.Controllers.G03
                         { "变更事项",
                             "vcChange",//验证vcChange字段
                             "新设"
-                            ,"1",//当vcChange=1时
+                            ,"1",//当vcChange=1时   当该字段值为这个值时触发后续校验，如果值为空，那么表示只要有值就触发后续校验
                             "号旧",
                             "vcHaoJiu",//判断字段
                             "1", //1:该字段不能为空 0:该字段必须为空
@@ -293,11 +298,10 @@ namespace SPPSApi.Controllers.G03
                         { "变更事项","vcChange", "新车新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
                         { "变更事项","vcChange", "打切旧型","3", "旧型开始","dJiuBegin","1", "","" },
                         { "变更事项","vcChange", "打切旧型","3", "旧型结束","dJiuEnd","1", "","" },
-                        { "变更事项","vcChange", "打切旧型","3", "旧型持续开始","dJiuBeginSustain","1", "","" }
+                        { "变更事项","vcChange", "打切旧型","3", "旧型持续开始","dJiuBeginSustain","1", "","" },
+                        { "TNP含税","decPriceTNPWithTax", "有金额","", "价格开始","dPricebegin","1", "","" },
+                        { "TNP含税","decPriceTNPWithTax", "有金额","", "价格结束","dPriceEnd","1", "","" }
                     };
-
-
-
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck,true, "FS0309");
                     if (checkRes != null)
                     {
@@ -777,7 +781,14 @@ namespace SPPSApi.Controllers.G03
                         apiResult.data = "导出生成文件失败";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-
+                    string strErr = "";
+                    fs0309_Logic.sendDiaoDaChangeState(listInfoData,ref strErr);
+                    if (strErr != "")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErr;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = filepath;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -813,15 +824,18 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 
 
-                JArray checkedInfo = dataForm.multipleSelection;
+                JArray checkedInfo = dataForm.gsChangeItem;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
 
 
                 if (listInfoData[0]["decPriceOrigin"]==null|| listInfoData[0]["decPriceOrigin"].ToString().Trim()=="")
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "必须输入原价！";
+                    Dictionary<string, object> res_return = new Dictionary<string, object>();
+                    res_return.Add("priceAfter", "");
+                    res_return.Add("priceTNPWithTax", "");
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = res_return;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 

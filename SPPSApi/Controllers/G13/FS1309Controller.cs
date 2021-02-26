@@ -48,11 +48,25 @@ namespace SPPSApi.Controllers.G13
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                //处理初始化
-                List<Object> PackPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装厂
-                res.Add("PackPlantList", PackPlantList);
-
-                apiResult.code = ComConstant.SUCCESS_CODE;
+                //获取登录人包装厂
+                DataTable dtPackingPlant = ComFunction.getTCode("C023");
+                if (dtPackingPlant == null || dtPackingPlant.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "e1";
+                    apiResult.data = null;
+                    //apiResult.data = "包装厂信息不全请维护";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //包装厂下拉
+                List<Object> PackingPlantList = ComFunction.convertAllToResult(dtPackingPlant);//包装厂
+                res.Add("PackingPlantList", PackingPlantList);
+                string strPackingPlant = dtPackingPlant.Rows[0]["vcValue"].ToString();
+                int code = 0;
+                string type = "";
+                res = fS1309_Logic.setLoadPage(res, strPackingPlant, ref type, ref code);
+                apiResult.code = code;
+                apiResult.type = type;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -71,7 +85,7 @@ namespace SPPSApi.Controllers.G13
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string refreshApi([FromBody]dynamic data)
+        public string selectApi([FromBody]dynamic data)
         {
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
@@ -81,43 +95,17 @@ namespace SPPSApi.Controllers.G13
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
-            Dictionary<string, object> res = new Dictionary<string, object>();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strPackPlant = dataForm.PackPlant == null ? "" : dataForm.PackPlant;
+            string strPackingPlant = dataForm.selectVaule == null ? "" : dataForm.selectVaule;
             try
             {
-                if (strPackPlant == "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请选择有效的包装厂";
-                }
-                else
-                {
-                    DataSet dataSet = fS1309_Logic.getSearchInfo(strPackPlant);
-                    if (dataSet.Tables[0].Rows.Count != 0)
-                    {
-                        //班值信息
-                        res.Add("BFromTimeItem", (dataSet.Tables[0].Select("vcBanZhi='白'")).Length == 0 ? "08:30" : (dataSet.Tables[0].Select("vcBanZhi='白'"))[0]["tFromTime"].ToString());
-                        res.Add("BCrossItem", (dataSet.Tables[0].Select("vcBanZhi='白'")).Length == 0 ? "0" : (dataSet.Tables[0].Select("vcBanZhi='白'"))[0]["vcCross"].ToString());
-                        res.Add("BToTimeItem", (dataSet.Tables[0].Select("vcBanZhi='白'")).Length == 0 ? "17:15" : (dataSet.Tables[0].Select("vcBanZhi='白'"))[0]["tToTime"].ToString());
-                        res.Add("YFromTimeItem", (dataSet.Tables[0].Select("vcBanZhi='夜'")).Length == 0 ? "21:00" : (dataSet.Tables[0].Select("vcBanZhi='夜'"))[0]["tFromTime"].ToString());
-                        res.Add("YCrossItem", (dataSet.Tables[0].Select("vcBanZhi='夜'")).Length == 0 ? "1" : (dataSet.Tables[0].Select("vcBanZhi='夜'"))[0]["vcCross"].ToString());
-                        res.Add("YToTimeItem", (dataSet.Tables[0].Select("vcBanZhi='夜'")).Length == 0 ? "05:45" : (dataSet.Tables[0].Select("vcBanZhi='夜'"))[0]["tToTime"].ToString());
-
-                    }
-                    if (dataSet.Tables[1].Rows.Count != 0)
-                    {
-                        //显示信息
-                        res.Add("PageClientNumItem", dataSet.Tables[1].Rows[0]["vcPageClientNum"].ToString()==""?"30": dataSet.Tables[1].Rows[0]["vcPageClientNum"].ToString());
-                        res.Add("GZTTongjiFreItem", dataSet.Tables[1].Rows[0]["iGZTTongjiFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iGZTTongjiFre"].ToString());
-                        res.Add("BZLTongjiFreItem", dataSet.Tables[1].Rows[0]["iBZLTongjiFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iBZLTongjiFre"].ToString());
-                        res.Add("GZTZhuangTaiFreItem", dataSet.Tables[1].Rows[0]["iGZTZhuangTaiFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iGZTZhuangTaiFre"].ToString());
-                        res.Add("GZTQieHuanFreItem", dataSet.Tables[1].Rows[0]["iGZTQieHuanFre"].ToString()==""?"60": dataSet.Tables[1].Rows[0]["iGZTQieHuanFre"].ToString());
-                        res.Add("GZTShowTypeItem", dataSet.Tables[1].Rows[0]["iGZTShowType"].ToString()==""?"1" : dataSet.Tables[1].Rows[0]["iGZTShowType"].ToString());
-                    }
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                int code = 0;
+                string type = "";
+                res = fS1309_Logic.setLoadPage(res, strPackingPlant, ref type, ref code);
+                apiResult.code = code;
+                apiResult.type = type;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -129,6 +117,7 @@ namespace SPPSApi.Controllers.G13
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+
         /// <summary>
         /// 保存方法
         /// </summary>
@@ -149,7 +138,7 @@ namespace SPPSApi.Controllers.G13
             Dictionary<string, object> res = new Dictionary<string, object>();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strPackPlant = dataForm.PackPlant == null ? "" : dataForm.PackPlant;
+            string strPackingPlant = dataForm.PackingPlant == null ? "" : dataForm.PackingPlant;
             string strPageClientNum = dataForm.PageClientNum == null ? "" : dataForm.PageClientNum;
             string strGZTTongjiFre = dataForm.GZTTongjiFre == null ? "" : dataForm.GZTTongjiFre;
             string strBZLTongjiFre = dataForm.BZLTongjiFre == null ? "" : dataForm.BZLTongjiFre;
@@ -164,7 +153,7 @@ namespace SPPSApi.Controllers.G13
             string strYToTime = dataForm.YToTime == null ? "" : dataForm.YToTime;
             try
             {   //保存
-                fS1309_Logic.setDisplayInfo(strPackPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType
+                fS1309_Logic.setDisplayInfo(strPackingPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType
                     , strBFromTime, strBCross, strBToTime, strYFromTime, strYCross, strYToTime, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
@@ -174,7 +163,7 @@ namespace SPPSApi.Controllers.G13
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

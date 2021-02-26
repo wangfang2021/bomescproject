@@ -104,7 +104,7 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strSSDate = dataForm.dSSDate;                //实施日期
-            string strJD = dataForm.vcJD;                       //进度
+            string strJD = dataForm.vcJD;                       //生确进度
             string strInOutFlag = dataForm.vcInOutflag;         //内外
             string strSupplier_id = dataForm.vcSupplier_id;     //供应商
             string strCarType = dataForm.vcCarType;             //车种

@@ -41,9 +41,9 @@ namespace Logic
                         dataRow["vcReParty"] = strReParty;
                         dataRow["vcRePartyName"] = (dtRePartyList.Select("vcValue='" + strReParty + "'"))[0]["vcName"].ToString();
                         dataRow["vcPackPlant"] = strPackPlant;
-                        dataRow["vcPackPlantName"] = (dtPackPlantList.Select("vcValue='" + strPackPlant + "'"))[0]["vcName"].ToString();
+                        dataRow["vcPackPlantName"] = "";
                         dataRow["vcPrintNum"] = strPrintNum;
-                        dataRow["vcPrintIndex"] = (10000000+Convert.ToInt32(i)).ToString().Substring(1,7);
+                        dataRow["vcPrintIndex"] = (100000000+Convert.ToInt32(i)).ToString().Substring(1,8);
                         dataTable.Rows.Add(dataRow);
                     }
                 }
@@ -66,7 +66,7 @@ namespace Logic
                         dataRow["vcPackPlant"] = dtCaseNoInfo.Rows[0]["vcPackPlant"].ToString();
                         dataRow["vcPackPlantName"] = dtCaseNoInfo.Rows[0]["vcPackPlantName"].ToString();
                         dataRow["vcPrintNum"] = dtCaseNoInfo.Rows[0]["vcPrintNum"].ToString();
-                        dataRow["vcPrintIndex"] = (10000000 + Convert.ToInt32(dtCaseNoInfo.Rows[0]["vcPrintIndex"].ToString())).ToString().Substring(1, 7);
+                        dataRow["vcPrintIndex"] = (100000000 + Convert.ToInt32(dtCaseNoInfo.Rows[0]["vcPrintIndex"].ToString())).ToString().Substring(1, 8);
                         dataTable.Rows.Add(dataRow);
                     }
                 }
@@ -75,6 +75,17 @@ namespace Logic
             }
         }
 
+        public void setSaveInfo(DataTable dtImport, ref DataTable dtMessage)
+        {
+            try
+            {
+                fs1104_DataAccess.setSaveInfo(dtImport, ref dtMessage);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable createTable()
         {
             DataTable dataTable = new DataTable();

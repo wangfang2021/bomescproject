@@ -17,53 +17,53 @@ namespace Logic
         FS0501_DataAccess fs0501_DataAccess = new FS0501_DataAccess();
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState,string strOperState)
+        public DataTable Search(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea)
         {
-            return fs0501_DataAccess.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState);
+            return fs0501_DataAccess.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea);
         }
         #endregion
 
         #region 是否可操作-按检索条件
-        public bool IsDQR(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, ref string strMsg)
+        public bool IsDQR(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea, ref string strMsg)
         {
-            DataTable dt= fs0501_DataAccess.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState);
-            if (dt.Rows.Count == 0)
-                return true;
-            else
-            {
-                for(int i=0;i<dt.Rows.Count;i++)
-                {
-                    strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
-                }
-                strMsg = strMsg.Substring(0, strMsg.Length - 1);
-                return false;
-            }
-                
-        }
-        #endregion
-
-        #region 是否可操作-按列表所选数据
-        public bool IsDQR(string strYearMonth, List<Dictionary<string, Object>> listInfoData,ref string strMsg,string strType)
-        {
-            DataTable dt= fs0501_DataAccess.IsDQR(strYearMonth, listInfoData,strType);
+            DataTable dt = fs0501_DataAccess.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea);
             if (dt.Rows.Count == 0)
                 return true;
             else
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    strMsg += dt.Rows[i]["vcPart_id"].ToString()+"/";
+                    strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
                 }
-                strMsg = strMsg.Substring(0, strMsg.Length-1);
+                strMsg = strMsg.Substring(0, strMsg.Length - 1);
+                return false;
+            }
+
+        }
+        #endregion
+
+        #region 是否可操作-按列表所选数据
+        public bool IsDQR(string strYearMonth, string strSupplier_id, List<Dictionary<string, Object>> listInfoData, ref string strMsg, string strType)
+        {
+            DataTable dt = fs0501_DataAccess.IsDQR(strYearMonth, strSupplier_id, listInfoData, strType);
+            if (dt.Rows.Count == 0)
+                return true;
+            else
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
+                }
+                strMsg = strMsg.Substring(0, strMsg.Length - 1);
                 return false;
             }
         }
         #endregion
 
         #region 提交-按检索条件
-        public int ok(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strUserId)
+        public int ok(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea, string strUserId)
         {
-            return fs0501_DataAccess.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strUserId);
+            return fs0501_DataAccess.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea, strUserId);
         }
         #endregion
 
@@ -140,16 +140,16 @@ namespace Logic
         #endregion
 
         #region 插入导入履历
-        public void importHistory(string strYearMonth, List<string> errMessageList,string strUserId)
+        public void importHistory(string strYearMonth, List<string> errMessageList, string strUserId)
         {
-            fs0501_DataAccess.importHistory(strYearMonth, errMessageList,strUserId);
+            fs0501_DataAccess.importHistory(strYearMonth, errMessageList, strUserId);
         }
         #endregion
 
         #region 导入后保存
         public void importSave(string strYearMonth, string strUserId, string strUnit)
         {
-            fs0501_DataAccess.importSave(strYearMonth,strUserId,strUnit);
+            fs0501_DataAccess.importSave(strYearMonth, strUserId, strUnit);
         }
         #endregion
 
@@ -157,6 +157,20 @@ namespace Logic
         public DataTable SearchHistory(string strYearMonth, string strUserId)
         {
             return fs0501_DataAccess.SearchHistory(strYearMonth, strUserId);
+        }
+        #endregion
+
+        #region 获取数据字典
+        public DataTable getTCode(string strCodeId)
+        {
+            return fs0501_DataAccess.getTCode(strCodeId);
+        }
+        #endregion
+
+        #region 获取供应商工区
+        public DataTable getWorkArea(string strSupplier_id)
+        {
+            return fs0501_DataAccess.getWorkArea(strSupplier_id);
         }
         #endregion
     }

@@ -87,17 +87,17 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcPlant = dataForm.vcPlant;
-            string vcPorType = dataForm.vcPorType;
-            string vcMon = dataForm.vcMon;
-            string vcTF = dataForm.vcTF;
-            string vcTO = dataForm.vcTO;
-            string vcType = dataForm.vcType;
-            string vcPartsno = dataForm.vcPartsno;
-            string vcDock = dataForm.vcDock;
-            string vcOrder = dataForm.vcOrder;
-            string vcSerial = dataForm.vcSerial;
-            string vcED = dataForm.vcED;
+            string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
+            string vcPorType = dataForm.vcPorType == null ? "" : dataForm.vcPorType;
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcTF = dataForm.vcTF == null ? "" : dataForm.vcTF;
+            string vcTO = dataForm.vcTO == null ? "" : dataForm.vcTO;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcPartsno = dataForm.vcPartsno == null ? "" : dataForm.vcPartsno;
+            string vcDock = dataForm.vcDock == null ? "" : dataForm.vcDock;
+            string vcOrder = dataForm.vcOrder == null ? "" : dataForm.vcOrder;
+            string vcSerial = dataForm.vcSerial == null ? "" : dataForm.vcSerial;
+            string vcED = dataForm.vcED == null ? "" : dataForm.vcED;
             try
             {
                 if ("PP".Equals(vcPorType))

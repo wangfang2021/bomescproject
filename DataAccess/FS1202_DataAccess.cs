@@ -83,6 +83,12 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                     {//新增
+                        bool b = isExists(listInfoData[i]["vcPorType"] != null ? listInfoData[i]["vcPorType"].ToString() : "", listInfoData[i]["vcZB"] != null ? listInfoData[i]["vcZB"].ToString() : "");
+                        if (b)
+                        {
+                            strErrorPartId = "第" + (i + 1).ToString() + "行，部署、组别已存在！";
+                            return;
+                        }
                         sql.Append("  INSERT INTO ProRuleMst(vcPorType,vcZB,KBpartType,vcProName0,vcLT0,vcCalendar0,vcProName1,vcLT1");
                         sql.Append("  ,vcCalendar1,vcProName2,vcLT2,vcCalendar2,vcProName3,vcLT3,vcCalendar3   \r\n");
                         sql.Append("  ,vcProName4,vcLT4,vcCalendar4,LogicType,DADDTIME,CUPDUSER)   \r\n");
@@ -134,7 +140,6 @@ namespace DataAccess
                         sql.Append("  ,DUPDTIME=getdate()   \r\n");
                         sql.Append("  ,CUPDUSER='" + strUserId + "'   \r\n");
                         sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
-
                     }
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());
@@ -152,6 +157,21 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public bool isExists(string vcPorType, string vcZB)
+        {
+            try
+            {
+                string ssql = "select count(*) from ProRuleMst where vcPorType='" + vcPorType + "' and vcZB='" + vcZB + "'";
+                if (excute.ExecuteScalar(ssql) > 0)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
         public DataTable bindProType()

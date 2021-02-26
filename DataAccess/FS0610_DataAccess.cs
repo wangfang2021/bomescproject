@@ -496,7 +496,7 @@ namespace DataAccess
         FS1203_DataAccess ICalendar2 = new FS1203_DataAccess();
 
         #region 生成生产计划
-        public string updatePro(DataTable dt, string user, string mon, ref Exception e, string plant)
+         public string updatePro(DataTable dt, string user, string mon, ref Exception e, string plant)
         {
             string msg = "";
             SqlCommand cmd = new SqlCommand();
@@ -513,7 +513,7 @@ namespace DataAccess
                     string month = dt.Rows[i]["vcMonth"].ToString();
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
-                    cmd.CommandText = "  select iQuantityPerContainer from tPartInfoMaster where vcPartsno= '" + partsno + "' and vcDock='" + vcDock + "' and vcCarFamilyCode='" + vcCarType + "' and dTimeFrom<= '" + month + "-01" + "' and dTimeTo>= '" + month + "-01" + "' ";
+                    cmd.CommandText = " select iQuantityPerContainer  from tPartInfoMaster where vcPartsno = '" + partsno + "' and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCarType + "'   and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
                     DataTable srsdt = new DataTable();
                     apt.Fill(srsdt);
                     cmd.CommandText = " select * from MonthProPlanTblTMP where montouch='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
@@ -541,7 +541,6 @@ namespace DataAccess
                                 return msg;
                             }
                         }
-                        #region 
                         dt_udt.Rows[0]["vcD1b"] = dt.Rows[i]["TD1b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD1b"]) : dt.Rows[i]["TD1b"];
                         dt_udt.Rows[0]["vcD1y"] = dt.Rows[i]["TD1y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD1y"]) : dt.Rows[i]["TD1y"];
                         dt_udt.Rows[0]["vcD2b"] = dt.Rows[i]["TD2b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD2b"]) : dt.Rows[i]["TD2b"];
@@ -604,7 +603,6 @@ namespace DataAccess
                         dt_udt.Rows[0]["vcD30y"] = dt.Rows[i]["TD30y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD30y"]) : dt.Rows[i]["TD30y"];
                         dt_udt.Rows[0]["vcD31b"] = dt.Rows[i]["TD31b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD31b"]) : dt.Rows[i]["TD31b"];
                         dt_udt.Rows[0]["vcD31y"] = dt.Rows[i]["TD31y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD31y"]) : dt.Rows[i]["TD31y"];
-                        #endregion
                         dt_udt.Rows[0]["CUPDUSER"] = user;
                         dt_udt.Rows[0]["DUPDTIME"] = DateTime.Now;
                         dt_udt.Rows[0]["CUPDUSER"] = user;
@@ -612,7 +610,7 @@ namespace DataAccess
                         sb = new SqlCommandBuilder(apt);
                         apt.Update(dt_udt);
                     }
-                    cmd.CommandText = " select * from MonthProPlanTblTMP where vcMonth='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
+                    cmd.CommandText = " select  *  from dbo.MonthProPlanTblTMP  where vcMonth='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
                     dt_udt = new DataTable();
                     apt.Fill(dt_udt);
                     if (dt_udt.Rows.Count == 1)
@@ -635,7 +633,6 @@ namespace DataAccess
                                 return msg;
                             }
                         }
-                        #region 
                         dt_udt.Rows[0]["vcD1b"] = dt.Rows[i]["ED1b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED1b"]) : dt.Rows[i]["ED1b"];
                         dt_udt.Rows[0]["vcD1y"] = dt.Rows[i]["ED1y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED1y"]) : dt.Rows[i]["ED1y"];
                         dt_udt.Rows[0]["vcD2b"] = dt.Rows[i]["ED2b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED2b"]) : dt.Rows[i]["ED2b"];
@@ -698,7 +695,6 @@ namespace DataAccess
                         dt_udt.Rows[0]["vcD30y"] = dt.Rows[i]["ED30y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED30y"]) : dt.Rows[i]["ED30y"];
                         dt_udt.Rows[0]["vcD31b"] = dt.Rows[i]["ED31b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED31b"]) : dt.Rows[i]["ED31b"];
                         dt_udt.Rows[0]["vcD31y"] = dt.Rows[i]["ED31y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED31y"]) : dt.Rows[i]["ED31y"];
-                        #endregion
                         dt_udt.Rows[0]["CUPDUSER"] = user;
                         dt_udt.Rows[0]["DUPDTIME"] = DateTime.Now;
                         sb = new SqlCommandBuilder(apt);
@@ -1072,7 +1068,7 @@ namespace DataAccess
                 string vcCarType = dt.Rows[j]["vcCarType"].ToString();
                 //20180928查看该品番的品番频度 - 李兴旺
                 string vcPartFrequence = "";
-                string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + partsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + month + "-01' and dTimeTo>='" + month + "-01' ";
+                string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + partsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + month + "-01' and dTimeTo>='" + month + "-01' ";
                 cmd.CommandText = sqlPartFrequence;
                 DataTable dtPartFrequence = new DataTable();
                 apt.Fill(dtPartFrequence);

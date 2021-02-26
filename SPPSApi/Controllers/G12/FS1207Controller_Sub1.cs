@@ -261,20 +261,25 @@ namespace SPPSApi.Controllers.G12
             string vcSaleUser = dataForm.vcSaleUser;
             JArray listInfo = dataForm.temp;
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-
-
-
             DataTable dt = ListToDataTable(listInfoData);
 
            // DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
             vcType = vcType == null ? "" : vcType;
             vcOrder = vcOrder == null ? "" : vcOrder;
             vcSaleUser = vcSaleUser == null ? "" : vcSaleUser;
+            string msg = string.Empty;
             try
             {
                 string exlName;
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = logic.UpdateFZJSEditFZ(dt, vcType, vcOrder, loginInfo.UserId, out exlName);
+                msg = logic.UpdateFZJSEditFZ(dt, vcType, vcOrder, loginInfo.UserId, out exlName);
+                if (msg == "")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "发注成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

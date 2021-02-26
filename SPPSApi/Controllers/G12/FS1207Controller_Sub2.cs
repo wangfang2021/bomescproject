@@ -124,7 +124,7 @@ namespace SPPSApi.Controllers.G12
             {
                 return error_login();
             }
-            LoginInfo loginInfo = getLoginByToken(strToken); 
+            LoginInfo loginInfo = getLoginByToken(strToken);
             ApiResult apiResult = new ApiResult();
             //以下开始业务处理
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -257,15 +257,27 @@ namespace SPPSApi.Controllers.G12
             string vcType = dataForm.vcType;
             string vcOrder = dataForm.vcOrder;
             string vcSaleUser = dataForm.vcSaleUser;
-            DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
+
+
+            JArray listInfo = dataForm.temp;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            DataTable dt = ListToDataTable(listInfoData);
             vcType = vcType == null ? "" : vcType;
             vcOrder = vcOrder == null ? "" : vcOrder;
             vcSaleUser = vcSaleUser == null ? "" : vcSaleUser;
+            string msg = string.Empty;
             try
             {
                 string exlName;
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = logic.UpdateFZJSEditFZ(dt, vcType, vcOrder, loginInfo.UserId, out exlName);
+                msg = logic.UpdateZJFZEditFZ(dt, vcType, vcOrder, loginInfo.UserId, out exlName);
+                if (msg == "")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "发注成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

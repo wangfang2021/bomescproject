@@ -112,9 +112,27 @@ namespace DataAccess
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + "       \r\n");
 
                     #region 品番去掉横杠
+                    /*
+                     * 品番长度等于11，例如 12345-67890      去掉中间的横杠，后面补两个0  更改后：1234567890
+                     * 品番长度等于14，例如 12345-67890-A0   去掉中间的横杠               更改后：1234567890A0
+                     */
                     string vcPart_id = listInfoData[i]["vcPart_id"].ToString();
-                    vcPart_id = vcPart_id.Replace("-", "");
-                    strSql.Append("      ,'" + vcPart_id + "'       \r\n");
+                    if (vcPart_id.Length==11)
+                    {
+                        vcPart_id = vcPart_id.Replace("-", "")+"00";
+                        strSql.Append("      ,'" + vcPart_id + "'       \r\n");
+                    }
+                    else if (vcPart_id.Length==14)
+                    {
+                        vcPart_id = vcPart_id.Replace("-", "");
+                        strSql.Append("      ,'" + vcPart_id + "'       \r\n");
+                    }
+                    else
+                    {
+                        vcPart_id = vcPart_id.Replace("-", "");
+                        strSql.Append("      ,'" + vcPart_id + "'       \r\n");
+                    }
+                    
                     #endregion
 
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + "       \r\n");
@@ -604,7 +622,7 @@ namespace DataAccess
         /// 原单位向价格表同步数据
         /// </summary>
         /// <returns></returns>
-        public StringBuilder getUnit2PriceSync()
+        public StringBuilder getUnit2PriceSync(string strSYTCode)
         {
             #region 不相同的数据插入价格表
             strSql.Append("       insert into TPrice       \r\n");
@@ -612,7 +630,7 @@ namespace DataAccess
             strSql.Append("       	 vcChange,vcPart_id,dUseBegin,dUseEnd,vcProjectType      \r\n");
             strSql.Append("       	,vcSupplier_id,vcSupplier_Name,dProjectBegin,dProjectEnd,vcHaoJiu      \r\n");
             strSql.Append("       	,dJiuBegin,dJiuEnd,dJiuBeginSustain,vcCarTypeDev,vcCarTypeDesign      \r\n");
-            strSql.Append("       	,vcPart_Name,vcOE,vcPart_id_HK,vcStateFX,vcFXNO      \r\n");
+            strSql.Append("       	,vcPart_Name,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcOE,vcPart_id_HK,vcStateFX,vcFXNO      \r\n");
             strSql.Append("       	,vcSumLater,vcReceiver,vcOriginCompany,dDataSyncTime,vcPriceState,dPriceStateDate      \r\n");
             strSql.Append("       )      \r\n");
             strSql.Append("       select       \r\n");
@@ -620,7 +638,7 @@ namespace DataAccess
             strSql.Append("       	,a.vcSupplier_id,a.vcSupplier_Name,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcHaoJiu      \r\n");
             strSql.Append("       	,a.dJiuBegin,a.dJiuEnd,a.vcJiuYear,a.vcCarTypeDev,a.vcCarTypeDesign      \r\n");
             strSql.Append("       	,a.vcPartNameEn,a.vcOE,a.vcHKPart_id,a.vcFXDiff,a.vcFXNo      \r\n");
-            strSql.Append("       	,a.vcSumLater_Name,a.vcDownRecever,a.vcOriginCompany,GETDATE(),0,GETDATE()      \r\n");
+            strSql.Append("       	,a.vcSumLater_Name,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcNum11,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15,a.vcDownRecever,a.vcOriginCompany,GETDATE(),'0',GETDATE()      \r\n");
             strSql.Append("        from       \r\n");
             strSql.Append("       (      \r\n");
             strSql.Append("       	select a.*      \r\n");
@@ -628,7 +646,7 @@ namespace DataAccess
             strSql.Append("       	  +CONVERT(int,vcNum4)+CONVERT(int,vcNum5)+CONVERT(int,vcNum6)      \r\n");
             strSql.Append("       	  +CONVERT(int,vcNum7)+CONVERT(int,vcNum8)+CONVERT(int,vcNum9)      \r\n");
             strSql.Append("       	  +CONVERT(int,vcNum10)) as 'vcSumLater_Name'      \r\n");
-            strSql.Append("       	,b.vcDownRecever from "+tempTableName+" a      \r\n");
+            strSql.Append("       	,b.vcDownRecever from " + tempTableName+" a      \r\n");
             strSql.Append("         inner join     \r\n");
             strSql.Append("         (    \r\n");
             strSql.Append("         	select vcValue1 as 'vcSYTCode',vcValue2 as 'vcRecever',vcValue3 as 'vcDownRecever' from TOutCode where vcCodeId = 'C004' and vcIsColum = 0    \r\n");
@@ -648,9 +666,9 @@ namespace DataAccess
             strSql.Append("       on a.vcPart_id = b.vcPart_Id      \r\n");
             strSql.Append("       and a.vcDownRecever =b.vcReceiver      \r\n");
             strSql.Append("       and a.vcSupplier_id = b.vcSupplier_id      \r\n");
-            //strSql.Append("       and a.vcSYTCode = b.vcSYTCode      \r\n");
+            strSql.Append("       and a.vcSYTCode = '"+strSYTCode+"'      \r\n");
             strSql.Append("       where b.vcPart_Id is null      \r\n");
-            strSql.Append("       and a.vcChange<>b.vcPriceChangeInfo      \r\n");
+            strSql.Append("       or a.vcChange<>b.vcPriceChangeInfo      \r\n");
             #endregion
 
             #region 相同的数据进行更新操作
@@ -672,7 +690,21 @@ namespace DataAccess
             strSql.Append("       ,vcPart_id_HK = b.vcHKPart_id             \r\n");
             strSql.Append("       ,vcStateFX = b.vcFXDiff             \r\n");
             strSql.Append("       ,vcFXNO = b.vcFXNo             \r\n");
-            strSql.Append("       ,vcSumLater = b.vcSumLater             \r\n");
+            strSql.Append("       ,vcNum1 = b.vcNum1             \r\n");
+            strSql.Append("       ,vcNum2 = b.vcNum2             \r\n");
+            strSql.Append("       ,vcNum3 = b.vcNum3             \r\n");
+            strSql.Append("       ,vcNum4 = b.vcNum4             \r\n");
+            strSql.Append("       ,vcNum5 = b.vcNum5             \r\n");
+            strSql.Append("       ,vcNum6 = b.vcNum6             \r\n");
+            strSql.Append("       ,vcNum7 = b.vcNum7             \r\n");
+            strSql.Append("       ,vcNum8 = b.vcNum8             \r\n");
+            strSql.Append("       ,vcNum9 = b.vcNum9             \r\n");
+            strSql.Append("       ,vcNum10 = b.vcNum10             \r\n");
+            strSql.Append("       ,vcNum11 = b.vcNum11             \r\n");
+            strSql.Append("       ,vcNum12 = b.vcNum12             \r\n");
+            strSql.Append("       ,vcNum13 = b.vcNum13             \r\n");
+            strSql.Append("       ,vcNum14 = b.vcNum14             \r\n");
+            strSql.Append("       ,vcNum15 = b.vcNum15             \r\n");
             strSql.Append("       ,vcOriginCompany = b.vcOriginCompany             \r\n");
             strSql.Append("       ,dDataSyncTime = GETDATE()             \r\n");
             strSql.Append("       from  TPrice a       \r\n");
@@ -717,6 +749,7 @@ namespace DataAccess
             strSql.Append("       on  a.vcPart_id = b.vcPart_id            \r\n");
             strSql.Append("       and a.vcSupplier_id = b.vcSupplier_id             \r\n");
             strSql.Append("       and a.vcReceiver = b.vcDownRecever            \r\n");
+            strSql.Append("       and b.vcSYTCode = '" + strSYTCode + "'      \r\n");
             #endregion
 
             return strSql;
@@ -727,8 +760,116 @@ namespace DataAccess
         #region 原单位向采购表同步数据
         public StringBuilder getUnit2SpMasterSync()
         {
-            StringBuilder strSql = new StringBuilder();
+            #region 新车新设
+            strSql.Append("      insert into TSPMaster        \r\n");
+            strSql.Append("      (       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
+            strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
+            strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime       \r\n");
+            strSql.Append("      )       \r\n");
+            strSql.Append("      select        \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDesign       \r\n");
+            strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
+            strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.vcJiuYear       \r\n");
+            strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE()       \r\n");
+            strSql.Append("       from        \r\n");
+            strSql.Append("      (       \r\n");
+            strSql.Append("      	select a.*,b.vcDownRecever from         \r\n");
+            strSql.Append("      	(       \r\n");
+            strSql.Append("      	    select * from "+tempTableName+"       \r\n");
 
+            #region 这里修改变更事项
+            strSql.Append("      	    where vcChange = '1'   \r\n");
+            #endregion
+            
+            strSql.Append("      	 ) a      \r\n");
+            strSql.Append("         inner join     \r\n");
+            strSql.Append("         (    \r\n");
+            strSql.Append("         	select vcValue1 as 'vcSYTCode',vcValue2 as 'vcRecever',vcValue3 as 'vcDownRecever' from TOutCode where vcCodeId = 'C004' and vcIsColum = 0    \r\n");
+            strSql.Append("         ) b            \r\n");
+            strSql.Append("      	on a.vcSYTCode = b.vcSYTCode       \r\n");
+            strSql.Append("      	and a.vcReceiver = b.vcRecever       \r\n");
+            strSql.Append("      ) a       \r\n");
+            strSql.Append("      left join        \r\n");
+            strSql.Append("      (       \r\n");
+            strSql.Append("      	select vcPartId,vcPackingPlant,vcReceiver,vcSupplierId from TSPMaster       \r\n");
+            strSql.Append("      ) b       \r\n");
+            strSql.Append("      on a.vcPart_id = b.vcPartId       \r\n");
+            strSql.Append("      and a.vcSYTCode = b.vcPackingPlant       \r\n");
+            strSql.Append("      and a.vcDownRecever =b.vcReceiver       \r\n");
+            strSql.Append("      and a.vcSupplier_id = b.vcSupplierId       \r\n");
+            strSql.Append("      where b.vcPartId is null       \r\n");
+            #endregion
+
+            #region 设变新设
+            strSql.Append("      insert into TSPMaster        \r\n");
+            strSql.Append("      (       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
+            strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
+            strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime       \r\n");
+            strSql.Append("      )       \r\n");
+            strSql.Append("      select        \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDesign       \r\n");
+            strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
+            strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.vcJiuYear       \r\n");
+            strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE()       \r\n");
+            strSql.Append("       from        \r\n");
+            strSql.Append("      (       \r\n");
+            strSql.Append("      	select a.*,b.vcDownRecever from         \r\n");
+            strSql.Append("      	(       \r\n");
+            strSql.Append("      	    select * from " + tempTableName + "       \r\n");
+
+            #region 这里修改变更事项
+            strSql.Append("      	    where vcChange = '1'   \r\n");
+            #endregion
+
+            strSql.Append("      	 ) a      \r\n");
+            strSql.Append("         inner join     \r\n");
+            strSql.Append("         (    \r\n");
+            strSql.Append("         	select vcValue1 as 'vcSYTCode',vcValue2 as 'vcRecever',vcValue3 as 'vcDownRecever' from TOutCode where vcCodeId = 'C004' and vcIsColum = 0    \r\n");
+            strSql.Append("         ) b            \r\n");
+            strSql.Append("      	on a.vcSYTCode = b.vcSYTCode       \r\n");
+            strSql.Append("      	and a.vcReceiver = b.vcRecever       \r\n");
+            strSql.Append("      ) a       \r\n");
+            strSql.Append("      left join        \r\n");
+            strSql.Append("      (       \r\n");
+            strSql.Append("      	select vcPartId,vcPackingPlant,vcReceiver,vcSupplierId from TSPMaster       \r\n");
+            strSql.Append("      ) b       \r\n");
+            strSql.Append("      on a.vcPart_id = b.vcPartId       \r\n");
+            strSql.Append("      and a.vcSYTCode = b.vcPackingPlant       \r\n");
+            strSql.Append("      and a.vcDownRecever =b.vcReceiver       \r\n");
+            strSql.Append("      and a.vcSupplier_id = b.vcSupplierId       \r\n");
+            strSql.Append("      where b.vcPartId is null       \r\n");
+            #endregion
+
+            #region 打切旧型
+            strSql.Append("      update TSPMaster set             \r\n");
+            strSql.Append("       vcHaoJiu = a.vcHaoJiu            \r\n");
+            strSql.Append("      ,vcOldProduction = a.vcNXQF            \r\n");
+            strSql.Append("      ,dOldStartTime = a.dJiuBegin            \r\n");
+            strSql.Append("      ,dDebugTime = a.vcJiuYear            \r\n");
+            strSql.Append("      ,dSyncTime = GETDATE()            \r\n");
+            strSql.Append("      from       \r\n");
+            strSql.Append("      (      \r\n");
+            strSql.Append("      	select a.*,b.vcDownRecever from #" + tempTableName + " a      \r\n");
+            strSql.Append("      	inner join       \r\n");
+            strSql.Append("      	(      \r\n");
+            strSql.Append("      		select vcValue1 as 'vcSYTCode',vcValue2 as 'vcRecever',vcValue3 as 'vcDownRecever' from TOutCode where vcCodeId = 'C004' and vcIsColum = 0      \r\n");
+            strSql.Append("      	) b      \r\n");
+            strSql.Append("      	on a.vcSYTCode = b.vcSYTCode      \r\n");
+            strSql.Append("      	and a.vcReceiver = b.vcRecever      \r\n");
+            strSql.Append("      ) a            \r\n");
+            strSql.Append("      inner join       \r\n");
+            strSql.Append("      (      \r\n");
+            strSql.Append("      	select vcPartId,vcReceiver,vcSupplierId from TSPMaster      \r\n");
+            strSql.Append("      ) b            \r\n");
+            strSql.Append("      on a.vcPart_id = b.vcPartId            \r\n");
+            strSql.Append("      and a.vcDownRecever = b.vcReceiver            \r\n");
+            strSql.Append("      and a.vcSupplier_id = b.vcSupplierId            \r\n");
+
+            #endregion
             return strSql;
         }
 

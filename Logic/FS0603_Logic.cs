@@ -21,9 +21,9 @@ namespace Logic
         {
             return fs0603_DataAccess.getCodeInfo(strType);
         }
-        public DataTable getFormOptions()
+        public DataTable getFormOptions(string strInOut)
         {
-            return fs0603_DataAccess.getFormOptions();
+            return fs0603_DataAccess.getFormOptions(strInOut);
         }
         public DataTable getSelectOptions(DataTable dataTable, string strName, string strValue)
         {
@@ -2046,6 +2046,12 @@ namespace Logic
                 dataTable.Columns.Add("vcSupplierId", typeof(string));
                 dataTable.Columns.Add("dExpectTime", typeof(string));
                 dataTable.Columns.Add("vcInputType", typeof(string));
+            }
+            if (strSpSub == "mainFs0617")
+            {
+                dataTable.Columns.Add("UUID1", typeof(string));
+                dataTable.Columns.Add("UUID2", typeof(string));
+                dataTable.Columns.Add("UUID3", typeof(string));
             }
             return dataTable;
         }

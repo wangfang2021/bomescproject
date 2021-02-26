@@ -18,13 +18,6 @@ namespace DataAccess
             , string strReceiver, string strPriceState
             )
         {
-
-            DateTime dateTime1 = DateTime.Now;
-            
-            DateTime dateTime = Convert.ToDateTime("2022-01-26");
-            var years = dateTime1.Year - dateTime.Year;
-            var temp = dateTime - dateTime1;
-
             try
             {
                 StringBuilder strSql = new StringBuilder();
@@ -75,8 +68,13 @@ namespace DataAccess
                 
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
-                if(strChange!=null&&strChange != "")
+                if(strChange!=null && strChange != "" && strChange != "空")
                     strSql.Append("       and vcChange='" + strChange + "'         \n");
+
+                if (strChange != null && strChange == "空")
+                    strSql.Append("       and vcChange=''         \n");
+
+
                 if (strPart_id != null && strPart_id != "")
                     strSql.Append("       and vcPart_id like '%" + strPart_id + "%'         \n");
                 if (strOriginCompany != null && strOriginCompany != "")
@@ -164,13 +162,17 @@ namespace DataAccess
                         sql.Append("getdate(),  \r\n");
                         sql.Append("'" + strLastTimeFlag + "'");
                         sql.Append(" );  \r\n");
+                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState<>'4'   \r\n");
+                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and decPriceTNPWithTax is null   \r\n");
+                        sql.Append("  update TPrice set vcPriceState='0',dPriceStateDate=GETDATE() where vcPriceState is null   \r\n");
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         int iAutoId =Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
                         sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                        sql.Append("  vcChange=" + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "   \r\n");
+                        sql.Append("  ,vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
                         sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], false) + "   \r\n");
                         sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
 
@@ -185,6 +187,8 @@ namespace DataAccess
                         sql.Append("  ,vcLastTimeFlag='" + strLastTimeFlag + "'   \r\n");
                         
                         sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
+                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState<>'4'   \r\n");
+                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and decPriceTNPWithTax is null   \r\n");
                     }
                 }
  
@@ -192,30 +196,30 @@ namespace DataAccess
                 if (sql.Length > 0)
                 {
                     //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-                    sql.Append("  DECLARE @errorPart varchar(4000)   \r\n");
-                    sql.Append("  set @errorPart=''   \r\n");
-                    sql.Append("  set @errorPart=(   \r\n");
-                    sql.Append("  	select a.vcPart_id+';' from   \r\n");
-                    sql.Append("  	(   \r\n");
-                    sql.Append("  		select distinct a.vcPart_id from TPrice a   \r\n");
-                    sql.Append("  		left join   \r\n");
-                    sql.Append("  		(   \r\n");
-                    sql.Append("  		   select * from TPrice   \r\n");
-                    sql.Append("  		)b on a.vcPart_id=b.vcPart_id and a.iAutoId<>b.iAutoId   \r\n");
-                    sql.Append("  		   and    \r\n");
-                    sql.Append("  		   (   \r\n");
-                    sql.Append("  			   (a.dUseBegin>=b.dUseBegin and a.dUseBegin<=b.dUseEnd)   \r\n");
-                    sql.Append("  			   or   \r\n");
-                    sql.Append("  			   (a.dUseEnd>=b.dUseBegin and a.dUseEnd<=b.dUseEnd)   \r\n");
-                    sql.Append("  		   )   \r\n");
-                    sql.Append("  		where b.iAutoId is not null   \r\n");
-                    sql.Append("  	)a for xml path('')   \r\n");
-                    sql.Append("  )   \r\n");
-                    sql.Append("      \r\n");
-                    sql.Append("  if @errorPart<>''   \r\n");
-                    sql.Append("  begin   \r\n");
-                    sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
-                    sql.Append("  end    \r\n");
+                    //sql.Append("  DECLARE @errorPart varchar(4000)   \r\n");
+                    //sql.Append("  set @errorPart=''   \r\n");
+                    //sql.Append("  set @errorPart=(   \r\n");
+                    //sql.Append("  	select a.vcPart_id+';' from   \r\n");
+                    //sql.Append("  	(   \r\n");
+                    //sql.Append("  		select distinct a.vcPart_id from TPrice a   \r\n");
+                    //sql.Append("  		left join   \r\n");
+                    //sql.Append("  		(   \r\n");
+                    //sql.Append("  		   select * from TPrice   \r\n");
+                    //sql.Append("  		)b on a.vcPart_id=b.vcPart_id and a.iAutoId<>b.iAutoId   \r\n");
+                    //sql.Append("  		   and    \r\n");
+                    //sql.Append("  		   (   \r\n");
+                    //sql.Append("  			   (a.dUseBegin>=b.dUseBegin and a.dUseBegin<=b.dUseEnd)   \r\n");
+                    //sql.Append("  			   or   \r\n");
+                    //sql.Append("  			   (a.dUseEnd>=b.dUseBegin and a.dUseEnd<=b.dUseEnd)   \r\n");
+                    //sql.Append("  		   )   \r\n");
+                    //sql.Append("  		where b.iAutoId is not null   \r\n");
+                    //sql.Append("  	)a for xml path('')   \r\n");
+                    //sql.Append("  )   \r\n");
+                    //sql.Append("      \r\n");
+                    //sql.Append("  if @errorPart<>''   \r\n");
+                    //sql.Append("  begin   \r\n");
+                    //sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
+                    //sql.Append("  end    \r\n");
 
 
                     excute.ExcuteSqlWithStringOper(sql.ToString());
@@ -277,7 +281,8 @@ namespace DataAccess
                     string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
 
                     sql.Append("  update TPrice set    \r\n");
-                    sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                    sql.Append("  vcChange=" + ComFunction.getSqlValue(dt.Rows[i]["vcChange"], false) + "   \r\n");
+                    sql.Append("  ,vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
                     sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS"], false) + "   \r\n");
                     sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
 
@@ -292,7 +297,8 @@ namespace DataAccess
                     sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                     sql.Append("  ,dOperatorTime=getdate()   \r\n");
                     sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
-
+                    sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");
+                    sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null   \r\n");
                 }
                 if (sql.Length > 0)
                 {
@@ -375,38 +381,38 @@ namespace DataAccess
                 if (sql.Length > 0)
                 {
                     //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-                    sql.Append("  	  DECLARE @errorName varchar(50)      \r\n");
-                    sql.Append("  	  set @errorName=''      \r\n");
-                    sql.Append("  	  set @errorName=(      \r\n");
-                    sql.Append("  	  	select vcName +';' from      \r\n");
-                    sql.Append("  	  	(      \r\n");
-                    sql.Append("  	  		select distinct a.vcName from    \r\n");
-                    sql.Append("  			(   \r\n");
-                    sql.Append("  				select * from TPrice_GS a   \r\n");
-                    sql.Append("  				inner join   \r\n");
-                    sql.Append("  				(   \r\n");
-                    sql.Append("  					select vcValue,vcName from TCode where vcCodeId = 'C038'   \r\n");
-                    sql.Append("  				) b   \r\n");
-                    sql.Append("  				on a.vcGSName = b.vcValue   \r\n");
-                    sql.Append("  			) a      \r\n");
-                    sql.Append("  	  		left join      \r\n");
-                    sql.Append("  	  		(      \r\n");
-                    sql.Append("  	  		   select * from TPrice_GS      \r\n");
-                    sql.Append("  	  		)b on a.vcGSName=b.vcGSName and a.iAutoId<>b.iAutoId      \r\n");
-                    sql.Append("  	  		   and       \r\n");
-                    sql.Append("  	  		   (      \r\n");
-                    sql.Append("  	  			   (a.dBegin>=b.dBegin and a.dBegin<=b.dEnd)      \r\n");
-                    sql.Append("  	  			   or      \r\n");
-                    sql.Append("  	  			   (a.dEnd>=b.dBegin and a.dEnd<=b.dEnd)      \r\n");
-                    sql.Append("  	  		   )      \r\n");
-                    sql.Append("  	  		where b.iAutoId is not null      \r\n");
-                    sql.Append("  	  	)a for xml path('')      \r\n");
-                    sql.Append("  	  )      \r\n");
-                    sql.Append("  	         \r\n");
-                    sql.Append("  	  if @errorName<>''      \r\n");
-                    sql.Append("  	  begin      \r\n");
-                    sql.Append("  	    select CONVERT(int,'-->'+@errorName+'<--')      \r\n");
-                    sql.Append("  	  end       \r\n");
+                    //sql.Append("  	  DECLARE @errorName varchar(50)      \r\n");
+                    //sql.Append("  	  set @errorName=''      \r\n");
+                    //sql.Append("  	  set @errorName=(      \r\n");
+                    //sql.Append("  	  	select vcName +';' from      \r\n");
+                    //sql.Append("  	  	(      \r\n");
+                    //sql.Append("  	  		select distinct a.vcName from    \r\n");
+                    //sql.Append("  			(   \r\n");
+                    //sql.Append("  				select * from TPrice_GS a   \r\n");
+                    //sql.Append("  				inner join   \r\n");
+                    //sql.Append("  				(   \r\n");
+                    //sql.Append("  					select vcValue,vcName from TCode where vcCodeId = 'C038'   \r\n");
+                    //sql.Append("  				) b   \r\n");
+                    //sql.Append("  				on a.vcGSName = b.vcValue   \r\n");
+                    //sql.Append("  			) a      \r\n");
+                    //sql.Append("  	  		left join      \r\n");
+                    //sql.Append("  	  		(      \r\n");
+                    //sql.Append("  	  		   select * from TPrice_GS      \r\n");
+                    //sql.Append("  	  		)b on a.vcGSName=b.vcGSName and a.iAutoId<>b.iAutoId      \r\n");
+                    //sql.Append("  	  		   and       \r\n");
+                    //sql.Append("  	  		   (      \r\n");
+                    //sql.Append("  	  			   (a.dBegin>=b.dBegin and a.dBegin<=b.dEnd)      \r\n");
+                    //sql.Append("  	  			   or      \r\n");
+                    //sql.Append("  	  			   (a.dEnd>=b.dBegin and a.dEnd<=b.dEnd)      \r\n");
+                    //sql.Append("  	  		   )      \r\n");
+                    //sql.Append("  	  		where b.iAutoId is not null      \r\n");
+                    //sql.Append("  	  	)a for xml path('')      \r\n");
+                    //sql.Append("  	  )      \r\n");
+                    //sql.Append("  	         \r\n");
+                    //sql.Append("  	  if @errorName<>''      \r\n");
+                    //sql.Append("  	  begin      \r\n");
+                    //sql.Append("  	    select CONVERT(int,'-->'+@errorName+'<--')      \r\n");
+                    //sql.Append("  	  end       \r\n");
 
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
@@ -588,15 +594,40 @@ namespace DataAccess
         }
         #endregion
 
+        #region 向调达送信后变更价格处理状态
+        public void sendDiaoDaChangeState(List<Dictionary<string, object>> listInfoData, ref string strErr)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    strSql.AppendLine("      update TPrice set vcPriceState='1',dPriceStateDate=GETDATE()       ");
+                    strSql.AppendLine("      where iAutoId = '" + listInfoData[i]["iAutoId"] + "'  and vcPriceState='0'       ");
+                }
+                if (strSql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                strErr += "操作失败:" + ex.Message;
+                throw ex;
+            }
+        }
+        #endregion
+
+
         #region 获取邮件内容
         public string getEmailBody(string strUserId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcContent from TMailMessageSetting where vcUserId = '" + strUserId+"' and vcChildFunID = 'FS0309'       ");
+                strSql.AppendLine("      select vcContent from TMailMessageSetting where vcUserId = '" + strUserId + "' and vcChildFunID = 'FS0309'       ");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                if (dt.Rows.Count>0)
+                if (dt.Rows.Count > 0)
                 {
                     return dt.Rows[0][0].ToString();
                 }
@@ -653,7 +684,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("       select vcValue2 as 'address',vcValue1 as 'displayName' from TOutCode where vcCodeId = 'C006' and vcIsColum = '0' and vcValue1 is not null and vcValue1 <> '' and vcValue2 is not null and vcValue2 <> ''      ");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                if(dt.Rows.Count>0)
+                if (dt.Rows.Count > 0)
                 {
                     return dt;
                 }

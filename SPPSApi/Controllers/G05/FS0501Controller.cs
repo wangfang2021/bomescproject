@@ -41,10 +41,12 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_C036 = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//月度订单对应状态
+                List<Object> dataList_C036 = ComFunction.convertAllToResult(fs0501_Logic.getTCode("C036"));//对应状态
                 List<Object> dataList_C052 = ComFunction.convertAllToResult(ComFunction.getTCode("C052"));//操作状态
+                List<Object> dataList_WorkList = ComFunction.convertAllToResult(fs0501_Logic.getWorkArea(loginInfo.UserId));//供应商工区
                 res.Add("C036", dataList_C036);
                 res.Add("C052", dataList_C052);
+                res.Add("WorkArea", dataList_WorkList);
                 DateTime dNow = DateTime.Now.AddMonths(1);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
                 res.Add("vcSupplier_id", loginInfo.UserId);
@@ -84,12 +86,13 @@ namespace SPPSApi.Controllers.G05
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
             string strDyState = dataForm.DyState == null?"": dataForm.DyState;
             string strOperState= dataForm.OperateState == null ? "" : dataForm.OperateState;
+            string strWorkArea= dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
 
             try
             {
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState);
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dExpectTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
+                dtConverter.addField("dExpectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOpenTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("dSReplyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
@@ -133,6 +136,7 @@ namespace SPPSApi.Controllers.G05
                 string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
                 string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
                 string strOperState = dataForm.OperateState == null ? "" : dataForm.OperateState;
+                string strWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
@@ -146,7 +150,7 @@ namespace SPPSApi.Controllers.G05
                 string strMsg = "";
                 if (listInfoData.Count != 0)//选中了数据操作
                 {
-                    if (fs0501_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg,"submit"))
+                    if (fs0501_Logic.IsDQR(strYearMonth,strSupplier_id, listInfoData, ref strMsg,"submit"))
                     {//全是可操作的数据
                         // 执行提交操作：按所选数据提交
                         fs0501_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
@@ -160,10 +164,10 @@ namespace SPPSApi.Controllers.G05
                 }
                 else//按检索条件
                 {
-                    if (fs0501_Logic.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, ref strMsg))
+                    if (fs0501_Logic.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea, ref strMsg))
                     {//全是可操作的数据
                         //执行提交操作：按检索条件提交
-                        fs0501_Logic.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, loginInfo.UserId);
+                        fs0501_Logic.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea, loginInfo.UserId);
                     }
                     else
                     {//有不可以操作的数据
@@ -210,10 +214,11 @@ namespace SPPSApi.Controllers.G05
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
             string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
             string strOperState = dataForm.OperateState == null ? "" : dataForm.OperateState;
+            string strWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
 
             try
             {
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState);
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea);
                 string[] fields = { "vcYearMonth", "dExpectTime", "vcDyState_Name", "vcPart_id", "iQuantityPercontainer", "iCbSOQN"
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","dOpenTime","dSReplyTime"
                 };
@@ -255,6 +260,7 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string strSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
@@ -293,7 +299,7 @@ namespace SPPSApi.Controllers.G05
                     strYearMonth = Convert.ToDateTime(lsYearMonth[0].ToString()).ToString("yyyyMM");
                     strYearMonth_2 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(1).ToString("yyyyMM");
                     strYearMonth_3 = Convert.ToDateTime(lsYearMonth[0].ToString()).AddMonths(2).ToString("yyyyMM");
-                    if (fs0501_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg,"save"))
+                    if (fs0501_Logic.IsDQR(strYearMonth,strSupplier_id, listInfoData, ref strMsg,"save"))
                     {//全是可操作的数据
                         //继续向下执行
                     }

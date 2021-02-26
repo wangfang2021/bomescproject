@@ -71,6 +71,13 @@ namespace Logic
         }
         #endregion
 
+        #region 向调达送信后变更价格处理状态
+        public void sendDiaoDaChangeState(List<Dictionary<string, object>> listInfoData, ref string strErr)
+        {
+            fs0309_DataAccess.sendDiaoDaChangeState(listInfoData, ref strErr);
+        }
+        #endregion
+
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId)
         {

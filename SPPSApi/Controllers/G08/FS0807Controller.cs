@@ -231,10 +231,10 @@ namespace SPPSApi.Controllers.G08
                         {"vcGQ","vcPart_id","dTimeFrom","dTimeTo","vcCarType","vcSHF","vcSupplier_id",
                          "vcBZPlant","vcSR","vcKanBanNo","iContainerQuantity","vcPartNameEn","vcPartNameCn","vcInProcess",
                          "vcTGProcess","vcPreProcess","vcPreProcessPassTime","vcInProcessSendTime","vcRemark1","vcRemark2"},//英文字段名
-                        {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar, FieldCheck.NumChar,
+                        {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar,FieldCheck.NumChar, FieldCheck.NumChar,
                          FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Num,"","",FieldCheck.Num,
                          "","","","","",""},//数据类型校验
-                        {"1","12","0","0","4","5","4",
+                        {"20","12","0","0","4","5","4",
                          "2","2","5","0","20","20","1",
                          "10","5","2","2","25","25"},//最大长度设定,不校验最大长度用0
                         {"1","10","1","1","0","1","0",

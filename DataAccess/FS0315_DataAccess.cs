@@ -73,9 +73,9 @@ namespace DataAccess
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp GROUP BY Year,Month) c ON a.Year = c.Year AND a.Month = c.Month");
                 sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(SELECT Year,Month,Day,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%新设%' GROUP BY Year,Month,Day) d ON a.Year = d.Year AND a.Month = d.Month AND a.Day = d.Day");
+                sbr.AppendLine("(SELECT Year,Month,Day,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%新设%' OR  vcChange like '%新設%' GROUP BY Year,Month,Day) d ON a.Year = d.Year AND a.Month = d.Month AND a.Day = d.Day");
                 sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(SELECT Year,Month,Day,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%废止%' GROUP BY Year,Month,Day) e ON a.Year = e.Year AND a.Month = e.Month AND a.Day = e.Day");
+                sbr.AppendLine("(SELECT Year,Month,Day,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%废止%' OR vcChange like '%廃止%' GROUP BY Year,Month,Day) e ON a.Year = e.Year AND a.Month = e.Month AND a.Day = e.Day");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(SELECT Year,Month,Day,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%旧型%' GROUP BY Year,Month,Day) f ON a.Year = f.Year AND a.Month = f.Month AND a.Day = f.Day");
 
@@ -134,11 +134,11 @@ namespace DataAccess
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp GROUP BY Year,Month) b ON a.Year = b.Year AND a.Month = b.Month ");
                 sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange = '补给新设' GROUP BY Year,Month) c ON a.Year = c.Year AND a.Month = c.Month");
+                sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%新设%' OR  vcChange like '%新設%' GROUP BY Year,Month) c ON a.Year = c.Year AND a.Month = c.Month");
                 sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange = '补给废止' GROUP BY Year,Month) d ON a.Year = d.Year AND a.Month = d.Month");
+                sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%废止%' OR vcChange like '%廃止%' GROUP BY Year,Month) d ON a.Year = d.Year AND a.Month = d.Month");
                 sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange = '旧型' GROUP BY Year,Month) e ON a.Year = e.Year AND a.Month = e.Month");
+                sbr.AppendLine("(SELECT Year,Month,COUNT(iAutoId) AS NUM FROM #temp WHERE vcChange like '%旧型%' GROUP BY Year,Month) e ON a.Year = e.Year AND a.Month = e.Month");
 
                 if (sbr.Length > 0)
                 {

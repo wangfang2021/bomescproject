@@ -71,9 +71,9 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
 
-                sbr.AppendLine(" SELECT c.vcName AS vcOriginCompany, a.vcPart_id, d.vcName AS vcReceiver, a.vcPartNameEn, a.vcPartNameCn, a.vcCarTypeDesign, a.vcCarTypeDev, a.dTimeFrom, a.dTimeTo, ");
+                sbr.AppendLine(" SELECT a.vcOriginCompany AS vcOriginCompany, a.vcPart_id, a.vcReceiver AS vcReceiver, a.vcPartNameEn, a.vcPartNameCn, a.vcCarTypeDesign, a.vcCarTypeDev, a.dTimeFrom, a.dTimeTo, ");
                 sbr.AppendLine(" a.vcPartReplace, e.vcName AS vcInOutflag, f.vcName AS vcOE, a.vcHKPart_id, g.vcName AS vcHaoJiu, a.dJiuBegin, a.dJiuEnd, a.vcJiuYear, a.vcNXQF, a.dSSDate, a.vcSupplier_id,");
-                sbr.AppendLine(" a.vcSCPlace, a.vcCHPlace, h.vcName AS vcSYTCode, a.vcSCSName, a.vcSCSAdress, a.vcZXBZNo, a.vcCarTypeName, a.vcFXDiff, a.vcFXNo, a.decPriceOrigin, a.decPriceTNPWithTax,");
+                sbr.AppendLine(" a.vcSCPlace, a.vcCHPlace, a.vcSYTCode AS vcSYTCode, a.vcSCSName, a.vcSCSAdress, a.vcZXBZNo, a.vcCarTypeName, a.vcFXDiff, a.vcFXNo, a.decPriceOrigin, a.decPriceTNPWithTax,");
                 sbr.AppendLine(" b.vcSupplierPlant, b.vcSufferIn, b.iPackingQty, b.vcBoxType, b.vcBZPlant, b.vcBZUnit, b.vcPackNo, a.vcSupplier_name");
                 sbr.AppendLine(" FROM(SELECT a.*, b.decPriceOrigin, b.decPriceTNPWithTax, c.vcSupplier_name");
                 sbr.AppendLine("      FROM(SELECT vcOriginCompany, vcPart_id, vcReceiver, vcPartNameEn, vcPartNameCn, vcCarTypeDesign, vcCarTypeDev, dTimeFrom, dTimeTo, vcPartReplace, vcInOutflag, vcOE, vcHKPart_id,");
@@ -103,12 +103,12 @@ namespace DataAccess
                 sbr.AppendLine("                   LEFT JOIN(SELECT vcPartsNo, vcPackNo, vcShouhuofangID");
                 sbr.AppendLine("                             FROM sppsdb_test.dbo.TPackItem");
                 sbr.AppendLine("                             WHERE dUsedFrom<=GETDATE()AND dUsedTo>=GETDATE()) f ON a.vcPartId=f.vcPartsNo AND a.vcReceiver=f.vcShouhuofangID) b ON a.vcPart_id=b.vcPartId AND a.vcReceiver=b.vcReceiver AND a.vcSupplier_id=b.vcSupplierId");
-                sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C006') c ON a.vcOriginCompany=c.vcValue");
-                sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C018') d ON a.vcReceiver=d.vcValue");
+                //sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C006') c ON a.vcOriginCompany=c.vcValue");
+                //sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C018') d ON a.vcReceiver=d.vcValue");
                 sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C003') e ON a.vcInOutflag=e.vcValue");
                 sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C012') f ON a.vcOE=f.vcValue");
                 sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C004') g ON a.vcHaoJiu=g.vcValue");
-                sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C016') h ON a.vcSYTCode=h.vcValue");
+                //sbr.AppendLine("     LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C016') h ON a.vcSYTCode=h.vcValue");
                 sbr.AppendLine(" WHERE a.vcPart_id LIKE '" + PartId + "%' AND a.vcSupplier_id LIKE '" + Supplier_id + "%';");
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");

@@ -47,7 +47,7 @@ namespace DataAccess
             }
         }
 
-        public DataTable getFormOptions()
+        public DataTable getFormOptions(string strInOut)
         {
             try
             {
@@ -85,7 +85,12 @@ namespace DataAccess
                 strSql.AppendLine("		CONVERT(VARCHAR(7),T1.dDebugTime,111) AS vcDebugTime_Value,");
                 strSql.AppendLine("		CONVERT(VARCHAR(7),T1.dDebugTime,111) AS vcDebugTime_Name");
                 strSql.AppendLine("		FROM ");
-                strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE ISNULL(vcDelete,'0')='0')T1");
+                strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE ISNULL(vcDelete,'0')='0'");
+                if (strInOut != "")
+                {
+                    strSql.AppendLine("AND vcInOut='"+ strInOut + "'");
+                }
+                strSql.AppendLine(")T1");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT * FROM [TSPMaster_SupplierPlant] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T2");
                 strSql.AppendLine("ON T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
@@ -96,8 +101,9 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT * FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T4");
                 strSql.AppendLine("ON T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId]");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT * FROM [TSPMaster_OrderPlant] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
-                strSql.AppendLine("ON T1.[vcPackingPlant]=T5.[vcPackingPlant] AND T1.[vcPartId]=T5.[vcPartId] AND T1.[vcReceiver]=T5.[vcReceiver] AND T1.[vcSupplierId]=T5.[vcSupplierId]");
+                strSql.AppendLine("(select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                strSql.AppendLine("ON T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C002')T6--变更事项");
                 strSql.AppendLine("ON T1.vcChanges=T6.vcValue");
@@ -253,8 +259,9 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT *  FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T4");
                 strSql.AppendLine("ON T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT *  FROM [TSPMaster_OrderPlant] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
-                strSql.AppendLine("ON T1.[vcPackingPlant]=T5.[vcPackingPlant] AND T1.[vcPartId]=T5.[vcPartId] AND T1.[vcReceiver]=T5.[vcReceiver] AND T1.[vcSupplierId]=T5.[vcSupplierId] ");
+                strSql.AppendLine("(select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                strSql.AppendLine("ON T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C002')T6--变更事项");
                 strSql.AppendLine("ON T1.vcChanges=T6.vcValue");

@@ -134,8 +134,8 @@ namespace SPPSApi.Controllers.G03
                 string strMsg = "";
                 if (flag == "0")
                 {
-                    string[] heads = { "年", "月", "日", "新设", "废止", "旧型", "点数/回", "点数/月", };
-                    string[] fields = { "Year", "Month", "Day", "iXS", "iFZ", "iJX", "idaySUM", "imonthSUM" };
+                    string[] heads = { "年", "月", "日", "新设", "废止", "旧型","其他", "点数/回", "点数/月", };
+                    string[] fields = { "Year", "Month", "Day", "iXS", "iFZ", "iJX", "iOther", "idaySUM", "imonthSUM" };
                     filepath = ComFunction.DataTableToExcel(heads, fields, list[0], _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
 
                 }

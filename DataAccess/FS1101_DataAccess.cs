@@ -17,33 +17,33 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("SELECT '' as LinId,vcInPutOrderNo,vcPackMaterNo,vcTrolleyNo,vcPackPartId,vcLocation,sum(vcQty) as iQty,'1' as bSelectFlag ");
-                strSql.AppendLine("FROM (");
-                strSql.AppendLine("SELECT [vcInPutOrderNo] AS vcInPutOrderNo,[vcPackMaterNo] AS vcPackMaterNo,[vcTrolleyNo] AS vcTrolleyNo,[vcPackPartId] AS vcPackPartId");
-                strSql.AppendLine("      ,[vcQty] AS vcQty,[vcLocation] AS vcLocation");
-                strSql.AppendLine("  FROM [dbo].[TPackMaterInfo] ");
-                strSql.AppendLine("  WHERE [dFirstPrintTime] IS NOT NULL ");
+                strSql.AppendLine("select a.iAutoId, a.vcInno as vcInPutOrderNo,a.vcLotid as vcPackMaterNo,a.[vcTrolleyNo] AS vcTrolleyNo,a.vcPackingpartsno as vcPackPartId  ");
+                strSql.AppendLine("		,dQty as iQty,vcPackingpartslocation as vcLocation,'1' as bSelectFlag 	from   ");
+                strSql.AppendLine("(select * from tpacklist)a  ");
+                strSql.AppendLine("left join  ");
+                strSql.AppendLine("(select * from TOperateSJ where vcZYType='S0')b  ");
+                strSql.AppendLine("on a.vcInno=b.vcInputNo  ");
+                strSql.AppendLine("WHERE a.[dFirstPrintTime] IS NOT NULL   ");
                 if (strPackMaterNo != "")
                 {
-                    strSql.AppendLine("  AND [vcPackMaterNo] like '%"+ strPackMaterNo + "%' ");
+                    strSql.AppendLine("  AND a.vcLotid like '%" + strPackMaterNo + "%' ");
                 }
                 if (strTrolleyNo != "")
                 {
-                    strSql.AppendLine("  AND [vcTrolleyNo]='"+ strTrolleyNo + "' ");
+                    strSql.AppendLine("  AND a.vcTrolleyNo='" + strTrolleyNo + "' ");
                 }
                 if (strPartId != "")
                 {
-                    strSql.AppendLine("  AND vcPartId like '"+ strPartId + "%' ");
+                    strSql.AppendLine("  AND b.vcPart_id like '" + strPartId + "%' ");
                 }
                 if (strOrderNo != "")
                 {
-                    strSql.AppendLine("  AND vcOrderNo='"+ strOrderNo + "' ");
+                    strSql.AppendLine("  AND b.vcKBOrderNo='" + strOrderNo + "' ");
                 }
                 if (strLianFan != "")
                 {
-                    strSql.AppendLine("  AND vcLianFan='"+ strLianFan + "'");
+                    strSql.AppendLine("  AND b.vcKBLFNo='" + strLianFan + "'");
                 }
-                strSql.AppendLine(")T1	GROUP BY vcInPutOrderNo,vcPackMaterNo,vcTrolleyNo,vcPackPartId,vcLocation");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

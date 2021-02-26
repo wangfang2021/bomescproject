@@ -142,7 +142,9 @@ namespace SPPSApi.Controllers.G12
             {
                 string _msg;
                 DataTable dt = logic.GetFzjsRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
-                string[] fields = { "vcMonth", "vcPartsNo","iSRNum","Total","iXZNum","iBYNum","iFZNum","syco","iCONum" };
+                string[] fields = { "vcMonth", "vcPartsNo","iSRNum","Total","iXZNum","iBYNum",
+                "iFZNum","syco","iCONum"
+                };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub1_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -257,7 +259,14 @@ namespace SPPSApi.Controllers.G12
             string vcType = dataForm.vcType;
             string vcOrder = dataForm.vcOrder;
             string vcSaleUser = dataForm.vcSaleUser;
-            DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
+            JArray listInfo = dataForm.temp;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+
+
+            DataTable dt = ListToDataTable(listInfoData);
+
+           // DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
             vcType = vcType == null ? "" : vcType;
             vcOrder = vcOrder == null ? "" : vcOrder;
             vcSaleUser = vcSaleUser == null ? "" : vcSaleUser;

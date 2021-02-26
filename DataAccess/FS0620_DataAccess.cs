@@ -63,6 +63,20 @@ namespace DataAccess
             }
         }
 
+        public DataTable GetSupplierWorkArea()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select a.SupplierWorkArea as vcValue,a.SupplierWorkArea as vcName from ( select distinct vcSupplier_id+vcWorkArea as SupplierWorkArea from TAnnualManagement ) a order by SupplierWorkArea asc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         /// <summary>
         /// 通过供应商 工区 获取指定邮箱
@@ -75,7 +89,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select vcLinkMan,vcEmail from [dbo].[TSupplierInfo] where vcSupplier_id='"+ vcSupplier_id + "' and vcWorkArea='"+ vcWorkArea + "'   ");
+                strSql.AppendLine("  select  vcSupplier_id, vcWorkArea, vcLinkMan1, vcEmail1, vcLinkMan2, vcEmail2, vcLinkMan3,vcEmail3 from [dbo].[TSupplierInfo] where vcSupplier_id='" + vcSupplier_id + "' and vcWorkArea='"+ vcWorkArea + "'   ");
                  
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 return dt;
@@ -91,13 +105,13 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select [iAutoId], [vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory],   ");
+                strSql.AppendLine("  select [iAutoId], d.vcName as vcType, a.vcReceiver,[vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory],   ");
                 strSql.AppendLine("  [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], [vcAcceptNum],  ");
                 strSql.AppendLine("  [vcJanuary], [vcFebruary], [vcMarch], [vcApril], [vcMay], [vcJune], [vcJuly],   ");
                 strSql.AppendLine("  [vcAugust], [vcSeptember], [vcOctober], [vcNovember], [vcDecember],   ");
@@ -111,6 +125,7 @@ namespace DataAccess
                 strSql.AppendLine("  from TAnnualManagement a  ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C000') b on a.vcInjectionFactory=b.vcValue  ");
                 strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C003') c on a.vcInsideOutsideType=c.vcName  ");
+                strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C061') d on a.vcType=d.vcValue  ");
                 strSql.AppendLine("  where 1=1  ");
                 strSql.AppendLine("    ");
 
@@ -130,13 +145,17 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  c.vcValue = '" + vcInsideOutsideType + "' ");
                 }
-                if (vcSupplier_id.Length > 0)
+                if (vcSupplierIdWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  vcSupplier_id = '" + vcSupplierIdWorkArea.Substring(0,4) + "' ");
                 }
-                if (vcWorkArea.Length > 0)
+                if (vcSupplierIdWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                    strSql.AppendLine("  and  vcWorkArea = '" + vcSupplierIdWorkArea.Substring(4, 1) + "' ");
+                }
+                if (vcType.Length>0)
+                {
+                    strSql.AppendLine("  and  vcType = '" + vcType + "' ");
                 }
                 if (vcCarType.Length > 0)
                 {
@@ -264,6 +283,16 @@ namespace DataAccess
                 {
                     StringBuilder strSql = new StringBuilder();
                     
+                    string  vcType = dt.Rows[i]["vcPackPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackPlant"].ToString();
+                    if (vcType == "当初年计") //'0','当初年计' '1','修正年计'
+                    {
+                        vcType = "0";
+                    }
+                    else
+                    {
+                        vcType = "1";
+                    }
+                    string vcReceiver = dt.Rows[i]["vcReceiver"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiver"].ToString();
                     string vcPackPlant = dt.Rows[i]["vcPackPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackPlant"].ToString();
                     string vcTargetYear = dt.Rows[i]["vcTargetYear"] == System.DBNull.Value ? "" : dt.Rows[i]["vcTargetYear"].ToString();
                     string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
@@ -298,13 +327,13 @@ namespace DataAccess
                     string vcNextOneYear = dt.Rows[i]["vcNextOneYear"] == System.DBNull.Value ? "" : dt.Rows[i]["vcNextOneYear"].ToString();
                     string vcNextTwoYear = dt.Rows[i]["vcNextTwoYear"] == System.DBNull.Value ? "" : dt.Rows[i]["vcNextTwoYear"].ToString();
                     
-                    strSql.AppendLine("  		insert into dbo.TAnnualManagement (vcPackPlant, vcTargetYear, vcPartNo, vcInjectionFactory,  ");
+                    strSql.AppendLine("  		insert into dbo.TAnnualManagement (vcType,vcReceiver,vcPackPlant, vcTargetYear, vcPartNo, vcInjectionFactory,  ");
                     strSql.AppendLine("  		 vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType,   ");
                     strSql.AppendLine("  		 vcAcceptNum, vcJanuary, vcFebruary, vcMarch, vcApril, vcMay, vcJune,   ");
                     strSql.AppendLine("  		 vcJuly, vcAugust, vcSeptember, vcOctober, vcNovember, vcDecember,    ");
                     strSql.AppendLine("  		 vcNextOneYear, vcNextTwoYear, vcOperatorID, dOperatorTime)   ");
                     strSql.AppendLine("  		values   ");
-                    strSql.AppendLine("  		('" + vcPackPlant + "','" + vcTargetYear + "','" + vcPartNo + "','" + vcInjectionFactory + "','" + vcInsideOutsideType + "',    ");
+                    strSql.AppendLine("  		('" + vcType + "','" + vcReceiver + "','" + vcPackPlant + "','" + vcTargetYear + "','" + vcPartNo + "','" + vcInjectionFactory + "','" + vcInsideOutsideType + "',    ");
                     strSql.AppendLine("  		'" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCarType + "'," + getSqlValue(vcAcceptNum,false) + "," + getSqlValue(vcJanuary, true) + ",   ");
                     strSql.AppendLine("  		" + getSqlValue(vcFebruary, true) + "," + getSqlValue(vcMarch, true) + "," + getSqlValue(vcApril, true) + "," + getSqlValue(vcMay, true) + "," + getSqlValue(vcJune, true) + ",   ");
                     strSql.AppendLine("  		" + getSqlValue(vcJuly, true) + "," + getSqlValue(vcAugust, true) + "," + getSqlValue(vcSeptember, true) + "," + getSqlValue(vcOctober, true) + "," + getSqlValue(vcNovember, true) + ",   ");

@@ -57,13 +57,15 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
+                List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//外注工厂
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-
+                DataTable SupplierWorkArea = fs0620_Logic.GetSupplierWorkArea();
+                List<Object> dataList_SupplierWorkArea = ComFunction.convertToResult(SupplierWorkArea, new string[] { "vcValue", "vcName" });
                 res.Add("C000", dataList_C000);
                 res.Add("C003", dataList_C003);
-
+                res.Add("C018", dataList_C018);
+                res.Add("SupplierWorkArea", dataList_SupplierWorkArea);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -203,17 +205,17 @@ namespace SPPSApi.Controllers.G06
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+            string vcSupplierIdWorkArea = dataForm.vcSupplierIdWorkArea == null ? "" : dataForm.vcSupplierIdWorkArea;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                DataTable dt = fs0620_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+                DataTable dt = fs0620_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
-                //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "导入时间", "包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "对象年合计", "N+1年预测", "N+2年预测" };
-                field = new string[] { "dOperatorTime", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
+                //[vcPartNo], [dBeginDate], [dEndDate]"供应商代码", "工区","vcSupplier_id", "vcWorkArea", 
+                head = new string[] { "导入时间","年计类型","收货方", "包装工厂", "对象年份", "品番", "发注工厂", "内外",  "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
+                field = new string[] { "dOperatorTime","vcType", "vcReceiver", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -333,6 +335,9 @@ namespace SPPSApi.Controllers.G06
                 field = new string[] { "dOperatorTime", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
                 string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                 StringBuilder strErr = new StringBuilder();
+                bool bReault = true;
+                FS0603_Logic fs0603_Logic = new FS0603_Logic();
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
                 for (int i=0;i<dtSelect.Rows.Count;i++)
                 {
                     //组织制定供应商和工区的数据
@@ -349,6 +354,10 @@ namespace SPPSApi.Controllers.G06
                     string filepath = ComFunction.DataTableToExcel(head, field, dtNewSupplierandWorkArea, ".", loginInfo.UserId, strFileName, ref msg);
                     if (filepath == "")
                     {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件没有生产成功，不能发送邮件";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                         logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件没有生产成功，不能发送邮件 \n";
                         writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append(logs);
@@ -364,6 +373,10 @@ namespace SPPSApi.Controllers.G06
                         logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "没有维护邮箱，不能发送邮件 \n";
                         writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea+ "缺少邮箱，不能发送!");
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "没有维护邮箱，不能发送邮件";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                         continue;
                     }
                     if (dtEmail.Rows.Count>1)
@@ -371,35 +384,78 @@ namespace SPPSApi.Controllers.G06
                         logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱维护冗余有误，不能发送邮件 \n";
                         writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱冗余,不能发送!");
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱维护冗余有误，不能发送邮件";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                         continue;
                     }
-                    string strdisplayName = dtEmail.Rows[0]["vcLinkMan"].ToString();
-                    if (string.IsNullOrEmpty(strdisplayName))
+                    string strdisplayName1 = dtEmail.Rows[0]["vcLinkMan1"].ToString();
+                    if (string.IsNullOrEmpty(strdisplayName1))
                     {
-                        strdisplayName = "";
+                        strdisplayName1 = "";
                     }
-                    string strEmail = dtEmail.Rows[0]["vcEmail"].ToString();
-                    if (strEmail == "" || string.IsNullOrEmpty(strEmail))
+                    string strdisplayName2 = dtEmail.Rows[0]["vcLinkMan2"].ToString();
+                    if (string.IsNullOrEmpty(strdisplayName2))
+                    {
+                        strdisplayName2 = "";
+                    }
+                    string strdisplayName3 = dtEmail.Rows[0]["vcLinkMan3"].ToString();
+                    if (string.IsNullOrEmpty(strdisplayName3))
+                    {
+                        strdisplayName3 = "";
+                    }
+                    string strEmail1 = dtEmail.Rows[0]["vcEmail2"].ToString();
+                    string strEmail2 = dtEmail.Rows[0]["vcEmail3"].ToString();
+                    string strEmail3 = dtEmail.Rows[0]["vcEmail3"].ToString();
+                    if (string.IsNullOrEmpty(strEmail1)&& string.IsNullOrEmpty(strEmail2)&&string.IsNullOrEmpty(strEmail3))
                     {
                         logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空，不能发送邮件 \n";
                         writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空,不能发送!");
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空，不能发送邮件";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                         continue;
                     }
-                    string[] emailArray = strEmail.Split(';');
+                    //string[] emailArray = strEmail.Split(';');
                     //收件人dt
                     DataTable receiverDt = new DataTable();
                     receiverDt.Columns.Add("address");
                     receiverDt.Columns.Add("displayName");
-                    for (int j = 0; j < emailArray.Length; j++) {
-                        if (emailArray[j].ToString().Length>0)
-                        {
-                            DataRow dr = receiverDt.NewRow();
-                            dr["address"] = emailArray[j].ToString();
-                            dr["displayName"] = strdisplayName;
-                            receiverDt.Rows.Add(dr);
-                        }
+                    //for (int j = 0; j < emailArray.Length; j++) {
+                    //    if (emailArray[j].ToString().Length>0)
+                    //    {
+                    //        DataRow dr = receiverDt.NewRow();
+                    //        dr["address"] = emailArray[j].ToString();
+                    //        dr["displayName"] = strdisplayName;
+                    //        receiverDt.Rows.Add(dr);
+                    //    }
+                    //}
+                    if (strEmail1.Length>0)
+                    {
+                        DataRow dr = receiverDt.NewRow();
+                        dr["address"] = strEmail1.ToString();
+                        dr["displayName"] = strdisplayName1;
+                        receiverDt.Rows.Add(dr);
                     }
+
+                    if (strEmail2.Length > 0)
+                    {
+                        DataRow dr = receiverDt.NewRow();
+                        dr["address"] = strEmail2.ToString();
+                        dr["displayName"] = strdisplayName2;
+                        receiverDt.Rows.Add(dr);
+                    }
+                    if (strEmail3.Length > 0)
+                    {
+                        DataRow dr = receiverDt.NewRow();
+                        dr["address"] = strEmail3.ToString();
+                        dr["displayName"] = strdisplayName3;
+                        receiverDt.Rows.Add(dr);
+                    }
+
                     //抄送人dt 通过Tcode 自己定义cCDt
                     DataTable cCDt = null;
                     DataTable dtCCEmail = fs0620_Logic.getCCEmail("C053");
@@ -411,8 +467,9 @@ namespace SPPSApi.Controllers.G06
                     string strSubject = "供应商:" + vcSupplier_id + "工区:" + vcWorkArea + "_" + loginInfo.UnitCode + "年计管理信息";
                     //邮件内容
                     string strEmailBody = "";
-                    strEmailBody += "<div style='font-family:宋体;font-size:12'>" + "供应商" + vcSupplier_id + " <br /><br />";
-                    strEmailBody += "  您好 " + strdisplayName + "<br /><br />";
+                    strEmailBody += "<div style='font-family:宋体;font-size:12'>" + "各位供应商 殿：大家好<br /><br />";
+                    strEmailBody += loginInfo.UnitCode+"补给  " + loginInfo.UserName+ "<br /><br />";
+                    strEmailBody += "感谢大家一直以来对"+ loginInfo.UnitCode + "补给业务的协力！<br /><br />";
                     strEmailBody += "  此次邮件内容为事业体"+loginInfo.UnitCode+"年计管理信息，具体内容请查看附！<br /><br />";
                     //strEmailBody += "  请在1个工作日内将是否可以供货的确认结果邮件回复，以下是各个仓库对应的邮箱：<br />";
                     
@@ -423,9 +480,21 @@ namespace SPPSApi.Controllers.G06
                     }
                     else
                     {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送失败，邮件发送公共方法未知原因！";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                         logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送失败，邮件发送公共方法未知原因！\n";
                     }
                     writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
+                }
+                if (!bReault)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);

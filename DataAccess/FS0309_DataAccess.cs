@@ -612,13 +612,46 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取邮件主题
+        /// <summary>
+        /// 获取邮件主题
+        /// </summary>
+        /// <param name="strUserId"></param>
+        /// <returns></returns>
+        public string getEmailSubject(string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("      select vcTitle from TMailMessageSetting where vcUserId = '" + strUserId + "' and vcChildFunID = 'FS0309'       ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0][0].ToString();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 获取收件人
+        /// <summary>
+        /// 获取所有已经维护的收件人信息
+        /// </summary>
+        /// <returns></returns>
         public DataTable getreceiverDt()
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("       select vcValue2 as 'address',vcValue1 as 'displayName' from TOutCode where vcCodeId = 'C006' and vcIsColum = '0'      ");
+                strSql.AppendLine("       select vcValue2 as 'address',vcValue1 as 'displayName' from TOutCode where vcCodeId = 'C006' and vcIsColum = '0' and vcValue1 is not null and vcValue1 <> '' and vcValue2 is not null and vcValue2 <> ''      ");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 if(dt.Rows.Count>0)
                 {

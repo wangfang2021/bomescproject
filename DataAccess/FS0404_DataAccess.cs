@@ -74,13 +74,13 @@ namespace DataAccess
             }
         }
 
-        public DataTable getOrderCodeByName(string name)
+        public DataTable getOrderCodeByName()
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select vcOrderInitials from [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='"+ name + "' ");
+                strSql.AppendLine("  select vcOrderInitials from [dbo].[TOrderDifferentiation] where [vcFlag]='1' ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -96,7 +96,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select vcOrderInitials+convert(varchar(10),iAutoId) as vcValue,vcOrderDifferentiation as vcName from [dbo].[TOrderDifferentiation] order by iAutoId asc  ");
+                strSql.AppendLine("  select vcOrderInitials as vcValue,vcOrderDifferentiation as vcName from [dbo].[TOrderDifferentiation] order by iAutoId asc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

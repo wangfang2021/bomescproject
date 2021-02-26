@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "N+1年预测", "N+2年预测"},
-                                                { "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcNextOneYear", "vcNextTwoYear"},
-                                                {"",FieldCheck.Num,FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,"","",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
-                                                {"50","4","12","100","100","4","50","50","30","30","30","30","30","30","30","30","30","30","30","30","30","30","30"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","1","1","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"年计类型","收货方","包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "N+1年预测", "N+2年预测"},
+                                                { "vcType","vcReceiver","vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcNextOneYear", "vcNextTwoYear"},
+                                                {"","","",FieldCheck.Num,FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,"","",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
+                                                {"100","50","50","4","12","100","100","4","50","50","30","30","30","30","30","30","30","30","30","30","30","30","30","30","30"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","1","1","1","1","1","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -107,6 +107,8 @@ namespace SPPSApi.Controllers.G06
                              , r7 = r.Field<string>("vcSupplier_id")
                              , r8 = r.Field<string>("vcWorkArea")
                              , r9 = r.Field<string>("vcCarType")
+                             , r10 = r.Field<string>("vcType")
+                             , r11 = r.Field<string>("vcReceiver")
 
                              } into g
                              where g.Count() > 1
@@ -117,7 +119,7 @@ namespace SPPSApi.Controllers.G06
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("包装工厂:" + item.Key.r2 + " 对象年月:" + item.Key.r3 +
+                        sbr.Append("年计类型"+ item.Key.r10 + "收货方"+ item.Key.r11 + "包装工厂:" + item.Key.r2 + " 对象年月:" + item.Key.r3 +
                             " 品番:" + item.Key.r4 + " 发注工厂:" + item.Key.r5 +
                             " 内外:" + item.Key.r6 + " 供应商代码:" + item.Key.r7 +
                             " 工区:" + item.Key.r8 + " 车型:" + item.Key.r9 +"<br/>");

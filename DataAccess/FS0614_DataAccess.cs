@@ -271,7 +271,10 @@ namespace DataAccess
                         sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
                         sbr.AppendLine("	WHERE b.vcSupplierPlant IS NOT NULL ");
                         sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId ");
+
+
                         //N+2
+
                         DateTime N2 = LastTime.AddMonths(2);
                         sbr.AppendLine("DECLARE @TargetYM VARCHAR(6)");
                         sbr.AppendLine("DECLARE @startTime DATETIME");

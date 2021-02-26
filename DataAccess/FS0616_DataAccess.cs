@@ -34,7 +34,7 @@ namespace DataAccess
                 strSql.AppendLine("t3.vcName as vcInOut,T4.vcName as vcHaoJiu,T6.vcName as vcOESP,T1.vcSupplierId,T1.vcSupplierPlant,");
                 strSql.AppendLine("t1.vcSupplierPlace,T1.vcSufferIn,t1.iPackingQty,t1.iOrderQuantity,");
                 strSql.AppendLine("t2.iDuiYingQuantity,t2.dDeliveryDate,t2.dOutPutDate,t1.dReplyOverDate,");
-                strSql.AppendLine("'0' as bModFlag,'0' as bAddFlag,'' as vcBgColor,");
+                strSql.AppendLine("'0' as bModFlag,'0' as bAddFlag,case when T1.vcState='3' then 'partFS0616B' else 'partFS0616A' end as vcBgColor,");
                 strSql.AppendLine("CASE WHEN T1.vcDelete='1' THEN '0' ELSE (CASE WHEN T1.vcState='3' THEN '0' ELSE '1' END)  END bSelectFlag,isnull(T1.vcDelete,'0') as vcDelete  FROM ");
                 strSql.AppendLine("(SELECT [iAutoId] as LinId,[vcStatus] as vcState,[vcOrderNo] as vcOrderNo,[vcPart_id] as vcPart_id,[vcOrderPlant] as vcOrderPlant,");
                 strSql.AppendLine("	   [vcInOut] as vcInOut,[vcHaoJiu] as vcHaoJiu,[vcOESP] as vcOESP,[vcSupplier_id] as vcSupplierId,[vcGQ] as vcSupplierPlant,");

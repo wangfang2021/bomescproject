@@ -19,9 +19,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string smallpm, string sr, string pfbefore5)
+        public DataTable Search(string smallpm, string sr, string vcPartsNoBefore5)
         {
-            return fs0810_DataAccess.Search(smallpm, sr, pfbefore5);
+            return fs0810_DataAccess.Search(smallpm, sr, vcPartsNoBefore5);
         }
         #endregion
 
@@ -97,9 +97,9 @@ namespace Logic
         #endregion
 
         #region 受入号+品番前5位+包材品番 不能重复
-        public bool RepeatCheck(string vcSR, string vcPartsNoBefore5, string vcBCPartsNo)
+        public bool RepeatCheck(string vcSR,string vcSupplier_id, string vcPartsNoBefore5, string vcBCPartsNo)
         {
-            int num = fs0810_DataAccess.RepeatCheck(vcSR, vcPartsNoBefore5, vcBCPartsNo);
+            int num = fs0810_DataAccess.RepeatCheck(vcSR, vcSupplier_id, vcPartsNoBefore5, vcBCPartsNo);
             if (num > 0)
             {
                 return true;

@@ -49,10 +49,10 @@ namespace SPPSApi.Controllers.G08
 
             string vcSmallPM = dataForm.vcSmallPM;
             string vcSR = dataForm.vcSR;
-            string vcBCPartsNo = dataForm.vcBCPartsNo;
+            string vcPartsNoBefore5 = dataForm.vcPartsNoBefore5;
             try
             {
-                DataTable dt = fs0810_Logic.Search(vcSmallPM, vcSR, vcBCPartsNo);
+                DataTable dt = fs0810_Logic.Search(vcSmallPM, vcSR, vcPartsNoBefore5);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
@@ -94,8 +94,8 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search(vcSmallPM, vcSR, vcBCPartsNo);
-                string[] heads = { "受入号", "品番前五位", "包材品番", "大品目","小品目"};
-                string[] fields = { "vcSR","vcPartsNoBefore5","vcBCPartsNo","vcBigPM","vcSmallPM"};
+                string[] heads = { "受入号","厂家代码", "品番前五位", "包材品番", "大品目","小品目"};
+                string[] fields = { "vcSR", "vcSupplier_id", "vcPartsNoBefore5","vcBCPartsNo","vcBigPM","vcSmallPM"};
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -163,12 +163,12 @@ namespace SPPSApi.Controllers.G08
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"受入号","品番前五位","包材品番","小品目"},//中文字段名
-                        {"vcSR","vcPartsNoBefore5","vcBCPartsNo","vcSmallPM"},//英文字段名
-                        {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,""},//数据类型校验
-                        {"2","5","50","25"},//最大长度设定,不校验最大长度用0
-                        {"1","1","1","1"},//最小长度设定,可以为空用0
-                        {"1","2","3","5"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"受入号","厂家代码","品番前五位","包材品番","小品目"},//中文字段名
+                        {"vcSR","vcSupplier_id","vcPartsNoBefore5","vcBCPartsNo","vcSmallPM"},//英文字段名
+                        {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,""},//数据类型校验
+                        {"2","10","5","50","25"},//最大长度设定,不校验最大长度用0
+                        {"1","0","0","0","1"},//最小长度设定,可以为空用0
+                        {"1","2","3","4","5"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0810");
                     if (checkRes != null)
@@ -186,13 +186,14 @@ namespace SPPSApi.Controllers.G08
                         bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                         bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                         string vcSR = listInfoData[i]["vcSR"].ToString();
+                        string vcSupplier_id= listInfoData[i]["vcSupplier_id"].ToString();
                         string vcPartsNoBefore5 = listInfoData[i]["vcPartsNoBefore5"].ToString();
                         string vcBCPartsNo = listInfoData[i]["vcBCPartsNo"].ToString();
 
                         if (bAddFlag == true)
                         {//新增 
                             //校验 受入号+品番前5位+包材品番 不能重复
-                            bool isRepeat = fs0810_Logic.RepeatCheck(vcSR, vcPartsNoBefore5, vcBCPartsNo);
+                            bool isRepeat = fs0810_Logic.RepeatCheck(vcSR,vcSupplier_id, vcPartsNoBefore5, vcBCPartsNo);
                             if (isRepeat)
                             {//有重复数据  
                                 apiResult.code = ComConstant.ERROR_CODE;

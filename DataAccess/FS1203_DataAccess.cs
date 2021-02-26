@@ -2887,7 +2887,7 @@ namespace DataAccess
             string vcGC = vcCalendar.Split('-')[0];
             string vcZB = vcCalendar.Split('-')[1];
             DataTable dt = excute.ExcuteSqlWithSelectToDT(getClassSql(date, dayNight, vcPlant, vcGC, vcZB));
-            Object content = dt.Rows[0][0];
+            object content = dt.Rows[0][0];
             if (dt.Rows.Count > 1)
             {
                 throw new Exception("Date:" + date + ";vcPlant:" + vcPlant + ";vcGC:" + vcGC + ";vcZB:" + vcZB + "; 对应的稼动日不止一条");

@@ -17,28 +17,25 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("SELECT T1.LinId,T1.vcCustomerId as vcReceiver,T1.vcCaseNo as vcCaseNo");
-                strSql.AppendLine(",T1.vcInPutOrderNo as vcInPutOrderNo,T1.vcPartId as vcPartId,t3.vcPartsNameEN as vcPartENName,t1.vcQty as iQty,'1' as bSelectFlag FROM");
-                strSql.AppendLine("(select * from TCaseList where dFirstPrintTime is not null ");
+                strSql.AppendLine("SELECT T1.iAutoId as LinId,T1.vcCpdcode as vcReceiver,SUBSTRING(T1.vcCaseno,1,5)+'-'+SUBSTRING(T1.vcCaseno,6,5) as vcCaseNo");
+                strSql.AppendLine(",T1.vcInno as vcInPutOrderNo,T1.vcPart_id as vcPartId,t2.vcPartsNameEN as vcPartENName,t1.iQty as iQty,'1' as bSelectFlag FROM");
+                strSql.AppendLine("(select * from TCaseList where dFirstPrintTime is not null");
                 if (strReceiver != "")
                 {
-                    strSql.AppendLine("AND vcCustomerId='" + strReceiver + "'");
+                    strSql.AppendLine("AND vcCpdcode='" + strReceiver + "'");
                 }
                 if (strCaseNo != "")
                 {
-                    strSql.AppendLine("AND vcCaseNo='" + strCaseNo + "'");
+                    strSql.AppendLine("AND cast(vcCaseNo as int)='" + strCaseNo + "'");
                 }
                 if (strTagId != "")
                 {
-                    strSql.AppendLine("AND vcTagBegin<='" + strTagId + "' AND vcTagEnd>='" + strTagId + "'");
+                    strSql.AppendLine("AND vcCasebarcode<='" + strTagId + "' AND vcCasebarcode>='" + strTagId + "'");
                 }
                 strSql.AppendLine(")T1");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT * FROM TCustomerInfo)T2");
-                strSql.AppendLine("ON T1.vcCustomerId=T2.vcValue");
-                strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT * FROM [TPartInfoMaster] WHERE dTimeFrom<=GETDATE() AND dTimeTo>=GETDATE())T3");
-                strSql.AppendLine("ON T1.vcPartId=T3.vcPartsNo");
+                strSql.AppendLine("(SELECT * FROM [TPartInfoMaster] WHERE dTimeFrom<=GETDATE() AND dTimeTo>=GETDATE())T2");
+                strSql.AppendLine("ON T1.vcPart_id=T2.vcPartsNo");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

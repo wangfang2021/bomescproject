@@ -153,7 +153,7 @@ namespace Common
                         string temp_fieldName_A = strSpecialCheck[k, 0];//校验字段名字
                         string temp_field_A = strSpecialCheck[k, 1];//校验字段
                         string temp_checkValueName_A = strSpecialCheck[k, 2];//值对应的中文名
-                        string temp_checkValue_A = strSpecialCheck[k, 3];//当该字段值为这个值时触发后续校验
+                        string temp_checkValue_A = strSpecialCheck[k, 3];//当该字段值为这个值时触发后续校验，如果值为空，那么表示只要有值就触发后续校验
                         string temp_checkfieldName_B = strSpecialCheck[k, 4];//验证check字段
                         string temp_checkfield_B = strSpecialCheck[k, 5];//验证check字段
                         string temp_mustHasValue_B = strSpecialCheck[k, 6];//check字段是否必须有值，有值则校验最后一个内容
@@ -165,7 +165,7 @@ namespace Common
                             string strTempValue_A = listInfoData[i][temp_field_A] == null ? "" : listInfoData[i][temp_field_A].ToString();
 
                             string strTempValue_B = listInfoData[i][temp_checkfield_B] == null ? "" : listInfoData[i][temp_checkfield_B].ToString();
-                            if (strTempValue_A == temp_checkValue_A)//当前check字段值=要校验的值
+                            if (( temp_checkValue_A != "" && strTempValue_A == temp_checkValue_A) || (temp_checkValue_A == ""&&strTempValue_A !=""))//当前check字段值=要校验的值 或者校验值没设定则认为有值就校验
                             {
                                 if (temp_mustHasValue_B == "0")
                                 {

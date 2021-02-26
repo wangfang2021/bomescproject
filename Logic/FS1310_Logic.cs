@@ -16,28 +16,36 @@ namespace Logic
         {
             fs1310_DataAccess = new FS1310_DataAccess();
         }
-        public DataTable getPinMuInfo()
+        public DataTable getSearchInfo(string strPackPlant, string strPinMu, string strPartId, string strOperImage)
         {
-            return fs1310_DataAccess.getPinMuInfo();
+            return fs1310_DataAccess.getSearchInfo(strPackPlant, strPinMu, strPartId, strOperImage);
         }
-        public DataTable getSearchInfo(string strPlant, string strPinMu, string strPartId)
+
+        public DataTable getSubInfo(string strPlant, string strPartNo)
         {
-            return fs1310_DataAccess.getSearchInfo(strPlant, strPinMu, strPartId);
+            return fs1310_DataAccess.getSubInfo(strPlant, strPartNo);
         }
-        public void setDeleteInfo(List<Dictionary<string, Object>> listInfoData)
+        public void setPackOperImage(string strPartId, string strPinMu, string strPackPlant, string strOperImage, string strOperId)
         {
             try
             {
-                fs1310_DataAccess.setDeleteInfo(listInfoData);
+                fs1310_DataAccess.setPackOperImage(strPartId, strPinMu, strPackPlant, strOperImage, strOperId);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public DataTable getSubInfo(string strPlant, string strPartNo)
+        public void deleteInfo(List<Dictionary<string, Object>> listInfoData)
         {
-            return fs1310_DataAccess.getSubInfo(strPlant, strPartNo);
+            try
+            {
+                fs1310_DataAccess.deleteInfo(listInfoData);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }

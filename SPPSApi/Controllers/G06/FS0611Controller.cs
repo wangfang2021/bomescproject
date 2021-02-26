@@ -94,21 +94,22 @@ namespace SPPSApi.Controllers.G06
                 string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
                 string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
 
-                //取特殊厂家--可以为空
-                DataTable dtSpecialSupplier = fs0611_Logic.GetSpecialSupplier(strYearMonth);
-                DataTable dtSpecialSupplier_2 = fs0611_Logic.GetSpecialSupplier(strYearMonth_2);
-                DataTable dtSpecialSupplier_3 = fs0611_Logic.GetSpecialSupplier(strYearMonth_3);
-
-                //取特殊品番--可以为空，特殊品番只取一个，只要平准化结果有这个品番，就特别处理
-                DataTable dtSpecialPart = fs0611_Logic.GetSpecialPartId(strYearMonth);
-                DataTable dtSpecialPart_2 = fs0611_Logic.GetSpecialPartId(strYearMonth_2);
-                DataTable dtSpecialPart_3 = fs0611_Logic.GetSpecialPartId(strYearMonth_3);
-
                 DataTable dt_C000 =ComFunction.getTCode("C000");
                 ComputeMain soqCompute = new ComputeMain();
                 for (int i = 0; i < dt_C000.Rows.Count; i++)
                 {
                     string strPlant = dt_C000.Rows[i]["vcValue"].ToString();
+
+                    //取特殊厂家--可以为空
+                    DataTable dtSpecialSupplier = fs0611_Logic.GetSpecialSupplier(strPlant, strYearMonth, strYearMonth);
+                    DataTable dtSpecialSupplier_2 = fs0611_Logic.GetSpecialSupplier(strPlant, strYearMonth, strYearMonth_2);
+                    DataTable dtSpecialSupplier_3 = fs0611_Logic.GetSpecialSupplier(strPlant, strYearMonth, strYearMonth_3);
+
+                    //取特殊品番--可以为空，特殊品番只取一个，只要平准化结果有这个品番，就特别处理
+                    DataTable dtSpecialPart = fs0611_Logic.GetSpecialPartId(strPlant, strYearMonth, strYearMonth);
+                    DataTable dtSpecialPart_2 = fs0611_Logic.GetSpecialPartId(strPlant, strYearMonth, strYearMonth_2);
+                    DataTable dtSpecialPart_3 = fs0611_Logic.GetSpecialPartId(strPlant, strYearMonth, strYearMonth_3);
+
                     bool find   = fs0611_Logic.GetSoq(strPlant, strYearMonth, "dxym").Rows.Count > 0 ? true : false;
                     bool find_2 = fs0611_Logic.GetSoq(strPlant, strYearMonth, "nsym").Rows.Count > 0 ? true : false;
                     bool find_3 = fs0611_Logic.GetSoq(strPlant, strYearMonth, "nnsym").Rows.Count > 0 ? true : false;
@@ -165,34 +166,38 @@ namespace SPPSApi.Controllers.G06
                     string strCheckSpecial_2 = "";
                     string strCheckSpecial_3 = "";
 
-                    strCheckSpecial = ComputeUtil.checkSpecial(dtCalendar, dtSpecialSupplier, dtSpecialPart);
-                    if (strCheckSpecial != null)
+                    strCheckSpecial = ComputeUtil.checkSpecial(strPlant, dtCalendar, dtSpecialSupplier, dtSpecialPart);
+                    strCheckSpecial_2 = ComputeUtil.checkSpecial(strPlant, dtCalendar_2, dtSpecialSupplier_2, dtSpecialPart_2);
+                    strCheckSpecial_3 = ComputeUtil.checkSpecial(strPlant, dtCalendar_3, dtSpecialSupplier_3, dtSpecialPart_3);
+                    if (strCheckSpecial != null|| strCheckSpecial_2!=null || strCheckSpecial_3 !=null)
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strCheckSpecial;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    strCheckSpecial_2 = ComputeUtil.checkSpecial(dtCalendar_2, dtSpecialSupplier_2, dtSpecialPart_2);
-                    if (strCheckSpecial_2 != null)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strCheckSpecial_2;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    strCheckSpecial_3 = ComputeUtil.checkSpecial(dtCalendar_3, dtSpecialSupplier_3, dtSpecialPart_3);
-                    if (strCheckSpecial_3 != null)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strCheckSpecial_3;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                        string err = "";
+                        err = strCheckSpecial == null ? err : err + strCheckSpecial;
+                        err = strCheckSpecial_2 == null ? err: err + strCheckSpecial_2;
+                        err = strCheckSpecial_3 == null ? err: err + strCheckSpecial_3;
 
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = err;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+               
                 }
 
  
                 for (int i = 0; i < dt_C000.Rows.Count; i++)
                 {
                     string strPlant = dt_C000.Rows[i]["vcValue"].ToString();
+                    //取特殊厂家--可以为空
+                    DataTable dtSpecialSupplier = fs0611_Logic.GetSpecialSupplier(strPlant, strYearMonth, strYearMonth);
+                    DataTable dtSpecialSupplier_2 = fs0611_Logic.GetSpecialSupplier(strPlant, strYearMonth, strYearMonth_2);
+                    DataTable dtSpecialSupplier_3 = fs0611_Logic.GetSpecialSupplier(strPlant, strYearMonth, strYearMonth_3);
+
+                    //取特殊品番--可以为空，特殊品番只取一个，只要平准化结果有这个品番，就特别处理
+                    DataTable dtSpecialPart = fs0611_Logic.GetSpecialPartId(strPlant, strYearMonth, strYearMonth);
+                    DataTable dtSpecialPart_2 = fs0611_Logic.GetSpecialPartId(strPlant, strYearMonth, strYearMonth_2);
+                    DataTable dtSpecialPart_3 = fs0611_Logic.GetSpecialPartId(strPlant, strYearMonth, strYearMonth_3);
+
+
                     bool find = fs0611_Logic.GetSoq(strPlant, strYearMonth, "dxym").Rows.Count > 0 ? true : false;
                     bool find_2 = fs0611_Logic.GetSoq(strPlant, strYearMonth, "nsym").Rows.Count > 0 ? true : false;
                     bool find_3 = fs0611_Logic.GetSoq(strPlant, strYearMonth, "nnsym").Rows.Count > 0 ? true : false;

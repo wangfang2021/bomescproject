@@ -51,9 +51,15 @@ namespace SPPSApi.Controllers.G06
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 List<Object> dataList_C045 = ComFunction.convertAllToResult(ComFunction.getTCode("C045"));//订单状态
+                DataTable dt_Dock = fs0618_Logic.getDock();//荷姿状态
+                DataTable dt_Supplier = fs0618_Logic.getSupplier();//荷姿状态
+                List<Object> dataList_Dock = ComFunction.convertToResult(dt_Dock, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_Supplier = ComFunction.convertToResult(dt_Supplier, new string[] { "vcValue", "vcName" });
 
                 res.Add("C018", dataList_C018);
                 res.Add("C045", dataList_C045);
+                res.Add("Dock", dataList_Dock);
+                res.Add("Supplier", dataList_Supplier);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -100,6 +106,7 @@ namespace SPPSApi.Controllers.G06
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dOrderDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("vcTargetYearMonth", ConvertFieldType.DateType, "yyyy/MM");
                 dtConverter.addField("dOrderExportDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -145,7 +152,7 @@ namespace SPPSApi.Controllers.G06
                
                 string[] fields = { "vcPackingFactory", "vcTargetYearMonth", "vcDock", "vcCpdcompany", "vcOrderType", "vcOrderNo", "vcSeqno",
                                      "dOrderDate", "dOrderExportDate", "vcPartNo", "vcInsideOutsideType",
-                                     "vcSupplier_id", "vcPlantQtyDaily1", "vcInputQtyDaily1", "vcResultQtyDaily1", "vcPlantQtyDaily2", "vcInputQtyDaily2",
+                                      "vcPlantQtyDaily1", "vcInputQtyDaily1", "vcResultQtyDaily1", "vcPlantQtyDaily2", "vcInputQtyDaily2",
                                      "vcResultQtyDaily2", "vcPlantQtyDaily3", "vcInputQtyDaily3", "vcResultQtyDaily3", "vcPlantQtyDaily4", "vcInputQtyDaily4",
                                      "vcResultQtyDaily4", "vcPlantQtyDaily5", "vcInputQtyDaily5", "vcResultQtyDaily5", "vcPlantQtyDaily6", "vcInputQtyDaily6",
                                      "vcResultQtyDaily6", "vcPlantQtyDaily7", "vcInputQtyDaily7", "vcResultQtyDaily7", "vcPlantQtyDaily8", "vcInputQtyDaily8",

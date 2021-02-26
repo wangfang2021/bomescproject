@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using Common;
@@ -49,18 +50,15 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-
-                List<Object> PlantAreaList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//工区
-                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
-                List<Object> CarModelList = ComFunction.convertAllToResult(ComFunction.getTCode("C098"));//车种
-                List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
-                List<Object> SupplierList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Supplier"));//供应商
-                res.Add("PlantAreaList", PlantAreaList);
-                res.Add("OrderPlantList", OrderPlantList);
-                res.Add("CarModelList", CarModelList);
-                res.Add("ReceiverList", ReceiverList);
-                res.Add("SupplierList", SupplierList);
-
+                DataTable dtOptionsList = fS0603_Logic.getFormOptions("0");
+                List<Object> OrderPlantForForm = ComFunction.convertAllToResult(fS0603_Logic.getSelectOptions(dtOptionsList, "vcOrderPlant_Name", "vcOrderPlant_Value"));//发注工厂选项
+                List<Object> CarModelForForm = ComFunction.convertAllToResult(fS0603_Logic.getSelectOptions(dtOptionsList, "vcCarModel_Name", "vcCarModel_Value"));//车种选项
+                List<Object> ReceiverForForm = ComFunction.convertAllToResult(fS0603_Logic.getSelectOptions(dtOptionsList, "vcReceiver_Name", "vcReceiver_Value"));//收货方选项
+                List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fS0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商编码选项
+                res.Add("OrderPlantForForm", OrderPlantForForm);
+                res.Add("CarModelForForm", CarModelForForm);
+                res.Add("ReceiverForForm", ReceiverForForm);
+                res.Add("SupplierIdForForm", SupplierIdForForm);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -91,8 +89,8 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
 
-            string strPlantArea = dataForm.PlantArea == null ? "" : dataForm.PlantArea;
             string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
@@ -100,16 +98,15 @@ namespace SPPSApi.Controllers.G06
             string strSupplier = dataForm.Supplier == null ? "" : dataForm.Supplier;
             try
             {
-                DataTable dataTable = fS0617_Logic.getSearchInfo(strPlantArea, strOrderPlant, strPartId, strCarModel, strReceiver, strSupplier);
+                DataTable dataTable = fS0617_Logic.getSearchInfo(strOrderPlant, strPartId, strCarModel, strReceiver, strSupplier);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dFrontProjectTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
-                dtConverter.addField("dShipmentTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
+                dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-
+                res.Add("tempList", dataList);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -143,26 +140,32 @@ namespace SPPSApi.Controllers.G06
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             try
             {
+                string imagefile_sp = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPPartImage" + Path.DirectorySeparatorChar;
+                string imagefile_qr = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "QRcodeImage";
+
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (listInfoData.Count != 0)
                 {
-                    //获取待打印的数据
-                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
-                    //执行打印操作
-                    //===========================================
-                    DataTable dtMessage = fS0603_Logic.createTable("MES");
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "错误测试";
-                    dtMessage.Rows.Add(dataRow);
-
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    bool bResult = fS0617_Logic.getPrintInfo(listInfoData, imagefile_sp, imagefile_qr, loginInfo.UserId, ref dtMessage);
+                    if(!bResult)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //引进打印调用
+                    //主表    tPrintTemp_main_FS0617
 
 
 
-
-                    //===========================================
+                    if(!bResult)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = "打印成功";
                 }

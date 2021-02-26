@@ -54,8 +54,12 @@ namespace SPPSApi.Controllers.G12
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_ProType = ComFunction.convertAllToResult(logic.bindProType());//变更事项
                 List<Object> dataList_ZB = ComFunction.convertAllToResult(logic.bindZB());//号旧区分
+                List<Object> dataList_PartType = ComFunction.convertAllToResult(logic.bindPartType());//稼动类别
+                List<Object> dataList_state = ComFunction.convertAllToResult(logic.bindState());//稼动形态
                 res.Add("dataList_ProType", dataList_ProType);
                 res.Add("dataList_ZB", dataList_ZB);
+                res.Add("dataList_PartType", dataList_PartType);
+                res.Add("dataList_state", dataList_state);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -149,14 +153,31 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-
+                //开始数据验证
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{"生产部署","组别","稼动类别"},
+                                                {"vcPorType", "vcZB", "KBpartType"},
+                                                {"","",""},
+                                                {"4","3","6"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1202");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 string strErrorPartId = "";
                 logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败：<br/>" + strErrorPartId;
+                    apiResult.data = "" + strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }

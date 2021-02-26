@@ -277,13 +277,13 @@ namespace DataAccess
         {
             try
             {
-                string str = "select vcPartsNo  from ( \r\n";
+                string str = "select vcPartsNo from ( \r\n";
                 str += "select vcMonth,vcPartsNo from tSSP where iFZFlg='0') t1 \r\n";
                 //str += "join \r\n";
                 //str += "( select vcData1,vcData2   from ConstMst where vcDataId='vcDockPj' and vcData3 in ('MSP构成','JSP构成'))t2 \r\n";
                 //str += " on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2 \r\n";
-                str += "where t1.vcPartsNo  not in (select vcPartsNo  from tSSPMaster )\r\n";
-                str += "and   vcMonth='" + mon + "'";
+                str += "where t1.vcPartsNo not in (select vcPartsNo from tSSPMaster) \r\n";
+                str += "and vcMonth='" + mon + "'";
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
             catch (Exception ex)

@@ -45,14 +45,29 @@ namespace Logic
             fs0503_DataAccess.importSave(importDt, userId);
         }
 
-        public DataTable GetTaskNum()
+        public DataTable GetTaskNum(string userId)
         {
-            return fs0503_DataAccess.GetTaskNum();
+            return fs0503_DataAccess.GetTaskNum(userId);
         }
 
         public void hZZK(List<Dictionary<string, object>> listInfoData, string dExpectDeliveryDate, string userId)
         {
             fs0503_DataAccess.hZZK(listInfoData, dExpectDeliveryDate, userId);
+        }
+
+        public DataTable GetTaskNum1(string userId)
+        {
+            return fs0503_DataAccess.GetTaskNum1(userId);
+        }
+
+        public DataTable GetCarType(string userId)
+        {
+            return fs0503_DataAccess.GetCarType(userId);
+        }
+
+        public DataTable GetExpectDeliveryDate(string userId)
+        {
+            return fs0503_DataAccess.GetExpectDeliveryDate(userId);
         }
 
         public DataTable GetWorkArea( string supplierId)

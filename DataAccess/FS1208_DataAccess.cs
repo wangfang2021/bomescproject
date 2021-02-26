@@ -100,7 +100,7 @@ namespace DataAccess
             string msg = "";
             SqlCommand cmd = new SqlCommand();
             DataTable dtInfo = new DataTable();
-            //if (dt.Select("vcState ='0' or vcState is null ").Length == 0) return "无可更新的数据。";
+            //if (dt.Select("vc ='0' or vcState is null ").Length == 0) return "无可更新的数据。";
             //dt = dt.Select("vcState ='0' or vcState is null ").CopyToDataTable();
             //dt.Columns.Remove("vcState");
             try
@@ -1089,7 +1089,7 @@ namespace DataAccess
                     if (tmpdata.Rows.Count == 0)
                     {
                         sb.Length = 0;
-                        sb.AppendLine(" insert into dbo.tPlanPartInfo([vcMonth],[vcPartsNo],[vcCarType],[vcDock],[vcEDFlag],[vcPlant],[vcPartNameCN],[vcHJ],[vcProType],[vcZB],[vcSRS],[vcQFflag]) ");
+                        sb.AppendLine(" insert into tPlanPartInfo([vcMonth],[vcPartsNo],[vcCarType],[vcDock],[vcEDFlag],[vcPlant],[vcPartNameCN],[vcHJ],[vcProType],[vcZB],[vcSRS],[vcQFflag]) ");
                         sb.AppendFormat(" VALUES ('{0}'", month);
                         sb.AppendFormat(" ,'{0}' ", parts);
                         sb.AppendFormat(" ,'{0}' ", cartype);

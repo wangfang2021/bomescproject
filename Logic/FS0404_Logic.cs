@@ -33,19 +33,41 @@ namespace Logic
             fs0404_DataAccess.updateBylastOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, UserId);
         }
 
-        public void addOrderNo(string vcOrderType,string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId)
+        public void addOrderNo(string realPath, string vcOrderType,string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId,string uincode, ref bool bReault, ref DataTable dtMessage)
         {
-            fs0404_DataAccess.addOrderNo(vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId);
+            fs0404_DataAccess.addOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uincode, ref bReault, ref dtMessage);
         }
 
-        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode,ref string msg)
+        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref string msg)
         {
-            fs0404_DataAccess.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode,ref msg);
+            fs0404_DataAccess.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode, ref bReault, ref dtMessage, ref msg);
         }
 
-        public void addJinJiOrderNo(string realPath, string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId,string uionCode, ref string msg)
+        public DataTable getOrderType()
         {
-            fs0404_DataAccess.addJinJiOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode,ref msg);
+            return fs0404_DataAccess.getOrderType();
         }
+
+        public void addJinJiOrderNo(string realPath, string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId,string uionCode, ref bool bReault, ref DataTable dtMessage, ref string msg)
+        {
+            fs0404_DataAccess.addJinJiOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode, ref  bReault, ref dtMessage, ref msg);
+        }
+
+        public DataTable getOrderCodeByName()
+        {
+            return fs0404_DataAccess.getOrderCodeByName();
+        }
+
+        public DataTable createTable(string strSpSub)
+        {
+            DataTable dataTable = new DataTable();
+            if (strSpSub == "Order")
+            {
+                dataTable.Columns.Add("vcOrder");
+                dataTable.Columns.Add("vcPartNo");
+                dataTable.Columns.Add("vcMessage");
+            }
+            return dataTable;
+         }
     }
 }

@@ -1051,14 +1051,37 @@ namespace Common
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
-
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     IRow row = sheet.CreateRow(startRow + i);
                     for (int j = 0; j < field.Length; j++)
                     {
+                        Type type = dt.Columns[field[j]].DataType;
                         ICell cell = row.CreateCell(j);
-                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if(dt.Rows[i][field[j]].ToString().Trim()!="")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
                     }
                 }
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
@@ -1091,6 +1114,23 @@ namespace Common
             {
                 return false;
             }
+        }
+        #endregion
+
+        #region 校验6位年月
+        public static bool CheckYMonth(string value)
+        {
+            if (value.Length != 7)
+                return false;
+            try
+            {
+                Convert.ToDateTime(string.Format("{0}-{1}-01", value.Substring(0, 4), value.Substring(5, 2)));
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
         #endregion
 

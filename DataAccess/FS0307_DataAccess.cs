@@ -16,13 +16,20 @@ namespace DataAccess
         public DataTable getExtractState()
         {
             StringBuilder sbr = new StringBuilder();
-            sbr.AppendLine("SELECT a.vcName,a.vcValue,CASE WHEN a.isFinish>0 THEN '已抽取' WHEN a.isFinish = 0 THEN '未抽取' END AS isFinish  FROM ");
-            sbr.AppendLine("(");
-            sbr.AppendLine("SELECT a.*,ISNULL(b.vcOriginCompany,'0') AS isFinish FROM ");
-            sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') a");
-            sbr.AppendLine("LEFT JOIN ");
-            sbr.AppendLine("(SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcValue = b.vcOriginCompany");
-            sbr.AppendLine(") a");
+            sbr.AppendLine(" SELECT a.vcName,a.vcValue,CASE WHEN ISNULL(a.isFinish,'') <> '' THEN '已抽取' WHEN ISNULL(a.isFinish,'') = '' THEN '未抽取' END AS isFinish  FROM ");
+            sbr.AppendLine(" (");
+            sbr.AppendLine(" SELECT a.*,b.vcOriginCompany AS isFinish FROM ");
+            sbr.AppendLine(" (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') a");
+            sbr.AppendLine(" LEFT JOIN ");
+            sbr.AppendLine(" (SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcName = b.vcOriginCompany");
+            sbr.AppendLine(" ) a");
+            //sbr.AppendLine("SELECT a.vcName,a.vcValue,CASE WHEN a.isFinish>0 THEN '已抽取' WHEN a.isFinish = 0 THEN '未抽取' END AS isFinish  FROM ");
+            //sbr.AppendLine("(");
+            //sbr.AppendLine("SELECT a.*,ISNULL(b.vcOriginCompany,'0') AS isFinish FROM ");
+            //sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') a");
+            //sbr.AppendLine("LEFT JOIN ");
+            //sbr.AppendLine("(SELECT distinct vcOriginCompany FROM TOldYearManager WHERE vcYear = SUBSTRING(CONVERT(VARCHAR, GETDATE(), 120), 1, 4)) b ON a.vcName = b.vcOriginCompany");
+            //sbr.AppendLine(") a");
 
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
         }
@@ -161,7 +168,7 @@ namespace DataAccess
                         {
                             Message += ",";
                         }
-                        Message += getName("C006", vcOriginCompany[i]);
+                        Message += vcOriginCompany[i].ToString();
 
                     }
                 }
@@ -233,6 +240,8 @@ namespace DataAccess
                 //    }
                 //}
 
+                DataTable CompanyTable = getTable("C006");
+
                 int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
                 string tmp = "";
                 for (int i = 0; i < arrInt.Length; i++)
@@ -241,12 +250,12 @@ namespace DataAccess
                     {
                         tmp += ",";
                     }
-                    tmp += "'" + arrInt[i].ToString() + "'";
+                    tmp += "'" + getName(CompanyTable, arrInt[i].ToString()) + "'";
                 }
 
                 StringBuilder sbr = new StringBuilder();
 
-                sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,e.vcName AS vcSYTCode,f.vcName AS vcReceiver,g.vcName AS vcOriginCompany,   \r\n");
+                sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,a.vcSYTCode AS vcSYTCode,a.vcReceiver AS vcReceiver,a.vcOriginCompany AS vcOriginCompany,   \r\n");
                 sbr.Append(" a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn,d.vcName AS vcInOutflag, a.vcCarTypeDev,a.dJiuBegin, a.vcRemark, \r\n");
                 sbr.Append("  case a.vcOld10 when '0' then '' when '1' then '●' else '' end as vcOld10, \r\n");
                 sbr.Append("  case a.vcOld9 when '0' then '' when '1' then '●' else '' end as vcOld9, \r\n");
@@ -259,9 +268,9 @@ namespace DataAccess
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C003') d ON a.vcInOutflag = d.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016') e ON a.vcSYTCode = e.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016') e ON a.vcSYTCode = e.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
+                //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
                 sbr.Append(" AND a.vcOriginCompany in (" + tmp + ") \r\n");
 
@@ -305,10 +314,10 @@ namespace DataAccess
                 }
 
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn, a.vcCarTypeDev, a.dJiuBegin,");
+                sbr.AppendLine("SELECT a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn, a.vcCarTypeDev,CONVERT(varchar(100),a.dJiuBegin, 111) as dJiuBegin,");
                 sbr.AppendLine(" CASE b.vcName WHEN '机能' THEN '1' WHEN '内外装' THEN '2' ELSE '' END AS vcPM, ");
-                sbr.AppendLine("a.vcNum1, a.vcNum2, a.vcNum3,  CAST((CAST((CASE isnull(A.vcNum1,'') WHEN '' THEN '0' ELSE A.vcNum1 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum2,'') WHEN '' THEN '0'  ELSE A.vcNum2 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum3,'') WHEN '' THEN '0'  ELSE A.vcNum3 END ) as decimal(18,2)))/3 AS decimal(18,2)) AS vcNumAvg, ");
-                sbr.AppendLine(" a.vcNXQF, a.dSSDate, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 ");
+                sbr.AppendLine("a.vcNum1, a.vcNum2, a.vcNum3,  a.vcNumAvg, ");
+                sbr.AppendLine(" a.vcNXQF,CONVERT(varchar(100),a.dSSDate, 111) as dSSDate, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 ");
                 sbr.AppendLine("FROM TOldYearManager a");
                 //sbr.AppendLine("     LEFT JOIN(SELECT vcName, vcValue FROM TCode WHERE vcCodeId='C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
                 sbr.AppendLine("     LEFT JOIN(SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
@@ -352,9 +361,9 @@ namespace DataAccess
         {
             try
             {
-                DataTable SYT = getTable("C016");
-                DataTable vcOriginCompany = getTable("C006");
-                DataTable vcReceiver = getTable("C005");
+                //DataTable SYT = getTable("C016");
+                //DataTable vcOriginCompany = getTable("C006");
+                //DataTable vcReceiver = getTable("C005");
 
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -396,9 +405,10 @@ namespace DataAccess
                     //sql.Append(" AND isnull(vcSYTCode,'') = '" + getValue("C016", dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
                     //sql.Append(" AND isnull(vcOriginCompany,'') = '" + getValue("C006", dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
                     //sql.Append(" AND isnull(vcReceiver,'') = '" + getValue("C005", dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
-                    sql.Append(" AND isnull(vcSYTCode,'') = '" + getVal(SYT, dt.Rows[i]["vcSYTCode"].ToString()) + "' \r\n");
-                    sql.Append(" AND isnull(vcOriginCompany,'') = '" + getVal(vcOriginCompany, dt.Rows[i]["vcOriginCompany"].ToString()) + "' \r\n");
-                    sql.Append(" AND isnull(vcReceiver,'') = '" + getVal(vcReceiver, dt.Rows[i]["vcReceiver"].ToString()) + "' \r\n");
+                    sql.Append(" AND isnull(vcSYTCode,'') = '" + dt.Rows[i]["vcSYTCode"].ToString() + "' \r\n");
+                    sql.Append(" AND isnull(vcOriginCompany,'') = '" + dt.Rows[i]["vcOriginCompany"].ToString() + "' \r\n");
+                    sql.Append(" AND isnull(vcReceiver,'') = '" + dt.Rows[i]["vcReceiver"].ToString() + "' \r\n");
+
                     sql.Append(" AND isnull(vcInOutflag,'') = '" + getValue("C003", dt.Rows[i]["vcInOutflag"].ToString()) + "' \r\n");
 
                     if (!vcFinish.Equals("对象外"))
@@ -425,9 +435,9 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
 
-                DataTable dtOrigin = getTCode("C006");
+                //DataTable dtOrigin = getTCode("C006");
                 DataTable dtSYT = getTCode("C016");
-                DataTable dtReceiver = getTCode("C005");
+                //DataTable dtReceiver = getTCode("C005");
                 DataTable dtinOut = getTCode("C003");
                 DataTable dtFinish = getTCode("C024");
 
@@ -444,9 +454,13 @@ namespace DataAccess
                         string vcOld9 = list[i]["vcOld9"].ToString().Equals("●") ? "1" : "0";
                         string vcOld7 = list[i]["vcOld7"].ToString().Equals("●") ? "1" : "0";
 
-                        string vcOriginCompany = getValue(dtOrigin, list[i]["vcOriginCompany"].ToString());
-                        string vcSYTCode = getValue(dtSYT, list[i]["vcSYTCode"].ToString());
-                        string vcReceiver = getValue(dtReceiver, list[i]["vcReceiver"].ToString());
+                        //string vcOriginCompany = getValue(dtOrigin, list[i]["vcOriginCompany"].ToString());
+                        //string vcReceiver = getValue(dtReceiver, list[i]["vcReceiver"].ToString());
+                        //string vcSYTCode = getValue(dtSYT, list[i]["vcSYTCode"].ToString());
+
+                        string vcOriginCompany = list[i]["vcOriginCompany"].ToString();
+                        string vcSYTCode = list[i]["vcSYTCode"].ToString();
+                        string vcReceiver = list[i]["vcReceiver"].ToString();
 
 
 
@@ -649,9 +663,14 @@ namespace DataAccess
                         sbr.AppendLine("dOperatorTime = GETDATE()");
                         sbr.AppendLine("WHERE ");
                         sbr.AppendLine("vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "");
-                        sbr.AppendLine("AND vcReceiver = " + ComFunction.getSqlValue(getValue("C005", ObjToString(listInfoData[i]["vcReceiver"])), false) + " ");
-                        sbr.AppendLine("AND vcSYTCode = " + ComFunction.getSqlValue(getValue("C016", ObjToString(listInfoData[i]["vcSYTCode"])), false) + " ");
-                        sbr.AppendLine("AND vcOriginCompany = " + ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcOriginCompany"])), false) + " ");
+                        //sbr.AppendLine("AND vcReceiver = " + ComFunction.getSqlValue(getValue("C005", ObjToString(listInfoData[i]["vcReceiver"])), false) + " ");
+                        //sbr.AppendLine("AND vcSYTCode = " + ComFunction.getSqlValue(getValue("C016", ObjToString(listInfoData[i]["vcSYTCode"])), false) + " ");
+                        //sbr.AppendLine("AND vcOriginCompany = " + ComFunction.getSqlValue(getValue("C006", ObjToString(listInfoData[i]["vcOriginCompany"])), false) + " ");
+
+                        sbr.AppendLine("AND vcReceiver = " + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + " ");
+                        sbr.AppendLine("AND vcSYTCode = " + ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + " ");
+                        sbr.AppendLine("AND vcOriginCompany = " + ComFunction.getSqlValue(listInfoData[i]["vcOriginCompany"], false) + " ");
+
                         sbr.AppendLine("AND vcSupplier_id = " + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + " ");
                         sbr.AppendLine("AND vcCarTypeDev = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + " ");
                         sbr.AppendLine("AND  dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
@@ -855,6 +874,23 @@ namespace DataAccess
                 throw ex;
             }
         }
-
+        public string getName(DataTable dt, string vcName)
+        {
+            try
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcValue"].ToString().Equals(vcName))
+                    {
+                        return dt.Rows[i]["vcName"].ToString();
+                    }
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

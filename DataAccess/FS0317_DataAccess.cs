@@ -13,13 +13,14 @@ namespace DataAccess
         {
             try
             {
+
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("IF EXISTS (SELECT * ");
-                sbr.AppendLine("FROM tempdb.dbo.sysobjects ");
-                sbr.AppendLine("WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')");
-                sbr.AppendLine("DROP TABLE #temp;");
-                sbr.AppendLine("");
-                sbr.AppendLine("SELECT vcSupplier_id,vcSQState,dNQDate,vcPart_id INTO #temp FROM TUnit WHERE vcInOutflag = '1'");
+
+
+                sbr.AppendLine("SELECT a.vcSupplier_id, a.total, ISNULL(b.total, '0') AS overNum, LTRIM(CONVERT(NUMERIC(9, 2), CAST(ISNULL(b.total, '0') AS INT)* 100.0 / CAST(a.total AS INT)))+'%' AS per");
+                sbr.AppendLine("FROM(SELECT vcSupplier_id, COUNT(iAutoId) AS total");
+                sbr.AppendLine("     FROM TSQJD");
+                sbr.AppendLine("	 WHERE 1=1");
                 if (!string.IsNullOrWhiteSpace(startTime))
                 {
                     sbr.AppendLine("AND dNQDate>='" + startTime + "'");
@@ -28,18 +29,29 @@ namespace DataAccess
                 {
                     sbr.AppendLine("AND dNQDate <= '" + endTime + "'");
                 }
+                sbr.AppendLine("     GROUP BY vcSupplier_id");
+                sbr.AppendLine("	 ) a");
+                sbr.AppendLine("    LEFT JOIN(SELECT vcSupplier_id, COUNT(iAutoId) AS total");
+                sbr.AppendLine("              FROM TSQJD");
+                sbr.AppendLine("              WHERE ISNULL(vcYQorNG, '')='' ");
+                sbr.AppendLine("			  AND((vcJD='1' AND dNqDate<GETDATE())OR(vcJD='2' AND dNqDate<dHFDate))");
+                if (!string.IsNullOrWhiteSpace(startTime))
+                {
+                    sbr.AppendLine("AND dNQDate>='" + startTime + "'");
+                }
+                if (!string.IsNullOrWhiteSpace(endTime))
+                {
+                    sbr.AppendLine("AND dNQDate <= '" + endTime + "'");
+                }
+                sbr.AppendLine("              GROUP BY vcSupplier_id) b ON a.vcSupplier_id=b.vcSupplier_id");
                 if (!string.IsNullOrWhiteSpace(supplierId))
                 {
-                    sbr.AppendLine("AND vcSupplier_id = '" + supplierId + "'");
+                    sbr.AppendLine("Where a.vcSupplier_id like '" + supplierId + "%'");
                 }
-                sbr.AppendLine("SELECT a.vcSupplier_id,a.total,ISNULL(b.total,'0') AS overNum,LTRIM(CONVERT(NUMERIC(9,2),CAST(ISNULL(b.total,'0') AS int)*100.0/CAST(a.total AS int)))+'%' AS per FROM ");
-                sbr.AppendLine("(");
-                sbr.AppendLine("SELECT vcSupplier_id,COUNT(*) AS total FROM #temp GROUP BY vcSupplier_id");
-                sbr.AppendLine(") a");
-                sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(");
-                sbr.AppendLine("SELECT vcSupplier_id,COUNT(*) AS total FROM #temp WHERE dNQDate < GETDATE() AND isnull(vcSQState,'') <> '2' GROUP BY vcSupplier_id");
-                sbr.AppendLine(") b ON a.vcSupplier_id = b.vcSupplier_id");
+
+
+
+
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }

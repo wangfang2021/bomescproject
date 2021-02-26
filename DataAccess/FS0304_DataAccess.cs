@@ -346,47 +346,47 @@ namespace DataAccess
                     sql.Append("        )        \n");
                     sql.Append("        values        \n");
                     sql.Append("        (        \n");
-                    sql.Append("        '"  + ComFunction.getSqlValue(listInfoData[i]["dSSDate"] ,true)+ "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcInOutflag"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSumLater"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum3"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum4"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum5"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum6"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum7"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum8"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcIsDYJG"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcIsDYFX"],false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcYQorNG"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcTH"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_City"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_Province"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_City"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_Province"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCSName"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcSCSPlace"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dSupplier_BJ"], true) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dSupplier_HK"], true) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dTFTM_BJ"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcZXBZDiff"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "'        \n");
-                    sql.Append("        ,'" + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "'        \n");
+                    sql.Append("        "  + ComFunction.getSqlValue(listInfoData[i]["dSSDate"] ,true)+ "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcInOutflag"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSumLater"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum3"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum4"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum5"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum6"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum7"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum8"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcIsDYJG"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcIsDYFX"],false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcYQorNG"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcTH"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_City"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_Province"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_City"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_Province"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCSName"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCSPlace"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dSupplier_BJ"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dSupplier_HK"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dTFTM_BJ"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZDiff"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "        \n");
                     sql.Append("        ,'" + strUserId + "'        \n");
                     sql.Append("        ,GETDATE()        \n");
                     sql.Append("        )        \n");
@@ -394,112 +394,200 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region 两表相同的数据进行更新操作
+                #region 两表相同的数据进行更新操作（这里的状态加限定：对应可否确认结果为可对应）
                 #region 新设
-                sql.Append("       update TUnit set        \n");
-                sql.Append("        vcSYTCode = a.vcSYTCode       \n");
-                sql.Append("       ,dTimeFrom = a.dTFTM_BJ       \n");
-                sql.Append("       ,dGYSTimeFrom = a.dTFTM_BJ       \n");
-                sql.Append("       ,dGYSTimeTo = '9999-12-31'       \n");
-                sql.Append("       ,vcSCPlace = a.vcSCPlace_City       \n");
-                sql.Append("       ,vcCHPlace = a.vcCHPlace_City       \n");
-                sql.Append("       ,vcSCSName = a.vcSCSName       \n");
-                sql.Append("       ,vcSCSAdress = a.vcSCSPlace       \n");
-                sql.Append("       ,vcZXBZNo = a.vcZXBZNo       \n");
-                sql.Append("       from        \n");
-                sql.Append("       (       \n");
-                sql.Append("       	select * from #TSQJD_temp       \n");
-                sql.Append("       	where vcChange = '1' or vcChange = '2'       \n");
-                sql.Append("       ) a       \n");
-                sql.Append("       inner join TUnit b       \n");
-                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
-                sql.Append("       and a.dSSDate = b.dSSDate       \n");
+                /*
+                 * 新车新设、设变新设
+                 */
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dTimeFrom = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('1','2')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
                 #endregion
-                #region 废止
-                sql.Append("       update TUnit set        \n");
-                sql.Append("        vcSYTCode = a.vcSYTCode       \n");
-                sql.Append("       ,dTimeTo = a.dTFTM_BJ       \n");
-                sql.Append("       ,vcSCPlace = a.vcSCPlace_City       \n");
-                sql.Append("       ,vcCHPlace = a.vcCHPlace_City       \n");
-                sql.Append("       ,vcSCSName = a.vcSCSName       \n");
-                sql.Append("       ,vcSCSAdress = a.vcSCSPlace       \n");
-                sql.Append("       ,vcZXBZNo = a.vcZXBZNo       \n");
-                sql.Append("       from        \n");
-                sql.Append("       (       \n");
-                sql.Append("       	select * from #TSQJD_temp       \n");
-                sql.Append("       	where vcChange = '4'       \n");
-                sql.Append("       ) a       \n");
-                sql.Append("       inner join TUnit b       \n");
-                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
-                sql.Append("       and a.dSSDate = b.dSSDate       \n");
-                #endregion
+
                 #region 复活
-                sql.Append("       update TUnit set        \n");
-                sql.Append("        vcSYTCode = a.vcSYTCode       \n");
-                sql.Append("       ,dTimeFrom = a.dTFTM_BJ       \n");
-                sql.Append("       ,vcSCPlace = a.vcSCPlace_City       \n");
-                sql.Append("       ,vcCHPlace = a.vcCHPlace_City       \n");
-                sql.Append("       ,vcSCSName = a.vcSCSName       \n");
-                sql.Append("       ,vcSCSAdress = a.vcSCSPlace       \n");
-                sql.Append("       ,vcZXBZNo = a.vcZXBZNo       \n");
-                sql.Append("       from        \n");
-                sql.Append("       (       \n");
-                sql.Append("       	select * from #TSQJD_temp       \n");
-                sql.Append("       	where vcChange = '16'       \n");
-                sql.Append("       ) a       \n");
-                sql.Append("       inner join TUnit b       \n");
-                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
-                sql.Append("       and a.dSSDate = b.dSSDate       \n");
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dTimeFrom = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('16')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
                 #endregion
+
                 #region 旧型
-                sql.Append("       update TUnit set        \n");
-                sql.Append("        vcSYTCode = a.vcSYTCode       \n");
-                sql.Append("       ,dJiuBegin = a.dTFTM_BJ       \n");
-                sql.Append("       ,vcSCPlace = a.vcSCPlace_City       \n");
-                sql.Append("       ,vcCHPlace = a.vcCHPlace_City       \n");
-                sql.Append("       ,vcSCSName = a.vcSCSName       \n");
-                sql.Append("       ,vcSCSAdress = a.vcSCSPlace       \n");
-                sql.Append("       ,vcZXBZNo = a.vcZXBZNo       \n");
-                sql.Append("       from        \n");
-                sql.Append("       (       \n");
-                sql.Append("       	select * from #TSQJD_temp       \n");
-                sql.Append("       	where vcChange = '3' or vcChange = '5'       \n");
-                sql.Append("       ) a       \n");
-                sql.Append("       inner join TUnit b       \n");
-                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
-                sql.Append("       and a.dSSDate = b.dSSDate       \n");
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dJiuBegin = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('3','5')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
                 #endregion
+
+                #region 恢复现号
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dJiuEnd = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('6')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                #endregion
+
+                #region 废止
+                /*
+                 * 设变废止、使用废止
+                 */
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dTimeTo = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('4','21')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                #endregion
+
                 #region 工程变更-废止
-                sql.Append("       update TUnit set        \n");
-                sql.Append("        dGYSTimeTo = a.dTFTM_BJ       \n");
-                sql.Append("       from        \n");
-                sql.Append("       (       \n");
-                sql.Append("       	select * from #TSQJD_temp       \n");
-                sql.Append("       	where vcChange = '9'       \n");
-                sql.Append("       ) a       \n");
-                sql.Append("       inner join TUnit b       \n");
-                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
-                sql.Append("       and a.dSSDate = b.dSSDate       \n");
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dGYSTimeTo = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('9')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
+
                 #region 工程变更-新设
-                sql.Append("       update TUnit set        \n");
-                sql.Append("        dGYSTimeFrom = a.dTFTM_BJ       \n");
-                sql.Append("       ,dGYSTimeTo = '9999/12/31'       \n");
-                sql.Append("       from        \n");
-                sql.Append("       (       \n");
-                sql.Append("       	select * from #TSQJD_temp       \n");
-                sql.Append("       	where vcChange = '9'       \n");
-                sql.Append("       ) a       \n");
-                sql.Append("       inner join TUnit b       \n");
-                sql.Append("       on a.vcPart_id = b.vcPart_id       \n");
-                sql.Append("       and a.vcSupplier_id = b.vcSupplier_id       \n");
-                sql.Append("       and a.dSSDate = b.dSSDate       \n");
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dGYSTimeFrom = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('8')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
                 #endregion
+
+                #region 供应商变更-废止
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dGYSTimeTo = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('11')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
+                #endregion
+
+                #region 供应商变更-新设
+                sql.Append("        update TUnit set        \n");
+                sql.Append("         dGYSTimeFrom = b.dTFTM_BJ       \n");
+                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSCSName = b.vcSCSName       \n");
+                sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
+                sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
+                sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
+                sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join       \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
+                sql.Append("        	where vcChange in ('10')       \n");
+                sql.Append("        	and vcIsDYJG = 1       \n");
+                sql.Append("        )b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
+                sql.Append("        and a.vcSupplier_id = b.vcSupplier_id       \n");
+                #endregion
+                #endregion
+
+
+                #region 对应不可时，将生确状态改为NG
+                sql.Append("        update TUnit set        \n");
+                sql.Append("        vcSQState = '3'       \n");
+                sql.Append("        from TUnit a       \n");
+                sql.Append("        inner join        \n");
+                sql.Append("        (       \n");
+                sql.Append("        	select vcPart_id from #TSQJD_temp       \n");
+                sql.Append("        	where vcIsDYJG = '0'       \n");
+                sql.Append("        ) b       \n");
+                sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
                 #endregion
 
                 #region 更新生确进度表
@@ -513,6 +601,7 @@ namespace DataAccess
                     sql.Append("        where iAutoId = '"+iAutoId+"'        \n");
                 }
                 #endregion
+
                 if (sql.Length>0)
                 {
                     excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");

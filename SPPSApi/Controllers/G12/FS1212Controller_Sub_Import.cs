@@ -66,11 +66,11 @@ namespace SPPSApi.Controllers.G12
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番","开始时间","截止时间","受入","品番工场","车型","英文品名","中文品名","秦丰涂装","看板收容数","器具收容数","生产部署","组别","品番频度"},
-                                                {"vcPartsNo","dTimeFrom","dTimeTo","vcDock","vcPartPlant","vcCarFamilyCode","vcPartsNameEN","vcPartsNameCHN","vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcPartFrequence" },
-                                                {"",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,"","","",FieldCheck.Num,FieldCheck.Num,"","",""},
-                                                {"14","0","0","50", "50", "0", "0", "0","0", "0" ,"0",  "0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1", "1","1","0",  "0",  "0", "0", "0","0", "0", "0",  "0","0","0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"品番","开始时间","截止时间","受入","品番工场","车型","英文品名","秦丰涂装","看板收容数","器具收容数","生产部署","组别","订货方式","收货方","供应商编码"},
+                                                {"vcPartsNo","dTimeFrom","dTimeTo","vcDock","vcPartPlant","vcCarFamilyCode","vcPartsNameEN","vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcOrderingMethod","vcReceiver","vcSupplierId" },
+                                                {"",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,"","",FieldCheck.Num,FieldCheck.Num,"","","","",""},
+                                                {"14","0","0","50", "50", "0", "0","0","0","0","0","0","0","10","10"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","0","0","0", "0","0","0","0","0","0","0","1","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -98,7 +98,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("dTimeFrom"), r4 = r.Field<string>("dTimeTo"), r5 = r.Field<string>("vcDock"), r6 = r.Field<string>("vcPartPlant"), r7 = r.Field<string>("vcCarFamilyCode") } into g
+                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcReceiver"), r4 = r.Field<string>("vcSupplierId"), } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -107,7 +107,7 @@ namespace SPPSApi.Controllers.G12
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r2 + " 使用开始:" + item.Key.r3 + " 使用结束:" + item.Key.r4 + "<br/>");
+                        sbr.Append("品番:" + item.Key.r2 + " 收货方:" + item.Key.r3 + " 供应商编码:" + item.Key.r4 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
@@ -121,9 +121,15 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = msg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1212_Logic.ImportStandTime(importDt, loginInfo.UserId);//将Excel的内容导入到数据库中
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                msg = fs1212_Logic.ImportStandTime(importDt, loginInfo.UserId);//将Excel的内容导入到数据库中
+                if (msg == "")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "导入成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导入失败：" + msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
             }

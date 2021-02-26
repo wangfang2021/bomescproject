@@ -43,7 +43,7 @@ namespace DataAccess
                     sbr.AppendLine("AND dTimeFrom <= GETDATE()");
                     sbr.AppendLine("AND dTimeTo >= GETDATE()");
                     sbr.AppendLine("");
-                    sbr.AppendLine("SELECT d.vcName AS vcOriginCompany,e.vcName AS vcInOutflag,ISNULL(a.Total,0) AS Total,f.vcName AS vcHaoJiu,ISNULL(b.Total,0) AS HJTotal,g.vcMeaning as vcOE,ISNULL(c.Total,0) AS OETotal from");
+                    sbr.AppendLine("SELECT a.vcOriginCompany,e.vcName AS vcInOutflag,ISNULL(a.Total,0) AS Total,f.vcName AS vcHaoJiu,ISNULL(b.Total,0) AS HJTotal,g.vcMeaning as vcOE,ISNULL(c.Total,0) AS OETotal from");
                     sbr.AppendLine("(");
                     sbr.AppendLine("	SELECT vcOriginCompany,vcInOutflag,COUNT(iAutoId) AS Total FROM #temp GROUP BY vcOriginCompany,vcInOutflag");
                     sbr.AppendLine(") a ");
@@ -73,14 +73,16 @@ namespace DataAccess
                     sbr.AppendLine("	SELECT DISTINCT vcOriginCompany,vcInOutflag,'Q' AS vcHaoJiu,'1' AS vcOE,0 AS Total FROM #temp WHERE vcHaoJiu = 'H' GROUP BY vcOriginCompany,vcInOutflag");
                     sbr.AppendLine(") a GROUP BY vcOriginCompany,vcInOutflag,vcHaoJiu,vcOE");
                     sbr.AppendLine(") c ON c.vcOriginCompany =b.vcOriginCompany AND c.vcInOutflag = b.vcInOutflag AND c.vcHaoJiu = b.vcHaoJiu AND c.vcOE = b.vcOE");
-                    sbr.AppendLine("LEFT JOIN");
-                    sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') d ON a.vcOriginCompany = d.vcValue");
+                    //sbr.AppendLine("LEFT JOIN");
+                    //sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') d ON a.vcOriginCompany = d.vcValue");
                     sbr.AppendLine("LEFT JOIN");
                     sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C003') e ON a.vcInOutflag = e.vcValue");
                     sbr.AppendLine("LEFT JOIN");
                     sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C004') f ON b.vcHaoJiu = f.vcValue");
                     sbr.AppendLine("LEFT JOIN");
                     sbr.AppendLine("(SELECT vcName,vcValue,vcMeaning FROM TCode WHERE vcCodeId = 'C012') g ON c.vcOE = g.vcValue");
+                    sbr.AppendLine(
+                        "WHERE ISNULL(a.vcOriginCompany,'') <> '' AND ISNULL(a.vcInOutflag,'') <> '' AND ISNULL(b.vcHaoJiu,'') <> '' AND ISNULL(c.vcOE,'') <> ''");
                     sbr.AppendLine("ORDER BY a.vcOriginCompany,a.vcInOutflag,b.vcHaoJiu,c.vcOE");
 
                 }
@@ -102,14 +104,16 @@ namespace DataAccess
                         string tmp = "";
                         foreach (string s in project)
                         {
-                            if (tmp.Length > 0)
+                            if (!string.IsNullOrWhiteSpace(tmp))
                             {
-                                tmp += ",";
+                                tmp += " OR ";
                             }
-                            tmp += "'" + s + "'";
+                            tmp += "vcBJGC like '%" + s + "%' ";
                         }
-                        sbr.AppendLine("AND vcBJGC IN (" + tmp + ")");
+
+                        sbr.AppendLine(" AND ( " + tmp + " )");
                     }
+
                     sbr.AppendLine("AND dTimeFrom <= GETDATE()");
                     sbr.AppendLine("AND dTimeTo >= GETDATE()");
                     sbr.AppendLine("");
@@ -130,7 +134,8 @@ namespace DataAccess
                     sbr.AppendLine(") b ON a.vcSupplier_id = b.vcSupplier_id");
                     sbr.AppendLine("LEFT JOIN");
                     sbr.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C004') c ON b.vcHaoJiu = c.vcValue");
-
+                    sbr.AppendLine(" WHERE ISNULL(a.vcSupplier_id,'') <> '' AND   b.Total <> 0");
+                    sbr.AppendLine(" ORDER BY a.vcSupplier_id ");
                 }
 
                 if (sbr.Length > 0)

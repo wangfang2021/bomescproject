@@ -30,6 +30,7 @@ namespace SPPSApi.Controllers.G03
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0312_Logic FS0312_Logic = new FS0312_Logic();
+        
         private readonly string FunctionID = "FS0312";
 
         public FS0312Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
@@ -67,11 +68,11 @@ namespace SPPSApi.Controllers.G03
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番"               ,"号旧"    ,"旧型开始时间" ,"供应商代码"   ,"供应商名称"     ,"车型(开发代码)" ,"品名"      ,"旧型今后必要数(合计)","受入"      ,"送信时间"},
-                                                   {"vcPart_id"          ,"vcHaoJiu","dJiuBegin"    ,"vcSupplier_id","vcSupplier_Name","vcCarTypeDesign","vcPartName","vcSumLater"          ,"vcInput_No","dSendTime"},
-                                                   {FieldCheck.NumCharLLL,""        ,FieldCheck.Date,""             ,"100"            ,""               ,""          ,""                    ,""          ,FieldCheck.Date},
-                                                   {"12"                 ,"1"       ,"0"            ,"4"            ,"50"             ,"4"              , "100"      , "20"                 ,"2"         ,"0"},//最大长度设定,不校验最大长度用0
-                                                   {"1"                  ,"1"       ,"1"            ,"1"            ,"1"              ,"1"              , "1"        , "1"                  ,"1"         ,"1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"品番"               ,"号旧"    ,"旧型开始时间" ,"供应商代码"   ,"供应商名称"     ,"车型(开发代码)" ,"品名"      ,"旧型1年"     ,"旧型2年"     ,"旧型3年"     ,"旧型4年"     ,"旧型5年"     ,"旧型6年"     ,"旧型7年"     ,"旧型8年"     ,"旧型9年"     ,"旧型10年"     ,"送信时间"     },
+                                                   {"vcPart_id"          ,"vcHaoJiu","dJiuBegin"    ,"vcSupplier_id","vcSupplier_Name","vcCarTypeDesign","vcPartName","vcNum1"      ,"vcNum2"      ,"vcNum3"      ,"vcNum4"      ,"vcNum5"      ,"vcNum6"      ,"vcNum7"      ,"vcNum8"      ,"vcNum9"      ,"vcNum10"      ,"dSendTime"    },
+                                                   {FieldCheck.NumCharLLL,""        ,FieldCheck.Date,""             ,"100"            ,""               ,""          ,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num ,FieldCheck.Date},
+                                                   {"12"                 ,"0"       ,"0"            ,"4"            ,"50"             ,"4"              , "100"      ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"           ,"5"            ,"0"            },//最大长度设定,不校验最大长度用0
+                                                   {"1"                  ,"0"       ,"1"            ,"1"            ,"1"              ,"1"              , "1"        ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"           ,"0"            ,"0"            }};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -83,6 +84,30 @@ namespace SPPSApi.Controllers.G03
                         apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
+                    #region 根据输入的Name获取对应的Value值，并将获取的Value值添加到dt的后面
+
+                    #region 先定义哪些列涉及Name转Value
+
+                    List<FS0312_Logic.NameOrValue> lists = new List<FS0312_Logic.NameOrValue>();
+                    lists.Add(new FS0312_Logic.NameOrValue() { strTitle = "号旧", strHeader = "vcHaoJiu", strCodeid = "C004", isNull = true });
+                    #endregion
+
+                    #region 更新table
+                    string strErr = "";         //记录错误信息
+                    dt = FS0312_Logic.ConverDT(dt, lists, ref strErr);
+                    #endregion
+
+                    #endregion
+
+                    if (dt == null)
+                    {
+                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErr;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                     if (importDt.Columns.Count == 0)
                         importDt = dt.Clone();
                     if (dt.Rows.Count == 0)
@@ -117,10 +142,15 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-
-
-
-                FS0312_Logic.importSave(importDt, loginInfo.UserId);
+                string strErrorPartId = "";
+                FS0312_Logic.importSave(importDt, loginInfo.UserId, ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

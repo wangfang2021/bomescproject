@@ -72,6 +72,54 @@ namespace SPPSApi.Controllers.G11
             }
         }
         /// <summary>
+        /// 刷新方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string selectApi([FromBody]dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strOrderPlant = dataForm.selectVaule.OrderPlant == null ? "" : dataForm.selectVaule.OrderPlant;
+            string strReceiver = dataForm.selectVaule.Receiver == null ? "" : dataForm.selectVaule.Receiver;
+            string strPackingPlant = dataForm.selectVaule.PackingPlant == null ? "" : dataForm.selectVaule.PackingPlant;
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+
+                if (strOrderPlant == "" || strReceiver == "" || strPackingPlant == "")
+                {
+                    res.Add("LianFanItem", "");
+                }
+                else
+                {
+                    string strCaseLianFanNo = fS1104_Logic.getCaseNoInfo(strOrderPlant, strReceiver, strPackingPlant, "");
+                    res.Add("LianFanItem", strCaseLianFanNo);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
         /// 首次印刷方法
         /// </summary>
         /// <param name="data"></param>
@@ -119,12 +167,12 @@ namespace SPPSApi.Controllers.G11
                     dataRow["vcMessage"] = "包装工不能为空";
                     dtMessage.Rows.Add(dataRow);
                 }
-                //if (strLianFan == "")
-                //{
-                //    DataRow dataRow = dtMessage.NewRow();
-                //    dataRow["vcMessage"] = "连番不能为空";
-                //    dtMessage.Rows.Add(dataRow);
-                //}
+                if (strLianFan == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "连番不能为空";
+                    dtMessage.Rows.Add(dataRow);
+                }
                 if (strPrintNum == "" || strPrintNum == "0")
                 {
                     DataRow dataRow = dtMessage.NewRow();
@@ -144,11 +192,11 @@ namespace SPPSApi.Controllers.G11
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string strCaseLianFanNo = fS1104_Logic.getCaseNoInfo(strOrderPlant, strReceiver, strPackingPlant, strLianFan);
+                DataTable dataTable = fS1104_Logic.setPrintInfo(strOrderPlant, strReceiver, strPackingPlant, strLianFan, strPrintNum, "", strPrintCopy);
                 //======================打印方法=======================
 
-
                 //=====================================================
+                fS1104_Logic.setSaveInfo(dataTable, ref dtMessage);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

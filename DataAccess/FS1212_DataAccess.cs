@@ -99,40 +99,45 @@ namespace DataAccess
         //检索数据//需要修改SQL语句关联生产部署表和组别表20121221(世界末日)
         public DataTable SearchPartData(string vcPartsNo, string vcCarFamilyCode, string vcPorType, string vcZB, string vcPartPlant, string vcPartFrequence)
         {
-            DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            //增加dTimeFrom、dTimeTo两个字段 - 刘刚
-            //增加品番频度 - 李兴旺
-            strSQL.AppendLine(" select substring(vcPartsNo,0, 6) + '-' + substring(vcPartsNo,6, 5) + '-' + substring(vcPartsNo,11, 2)  as vcPartsNo,dTimeFrom,dTimeTo,vcDock,vcCarFamilyCode,vcPartsNameEN,vcPartsNameCHN,vcQFflag,iQuantityPerContainer,vcQJcontainer,vcPorType,vcZB,vcPartPlant,'0' as iFlag,vcPartFrequence,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from tPartInfoMaster");
+            strSQL.Append("select substring(a.vcPartId,0, 6) + '-' + substring(a.vcPartId,6, 5) + '-' + substring(a.vcPartId,11, 2) as vcPartsNo,");
+            strSQL.Append("convert(char(10),a.dFromTime,120) as dFromTime, convert(char(10),a.dToTime,120) as dToTime,");
+            strSQL.Append("d.vcPartPlant, c.vcSufferIn as vcDock, a.vcCarFamilyCode,");
+            strSQL.Append("a.vcPartENName, d.vcQFflag, b.iPackingQty as iQuantityPerContainer, d.vcQJcontainer, d.vcPorType, d.vcZB, a.vcName as vcOrderingMethod, ");
+            strSQL.Append("a.vcReceiver, a.vcSupplierId, '0' as iFlag, '0' as vcModFlag, '0' as vcAddFlag, iAutoId ");
+            strSQL.Append("from ");
+            strSQL.Append("   (select TSPMaster.*, TCode.vcName, TCode.vcValue from TSPMaster ");
+            strSQL.Append("    left join TCode on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a ");
+            strSQL.Append("left join (select * from TSPMaster_Box where vcOperatorType='1') b ");
+            strSQL.Append("on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId ");
+            strSQL.Append("left join (select * from TSPMaster_SufferIn where vcOperatorType='1') c ");
+            strSQL.Append("on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId ");
+            strSQL.Append("left join TPartInfoMaster d ");
+            strSQL.Append("on a.vcPartId=d.vcPartsNo and a.vcReceiver=d.vcCpdCompany and a.vcSupplierId=d.vcSupplierCode and a.dFromTime=d.dTimeFrom and a.dToTime=d.dTimeTo ");
+            strSQL.Append("where 1=1 ");
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
-                hasWhere = applendWhereIfNeed(strSQL, hasWhere);
-                strSQL.AppendLine(" vcPartsNo like '" + vcPartsNo + "%'");
+                strSQL.AppendLine(" and a.vcPartId like '%" + vcPartsNo + "%'");
             }
             if (!string.IsNullOrEmpty(vcCarFamilyCode))
             {
-                hasWhere = applendWhereIfNeed(strSQL, hasWhere);
-                strSQL.AppendLine(" vcCarFamilyCode like '" + vcCarFamilyCode + "'");
+                strSQL.AppendLine(" and a.vcCarFamilyCode like '%" + vcCarFamilyCode + "%'");
             }
             if (vcPorType != "")
             {
-                hasWhere = applendWhereIfNeed(strSQL, hasWhere);
-                strSQL.AppendLine(" vcPorType like '" + vcPorType + "'");
+                strSQL.AppendLine(" and d.vcPorType like '%" + vcPorType + "%'");
             }
             if (vcZB != "")
             {
-                hasWhere = applendWhereIfNeed(strSQL, hasWhere);
-                strSQL.AppendLine(" vcZB like '" + vcZB + "'");
+                strSQL.AppendLine(" and d.vcZB like '%" + vcZB + "%'");
             }
             if (vcPartPlant != "")
             {
-                hasWhere = applendWhereIfNeed(strSQL, hasWhere);
-                strSQL.AppendLine(" vcPartPlant like '" + vcPartPlant + "'");
+                strSQL.AppendLine(" and d.vcPartPlant like '%" + vcPartPlant + "%'");
             }
-            if (vcPartFrequence != "")//增加品番频度 - 李兴旺
+            if (vcPartFrequence != "")
             {
-                hasWhere = applendWhereIfNeed(strSQL, hasWhere);
-                strSQL.AppendLine(" vcPartFrequence = '" + vcPartFrequence + "'");
+                strSQL.AppendLine(" and a.vcValue='" + vcPartFrequence + "'");
             }
             strSQL.AppendLine("  order by vcPartsNo");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
@@ -216,7 +221,7 @@ namespace DataAccess
         public DataTable dllPorType(string vcZB)
         {
             DataTable dt = new DataTable();
-             StringBuilder strSQL = new StringBuilder();
+            StringBuilder strSQL = new StringBuilder();
 
             strSQL.AppendLine(" select distinct [vcData1] as [vcName],[vcData1] as [vcValue]  from [ConstMst] where [vcDataId]='ProType'");
             if (vcZB == "")
@@ -276,6 +281,14 @@ namespace DataAccess
             return SearchPartData(strSQL.ToString());
         }
 
+        public DataTable ddlPartFrequence()
+        {
+            DataTable dt = new DataTable();
+            StringBuilder strSQL = new StringBuilder();
+            strSQL.AppendLine("select '' as vcName, '' as vcValue union all select vcName, vcValue from TCode where vcCodeId='C047' and vcValue in ('0','2')");
+            return SearchPartData(strSQL.ToString());
+        }
+
         public bool checkmod(string vcPartsNo)
         {
             DataTable dt = new DataTable();
@@ -294,7 +307,7 @@ namespace DataAccess
         }
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public int Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
             try
             {
@@ -303,62 +316,64 @@ namespace DataAccess
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                        sql.Append("  update tPartInfoMaster set    \r\n");
-                        sql.Append("  vcCarFamilyCode=" + getSqlValue(listInfoData[i]["vcCarFamilyCode"], false) + "   \r\n");
-                        sql.Append("  ,vcQFflag=" + getSqlValue(listInfoData[i]["vcQFflag"], false) + "   \r\n");
-                        sql.Append("  ,vcQJcontainer=" + getSqlValue(listInfoData[i]["vcQJcontainer"], true) + "   \r\n");
-                        sql.Append("  ,vcPorType=" + getSqlValue(listInfoData[i]["vcPorType"], true) + "   \r\n");
-                        sql.Append("  ,vcZB=" + getSqlValue(listInfoData[i]["vcZB"], true) + "   \r\n");
-                        sql.Append("  ,vcUpdataUser='" + strUserId + "'   \r\n");
-                        sql.Append("  ,dUpdataTime=getdate()   \r\n");
-                        sql.Append("  ,vcPartPlant=" + getSqlValue(listInfoData[i]["vcPartPlant"], true) + "   \r\n");
-                        sql.Append("  ,vcPartFrequence=" + getSqlValue(listInfoData[i]["vcPartFrequence"], true) + "   \r\n");
-                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                    if (bAddFlag == false && bModFlag == true)//修改
+                    {
+                        string vcPartsNo = getSqlValue(listInfoData[i]["vcPartsNo"], false).Replace("-", "");
+                        string vcCpdCompany = getSqlValue(listInfoData[i]["vcReceiver"], false);
+                        string vcTimeFrom = getSqlValue(listInfoData[i]["dFromTime"], false);
+                        string vcTimeTo = getSqlValue(listInfoData[i]["dToTime"], false);
+                        string vcSupplierCode = getSqlValue(listInfoData[i]["vcSupplierId"], false);
+                        string vcPartPlant = getSqlValue(listInfoData[i]["vcPartPlant"], false);
+                        string vcCarFamilyCode = getSqlValue(listInfoData[i]["vcCarFamilyCode"], false);
+                        string vcQFflag = getSqlValue(listInfoData[i]["vcQFflag"], false);
+                        string vcQJcontainer = getSqlValue(listInfoData[i]["vcQJcontainer"], false);
+                        string vcPorType = getSqlValue(listInfoData[i]["vcPorType"], false);
+                        string vcZB = getSqlValue(listInfoData[i]["vcZB"], false);
+
+                        bool isExists = existParts(vcPartsNo, "TFTM", vcCpdCompany, vcSupplierCode);
+                        if (isExists)//如果品番表存在，则更新
+                        {
+                            sql.Append("  update TPartInfoMaster set  \r\n");
+                            sql.Append("  vcPartPlant='" + vcPartPlant + "'   \r\n");
+                            sql.Append("  ,dTimeFrom='" + vcTimeFrom + "'   \r\n");
+                            sql.Append("  ,dTimeTo='" + vcTimeTo + "'   \r\n");
+                            sql.Append("  ,vcCarFamilyCode='" + vcCarFamilyCode + "'   \r\n");
+                            sql.Append("  ,vcQFflag='" + vcQFflag + "'   \r\n");
+                            sql.Append("  ,vcQJcontainer='" + vcQJcontainer + "'   \r\n");
+                            sql.Append("  ,vcPorType='" + vcPorType + "'   \r\n");
+                            sql.Append("  ,vcZB='" + vcZB + "'   \r\n");
+                            sql.Append("  ,vcUpdataUser='" + strUserId + "'   \r\n");
+                            sql.Append("  ,dUpdataTime=getdate()   \r\n");
+                            sql.Append("  where vcPartsNo='" + vcPartsNo + "'  \r\n");
+                            sql.Append("  and vcCpdCompany='" + vcCpdCompany + "' \r\n");
+                            sql.Append("  and vcSupplierCode='" + vcSupplierCode + "' \r\n");
+                        }
+                        else//如果品番表存在，则插入
+                        {
+                            sql.Append("insert into TPartInfoMaster(vcPartsNo, dTimeFrom, dTimeTo, vcCpdCompany, vcSupplierCode, vcInOutFlag, ");
+                            sql.Append("vcPartPlant, vcCarFamilyCode, vcQFflag, vcQJcontainer, vcPorType, vcZB, vcUpdataUser, dUpdataTime) ");
+                            sql.Append("values('" + vcPartsNo + "',");
+                            sql.Append("'" + vcTimeFrom + "',");
+                            sql.Append("'" + vcTimeTo + "',");
+                            sql.Append("'" + vcCpdCompany + "',");
+                            sql.Append("'" + vcSupplierCode + "',");
+                            sql.Append("'0',");
+                            sql.Append("'" + vcPartPlant + "',");
+                            sql.Append("'" + vcCarFamilyCode + "',");
+                            sql.Append("'" + vcQFflag + "',");
+                            sql.Append("'" + vcQJcontainer + "',");
+                            sql.Append("'" + vcPorType + "',");
+                            sql.Append("'" + vcZB + "',");
+                            sql.Append("'" + strUserId + "',");
+                            sql.Append("getdate())");
+                        }
                     }
                 }
-                if (sql.Length > 0)
-                {
-                    //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-                    sql.Append("  DECLARE @errorPart varchar(50)   \r\n");
-                    sql.Append("  set @errorPart=''   \r\n");
-                    sql.Append("  set @errorPart=(   \r\n");
-                    sql.Append("  	select a.vcPart_id+';' from   \r\n");
-                    sql.Append("  	(   \r\n");
-                    sql.Append("  		select distinct a.vcPart_id from TPrice a   \r\n");
-                    sql.Append("  		left join   \r\n");
-                    sql.Append("  		(   \r\n");
-                    sql.Append("  		   select * from TPrice   \r\n");
-                    sql.Append("  		)b on a.vcPart_id=b.vcPart_id and a.iAutoId<>b.iAutoId   \r\n");
-                    sql.Append("  		   and    \r\n");
-                    sql.Append("  		   (   \r\n");
-                    sql.Append("  			   (a.dUseBegin>=b.dUseBegin and a.dUseBegin<=b.dUseEnd)   \r\n");
-                    sql.Append("  			   or   \r\n");
-                    sql.Append("  			   (a.dUseEnd>=b.dUseBegin and a.dUseEnd<=b.dUseEnd)   \r\n");
-                    sql.Append("  		   )   \r\n");
-                    sql.Append("  		where b.iAutoId is not null   \r\n");
-                    sql.Append("  	)a for xml path('')   \r\n");
-                    sql.Append("  )   \r\n");
-                    sql.Append("      \r\n");
-                    sql.Append("  if @errorPart<>''   \r\n");
-                    sql.Append("  begin   \r\n");
-                    sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
-                    sql.Append("  end    \r\n");
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
+                return excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
-                if (ex.Message.IndexOf("-->") != -1)
-                {//主动判断抛出的异常
-                    int startIndex = ex.Message.IndexOf("-->");
-                    int endIndex = ex.Message.LastIndexOf("<--");
-                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
-                }
-                else
-                    throw ex;
+                throw ex;
             }
         }
         #endregion
@@ -384,6 +399,34 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        #endregion
+
+        #region 判断是否存在品番信息 wlw
+        /// <summary>
+        /// 判断是否存在品番信息
+        /// </summary>
+        /// <param name="vcPartId">品番</param>
+        /// <param name="vcPackingPlant">包装工厂</param>
+        /// <param name="vcReceiver">收货方</param>
+        /// <param name="vcSupplierId">供应商ID</param>
+        /// <returns></returns>
+        public bool existParts(string vcPartId, string vcPackingPlant, string vcReceiver, string vcSupplierId)
+        {
+            string sql = "select count(vcPartsNo) from TPartInfoMaster where vcPartsNo='" + vcPartId + "' and vcCpdCompany='" + vcReceiver + "' and vcSupplierCode='" + vcSupplierId + "'";
+            int i = excute.ExecuteScalar(sql);
+            if (i > 0)
+                return true;
+            return false;
+        }
+
+        public bool existPartInMaster(string vcPartId, string vcPackingPlant, string vcReceiver, string vcSupplierId)
+        {
+            string sql = "select count(vcPartId) from TSPMaster where vcPartId='" + vcPartId + "' and vcReceiver='" + vcReceiver + "' and vcSupplierId='" + vcSupplierId + "' and vcPackingPlant='" + vcPackingPlant + "'";
+            int i = excute.ExecuteScalar(sql);
+            if (i > 0)
+                return true;
+            return false;
         }
         #endregion
 
@@ -797,11 +840,11 @@ namespace DataAccess
         private string getSqlValue(Object obj, bool isObject)
         {
             if (obj == null)
-                return "null";
+                return null;
             else if (obj.ToString().Trim() == "" && isObject)
-                return "null";
+                return null;
             else
-                return "'" + obj.ToString() + "'";
+                return obj.ToString();
         }
         #endregion
 
@@ -866,19 +909,20 @@ namespace DataAccess
             int count = dt.Rows.Count;
             StringBuilder strSQL = new StringBuilder();
             dt.Columns[0].ColumnName = "vcPartsNo";
-            dt.Columns[1].ColumnName = "dTimeFrom";//20180908增加起止时间 - 李兴旺
-            dt.Columns[2].ColumnName = "dTimeTo";//20180908增加起止时间 - 李兴旺
+            dt.Columns[1].ColumnName = "dFromTime";//20180908增加起止时间 - 李兴旺
+            dt.Columns[2].ColumnName = "dToTime";//20180908增加起止时间 - 李兴旺
             dt.Columns[3].ColumnName = "vcDock";
             dt.Columns[4].ColumnName = "vcPartPlant";
             dt.Columns[5].ColumnName = "vcCarFamilyCode";
-            dt.Columns[6].ColumnName = "vcPartsNameEN";
-            dt.Columns[7].ColumnName = "vcPartsNameCHN";
-            dt.Columns[8].ColumnName = "vcQFflag";
-            dt.Columns[9].ColumnName = "iQuantityPerContainer";
-            dt.Columns[10].ColumnName = "vcQJcontainer";
-            dt.Columns[11].ColumnName = "vcPorType";
-            dt.Columns[12].ColumnName = "vcZB";
-            dt.Columns[13].ColumnName = "vcPartFrequence";//20180908增加品番频度 - 李兴旺
+            dt.Columns[6].ColumnName = "vcPartENName";
+            dt.Columns[7].ColumnName = "vcQFflag";
+            dt.Columns[8].ColumnName = "iQuantityPerContainer";
+            dt.Columns[9].ColumnName = "vcQJcontainer";
+            dt.Columns[10].ColumnName = "vcPorType";
+            dt.Columns[11].ColumnName = "vcZB";
+            dt.Columns[12].ColumnName = "vcOrderingMethod";//20180908增加品番频度 - 李兴旺
+            dt.Columns[13].ColumnName = "vcReceiver";
+            dt.Columns[14].ColumnName = "vcSupplierId";
             //dt.Columns.Remove("vcPartsNameEN");
             //dt.Columns.Remove("vcPartsNameCHN");
             //dt.Columns.Remove("iQuantityPerContainer");
@@ -903,27 +947,28 @@ namespace DataAccess
         /// </summary>
         /// <param name="InputFile">导入Html控件</param>
         /// <param name="vcCreaterId">创建者ID</param>
-        public int ImportStandTime(DataTable dt, string vcCreaterId)
+        public string ImportStandTime(DataTable dt, string vcCreaterId)
         {
+            string msg = string.Empty;
             try
             {
                 int count = dt.Rows.Count;
                 dt.Columns[0].ColumnName = "vcPartsNo";
-                dt.Columns[1].ColumnName = "dTimeFrom";//20180908增加起止时间 - 李兴旺
-                dt.Columns[2].ColumnName = "dTimeTo";//20180908增加起止时间 - 李兴旺
+                dt.Columns[1].ColumnName = "dFromTime";//20180908增加起止时间 - 李兴旺
+                dt.Columns[2].ColumnName = "dToTime";//20180908增加起止时间 - 李兴旺
                 dt.Columns[3].ColumnName = "vcDock";
                 dt.Columns[4].ColumnName = "vcPartPlant";
                 dt.Columns[5].ColumnName = "vcCarFamilyCode";
-                dt.Columns[6].ColumnName = "vcPartsNameEN";
-                dt.Columns[7].ColumnName = "vcPartsNameCHN";
-                dt.Columns[8].ColumnName = "vcQFflag";
-                dt.Columns[9].ColumnName = "iQuantityPerContainer";
-                dt.Columns[10].ColumnName = "vcQJcontainer";
-                dt.Columns[11].ColumnName = "vcPorType";
-                dt.Columns[12].ColumnName = "vcZB";
-                dt.Columns[13].ColumnName = "vcPartFrequence";//20180908增加品番频度 - 李兴旺
-                dt.Columns.Remove("vcPartsNameEN");
-                dt.Columns.Remove("vcPartsNameCHN");
+                dt.Columns[6].ColumnName = "vcPartENName";
+                dt.Columns[7].ColumnName = "vcQFflag";
+                dt.Columns[8].ColumnName = "iQuantityPerContainer";
+                dt.Columns[9].ColumnName = "vcQJcontainer";
+                dt.Columns[10].ColumnName = "vcPorType";
+                dt.Columns[11].ColumnName = "vcZB";
+                dt.Columns[12].ColumnName = "vcOrderingMethod";//20180908增加品番频度 - 李兴旺
+                dt.Columns[13].ColumnName = "vcReceiver";
+                dt.Columns[14].ColumnName = "vcSupplierId";
+                dt.Columns.Remove("vcPartENName");
                 dt.Columns.Remove("iQuantityPerContainer");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -931,26 +976,45 @@ namespace DataAccess
                     {
                         dt.Rows[i]["vcQFflag"] = "1";
                     }
-                    if (dt.Rows[i]["vcQFflag"].ToString() == "×")
+                    else if (dt.Rows[i]["vcQFflag"].ToString() == "×")
                     {
                         dt.Rows[i]["vcQFflag"] = "2";
+                    }
+                    else if (dt.Rows[i]["vcQFflag"].ToString() == "")
+                    {
+                        dt.Rows[i]["vcQFflag"] = "";
+                    }
+                    else
+                    {
+                        return "第" + (i + 1).ToString() + "行‘秦丰涂装’ 格式输入错误！";
                     }
                     if (dt.Rows[i]["vcPartPlant"].ToString() == "#1")
                     {
                         dt.Rows[i]["vcPartPlant"] = "1";
                     }
-                    if (dt.Rows[i]["vcPartPlant"].ToString() == "#2")
+                    else if (dt.Rows[i]["vcPartPlant"].ToString() == "#2")
                     {
                         dt.Rows[i]["vcPartPlant"] = "2";
                     }
-                    if (dt.Rows[i]["vcPartPlant"].ToString() == "#3")
+                    else if (dt.Rows[i]["vcPartPlant"].ToString() == "#3")
                     {
                         dt.Rows[i]["vcPartPlant"] = "3";
                     }
-                    if (dt.Rows[i]["vcPartPlant"].ToString() == "#4")
+                    else if (dt.Rows[i]["vcPartPlant"].ToString() == "#4")
                     {
                         dt.Rows[i]["vcPartPlant"] = "4";
                     }
+                    else if (dt.Rows[i]["vcPartPlant"].ToString().Trim() == "")
+                    {
+                        dt.Rows[i]["vcPartPlant"] = "";
+                    }
+                    else
+                    {
+                        return "第" + (i + 1).ToString() + "行‘品番工场’格式输入错误！";
+                    }
+                    bool b = existPartInMaster(dt.Rows[i]["vcPartsNo"].ToString(), "TFTM", dt.Rows[i]["vcReceiver"].ToString(), dt.Rows[i]["vcSupplierId"].ToString());
+                    if (!b)
+                        return "第" + (i + 1).ToString() + "行，‘品番、收货方、供应商编码’在基础数据中不存在！";
                 }
                 SqlTransaction tran = null;
                 using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
@@ -961,13 +1025,18 @@ namespace DataAccess
                         SqlCommand cmd = new SqlCommand();
                         cmd.Connection = conn;
                         cmd.Transaction = tran = conn.BeginTransaction();
+                        string sql = "";
                         //事务
                         for (int j = 0; j < dt.Rows.Count; j++)
                         {
-                            DoTransactionOfInsert(cmd, dt.Rows[j], vcCreaterId);//按照行来更新数据
+                            sql += DoTransactionOfInsert(dt.Rows[j], vcCreaterId);//按照行来更新数据
                         }
+                        cmd.CommandText = sql;
+                        int counts = cmd.ExecuteNonQuery();
                         tran.Commit();
-                        return 11;
+                        if (counts > 0)
+                            return "";
+                        return "未导入更新";
                     }
                     catch (Exception ex)
                     {
@@ -991,27 +1060,47 @@ namespace DataAccess
         /// <param name="cmd">SQL类</param>
         /// <param name="dr">数据行</param>
         /// <param name="vcCreater">创建人</param>
-        private void DoTransactionOfInsert(SqlCommand cmd, DataRow dr, string useid)
+        private string DoTransactionOfInsert(DataRow dr, string useid)
         {
-            #region SQL
-            string strSql = "";
-            //UP数据
-            //UP数据
-            strSql += "UPDATE [tPartInfoMaster]";
-            strSql += "   SET [vcCarFamilyCode] = '" + dr["vcCarFamilyCode"].ToString() + "'";
-            strSql += "      ,[vcQFflag] = '" + dr["vcQFflag"].ToString() + "'";
-            strSql += "      ,[vcQJcontainer] = '" + dr["vcQJcontainer"].ToString() + "'";
-            strSql += "      ,[vcPorType] = '" + dr["vcPorType"].ToString() + "'";
-            strSql += "      ,[vcZB] = '" + dr["vcZB"].ToString() + "'";
-            strSql += "      ,[dUpdataTime] = getdate()";
-            strSql += "      ,[vcUpdataUser] = '" + useid + "'";
-            strSql += "      ,[vcPartPlant] = '" + dr["vcPartPlant"].ToString() + "'";
-            strSql += "      ,[vcPartFrequence] = '" + dr["vcPartFrequence"].ToString().Trim() + "'";//20180908增加品番频度 - 李兴旺
-            strSql += " WHERE  [vcPartsNo]='" + dr["vcPartsNo"].ToString() + "' AND  [vcDock]='" + dr["vcDock"].ToString() + "'";
-            // 执行SQL
-            cmd.CommandText = strSql;
-            cmd.ExecuteNonQuery();
-            #endregion
+            bool isExists = existParts(dr["vcPartsNo"].ToString(), "TFTM", dr["vcReceiver"].ToString(), dr["vcSupplierId"].ToString());
+            StringBuilder sql = new StringBuilder();
+            if (isExists)//如果品番表存在，则更新
+            {
+                sql.Append("  update TPartInfoMaster set ");
+                sql.Append("  vcPartPlant='" + dr["vcPartPlant"].ToString() + "' ");
+                sql.Append("  ,dTimeFrom='" + dr["dFromTime"].ToString() + "' ");
+                sql.Append("  ,dTimeTo='" + dr["dToTime"].ToString() + "' ");
+                sql.Append("  ,vcCarFamilyCode='" + dr["vcCarFamilyCode"].ToString() + "' ");
+                sql.Append("  ,vcQFflag='" + dr["vcQFflag"].ToString() + "' ");
+                sql.Append("  ,vcQJcontainer='" + dr["vcQJcontainer"].ToString() + "' ");
+                sql.Append("  ,vcPorType='" + dr["vcPorType"].ToString() + "' ");
+                sql.Append("  ,vcZB='" + dr["vcZB"].ToString() + "' ");
+                sql.Append("  ,vcUpdataUser='" + useid + "' ");
+                sql.Append("  ,dUpdataTime=getdate() ");
+                sql.Append("  where vcPartsNo='" + dr["vcPartsNo"].ToString() + "'");
+                sql.Append("  and vcCpdCompany='" + dr["vcReceiver"].ToString() + "'");
+                sql.Append("  and vcSupplierCode='" + dr["vcSupplierId"].ToString() + "';");
+            }
+            else//如果品番表存在，则插入
+            {
+                sql.Append("insert into TPartInfoMaster(vcPartsNo, dTimeFrom, dTimeTo, vcCpdCompany, vcSupplierCode, vcInOutFlag, ");
+                sql.Append("vcPartPlant, vcCarFamilyCode, vcQFflag, vcQJcontainer, vcPorType, vcZB, vcUpdataUser, dUpdataTime) ");
+                sql.Append("values('" + dr["vcPartsNo"].ToString() + "',");
+                sql.Append("'" + dr["dFromTime"].ToString() + "',");
+                sql.Append("'" + dr["dToTime"].ToString() + "',");
+                sql.Append("'" + dr["vcReceiver"].ToString() + "',");
+                sql.Append("'" + dr["vcSupplierId"].ToString() + "',");
+                sql.Append("'0',");
+                sql.Append("'" + dr["vcPartPlant"].ToString() + "',");
+                sql.Append("'" + dr["vcCarFamilyCode"].ToString() + "',");
+                sql.Append("'" + dr["vcQFflag"].ToString() + "',");
+                sql.Append("'" + dr["vcQJcontainer"].ToString() + "',");
+                sql.Append("'" + dr["vcPorType"].ToString() + "',");
+                sql.Append("'" + dr["vcZB"].ToString() + "',");
+                sql.Append("'" + useid + "',");
+                sql.Append("getdate());");
+            }
+            return sql.ToString();
         }
         #endregion
     }

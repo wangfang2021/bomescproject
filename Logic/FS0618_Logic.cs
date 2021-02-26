@@ -43,5 +43,15 @@ namespace Logic
         {
             throw new NotImplementedException();
         }
+
+        public DataTable getDock()
+        {
+            return fs0618_DataAccess.getDock();
+        }
+
+        public DataTable getSupplier()
+        {
+            return fs0618_DataAccess.getSupplier();
+        }
     }
 }

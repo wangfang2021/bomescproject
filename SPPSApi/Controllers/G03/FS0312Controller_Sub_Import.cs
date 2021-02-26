@@ -30,6 +30,7 @@ namespace SPPSApi.Controllers.G03
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0312_Logic FS0312_Logic = new FS0312_Logic();
+        
         private readonly string FunctionID = "FS0312";
 
         public FS0312Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)

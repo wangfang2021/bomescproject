@@ -65,6 +65,51 @@ namespace SPPSApi.Controllers.G03
             }
         }
 
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string supplierCode = dataForm.supplierCode == null ? "" : dataForm.supplierCode;
+            string supplierName = dataForm.supplierName == null ? "" : dataForm.supplierName;
+            try
+            {
+                DataTable dt = fs0314_logic.searchApi(supplierCode, supplierName);
+
+                string resMsg = "";
+                string[] head = { "供应商代码", "供应商名称", "生产商名称", "生产商地址", "联系人1", "联系人1电话", "联系人1邮箱", "联系人2", "联系人2电话", "联系人2邮箱", "联系人3", "联系人3电话", "联系人3邮箱", };
+                string[] fields = { "vcSupplier_id", "vcSupplier_name", "vcProduct_name", "vcAddress", "vcLXR1", "vcPhone1", "vcEmail1", "vcLXR2", "vcPhone2", "vcEmail2", "vcLXR3", "vcPhone3", "vcEmail3" };
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE1404", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 保存
         [HttpPost]
         [EnableCors("any")]

@@ -183,6 +183,7 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
+            vcOrderType = vcOrderType.Substring(0, 1);
             string vcInOutFlag = dataForm.vcInOutFlag == null ? "" : dataForm.vcInOutFlag;
             string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
             string lastOrderNo = dataForm.lastOrdderNo == null ? "" : dataForm.lastOrdderNo;
@@ -193,27 +194,39 @@ namespace SPPSApi.Controllers.G04
             List<Dictionary<string, Object>> fileDelList = dataForm.fileDel.ToObject<List<Dictionary<string, Object>>>();
             try
             {
-                if (vcOrderType == "0")
-                {
-                    dTargetDate = dTargetDate.Replace("-", "");
-                } else if (vcOrderType == "1")
-                {
-                    dTargetDate = dTargetDate.Replace("-", "").Substring(0,4);
-                }
-                else if (vcOrderType == "2") {
-                    dTargetDate = dTargetDate.Replace("-", "").Substring(0, 6);
-                } else
-                { 
-                
-                }
-                //if (vcInOutFlag.Length==0)
+                //if (vcOrderType == "0")
                 //{
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = "内外选项不能为空,请确认！";
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    dTargetDate = dTargetDate.Replace("-", "");
+                //} else if (vcOrderType == "1")
+                //{
+                //    dTargetDate = dTargetDate.Replace("-", "").Substring(0,4);
                 //}
-                    #region 判断
-                    #endregion
+                //else if (vcOrderType == "2") {
+                //    dTargetDate = dTargetDate.Replace("-", "").Substring(0, 6);
+                //} else
+                //{ 
+
+                //}
+                bool IsOrderTypeJinjiFlag = false;
+                FS0404_Logic fs0404_Logic = new FS0404_Logic();
+                DataTable dt1 = fs0404_Logic.getOrderCodeByName();
+
+                if (dt1.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请联系管理员维护紧急订单类型的分类！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                for (int i=0;i<dt1.Rows.Count;i++)
+                {
+                    if (dt1.Rows[i]["vcOrderInitials"].ToString()== vcOrderType)
+                    {
+                        IsOrderTypeJinjiFlag = true;
+                        break;
+                    }
+                }
+                #region 判断
+                #endregion
                 //if (lastOrderNo.Length >0)
                 //{
                 //    if (newOrderNo.Length==0)
@@ -523,10 +536,10 @@ namespace SPPSApi.Controllers.G04
 
                 string msg = string.Empty;
 
-                FS0603_Logic fs0603_Logic = new FS0603_Logic();
-                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                DataTable dtMessage = fs0404_Logic.createTable("Order");
                 bool bReault = true;
-                if (vcOrderType == "")
+             
+                if (!IsOrderTypeJinjiFlag)
                 {
                     fs0404_Logic.addOrderNo(realPath, vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, loginInfo.UserId, loginInfo.UnitCode, ref bReault, ref dtMessage);
                 }
@@ -666,7 +679,7 @@ namespace SPPSApi.Controllers.G04
             List<Dictionary<string, Object>> fileDelList = dataForm.fileDel.ToObject<List<Dictionary<string, Object>>>();
             try
             {
-                DataTable  dt1 = fs0404_Logic.getOrderCodeByName("紧急订单");
+                DataTable  dt1 = fs0404_Logic.getOrderCodeByName();
                 if (dt1.Rows.Count==0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -845,6 +858,61 @@ namespace SPPSApi.Controllers.G04
             }
         }
         #endregion
+
+        /// <summary>
+        /// 导出消息信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                //DataTable dataTable = fs0603_Logic.createTable("MES");
+                //FS0404_Logic fs0404_Logic = new FS0404_Logic();
+                DataTable dataTable = fs0404_Logic.createTable("Order");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow["vcOrder"] = listInfoData[i]["vcOrder"].ToString();
+                    dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                    dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
+                    dataTable.Rows.Add(dataRow);
+                }
+               
+                string[] fields = { "vcOrder", "vcPartNo", "vcMessage" };
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0404_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         #region
         public Order GetPartFromFile(string path, string orderNo, ref string msg)
         {

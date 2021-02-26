@@ -24,17 +24,17 @@ namespace DataAccess
                 sbr.AppendLine("FROM tempdb.dbo.sysobjects ");
                 sbr.AppendLine("WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')");
                 sbr.AppendLine("DROP TABLE #temp;");
-                //sbr.AppendLine("SELECT SUBSTRING(vcFileNameTJ,7,4) AS Year,SUBSTRING(vcFileNameTJ,11,2) AS Month,SUBSTRING(vcFileNameTJ,13,2) AS Day,iAutoId,vcChange INTO #temp FROM TSBManager ");
-                //sbr.AppendLine("WHERE vcType = '0' ");
+                sbr.AppendLine("SELECT SUBSTRING(vcFileNameTJ,7,4) AS Year,SUBSTRING(vcFileNameTJ,11,2) AS Month,SUBSTRING(vcFileNameTJ,13,2) AS Day,iAutoId,vcChange INTO #temp FROM TSBManager ");
+                sbr.AppendLine("WHERE vcType = '0' ");
 
-                sbr.AppendLine("SELECT a.iAutoId,a.vcChange, Convert(varchar,DATEPART(Year,b.dUploadTime)) AS Year, Convert(varchar,Datepart(Month,b.dUploadTime)) AS Month, convert(varchar,datepart(day,b.dUploadTime)) AS day  INTO #temp  FROM ");
-                sbr.AppendLine("(");
-                sbr.AppendLine("SELECT iAutoId,vcChange,vcFileNameTJ FROM TSBManager");
-                sbr.AppendLine(") a");
-                sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(");
-                sbr.AppendLine("SELECT dUploadTime,vcFileNameTJ FROM TSBFile");
-                sbr.AppendLine(") b ON a.vcFileNameTJ = b.vcFileNameTJ");
+                //sbr.AppendLine("SELECT a.iAutoId,a.vcChange, Convert(varchar,DATEPART(Year,b.dUploadTime)) AS Year, Convert(varchar,Datepart(Month,b.dUploadTime)) AS Month, convert(varchar,datepart(day,b.dUploadTime)) AS day  INTO #temp  FROM ");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("SELECT iAutoId,vcChange,vcFileNameTJ FROM TSBManager");
+                //sbr.AppendLine(") a");
+                //sbr.AppendLine("LEFT JOIN");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("SELECT dUploadTime,vcFileNameTJ FROM TSBFile");
+                //sbr.AppendLine(") b ON a.vcFileNameTJ = b.vcFileNameTJ");
 
 
                 if (!string.IsNullOrWhiteSpace(startTime))
@@ -81,7 +81,7 @@ namespace DataAccess
 
                 if (sbr.Length > 0)
                 {
-                    list.Add(excute.ExcuteSqlWithSelectToDT(sbr.ToString()));
+                    list.Add(excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK"));
                 }
 
                 sbr.Length = 0;
@@ -91,17 +91,17 @@ namespace DataAccess
                 sbr.AppendLine("WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U')");
                 sbr.AppendLine("DROP TABLE #temp;");
 
-                sbr.AppendLine("SELECT a.iAutoId,a.vcChange, Convert(varchar,DATEPART(Year,b.dUploadTime)) AS Year, Convert(varchar,Datepart(Month,b.dUploadTime)) AS Month, convert(varchar,datepart(day,b.dUploadTime)) AS day  INTO #temp  FROM ");
-                sbr.AppendLine("(");
-                sbr.AppendLine("SELECT iAutoId,vcChange,vcFileNameTJ FROM TSBManager");
-                sbr.AppendLine(") a");
-                sbr.AppendLine("LEFT JOIN");
-                sbr.AppendLine("(");
-                sbr.AppendLine("SELECT dUploadTime,vcFileNameTJ FROM TSBFile");
-                sbr.AppendLine(") b ON a.vcFileNameTJ = b.vcFileNameTJ");
+                //sbr.AppendLine("SELECT a.iAutoId,a.vcChange, Convert(varchar,DATEPART(Year,b.dUploadTime)) AS Year, Convert(varchar,Datepart(Month,b.dUploadTime)) AS Month, convert(varchar,datepart(day,b.dUploadTime)) AS day  INTO #temp  FROM ");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("SELECT iAutoId,vcChange,vcFileNameTJ FROM TSBManager");
+                //sbr.AppendLine(") a");
+                //sbr.AppendLine("LEFT JOIN");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("SELECT dUploadTime,vcFileNameTJ FROM TSBFile");
+                //sbr.AppendLine(") b ON a.vcFileNameTJ = b.vcFileNameTJ");
 
-                //sbr.AppendLine("SELECT SUBSTRING(vcFileNameTJ,7,4) AS Year,SUBSTRING(vcFileNameTJ,11,2) AS Month,iAutoId,vcChange INTO #temp FROM TSBManager ");
-                //sbr.AppendLine("WHERE vcType = '0' ");
+                sbr.AppendLine("SELECT SUBSTRING(vcFileNameTJ,7,4) AS Year,SUBSTRING(vcFileNameTJ,11,2) AS Month,iAutoId,vcChange INTO #temp FROM TSBManager ");
+                sbr.AppendLine("WHERE vcType = '0' ");
                 if (!string.IsNullOrWhiteSpace(startTime))
                 {
                     sbr.AppendLine(" AND '" + startTime + "'<=SUBSTRING(vcFileNameTJ,7,8)");

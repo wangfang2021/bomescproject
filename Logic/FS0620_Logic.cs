@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcCarType)
+        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
         {
-            return fs0620_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+            return fs0620_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
         }
 
         public bool isExistAddData(DataTable dtadd)
@@ -67,6 +67,10 @@ namespace Logic
         {
             return fs0620_DataAccess.getHuiZongDt(vcTargetYear);
         }
-        
+
+        public DataTable GetSupplierWorkArea()
+        {
+            return fs0620_DataAccess.GetSupplierWorkArea();
+        }
     }
 }

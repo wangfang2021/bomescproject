@@ -53,9 +53,21 @@ namespace Logic
             fs0404_DataAccess.addJinJiOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode, ref  bReault, ref dtMessage, ref msg);
         }
 
-        public DataTable getOrderCodeByName(string name)
+        public DataTable getOrderCodeByName()
         {
-            return fs0404_DataAccess.getOrderCodeByName(name);
+            return fs0404_DataAccess.getOrderCodeByName();
         }
+
+        public DataTable createTable(string strSpSub)
+        {
+            DataTable dataTable = new DataTable();
+            if (strSpSub == "Order")
+            {
+                dataTable.Columns.Add("vcOrder");
+                dataTable.Columns.Add("vcPartNo");
+                dataTable.Columns.Add("vcMessage");
+            }
+            return dataTable;
+         }
     }
 }

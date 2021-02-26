@@ -7,8 +7,7 @@ namespace DataAccess
 {
     public class FS0303_DataAccess_Sync
     {
-        MultiExcute excute = new MultiExcute();
-
+        
         #region 获取原单位向价格表同步的逻辑Sql语句
         /// <summary>
         /// 获取原单位向价格表同步的逻辑Sql语句
@@ -148,45 +147,6 @@ namespace DataAccess
         }
         #endregion
 
-        #region 获取原单位向采购表同步的逻辑Sql语句
-        public StringBuilder getDataSyncForSPMasterSql(List<Dictionary<string, Object>> listInfoData)
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-
-                #region 获取临时表并将数据插入临时表
-                strSql.Append(getTUnitTempTableSql(listInfoData));
-                #endregion
-
-                return strSql;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 获取原单位向标签表同步的逻辑Sql语句
-        public StringBuilder getDataSyncForTagMasterSql(List<Dictionary<string, Object>> listInfoData)
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-
-                #region 获取临时表并将数据插入临时表
-                strSql.Append(getTempTableSql("TUnit"));
-                #endregion
-
-                return strSql;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
 
         #region 获取原单位生确单发行的逻辑Sql语句
         /// <summary>
@@ -421,41 +381,34 @@ namespace DataAccess
         }
         #endregion
 
-        //#region 获取一个临时表
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="tempTableName">临时表名称</param>
-        ///// <param name="tableName">数据库中存在</param>
-        ///// <returns></returns>
-        //public StringBuilder getTempTableSql(string tempTableName,string tableName)
-        //{
-        //    StringBuilder strSql = new StringBuilder();
-        //    try
-        //    {
-        //        string tempTableName = "#" + TableName + "_temp";
-        //        /*
-        //         * 时间：2021-02-05
-        //         * 修改人：董镇
-        //         * 内容描述：获取一个临时表，先判断临时表是否存在，如果存在，则删除；再创建临时表。
-        //         *           此临时表与原表结构相同，作为局部临时表存在,表里无数据
-        //         */
-        //        strSql.Append("        if object_id('tempdb.." + tempTableName + "') is not null        \r\n");
-        //        strSql.Append("        begin         \r\n");
-        //        strSql.Append("        drop table " + tempTableName + "        \r\n");
-        //        strSql.Append("        end        \r\n");
-        //        strSql.Append("        select * into " + tempTableName + " from         \r\n");
-        //        strSql.Append("        (        \r\n");
-        //        strSql.Append("        select * from " + TableName + " where 1=0        \r\n");
-        //        strSql.Append("        ) a ;       \r\n");
-        //        return strSql;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-        //#endregion
-        
+        #region 获取一个临时表
+        /// <summary>
+        /// 获取基于原单位表的临时表
+        /// </summary>
+        /// <param name="tempTableName">临时表名称</param>
+        /// <returns></returns>
+        public StringBuilder getTUnit2TempTable(string tempTableName)
+        {
+            StringBuilder strSql = new StringBuilder();
+            try
+            {
+                string TableName = "#" + tempTableName;
+                strSql.Append("        if object_id('tempdb.." + TableName + "') is not null        \r\n");
+                strSql.Append("        begin         \r\n");
+                strSql.Append("        drop table " + TableName + "        \r\n");
+                strSql.Append("        end        \r\n");
+                strSql.Append("        select * into " + TableName + " from         \r\n");
+                strSql.Append("        (        \r\n");
+                strSql.Append("        select * from Tunit where 1=0        \r\n");
+                strSql.Append("        ) a ;       \r\n");
+                return strSql;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
 }

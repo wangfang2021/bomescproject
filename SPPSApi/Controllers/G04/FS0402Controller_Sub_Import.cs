@@ -68,11 +68,17 @@ namespace SPPSApi.Controllers.G04
             string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
             string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
 
-
             string strMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("MM");
             string strMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("MM");
             string strMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("MM");
 
+            //校验：导入后不能再导入
+            if (fs0402_Logic.isRepeatImport(strYearMonth))
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "对象年月："+strYearMonth+"曾经导入过，不能再导入。";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
 
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
@@ -113,18 +119,20 @@ namespace SPPSApi.Controllers.G04
                     }
                     if (importDt.Columns.Count == 0)
                         importDt = dt.Clone();
-                    if (dt.Rows.Count == 0|| dt.Rows.Count == 1)
+                    if (dt.Rows.Count == 0 || dt.Rows.Count == 1)
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "导入终止，文件" + info.Name + "没有要导入的数据";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
+
                     //验证对象月是否是选择的月份
-                    string strMonth_import = dt.Rows[0][1] == System.DBNull.Value ? "0" : dt.Rows[0][1].ToString().Replace("月","");
+                    string strMonth_import = dt.Rows[0][1] == System.DBNull.Value ? "0" : dt.Rows[0][1].ToString().Replace("月", "");
                     string strMonth_import_2 = dt.Rows[0][2] == System.DBNull.Value ? "0" : dt.Rows[0][2].ToString().Replace("月", "");
                     string strMonth_import_3 = dt.Rows[0][3] == System.DBNull.Value ? "0" : dt.Rows[0][3].ToString().Replace("月", "");
- 
+
                     int iMonth = Convert.ToInt32(strMonth);
                     int iMonth_2 = Convert.ToInt32(strMonth_2);
                     int iMonth_3 = Convert.ToInt32(strMonth_3);
@@ -141,7 +149,7 @@ namespace SPPSApi.Controllers.G04
                     {
                         errMessageList.Add("文件中的内内示月" + strMonth_import_3 + "与页面输入的对象年月" + iMonth_3 + "不相符！");
                     }
-                    for ( int i=1;i< dt.Rows.Count;i++)//跳过列头
+                    for (int i = 1; i < dt.Rows.Count; i++)//跳过列头
                     {
                         DataRow row = dt.Rows[i];
                         importDt.ImportRow(row);
@@ -149,6 +157,7 @@ namespace SPPSApi.Controllers.G04
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
                 List<string> errMonthList = new List<string>();//记录年月错误的品番
+
                 //check:品番行数是否唯一
                 var result = from r in importDt.AsEnumerable()
                              group r by new { r2 = r.Field<string>("vcPart_id") } into g
@@ -165,7 +174,7 @@ namespace SPPSApi.Controllers.G04
                     errMessageList.Add(sbr.ToString());
                 }
                 //导入批量校验
-                fs0402_Logic.importCheck(importDt, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList,loginInfo.UnitCode);
+                fs0402_Logic.importCheck(importDt, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, loginInfo.UnitCode);
                 if (errMessageList.Count > 0)
                 {
                     fs0402_Logic.importHistory(strYearMonth, errMessageList);
@@ -174,12 +183,12 @@ namespace SPPSApi.Controllers.G04
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string strResult = "";
-                fs0402_Logic.importSave(importDt, loginInfo.UserId, strYearMonth,strYearMonth_2,strYearMonth_3,loginInfo.UnitCode);
+                fs0402_Logic.importSave(importDt, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, loginInfo.UnitCode);
                 strResult = "导入成功\\";
                 //导入成功发送邮件给TFTM担当
                 string strMailMsg = "";
-                SendEmail(loginInfo.UserId,loginInfo.UserName,strYearMonth,strYearMonth_2,strYearMonth_3,ref strMailMsg);
-                if(strMailMsg != "")
+                SendEmail(loginInfo.UserId, loginInfo.UserName, strYearMonth, strYearMonth_2, strYearMonth_3, ref strMailMsg);
+                if (strMailMsg != "")
                 {
                     strResult += "发送邮件失败";
                 }
@@ -203,24 +212,24 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion
 
-        public void SendEmail(string strSendUserId,string strSendUserName,string strYearMonth,string strYearMonth_2,string strYearMonth_3,ref string strMsg)
+        public void SendEmail(string strSendUserId, string strSendUserName, string strYearMonth, string strYearMonth_2, string strYearMonth_3, ref string strMsg)
         {
             string strSendEmail = fs0402_Logic.getEmail(strSendUserId);
-            if(strSendEmail=="")
+            if (strSendEmail == "")
             {
-                strMsg = string.Format("用户{0}没有配置邮箱。",strSendUserName);
+                strMsg = string.Format("用户{0}没有配置邮箱。", strSendUserName);
                 return;
             }
-            string strContent =string.Format("FTMS已导入SOQ数据({0}、{1}、{2})。",strYearMonth,strYearMonth_2,strYearMonth_3);
+            string strContent = string.Format("FTMS已导入SOQ数据({0}、{1}、{2})。", strYearMonth, strYearMonth_2, strYearMonth_3);
             DataTable receiverDt = fs0402_Logic.getReciveEmail();
-            if(receiverDt.Rows.Count==0)
+            if (receiverDt.Rows.Count == 0)
             {
                 strMsg = string.Format("tcode(C050)中没有找到收件人信息。");
                 return;
             }
             string strTitle = "FTMS已导入SOQ数据成功";
-            string response= ComFunction.SendEmailInfo(strSendEmail, strSendUserName, strContent, receiverDt, null, strTitle, "", false);
-            if(response== "Error")
+            string response = ComFunction.SendEmailInfo(strSendEmail, strSendUserName, strContent, receiverDt, null, strTitle, "", false);
+            if (response == "Error")
             {
                 strMsg = string.Format("邮件发送失败。");
                 return;
@@ -241,7 +250,7 @@ namespace SPPSApi.Controllers.G04
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            if(dataForm.YearMonth==null || dataForm.YearMonth=="")
+            if (dataForm.YearMonth == null || dataForm.YearMonth == "")
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "请选择对象年月。";
@@ -254,7 +263,7 @@ namespace SPPSApi.Controllers.G04
 
             try
             {
-                string filepath = fs0402_Logic.generateExcelWithXlt_Module( _webHostEnvironment.ContentRootPath, "FS0402.xlsx", loginInfo.UserId, FunctionID, strYearMonth, strYearMonth_2, strYearMonth_3);
+                string filepath = fs0402_Logic.generateExcelWithXlt_Module(_webHostEnvironment.ContentRootPath, "FS0402.xlsx", loginInfo.UserId, FunctionID, strYearMonth, strYearMonth_2, strYearMonth_3);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

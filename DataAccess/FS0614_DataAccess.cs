@@ -182,10 +182,10 @@ namespace DataAccess
                             }
 
                             ////检测数量
-                            //if (!CheckTotalNumEqual(OrderTargetYM, vcPart_id, vcOrderingMethod, SoqDt, detail.QTY))
-                            //{
-                            //    tmp += "品番" + vcPart_id + "订单数量不正确;\r\n";
-                            //}
+                            if (!CheckTotalNumEqual(OrderTargetYM, vcPart_id, vcOrderingMethod, SoqDt, detail.QTY))
+                            {
+                                tmp += "品番" + vcPart_id + "订单数量不正确;\r\n";
+                            }
 
                             if (!string.IsNullOrWhiteSpace(tmp))
                             {

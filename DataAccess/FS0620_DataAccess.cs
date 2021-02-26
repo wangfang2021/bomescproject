@@ -112,7 +112,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select [iAutoId], d.vcName as vcType, a.vcReceiver,[vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory],   ");
-                strSql.AppendLine("  [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], [vcAcceptNum],  ");
+                strSql.AppendLine("  c.vcName as [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], [vcAcceptNum],  ");
                 strSql.AppendLine("  [vcJanuary], [vcFebruary], [vcMarch], [vcApril], [vcMay], [vcJune], [vcJuly],   ");
                 strSql.AppendLine("  [vcAugust], [vcSeptember], [vcOctober], [vcNovember], [vcDecember],   ");
 
@@ -124,7 +124,7 @@ namespace DataAccess
                 strSql.AppendLine("  [vcNextOneYear],[vcNextTwoYear], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("  from TAnnualManagement a  ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C000') b on a.vcInjectionFactory=b.vcValue  ");
-                strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C003') c on a.vcInsideOutsideType=c.vcName  ");
+                strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C003') c on a.vcInsideOutsideType=c.vcValue  ");
                 strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C061') d on a.vcType=d.vcValue  ");
                 strSql.AppendLine("  where 1=1  ");
                 strSql.AppendLine("    ");
@@ -135,7 +135,7 @@ namespace DataAccess
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPartNo = '" + vcPartNo + "' ");
+                    strSql.AppendLine("  and  vcPartNo like '" + vcPartNo + "%' ");
                 }
                 if (vcInjectionFactory.Length > 0)
                 {

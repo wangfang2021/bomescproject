@@ -147,7 +147,7 @@ namespace SPPSApi.Controllers.G06
                 //const tHeader = ["订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工厂", "受入", "供应商代码", "工区", "出荷场代码", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注"];
                 //const filterVal = ["dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo"];
 
-                head = new string[] { "订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工厂", "受入", "供应商代码", "工区", "出荷场代码", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注" };
+                head = new string[] { "订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工场", "受入", "供应商代码", "工区", "出荷场", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注" };
                 field = new string[] { "dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
@@ -423,9 +423,10 @@ namespace SPPSApi.Controllers.G06
                     {
                         writer.Write(listInfoData[i]["vcDock"].ToString()+ "\t");
                         writer.Write(listInfoData[i]["vcSupplier_id"].ToString() + "\t");
-                        writer.Write(listInfoData[i]["vcWorkArea"].ToString() + "\t\t");
+                        writer.Write(listInfoData[i]["vcWorkArea"].ToString() + "\t");
+                        writer.Write(listInfoData[i]["vcCHCCode"].ToString() + "\t");
                         writer.Write(listInfoData[i]["vcOrderNo"].ToString() + "\t\t");
-                        writer.Write(listInfoData[i]["vcPartNo"].ToString() + "\t\t\t");
+                        writer.Write(listInfoData[i]["vcPartNo"].ToString() + "\t\t\t\t");
                         writer.WriteLine(listInfoData[i]["vcOrderNum"].ToString());
                     }
                 }

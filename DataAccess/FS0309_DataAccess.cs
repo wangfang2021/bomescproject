@@ -18,13 +18,6 @@ namespace DataAccess
             , string strReceiver, string strPriceState
             )
         {
-
-            DateTime dateTime1 = DateTime.Now;
-            
-            DateTime dateTime = Convert.ToDateTime("2022-01-26");
-            var years = dateTime1.Year - dateTime.Year;
-            var temp = dateTime - dateTime1; 
-
             try
             {
                 StringBuilder strSql = new StringBuilder();

@@ -19,13 +19,13 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select distinct t1.iAutoId,t1.vcPart_id,t1.dTimeFrom,t1.dTimeTo,t1.vcBZPlant,t6.vcName as vcBZPlantName,t1.vcSR,  \n");
-                strSql.Append("t4.vcBigPM,t1.vcSmallPM,t5.vcStandardTime,t1.vcBZQF,t1.vcBZUnit,t1.vcRHQF,'0' as vcModFlag,'0' as vcAddFlag  \n");
+                strSql.Append("select distinct t1.iAutoId,t1.vcPart_id,t1.dTimeFrom,t1.dTimeTo,t1.vcBZPlant,t6.vcName as vcBZPlantName,t2.vcPackNo,t1.vcSR,  \n");
+                strSql.Append("t4.vcBigPM,case when isnull(t1.vcSmallPM,'')!='' then t1.vcSmallPM else t3.vcSmallPM end as vcSmallPM,t5.vcStandardTime,t1.vcBZQF,t1.vcBZUnit,t1.vcRHQF,'0' as vcModFlag,'0' as vcAddFlag  \n");
                 strSql.Append("from TPackageMaster t1  \n");
-                //strSql.Append("left join (select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo) t2 on t1.vcPart_id=t2.vcPartsNo  \n");
-                //strSql.Append("left join TPMSmall t3 on left(t1.vcPart_id,5)=t3.vcPartsNoBefore5 and t1.vcSR=t3.vcSR   \n");
-                //strSql.Append("and t2.vcPackNo = t3.vcBCPartsNo and t1.vcSupplierId=t3.vcSupplier_id  \n");
-                strSql.Append("left join TPMRelation t4 on t1.vcSmallPM=t4.vcSmallPM  \n");
+                strSql.Append("left join (select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo) t2 on t1.vcPart_id=t2.vcPartsNo  \n");
+                strSql.Append("left join TPMSmall t3 on left(t1.vcPart_id,5)=t3.vcPartsNoBefore5 and t1.vcSR=t3.vcSR   \n");
+                strSql.Append("and t2.vcPackNo = t3.vcBCPartsNo  \n");
+                strSql.Append("left join TPMRelation t4 on t3.vcSmallPM=t4.vcSmallPM  \n");
                 strSql.Append("left join TPMStandardTime t5 on t4.vcBigPM=t5.vcBigPM  \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C023') t6 on t1.vcBZPlant=t6.vcValue  \n");
                 strSql.Append("where 1=1   \n");
@@ -36,7 +36,7 @@ namespace DataAccess
                 if (vcBigPM != "" && vcBigPM != null)
                     strSql.Append("and isnull(t4.vcBigPM,'') like '%" + vcBigPM + "%'  \n");
                 if (vcSmallPM != "" && vcSmallPM != null)
-                    strSql.Append("and isnull(t1.vcSmallPM,'') like '%" + vcSmallPM + "%'  \n");
+                    strSql.Append("and isnull(t3.vcSmallPM,'') like '%" + vcSmallPM + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -70,12 +70,12 @@ namespace DataAccess
                     {//修改
                         #region modify sql
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        string strBZPlant =listInfoData[i]["vcBZPlant"]==null?"":listInfoData[i]["vcBZPlant"].ToString();
-                        string strBZQF = listInfoData[i]["vcBZQF"]==null?"": listInfoData[i]["vcBZQF"].ToString();
-                        string strBZUnit = listInfoData[i]["vcBZUnit"]==null?"": listInfoData[i]["vcBZUnit"].ToString();
-                        string strRHQF = listInfoData[i]["vcRHQF"]==null?"": listInfoData[i]["vcRHQF"].ToString();
-                        string strSmallPM = listInfoData[i]["vcSmallPM"]==null?"": listInfoData[i]["vcSmallPM"].ToString();
-                        string strPart_id = listInfoData[i]["vcPart_id"]==null?"": listInfoData[i]["vcPart_id"].ToString();
+                        string strBZPlant = listInfoData[i]["vcBZPlant"].ToString();
+                        string strBZQF = listInfoData[i]["vcBZQF"].ToString();
+                        string strBZUnit = listInfoData[i]["vcBZUnit"].ToString();
+                        string strRHQF = listInfoData[i]["vcRHQF"].ToString();
+                        string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
+                        string strPart_id = listInfoData[i]["vcPart_id"].ToString();
                         string strTimeFrom = listInfoData[i]["dTimeFrom"].ToString();
                         string strTimeTo = listInfoData[i]["dTimeTo"].ToString();
 

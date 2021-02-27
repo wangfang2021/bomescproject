@@ -111,7 +111,7 @@ namespace DataAccess
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcSQState"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + "       \r\n");
 
-                    #region 品番去掉横杠
+                    #region 品番特殊处理
                     /*
                      * 品番长度等于11，例如 12345-67890      去掉中间的横杠，后面补两个0  更改后：1234567890
                      * 品番长度等于14，例如 12345-67890-A0   去掉中间的横杠               更改后：1234567890A0
@@ -621,6 +621,7 @@ namespace DataAccess
         /// <summary>
         /// 原单位向价格表同步数据
         /// </summary>
+        /// <param name="strSYTCode">事业体代码</param>
         /// <returns></returns>
         public StringBuilder getUnit2PriceSync(string strSYTCode)
         {
@@ -758,6 +759,10 @@ namespace DataAccess
         #endregion
 
         #region 原单位向采购表同步数据
+        /// <summary>
+        /// 原单位向采购表同步数据
+        /// </summary>
+        /// <returns></returns>
         public StringBuilder getUnit2SpMasterSync()
         {
             #region 新车新设

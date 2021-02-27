@@ -137,7 +137,7 @@ namespace Logic
         #region 销售展开（根据检索条件）
         public void sendMail(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
-            , string strReceiver, string strPriceState,ref string strErr
+            , string strReceiver, string strPriceState, ref string strErr
             )
         {
 
@@ -311,12 +311,12 @@ namespace Logic
 
                 throw;
             }
-            
+
         }
         #endregion
 
         #region 销售展开（根据所选）
-        public void sendMail(List<Dictionary<string,object>> listInfoData,string strUserEmail,string strUserId,string strUserName ,ref string strErr)
+        public void sendMail(List<Dictionary<string, object>> listInfoData, string strUserEmail, string strUserId, string strUserName, ref string strErr)
         {
             try
             {
@@ -488,6 +488,7 @@ namespace Logic
         }
         #endregion
 
+
         #region 导出带模板
         public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
         {
@@ -538,18 +539,19 @@ namespace Logic
         }
         #endregion
 
+
         #region 根据选择公式返回对应金额
-        public DataTable getGSChangePrice(string strPartId, string strSupplier, int iAutoId, string strGSName, decimal decPriceOrigin)
+        public DataTable getGSChangePrice(string strPartId, string strSupplier, string strReceiver, int iAutoId, string strGSName, decimal decPriceOrigin)
         {
-            return fs0309_DataAccess.getGSChangePrice(strPartId,strSupplier,iAutoId,strGSName,decPriceOrigin);
+            return fs0309_DataAccess.getGSChangePrice(strPartId,strSupplier, strReceiver, iAutoId,strGSName,decPriceOrigin);
         }
         #endregion
 
 
-        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
-        public bool getLastStateGsData(string strPartId, string strSupplier, int iAutoId)
+        #region 公式计算B需要验证该品番是否存在上个状态的数据
+        public bool getLastStateGsData(string strPartId, string strSupplier, string strReceiver, int iAutoId)
         {
-            DataTable dt=fs0309_DataAccess.getLastStateGsData(strPartId, strSupplier, iAutoId);
+            DataTable dt=fs0309_DataAccess.getLastStateGsData(strPartId, strSupplier, strReceiver, iAutoId);
             if (dt.Rows.Count == 0)
                 return false;
             else
@@ -557,7 +559,7 @@ namespace Logic
         }
         #endregion
 
-        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        #region 公式计算B需要验证该品番是否存在上个状态的数据
         public bool isGsExist(string strGs)
         {
             DataTable dt = fs0309_DataAccess.isGsExist(strGs);

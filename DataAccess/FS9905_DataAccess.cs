@@ -18,59 +18,41 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select *    \n");
-                strSql.Append("     ,b.vcName as 'vcJD_Name'    \n");
-                strSql.Append("     ,b2.vcName as 'vcChange_Name'    \n");
-                strSql.Append("     ,b3.vcName as 'vcInOutflag_Name'    \n");
-                strSql.Append("     ,b4.vcName as 'vcOE_Name'    \n");
-                strSql.Append("     ,b5.vcName as 'vcSYTCode_Name'    \n");
-                strSql.Append("     ,b6.vcName as 'vcCarType_Name'    \n");
-                strSql.Append("     ,b7.vcName as 'vcFXDiff_Name'    \n");
-                strSql.Append("     ,b8.vcName as 'vcIsDYJG_Name'    \n");
-                strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
-                strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
-                strSql.Append("     ,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
-                strSql.Append("     from TSQJD a    \n");
-                strSql.Append("     left join     \n");
+                strSql.Append("     select a.*    \n");
+                strSql.Append("     	,b1.vcName as 'vcJD_Name'    \n");
+                strSql.Append("     	,b2.vcName as 'vcChange_Name'    \n");
+                strSql.Append("     	,b3.vcName as 'vcInOutflag_Name'    \n");
+                strSql.Append("     	,b4.vcName as 'vcOE_Name'        \n");
+                strSql.Append("     	,b5.vcName as 'vcSYTCode_Name'      \n");
+                strSql.Append("     	,b6.vcName as 'vcCarType_Name'      \n");
+                strSql.Append("     	,b7.vcName as 'vcFXDiff_Name'       \n");
+                strSql.Append("     	,b8.vcName as 'vcIsDYJG_Name'       \n");
+                strSql.Append("     	,b9.vcName as 'vcIsDYFX_Name'       \n");
+                strSql.Append("     	,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     	,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
+                strSql.Append("     from      \n");
                 strSql.Append("     (    \n");
-                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C026'    \n");
-                strSql.Append("     )b on a.vcJD = b.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C002'    \n");
-                strSql.Append("     )b2 on a.vcChange = b2.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     	select vcValue, vcName from TCode where vcCodeId = 'C003'    \n");
-                strSql.Append("     )b3 on a.vcInOutflag = b3.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C012'    \n");
-                strSql.Append("     )b4 on a.vcOE = b4.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C023'    \n");
-                strSql.Append("     )b5 on a.vcSYTCode = b5.vcValue    \n");
-                strSql.Append("     left join     ");
-                strSql.Append("     (    ");
-                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C098'    ");
-                strSql.Append("     )b6 on a.vcCarType = b6.vcValue    ");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C028'    \n");
-                strSql.Append("     )b7 on a.vcFXDiff = b7.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C029'    \n");
-                strSql.Append("     )b8 on a.vcIsDYJG = b8.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
-                strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
-                strSql.Append("   where 1=1  \n");
+                strSql.Append("     		select a.* from     \n");
+                strSql.Append("     		(    \n");
+                strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
+                strSql.Append("     				  ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
+                strSql.Append("     			      ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
+                strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate from     \n");
+                strSql.Append("     				  (    \n");
+                strSql.Append("     						select * from TSQJD    \n");
+                strSql.Append("     						where 1=1    \n");
                 if (!string.IsNullOrEmpty(strJD))
                 {
-                    strSql.Append("      and vcJD = '" + strJD + "'  ");
+                    if (strJD == "4")
+                    {
+                        strSql.Append("      and vcJD in ('1','3')  ");
+                    }
+                    else
+                    {
+                        strSql.Append("      and vcJD = '" + strJD + "'  ");
+                    }
                 }
                 if (!string.IsNullOrEmpty(strInOutFlag))
                 {
@@ -88,38 +70,59 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcPart_id like '" + strPart_id + "%'       ");
                 }
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 初始化检索
-        public DataTable Search()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select *    \n");
-                strSql.Append("     ,b.vcName as 'vcJD_Name'    \n");
-                strSql.Append("     ,b2.vcName as 'vcChange_Name'    \n");
-                strSql.Append("     ,b3.vcName as 'vcInOutflag_Name'    \n");
-                strSql.Append("     ,b4.vcName as 'vcOE_Name'    \n");
-                strSql.Append("     ,b5.vcName as 'vcSYTCode_Name'    \n");
-                strSql.Append("     ,b6.vcName as 'vcCarType_Name'    \n");
-                strSql.Append("     ,b7.vcName as 'vcFXDiff_Name'    \n");
-                strSql.Append("     ,b8.vcName as 'vcIsDYJG_Name'    \n");
-                strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
-                strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
-                strSql.Append("     ,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
-                strSql.Append("     from TSQJD a    \n");
-                strSql.Append("     left join     \n");
+                strSql.Append("     				  )a    \n");
+                strSql.Append("     		) a    \n");
+                strSql.Append("     		left join     \n");
+                strSql.Append("     		(    \n");
+                strSql.Append("     			select vcPart_id,vcSupplier_id,vcSYTCode,vcReceiver from TSQJD_Supplier    \n");
+                strSql.Append("     		) b on a.vcPart_id = b.vcPart_id and a.vcSupplier_id = b.vcSupplier_id and a.vcSYTCode = b.vcSYTCode and a.vcReceiver = b.vcReceiver    \n");
+                strSql.Append("     		where b.vcPart_id is null    \n");
+                strSql.Append("     		union all    \n");
+                strSql.Append("     		(    \n");
+                strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
+                strSql.Append("     			      ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
+                strSql.Append("     				  ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
+                strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate     \n");
+                strSql.Append("     			from     \n");
+                strSql.Append("     			(    \n");
+                strSql.Append("     				select * from TSQJD_Supplier    \n");
+                strSql.Append("     				where 1=1    \n");
+                if (!string.IsNullOrEmpty(strJD))
+                {
+                    if (strJD == "4")
+                    {
+                        strSql.Append("      and vcJD in ('1','3')  ");
+                    }
+                    else
+                    {
+                        strSql.Append("      and vcJD = '" + strJD + "'  ");
+                    }
+                }
+                if (!string.IsNullOrEmpty(strInOutFlag))
+                {
+                    strSql.Append("      and vcInOutflag = '" + strInOutFlag + "'   ");
+                }
+                if (!string.IsNullOrEmpty(strSupplier_id))
+                {
+                    strSql.Append("      and vcSupplier_id like '" + strSupplier_id + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strCarType))
+                {
+                    strSql.Append("      and b6.vcName like '" + strCarType + "%'   ");
+                }
+                if (!string.IsNullOrEmpty(strPart_id))
+                {
+                    strSql.Append("      and vcPart_id like '" + strPart_id + "%'       ");
+                }
+                strSql.Append("     			)a    \n");
+                strSql.Append("     		)    \n");
+                strSql.Append("     )a    \n");
+                strSql.Append("     inner join     \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C026'    \n");
-                strSql.Append("     )b on a.vcJD = b.vcValue    \n");
+                strSql.Append("     )b1 on a.vcJD = b1.vcValue    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C002'    \n");
@@ -136,10 +139,10 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C023'    \n");
                 strSql.Append("     )b5 on a.vcSYTCode = b5.vcValue    \n");
-                strSql.Append("     left join     ");
-                strSql.Append("     (    ");
-                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C098'    ");
-                strSql.Append("     )b6 on a.vcCarType = b6.vcValue    ");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C098'    \n");
+                strSql.Append("     )b6 on a.vcCarType = b6.vcValue    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C028'    \n");
@@ -152,8 +155,108 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
                 strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
-                strSql.Append("   where 1=1  \n");
-                strSql.Append("   and vcJD <> 4  \n");
+                
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 初始化检索
+        public DataTable Search()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("     select a.*    \n");
+                strSql.Append("     	,b1.vcName as 'vcJD_Name'    \n");
+                strSql.Append("     	,b2.vcName as 'vcChange_Name'    \n");
+                strSql.Append("     	,b3.vcName as 'vcInOutflag_Name'    \n");
+                strSql.Append("     	,b4.vcName as 'vcOE_Name'        \n");
+                strSql.Append("     	,b5.vcName as 'vcSYTCode_Name'      \n");
+                strSql.Append("     	,b6.vcName as 'vcCarType_Name'      \n");
+                strSql.Append("     	,b7.vcName as 'vcFXDiff_Name'       \n");
+                strSql.Append("     	,b8.vcName as 'vcIsDYJG_Name'       \n");
+                strSql.Append("     	,b9.vcName as 'vcIsDYFX_Name'       \n");
+                strSql.Append("     	,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     	,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
+                strSql.Append("     from      \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     		select a.* from     \n");
+                strSql.Append("     		(    \n");
+                strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
+                strSql.Append("     				  ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
+                strSql.Append("     			      ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
+                strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate from     \n");
+                strSql.Append("     				  (    \n");
+                strSql.Append("     						select * from TSQJD    \n");
+                strSql.Append("     						where 1=1    \n");
+                strSql.Append("                             and vcJD in ('1','3')  ");
+                
+                strSql.Append("     				  )a    \n");
+                strSql.Append("     		) a    \n");
+                strSql.Append("     		left join     \n");
+                strSql.Append("     		(    \n");
+                strSql.Append("     			select vcPart_id,vcSupplier_id,vcSYTCode,vcReceiver from TSQJD_Supplier    \n");
+                strSql.Append("     		) b on a.vcPart_id = b.vcPart_id and a.vcSupplier_id = b.vcSupplier_id and a.vcSYTCode = b.vcSYTCode and a.vcReceiver = b.vcReceiver    \n");
+                strSql.Append("     		where b.vcPart_id is null    \n");
+                strSql.Append("     		union all    \n");
+                strSql.Append("     		(    \n");
+                strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
+                strSql.Append("     			      ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
+                strSql.Append("     				  ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
+                strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate     \n");
+                strSql.Append("     			from     \n");
+                strSql.Append("     			(    \n");
+                strSql.Append("     				select * from TSQJD_Supplier    \n");
+                strSql.Append("     				where 1=1    \n");
+                strSql.Append("                     and vcJD in ('1','3')  ");
+                strSql.Append("     			)a    \n");
+                strSql.Append("     		)    \n");
+                strSql.Append("     )a    \n");
+                strSql.Append("     inner join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C026'    \n");
+                strSql.Append("     )b1 on a.vcJD = b1.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C002'    \n");
+                strSql.Append("     )b2 on a.vcChange = b2.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue, vcName from TCode where vcCodeId = 'C003'    \n");
+                strSql.Append("     )b3 on a.vcInOutflag = b3.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C012'    \n");
+                strSql.Append("     )b4 on a.vcOE = b4.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C023'    \n");
+                strSql.Append("     )b5 on a.vcSYTCode = b5.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C098'    \n");
+                strSql.Append("     )b6 on a.vcCarType = b6.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C028'    \n");
+                strSql.Append("     )b7 on a.vcFXDiff = b7.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C029'    \n");
+                strSql.Append("     )b8 on a.vcIsDYJG = b8.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
+                strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)

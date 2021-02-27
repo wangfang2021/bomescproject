@@ -495,6 +495,15 @@ namespace DataAccess
 
         FS1203_DataAccess ICalendar2 = new FS1203_DataAccess();
 
+        #region 获取展开的数据
+        public DataTable getProData(string vcPlant, string vcYM)
+        {
+            StringBuilder sql = new StringBuilder();
+            sql.Append("select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC='" + vcPlant + "' \n");
+            return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        }
+        #endregion
+
         #region 上传更新生产计划
         public string updatePro(DataTable dt, string user, string mon, ref Exception e, string plant)
         {

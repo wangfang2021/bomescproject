@@ -595,6 +595,15 @@ namespace Logic
         }
         #endregion
 
+        #region 判断是否生成生产计划
+        public DataTable getProData(string vcPlant, string vcYM)
+        {
+            return fs0610_DataAccess.getProData(vcPlant, vcYM);
+        }
+        #endregion
+
+
+
         public int getMinbeishu(int m, int n)//求最小公倍数
         {
             int i = 0;

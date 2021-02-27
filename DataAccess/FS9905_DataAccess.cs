@@ -348,6 +348,16 @@ namespace DataAccess
         }
         #endregion
 
+
+        /*
+         * 保留问题
+         * TFTM生确是否可存在多条相同主键的数据
+         * 如果可以存在多条形同的数据，供应商生确，一括付与无法完成     注：仅限当前方式
+         * 无法完成原因：例子：原单位生确单发行，此时，TFTM生确中所有的数据都是已联络，供应商此时可以进行一括付与操作
+         * 但是，注意供应商子表中并没有数据，如果将TFTM生确中的所有数据插入到供应商生确子表中，那么如何获取用户所选择的那一条数据？AutoId此时是
+         * TFTM生确表中的AutoId,与供应商生确表中的AutoId并不一致
+         * 如果按照主键的话会涉及到TFTM表中存在多条相同主键的数据。
+         */
         #region 一括付与
         public void SetFY(List<Dictionary<string, Object>> listInfoData, string strSupplier_BJ, string strSupplier_HK,string strSCPlace_City, string strSCPlace_Province, string strCHPlace_City, string strCHPlace_Province, string strUserId, ref string strErr)
         {
@@ -358,7 +368,7 @@ namespace DataAccess
                 {
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                    sql.AppendLine("      update TSQJD set    \n");
+                    sql.AppendLine("      update TSQJD_Supplier set    \n");
                     if (!string.IsNullOrEmpty(strSupplier_BJ))
                     {
                         sql.AppendLine("   dSupplier_BJ = '" + strSupplier_BJ + "'          ");
@@ -367,19 +377,40 @@ namespace DataAccess
                     {
                         sql.AppendLine("  ,dSupplier_HK = '" + strSupplier_HK + "'          ");
                     }
-                    if (!string.IsNullOrEmpty(strSCPlace_City))
-                    {
-                        sql.AppendLine("  ,vcSCPlace_City = '" + strSCPlace_City + "'          ");
-                    }
+                    
                     if (!string.IsNullOrEmpty(strSupplier_BJ) || !string.IsNullOrEmpty(strSupplier_HK))
                     {
                         sql.AppendLine("     ,vcIsDYJG = '1'           ");
                         sql.AppendLine("     ,vcIsDYFX = '1'           ");
                     }
+                    if (!string.IsNullOrEmpty(strSCPlace_City))
+                    {
+                        sql.AppendLine("  ,vcSCPlace_City = '" + strSCPlace_City + "'          ");
+                    }
+                    if (!string.IsNullOrEmpty(strSCPlace_Province))
+                    {
+                        sql.AppendLine("  ,vcSCPlace_Province = '" + strSCPlace_City + "'          ");
+                    }
+                    if (!string.IsNullOrEmpty(strCHPlace_City))
+                    {
+                        sql.AppendLine("  ,vcCHPlace_City = '" + strCHPlace_City + "'          ");
+                    }
+                    if (!string.IsNullOrEmpty(strCHPlace_Province))
+                    {
+                        sql.AppendLine("  ,vcCHPlace_Province = '" + strCHPlace_Province + "'          ");
+                    }
                     sql.AppendLine("       ,vcOperatorId = '" + strUserId + "'      \n");
                     sql.AppendLine("       ,dOperatorTime = GETDATE()      \n");
-                    sql.AppendLine("      where iAutoId = '" + iAutoId + "'      \n");
+                    sql.AppendLine("       where iAutoId = '" + iAutoId + "'      \n");
                     sql.AppendLine("       and vcJD in ('1','3')         ");
+                    sql.AppendLine("       and vcSCPlace_City is null         ");
+                    sql.AppendLine("       or vcSCPlace_City = ''        ");
+                    sql.AppendLine("       and strSCPlace_Province is null         ");
+                    sql.AppendLine("       or strSCPlace_Province = ''        ");
+                    sql.AppendLine("       and strCHPlace_City is null         ");
+                    sql.AppendLine("       or strCHPlace_City = ''        ");
+                    sql.AppendLine("       and strCHPlace_Province is null         ");
+                    sql.AppendLine("       or strCHPlace_Province = ''        ");
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }

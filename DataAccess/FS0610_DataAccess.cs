@@ -66,7 +66,7 @@ namespace DataAccess
 
         #region 更新平准化结果
         public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
-            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId,string strUnit)
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId, string strUnit)
         {
             SqlCommand cmd;
             SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString());//对账平台
@@ -168,7 +168,7 @@ namespace DataAccess
                     "and vcInOutFlag='0')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
                 cmd.Connection = conn;
@@ -290,16 +290,16 @@ namespace DataAccess
         #endregion
 
         #region 获取展开的数据
-        public DataTable getZhankaiData(bool isZhankai,List<string> plantList)
+        public DataTable getZhankaiData(bool isZhankai, List<string> plantList)
         {
             string plants = "";
-            for(int i=0;i<plantList.Count;i++)
+            for (int i = 0; i < plantList.Count; i++)
             {
-                plants += "'"+plantList[i] + "',";
+                plants += "'" + plantList[i] + "',";
             }
             plants = plants.Substring(0, plants.Length - 1);
             StringBuilder sql = new StringBuilder();
-            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC in ("+plants+") \n");
+            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC in (" + plants + ") \n");
             if (isZhankai)
                 sql.Append("  and dZhanKaiTime is not null  ");
             else
@@ -339,7 +339,7 @@ namespace DataAccess
         #endregion
 
         #region 下载SOQReply（检索内容）
-        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3,List<string> plantList)
+        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3, List<string> plantList)
         {
             try
             {
@@ -396,7 +396,7 @@ namespace DataAccess
                 strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30,");
                 strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31,");
                 strSql.AppendLine("   iAutoId");
-                strSql.AppendLine("   FROM TSOQReply WHERE vcInOutFlag='0'  AND vcDXYM in ('" + strYearMonth + "') and vcFZGC in ("+ plants + ") ");//内制
+                strSql.AppendLine("   FROM TSOQReply WHERE vcInOutFlag='0'  AND vcDXYM in ('" + strYearMonth + "') and vcFZGC in (" + plants + ") ");//内制
                 strSql.AppendLine(" ) a ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
@@ -479,10 +479,10 @@ namespace DataAccess
         #endregion
 
         #region 获取展开的数据
-        public DataTable getZhankaiData(bool isZhankai,string strPlant)
+        public DataTable getZhankaiData(bool isZhankai, string strPlant)
         {
             StringBuilder sql = new StringBuilder();
-            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC='"+strPlant+"' \n");
+            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC='" + strPlant + "' \n");
             if (isZhankai)
                 sql.Append("  and dZhanKaiTime is not null  ");
             else
@@ -495,8 +495,8 @@ namespace DataAccess
 
         FS1203_DataAccess ICalendar2 = new FS1203_DataAccess();
 
-        #region 生成生产计划
-         public string updatePro(DataTable dt, string user, string mon, ref Exception e, string plant)
+        #region 上传更新生产计划
+        public string updatePro(DataTable dt, string user, string mon, ref Exception e, string plant)
         {
             string msg = "";
             SqlCommand cmd = new SqlCommand();
@@ -524,11 +524,11 @@ namespace DataAccess
                     if (dt_udt.Rows.Count == 1)
                     {
                         int srs = Convert.ToInt32(srsdt.Rows[0]["iQuantityPerContainer"]);
-                        for (int j = 7, k = 13; j < dt_udt.Columns.Count - 5; j++, k++)
+                        for (int j = 7, k = 14; j < dt_udt.Columns.Count - 5; j++, k++)
                         {
                             if (dt_udt.Rows[0][j].ToString().Trim().Length > 0 && dt.Rows[i][k].ToString().Trim().Length == 0)
                             {
-                                msg = "稼动日历或LeaderTime在计划做成过程中修改，请重新导入SOQREPLY文件。";
+                                msg = "第" + (i + 1).ToString() + "行，第" + (j + 1).ToString() + "列 稼动日历或LeaderTime在计划做成过程中修改，请重新导入SOQREPLY文件。";
                                 cmd.Transaction.Rollback();
                                 cmd.Connection.Close();
                                 return msg;
@@ -616,7 +616,7 @@ namespace DataAccess
                     if (dt_udt.Rows.Count == 1)
                     {
                         int srs = Convert.ToInt32(srsdt.Rows[0]["iQuantityPerContainer"]);
-                        for (int j = 7, k = 75; j < dt_udt.Columns.Count - 5; j++, k++)
+                        for (int j = 7, k = 76; j < dt_udt.Columns.Count - 5; j++, k++)
                         {
                             if (dt_udt.Rows[0][j].ToString().Trim().Length > 0 && dt.Rows[i][k].ToString().Trim().Length == 0)
                             {
@@ -1167,16 +1167,16 @@ namespace DataAccess
             sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and montouch ='{0}'", mon);
             sb.AppendLine("    union all ");
-            sb.AppendLine("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal , allTotal from MonthPackPlanTbl  ");
+            sb.AppendLine("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal, allTotal from MonthPackPlanTbl  ");
             sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
-            sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth ='{0}'", mon);
+            sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth='{0}'", mon);
             sb.AppendLine("    ) t1");
             sb.AppendLine("    left join (");
-            sb.AppendFormat("    select daysig , dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
+            sb.AppendFormat("    select daysig, dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
             sb.AppendLine("     )) P ) t2 ");
             sb.AppendLine("     on t1.allTotal = t2.dayN");
             sb.AppendLine(" ) tall ");
-            sb.AppendLine(" left join dbo.tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock  and   tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
+            sb.AppendLine(" left join tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock and tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
             sb.AppendFormat(" where tinfo.vcPartPlant ='{0}' ", plant);
             sb.AppendLine("    order by vcMonth , allTotal");
             cmd.CommandText = sb.ToString();
@@ -1199,16 +1199,16 @@ namespace DataAccess
             DataTable pro4 = new DataTable();
             apt.Fill(pro4);
             //------------------优化start
-            cmd.CommandText = " select top(1)* from tKanbanPrintTbl ";
+            cmd.CommandText = " select top(1) * from tKanbanPrintTbl ";
             DataTable BulkInsert = new DataTable();
             apt.Fill(BulkInsert);
             BulkInsert = BulkInsert.Clone();
             BulkInsert.Columns.Add("bushu");
             BulkInsert.Columns.Add("dayin");
             BulkInsert.Columns.Add("shengchan");
-            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode ,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
-            partsql += " left join dbo.ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
-            partsql += "  where exists (select vcPartsno from MonthPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno  )  and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
+            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
+            partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
+            partsql += "  where exists (select vcPartsno from MonthPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno) and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
             cmd.CommandText = partsql;
             DataTable dtcalendarname = new DataTable();
             apt.Fill(dtcalendarname);
@@ -1228,7 +1228,7 @@ namespace DataAccess
                     string flag = dr[j]["flag"].ToString();
                     //20180929查看该品番的品番频度 - 李兴旺                    
                     string vcPartFrequence = "";
-                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCartype + "' and dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01'  ";
+                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCartype + "' and dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01'  ";
                     cmd.CommandText = sqlPartFrequence;
                     DataTable dtPartFrequence = new DataTable();
                     apt.Fill(dtPartFrequence);
@@ -1559,7 +1559,6 @@ namespace DataAccess
                 string sqlPartType = "";
                 string sqlPartDate = "";
                 string strDate = "";
-
                 string[] montmp = mon.Split('-');
 
                 if (montmp[1] == "01")

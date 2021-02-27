@@ -159,19 +159,19 @@ namespace Logic
         #endregion
 
         #region 上传生产计划（王立伟）2020-01-25
-        public string updatePro(DataTable dt, string user, string mon, ref Exception ex, string plant)
+        public string updatePro(DataTable dt1, string user, string mon, ref Exception ex, string plant)
         {
-            //DataTable dt = dt1.Clone();
-            //DataRow[] r = dt1.Select("vcPlant='#" + plant + "'");
-            //for (int i = 0; i < r.Length; i++)
-            //{
-            //    DataRow r1 = dt.NewRow();
-            //    for (int j = 0; j < dt.Columns.Count; j++)
-            //    {
-            //        r1[j] = r[i][j];
-            //    }
-            //    dt.Rows.Add(r1);
-            //}
+            DataTable dt = dt1.Clone();
+            DataRow[] r = dt1.Select("vcPlant='#" + plant + "'");
+            for (int i = 0; i < r.Length; i++)
+            {
+                DataRow r1 = dt.NewRow();
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    r1[j] = r[i][j];
+                }
+                dt.Rows.Add(r1);
+            }
             return fs0610_DataAccess.updatePro(dt, user, mon, ref ex, plant);
         }
         #endregion
@@ -820,8 +820,10 @@ namespace Logic
         {
             string msg = "";
             DataTable dt_Data = serchData(mon, "Importpro", "", plant, "");
-            dt_Data.Columns.Remove("vcEDflag");
-            dt.Columns.Remove("vcEDflag");
+            if (dt_Data.Columns.Contains("vcEDflag"))
+                dt_Data.Columns.Remove("vcEDflag");
+            if (dt.Columns.Contains("vcEDflag"))
+                dt.Columns.Remove("vcEDflag");
             //dt_Data.Columns.Remove("vcPlant");
             //dt.Columns.Remove("vcPlant");
             if (dt_Data.Rows.Count != dt.Rows.Count)

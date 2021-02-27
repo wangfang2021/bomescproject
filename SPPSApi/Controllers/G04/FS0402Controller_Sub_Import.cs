@@ -102,9 +102,8 @@ namespace SPPSApi.Controllers.G04
                                                 {FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
                                                 {"12","0","0","0"},//最大长度设定,不校验最大长度用0
                                                 {"1","1","1","1"}};//最小长度设定,可以为空用0
-
-                List<string> errMessageList = new List<string>();//记录导入错误消息
-
+                //记录导入错误消息 (string,string) -- (品番,错误消息)
+                Dictionary<string, string> errMessageDict = new Dictionary<string, string>(new RepeatDictionaryComparer());
                 string strMsg = "";
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -127,7 +126,6 @@ namespace SPPSApi.Controllers.G04
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 
-
                     //验证对象月是否是选择的月份
                     string strMonth_import = dt.Rows[0][1] == System.DBNull.Value ? "0" : dt.Rows[0][1].ToString().Replace("月", "");
                     string strMonth_import_2 = dt.Rows[0][2] == System.DBNull.Value ? "0" : dt.Rows[0][2].ToString().Replace("月", "");
@@ -139,15 +137,15 @@ namespace SPPSApi.Controllers.G04
 
                     if (iMonth != Convert.ToInt32(strMonth_import))
                     {
-                        errMessageList.Add("文件中的对象月" + strMonth_import + "与页面输入的对象年月" + iMonth + "不相符！");
+                        errMessageDict.Add("", "文件中的对象月" + strMonth_import + "与页面输入的对象年月" + iMonth + "不相符！");
                     }
                     if (iMonth_2 != Convert.ToInt32(strMonth_import_2))
                     {
-                        errMessageList.Add("文件中的内示月" + strMonth_import_2 + "与页面输入的对象年月" + iMonth_2 + "不相符！");
+                        errMessageDict.Add("","文件中的内示月" + strMonth_import_2 + "与页面输入的对象年月" + iMonth_2 + "不相符！");
                     }
                     if (iMonth_3 != Convert.ToInt32(strMonth_import_3))
                     {
-                        errMessageList.Add("文件中的内内示月" + strMonth_import_3 + "与页面输入的对象年月" + iMonth_3 + "不相符！");
+                        errMessageDict.Add("","文件中的内内示月" + strMonth_import_3 + "与页面输入的对象年月" + iMonth_3 + "不相符！");
                     }
                     for (int i = 1; i < dt.Rows.Count; i++)//跳过列头
                     {
@@ -165,19 +163,20 @@ namespace SPPSApi.Controllers.G04
                              select g;
                 if (result.Count() > 0)
                 {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
+                    //StringBuilder sbr = new StringBuilder();
+                    //sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r2 + "<br/>");
+                        //sbr.Append("品番:" + item.Key.r2 + "<br/>");
+                        errMessageDict.Add(item.Key.r2, "导入数据重复");
                     }
-                    errMessageList.Add(sbr.ToString());
+                    //errMessageList.Add(sbr.ToString());
                 }
                 //导入批量校验
-                fs0402_Logic.importCheck(importDt, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, loginInfo.UnitCode);
-                if (errMessageList.Count > 0)
+                fs0402_Logic.importCheck(importDt, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageDict, loginInfo.UnitCode);
+                if (errMessageDict.Count > 0)
                 {
-                    fs0402_Logic.importHistory(strYearMonth, errMessageList);
+                    fs0402_Logic.importHistory(strYearMonth, errMessageDict);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "发现问题数据，导入终止，请查看导入履历。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -284,5 +283,18 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion
 
+    }
+
+    //为了让dictionary<string,string>（品番,错误消息）的key可以重复，因为一个品番可以有多条错误信息数据
+    public class RepeatDictionaryComparer:IEqualityComparer<string>
+    {
+        public bool Equals(string x,string y)
+        {
+            return x != y;
+        }
+        public int GetHashCode(string obj)
+        {
+            return obj.GetHashCode();
+        }
     }
 }

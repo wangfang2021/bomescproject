@@ -335,7 +335,7 @@ namespace DataAccess
                 sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
                 sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
                 sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
+                sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
                 sql.Append(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区     \n");
                 sql.Append("left join(    \n");//收容数
                 sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
@@ -394,7 +394,7 @@ namespace DataAccess
                 sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
                 sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
                 sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
+                sql.Append("	and '" + strYearMonth_3 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
                 sql.Append(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区     \n");
                 sql.Append("left join(    \n");//收容数
                 sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");

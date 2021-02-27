@@ -90,18 +90,23 @@ namespace SPPSApi.Controllers.G05
 
             try
             {
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                int num = 0;
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea,ref num);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dExpectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOpenTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("dSReplyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
+                res.Add("dataList", dataList);
+                res.Add("isShowError", num > 0 ? true : false);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -218,7 +223,8 @@ namespace SPPSApi.Controllers.G05
 
             try
             {
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea);
+                int num = 0;
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea,ref num);
                 string[] fields = { "vcYearMonth", "dExpectTime", "vcDyState_Name", "vcPart_id", "iQuantityPercontainer", "iCbSOQN"
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","dOpenTime","dSReplyTime"
                 };

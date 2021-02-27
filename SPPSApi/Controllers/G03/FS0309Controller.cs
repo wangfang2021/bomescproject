@@ -69,6 +69,7 @@ namespace SPPSApi.Controllers.G03
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE=SP
                 List<Object> dataList_C013 = ComFunction.convertAllToResult(ComFunction.getTCode("C013"));//状态
                 List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//原单位
+                List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));//防锈
                 List<Object> dataList_C038 = ComFunction.convertAllToResult(ComFunction.getTCode("C038"));//公式名
 
                 Dictionary<string, object> row_All = new Dictionary<string, object>();//公式增加请选择
@@ -88,6 +89,7 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C013", dataList_C013);
                 res.Add("C005", dataList_C005);
                 res.Add("C006", dataList_C006);
+                res.Add("C028", dataList_C028);
                 res.Add("C038", dataList_C038);
                 res.Add("taskNum", task.Rows.Count);
 
@@ -569,11 +571,11 @@ namespace SPPSApi.Controllers.G03
                       );
                     string[] fields = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",
                         "vcSupplier_id","vcOE","vcPart_id_HK","vcHaoJiu_Name","vcStateFX","vcFXNO","vcChange_Name"
-                    ,"dQieTi","field1","field2","field3"
+                    ,"dQieTiStr","field1","field2","field3"
                     };
                     DataTable result = dt.Clone();
                     result.Columns.Add("iNo");//序号
-                    result.Columns.Add("dQieTi");//切替预定日
+                    result.Columns.Add("dQieTiStr");//切替预定日
                     result.Columns.Add("field1");//价格设定要望日
                     result.Columns.Add("field2");//调达原价
                     result.Columns.Add("field3");//调达部回答日
@@ -599,60 +601,60 @@ namespace SPPSApi.Controllers.G03
                         row["vcChange_Name"] = dt.Rows[i]["vcChange_Name"];
                         if (row["vcChange"].ToString() == "1")//新设：使用开始时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dUseBegin"]; 
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dUseBegin"]).ToString("yyyy/MM/dd"); 
                         }
                         else if (row["vcChange"].ToString() == "5")//旧型：旧型开始
                         {
-                            row["dQieTi"] = dt.Rows[i]["dJiuBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "4")//废止：使用结束时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dUseEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dUseEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "6")//恢复现号：旧型结束+1天
                         {
                             DateTime temp_d = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]).AddDays(1);
-                            row["dQieTi"] = temp_d;
+                            row["dQieTiStr"] = temp_d.ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "16")//复活：使用开始时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dUseBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dUseBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "7")//持续生产：旧型持续开始
                         {
-                            row["dQieTi"] = dt.Rows[i]["dJiuBeginSustain"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dJiuBeginSustain"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "15")//一括生产：使用结束时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dUseEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dUseEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "8")//工程变更新设：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dProjectBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "9") //工程变更废止：工程/供应商信息下的结束时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dProjectEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "10")//供应商变更新设：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dProjectBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dProjectEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "12")//包装工厂变更新设：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dProjectBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = dt.Rows[i]["dProjectEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(dt.Rows[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "17")//防锈变更：=文本“即时切替”
                         {
-                            row["dQieTi"] = "即时切替";
+                            row["dQieTiStr"] = "即时切替";
                         }
                         result.Rows.Add(row);
                     }
@@ -674,7 +676,7 @@ namespace SPPSApi.Controllers.G03
                     List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                     string[] fields = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",
                         "vcSupplier_id","vcOE","vcPart_id_HK","vcHaoJiu_Name","vcStateFX","vcFXNO","vcChange_Name"
-                    ,"dQieTi","field1","field2","field3"
+                    ,"dQieTiStr","field1","field2","field3"
                     };
                     DataTable result = new DataTable();
                     result.Columns.Add("iNo");//序号
@@ -690,7 +692,7 @@ namespace SPPSApi.Controllers.G03
                     result.Columns.Add("vcFXNO");
                     result.Columns.Add("vcChange");
                     result.Columns.Add("vcChange_Name");
-                    result.Columns.Add("dQieTi");//切替预定日
+                    result.Columns.Add("dQieTiStr");//切替预定日
                     result.Columns.Add("field1");//价格设定要望日
                     result.Columns.Add("field2");//调达原价
                     result.Columns.Add("field3");//调达部回答日
@@ -707,7 +709,7 @@ namespace SPPSApi.Controllers.G03
                         row["vcPart_Name"] = listInfoData[i]["vcPart_Name"];
                         row["vcSupplier_Name"] = listInfoData[i]["vcSupplier_Name"];
                         row["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"];
-                        row["vcOE"] = listInfoData[i]["vcOE"];
+                        row["vcOE"] = listInfoData[i]["vcOE_Name"];
                         row["vcPart_id_HK"] = listInfoData[i]["vcPart_id_HK"];
                         row["vcHaoJiu_Name"] = listInfoData[i]["vcHaoJiu_Name"];
                         row["vcStateFX"] = listInfoData[i]["vcStateFX"];
@@ -716,60 +718,60 @@ namespace SPPSApi.Controllers.G03
                         row["vcChange_Name"] = listInfoData[i]["vcChange_Name"];
                         if (row["vcChange"].ToString() == "1")//新设：使用开始时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dUseBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "5")//旧型：旧型开始
                         {
-                            row["dQieTi"] = listInfoData[i]["dJiuBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "4")//废止：使用结束时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dUseEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "6")//恢复现号：旧型结束+1天
                         {
                             DateTime temp_d = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]).AddDays(1);
-                            row["dQieTi"] = temp_d;
+                            row["dQieTiStr"] = temp_d.ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "16")//复活：使用开始时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dUseBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "7")//持续生产：旧型持续开始
                         {
-                            row["dQieTi"] = listInfoData[i]["dJiuBeginSustain"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dJiuBeginSustain"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "15")//一括生产：使用结束时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dUseEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "8")//工程变更新设：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dProjectBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "9") //工程变更废止：工程/供应商信息下的结束时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dProjectEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "10")//供应商变更新设：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dProjectBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dProjectEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "12")//包装工厂变更新设：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dProjectBegin"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
                         {
-                            row["dQieTi"] = listInfoData[i]["dProjectEnd"];
+                            row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                         }
                         else if (row["vcChange"].ToString() == "17")//防锈变更：=文本“即时切替”
                         {
-                            row["dQieTi"] = "即时切替";
+                            row["dQieTiStr"] = "即时切替";
                         }
                         result.Rows.Add(row);
                     }
@@ -844,13 +846,15 @@ namespace SPPSApi.Controllers.G03
                 int iAutoId = Convert.ToInt32(listInfoData[0]["iAutoId"]);
                 string strGS = listInfoData[0]["vcPriceGS"].ToString();
                 decimal decPriceOrigin = Convert.ToDecimal(listInfoData[0]["decPriceOrigin"]);
-                if ((strGS == "2" || strGS == "3") &&!fs0309_Logic.getLastStateGsData(strPartId, strSupplier, iAutoId))
+                string strReceiver = listInfoData[0]["vcReceiver"].ToString();
+
+                if ((strGS == "2") &&!fs0309_Logic.getLastStateGsData(strPartId, strSupplier, strReceiver, iAutoId))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "选择公式B/C的品番必须存在上个状态的价格信息！";
+                    apiResult.data = "选择公式B的品番必须存在上个状态的价格信息！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                if (strGS!=""&& strGS!="4"&&!fs0309_Logic.isGsExist(strGS))
+                if (strGS!=""&& strGS!="3"&&!fs0309_Logic.isGsExist(strGS))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "选择的公式没维护基础数据！";
@@ -858,7 +862,7 @@ namespace SPPSApi.Controllers.G03
                 }
 
 
-                DataTable dt=fs0309_Logic.getGSChangePrice(strPartId, strSupplier, iAutoId, strGS, decPriceOrigin);
+                DataTable dt=fs0309_Logic.getGSChangePrice(strPartId, strSupplier, strReceiver, iAutoId, strGS, decPriceOrigin);
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 if (dt.Rows[0]["priceAfter"] == DBNull.Value)
                 {

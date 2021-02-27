@@ -14,7 +14,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
-        public DataTable Search(string smallpm, string sr, string pfbefore5)
+        public DataTable Search(string smallpm, string sr, string vcPartsNoBefore5)
         {
             try
             {
@@ -27,8 +27,8 @@ namespace DataAccess
                     strSql.Append("and ISNULL(t1.vcSmallPM,'') like '%" + smallpm + "%'  \n");
                 if (sr != "" && sr != null)
                     strSql.Append("and ISNULL(t1.vcSR,'') like '%" + sr + "%'  \n");
-                if (pfbefore5 != "" && pfbefore5 != null)
-                    strSql.Append("and ISNULL(t1.vcPartsNoBefore5,'') like '%" + pfbefore5 + "%'  \n");
+                if (vcPartsNoBefore5 != "" && vcPartsNoBefore5 != null)
+                    strSql.Append("and ISNULL(t1.vcPartsNoBefore5,'') like '%" + vcPartsNoBefore5 + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -50,6 +50,7 @@ namespace DataAccess
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
 
                     string strSR = listInfoData[i]["vcSR"].ToString();
+                    string strSupplier_id= listInfoData[i]["vcSupplier_id"].ToString();
                     string strPartsNoBefore5 = listInfoData[i]["vcPartsNoBefore5"].ToString();
                     string strBCPartsNo = listInfoData[i]["vcBCPartsNo"].ToString();
                     string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
@@ -61,8 +62,8 @@ namespace DataAccess
 
                     if (baddflag == true)
                     {//新增
-                        sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM,vcOperatorID,dOperatorTime) values   \n");
-                        sql.Append("('" + strPartsNoBefore5 + "','" + strSR + "','" + strBCPartsNo + "','" + strSmallPM + "','" + strUserId + "',getdate())  \n");
+                        sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcSupplier_id,vcBCPartsNo,vcSmallPM,vcOperatorID,dOperatorTime) values   \n");
+                        sql.Append("('" + strPartsNoBefore5 + "','" + strSR + "','"+strSupplier_id+"','" + strBCPartsNo + "','" + strSmallPM + "','" + strUserId + "',getdate())  \n");
                     }
                     else if (baddflag == false && bmodflag == true)
                     {//修改
@@ -70,6 +71,21 @@ namespace DataAccess
                         sql.Append("update TPMSmall set vcSmallPM='" + strSmallPM + "',vcOperatorID='" + strUserId + "',dOperatorTime=getdate() " +
                             "where iAutoId=" + iAutoId + "   \n");
                     }
+                    //更新TPackageMaster中的小品目
+                    sql.Append("update t1 set t1.vcSmallPM='"+strSmallPM+"'     \n");
+                    sql.Append("from (     \n");
+                    sql.Append("	select * from TPackageMaster      \n");
+                    sql.Append("	where vcSR='"+ strSR + "'       \n");
+                    if (strSupplier_id != "")
+                        sql.Append("   and vcSupplierId='"+strSupplier_id+"'   \n");
+                    if (strPartsNoBefore5 != "")
+                        sql.Append("  and LEFT(vcPart_id,5)='"+strPartsNoBefore5+"'  \n");
+                    sql.Append(")t1      \n");
+                    sql.Append("left join (     \n");
+                    sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
+                    sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
+                    if(strBCPartsNo!="")
+                        sql.Append("where  t2.vcPackNo='"+strBCPartsNo+"'      \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -92,7 +108,28 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    string strSR = checkedInfoData[i]["vcSR"].ToString();
+                    string strSupplier_id = checkedInfoData[i]["vcSupplier_id"].ToString();
+                    string strPartsNoBefore5 = checkedInfoData[i]["vcPartsNoBefore5"].ToString();
+                    string strBCPartsNo = checkedInfoData[i]["vcBCPartsNo"].ToString();
+                    string strSmallPM = checkedInfoData[i]["vcSmallPM"].ToString();
+
                     sql.Append("delete from TPMSmall where iAutoId=" + iAutoId + "   \n");
+                    //更新TPackageMaster中的小品目
+                    sql.Append("update t1 set t1.vcSmallPM='无'     \n");
+                    sql.Append("from (     \n");
+                    sql.Append("	select * from TPackageMaster      \n");
+                    sql.Append("	where vcSR='" + strSR + "'       \n");
+                    if (strSupplier_id != "")
+                        sql.Append("   and vcSupplierId='" + strSupplier_id + "'   \n");
+                    if (strPartsNoBefore5 != "")
+                        sql.Append("  and LEFT(vcPart_id,5)='" + strPartsNoBefore5 + "'  \n");
+                    sql.Append(")t1      \n");
+                    sql.Append("left join (     \n");
+                    sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo     \n");
+                    sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo     \n");
+                    if (strBCPartsNo != "")
+                        sql.Append("where  t2.vcPackNo='" + strBCPartsNo + "'      \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -280,14 +317,14 @@ namespace DataAccess
         }
         #endregion
 
-        #region 受入号+品番前5位+包材品番 不能重复
-        public int RepeatCheck(string vcSR, string vcPartsNoBefore5, string vcBCPartsNo)
+        #region 受入号+厂家代码+品番前5位+包材品番 不能重复
+        public int RepeatCheck(string vcSR,string vcSupplier_id, string vcPartsNoBefore5, string vcBCPartsNo)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select COUNT(1) from TPMSmall   \n");
-                sql.Append("where vcSR='" + vcSR + "' and vcPartsNoBefore5='" + vcPartsNoBefore5 + "' and vcBCPartsNo='" + vcBCPartsNo + "'   \n");
+                sql.Append("where vcSR='" + vcSR + "' and vcSupplier_id='"+vcSupplier_id+"' and vcPartsNoBefore5='" + vcPartsNoBefore5 + "' and vcBCPartsNo='" + vcBCPartsNo + "'   \n");
                 return excute.ExecuteScalar(sql.ToString());
             }
             catch (Exception ex)

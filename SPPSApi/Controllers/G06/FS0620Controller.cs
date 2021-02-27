@@ -60,11 +60,13 @@ namespace SPPSApi.Controllers.G06
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//外注工厂
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
+                List<Object> dataList_C061 = ComFunction.convertAllToResult(ComFunction.getTCode("C061"));//内外区分
                 DataTable SupplierWorkArea = fs0620_Logic.GetSupplierWorkArea();
                 List<Object> dataList_SupplierWorkArea = ComFunction.convertToResult(SupplierWorkArea, new string[] { "vcValue", "vcName" });
                 res.Add("C000", dataList_C000);
                 res.Add("C003", dataList_C003);
                 res.Add("C018", dataList_C018);
+                res.Add("C061", dataList_C061);
                 res.Add("SupplierWorkArea", dataList_SupplierWorkArea);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -213,9 +215,9 @@ namespace SPPSApi.Controllers.G06
                 DataTable dt = fs0620_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
-                //[vcPartNo], [dBeginDate], [dEndDate]"供应商代码", "工区","vcSupplier_id", "vcWorkArea", 
-                head = new string[] { "导入时间","年计类型","收货方", "包装工厂", "对象年份", "品番", "发注工厂", "内外",  "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
-                field = new string[] { "dOperatorTime","vcType", "vcReceiver", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
+                //[vcPartNo], [dBeginDate], [dEndDate]
+                head = new string[] { "导入时间","年计类型","收货方", "包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
+                field = new string[] { "dOperatorTime","vcType", "vcReceiver", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType","vcSupplier_id", "vcWorkArea",  "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);

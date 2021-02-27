@@ -17,9 +17,9 @@ namespace Logic
         FS0501_DataAccess fs0501_DataAccess = new FS0501_DataAccess();
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea)
+        public DataTable Search(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea,ref int num)
         {
-            return fs0501_DataAccess.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea);
+            return fs0501_DataAccess.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea,ref num);
         }
         #endregion
 

@@ -2053,6 +2053,11 @@ namespace Logic
                 dataTable.Columns.Add("UUID2", typeof(string));
                 dataTable.Columns.Add("UUID3", typeof(string));
             }
+            if (strSpSub == "updtFs1401")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcSPISStatus", typeof(string));
+            }
             return dataTable;
         }
     }

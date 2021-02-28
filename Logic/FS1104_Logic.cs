@@ -11,97 +11,90 @@ namespace Logic
 {
     public class FS1104_Logic
     {
+        FS0617_DataAccess fs0617_DataAccess;
         FS1104_DataAccess fs1104_DataAccess;
         FS0603_Logic fS0603_Logic = new FS0603_Logic();
+        FS0617_Logic fS0617_Logic = new FS0617_Logic();
 
         public FS1104_Logic()
         {
             fs1104_DataAccess = new FS1104_DataAccess();
+            fs0617_DataAccess = new FS0617_DataAccess();
         }
-        public string getCaseNoInfo(string strOrderPlant, string strReceiver, string strPackingPlant, string strLianFan)
+        public string getCaseNoInfo(string strPlant, string strReceiver, string strCaseNo)
         {
-            return fs1104_DataAccess.getCaseNoInfo(strOrderPlant, strReceiver, strPackingPlant, strLianFan);
+            return fs1104_DataAccess.getCaseNoInfo(strPlant, strReceiver, strCaseNo);
         }
-        public DataTable setPrintInfo(string strPlant, string strReParty, string strPackPlant, string strCaseLianFanNo, string strPrintNum, string strCaseNo, string strPrintCopy)
+        public bool getPrintInfo(string strPlant, string strReceiver, string strPrintNum, string strOperId, ref DataTable dtMessage)
         {
-            if (strCaseNo == "")
+            int iCaseNo = Convert.ToInt32(getCaseNoInfo(strPlant, strReceiver, ""));
+            int iPrintNum = Convert.ToInt32(strPrintNum);
+            DataTable dataTable = fs0617_DataAccess.getPrintTemp("FS1104");
+            DataTable dtSub = dataTable.Clone();
+            string uuid = Guid.NewGuid().ToString("N");
+            for (int i = iCaseNo; i < iCaseNo + iPrintNum; i++)
             {
-                FS0617_DataAccess fs0617_DataAccess = new FS0617_DataAccess();
-                DataTable dataTable = createTable();
-                DataTable dtPlantList = ComFunction.getTCode("C000");
-                DataTable dtRePartyList = fS0603_Logic.getCodeInfo("Receiver");
-                DataTable dtPackPlantList = ComFunction.getTCode("C023");
-                for (int i = Convert.ToInt32(strCaseLianFanNo); i < Convert.ToInt32(strPrintNum) + Convert.ToInt32(strCaseLianFanNo); i++)
-                {
-                    for (int j = 1; j <= Convert.ToInt32(strPrintCopy); j++)
-                    {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcPlant"] = strPlant;
-                        dataRow["vcPlantName"] = (dtPlantList.Select("vcValue='" + strPlant + "'"))[0]["vcName"].ToString();
-                        dataRow["vcReParty"] = strReParty;
-                        dataRow["vcRePartyName"] = (dtRePartyList.Select("vcValue='" + strReParty + "'"))[0]["vcName"].ToString();
-                        dataRow["vcPackPlant"] = strPackPlant;
-                        dataRow["vcPackPlantName"] = "";
-                        dataRow["vcPrintNum"] = strPrintNum;
-                        dataRow["vcPrintIndex"] = (100000000+Convert.ToInt32(i)).ToString().Substring(1,8);
-                        dataTable.Rows.Add(dataRow);
-                    }
-                }
-                return dataTable;
-
+                DataRow dataRow = dtSub.NewRow();
+                dataRow["UUID"] = uuid;
+                dataRow["vcCaseNo1"] = (100000000 + i).ToString().Substring(1, 8);
+                dataRow["vcCaseNo2"] = (100000000 + i).ToString().Substring(1, 4) + "-" + (100000000 + i).ToString().Substring(5, 4);
+                dataRow["vcPlant"] = strPlant;
+                dataRow["vcReceiver"] = strReceiver;
+                //string strPath = imagefile_qr + strOperId + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + "_" + uuid.Replace("-", "") + ".png";
+                byte[] vcCodemage = fS0617_Logic.GenerateQRCode((100000000 + i).ToString().Substring(1, 8));//二维码信息
+                dataRow["vcCodemage"] = vcCodemage;
+                dtSub.Rows.Add(dataRow);
             }
+            fs1104_DataAccess.setPrintTemp(dtSub, strOperId, ref dtMessage);
+            if (dtMessage.Rows.Count != 0)
+                return false;
             else
-            {
-                DataTable dtCaseNoInfo = fs1104_DataAccess.getCaseNoInfo(strCaseNo);
-                DataTable dataTable = createTable();
-                if (dtCaseNoInfo.Rows.Count != 0)
-                {
-                    for (int j = 1; j <= Convert.ToInt32(strPrintCopy); j++)
-                    {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcPlant"] = dtCaseNoInfo.Rows[0]["vcPlant"].ToString();
-                        dataRow["vcPlantName"] = dtCaseNoInfo.Rows[0]["vcPlantName"].ToString();
-                        dataRow["vcReParty"] = dtCaseNoInfo.Rows[0]["vcReParty"].ToString();
-                        dataRow["vcRePartyName"] = dtCaseNoInfo.Rows[0]["vcRePartyName"].ToString();
-                        dataRow["vcPackPlant"] = dtCaseNoInfo.Rows[0]["vcPackPlant"].ToString();
-                        dataRow["vcPackPlantName"] = dtCaseNoInfo.Rows[0]["vcPackPlantName"].ToString();
-                        dataRow["vcPrintNum"] = dtCaseNoInfo.Rows[0]["vcPrintNum"].ToString();
-                        dataRow["vcPrintIndex"] = (100000000 + Convert.ToInt32(dtCaseNoInfo.Rows[0]["vcPrintIndex"].ToString())).ToString().Substring(1, 8);
-                        dataTable.Rows.Add(dataRow);
-                    }
-                }
-                return dataTable;
-
-            }
+                return true;
         }
-
-        public void setSaveInfo(DataTable dtImport, ref DataTable dtMessage)
+        public bool getPrintInfo(string strPlant, string strReceiver, string strCastNo, string strPrintNum, string strOperId, ref DataTable dtMessage)
+        {
+            int iCaseNo = Convert.ToInt32(strCastNo);
+            int iPrintNum = Convert.ToInt32(strPrintNum);
+            DataTable dataTable = fs0617_DataAccess.getPrintTemp("FS1104");
+            DataTable dtSub = dataTable.Clone();
+            string uuid = Guid.NewGuid().ToString("N");
+            DataRow dataRow = dtSub.NewRow();
+            dataRow["UUID"] = uuid;
+            dataRow["vcCaseNo1"] = (100000000 + iCaseNo).ToString().Substring(1, 8);
+            dataRow["vcCaseNo2"] = (100000000 + iCaseNo).ToString().Substring(1, 4) + "-" + (100000000 + iCaseNo).ToString().Substring(5, 4);
+            dataRow["vcPlant"] = strPlant;
+            dataRow["vcReceiver"] = strReceiver;
+            byte[] vcCodemage = fS0617_Logic.GenerateQRCode((100000000 + iCaseNo).ToString().Substring(1, 8));//二维码信息
+            dataRow["vcCodemage"] = vcCodemage;
+            dtSub.Rows.Add(dataRow);
+            fs1104_DataAccess.setPrintTemp(dtSub, strOperId, ref dtMessage);
+            if (dtMessage.Rows.Count != 0)
+                return false;
+            else
+                return true;
+        }
+        public void setSaveInfo(string strOperId, ref DataTable dtMessage)
         {
             try
             {
-                fs1104_DataAccess.setSaveInfo(dtImport, ref dtMessage);
+                fs1104_DataAccess.setSaveInfo(strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public DataTable createTable()
+
+        public void setSaveInfo(string strLianFan, string strOperId, ref DataTable dtMessage)
         {
-            DataTable dataTable = new DataTable();
-            dataTable.Columns.Add("vcPlant");
-            dataTable.Columns.Add("vcPlantName");
-            dataTable.Columns.Add("vcReParty");
-            dataTable.Columns.Add("vcRePartyName");
-            dataTable.Columns.Add("vcPackPlant");
-            dataTable.Columns.Add("vcPackPlantName");
-            dataTable.Columns.Add("vcPrintNum");
-            dataTable.Columns.Add("vcPrintIndex");
-            return dataTable;
-        }
-        public string getPrintFile()
-        {
-            return "";
+            try
+            {
+                fs1104_DataAccess.setSaveInfo(strLianFan, strOperId, ref dtMessage);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

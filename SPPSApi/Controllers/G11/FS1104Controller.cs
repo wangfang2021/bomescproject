@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Text.Json;
 using System.Threading;
 using Common;
@@ -52,13 +53,10 @@ namespace SPPSApi.Controllers.G11
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
                 List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
-                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
-                List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装厂
+                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C062"));
 
                 res.Add("ReceiverList", ReceiverList);
-                res.Add("OrderPlantList", OrderPlantList);
-                res.Add("PackingPlantList", PackingPlantList);
-
+                res.Add("PlantList", PlantList);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -90,22 +88,21 @@ namespace SPPSApi.Controllers.G11
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strOrderPlant = dataForm.selectVaule.OrderPlant == null ? "" : dataForm.selectVaule.OrderPlant;
+            string strPlant = dataForm.selectVaule.Plant == null ? "" : dataForm.selectVaule.Plant;
             string strReceiver = dataForm.selectVaule.Receiver == null ? "" : dataForm.selectVaule.Receiver;
-            string strPackingPlant = dataForm.selectVaule.PackingPlant == null ? "" : dataForm.selectVaule.PackingPlant;
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
 
-                if (strOrderPlant == "" || strReceiver == "" || strPackingPlant == "")
+                if (strPlant == "" || strReceiver == "")
                 {
-                    res.Add("LianFanItem", "");
+                    res.Add("CaseNoItem", "");
                 }
                 else
                 {
-                    string strCaseLianFanNo = fS1104_Logic.getCaseNoInfo(strOrderPlant, strReceiver, strPackingPlant, "");
-                    res.Add("LianFanItem", strCaseLianFanNo);
+                    string strCaseNo = fS1104_Logic.getCaseNoInfo(strPlant, strReceiver, "");
+                    res.Add("CaseNoItem", strCaseNo.Substring(0, 4) + "-" + strCaseNo.Substring(4, 4));
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -139,20 +136,19 @@ namespace SPPSApi.Controllers.G11
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
-            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
-            string strPackingPlant = dataForm.PackingPlant == null ? "" : dataForm.PackingPlant;
-            string strLianFan = dataForm.LianFan == null ? "" : dataForm.LianFan;
-            string strPrintNum = dataForm.PrintNum == null ? "" : dataForm.PrintNum;
-            string strPrintCopy = dataForm.PrintCopy == null ? "" : dataForm.PrintCopy;
+            string strPlant = dataForm.selectVaule.Plant == null ? "" : dataForm.selectVaule.Plant;
+            string strReceiver = dataForm.selectVaule.Receiver == null ? "" : dataForm.selectVaule.Receiver;
+            string strLianFan = dataForm.selectVaule.LianFan == null ? "" : dataForm.selectVaule.LianFan;
+            string strPrintNum = dataForm.selectVaule.PrintNum == null ? "" : dataForm.selectVaule.PrintNum;
             try
             {
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
+                string imagefile_qr = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "QRcodeImage" + Path.DirectorySeparatorChar;
 
-                if (strOrderPlant == "")
+                if (strPlant == "")
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "发注工厂不能为空";
+                    dataRow["vcMessage"] = "发货方不能为空";
                     dtMessage.Rows.Add(dataRow);
                 }
                 if (strReceiver == "")
@@ -161,28 +157,16 @@ namespace SPPSApi.Controllers.G11
                     dataRow["vcMessage"] = "收货方不能为空";
                     dtMessage.Rows.Add(dataRow);
                 }
-                if (strPackingPlant == "")
-                {
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "包装工不能为空";
-                    dtMessage.Rows.Add(dataRow);
-                }
-                if (strLianFan == "")
-                {
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "连番不能为空";
-                    dtMessage.Rows.Add(dataRow);
-                }
                 if (strPrintNum == "" || strPrintNum == "0")
                 {
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "打印数量不能为空(0)";
                     dtMessage.Rows.Add(dataRow);
                 }
-                if (strPrintCopy == "")
+                if (Convert.ToInt32(strPrintNum) > 500)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "份数不能为空";
+                    dataRow["vcMessage"] = "一次打印数量不能超过500";
                     dtMessage.Rows.Add(dataRow);
                 }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -192,11 +176,29 @@ namespace SPPSApi.Controllers.G11
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dataTable = fS1104_Logic.setPrintInfo(strOrderPlant, strReceiver, strPackingPlant, strLianFan, strPrintNum, "", strPrintCopy);
-                //======================打印方法=======================
 
-                //=====================================================
-                fS1104_Logic.setSaveInfo(dataTable, ref dtMessage);
+                bool bResult = fS1104_Logic.getPrintInfo(strPlant, strReceiver, strPrintNum, loginInfo.UserId, ref dtMessage);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strPrintName = "";//打印机
+                string strReportName = "fs1104_cry.rpt";//水晶报表模板
+                string strPrintData = "tPrintTemp_FS1104";//数据表
+                //引进打印调用
+                //主表    tPrintTemp_FS1104
+
+                fS1104_Logic.setSaveInfo(loginInfo.UserId, ref dtMessage);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -228,27 +230,76 @@ namespace SPPSApi.Controllers.G11
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strCaseNo = dataForm.CaseNo == null ? "" : dataForm.CaseNo;
-            string strPrintCopy = dataForm.PrintCopy == null ? "" : dataForm.PrintCopy;
+
+            string strPlant = dataForm.selectVaule.Plant == null ? "" : dataForm.selectVaule.Plant;
+            string strReceiver = dataForm.selectVaule.Receiver == null ? "" : dataForm.selectVaule.Receiver;
+            string strLianFan = dataForm.selectVaule.LianFan == null ? "" : dataForm.selectVaule.LianFan;
+            string strPrintNum = dataForm.selectVaule.PrintNum == null ? "" : dataForm.selectVaule.PrintNum;
             try
             {
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                if (strCaseNo == "")
+                string imagefile_qr = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "QRcodeImage" + Path.DirectorySeparatorChar;
+
+                if (strPlant == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "发货方不能为空";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strReceiver == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "收货方不能为空";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strLianFan == "")
                 {
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "箱号不能为空";
                     dtMessage.Rows.Add(dataRow);
                 }
-                if (strPrintCopy == "")
+                if (strPrintNum == "" || strPrintNum == "0")
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "份数不能为空";
+                    dataRow["vcMessage"] = "打印数量不能为空(0)";
                     dtMessage.Rows.Add(dataRow);
                 }
-                //======================打印方法=======================
+                string strCastNo = fS1104_Logic.getCaseNoInfo(strPlant, strReceiver, Convert.ToString(Convert.ToInt32((strLianFan.Replace("-", "")))));
+                if (strCastNo == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "所输入箱号未进行过发行，禁止再发行";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                bool bResult = fS1104_Logic.getPrintInfo(strPlant, strReceiver, strCastNo, strPrintNum, loginInfo.UserId, ref dtMessage);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strPrintName = "";//打印机
+                string strReportName = "fs1104_cry.rpt";//水晶报表模板
+                string strPrintData = "tPrintTemp_FS1104";//数据表
+                //引进打印调用
+                //主表    tPrintTemp_FS1104
 
-
-                //=====================================================
+                fS1104_Logic.setSaveInfo(strCastNo, loginInfo.UserId, ref dtMessage);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -141,8 +141,10 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 string imagefile_sp = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPPartImage" + Path.DirectorySeparatorChar;
-                string imagefile_qr = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "QRcodeImage";
-
+                string imagefile_qr = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "QRcodeImage" + Path.DirectorySeparatorChar;
+                string strPrintName = "";//打印机
+                string strReportName = "fs0617_cry.rpt";//水晶报表模板
+                string strPrintData = "tPrintTemp_main_FS0617";//数据表
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (listInfoData.Count != 0)
                 {

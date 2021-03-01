@@ -922,9 +922,12 @@ namespace Logic
     {
         public static decimal RoundFirstSignificantDigit(this decimal input)
         {
+            int zhengshu = (int)input;
+            input=input-(decimal)zhengshu;
+
             if (input==0)
             {
-                return 0;
+                return (decimal)zhengshu;
             }
             int precision = 0;
             var val = input;
@@ -933,6 +936,7 @@ namespace Logic
                 val *= 10;
                 precision++;
             }
+            input = (decimal)zhengshu + input;
             return Math.Round(input, precision);
         }
     }

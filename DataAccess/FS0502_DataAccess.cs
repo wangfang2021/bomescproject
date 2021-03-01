@@ -18,7 +18,13 @@ namespace DataAccess
             {
                 DataTable dt = new DataTable();
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "' and vcValue in ('1','2')  ORDER BY iAutoId    \n");
+                //strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "' and vcValue in ('1','2')  ORDER BY iAutoId    \n");
+                strSql.AppendLine("select '待回复' as vcValue,'待回复' as vcName");
+                strSql.AppendLine("union all");
+                strSql.AppendLine("select '已回复' as vcValue,'已回复' as vcName");
+                strSql.AppendLine("union all");
+                strSql.AppendLine("select '延误' as vcValue,'延误' as vcName");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -44,7 +50,7 @@ namespace DataAccess
         }
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strSupplier_GQ, string vcStatus, string vcOrderNo, string vcPart_id,string vcOperateEnable)
+        public DataTable Search(string strSupplier_GQ, string vcStatus, string vcOrderNo, string vcPart_id)
         {
             try
             {
@@ -52,33 +58,40 @@ namespace DataAccess
                 string strGQ = strSupplier_GQ.Substring(4, 1);
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.iAutoId,t3.iAutoId as iAutoId_sub,t1.vcStatus,case when t1.dSupReplyTime is null then '待回复' else '已回复' end as vcStatusName,t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,    \n");
+                strSql.Append("select t1.iAutoId,t3.iAutoId as iAutoId_sub,t1.vcStatus,t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,    \n");
                 strSql.Append("t1.vcGQ,t1.vcChuHePlant,t1.dReplyOverDate,t1.iPackingQty,t1.iOrderQuantity,t3.iDuiYingQuantity,     \n");
                 strSql.Append("t3.decBoxQuantity,t3.dDeliveryDate,'0' as vcModFlag,'0' as vcAddFlag,         \n");
                 strSql.Append("CASE WHEN isnull(t1.vcStatus,'')='1' and isnull(t1.vcShowFlag,'')='1' and isnull(t1.vcSaveFlag,'')!='1' then '0'  else '1' end as bSelectFlag,        \n");
                 strSql.Append("isnull(t1.vcShowFlag,'') as vcShowFlag,isnull(t1.vcSaveFlag,'') as vcSaveFlag,    \n");
                 //strSql.Append("case when t3.iDuiYingQuantity%t1.iPackingQty<>0 then 'red' else '' end as boxColor,    \n");
                 strSql.Append("'0' as boxColor,    \n");
-                strSql.Append("case when t4.iDuiYingQuantity<t1.iOrderQuantity then 'red' else '' end as DuiYingQuantityColor    \n");
+                strSql.Append("case when t4.iDuiYingQuantity<t1.iOrderQuantity then 'red' else '' end as DuiYingQuantityColor,    \n");
+                strSql.Append("case when t1.dSupReplyTime is null and isnull(t1.vcStatus,'')='1' and isnull(t1.vcShowFlag,'')='1' and isnull(t1.vcSaveFlag,'')!='1' then '待回复'   \n");
+                strSql.Append("when t1.dSupReplyTime is not null and isnull(t1.vcStatus,'') in ('2','3') and isnull(t1.vcShowFlag,'')='1' then '已回复'    \n");
+                strSql.Append("when t1.dSupReplyTime is null and isnull(t1.vcStatus,'')='3' and isnull(t1.vcShowFlag,'')='1' then '延误'  \n");
+                strSql.Append("end as vcStatusName,t1.dSendTime,t1.dSupReplyTime    \n");
                 strSql.Append("from(        \n");
                 strSql.Append("	select * from TUrgentOrder         \n");
-                strSql.Append("	where isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='"+strGQ+"'     \n");
+                strSql.Append("	where isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='" + strGQ + "'     \n");
                 strSql.Append("	and isnull(vcStatus,'') in ('1','2','3')--0:未发送  1:待回复   2:已回复   3:回复销售   \n");
-                if (vcStatus == "1")
+                if (vcStatus == "待回复")
+                {
                     strSql.Append("	and dSupReplyTime is null    \n");
-                else if (vcStatus == "2")
+                    strSql.Append(" and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
+                }
+                else if (vcStatus == "已回复")
+                {
                     strSql.Append("	and dSupReplyTime is not null     \n");
-                else 
-                    strSql.Append("  and 1=2   \n");
+                    strSql.Append(" and isnull(vcStatus,'') in ('2','3') and isnull(vcShowFlag,'')='1'  \n");
+                }
+                else if (vcStatus == "延误")
+                {
+                    strSql.Append("	and dSupReplyTime is null    \n");
+                    strSql.Append(" and isnull(vcStatus,'')='3' and isnull(vcShowFlag,'')='1'  \n");
+                }
                 strSql.Append("	and isnull(vcOrderNo,'') like '%" + vcOrderNo + "%'    \n");
                 strSql.Append("	and isnull(vcPart_id,'') like '" + vcPart_id + "%'    \n");
                 strSql.Append(" and isnull(vcShowFlag,'')='1'   \n");
-                if (vcOperateEnable == "Y")
-                    strSql.Append("  and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
-                else if (vcOperateEnable == "N")
-                    strSql.Append("  and (isnull(vcStatus,'')!='1' or isnull(vcShowFlag,'')!='1' or isnull(vcSaveFlag,'')='1')  \n");
-                else
-                    strSql.Append("  and 1=2   \n");
                 strSql.Append(")t1        \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C056')t2 on t1.vcStatus=t2.vcValue        \n");
                 strSql.Append("left join (        \n");
@@ -117,7 +130,7 @@ namespace DataAccess
                 strSql.Append(")t1    \n");
                 strSql.Append("inner join (            \n");
                 strSql.Append("    select * from TUrgentOrder    \n");
-                strSql.Append("	where vcOrderNo='" + vcOrderNo + "' and vcPart_id='" + vcPart_id + "' and vcSupplier_id='" + strSupplier + "' and vcGQ='"+strGQ+"'     \n");
+                strSql.Append("	where vcOrderNo='" + vcOrderNo + "' and vcPart_id='" + vcPart_id + "' and vcSupplier_id='" + strSupplier + "' and vcGQ='" + strGQ + "'     \n");
                 strSql.Append(")t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id       \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -148,7 +161,7 @@ namespace DataAccess
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main,
-            string vcPart_id, string vcOrderNo, string strSupplier_GQ, ref string infopart)
+            string vcPart_id, string vcOrderNo, string strSupplier_GQ, ref string infopart, string iPackingQty)
         {
             try
             {
@@ -159,13 +172,18 @@ namespace DataAccess
                 string strdate = System.DateTime.Now.ToString();
                 List<string> lsOrderNo = new List<string>();
                 List<string> lsPart_id = new List<string>();
-                //bool isdel = false;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+
                     if (bAddFlag == true)
                     {//新增  只有分批纳入时才会新增，strautoid_main 是从主画面带过来的所选数据的iautoid
+                     ////计算箱数
+                     //   string strDuiYingQuantity = listInfoData[i]["iDuiYingQuantity"].ToString();
+                     //   decimal input = (Convert.ToDecimal(strDuiYingQuantity) / (Convert.ToDecimal(iPackingQty)));
+                     //   string decBoxQuantity = input.RoundFirstSignificantDigit().ToString();
+
                         if (lsOrderNo.Contains(vcOrderNo) == false)
                             lsOrderNo.Add(vcOrderNo);
                         if (lsPart_id.Contains(vcPart_id) == false)
@@ -185,12 +203,18 @@ namespace DataAccess
                             sql.Append("           ,[decBoxQuantity])    \n");
                             sql.Append("select vcOrderNo,vcPart_id,vcSupplier_id,nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",''),     \n");
                             sql.Append("nullif('" + listInfoData[i]["dDeliveryDate"] + "',''),'supplier','" + strUserId + "','" + strdate + "',     \n");
-                            sql.Append("cast(nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",'')/(iPackingQty*1.0) as decimal(18,1))    \n");
+                            sql.Append("'" + listInfoData[i]["decBoxQuantity"] + "'    \n");
                             sql.Append("from TUrgentOrder where iAutoId=" + strautoid_main + "      \n");
                         }
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改  主画面的修改和分批导入的修改可以通用
+                     ////计算箱数
+                     //   string strDuiYingQuantity = listInfoData[i]["iDuiYingQuantity"].ToString();
+                     //   string strPackingQty = listInfoData[i]["iPackingQty"].ToString();
+                     //   decimal input = (Convert.ToDecimal(strDuiYingQuantity) / (Convert.ToDecimal(strPackingQty)));
+                     //   string decBoxQuantity = input.RoundFirstSignificantDigit().ToString();
+
                         if (lsOrderNo.Contains(listInfoData[i]["vcOrderNo"].ToString()) == false)
                             lsOrderNo.Add(listInfoData[i]["vcOrderNo"].ToString());
                         if (lsPart_id.Contains(listInfoData[i]["vcPart_id"].ToString()) == false)
@@ -217,7 +241,7 @@ namespace DataAccess
                             sql.Append("           ,'supplier'    \n");
                             sql.Append("           ,'" + strUserId + "'    \n");
                             sql.Append("           ,'" + strdate + "'    \n");
-                            sql.Append("           ,cast(nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",'')/(nullif(" + listInfoData[i]["iPackingQty"] + ",'')*1.0) as decimal(18,1))    \n");
+                            sql.Append("           ,'" + listInfoData[i]["decBoxQuantity"] + "'   \n");
                             sql.Append("           )    \n");
                         }
                         else
@@ -251,7 +275,7 @@ namespace DataAccess
                     sql.Append("       	select * from TUrgentOrder where vcSupplier_id='" + strSupplier + "' and vcGQ='" + strGQ + "' and  vcStatus='1' and vcDelete='0'   \r\n");
                     if (strOrderNo.Length > 0)
                         sql.Append("          and vcOrderNo in (" + strOrderNo + ")    \n");
-                    if(strPart_id.Length>0)
+                    if (strPart_id.Length > 0)
                         sql.Append("          and vcPart_id in (" + strPart_id + ")    \n");
                     sql.Append("       )t1    \r\n");
                     sql.Append("       left join (            \r\n");
@@ -286,7 +310,7 @@ namespace DataAccess
                     sql.Append("        	where vcSupplier_id='" + strSupplier + "' and vcGQ='" + strGQ + "'     \n");
                     if (strOrderNo.Length > 0)
                         sql.Append("       and vcOrderNo in (" + strOrderNo + ")           \n");
-                    if(strPart_id.Length>0)
+                    if (strPart_id.Length > 0)
                         sql.Append("       and vcPart_id in (" + strPart_id + ")           \n");
                     sql.Append("        )t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id       \n");
                     sql.Append("        where t2.iOrderQuantity%t2.iPackingQty=0 and t1.iDuiYingQuantity%t2.iPackingQty<>0   \r\n");
@@ -404,7 +428,7 @@ namespace DataAccess
         #endregion
 
         #region 是否可操作-按检索条件
-        public DataSet IsDQR(string strSupplier_GQ, string vcStatus, string vcOrderNo, string vcPart_id, string vcOperateEnable)
+        public DataSet IsDQR(string strSupplier_GQ, string vcStatus, string vcOrderNo, string vcPart_id)
         {
             try
             {
@@ -416,40 +440,46 @@ namespace DataAccess
                 strSql.Append(" WHERE (vcStatus!='1' or vcShowFlag!='1' or isnull(vcSaveFlag,'')='1') ");//这几个状态(1)是可操作的状态
                 strSql.Append("	and isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='" + strGQ + "'      \n");
                 strSql.Append("	and vcStatus in ('1','2','3')--1:待回复   2:已回复    \n");
-                if (vcStatus == "1")
+                if (vcStatus == "待回复")
+                {
                     strSql.Append("	and dSupReplyTime is null    \n");
-                else if (vcStatus == "2")
+                    strSql.Append(" and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
+                }
+                else if (vcStatus == "已回复")
+                {
                     strSql.Append("	and dSupReplyTime is not null     \n");
-                else
-                    strSql.Append("  and 1=2   \n");
+                    strSql.Append(" and isnull(vcStatus,'') in ('2','3') and isnull(vcShowFlag,'')='1'  \n");
+                }
+                else if (vcStatus == "延误")
+                {
+                    strSql.Append("	and dSupReplyTime is null    \n");
+                    strSql.Append(" and isnull(vcStatus,'')='3' and isnull(vcShowFlag,'')='1'  \n");
+                }
                 strSql.Append("	and vcOrderNo like '%" + vcOrderNo + "%'    \n");
                 strSql.Append("	and vcPart_id like '%" + vcPart_id + "%'    \n");
-                if (vcOperateEnable == "Y")
-                    strSql.Append("  and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
-                else if (vcOperateEnable == "N")
-                    strSql.Append("  and (isnull(vcStatus,'')!='1' or isnull(vcShowFlag,'')!='1' or isnull(vcSaveFlag,'')='1')  \n");
-                else
-                    strSql.Append("  and 1=2   \n");
 
                 strSql.Append("select * from (   \n");
                 strSql.Append("  select * from TUrgentOrder ");
                 strSql.Append("  WHERE (vcStatus='1' and vcShowFlag='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
                 strSql.Append(" 	and isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='" + strGQ + "'     \n");
                 strSql.Append(" 	and vcStatus in ('1','2','3')--1:待回复   2:已回复    \n");
-                if (vcStatus == "1")
+                if (vcStatus == "待回复")
+                {
                     strSql.Append("	and dSupReplyTime is null    \n");
-                else if (vcStatus == "2")
+                    strSql.Append(" and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
+                }
+                else if (vcStatus == "已回复")
+                {
                     strSql.Append("	and dSupReplyTime is not null     \n");
-                else
-                    strSql.Append("  and 1=2   \n");
+                    strSql.Append(" and isnull(vcStatus,'') in ('2','3') and isnull(vcShowFlag,'')='1'  \n");
+                }
+                else if (vcStatus == "延误")
+                {
+                    strSql.Append("	and dSupReplyTime is null    \n");
+                    strSql.Append(" and isnull(vcStatus,'')='3' and isnull(vcShowFlag,'')='1'  \n");
+                }
                 strSql.Append(" 	and vcOrderNo like '%" + vcOrderNo + "%'    \n");
                 strSql.Append(" 	and vcPart_id like '%" + vcPart_id + "%'    \n");
-                if (vcOperateEnable == "Y")
-                    strSql.Append("  and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
-                else if (vcOperateEnable == "N")
-                    strSql.Append("  and (isnull(vcStatus,'')!='1' or isnull(vcShowFlag,'')!='1' or isnull(vcSaveFlag,'')='1')  \n");
-                else
-                    strSql.Append("  and 1=2   \n");
                 strSql.Append(")t1        \n");
                 strSql.Append("left join (        \n");
                 strSql.Append("    select * from VI_UrgentOrder_OperHistory_s where vcInputType='supplier'    \n");
@@ -516,7 +546,7 @@ namespace DataAccess
         #endregion
 
         #region 提交-按检索条件
-        public int ok(string strSupplier_GQ, string vcStatus, string vcOrderNo, string vcPart_id, string strUserId, string vcOperateEnable)
+        public int ok(string strSupplier_GQ, string vcStatus, string vcOrderNo, string vcPart_id, string strUserId)
         {
             try
             {
@@ -534,21 +564,24 @@ namespace DataAccess
                 strSql.Append("      dOperatorTime=getDate() ");
                 strSql.Append(" WHERE (isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
                 strSql.Append("	and isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='" + strGQ + "'      \n");
-                strSql.Append("	and vcStatus in ('1','2','3')--1:待回复   2:已回复    \n");
-                if (vcStatus == "1")
+                strSql.Append("	and vcStatus in ('1','2','3')--1:待回复   2:已回复 3:回复销售   \n");
+                if (vcStatus == "待回复")
+                {
                     strSql.Append("	and dSupReplyTime is null    \n");
-                else if (vcStatus == "2")
+                    strSql.Append(" and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
+                }
+                else if (vcStatus == "已回复")
+                {
                     strSql.Append("	and dSupReplyTime is not null     \n");
-                else
-                    strSql.Append("  and 1=2   \n");
+                    strSql.Append(" and isnull(vcStatus,'') in ('2','3') and isnull(vcShowFlag,'')='1'  \n");
+                }
+                else if (vcStatus == "延误")
+                {
+                    strSql.Append("	and dSupReplyTime is null    \n");
+                    strSql.Append(" and isnull(vcStatus,'')='3' and isnull(vcShowFlag,'')='1'  \n");
+                }
                 strSql.Append("	and vcOrderNo like '%" + vcOrderNo + "%'    \n");
                 strSql.Append("	and vcPart_id like '%" + vcPart_id + "%'    \n");
-                if (vcOperateEnable == "Y")
-                    strSql.Append("  and isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1'  \n");
-                else if (vcOperateEnable == "N")
-                    strSql.Append("  and (isnull(vcStatus,'')!='1' or isnull(vcShowFlag,'')!='1' or isnull(vcSaveFlag,'')='1')  \n");
-                else
-                    strSql.Append("  and 1=2   \n");
 
                 return excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
@@ -608,5 +641,24 @@ namespace DataAccess
         }
         #endregion
 
+    }
+
+    public static class FloatExtension
+    {
+        public static decimal RoundFirstSignificantDigit(this decimal input)
+        {
+            if (input == 0)
+            {
+                return 0;
+            }
+            int precision = 0;
+            var val = input;
+            while (Math.Abs(val) < 1)
+            {
+                val *= 10;
+                precision++;
+            }
+            return Math.Round(input, precision);
+        }
     }
 }

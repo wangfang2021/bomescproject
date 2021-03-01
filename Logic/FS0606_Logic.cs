@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcPartNo)
+        public DataTable Search(string vcPartNo,string  dBeginDate, string dEndDate, string vcMemo)
         {
-            return fs0606_DataAccess.Search(vcPartNo);
+            return fs0606_DataAccess.Search(vcPartNo,dBeginDate, dEndDate, vcMemo);
         }
 
         public bool isExistAddData(DataTable dtadd)

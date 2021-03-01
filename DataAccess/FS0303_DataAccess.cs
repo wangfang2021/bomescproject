@@ -404,7 +404,7 @@ namespace DataAccess
                     sql.Append("       ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDate         \n");
                     sql.Append("       ,vcMeno,vcFXDiff,vcFXNo,vcNum1,vcNum2,vcNum3,vcNum4         \n");
                     sql.Append("       ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10         \n");
-                    sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo         \n");
+                    sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcSumLater,vcZXBZNo         \n");
                     sql.Append("       ,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime,vcRemark         \n");
                     sql.Append("       ) values         \n");
                     sql.Append("                ");
@@ -482,6 +482,18 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum13"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum14"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum15"], true) + "      \n");
+
+                    #region 计算旧型经年必要计算数
+                    if (dt.Rows[i]["vcNum1"]==null && dt.Rows[i]["vcNum2"] == null && dt.Rows[i]["vcNum3"] == null && dt.Rows[i]["vcNum4"] == null && dt.Rows[i]["vcNum5"] == null && dt.Rows[i]["vcNum6"] == null && dt.Rows[i]["vcNum7"] == null && dt.Rows[i]["vcNum8"] == null && dt.Rows[i]["vcNum9"] == null && dt.Rows[i]["vcNum10"] == null && dt.Rows[i]["vcNum11"] == null && dt.Rows[i]["vcNum12"] == null && dt.Rows[i]["vcNum13"] == null && dt.Rows[i]["vcNum14"] == null && dt.Rows[i]["vcNum15"] == null)
+                    {
+                        sql.Append("      ,null      \n");
+                    }
+                    else
+                    {
+
+                    }
+                    #endregion
+
                     sql.Append(@"      ," + ComFunction.getSqlValue(dt.Rows[i]["vcZXBZNo"], true) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcReceiver_Name"], true) + "     \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcOriginCompany_Name"], true) + "     \n");

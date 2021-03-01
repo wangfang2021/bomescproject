@@ -187,7 +187,7 @@ namespace Logic
                             listData[i][item.strHeader] = strValue;
                             #endregion
                         }
-                        catch (Exception e)
+                        catch (Exception ex)
                         {
                             strErr = "编辑行中第" + (i + 1) + "行" + item.strTitle + "填写不合法";
                             return null;

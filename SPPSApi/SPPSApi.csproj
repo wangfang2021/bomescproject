@@ -146,12 +146,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Doc\Template\FS0703_Exception.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Doc\Template\FS0703_Export.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Doc\Template\FS0711_Export.xlsx" />
     <Content Include="Doc\Template\FS0712_Export.xlsx" />
     <Content Include="Doc\Template\FS0713.xlsx" />

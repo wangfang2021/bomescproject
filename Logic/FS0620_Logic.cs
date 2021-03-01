@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
+        public DataTable Search(string dOperatorTime,string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
         {
-            return fs0620_DataAccess.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
+            return fs0620_DataAccess.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
         }
 
         public bool isExistAddData(DataTable dtadd)
@@ -49,28 +49,44 @@ namespace Logic
             return fs0620_DataAccess.getCCEmail(code);
         }
 
-        public DataTable getPlant(string vcTargetYear)
+        public DataTable getPlant(string vcTargetYear, string vcType)
         {
-            return fs0620_DataAccess.getPlant(vcTargetYear);
+            return fs0620_DataAccess.getPlant(vcTargetYear, vcType);
         }
 
-        public DataTable getDtByTargetYearAndPlant(string vcTargetYear, string plantCode)
+        public DataTable getDtByTargetYearAndPlant(string vcTargetYear, string plantCode, string vcType)
         {
-            return fs0620_DataAccess.getDtByTargetYearAndPlant(vcTargetYear,plantCode);
+            return fs0620_DataAccess.getDtByTargetYearAndPlant(vcTargetYear,plantCode, vcType);
         }
 
-        public DataTable getWaiZhuDt(string vcTargetYear)
+        public DataTable getWaiZhuDt(string vcTargetYear, string vcType)
         {
-            return fs0620_DataAccess.getWaiZhuDt(vcTargetYear);
+            return fs0620_DataAccess.getWaiZhuDt(vcTargetYear, vcType);
         }
-        public DataTable getHuiZongDt(string vcTargetYear)
+        public DataTable getHuiZongDt(string vcTargetYear, string vcType)
         {
-            return fs0620_DataAccess.getHuiZongDt(vcTargetYear);
+            return fs0620_DataAccess.getHuiZongDt(vcTargetYear, vcType);
         }
 
         public DataTable GetSupplierWorkArea()
         {
             return fs0620_DataAccess.GetSupplierWorkArea();
+        }
+
+        public void del(List<Dictionary<string, object>> listInfoData)
+        {
+            fs0620_DataAccess.Del(listInfoData);
+        }
+        public DataTable createTable(string strSpSub)
+        {
+            DataTable dataTable = new DataTable();
+            if (strSpSub == "email")
+            {
+                dataTable.Columns.Add("vcSupplier_id");
+                dataTable.Columns.Add("vcWorkArea");
+                dataTable.Columns.Add("vcMessage");
+            }
+            return dataTable;
         }
     }
 }

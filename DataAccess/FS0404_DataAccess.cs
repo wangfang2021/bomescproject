@@ -1129,7 +1129,7 @@ namespace DataAccess
                     }
                    
                 }
-                strSql.AppendLine("   update TOrderUploadManage  set  vcOrderState='3',vcMemo='"+ vcMemo + "',vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where  vcOrderNo='" + lastOrderNo + "';  ");
+                strSql.AppendLine("   update TOrderUploadManage  set  vcOrderState='3',vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where  vcOrderNo='" + lastOrderNo + "';  ");
                 strSql.AppendLine("   update [TUrgentOrder] set vcDelete='1',vcOperatorID='" + userId + "',dOperatorTime=GETDATE()  where  vcOrderNo='" + lastOrderNo + "';  ");
                 if (strSql.Length > 0)
                 {
@@ -1248,7 +1248,7 @@ namespace DataAccess
                 detail.Date = temp.Substring(6, 8);
                 detail.Type = temp.Substring(14, 8);
                 detail.ItemNo = temp.Substring(22, 4);
-                detail.PartsNo = temp.Substring(26, 12);
+                detail.PartsNo = temp.Substring(26, 12).Replace(" ","0");
                 detail.QTY = temp.Substring(41, 7);
                 detail.Price = temp.Substring(48, 9);
                 details.Add(detail);

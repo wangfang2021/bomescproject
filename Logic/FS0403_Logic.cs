@@ -75,7 +75,7 @@ namespace Logic
                     }
                 }
 
-                if (refMsg.Count>0)
+                if (refMsg.Count > 0)
                 {
                     return;
                 }
@@ -96,6 +96,11 @@ namespace Logic
         public DataTable downLoadApi(string vcChangeNo)
         {
             return fs0403_dataAccess.downLoadApi(vcChangeNo);
+        }
+
+        public bool isUpload()
+        {
+            return fs0403_dataAccess.isUpload();
         }
     }
 

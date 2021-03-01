@@ -46,12 +46,12 @@ namespace SPPSApi.Controllers.G03
 
                 List<Object> dataList_C024 = ComFunction.convertAllToResult(ComFunction.getTCode("C024"));//旧型年限进度
                 //List<string> dataList_C006_Excel = convertTCodeToResult(getTCode("C006"));//原单位
-                List<string> dataList_C006_Excel = convertTCodeToResult(fs0307_logic.getCompany(loginInfo.PlantCode));//原单位
+                List<string> dataList_C006_Excel = fs0307_logic.OriginCompanys(loginInfo.UserId);//原单位
+                //List<string> dataList_C006_Excel = convertTCodeToResult(fs0307_logic.getCompany(loginInfo.PlantCode));//原单位
                 List<string> dataList_C005_Excel = convertTCodeToResult(getTCode("C005"));//收货方
                 List<string> dataList_C016_Excel = convertTCodeToResult(getTCode("C016"));//包装事业体
                 List<string> dataList_C024_Excel = convertTCodeToResult(getTCode("C024"));//旧型年限进度
                 List<string> dataList_C003_Excel = convertTCodeToResult(getTCode("C003"));//内外
-
                 res.Add("C024", dataList_C024);
                 res.Add("C003_E", dataList_C003_Excel);
                 res.Add("C006_E", dataList_C006_Excel);

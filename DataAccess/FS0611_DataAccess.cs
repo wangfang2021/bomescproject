@@ -57,12 +57,50 @@ namespace DataAccess
                 strhycolumn = "iHySOQN1";
             else if (strType == "nnsym")
                 strhycolumn = "iHySOQN2";
-            sql.Append("  select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer,b.dFromTime,b.dToTime,a.vcReceiver from TSoq a     \n");
-            sql.Append("  left join   \n");
-            sql.Append("  (   \n");
-            sql.Append("  select * from TSPMaster   \n");
-            sql.Append("  )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId and a.vcReceiver=b.vcReceiver   \n");
-            sql.Append("  where a.vcYearMonth='" + strYearMonth + "' and a.vcFZGC='" + strPlant + "' and a.vcInOutFlag='1' and a.vcHyState='2'   order by a.iAutoId  \n");
+
+
+            sql.Append("    select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer,    \n");
+            sql.Append("    case when b.dFromTime is not null or b.dToTime is not null then b.dFromTime    \n");
+            sql.Append("    when c.dFromTime is not null or c.dToTime is not null then c.dFromTime    \n");
+            sql.Append("    when d.dFromTime is not null or d.dToTime is not null then d.dFromTime    \n");
+            sql.Append("    when e.dFromTime is not null or e.dToTime is not null then e.dFromTime    \n");
+            sql.Append("    end as dFromTime,    \n");
+            sql.Append("    case when b.dFromTime is not null or b.dToTime is not null then b.dToTime    \n");
+            sql.Append("    when c.dFromTime is not null or c.dToTime is not null then c.dToTime    \n");
+            sql.Append("    when d.dFromTime is not null or d.dToTime is not null then d.dToTime    \n");
+            sql.Append("    when e.dFromTime is not null or e.dToTime is not null then e.dToTime    \n");
+            sql.Append("    end as dToTime    \n");
+            sql.Append("    ,a.vcReceiver from TSoq a         \n");
+            sql.Append("    left join       \n");
+            sql.Append("    (       \n");
+            sql.Append("       select vcPartId,vcSupplierId,vcReceiver,dFromTime,dToTime from TSPMaster      \n");
+            sql.Append("  	 where      \n");
+            sql.Append("  	 convert(varchar(6),dFromTime,112)='" + strYearMonth + "' or    \n");
+            sql.Append("  	 convert(varchar(6),dToTime,112)='" + strYearMonth + "'    \n");
+            sql.Append("    )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId and a.vcReceiver=b.vcReceiver       \n");
+            sql.Append("    left join       \n");
+            sql.Append("    (       \n");
+            sql.Append("  	select vcPartId,vcSupplierId,vcReceiver,dFromTime,dToTime from TSPMaster_SupplierPlant     \n");
+            sql.Append("  	where      \n");
+            sql.Append("  	convert(varchar(6),dFromTime,112)='" + strYearMonth + "' or    \n");
+            sql.Append("  	convert(varchar(6),dToTime,112)='" + strYearMonth + "'    \n");
+            sql.Append("    )c on a.vcPart_id=c.vcPartId and a.vcSupplier_id=c.vcSupplierId and a.vcReceiver=c.vcReceiver       \n");
+            sql.Append("    left join       \n");
+            sql.Append("    (       \n");
+            sql.Append("  	select vcPartId,vcSupplierId,vcReceiver,dFromTime,dToTime from TSPMaster_SufferIn      \n");
+            sql.Append("  	where      \n");
+            sql.Append("  	convert(varchar(6),dFromTime,112)='" + strYearMonth + "' or    \n");
+            sql.Append("  	convert(varchar(6),dToTime,112)='" + strYearMonth + "'    \n");
+            sql.Append("    )d on a.vcPart_id=d.vcPartId and a.vcSupplier_id=d.vcSupplierId and a.vcReceiver=d.vcReceiver     \n");
+            sql.Append("    left join       \n");
+            sql.Append("    (       \n");
+            sql.Append("  	select vcPartId,vcSupplierId,vcReceiver,dFromTime,dToTime from TSPMaster_Box      \n");
+            sql.Append("  	where      \n");
+            sql.Append("  	convert(varchar(6),dFromTime,112)='" + strYearMonth + "' or    \n");
+            sql.Append("  	convert(varchar(6),dToTime,112)='" + strYearMonth + "'    \n");
+            sql.Append("    )e on a.vcPart_id=e.vcPartId and a.vcSupplier_id=e.vcSupplierId and a.vcReceiver=e.vcReceiver      \n");
+            sql.Append("   where vcYearMonth='" + strYearMonth + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1'  and a.vcHyState='2'    \n");
+            sql.Append("    order by a.iAutoId      \n");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
         #endregion

@@ -40,6 +40,7 @@ namespace Logic
                 //获取波动率
                 Hashtable ht = fs0403_dataAccess.getFluctuate();
 
+
                 List<FS0403_DataAccess.PartIDNode> list = new List<FS0403_DataAccess.PartIDNode>();
                 string changeNo = DateTime.Now.ToString("yyyyMMdd");
 
@@ -55,11 +56,13 @@ namespace Logic
                     int soqQuantity = -1;
                     string DXR = "";
                     string allowPercent = "";
+                    int iSRS = 0;
                     if (quantity.Contains(partId))
                     {
                         FS0403_DataAccess.PartNode tmp = (FS0403_DataAccess.PartNode)quantity[partId];
                         DXR = tmp.DXR;
                         soqQuantity = tmp.quantity;
+                        iSRS = tmp.iSRS;
                     }
 
                     if (ht.Contains(partId))
@@ -67,7 +70,7 @@ namespace Logic
                         allowPercent = ht[partId].ToString();
                     }
 
-                    list.Add(new FS0403_DataAccess.PartIDNode(partId, excelquantity, soqQuantity, allowPercent, DXR, changeNo));
+                    list.Add(new FS0403_DataAccess.PartIDNode(partId, excelquantity, soqQuantity, allowPercent, DXR, changeNo, iSRS));
 
                 }
                 List<string> listPart = new List<string>();

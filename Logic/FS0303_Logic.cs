@@ -304,21 +304,22 @@ namespace Logic
                         //发送数据的方法
                         strMessage += dt.Rows[i]["vcName"].ToString()+": ";
                         fs0303_DataAccess.dataSync(strSYTName, tempList, strUserId, ref strMessage);
+                        
+                        #region 如果同步成功，将此次同步的数据的同步时间更新
+                        fs0303_DataAccess.dataSync(tempList, strUserId);
+                        #endregion
+
                         strMessage += "发送成功！ \n";
                     }
                 }
                 #endregion
 
-                #region 更新源数据的同步时间
-                fs0303_DataAccess.dataSync(listInfoData, strUserId);
-                #endregion
             }
             catch (Exception ex)
             {
                 strMessage += "发送失败！ \n";
                 throw ex;
             }
-
 
         }
         #endregion

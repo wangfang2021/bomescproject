@@ -53,7 +53,7 @@ namespace SPPSApi.Controllers.G99
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_C026 = ComFunction.convertAllToResult(ComFunction.getTCode("C026"));//生确进度
+                List<Object> dataList_C040 = ComFunction.convertAllToResult(ComFunction.getTCode("C040"));//生确进度
                 List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE
@@ -64,7 +64,35 @@ namespace SPPSApi.Controllers.G99
                 List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));//对应可否确认结果
                 List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));//防锈对应可否
 
-                res.Add("C026", dataList_C026);
+                List<Object> dataList_C040_all = new List<object>();
+
+                foreach (var item in dataList_C040)
+                {
+                    dataList_C040_all.Add(item);
+                }
+                #region 在获取的TCode中添加新行
+                DataTable dt = new DataTable();
+                dt.Columns.Add("vcName");
+                dt.Columns.Add("vcValue");
+                DataRow dr = dt.NewRow();
+                dr["vcName"] = "处理中";
+                dr["vcValue"] = "4";
+                dt.Rows.Add(dr);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Dictionary<string, object> row = new Dictionary<string, object>();
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        string colName = dt.Columns[j].ColumnName;
+                        row[colName] = dt.Rows[i][colName];
+                    }
+                    row["iAPILineNo"] = dataList_C040.Count-1;
+                    dataList_C040_all.Add(row);
+                }
+                #endregion
+
+                res.Add("C040", dataList_C040);
                 res.Add("C002", dataList_C002);
                 res.Add("C003", dataList_C003);
                 res.Add("C015", dataList_C015);
@@ -74,6 +102,7 @@ namespace SPPSApi.Controllers.G99
                 res.Add("C028", dataList_C028);
                 res.Add("C029", dataList_C029);
                 res.Add("C030", dataList_C030);
+                res.Add("C040_all", dataList_C040_all);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

@@ -129,28 +129,63 @@ namespace SPPSApi.Controllers.G11
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             try
             {
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (listInfoData.Count != 0)
                 {
-                    //获取待打印的数据
-                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
-                    //执行打印操作
-                    //===========================================
-                    DataTable dtMessage = fS0603_Logic.createTable("MES");
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "错误测试";
-                    dtMessage.Rows.Add(dataRow);
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        string strLind = listInfoData[i]["LinId"] == null ? "" : listInfoData[i]["LinId"].ToString();
+                        string strPackMaterNo = listInfoData[i]["vcPackMaterNo"] == null ? "" : listInfoData[i]["vcPackMaterNo"].ToString();
+                        if (strPackMaterNo == "")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("断取指示书号{0}为空，无法打印", strPackMaterNo);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                        if (dtMessage.Rows.Count != 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.type = "list";
+                            apiResult.data = dtMessage;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        bool bResult = fS1101_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage);
+                        if (!bResult)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.type = "list";
+                            apiResult.data = dtMessage;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
 
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        string strPrintName = "";//打印机
+                        string strReportName = "fs1101_exl";//Excel报表模板
+                        string strPrintData = "";//数据表
+                        if (!bResult)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.type = "list";
+                            apiResult.data = dtMessage;
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        apiResult.code = ComConstant.SUCCESS_CODE;
+                        apiResult.data = "打印成功";
 
-
-
-
-                    //===========================================
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = "打印成功";
+                        ////调用WEBSERVICE接口打印
+                        //bool bResult = true;
+                        //if(!bResult)
+                        //{
+                        //    DataRow dataRow = dtMessage.NewRow();
+                        //    dataRow["vcMessage"] = string.Format("断取指示书号{0}打印失败", strPackMaterNo);
+                        //    dtMessage.Rows.Add(dataRow);
+                        //}else
+                        //{
+                        //    DataRow dataRow = dtMessage.NewRow();
+                        //    dataRow["vcMessage"] = string.Format("断取指示书号{0}打印成功", strPackMaterNo);
+                        //    dtMessage.Rows.Add(dataRow);
+                        //}
+                    
                 }
                 else
                 {
@@ -158,7 +193,6 @@ namespace SPPSApi.Controllers.G11
                     apiResult.data = "未选择有效的打印数据";
                 }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
             }
             catch (Exception ex)
             {

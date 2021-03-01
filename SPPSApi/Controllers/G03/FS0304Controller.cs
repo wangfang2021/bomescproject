@@ -54,7 +54,7 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 
-                List<Object> dataList_C026 = ComFunction.convertAllToResult(ComFunction.getTCode("C026"));      //生确进度
+                List<Object> dataList_C026 = ComFunction.convertAllToResult(ComFunction.getTCode("C026"));      //编辑行使用的生确进度
                 List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));      //变更事项
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));      //内外                
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));      //OE                
@@ -63,7 +63,34 @@ namespace SPPSApi.Controllers.G03
                 List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));      //防锈指示
                 List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));      //对应可否确认结果
                 List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));      //防锈对应可否
-                
+                List<Object> dataList_C026_all = new List<object>();                                            //检索使用的生确进度
+
+                foreach (var item in dataList_C026)
+                {
+                    dataList_C026_all.Add(item);
+                }
+                #region 在获取的TCode中添加新行
+                DataTable dt = new DataTable();
+                dt.Columns.Add("vcName");
+                dt.Columns.Add("vcValue");
+                DataRow dr = dt.NewRow();
+                dr["vcName"] = "处理中";
+                dr["vcValue"] = "5";
+                dt.Rows.Add(dr);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Dictionary<string, object> row = new Dictionary<string, object>();
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        string colName = dt.Columns[j].ColumnName;
+                        row[colName] = dt.Rows[i][colName];
+                    }
+                    row["iAPILineNo"] = dataList_C026_all.Count-1;
+                    dataList_C026_all.Add(row);
+                }
+                #endregion
+
                 res.Add("C026", dataList_C026);
                 res.Add("C002", dataList_C002);
                 res.Add("C003", dataList_C003);
@@ -73,6 +100,7 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C028", dataList_C028);
                 res.Add("C029", dataList_C029);
                 res.Add("C030", dataList_C030);
+                res.Add("C026_all", dataList_C026_all);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

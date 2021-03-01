@@ -363,8 +363,8 @@ namespace SPPSApi.Controllers.G04
             try
             {
                 DataTable dt = fs0402_Logic.SearchHistory();
-                string[] heads = { "年月", "错误消息"};
-                string[] fields = { "vcYearMonth", "vcMessage" };
+                string[] heads = { "对象年月","品番", "错误消息"};
+                string[] fields = { "vcYearMonth", "vcPart_id", "vcMessage" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")

@@ -90,18 +90,23 @@ namespace SPPSApi.Controllers.G05
 
             try
             {
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                int num = 0;
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea,ref num);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dExpectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOpenTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("dSReplyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
+                res.Add("dataList", dataList);
+                res.Add("isShowError", num > 0 ? true : false);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
+
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -218,7 +223,8 @@ namespace SPPSApi.Controllers.G05
 
             try
             {
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea);
+                int num = 0;
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea,ref num);
                 string[] fields = { "vcYearMonth", "dExpectTime", "vcDyState_Name", "vcPart_id", "iQuantityPercontainer", "iCbSOQN"
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","dOpenTime","dSReplyTime"
                 };
@@ -334,11 +340,12 @@ namespace SPPSApi.Controllers.G05
                     #endregion
                 }
 
-                List<string> errMessageList = new List<string>();//记录导入错误消息
-                fs0501_Logic.SaveCheck(listInfoData, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, loginInfo.UnitCode);
-                if (errMessageList.Count > 0)
+                //记录导入错误消息 (string,string) -- (品番,错误消息)
+                Dictionary<string, string> errMessageDict = new Dictionary<string, string>(new RepeatDictionaryComparer());
+                fs0501_Logic.SaveCheck(listInfoData, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageDict, loginInfo.UnitCode);
+                if (errMessageDict.Count > 0)
                 {
-                    fs0501_Logic.importHistory(strYearMonth, errMessageList, loginInfo.UserId);
+                    fs0501_Logic.importHistory(strYearMonth, errMessageDict, loginInfo.UserId);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "发现问题数据，导入终止，请查看导入履历。";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
@@ -377,8 +384,8 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 DataTable dt = fs0501_Logic.SearchHistory(strYearMonth,loginInfo.UserId);
-                string[] heads = { "年月", "错误消息" };
-                string[] fields = { "vcYearMonth", "vcMessage" };
+                string[] heads = { "对象年月","品番", "错误消息" };
+                string[] fields = { "vcYearMonth", "vcPart_id", "vcMessage" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -401,5 +408,18 @@ namespace SPPSApi.Controllers.G05
         }
         #endregion
 
+    }
+
+    //为了让dictionary<string,string>（品番,错误消息）的key可以重复，因为一个品番可以有多条错误信息数据
+    public class RepeatDictionaryComparer : IEqualityComparer<string>
+    {
+        public bool Equals(string x, string y)
+        {
+            return x != y;
+        }
+        public int GetHashCode(string obj)
+        {
+            return obj.GetHashCode();
+        }
     }
 }

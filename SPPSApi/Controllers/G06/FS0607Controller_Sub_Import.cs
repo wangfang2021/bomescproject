@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"供应商代码","工区", "纳入日-开始", "纳入日-结束"},
-                                                { "vcSupplier_id","vcWorkArea", "dBeginDate", "dEndDate"},
-                                                {FieldCheck.NumCharLLL,"",FieldCheck.Date,FieldCheck.Date},
-                                                {"4","50","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"供应商代码","工区", "纳入日-开始", "纳入日-结束","备注"},
+                                                { "vcSupplier_id","vcWorkArea", "dBeginDate", "dEndDate","vcMemo"},
+                                                {FieldCheck.NumCharLLL,"",FieldCheck.Date,FieldCheck.Date,""},
+                                                {"4","50","0","0","500"},//最大长度设定,不校验最大长度用0
+                                                {"4","1","1","1","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -116,7 +116,28 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                StringBuilder sbr1 = new StringBuilder();
+                for (int i = 0; i < importDt.Rows.Count; i++)
+                {
+                    string vcSupplier_id = importDt.Rows[i]["vcSupplier_id"].ToString();
+                    string vcWorkArea = importDt.Rows[i]["vcWorkArea"].ToString();
+                    int BeginDate = int.Parse(importDt.Rows[i]["dBeginDate"].ToString().Replace("-", "").Replace("/", ""));
+                    int EndDate = int.Parse(importDt.Rows[i]["dEndDate"].ToString().Replace("-", "").Replace("/", ""));
+                    if (BeginDate.ToString().Substring(0, 6) != EndDate.ToString().Substring(0, 6))
+                    {
+                        sbr1.Append("供应商代码:" + vcSupplier_id + " 工区:"+ vcWorkArea + "的纳入日-开始日期纳入日-结束日期必须同一个月<br/>");
+                    }
+                    if (BeginDate > EndDate)
+                    {
+                        sbr1.Append("供应商代码:" + vcSupplier_id + " 工区:" + vcWorkArea + "的纳入日-开始日期必须小于 纳入日-结束日期 <br/>");
+                    }
+                }
+                if (sbr1.Length > 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr1.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 fs0607_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

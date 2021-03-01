@@ -253,7 +253,7 @@ namespace SPPSApi.Controllers.G06
                                                 {"1","2","3","4","5"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段
-                    string[,] strDateRegion = { };
+                    string[,] strDateRegion = { { "dBeginDate", "dEndDate" } };
                     string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
                         
                           };

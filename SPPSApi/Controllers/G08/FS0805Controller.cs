@@ -80,23 +80,47 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
 
             string strSellNo = dataForm.SellNo == null ? "" : dataForm.SellNo;
             try
             {
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (strSellNo == string.Empty)
                 {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = string.Format("销售单号不能为空");
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "销售单号不能为空";
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dataTable = fS0805_Logic.getSearchInfo(strSellNo);
-                DtConverter dtConverter = new DtConverter();
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+                if (dataTable.Rows.Count == 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = string.Format("没有可供打印的数据，请确认销售单号");
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+                res.Add("tempList", dataList);
+                res.Add("SellNoItem", strSellNo);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -126,31 +150,47 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
 
-            string strSellNo = dataForm.SellNo == null ? "" : dataForm.SellNo;
+            string strSellNo = dataForm.sellNo == null ? "" : dataForm.sellNo;
             try
             {
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (strSellNo == string.Empty)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "销售单号不能为空";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = string.Format("打印前请进行销售单查询");
+                    dtMessage.Rows.Add(dataRow);
                 }
-                DataTable dataTable = fS0805_Logic.getSearchInfo(strSellNo);
-                if(dataTable.Rows.Count==0)
+                if (dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "没有可供打印的数据，请确认销售单号";
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //执行打印操作
-                //===========================================
 
+                bool bResult = fS0805_Logic.getPrintInfo(strSellNo, loginInfo.UserId, ref dtMessage);
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
+                string strPrintName = "";//打印机
+                string strReportName = "fs1101_exl";//Excel报表模板
+                string strPrintData = "";//数据表
+                if (!bResult)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

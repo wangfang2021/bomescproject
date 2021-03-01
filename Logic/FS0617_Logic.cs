@@ -6,6 +6,9 @@ using System.Data;
 using DataAccess;
 using System.Collections;
 using System.IO;
+using QRCoder;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Logic
 {
@@ -32,7 +35,6 @@ namespace Logic
                 DataTable dataTable = fs0617_DataAccess.getPrintTemp("FS0617");
                 DataTable dtSub = dataTable.Clone();
                 DataTable dtMain = fS0603_Logic.createTable("mainFs0617");
-
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string strEnum = listInfoData[i]["iEnum"] == null ? "0" : listInfoData[i]["iEnum"].ToString();
@@ -54,15 +56,23 @@ namespace Logic
                             dataRow["iPackingQty"] = Convert.ToInt32(drSPInfo[0]["iPackingQty"].ToString() == "" ? "0" : drSPInfo[0]["iPackingQty"].ToString()).ToString();
                             dataRow["vcSufferIn"] = drSPInfo[0]["vcSufferIn"].ToString();
                             dataRow["vcInteriorProject"] = drSPInfo[0]["vcInteriorProject"].ToString();
-                            dataRow["dFrontProjectTime"] = drSPInfo[0]["dFrontProjectTime"].ToString();
-                            dataRow["dShipmentTime"] = drSPInfo[0]["dShipmentTime"].ToString();
+                            if(drSPInfo[0]["dFrontProjectTime"].ToString() != "")
+                            {
+                                dataRow["dFrontProjectTime"] = drSPInfo[0]["dFrontProjectTime"].ToString();
+                            }
+                            if (drSPInfo[0]["dShipmentTime"].ToString() != "")
+                            {
+                                dataRow["dShipmentTime"] = drSPInfo[0]["dShipmentTime"].ToString();
+                            }
                             dataRow["vcRemark1"] = drSPInfo[0]["vcRemark1"].ToString();
                             dataRow["vcRemark2"] = drSPInfo[0]["vcRemark2"].ToString();
-                            dataRow["vcKanBanNo"] = drSPInfo[0]["vcPartId"].ToString() + (100000 + Convert.ToInt32(drSPInfo[0]["iPackingQty"].ToString() == "" ? "0" : drSPInfo[0]["iPackingQty"].ToString())).ToString().Substring(1, 5) + drSPInfo[0]["vcSufferIn"].ToString();
+                            string strKanBanNo = drSPInfo[0]["vcPartId"].ToString() + (100000 + Convert.ToInt32(drSPInfo[0]["iPackingQty"].ToString() == "" ? "0" : drSPInfo[0]["iPackingQty"].ToString())).ToString().Substring(1, 5) + drSPInfo[0]["vcSufferIn"].ToString();
+                            dataRow["vcKanBanNo"] = strKanBanNo;
                             //byte[] vcPhotoPath = null;//图片二进制流
                             byte[] vcPhotoPath = PhotoToArray(imagefile_sp + drSPInfo[0]["vcPartImage"].ToString(), imagefile_sp + "null.jpg");//图片二进制流
                             dataRow["vcPartImage"] = vcPhotoPath;
-                            byte[] vcCodemage = null;//二维码信息
+                            string strPath = imagefile_qr + strOperId + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + "_" + uuid.Replace("-", "") + ".png";
+                            byte[] vcCodemage = GenerateQRCode(strKanBanNo);//二维码信息
                             dataRow["vcCodemage"] = vcCodemage;
                             dtSub.Rows.Add(dataRow);
                         }
@@ -170,32 +180,19 @@ namespace Logic
         #endregion
 
         #region 生成QRCODE二维码
-        /// <param name="msg">二维码序列号</param>
-        /// <returns>二维码二进制流</returns>
-        //public byte[] GenGenerateQRCode(string msg, String ls_savePath)
-        //{
-        //    QRCodeEncoder qrCodeEncoder = new QRCodeEncoder();
-        //    qrCodeEncoder.QRCodeEncodeMode = QRCodeEncoder.ENCODE_MODE.BYTE;
-        //    qrCodeEncoder.QRCodeErrorCorrect = QRCodeEncoder.ERROR_CORRECTION.M;
-        //    qrCodeEncoder.QRCodeVersion = 11;
-        //    qrCodeEncoder.QRCodeScale = 2;
-        //    String data = msg;
+        public byte[] GenerateQRCode(string content)
+        {
+            var generator = new QRCodeGenerator();
 
-        //    String ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + ".png";
+            var codeData = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M, true);
+            QRCoder.QRCode qrcode = new QRCoder.QRCode(codeData);
 
-        //    qrCodeEncoder.Encode(data).Save(ls_savePath);
-        //    FileStream stream = new FileStream(ls_savePath, FileMode.Open, FileAccess.Read);
-        //    byte[] bufferPhoto = new byte[stream.Length];
-        //    stream.Read(bufferPhoto, 0, Convert.ToInt32(stream.Length));
-        //    stream.Flush();
-        //    stream.Close();
-        //    //删除该照片
-        //    if (File.Exists(ls_savePath))
-        //    {
-        //        File.Delete(ls_savePath);
-        //    }
-        //    return bufferPhoto;
-        //}
+            var bitmapImg = qrcode.GetGraphic(10, Color.Black, Color.White, false);
+
+            using MemoryStream stream = new MemoryStream();
+            bitmapImg.Save(stream, ImageFormat.Jpeg);
+            return stream.GetBuffer();
+        }
         #endregion
 
     }

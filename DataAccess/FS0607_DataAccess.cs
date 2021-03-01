@@ -19,13 +19,13 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcSupplier_id,string vcWorkArea)
+        public DataTable Search(string vcSupplier_id,string vcWorkArea, string dBeginDate, string dEndDate, string vcMemo)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select iAutoId, vcSupplier_id, vcWorkArea,dBeginDate,  dEndDate, '0' as vcModFlag,'0' as vcAddFlag, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier]  where 1=1  ");
+                strSql.AppendLine("   select iAutoId, vcSupplier_id, vcWorkArea,convert(varchar(10), dBeginDate,111) as dBeginDate, convert(varchar(10), dEndDate,111) as dEndDate,vcMemo, '0' as vcModFlag,'0' as vcAddFlag, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier]  where 1=1  ");
 
                 if (vcSupplier_id.Length > 0)
                 {
@@ -34,6 +34,18 @@ namespace DataAccess
                 if (vcWorkArea.Length > 0)
                 {
                     strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                }
+                if (dBeginDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  convert(varchar(10), dBeginDate,112) = '" + dBeginDate.Replace("-", "").Replace("/", "") + "' ");
+                }
+                if (dEndDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  convert(varchar(10), dEndDate,112) = '" + dEndDate.Replace("-", "").Replace("/", "") + "' ");
+                }
+                if (vcMemo.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcMemo like '%" + vcMemo + "%' ");
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
@@ -91,12 +103,13 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                     {//新增
-                        sql.Append("insert into [TSpecialSupplier] ([vcSupplier_id], [vcWorkArea], [dBeginDate], [dEndDate], [vcOperatorID], [dOperatorTime])  \n");
+                        sql.Append("insert into [TSpecialSupplier] ([vcSupplier_id], [vcWorkArea], [dBeginDate],[dEndDate],vcMemo,  [vcOperatorID], [dOperatorTime])  \n");
                         sql.Append(" values (  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["dBeginDate"], true) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["dEndDate"], true) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcMemo"], true) + ",  \r\n");
                         sql.Append("   '" + userId + "', GETDATE() \r\n");
                         sql.Append(" );  \r\n");
                     }
@@ -107,6 +120,7 @@ namespace DataAccess
                         sql.Append("  update TSpecialSupplier set    \r\n");
                         sql.Append("  dBeginDate=" + getSqlValue(listInfoData[i]["dBeginDate"], true) + "   \r\n");
                         sql.Append("  ,dEndDate=" + getSqlValue(listInfoData[i]["dEndDate"], true) + "   \r\n");
+                        sql.Append("  ,vcMemo=" + getSqlValue(listInfoData[i]["vcMemo"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() \r\n");
                         sql.Append(" where iAutoId=" + iAutoId + " ;  \n");
 
@@ -216,21 +230,21 @@ namespace DataAccess
                     string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
                     DateTime dBeginDate = Convert.ToDateTime(dt.Rows[i]["dBeginDate"].ToString());
                     DateTime dEndDate = Convert.ToDateTime(dt.Rows[i]["dEndDate"].ToString());
-
+                    string vcMemo = dt.Rows[i]["vcMemo"].ToString();
                     strSql.AppendLine("  declare @isExist int =0;   ");
                     strSql.AppendLine("  select @isExist=COUNT(*) from TSpecialSupplier where vcSupplier_id='" + vcSupplier_id + "' and vcWorkArea='" + vcWorkArea + "' ");
                     strSql.AppendLine("     ");
                     strSql.AppendLine("  if @isExist>0   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		update TSpecialSupplier set dBeginDate = '" + dBeginDate + "',dEndDate='" + dEndDate + "',  ");
+                    strSql.AppendLine("  		update TSpecialSupplier set dBeginDate = '" + dBeginDate + "',dEndDate='" + dEndDate + "',vcMemo='" + vcMemo + "',  ");
                     strSql.AppendLine("  		vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE() where vcSupplier_id='" + vcSupplier_id + "' and vcWorkArea='" + vcWorkArea + "' ;  ");
                     strSql.AppendLine("  end   ");
                     strSql.AppendLine("  else   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		insert into dbo.TSpecialSupplier (vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, ");
+                    strSql.AppendLine("  		insert into dbo.TSpecialSupplier (vcSupplier_id, vcWorkArea, dBeginDate, dEndDate,vcMemo, ");
                     strSql.AppendLine("  		 vcOperatorID, dOperatorTime )    ");
                     strSql.AppendLine("  		values   ");
-                    strSql.AppendLine("  		('" + vcSupplier_id + "','" + vcWorkArea + "','" + dBeginDate + "','" + dEndDate + "','" + strUserId + "',GETDATE()) ;   ");
+                    strSql.AppendLine("  		('" + vcSupplier_id + "','" + vcWorkArea + "','" + dBeginDate + "','" + dEndDate + "','" + vcMemo + "','" + strUserId + "',GETDATE()) ;   ");
                     strSql.AppendLine("  end ;  ");
                     strSql.AppendLine("     ");
 

@@ -273,7 +273,7 @@ namespace SPPSApi.Controllers.G06
                                                 {"dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo"},
                                                 {"",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"","","","",FieldCheck.NumCharLLL,"","","",FieldCheck.Float,FieldCheck.Date,FieldCheck.Num,FieldCheck.NumCharLLL,"" },
                                                 {"0","50","12","100","20","100","20","4","50","50","50","20","0","20","50","500"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","1","1","0","1","0","0","0","1","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"0","1","1","1","1","1","0","1","0","0","0","1","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段
@@ -282,7 +282,7 @@ namespace SPPSApi.Controllers.G06
                         
                           };
 
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0607");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0628");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

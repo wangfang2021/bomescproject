@@ -43,5 +43,10 @@ namespace Logic
         {
             throw new NotImplementedException();
         }
+
+        public DataSet GetQianPin(string vcConsignee, string vcInjectionFactory, string vcTargetMonth)
+        {
+            return fs0629_DataAccess.GetQianPin(vcConsignee, vcInjectionFactory, vcTargetMonth);
+        }
     }
 }

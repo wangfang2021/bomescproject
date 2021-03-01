@@ -118,16 +118,8 @@ namespace Logic
                             {
                                 if (item.isNull)
                                 {
-                                    #region 给dt赋值null
-                                    dt.Rows[i][strNewColumnsName] = null;
-                                    #endregion
+                                    strErr = "第" + (i + 2) + "行的" + item.strTitle + "不能为空";
                                 }
-                                else
-                                {
-                                    //strErr = "第" + (i + 2) + "行的" + item.strTitle + "不能为空";
-                                    return null;
-                                }
-
                             }
                         }
                         //value获取失败,表示并未找到与其对应的Value值
@@ -135,7 +127,6 @@ namespace Logic
                         {
                             #region 提示第几行的数据不合法，提示消息赋值给strErr
                             strErr = "第" + (i + 2) + "行的" + item.strTitle + "填写不合法";
-                            return null;
                             #endregion
                         }
                     }

@@ -202,7 +202,14 @@ namespace DataAccess
                 strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE 1=1 ");
                 if (strPackingPlant != "")
                 {
-                    strSql.AppendLine("    AND vcPackingPlant='" + strPackingPlant + "'");
+                    if (strPackingPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcPackingPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcPackingPlant='" + strPackingPlant + "'");
+                    }
                 }
                 if (strSyncTime != "")
                 {
@@ -214,43 +221,114 @@ namespace DataAccess
                 }
                 if (strCarModel != "")
                 {
-                    strSql.AppendLine("    AND [vcCarModel]='" + strCarModel + "'");
+                    if (strCarModel == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcCarModel,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcCarModel]='" + strCarModel + "'");
+                    }
+
                 }
                 if (strReceiver != "")
                 {
-                    strSql.AppendLine("    AND [vcReceiver]='" + strReceiver + "'");
+                    if (strReceiver == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcReceiver,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcReceiver]='" + strReceiver + "'");
+                    }
                 }
                 if (strInOut != "")
                 {
-                    strSql.AppendLine("    AND [vcInOut]='" + strInOut + "'");
+                    if (strInOut == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcInOut,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcInOut]='" + strInOut + "'");
+                    }
                 }
                 if (strHaoJiu != "")
                 {
-                    strSql.AppendLine("    AND [vcHaoJiu]='" + strHaoJiu + "'");
+                    if (strHaoJiu == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcHaoJiu,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcHaoJiu]='" + strHaoJiu + "'");
+                    }
                 }
                 if (strSupplierId != "")
                 {
-                    strSql.AppendLine("    AND [vcSupplierId]='" + strSupplierId + "'");
+                    if (strSupplierId == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierId,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierId]='" + strSupplierId + "'");
+                    }
                 }
                 if (strFromTime != "")
                 {
-                    strSql.AppendLine("    AND [dFromTime]='" + strFromTime + "'");
+                    if (strFromTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dFromTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dFromTime]='" + strFromTime + "'");
+                    }
                 }
                 if (strToTime != "")
                 {
-                    strSql.AppendLine("    AND [dToTime]='" + strToTime + "'");
+                    if (strToTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dToTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dToTime]='" + strToTime + "'");
+                    }
                 }
                 if (strSupplierPacking != "")
                 {
-                    strSql.AppendLine("    AND [vcSupplierPacking]='" + strSupplierPacking + "'");
+                    if (strSupplierPacking == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierPacking,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierPacking]='" + strSupplierPacking + "'");
+                    }
                 }
                 if (strOldProduction != "")
                 {
-                    strSql.AppendLine("    AND [vcOldProduction]='" + strOldProduction + "'");
+                    if (strOldProduction == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOldProduction,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOldProduction]='" + strOldProduction + "'");
+                    }
                 }
                 if (strDebugTime != "")
                 {
-                    strSql.AppendLine("    AND CONVERT(varchar(7),[dDebugTime],111)='" + strDebugTime + "'");
+                    if (strDebugTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dDebugTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND CONVERT(varchar(7),[dDebugTime],111)='" + strDebugTime + "'");
+                    }
                 }
                 strSql.AppendLine("  )T1");
                 strSql.AppendLine("LEFT JOIN");
@@ -302,19 +380,47 @@ namespace DataAccess
                 strSql.AppendLine("WHERE 1=1");
                 if (strSupplierPlant != "")
                 {
-                    strSql.AppendLine("AND T2.vcSupplierPlant='" + strSupplierPlant + "'");
+                    if (strSupplierPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T2.vcSupplierPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T2.vcSupplierPlant='" + strSupplierPlant + "'");
+                    }
                 }
                 if (strOrderPlant != "")
                 {
-                    strSql.AppendLine("AND T5.vcOrderPlant='" + strOrderPlant + "'");
+                    if (strOrderPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T5.vcOrderPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T5.vcOrderPlant='" + strOrderPlant + "'");
+                    }
                 }
                 if (strSufferIn != "")
                 {
-                    strSql.AppendLine("AND T4.vcSufferIn='" + strSufferIn + "'");
+                    if (strSufferIn == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T4.vcSufferIn,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T4.vcSufferIn='" + strSufferIn + "'");
+                    }
                 }
                 if (strBoxType != "")
                 {
-                    strSql.AppendLine("AND T3.vcBoxType like '" + strBoxType + "%'");
+                    if (strBoxType == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T3.vcBoxType,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T3.vcBoxType like '" + strBoxType + "%'");
+                    }
                 }
                 strSql.AppendLine("ORDER BY T5.vcOrderPlant,T1.vcReceiver,T1.vcPartId, T1.dFromTime, T1.vcPackingPlant");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -1154,7 +1260,7 @@ namespace DataAccess
                     return obj.ToString().ToUpper();
             }
         }
-        public int gettaskNum()
+        public DataTable gettaskNum()
         {
             StringBuilder strSql = new StringBuilder();
             strSql.AppendLine("SELECT *  FROM  ");
@@ -1184,34 +1290,92 @@ namespace DataAccess
             strSql.AppendLine("WHERE 1=1 ");
             strSql.AppendLine("AND (ISNULL(T2.vcSupplierPlant,'')='' OR ISNULL(T3.iPackingQty,0)=0 OR ISNULL(T4.vcSufferIn,'')='' OR ISNULL(T5.vcOrderPlant,'')='') ");
             DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            return (dataTable == null ? 0 : dataTable.Rows.Count);
+            return dataTable;
         }
 
-        public DataTable getSyncInfo()
+        public DataSet getSyncInfo()
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("select a.dSyncTime+'同步了'+cast(count(*) as varchar(10))+'条变更事项为【'+b.vcName+'】原单位情报' as vcMessage from");
+            strSql.AppendLine("select convert(varchar(10),dSyncTime,111) as dSyncTime,");
+            strSql.AppendLine("		count(*) as iCount,");
+            strSql.AppendLine("		'一共同原单位情报'+cast(count(*) as varchar(10))+'条' as vcSyncMessage ,");
+            strSql.AppendLine("		'*' as vcChanges,");
+            strSql.AppendLine("		'0' as bModFlag,");
+            strSql.AppendLine("		'0' as bAddFlag,");
+            strSql.AppendLine("		'1' as bSelectFlag,");
+            strSql.AppendLine("		'' as vcBgColor,");
+            strSql.AppendLine("		convert(varchar(10),dSyncTime,111) as children");
+            strSql.AppendLine("from TSPMaster where dSyncToSPTime is not null");
+            strSql.AppendLine("group by convert(varchar(10),dSyncTime,111)");
+            strSql.AppendLine("order by dSyncTime");
+            strSql.AppendLine("select convert(varchar(10),a.dSyncTime,111) as dSyncTime,");
+            strSql.AppendLine("		count(*) as iCount,");
+            strSql.AppendLine("		'【'+b.vcName+'】原单位情报'+ cast(count(*) as varchar(10))+'条' as vcSyncMessage ,");
+            strSql.AppendLine("		b.vcValue as vcChanges,");
+            strSql.AppendLine("		'0' as bModFlag,");
+            strSql.AppendLine("		'0' as bAddFlag,");
+            strSql.AppendLine("		'0' as bSelectFlag,");
+            strSql.AppendLine("		'' as vcBgColor,");
+            strSql.AppendLine("		convert(varchar(10),a.dSyncTime,111) as children from");
             strSql.AppendLine("(select convert(varchar(10),dSyncTime,111) as dSyncTime,vcChanges from TSPMaster where dSyncToSPTime is not null)a");
             strSql.AppendLine("LEFT JOIN");
             strSql.AppendLine("(SELECT * FROM TCode WHERE vcCodeId='C002')b");
             strSql.AppendLine("ON a.vcChanges=b.vcValue");
-            strSql.AppendLine("group by a.dSyncTime,b.vcName,b.iAutoId");
-            strSql.AppendLine("order by a.dSyncTime,b.iAutoId");
-            DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            return dataTable;
+            strSql.AppendLine("group by convert(varchar(10),a.dSyncTime,111),b.vcName,b.vcValue");
+            strSql.AppendLine("order by a.dSyncTime,b.vcValue");
+            DataSet dataSet = excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+            return dataSet;
         }
 
-        public void setSyncInfo()
+        public void setSyncInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
         {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try
             {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.AppendLine("update [TSPMaster] set dSyncToSPTime=NULL");
-                excute.ExcuteSqlWithStringOper(stringBuilder.ToString());
+                SqlCommand sqlCommand_modinfo_sy_mod = sqlConnection.CreateCommand();
+                sqlCommand_modinfo_sy_mod.Transaction = sqlTransaction;
+                sqlCommand_modinfo_sy_mod.CommandType = CommandType.Text;
+                StringBuilder strSql_modinfo_sy_mod = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_modinfo_sy_mod.AppendLine("if(@vcChanges='*')");
+                strSql_modinfo_sy_mod.AppendLine("begin ");
+                strSql_modinfo_sy_mod.AppendLine("update TSPMaster set dSyncToSPTime=null where convert(varchar(10),dSyncTime,111)=@dSyncTime");
+                strSql_modinfo_sy_mod.AppendLine("end");
+                strSql_modinfo_sy_mod.AppendLine("else");
+                strSql_modinfo_sy_mod.AppendLine("begin");
+                strSql_modinfo_sy_mod.AppendLine("update TSPMaster set dSyncToSPTime=null where convert(varchar(10),dSyncTime,111)=@dSyncTime and vcChanges=@vcChanges");
+                strSql_modinfo_sy_mod.AppendLine("end");
+                sqlCommand_modinfo_sy_mod.CommandText = sqlCommand_modinfo_sy_mod.ToString();
+                sqlCommand_modinfo_sy_mod.Parameters.AddWithValue("@vcChanges", "");
+                sqlCommand_modinfo_sy_mod.Parameters.AddWithValue("@dSyncTime", "");
+                #endregion
+                foreach (DataRow item in dtImport.Rows)
+                {
+                    #region Value
+                    sqlCommand_modinfo_sy_mod.Parameters["@vcChanges"].Value = item["vcChanges"].ToString();
+                    sqlCommand_modinfo_sy_mod.Parameters["@dSyncTime"].Value = item["dSyncTime"].ToString();
+                    #endregion
+                    sqlCommand_modinfo_sy_mod.ExecuteNonQuery();
+                }
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
             }
             catch (Exception ex)
             {
-                throw ex;
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据写入数据库失败！";
+                dtMessage.Rows.Add(dataRow);
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
             }
         }
     }

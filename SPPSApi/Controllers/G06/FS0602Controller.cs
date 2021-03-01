@@ -57,7 +57,7 @@ namespace SPPSApi.Controllers.G06
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> DyStateList = ComFunction.convertAllToResult(fs0402_Logic.getTCode("C036"));//对应状态
+                List<Object> DyStateList = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//对应状态
                 List<Object> HyStateList = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//合意状态
                 List<Object> InOutList = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> OrderingMethodList = ComFunction.convertAllToResult(ComFunction.getTCode("C047"));//订货方式
@@ -72,6 +72,11 @@ namespace SPPSApi.Controllers.G06
                 res.Add("OrderPlantList", OrderPlantList);
                 res.Add("HaoJiuList", HaoJiuList);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
+
+                DataTable dtTask = fs0602_Logic.getSearchInfo(dNow.ToString("yyyyMM"), "", "", "", "", "", "", "", "", "", "", "");
+                res.Add("tasknum", dtTask.Rows.Count);
+                res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
+                res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -119,6 +124,7 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
+                Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
                 DtConverter dtConverter = new DtConverter();
@@ -126,8 +132,13 @@ namespace SPPSApi.Controllers.G06
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+                DataTable dtTask = fs0602_Logic.getSearchInfo(strYearMonth, "", "", "", "", "", "", "", "", "", "", "");
+                res.Add("tasknum", dtTask.Rows.Count);
+                res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
+                res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
+                res.Add("tempList", dataList);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -310,7 +321,7 @@ namespace SPPSApi.Controllers.G06
                 bool bReault = true;
                 string strReceiver = "APC06";
                 DataTable dtImport = fs0602_Logic.checkSaveInfo(dtMultiple, strYearMonth, strYearMonth1, strYearMonth2,
-                     loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref bReault, ref dtMessage);
+                     loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref dtMessage);
                 if (!bReault)
                 {
                     //弹出错误dtMessage
@@ -363,44 +374,62 @@ namespace SPPSApi.Controllers.G06
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
                 string strYearMonth = dataForm.searchform.YearMonth == null ? "" : Convert.ToDateTime(dataForm.searchform.YearMonth + "/01").ToString("yyyyMM");
-                string strDyState = dataForm.searchform.DyState;
-                string strHyState = dataForm.searchform.HyState;
-                string strPartId = dataForm.searchform.PartId;
-                string strCarModel = dataForm.searchform.CarModel;
-                string strInOut = dataForm.searchform.InOut;
-                string strOrderingMethod = dataForm.searchform.OrderingMethod;
-                string strOrderPlant = dataForm.searchform.OrderPlant;
-                string strHaoJiu = dataForm.searchform.HaoJiu;
-                string strSupplierId = dataForm.searchform.SupplierId;
-                string strSupplierPlant = dataForm.searchform.SupplierPlant;
-                string strDataState = dataForm.searchform.DataState;
-
+                string strDyState = dataForm.searchform.DyState == null ? "" : dataForm.searchform.DyState.ToString();
+                string strHyState = dataForm.searchform.HyState == null ? "" : dataForm.searchform.HyState.ToString();
+                string strPartId = dataForm.searchform.PartId == null ? "" : dataForm.searchform.PartId.ToString();
+                string strCarModel = dataForm.searchform.CarModel == null ? "" : dataForm.searchform.CarModel.ToString();
+                string strInOut = dataForm.searchform.InOut == null ? "" : dataForm.searchform.InOut.ToString();
+                string strOrderingMethod = dataForm.searchform.OrderingMethod == null ? "" : dataForm.searchform.OrderingMethod.ToString();
+                string strOrderPlant = dataForm.searchform.OrderPlant == null ? "" : dataForm.searchform.OrderPlant.ToString();
+                string strHaoJiu = dataForm.searchform.HaoJiu == null ? "" : dataForm.searchform.HaoJiu.ToString();
+                string strSupplierId = dataForm.searchform.SupplierId == null ? "" : dataForm.searchform.SupplierId.ToString();
+                string strSupplierPlant = dataForm.searchform.SupplierPlant == null ? "" : dataForm.searchform.SupplierPlant.ToString();
+                string strDataState = dataForm.searchform.DataState == null ? "" : dataForm.searchform.DataState.ToString();
                 string strExpectTime = dataForm.info;//期望回复日
-                JArray checkedInfo = dataForm.searchform.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                string strEmailBody = dataForm.mailboy;//邮件体
+                string strReceiver = "APC06";
+
+                JArray multipleInfo = dataForm.searchform.multipleSelection;
+                List<Dictionary<string, Object>> multipleInfoData = multipleInfo.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
 
                 if (strYearMonth == "")
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "对象年月不能为空";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "对象年月不能为空。";
+                    dtMessage.Rows.Add(dataRow);
                 }
                 if (strExpectTime == "")
                 {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "期望回复日期不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strExpectTime != "" && Convert.ToDateTime(strExpectTime + "23:59:59") < System.DateTime.Now)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "期望恢复期不能小于当前时间。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strEmailBody == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "邮件体不能为空(请点击邮件预览按钮)。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "期望回复日期不能为空";
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtMessage = fs0603_Logic.createTable("MES");
-                DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
+                DataTable dtInfo = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
-                bool bReault = true;
-                string strReceiver = "APC06";
-                DataTable dtImport = fs0602_Logic.checkopenplanInfo(listInfoData, dataTable, strExpectTime,
-                    loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref bReault, ref dtMessage);
-                if (!bReault)
+                DataTable dtImport = fs0602_Logic.checkopenplanInfo(multipleInfoData, dtInfo, strExpectTime,
+                    loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -417,12 +446,16 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0602_Logic.sendMail(loginInfo, dtImport, ref dtMessage);
+                string strTheme = "月度内示展开确认";
+                DataTable dtToList = fs0602_Logic.getToList(dtImport, ref dtMessage);
+                fs0602_Logic.sendEmailInfo(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, dtToList, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
-                    //弹出错误dtMessage
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "内示展开成功。";
+                    dtMessage.Rows.InsertAt(dataRow, 0);
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list->search";
+                    apiResult.type = "list";
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -562,7 +595,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, "", "", "", "",
                    "", "", "", "", "", "", "");
-                if(dataTable.Rows.Count==0)
+                if (dataTable.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "该对象月没有有效的内示情报";
@@ -599,6 +632,42 @@ namespace SPPSApi.Controllers.G06
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "内示回退失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 邮件预览
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string emailBodyApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strExpectTime = dataForm.dExpectTime == null ? "" : dataForm.dExpectTime;
+            string strFlag = dataForm.flag == null ? "" : dataForm.flag;
+            try
+            {
+                String emailBody = fs0602_Logic.setEmailBody(strExpectTime, strFlag);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = emailBody;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0708", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "邮件预览失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

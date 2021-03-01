@@ -27,7 +27,7 @@ namespace DataAccess
                 {
                     if (strSql.Length > 0)
                     {
-                        strSql.AppendLine("  union all select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='"+ dtadd.Rows[i]["vcWorkArea"] + "' ");
+                        strSql.AppendLine("  union all select iAutoId, vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcOperatorID, dOperatorTime from [dbo].[TSpecialSupplier] where vcSupplier_id='" + dtadd.Rows[i]["vcSupplier_id"] + "' and  vcWorkArea='" + dtadd.Rows[i]["vcWorkArea"] + "' ");
                     }
                     else
                     {
@@ -43,11 +43,210 @@ namespace DataAccess
             }
         }
         /// <summary>
-        /// 检索数据
+        /// 获取千品数据
         /// </summary>
-        /// <param name="typeCode"></param>
+        /// <param name="vcConsignee"></param>
+        /// <param name="vcInjectionFactory"></param>
+        /// <param name="vcTargetMonth"></param>
         /// <returns></returns>
-        public DataSet Search(string vcConsignee, string vcInjectionFactory, string vcTargetMonth,string vcLastTargetMonth)
+        public DataSet GetQianPin(string vcReceiver, string vcOrderPlant, string vcTargetYearMonth)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select * from ( ");
+                strSql.AppendLine("  select chu1.vcReceiver,chu1.vcOrderPlant,chu1.vcClassType,chu1.vcSupplierId, ");
+                strSql.AppendLine("  chu2.partNum,chu1.qianPinSum from ( ");
+                strSql.AppendLine("  select a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId,sum(chaZhiNaRu) as qianPinSum from  ");
+                strSql.AppendLine("  ( ");
+                strSql.AppendLine("  select vcReceiver,vcOrderPlant, '纳入' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"' and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
+                if (vcReceiver.Length>0)
+                {
+                    strSql.AppendLine("  and vcReceiver='"+vcReceiver+"' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("   ) a  ");
+                strSql.AppendLine("   group by a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId ");
+                strSql.AppendLine("  ) chu1  ");
+                strSql.AppendLine("  left join ( ");
+                strSql.AppendLine("   select t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId,count(*) as partNum from ( ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcClassType,vcSupplierId,vcPartNo from ( ");
+                strSql.AppendLine("   select vcReceiver,vcOrderPlant, '纳入' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"'  and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("   ) c ");
+                strSql.AppendLine("   ) t group by t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId ");
+                strSql.AppendLine("   ) chu2 on chu1.vcReceiver = chu2.vcReceiver and chu1.vcOrderPlant = chu2.vcOrderPlant ");
+                strSql.AppendLine("   and chu1.vcClassType = chu2.vcClassType and chu1.vcSupplierId = chu2.vcSupplierId ");
+                strSql.AppendLine("   union ");
+                strSql.AppendLine("   ----chuhe--- ");
+                strSql.AppendLine("   select ru1.vcReceiver,ru1.vcOrderPlant,ru1.vcClassType,ru1.vcSupplierId,ru2.partNum,ru1.qianPinSum from ( ");
+                strSql.AppendLine("  select a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId,sum(chaZhiNaRu) as qianPinSum from  ");
+                strSql.AppendLine("  ( ");
+                strSql.AppendLine("  select vcReceiver,vcOrderPlant, '出荷' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("   ) a  ");
+                strSql.AppendLine("   group by a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId ");
+                strSql.AppendLine("  ) ru1  ");
+                strSql.AppendLine("  left join ( ");
+                strSql.AppendLine("   select t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId,count(*) as partNum from ( ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcClassType,vcSupplierId,vcPartNo from ( ");
+                strSql.AppendLine("   select vcReceiver,vcOrderPlant, '出荷' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "'  and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("   ) c ");
+                strSql.AppendLine("   ) t group by t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId ");
+                strSql.AppendLine("   ) ru2 on ru1.vcReceiver = ru2.vcReceiver and ru1.vcOrderPlant = ru2.vcOrderPlant ");
+                strSql.AppendLine("   and ru1.vcClassType = ru2.vcClassType and ru1.vcSupplierId = ru2.vcSupplierId ");
+                strSql.AppendLine("   ) huiZong order by huiZong.vcReceiver,huiZong.vcOrderPlant,huiZong.vcClassType desc ");
+                strSql.AppendLine("   ");
+                strSql.AppendLine("   ");
+                strSql.AppendLine("   select huiZong.vcReceiver,huiZong.vcOrderPlant,'合计' as vcClassType, ");
+                strSql.AppendLine("   sum(partNum) as partNum ,sum(qianPinSum) as qianPinSum from ( ");
+                strSql.AppendLine("  select chu1.vcReceiver,chu1.vcOrderPlant,chu1.vcClassType,chu1.vcSupplierId,chu2.partNum,chu1.qianPinSum from ( ");
+                strSql.AppendLine("  select a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId,sum(chaZhiNaRu) as qianPinSum from  ");
+                strSql.AppendLine("  ( ");
+                strSql.AppendLine("  select vcReceiver,vcOrderPlant, '纳入' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"'  ");
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("    and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
+                strSql.AppendLine("   ) a  ");
+                strSql.AppendLine("   group by a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId ");
+                strSql.AppendLine("  ) chu1  ");
+                strSql.AppendLine("  left join ( ");
+                strSql.AppendLine("   select t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId,count(*) as partNum from ( ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcClassType,vcSupplierId,vcPartNo from ( ");
+                strSql.AppendLine("   select vcReceiver,vcOrderPlant, '纳入' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"'  and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("   ) c ");
+                strSql.AppendLine("   ) t group by t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId ");
+                strSql.AppendLine("   ) chu2 on chu1.vcReceiver = chu2.vcReceiver and chu1.vcOrderPlant = chu2.vcOrderPlant ");
+                strSql.AppendLine("   and chu1.vcClassType = chu2.vcClassType and chu1.vcSupplierId = chu2.vcSupplierId ");
+                strSql.AppendLine("   union ");
+                strSql.AppendLine("   ----chuhe--- ");
+                strSql.AppendLine("   select ru1.vcReceiver,ru1.vcOrderPlant,ru1.vcClassType,ru1.vcSupplierId,ru2.partNum,ru1.qianPinSum from ( ");
+                strSql.AppendLine("  select a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId,sum(chaZhiNaRu) as qianPinSum from  ");
+                strSql.AppendLine("  ( ");
+                strSql.AppendLine("  select vcReceiver,vcOrderPlant, '出荷' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("   ) a  ");
+                strSql.AppendLine("   group by a.vcReceiver,a.vcOrderPlant,a.vcClassType,a.vcSupplierId ");
+                strSql.AppendLine("  ) ru1  ");
+                strSql.AppendLine("  left join ( ");
+                strSql.AppendLine("   select t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId,count(*) as partNum from ( ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcClassType,vcSupplierId,vcPartNo from ( ");
+                strSql.AppendLine("   select vcReceiver,vcOrderPlant, '出荷' as vcClassType, ");
+                strSql.AppendLine("  case when type='外注' then vcSupplier_id+isnull(vcWorkArea,'') ");
+                strSql.AppendLine("  else type end as vcSupplierId, ");
+                strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
+                strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
+                }
+                if (vcOrderPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and vcOrderPlant='" + vcOrderPlant + "' ");
+                }
+                strSql.AppendLine("   ) c ");
+                strSql.AppendLine("   ) t group by t.vcReceiver,t.vcOrderPlant,t.vcClassType,t.vcSupplierId ");
+                strSql.AppendLine("   ) ru2 on ru1.vcReceiver = ru2.vcReceiver and ru1.vcOrderPlant = ru2.vcOrderPlant ");
+                strSql.AppendLine("   and ru1.vcClassType = ru2.vcClassType and ru1.vcSupplierId = ru2.vcSupplierId ");
+                strSql.AppendLine("   ) huiZong group by huiZong.vcReceiver,huiZong.vcOrderPlant ");
+                strSql.AppendLine("    order by huiZong.vcReceiver,huiZong.vcOrderPlant desc ");
+
+                return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+            
+    /// <summary>
+    /// 检索数据
+    /// </summary>
+    /// <param name="typeCode"></param>
+    /// <returns></returns>
+         public DataSet Search(string vcConsignee, string vcInjectionFactory, string vcTargetMonth,string vcLastTargetMonth)
         {
             try
             {

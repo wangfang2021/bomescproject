@@ -91,6 +91,8 @@
     <None Remove="Doc\Template\FS0702.xlsx" />
     <None Remove="Doc\Template\FS0702_Export.xlsx" />
     <None Remove="Doc\Template\FS0702_Export_H.xlsx" />
+    <None Remove="Doc\Template\FS0703_Exception.xlsx" />
+    <None Remove="Doc\Template\FS0703_Export.xlsx" />
     <None Remove="Doc\Template\FS0704.xlsx" />
     <None Remove="Doc\Template\FS0704_Export.xlsx" />
     <None Remove="Doc\Template\FS0708_Export.xlsx" />
@@ -144,6 +146,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Doc\Template\FS0703_Exception.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Doc\Template\FS0703_Export.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Doc\Template\FS0711_Export.xlsx" />
     <Content Include="Doc\Template\FS0712_Export.xlsx" />
     <Content Include="Doc\Template\FS0713.xlsx" />

@@ -31,7 +31,7 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
+        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFromE))
                 {
-                    dFromE = "3000-01-01 0:00:00";
+                    dFromE = "9999-12-31 0:00:00";
 
                 }
                 if (string.IsNullOrEmpty(dToB))
@@ -55,7 +55,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dToE))
                 {
-                    dToE = "3000-01-01 0:00:00";
+                    dToE = "9999-12-31 0:00:00";
 
                 }
                 StringBuilder strSql = new StringBuilder();
@@ -64,10 +64,19 @@ namespace DataAccess
                 strSql.AppendLine("      	TPackBase");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
-                if (!string.IsNullOrEmpty(strSupplierCode))
+                if (strSupplierCode.Count!=0)
                 {
-
-                    strSql.AppendLine($"      AND vcSupplierCode LIKE '{strSupplierCode}'");
+                    strSql.AppendLine($"      AND vcSupplierCode in( ");
+                    for (int i = 0; i < strSupplierCode.Count; i++)
+                    {
+                        if (strSupplierCode.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + strSupplierCode[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + strSupplierCode[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
                 }
                 if (!string.IsNullOrEmpty(PackNo))
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");

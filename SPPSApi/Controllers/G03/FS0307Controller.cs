@@ -146,7 +146,7 @@ namespace SPPSApi.Controllers.G03
                 }
                 else
                 {
-                    DataTable dtAll = fs0307_logic.searchApi(strYear, FinishFlag, loginInfo.PlantCode);
+                    DataTable dtAll = fs0307_logic.searchApi(strYear, FinishFlag, loginInfo.UserId);
                     initSearchCash(strSearchKey, dtAll);
                     dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
                 }
@@ -197,7 +197,7 @@ namespace SPPSApi.Controllers.G03
 
             try
             {
-                DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag, loginInfo.PlantCode);
+                DataTable dt = fs0307_logic.searchApi(strYear, FinishFlag, loginInfo.UserId);
 
                 string[] fields = { "vcYear", "vcFinish", "dFinishYMD", "vcSupplier_id", "vcSYTCode", "vcReceiver", "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcInOutflag", "vcCarTypeDev", "dJiuBegin", "vcRemark", "vcOld10", "vcOld9", "vcOld7", "vcPM", "vcNum1", "vcNum2", "vcNum3", "vcNumAvg", "vcNXQF", "dSSDate", "vcDY", "vcNum11", "vcNum12", "vcNum13", "vcNum14", "vcNum15", "vcNum16", "vcNum17", "vcNum18", "vcNum19", "vcNum20", "vcNum21" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0307.xlsx", 1, loginInfo.UserId, FunctionID);

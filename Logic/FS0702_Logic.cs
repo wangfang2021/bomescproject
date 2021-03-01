@@ -44,16 +44,16 @@ namespace Logic
 
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId,DataTable dt,DataTable dt1)
         {
-            FS0702_DataAccess.Save(listInfoData, strUserId,ref strErrorPartId);
+            FS0702_DataAccess.Save(listInfoData, strUserId,ref strErrorPartId,dt,dt1);
         }
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
+        public void importSave(DataTable dt, string strUserId,DataTable dtPackBase,DataTable dtPackitem)
         {
-            FS0702_DataAccess.importSave(dt, strUserId);
+            FS0702_DataAccess.importSave(dt, strUserId, dtPackBase, dtPackitem);
         }
         #endregion
 

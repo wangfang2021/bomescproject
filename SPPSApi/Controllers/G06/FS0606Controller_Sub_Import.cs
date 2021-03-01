@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番", "开始日", "结束日"},
-                                                { "vcPartNo", "dBeginDate", "dEndDate"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date},
-                                                {"12","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"品番", "开始日", "结束日","备注"},
+                                                {"vcPartNo", "dBeginDate", "dEndDate","vcMemo"},
+                                                {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,""},
+                                                {"12","0","0","500"},//最大长度设定,不校验最大长度用0
+                                                {"12","1","1","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -114,6 +114,27 @@ namespace SPPSApi.Controllers.G06
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                StringBuilder sbr1 = new StringBuilder();
+                for (int i = 0; i < importDt.Rows.Count; i++)
+                {
+                    string partNo = importDt.Rows[i]["vcPartNo"].ToString();
+                    int BeginDate = int.Parse(importDt.Rows[i]["dBeginDate"].ToString().Replace("-", "").Replace("/", ""));
+                    int EndDate = int.Parse(importDt.Rows[i]["dEndDate"].ToString().Replace("-", "").Replace("/", ""));
+                    if (BeginDate.ToString().Substring(0,6)!= EndDate.ToString().Substring(0, 6))
+                    {
+                        sbr1.Append("品番:" + partNo + "的开始日期结束日期必须同一个月<br/>");
+                    }
+                    if (BeginDate>EndDate)
+                    {
+                        sbr1.Append("品番:" + partNo + "的开始日期必须小于 结束日期<br/>");
+                    }
+                }
+                if (sbr1.Length>0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr1.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 

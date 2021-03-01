@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G07
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"变更事项","包装场","收货方","品番","车型", "开始时间", "结束时间","包装材品番","GPS品番","开始时间","结束时间","包装材区分","必要在库天数"},
+                string[,] headers = new string[,] {{"变更事项","包装场","收货方","品番","车型", "开始时间(部品)", "结束时间(部品)","包装材品番","GPS品番","开始时间","结束时间","包装材区分","必要在库天数"},
                                                 {"varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
                                                 {"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Num},
                                                 {"50","50","50","50","0","0","0","0","0","0","0","0","0"},
@@ -101,36 +101,40 @@ namespace SPPSApi.Controllers.G07
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
 
-                var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcPackNo"), r4 = r.Field<string>("vcPackGPSNo") } into g
-                             where g.Count() > 1
-                             select g;
-                if (result.Count() > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
-                    {
-                        sbr.Append("品番:" + item.Key.r2 + " 包材品番:" + item.Key.r3 + " GPS品番:" + item.Key.r4 + "<br/>");
-                    }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //var result = from r in importDt.AsEnumerable()
+                //             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcPackNo"), r4 = r.Field<string>("vcPackGPSNo") } into g
+                //             where g.Count() > 1
+                //             select g;
+                //if (result.Count() > 0)
+                //{
+                //    StringBuilder sbr = new StringBuilder();
+                //    sbr.Append("导入数据重复:<br/>");
+                //    foreach (var item in result)
+                //    {
+                //        sbr.Append("品番:" + item.Key.r2 + " 包材品番:" + item.Key.r3 + " GPS品番:" + item.Key.r4 + "<br/>");
+                //    }
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = sbr.ToString();
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
-                for (int i=0;i< importDt.Rows.Count;i++) {
-                    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofangID"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString());
-                    if (!isok)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第"+(i+1)+"行的"+"品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "有误！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                //for (int i = 0; i < importDt.Rows.Count; i++)
+                //{
+                //    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofangID"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString());
+                //    if (!isok)
+                //    {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = "第" + (i + 1) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "有误！";
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
 
-                }
+                //}
+                List<Object> strSupplierCode = new List<object>();
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                DataTable dtPackBase = FS0701_Logic.Search("","","", strSupplierCode, "","","", "");
+                DataTable dtPackitem = FS0702_Logic.Search("", "", "", "", "", "", "", "", "", "", "");
 
-
-                FS0702_Logic.importSave(importDt, loginInfo.UserId);
+                FS0702_Logic.importSave(importDt, loginInfo.UserId, dtPackBase, dtPackitem);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

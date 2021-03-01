@@ -61,7 +61,7 @@ namespace BatchProcess
                 sql.Append("        ,a.[vcPackNo]           \n");
                 sql.Append("        ,a.[vcPackGPSNo]           \n");
                 sql.Append("        ,case when b.vcReceiver is not null then b.vcReceiver else a.vcShouhuofangID   end as vcShouhuofangID       \n");
-                sql.Append("        ,case when b.vcCarModel is not null then b.vcCarModel else a.vcCar  end as vcCar            \n");
+                sql.Append("        ,case when b.vcName is not null then b.vcName else a.vcCar  end as vcCar             \n");
                 sql.Append("        ,case when b.dFromTime is not null then b.dFromTime else a.dUsedFrom  end as dUsedFrom         \n");
                 sql.Append("        ,case when b.dToTime is not null then b.dToTime else a.dUsedTo  end as dUsedTo           \n");
                 sql.Append("        ,a.[dFrom]           \n");
@@ -78,13 +78,20 @@ namespace BatchProcess
                 sql.Append("      )a       \n");
                 sql.Append(" 	  left join          \n");
                 sql.Append("     (          \n");
-                sql.Append("      select * from TSPMaster          \n");
-                sql.Append(" 	  where GETDATE() between dFromTime and dToTime      \n");
+                sql.Append("         select a.vcPartId,a.vcReceiver,r.vcName,a.dFromTime,a.dToTime,a.vcChanges from    \n");
+                sql.Append(" 	     (    \n");
+                sql.Append("         select * from TSPMaster    \n");
+                sql.Append(" 	     where GETDATE() between dFromTime and dToTime       \n");
+                sql.Append("         )a     \n");
+                sql.Append("         left join    \n");
+                sql.Append(" 	     (    \n");
+                sql.Append("          select * from TCode where vcCodeId='C098'    \n");
+                sql.Append(" 	     )r  on a.vcCarModel=r.vcValue          \n");
                 sql.Append("      )b on a.vcPartsNo=b.vcPartId and a.vcShouhuofangID=b.vcReceiver       \n");
                 sql.Append("    left join     \n");
                 sql.Append("    (     \n");
-                sql.Append("      select * from TPackageMaster        \n");
-                sql.Append("    )c on  a.vcPartsNo=c.vcPart_id     \n");
+                sql.Append("      select * from TPackageMaster where GETDATE() between dTimeFrom and dTimeTo          \n");
+                sql.Append("    )c on  b.vcPartId=c.vcPart_id     \n");
                 sql.Append("       \n");
                 sql.Append("   union All     \n");
                 sql.Append("       \n");
@@ -93,7 +100,7 @@ namespace BatchProcess
                 sql.Append("     '' as [vcPackNo],            \n");
                 sql.Append("     '' as [vcPackGPSNo],            \n");
                 sql.Append("     a.vcReceiver as [vcShouhuofangID],          \n");
-                sql.Append("     a.vcCarModel as [vcCar],             \n");
+                sql.Append("     C.vcName as [vcCar],           \n");
                 sql.Append("     a.dFromTime as [dUsedFrom],            \n");
                 sql.Append("     a.dToTime as [dUsedTo],            \n");
                 sql.Append("     '1990-01-01 0:00:00' as [dFrom],            \n");
@@ -103,8 +110,8 @@ namespace BatchProcess
                 sql.Append("   '000000' as  [vcOperatorID],           \n");
                 sql.Append("   GETDATE() as [dOperatorTime],           \n");
                 sql.Append("    --varChangedItem          \n");
+                sql.Append("    b.vcBZPlant as vcPackSpot ,     \n");
                 sql.Append("    a.vcChanges as [varChangedItem]          \n");
-                sql.Append("    ,b.vcBZPlant as vcPackSpot      \n");
                 sql.Append("   from         \n");
                 sql.Append("   (         \n");
                 sql.Append("   select a.vcPartId,a.vcReceiver,b.dFromTime,c.dToTime,a.vcChanges,a.vcCarModel     \n");
@@ -132,8 +139,12 @@ namespace BatchProcess
                 sql.Append("     )A       \n");
                 sql.Append("     inner join        \n");
                 sql.Append("     (        \n");
-                sql.Append("       select * from TPackageMaster        \n");
+                sql.Append("       select * from TPackageMaster where  GETDATE() between dTimeFrom  and dTimeTo          \n");
                 sql.Append("      )B on A.vcPartId=B.vcPart_id     \n");
+                sql.Append("     left join    \n");
+                sql.Append("     (    \n");
+                sql.Append("       select * from TCode where vcCodeId='C098'    \n");
+                sql.Append("     )C on a.vcCarModel=C.vcValue       \n");
 
 
                 dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
@@ -178,9 +189,7 @@ namespace BatchProcess
                     sql.Append("   [iBiYao],  \n");
                     sql.Append("   [vcOperatorID],  \n");
                     sql.Append("   [dOperatorTime],  \n");
-                    sql.Append("   [varChangedItem],  \n");
-                    sql.Append("   [vcSupplierId],  \n");
-                    sql.Append("   [vcPackingPlant]  \n");
+                    sql.Append("   [varChangedItem] , vcPackSpot\n");
                     sql.Append("   ) values  \n");
                     sql.Append("   ( \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["vcPartsNo"].ToString() + "',  \n");
@@ -196,10 +205,8 @@ namespace BatchProcess
                     sql.Append("  '" + dtNewItem.Rows[i]["iBiYao"].ToString() + "',  \n");
                     sql.Append("  '" + strUserId + "', \n");
                     sql.Append("   GETDATE(), \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["varChangedItem"].ToString() + "',  \n");
-                    sql.Append("  '"+ dtNewItem.Rows[i]["vcSupplierId"].ToString() + "', \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackingPlant"].ToString() + "')  \n");
-
+                    sql.Append("  '" + dtNewItem.Rows[i]["varChangedItem"].ToString() + "', \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackSpot"].ToString() + "') \n");
                 }
                 int isok = 1;
                 if (sql.Length > 0)

@@ -81,14 +81,17 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
+            string dBeginDate = dataForm.dBeginDate == null ? "" : dataForm.dBeginDate;
+            string dEndDate = dataForm.dEndDate == null ? "" : dataForm.dEndDate;
+            string vcMemo = dataForm.vcMemo == null ? "" : dataForm.vcMemo;
             try
             {
-                DataTable dt = fs0606_Logic.Search(vcPartNo);
+                DataTable dt = fs0606_Logic.Search(vcPartNo, dBeginDate, dEndDate, vcMemo);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dBeginDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dEndDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dBeginDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dEndDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -118,15 +121,17 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
-
+            string dBeginDate = dataForm.dBeginDate == null ? "" : dataForm.dBeginDate;
+            string dEndDate = dataForm.dEndDate == null ? "" : dataForm.dEndDate;
+            string vcMemo = dataForm.vcMemo == null ? "" : dataForm.vcMemo;
             try
             {
-                DataTable dt = fs0606_Logic.Search(vcPartNo);
+                DataTable dt = fs0606_Logic.Search(vcPartNo, dBeginDate, dEndDate, vcMemo);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "品番", "开始日", "结束日"};
-                field = new string[] { "vcPartNo", "dBeginDate", "dEndDate" };
+                head = new string[] { "品番", "开始日", "结束日","备注"};
+                field = new string[] { "vcPartNo", "dBeginDate", "dEndDate","vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -176,6 +181,52 @@ namespace SPPSApi.Controllers.G06
                             if (bAddFlag == true)
                             {//新增
                                 hasFind = true;
+                            }
+                            else if (bAddFlag == false && bModFlag == true)
+                            {//修改
+                                hasFind = true;
+                            }
+                        }
+                        if (!hasFind)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "最少有一个编辑行！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                       
+
+                        //开始数据验证
+                        if (hasFind)
+                        {
+                            string[,] strField = new string[,] {{"vcPartNo","开始日","结束日","备注"},
+                                                {"vcPartNo", "dBeginDate", "dEndDate","vcMemo"},
+                                                {"","","" ,""},
+                                                {"12","0","0","500"},//最大长度设定,不校验最大长度用0
+                                                {"12","1","1","0"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4"}//前台显示列号，从0开始计算,注意有选择框的是0
+                         };
+                            //需要判断时间区间先后关系的字段
+                            string[,] strDateRegion = { { "dBeginDate", "dEndDate" } };
+                            string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
+                        
+                          };
+
+                            List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0606");
+                            if (checkRes != null)
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = checkRes;
+                                apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                        for (int i = 0; i < listInfoData.Count; i++)
+                        {
+                            bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                            bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                            if (bAddFlag == true)
+                            {//新增
+                        
                                 string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
                                 string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
                                 if (dBeginDate != dEndDate)
@@ -187,7 +238,6 @@ namespace SPPSApi.Controllers.G06
                             }
                             else if (bAddFlag == false && bModFlag == true)
                             {//修改
-                                hasFind = true;
                                 string dBeginDate = listInfoData[i]["dBeginDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
                                 string dEndDate = listInfoData[i]["dEndDate"].ToString().Replace("/", "").Substring(0, 6);//判断是不是同一个月
                                 if (dBeginDate != dEndDate)
@@ -197,12 +247,6 @@ namespace SPPSApi.Controllers.G06
                                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                 }
                             }
-                        }
-                        if (!hasFind)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "最少有一个编辑行！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                         #region 判断新增的数据本身是否有重复的 和数据库内部关键字是否有重复的
                         //本身判重
@@ -226,16 +270,16 @@ namespace SPPSApi.Controllers.G06
                                 {
                                     for (int j = i + 1; j < dtadd.Rows.Count; j++)
                                     {
-                                        if (dtadd.Rows[i]["vcPartNo"].ToString() == dtadd.Rows[j]["vcPartNo"].ToString() )
+                                        if (dtadd.Rows[i]["vcPartNo"].ToString() == dtadd.Rows[j]["vcPartNo"].ToString())
                                         {
                                             apiResult.code = ComConstant.ERROR_CODE;
-                                            apiResult.data = "品番" + dtadd.Rows[i]["vcPartNo"].ToString() +  "存在重复项，请确认！";
+                                            apiResult.data = "品番" + dtadd.Rows[i]["vcPartNo"].ToString() + "存在重复项，请确认！";
                                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                         }
                                     }
                                 }
                             }
-                            
+
                             //数据库验证  true  存在重复项
                             DataTable dt = fs0606_Logic.CheckDistinctByTable(dtadd);
                             if (dt.Rows.Count > 0)
@@ -253,33 +297,6 @@ namespace SPPSApi.Controllers.G06
                         }
 
                         #endregion
-
-                        //开始数据验证
-                        if (hasFind)
-                        {
-                            string[,] strField = new string[,] {{"vcPartNo","开始日","结束日"},
-                                                {"vcPartNo", "dBeginDate", "dEndDate"},
-                                                {"","","" },
-                                                {"12","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1"},//最小长度设定,可以为空用0
-                                                {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
-                         };
-                            //需要判断时间区间先后关系的字段
-                            string[,] strDateRegion = { };
-                            string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
-                        
-                          };
-
-                            List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0605");
-                            if (checkRes != null)
-                            {
-                                apiResult.code = ComConstant.ERROR_CODE;
-                                apiResult.data = checkRes;
-                                apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                            }
-                        }
-                        
                         string strErrorPartId = "";
                         fs0606_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                         if (strErrorPartId != "")
@@ -370,6 +387,18 @@ namespace SPPSApi.Controllers.G06
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "一括赋予开始日、结束日都不能为空,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (dBeginDate.Replace("/", "").Replace("-", "").Substring(0, 6) != dEndDate.Replace("/", "").Replace("-", "").Substring(0, 6))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "开始日和结束日必须同一个月！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (int.Parse(dBeginDate.Replace("/", "").Replace("-", "")) > int.Parse(dEndDate.Replace("/", "").Replace("-", "").ToString()))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "开始日必须小于结束日！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (listInfoData.Count==0)

@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcSupplier_id, string vcWorkArea)
+        public DataTable Search(string vcSupplier_id, string vcWorkArea, string dBeginDate, string dEndDate, string vcMemo)
         {
-            return fs0607_DataAccess.Search(vcSupplier_id, vcWorkArea);
+            return fs0607_DataAccess.Search(vcSupplier_id, vcWorkArea, dBeginDate, dEndDate, vcMemo);
         }
 
         public DataTable CheckDistinctByTable(DataTable dtadd)

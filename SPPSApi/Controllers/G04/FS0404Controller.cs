@@ -502,11 +502,14 @@ namespace SPPSApi.Controllers.G04
                 //}
                 #endregion
                 #endregion
-                if (dTargetDate.Length == 0)
+                if (!IsOrderTypeJinjiFlag)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "对象年月(日)不能为空！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    if (dTargetDate.Length == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "对象年月(日)不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 if (fileList.Count == 0)
                 {
@@ -667,7 +670,7 @@ namespace SPPSApi.Controllers.G04
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
+            string vcOrderTypeName = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
             string vcInOutFlag = dataForm.vcInOutFlag == null ? "" : dataForm.vcInOutFlag;
             string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
             string vcOrderState = dataForm.vcOrderState == null ? "" : dataForm.vcOrderState;
@@ -675,19 +678,21 @@ namespace SPPSApi.Controllers.G04
             string newOrderNo = dataForm.newOrderNo == null ? "" : dataForm.newOrderNo;
             string vcMemo = dataForm.vcMemo == null ? "" : dataForm.vcMemo;
             string dTargetWeek = dataForm.dTargetWeek == null ? "" : dataForm.dTargetWeek;
+            List<Dictionary<string, Object>> orderModifList = dataForm.orderModifList.ToObject<List<Dictionary<string, Object>>>();
             List<Dictionary<string, Object>> fileList = dataForm.file.ToObject<List<Dictionary<string, Object>>>();
             List<Dictionary<string, Object>> fileDelList = dataForm.fileDel.ToObject<List<Dictionary<string, Object>>>();
+            string vcOrderType = string.Empty;
             try
             {
-                DataTable  dt1 = fs0404_Logic.getOrderCodeByName();
-                if (dt1.Rows.Count==0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正的原订单订购类型必须是紧急,请确认！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                
-                vcOrderType = dt1.Rows[0][0].ToString();//获取紧急订单的字母
+                DataTable dt1 = fs0404_Logic.getOrderCodeByName(vcOrderTypeName);
+                vcOrderType = dt1.Rows[0]["vcOrderInitials"].ToString();
+                //if (dt1.Rows.Count==0)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "修正的原订单订购类型必须是紧急,请确认！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
+
                 if (vcOrderState != "撤销")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -704,11 +709,44 @@ namespace SPPSApi.Controllers.G04
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                if (newOrderNo.Length == 0)
+                if (fileList.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正时修正的订单号不能为空,请确认！";
+                    apiResult.data = "修正紧急订单时,附件不能为空,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (orderModifList.Count != fileList.Count)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正的订单号和上传的文件个数不匹配,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                //修正的订单号不能为空
+                for (int i = 0; i < orderModifList.Count; i++) {
+                    if (orderModifList[i]["newOrderNoD"].ToString()=="") {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "修正时修正的订单号不能为空,请确认！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //判定修正的订单号跟上传的文件名称能否对应起来
+                    bool flag = false;
+                    for (int j = 0; j < fileList.Count; j++)
+                    {
+                        string fileName = fileList[j]["fileName"].ToString().Trim().Substring(0, fileList[j]["fileName"].ToString().Trim().LastIndexOf("."));
+                        string strOrderName = orderModifList[i]["newOrderNoD"].ToString();
+                        if (strOrderName == fileName)
+                        {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = orderModifList[i]["newOrderNoD"].ToString() + "修正订单名称与上传文件对应不起来，请确认！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                
                 #region
@@ -739,19 +777,7 @@ namespace SPPSApi.Controllers.G04
                 
                 //if (vcOrderType == "3")
                 //{
-                if (fileList.Count ==0 )
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正紧急订单时,附件不能为空,请确认！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                if (newOrderList.Length!=fileList.Count)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正紧急订单时,修正的订单号和上传的文件个数不匹配,请确认！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-
+                
                 for (int i = 0; i < fileList.Count; i++)
                 {
                     string fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
@@ -767,40 +793,19 @@ namespace SPPSApi.Controllers.G04
                     if (fileList[i]["fileName"].ToString().Substring(index, 1).ToUpper() != vcOrderType)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "文件名不匹配订单类型命名规则，请以订单类型的首字母开始命名 '";
+                        apiResult.data = "上传的文件类型与修正的订单类型的不匹配，命名有问题 '";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    //string strfilePath = fileList[i]["filePath"].ToString();
-                    //string strMsg = string.Empty;
-                    //Order order = GetPartFromFile(realPath + strfilePath,"", ref strMsg);
-                    //if (strMsg.Length > 0)
-                    //{
-                    //    apiResult.code = ComConstant.ERROR_CODE;
-                    //    apiResult.data = strMsg;
-                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    //}
-                    //else
-                    //{
-                    //    //月度订单	S　	S　  紧急订单 H   E     特殊订单    R E周度订单 W   E 日度订单    D E大客户订单 F   F三包订单    C E
-                    //    string code = order.Head.Code;
-                    //    if (code != "H")
-                    //    {
-                    //        apiResult.code = ComConstant.ERROR_CODE;
-                    //        apiResult.data = "紧急订单的Code代码必须是H开始，请查看订单内容！'";
-                    //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    //    }
-                    //}
-                    //orderList.Add(order);
+                    
                 }
                 //}
-                FS0603_Logic fs0603_Logic = new FS0603_Logic();
-                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                DataTable dtMessage = fs0404_Logic.createTable("Order");
                 bool bReault = true;
                 DataTable dt = fs0404_Logic.isCheckByOrderNo(lastOrderNo);
                 if (dt.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请确认是否在修正订单，修正订单的原订单号不存在,请确认！";
+                    apiResult.data = "请确认是否存在修正订单，修正订单的原订单号不存在,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 // 判断状态 是0  或者2 撤销  1已做成
@@ -810,14 +815,9 @@ namespace SPPSApi.Controllers.G04
                     apiResult.data = "修正订单的状态必须是撤销,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                if (dt.Rows[0]["vcOrderType"].ToString() != "3")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正的订单类型必须是紧急,请确认！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+               
                 string msg = string.Empty;
-                string vcMemos = lastOrderNo + "--->" + newOrderNo + vcMemo;
+                string vcMemos = vcMemo;
                 fs0404_Logic.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemos, fileList, loginInfo.UserId,loginInfo.UnitCode, ref bReault, ref dtMessage, ref msg);
 
                 if (!bReault)

@@ -61,21 +61,22 @@ namespace DataAccess
                     string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
                     DateTime dBeginDate =  Convert.ToDateTime(dt.Rows[i]["dBeginDate"].ToString());
                     DateTime dEndDate =  Convert.ToDateTime(dt.Rows[i]["dEndDate"].ToString());
-                    
+                    string vcMemo =  dt.Rows[i]["vcMemo"].ToString();
+
                     strSql.AppendLine("  declare @isExist int =0;   ");
                     strSql.AppendLine("  select @isExist=COUNT(*) from TSpecialPartNo where vcPartNo='" + vcPartNo + "'  ");
                     strSql.AppendLine("     ");
                     strSql.AppendLine("  if @isExist>0   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		update TSpecialPartNo set dBeginDate = '" + dBeginDate + "',dEndDate='" + dEndDate + "',  ");
+                    strSql.AppendLine("  		update TSpecialPartNo set dBeginDate = '" + dBeginDate + "',dEndDate='" + dEndDate + "',vcMemo='"+ vcMemo + "',  ");
                     strSql.AppendLine("  		vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE() where vcPartNo='" + vcPartNo + "' ;  ");
                     strSql.AppendLine("  end   ");
                     strSql.AppendLine("  else   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		insert into dbo.TSpecialPartNo (vcPartNo, dBeginDate, dEndDate,");
+                    strSql.AppendLine("  		insert into dbo.TSpecialPartNo (vcPartNo, dBeginDate, dEndDate,vcMemo,");
                     strSql.AppendLine("  		 vcOperatorID, dOperatorTime )    ");
                     strSql.AppendLine("  		values   ");
-                    strSql.AppendLine("  		('" + vcPartNo + "','" + dBeginDate + "','" + dEndDate + "','" + strUserId + "',GETDATE()) ;   ");
+                    strSql.AppendLine("  		('" + vcPartNo + "','" + dBeginDate + "','" + dEndDate + "','" + vcMemo + "','" + strUserId + "',GETDATE()) ;   ");
                     strSql.AppendLine("  end ;  ");
                     strSql.AppendLine("     ");
 
@@ -118,19 +119,31 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcPartNo)
+        public DataTable Search(string vcPartNo, string dBeginDate, string dEndDate, string vcMemo)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select iAutoId,vcPartNo, dBeginDate,  dEndDate, '0' as vcModFlag,'0' as vcAddFlag from [dbo].[TSpecialPartNo] where 1=1   ");
+                strSql.AppendLine("   select iAutoId,vcPartNo, convert(varchar(10), dBeginDate,111) as dBeginDate, convert(varchar(10), dEndDate,111) as dEndDate,vcMemo, '0' as vcModFlag,'0' as vcAddFlag from [dbo].[TSpecialPartNo] where 1=1   ");
 
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPartNo like '%" + vcPartNo + "%' ");
+                    strSql.AppendLine("  and  vcPartNo like '" + vcPartNo + "%' ");
                 }
-                
+                if (dBeginDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  convert(varchar(10), dBeginDate,112) = '" + dBeginDate.Replace("-","").Replace("/","") + "' ");
+                }
+                if (dEndDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  convert(varchar(10), dEndDate,112) = '" + dEndDate.Replace("-", "").Replace("/", "") + "' ");
+                }
+                if (vcMemo.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcMemo like '%" + vcMemo + "%' ");
+                }
+
                 strSql.AppendLine("  order by  dOperatorTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -271,11 +284,12 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                     {//新增
-                        sql.Append("insert into [TSpecialPartNo] (vcPartNo, dBeginDate, dEndDate, vcOperatorID, dOperatorTime)  \n");
+                        sql.Append("insert into [TSpecialPartNo] (vcPartNo, dBeginDate, dEndDate,vcMemo, vcOperatorID, dOperatorTime)  \n");
                         sql.Append(" values (  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcPartNo"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["dBeginDate"], true) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["dEndDate"], true) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcMemo"], true) + ",  \r\n");
                         sql.Append("   '" + userId + "', GETDATE() \r\n");
                         sql.Append(" );  \r\n");
                     }
@@ -286,6 +300,7 @@ namespace DataAccess
                         sql.Append("  update TSpecialPartNo set    \r\n");
                         sql.Append("  dBeginDate=" + getSqlValue(listInfoData[i]["dBeginDate"], true) + "   \r\n");
                         sql.Append("  ,dEndDate=" + getSqlValue(listInfoData[i]["dEndDate"], true) + "   \r\n");
+                        sql.Append("  ,vcMemo=" + getSqlValue(listInfoData[i]["vcMemo"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() \r\n");
                         sql.Append(" where iAutoId=" + iAutoId + " ;  \n");
 

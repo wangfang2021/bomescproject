@@ -69,5 +69,10 @@ namespace Logic
             }
             return dataTable;
          }
+
+        public DataTable getOrderCodeByName(string vcOrderTypeName)
+        {
+            return fs0404_DataAccess.getOrderCodeByName(vcOrderTypeName);
+        }
     }
 }

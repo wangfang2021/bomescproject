@@ -556,7 +556,7 @@ namespace DataAccess
                         sbr.AppendLine("union all");
                     }
                     sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
-                    sbr.AppendLine("WHERE vcMakingOrderType = '3'");
+                    sbr.AppendLine("WHERE vcMakingOrderType in (" + getTypeMethod("D") + ")");
                     sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
                 }
 
@@ -590,6 +590,38 @@ namespace DataAccess
                 sbr.AppendLine("SELECT vcValue1 FROM TOutCode WHERE vcCodeId = 'C031' AND vcIsColum = '0'");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 return Convert.ToInt32(dt.Rows[0]["vcValue1"].ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string getTypeMethod(string vcType)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue FROM TCode WHERE iAutoId IN(");
+                sbr.AppendLine("SELECT vcOrderGoodsId FROM TOrderGoodsAndDifferentiation WHERE vcOrderDifferentiationId in");
+                sbr.AppendLine("(SELECT iAutoId FROM TOrderDifferentiation WHERE vcOrderInitials = '" + vcType + "')) ");
+
+                string res = "";
+
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (!string.IsNullOrWhiteSpace(res))
+                        {
+                            res += ",";
+                        }
+                        res += "'" + dt.Rows[i]["vcValue"].ToString() + "'";
+                    }
+                }
+
+                return res;
             }
             catch (Exception ex)
             {

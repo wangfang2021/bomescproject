@@ -21,7 +21,7 @@ namespace DataAccess
         private bool bReault;
 
         #region 检索
-        public DataTable searchApi(string orderState, string targetYM, string orderNo, string vcOrderType, string dUpload)
+        public DataTable searchApi(string orderState, string targetYM, string orderNo, string vcOrderType, string dUpload, string memo)
         {
             try
             {
@@ -67,7 +67,10 @@ namespace DataAccess
                     sbr.AppendLine("AND Convert(varchar(10),a.dUploadDate,120) = " + ComFunction.getSqlValue(dUpload, true) + "");
                 }
 
-
+                if (!string.IsNullOrWhiteSpace(memo))
+                {
+                    sbr.AppendLine("AND vcMemo LIKE '%" + memo + "%'");
+                }
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -437,7 +440,7 @@ namespace DataAccess
                                 string inout = "";
                                 string packingSpot = "";
                                 string vcSupplierPlant = "";//工区
-
+                                string vcHaoJiu = "";
                                 Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
 
                                 inout = ObjToString(hashtable["vcInOut"]);
@@ -446,8 +449,15 @@ namespace DataAccess
                                 vcCarType = ObjToString(hashtable["vcCarfamilyCode"]);
                                 vcPartId_Replace = ObjToString(hashtable["vcPartId_Replace"]);
                                 vcSupplierPlant = ObjToString(hashtable["vcSupplierPlant"]);
+                                vcSupplierPlant = ObjToString(hashtable["vcSupplierPlant"]);
+                                vcHaoJiu = ObjToString(hashtable["vcHaoJiu"]);
 
                                 DataRow[] packingSpotRow = PackSpot.Select("vcPart_id = '" + vcPart_id + "' AND vcReceiver = '" + CPD + "' AND vcSupplierId = '" + vcSupplierId + "' AND vcPackingPlant = '" + vcPackingFactory + "'");
+                                if (packingSpotRow.Length > 0)
+                                {
+                                    packingSpot = ObjToString(packingSpotRow[0]["vcBZPlant"]);
+                                }
+
                                 DataRow[] rowNQ = OrderNQ.Select(" vcOrderNo = '" + vcOrderNoOld + "' AND vcPart_id = '" + vcPart_id + "'");
                                 string NQ = rowNQ[0]["dOutPutDate"].ToString();
 
@@ -455,10 +465,7 @@ namespace DataAccess
                                 string TargetD = Convert.ToInt32(NQ.Substring(6, 2)).ToString();
                                 DateTime Time = DateTime.ParseExact(NQ.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
-                                if (packingSpotRow.Length > 0)
-                                {
-                                    packingSpot = ObjToString(packingSpotRow[0]["vcBZPlant"]);
-                                }
+
 
 
                                 string dateTime = detail.Date.Trim();
@@ -494,6 +501,26 @@ namespace DataAccess
 
 
                                 //写入紧急台账
+                                sbr.Append("INSERT INTO TEmergentOrderManage(dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcDock, vcSupplier_id, vcWorkArea, vcCHCCode, vcCarType, vcOrderNum, dExpectReceiveDate, vcOderTimes, vcInjectionOrderNo, vcMemo, vcOperatorID, dOperatorTime, vcIsExportFlag)");
+                                sbr.Append("VALUES(GETDATE(),");
+                                sbr.Append(ComFunction.getSqlValue(vcOrderNo, false) + "  ,");
+                                sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + "  , ");
+                                sbr.Append(ComFunction.getSqlValue(inout, false) + "  , ");
+                                sbr.Append(ComFunction.getSqlValue(vcHaoJiu, false) + "  ,");
+                                sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + "  , -- vcInjectionFactory fzgc - varchar(100)");
+                                sbr.Append(ComFunction.getSqlValue(vcDock, false) + "  ,");
+                                sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + "  , ");
+                                sbr.Append(ComFunction.getSqlValue(vcSupplierPlant, false) + "  ,");
+                                sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + "  , -- vcCHCCode - varchar(50)");
+                                sbr.Append(ComFunction.getSqlValue(vcCarType, false) + "  ,");
+                                sbr.Append(ComFunction.getSqlValue(QTY, false) + "  , ");
+                                sbr.Append(ComFunction.getSqlValue(NQ, true) + ",");
+                                sbr.Append("'01'  , ");
+                                sbr.Append("null  ,");
+                                sbr.Append("null  ,");
+                                sbr.Append("'" + userId + "'  ,");
+                                sbr.Append("GETDATE(),");
+                                sbr.Append("'0') \r\n");
 
                             }
 
@@ -879,6 +906,7 @@ namespace DataAccess
                             hashtable.Add("vcSufferIn", dt.Rows[i]["vcSufferIn"].ToString());
                             hashtable.Add("vcInOut", dt.Rows[i]["vcInOut"].ToString());
                             hashtable.Add("vcOrderingMethod", dt.Rows[i]["vcOrderingMethod"].ToString());
+                            hashtable.Add("vcHaoJiu", dt.Rows[i]["vcHaoJiu"].ToString());
 
                             break;
                         }
@@ -898,9 +926,9 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,vcSupplierPlant FROM ");
+                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,vcSupplierPlant,vcHaoJiu FROM ");
                 sbr.AppendLine("(");
-                sbr.AppendLine("	SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut FROM TSPMaster WHERE ");
+                sbr.AppendLine("	SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu FROM TSPMaster WHERE ");
                 sbr.AppendLine("	dFromTime <= GETDATE() AND dToTime >= GETDATE() ");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("LEFT JOIN");

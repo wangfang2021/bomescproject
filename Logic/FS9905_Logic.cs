@@ -48,7 +48,7 @@ namespace Logic
         #region 对应可否一括付与
         public void SetFY(List<Dictionary<string, Object>> listInfoData,string strSupplier_BJ, string strSupplier_HK, string strUserId, ref string strErrorPartId)
         {
-            //fs9905_DataAccess.SetFY(listInfoData, strSupplier_BJ, strSupplier_HK, strUserId, ref strErrorPartId);
+            //fs9905_DataAccess.SetFY(listInfoData, strSupplier_BJ, strSupplier_HK, strUserId, ref strErrorPartId); 
         }
         #endregion
     }

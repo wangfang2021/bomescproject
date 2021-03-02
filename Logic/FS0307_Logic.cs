@@ -494,5 +494,18 @@ namespace Logic
         {
             return fs0307_dataAccess.getOriginCompany(userId);
         }
+
+        public List<string> OriginCompanys(string userId)
+        {
+            List<string> list = new List<string>();
+            string ori = fs0307_dataAccess.getOriginCompany(userId);
+            string[] arrInt = ori.Split(",");
+            for (int i = 0; i < arrInt.Length; i++)
+            {
+                list.Add(arrInt[i]);
+            }
+
+            return list;
+        }
     }
 }

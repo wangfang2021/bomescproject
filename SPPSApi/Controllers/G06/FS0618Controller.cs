@@ -53,13 +53,16 @@ namespace SPPSApi.Controllers.G06
                 List<Object> dataList_C045 = ComFunction.convertAllToResult(ComFunction.getTCode("C045"));//订单状态
                 DataTable dt_Dock = fs0618_Logic.getDock();//荷姿状态
                 DataTable dt_Supplier = fs0618_Logic.getSupplier();//荷姿状态
+                DataTable dt_OrderType = fs0618_Logic.getOrderType();//
                 List<Object> dataList_Dock = ComFunction.convertToResult(dt_Dock, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_Supplier = ComFunction.convertToResult(dt_Supplier, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_OrderType = ComFunction.convertToResult(dt_OrderType, new string[] { "vcValue", "vcName" });
 
                 res.Add("C018", dataList_C018);
                 res.Add("C045", dataList_C045);
                 res.Add("Dock", dataList_Dock);
                 res.Add("Supplier", dataList_Supplier);
+                res.Add("OrderType", dataList_OrderType);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

@@ -86,14 +86,18 @@ namespace SPPSApi.Controllers.G04
             JArray listInfo = dataForm.multipleSelection;
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-            string pickDate = dataForm.pickDate == null ? "" : dataForm.pickDate;
+
             try
             {
-                string resMsg = "";
                 string changeNo = listInfoData[0]["vcChangeNo"].ToString();
-                DataTable dt = fs0403_Logic.downLoadApi(changeNo);
-                string[] heads = { "变更号", "品番", "日订单数" };
-                string[] fields = { "vcDXDate", "vcPart_Id", "iQuantityNow" };
+
+                DateTime t2;
+                DateTime.TryParseExact(changeNo, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+
+                DataTable dt = fs0403_Logic.getModify(t2);
+                string resMsg = "";
+                string[] heads = { "品番", "对象月", "对象日", "日订单数" };
+                string[] fields = { "vcPart_id", "vcDXYM", "DXR", "DayNum" };
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")
                 {

@@ -2070,6 +2070,21 @@ namespace Logic
                 dataTable.Columns.Add("vcCheckP", typeof(string));
                 dataTable.Columns.Add("vcChangeRea", typeof(string));
                 dataTable.Columns.Add("vcTJSX", typeof(string));
+                dataTable.Columns.Add("vcType", typeof(string));
+            }
+            if (strSpSub == "savFs1404")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("dFromTime", typeof(string));
+                dataTable.Columns.Add("dToTime", typeof(string));
+                dataTable.Columns.Add("vcCarfamilyCode", typeof(string));
+                dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("vcSupplierPlant", typeof(string));
+                dataTable.Columns.Add("vcPicUrl", typeof(string));
+                dataTable.Columns.Add("vcChangeRea", typeof(string));
+                dataTable.Columns.Add("vcTJSX", typeof(string));
+                dataTable.Columns.Add("vcType", typeof(string));
             }
             return dataTable;
         }

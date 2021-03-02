@@ -59,6 +59,17 @@ namespace Logic
         }
         #endregion
 
+        #region 判断是否计算过
+        public bool isCal(string strYearMonth, List<string> plantList)
+        {
+            int num = fs0610_DataAccess.GetCalNum(strYearMonth, plantList);
+            if (num>0)
+                return true;
+            else
+                return false;
+        }
+        #endregion
+
         #region 下载SOQReply（检索内容）
         public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3, List<string> plantList)
         {
@@ -67,9 +78,9 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strYearMonth, string strUserId)
+        public void importSave(DataTable dt, string strYearMonth, string strUserId,List<string> plantList)
         {
-            fs0610_DataAccess.importSave(dt, strYearMonth, strUserId);
+            fs0610_DataAccess.importSave(dt, strYearMonth, strUserId,plantList);
         }
         #endregion
 
@@ -79,6 +90,28 @@ namespace Logic
             return fs0610_DataAccess.getZhankaiData(isZhankai, strPlant);
         }
         #endregion
+
+        public bool isHaveSORReplyData(string strPlant, string strCLYM)
+        {
+            int num = fs0610_DataAccess.isHaveSORReplyData(strPlant, strCLYM);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
+        public bool isZhankai(string strPlant,string strCLYM)
+        {
+            int num = fs0610_DataAccess.isZhankai(strPlant, strCLYM);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
+
+        public DataTable GetFilePlant(string strCLYM,DataTable dt)
+        {
+            return fs0610_DataAccess.GetFilePlant(strCLYM,dt);
+        }
 
         #region 生产计划方法（王立伟）2020-01-21
         #region 生成生产计划

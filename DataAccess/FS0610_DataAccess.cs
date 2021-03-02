@@ -66,7 +66,7 @@ namespace DataAccess
 
         #region 更新平准化结果
         public void SaveResult(string strCLYM, string strDXYM, string strNSYM, string strNNSYM, string strPlant,
-            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId, string strUnit)
+            ArrayList arrResult_DXYM, ArrayList arrResult_NSYM, ArrayList arrResult_NNSYM, string strUserId,string strUnit)
         {
             SqlCommand cmd;
             SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString());//对账平台
@@ -168,7 +168,7 @@ namespace DataAccess
                     "and vcInOutFlag='0')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
                 cmd.Connection = conn;
@@ -290,16 +290,17 @@ namespace DataAccess
         #endregion
 
         #region 获取展开的数据
-        public DataTable getZhankaiData(bool isZhankai, List<string> plantList)
+        public DataTable getZhankaiData(bool isZhankai,List<string> plantList)
         {
             string plants = "";
-            for (int i = 0; i < plantList.Count; i++)
+            for(int i=0;i<plantList.Count;i++)
             {
-                plants += "'" + plantList[i] + "',";
+                plants += "'"+plantList[i] + "',";
             }
             plants = plants.Substring(0, plants.Length - 1);
+            string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
             StringBuilder sql = new StringBuilder();
-            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC in (" + plants + ") \n");
+            sql.Append("   select * from TSOQReply where  vcCLYM='"+vcCLYM+"' and vcInOutFlag='0' and vcFZGC in ("+plants+") \n");
             if (isZhankai)
                 sql.Append("  and dZhanKaiTime is not null  ");
             else
@@ -319,13 +320,14 @@ namespace DataAccess
                     plants += "'" + plantList[i] + "',";
                 }
                 plants = plants.Substring(0, plants.Length - 1);
+                string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" update TSOQReply ");
                 strSql.AppendLine(" set   ");
                 strSql.AppendLine(" vcZhanKaiID='" + userId + "', ");
                 strSql.AppendLine(" dZhanKaiTime=getDate()");
                 strSql.AppendLine(" where ");
-                strSql.AppendLine(" vcCLYM=convert(varchar(6),getdate(),112) ");
+                strSql.AppendLine(" vcCLYM='"+vcCLYM+"' ");
                 strSql.AppendLine(" and dZhanKaiTime is null ");
                 strSql.AppendLine(" and vcInOutFlag='0' ");
                 strSql.AppendLine(" and vcFZGC in (" + plants + ")  ");
@@ -338,8 +340,8 @@ namespace DataAccess
         }
         #endregion
 
-        #region 下载SOQReply（检索内容）
-        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3, List<string> plantList)
+        #region 找计算结果条数
+        public int GetCalNum(string strYearMonth, List<string> plantList)
         {
             try
             {
@@ -349,6 +351,30 @@ namespace DataAccess
                     plants += "'" + plantList[i] + "',";
                 }
                 plants = plants.Substring(0, plants.Length - 1);
+                string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select count(1) as num from TSOQReply where vcCLYM='"+vcCLYM+"' and vcDXYM='" + strYearMonth+ "' and vcInOutFlag='0' and vcFZGC in (" + plants + ")    \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 下载SOQReply（检索内容）
+        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3,List<string> plantList)
+        {
+            try
+            {
+                string plants = "";
+                for (int i = 0; i < plantList.Count; i++)
+                {
+                    plants += "'" + plantList[i] + "',";
+                }
+                plants = plants.Substring(0, plants.Length - 1);
+                string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], ");
                 strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS] ");
@@ -357,13 +383,13 @@ namespace DataAccess
                 strSql.AppendLine("   SELECT ");
                 strSql.AppendLine("   vcPart_id as 'PartsNo',");
                 //发注工厂
-                strSql.AppendLine("   vcFZGC as '发注工厂',");
+                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂',");
                 //订货频度
-                strSql.AppendLine("   vcMakingOrderType as '订货频度',");
+                strSql.AppendLine("   cast(vcMakingOrderType as int) as '订货频度',");
                 strSql.AppendLine("   vcCarType as 'CFC',");
-                strSql.AppendLine("   iQuantityPercontainer as 'OrdLot',");
-                strSql.AppendLine("   iBoxes as 'N Units',");
-                strSql.AppendLine("   iPartNums as 'N PCS',");
+                strSql.AppendLine("   isnull(iQuantityPercontainer,0) as 'OrdLot',");
+                strSql.AppendLine("   isnull(iBoxes,0) as 'N Units',");
+                strSql.AppendLine("   isnull(iPartNums,0) as 'N PCS',");
                 strSql.AppendLine("   isnull(iD1,0)*isnull(iQuantityPercontainer,0) as iD1,");
                 strSql.AppendLine("   isnull(iD2,0)*isnull(iQuantityPercontainer,0) as iD2,");
                 strSql.AppendLine("   isnull(iD3,0)*isnull(iQuantityPercontainer,0) as iD3,");
@@ -396,20 +422,20 @@ namespace DataAccess
                 strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30,");
                 strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31,");
                 strSql.AppendLine("   iAutoId");
-                strSql.AppendLine("   FROM TSOQReply WHERE vcInOutFlag='0'  AND vcDXYM in ('" + strYearMonth + "') and vcFZGC in (" + plants + ") ");//内制
+                strSql.AppendLine("   FROM TSOQReply WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM in ('" + strYearMonth + "') and vcFZGC in ("+ plants + ") ");//内制
                 strSql.AppendLine(" ) a ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
-                strSql.AppendLine("   SELECT vcPart_id,vcCarType as 'N+1 O/L',iBoxes as 'N+1 Units',iPartNums as 'N+1 PCS' ");
+                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+1 O/L',isnull(iBoxes,0) as 'N+1 Units',isnull(iPartNums,0) as 'N+1 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_2 + "'  and vcFZGC in (" + plants + ")  ");//内制
+                strSql.AppendLine("   WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_2 + "'  and vcFZGC in (" + plants + ")  ");//内制
                 strSql.AppendLine("  ) b ");
                 strSql.AppendLine(" ON a.PartsNo=b.vcPart_id ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
-                strSql.AppendLine("   SELECT vcPart_id,vcCarType as 'N+2 O/L',iBoxes as 'N+2 Units',iPartNums as 'N+2 PCS' ");
+                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+2 O/L',isnull(iBoxes,0) as 'N+2 Units',isnull(iPartNums,0) as 'N+2 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_3 + "'  and vcFZGC in (" + plants + ")  ");//内制
+                strSql.AppendLine("   WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_3 + "'  and vcFZGC in (" + plants + ")  ");//内制
                 strSql.AppendLine("  ) c ");
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id ");
 
@@ -425,10 +451,17 @@ namespace DataAccess
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strYearMonth, string strUserId)
+        public void importSave(DataTable dt, string strYearMonth, string strUserId,List<string> plantList)
         {
             try
             {
+                string plants = "";
+                for (int i = 0; i < plantList.Count; i++)
+                {
+                    plants += "'" + plantList[i] + "',";
+                }
+                plants = plants.Substring(0, plants.Length - 1);
+                string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                 StringBuilder sql = new StringBuilder();
                 sql.Append("      select * into #TSOQReply from       \n");
                 sql.Append("      (      \n");
@@ -441,13 +474,16 @@ namespace DataAccess
                     sql.Append("            \n");
                     sql.Append("      insert into #TSOQReply       \n");
                     sql.Append("       (         \n");
-                    sql.Append("       vcPart_id      \n");
+                    sql.Append("       vcPart_id,vcFZGC,vcMakingOrderType,vcCarType,iQuantityPercontainer,iBoxes,iPartNums      \n");
                     sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
                     sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
                     sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
                     sql.Append("       ) values         \n");
                     sql.Append("      (      \n");
-                    sql.Append("      '" + dt.Rows[i]["vcPart_id"] + "'      \n");
+                    sql.Append("      '" + dt.Rows[i]["vcPart_id"].ToString() + "','" + dt.Rows[i]["vcFZGC"].ToString() + "',      \n");
+                    sql.Append("      '" + dt.Rows[i]["vcMakingOrderType"].ToString() + "','" + dt.Rows[i]["vcCarType"].ToString() + "',      \n");
+                    sql.Append("      nullif('" + dt.Rows[i]["iQuantityPercontainer"].ToString() + "',''),nullif('" + dt.Rows[i]["iBoxes"].ToString() + "',''),      \n");
+                    sql.Append("      nullif('" + dt.Rows[i]["iPartNums"].ToString() + "','')     \n");
                     for (int j = 1; j < 32; j++)
                     {
                         sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["iD" + j], true) + "      \n");
@@ -455,19 +491,47 @@ namespace DataAccess
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("      update TSOQReply set vcOperatorID='" + strUserId + "',dOperatorTime=getdate(),      \n");
+                sql.Append("update t1 set t1.vcOperatorID='"+ strUserId + "',t1.dOperatorTime=GETDATE(),t1.vcFZGC=t2.vcFZGC,t1.vcMakingOrderType=t2.vcMakingOrderType,    \n");
+                sql.Append("t1.vcCarType=t2.vcCarType,t1.iQuantityPercontainer=t2.iQuantityPercontainer,t1.iBoxes=t2.iBoxes,t1.iPartNums=t2.iPartNums,     \n");
                 for (int j = 1; j < 32; j++)
                 {
-                    sql.Append(" iD" + j + "=b.iD" + j);
+                    sql.Append(" t1.iD" + j + "=t2.iD" + j);
                     if (j != 31)
                         sql.Append(",");
                 }
-                sql.Append("      from   TSOQReply a    \n");
-                sql.Append("      inner join(      \n");
-                sql.Append("        select * from #TSOQReply      \n");
-                sql.Append("      ) b on a.vcPart_id=b.vcPart_id      \n");
-                sql.Append("      and  a.vcInOutFlag='0'   \n ");//内制
-                sql.Append("      and  a.vcDXYM='" + strYearMonth + "'; \n  ");
+                sql.Append("    \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply    \n");
+                sql.Append("	where vcCLYM='"+ vcCLYM + "' and vcDXYM='"+ strYearMonth + "' and vcInOutFlag='0' and vcFZGC in (" + plants + ")    \n");
+                sql.Append(")t1    \n");
+                sql.Append("inner join (    \n");
+                sql.Append("	select * from #TSOQReply    \n");
+                sql.Append(")t2 on t1.vcPart_id=t2.vcPart_id    \n");
+
+                sql.Append("delete t1    \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply    \n");
+                sql.Append("	where vcCLYM='" + vcCLYM + "'  and vcInOutFlag='0' and vcFZGC in (" + plants + ")    \n");
+                sql.Append(")t1    \n");
+                sql.Append("left join (    \n");
+                sql.Append("	select * from #TSOQReply    \n");
+                sql.Append(")t2 on t1.vcPart_id=t2.vcPart_id    \n");
+                sql.Append("where t2.vcPart_id is null    \n");
+
+                //sql.Append("      update TSOQReply set vcOperatorID='" + strUserId + "',dOperatorTime=getdate(),vcFZGC=b.vcFZGC,vcMakingOrderType=b.vcMakingOrderType,      \n");
+                //sql.Append("      vcCarType=b.vcCarType,iQuantityPercontainer=b.iQuantityPercontainer,iBoxes=b.iBoxes,iPartNums=b.iPartNums      \n");
+                //for (int j = 1; j < 32; j++)
+                //{
+                //    sql.Append(" iD" + j + "=b.iD" + j);
+                //    if (j != 31)
+                //        sql.Append(",");
+                //}
+                //sql.Append("      from   TSOQReply a    \n");
+                //sql.Append("      inner join(      \n");
+                //sql.Append("        select * from #TSOQReply      \n");
+                //sql.Append("      ) b on a.vcPart_id=b.vcPart_id      \n");
+                //sql.Append("      and  a.vcInOutFlag='0'   \n ");//内制
+                //sql.Append("      and a.vcCLYM='"+vcCLYM+"' and  a.vcDXYM='" + strYearMonth + "'; \n  ");
 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
@@ -479,10 +543,11 @@ namespace DataAccess
         #endregion
 
         #region 获取展开的数据
-        public DataTable getZhankaiData(bool isZhankai, string strPlant)
+        public DataTable getZhankaiData(bool isZhankai,string strPlant)
         {
             StringBuilder sql = new StringBuilder();
-            sql.Append("   select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC='" + strPlant + "' \n");
+            string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
+            sql.Append("   select * from TSOQReply where  vcCLYM='"+vcCLYM+"' and vcInOutFlag='0' and vcFZGC='"+strPlant+"' \n");
             if (isZhankai)
                 sql.Append("  and dZhanKaiTime is not null  ");
             else
@@ -491,20 +556,71 @@ namespace DataAccess
         }
         #endregion
 
+        public int isHaveSORReplyData(string strPlant, string strCLYM)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select count(1) as num from TSoqReply where vcCLYM='" + strCLYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0'    \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public int isZhankai(string strPlant,string strCLYM)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select count(1) as num from TSoqReply where vcCLYM='" + strCLYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0' and dZhanKaiTime is not null    \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetFilePlant(string strCLYM,DataTable dt)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("      select * into #TSOQReply from       \n");
+                sql.Append("      (      \n");
+                sql.Append("      	select * from TSOQReply where 1=0      \n");
+                sql.Append("      ) a      ;\n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcPart_id"].ToString() == "")
+                        continue;
+                    sql.Append("      insert into #TSOQReply       \n");
+                    sql.Append("       (vcPart_id) values        \n");
+                    sql.Append("      ('" + dt.Rows[i]["vcPart_id"].ToString() + "')      \n");
+                }
+                sql.Append("select distinct t1.vcFZGC    \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply    \n");
+                sql.Append("	where vcCLYM='"+strCLYM+"'  --and vcInOutFlag='0'     \n");
+                sql.Append(")t1    \n");
+                sql.Append("inner join (    \n");
+                sql.Append("	select * from #TSOQReply    \n");
+                sql.Append(")t2 on t1.vcPart_id=t2.vcPart_id    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region 生产计划方法（王立伟）2020-01-21
 
         FS1203_DataAccess ICalendar2 = new FS1203_DataAccess();
 
-        #region 获取展开的数据
-        public DataTable getProData(string vcPlant, string vcYM)
-        {
-            StringBuilder sql = new StringBuilder();
-            sql.Append("select * from TSOQReply where  vcCLYM=convert(varchar(6),getdate(),112) and vcInOutFlag='0' and vcFZGC='" + vcPlant + "' \n");
-            return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-        }
-        #endregion
-
-        #region 上传更新生产计划
+        #region 生成生产计划
         public string updatePro(DataTable dt, string user, string mon, ref Exception e, string plant)
         {
             string msg = "";
@@ -522,7 +638,7 @@ namespace DataAccess
                     string month = dt.Rows[i]["vcMonth"].ToString();
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
-                    cmd.CommandText = " select iQuantityPerContainer  from tPartInfoMaster where vcPartsno = '" + partsno + "' and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCarType + "'   and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
+                    cmd.CommandText = "  select iQuantityPerContainer from tPartInfoMaster where vcPartsno= '" + partsno + "' and vcDock='" + vcDock + "' and vcCarFamilyCode='" + vcCarType + "' and dTimeFrom<= '" + month + "-01" + "' and dTimeTo>= '" + month + "-01" + "' ";
                     DataTable srsdt = new DataTable();
                     apt.Fill(srsdt);
                     cmd.CommandText = " select * from MonthProPlanTblTMP where montouch='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
@@ -533,11 +649,11 @@ namespace DataAccess
                     if (dt_udt.Rows.Count == 1)
                     {
                         int srs = Convert.ToInt32(srsdt.Rows[0]["iQuantityPerContainer"]);
-                        for (int j = 7, k = 14; j < dt_udt.Columns.Count - 5; j++, k++)
+                        for (int j = 7, k = 13; j < dt_udt.Columns.Count - 5; j++, k++)
                         {
                             if (dt_udt.Rows[0][j].ToString().Trim().Length > 0 && dt.Rows[i][k].ToString().Trim().Length == 0)
                             {
-                                msg = "第" + (i + 1).ToString() + "行，第" + (j + 1).ToString() + "列 稼动日历或LeaderTime在计划做成过程中修改，请重新导入SOQREPLY文件。";
+                                msg = "稼动日历或LeaderTime在计划做成过程中修改，请重新导入SOQREPLY文件。";
                                 cmd.Transaction.Rollback();
                                 cmd.Connection.Close();
                                 return msg;
@@ -550,6 +666,7 @@ namespace DataAccess
                                 return msg;
                             }
                         }
+                        #region 
                         dt_udt.Rows[0]["vcD1b"] = dt.Rows[i]["TD1b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD1b"]) : dt.Rows[i]["TD1b"];
                         dt_udt.Rows[0]["vcD1y"] = dt.Rows[i]["TD1y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD1y"]) : dt.Rows[i]["TD1y"];
                         dt_udt.Rows[0]["vcD2b"] = dt.Rows[i]["TD2b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD2b"]) : dt.Rows[i]["TD2b"];
@@ -612,6 +729,7 @@ namespace DataAccess
                         dt_udt.Rows[0]["vcD30y"] = dt.Rows[i]["TD30y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD30y"]) : dt.Rows[i]["TD30y"];
                         dt_udt.Rows[0]["vcD31b"] = dt.Rows[i]["TD31b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD31b"]) : dt.Rows[i]["TD31b"];
                         dt_udt.Rows[0]["vcD31y"] = dt.Rows[i]["TD31y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["TD31y"]) : dt.Rows[i]["TD31y"];
+                        #endregion
                         dt_udt.Rows[0]["CUPDUSER"] = user;
                         dt_udt.Rows[0]["DUPDTIME"] = DateTime.Now;
                         dt_udt.Rows[0]["CUPDUSER"] = user;
@@ -619,13 +737,13 @@ namespace DataAccess
                         sb = new SqlCommandBuilder(apt);
                         apt.Update(dt_udt);
                     }
-                    cmd.CommandText = " select  *  from dbo.MonthProPlanTblTMP  where vcMonth='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
+                    cmd.CommandText = " select * from MonthProPlanTblTMP where vcMonth='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
                     dt_udt = new DataTable();
                     apt.Fill(dt_udt);
                     if (dt_udt.Rows.Count == 1)
                     {
                         int srs = Convert.ToInt32(srsdt.Rows[0]["iQuantityPerContainer"]);
-                        for (int j = 7, k = 76; j < dt_udt.Columns.Count - 5; j++, k++)
+                        for (int j = 7, k = 75; j < dt_udt.Columns.Count - 5; j++, k++)
                         {
                             if (dt_udt.Rows[0][j].ToString().Trim().Length > 0 && dt.Rows[i][k].ToString().Trim().Length == 0)
                             {
@@ -642,6 +760,7 @@ namespace DataAccess
                                 return msg;
                             }
                         }
+                        #region 
                         dt_udt.Rows[0]["vcD1b"] = dt.Rows[i]["ED1b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED1b"]) : dt.Rows[i]["ED1b"];
                         dt_udt.Rows[0]["vcD1y"] = dt.Rows[i]["ED1y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED1y"]) : dt.Rows[i]["ED1y"];
                         dt_udt.Rows[0]["vcD2b"] = dt.Rows[i]["ED2b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED2b"]) : dt.Rows[i]["ED2b"];
@@ -704,6 +823,7 @@ namespace DataAccess
                         dt_udt.Rows[0]["vcD30y"] = dt.Rows[i]["ED30y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED30y"]) : dt.Rows[i]["ED30y"];
                         dt_udt.Rows[0]["vcD31b"] = dt.Rows[i]["ED31b"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED31b"]) : dt.Rows[i]["ED31b"];
                         dt_udt.Rows[0]["vcD31y"] = dt.Rows[i]["ED31y"].ToString().Length > 0 ? Convert.ToInt32(dt.Rows[i]["ED31y"]) : dt.Rows[i]["ED31y"];
+                        #endregion
                         dt_udt.Rows[0]["CUPDUSER"] = user;
                         dt_udt.Rows[0]["DUPDTIME"] = DateTime.Now;
                         sb = new SqlCommandBuilder(apt);
@@ -1077,7 +1197,7 @@ namespace DataAccess
                 string vcCarType = dt.Rows[j]["vcCarType"].ToString();
                 //20180928查看该品番的品番频度 - 李兴旺
                 string vcPartFrequence = "";
-                string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + partsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + month + "-01' and dTimeTo>='" + month + "-01' ";
+                string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + partsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + month + "-01' and dTimeTo>='" + month + "-01' ";
                 cmd.CommandText = sqlPartFrequence;
                 DataTable dtPartFrequence = new DataTable();
                 apt.Fill(dtPartFrequence);
@@ -1176,16 +1296,16 @@ namespace DataAccess
             sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and montouch ='{0}'", mon);
             sb.AppendLine("    union all ");
-            sb.AppendLine("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal, allTotal from MonthPackPlanTbl  ");
+            sb.AppendLine("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal , allTotal from MonthPackPlanTbl  ");
             sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
-            sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth='{0}'", mon);
+            sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth ='{0}'", mon);
             sb.AppendLine("    ) t1");
             sb.AppendLine("    left join (");
-            sb.AppendFormat("    select daysig, dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
+            sb.AppendFormat("    select daysig , dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
             sb.AppendLine("     )) P ) t2 ");
             sb.AppendLine("     on t1.allTotal = t2.dayN");
             sb.AppendLine(" ) tall ");
-            sb.AppendLine(" left join tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock and tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
+            sb.AppendLine(" left join dbo.tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock  and   tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
             sb.AppendFormat(" where tinfo.vcPartPlant ='{0}' ", plant);
             sb.AppendLine("    order by vcMonth , allTotal");
             cmd.CommandText = sb.ToString();
@@ -1208,16 +1328,16 @@ namespace DataAccess
             DataTable pro4 = new DataTable();
             apt.Fill(pro4);
             //------------------优化start
-            cmd.CommandText = " select top(1) * from tKanbanPrintTbl ";
+            cmd.CommandText = " select top(1)* from tKanbanPrintTbl ";
             DataTable BulkInsert = new DataTable();
             apt.Fill(BulkInsert);
             BulkInsert = BulkInsert.Clone();
             BulkInsert.Columns.Add("bushu");
             BulkInsert.Columns.Add("dayin");
             BulkInsert.Columns.Add("shengchan");
-            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
-            partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
-            partsql += "  where exists (select vcPartsno from MonthPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno) and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
+            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode ,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
+            partsql += " left join dbo.ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
+            partsql += "  where exists (select vcPartsno from MonthPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno  )  and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
             cmd.CommandText = partsql;
             DataTable dtcalendarname = new DataTable();
             apt.Fill(dtcalendarname);
@@ -1237,7 +1357,7 @@ namespace DataAccess
                     string flag = dr[j]["flag"].ToString();
                     //20180929查看该品番的品番频度 - 李兴旺                    
                     string vcPartFrequence = "";
-                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCartype + "' and dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01'  ";
+                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM SPPSBS.dbo.tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCartype + "' and dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01'  ";
                     cmd.CommandText = sqlPartFrequence;
                     DataTable dtPartFrequence = new DataTable();
                     apt.Fill(dtPartFrequence);
@@ -1568,6 +1688,7 @@ namespace DataAccess
                 string sqlPartType = "";
                 string sqlPartDate = "";
                 string strDate = "";
+
                 string[] montmp = mon.Split('-');
 
                 if (montmp[1] == "01")

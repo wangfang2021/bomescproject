@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common;
 using System.Data;
 using System.Text;
@@ -21,8 +22,8 @@ namespace DataAccess
                 sbr.AppendLine("  ");
                 sbr.AppendLine(" SELECT * INTO #temp FROM  ");
                 sbr.AppendLine(" ( ");
-                sbr.AppendLine(" 	SELECT vcPart_id,vcSupplier_id,vcOriginCompany,vcReceiver,vcCarTypeDesign,vcInOutflag,vcSYTCode FROM Tunit  ");
-                sbr.AppendLine(" 	---WHERE dTimeFrom >= GETDATE() AND dTimeTo <= GETDATE() AND dTimeTo <> dTimeFrom AND vcCarTypeDesign = '"+ vcCarType + "'  ");
+                sbr.AppendLine(" 	SELECT REPLACE(vcPart_id,'-','') as vcPart_id,vcSupplier_id,vcOriginCompany,vcReceiver,vcCarTypeDesign,vcInOutflag,vcSYTCode FROM Tunit  ");
+                sbr.AppendLine(" 	WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() AND dTimeTo <> dTimeFrom AND vcCarTypeDesign = '" + vcCarType + "'  ");
                 sbr.AppendLine(" ) a ");
                 sbr.AppendLine(" DECLARE @inSum INT ");
                 sbr.AppendLine(" DECLARE @outSum INT ");
@@ -107,12 +108,26 @@ namespace DataAccess
                 sbr.AppendLine(" WHERE  b.vcPackNo IS NOT NULL ");
                 sbr.AppendLine("  ");
                 sbr.AppendLine(" SELECT @inSum AS inSum ,@outSum AS outSum,@inSum+@outSum AS total,@inSQ AS inSQ,@outSQ AS outSQ,@inPrice AS inPrice,@outPrice AS outPrice,@inHezi AS inHezi,@outHezi AS outHezi,@inPack AS inPack,@outPack AS outPack, ");
-                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inSQ*100.0/@inSum))+'%' As inSQPer,ltrim(Convert(numeric(9,2),@outSQ*100.0/@outSum))+'%' As outSQPer, ");
-                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inPrice*100.0/@inSum))+'%' As inPricePer,ltrim(Convert(numeric(9,2),@outPrice*100.0/@outSum))+'%' As outPricePer, ");
-                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inHezi*100.0/@inSum))+'%' As inHeziPer,ltrim(Convert(numeric(9,2),@outHezi*100.0/@outSum))+'%' As outHeziPer, ");
-                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inPack*100.0/@inSum))+'%' As inPackPer,ltrim(Convert(numeric(9,2),@outPack*100.0/@outSum))+'%' As outPackPer ");
+                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inSQ*100.0/(CASE @inSum WHEN 0 THEN 1 ELSE @inSum END)))+'%' As inSQPer,ltrim(Convert(numeric(9,2),@outSQ*100.0/(CASE @outSum WHEN 0 THEN 1 ELSE @outSum END)))+'%' As outSQPer, ");
+                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inPrice*100.0/CASE @inSum WHEN 0 THEN 1 ELSE @inSum END))+'%' As inPricePer,ltrim(Convert(numeric(9,2),@outPrice*100.0/(CASE @outSum WHEN 0 THEN 1 ELSE @outSum END)))+'%' As outPricePer, ");
+                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inHezi*100.0/CASE @inSum WHEN 0 THEN 1 ELSE @inSum END))+'%' As inHeziPer,ltrim(Convert(numeric(9,2),@outHezi*100.0/(CASE @outSum WHEN 0 THEN 1 ELSE @outSum END)))+'%' As outHeziPer, ");
+                sbr.AppendLine(" ltrim(Convert(numeric(9,2),@inPack*100.0/CASE @inSum WHEN 0 THEN 1 ELSE @inSum END))+'%' As inPackPer,ltrim(Convert(numeric(9,2),@outPack*100.0/(CASE @outSum WHEN 0 THEN 1 ELSE @outSum END)))+'%' As outPackPer ");
 
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(),"TK");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getcarType()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT distinct vcCarTypeDesign FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {

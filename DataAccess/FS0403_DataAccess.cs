@@ -494,8 +494,25 @@ namespace DataAccess
         {
             try
             {
-                StringBuilder sbr = new StringBuilder();
-                //sbr.AppendLine("SELECT * WHERE vcChangeNo = '"+"""+"'")
+                DateTime t2;
+
+                DateTime.TryParseExact(DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " 10:00:00", "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out t2);
+
+                if (DateTime.Now <= t2)
+                {
+                    StringBuilder sbr = new StringBuilder();
+                    string time = DateTime.Now.ToString("yyyyMMdd");
+                    sbr.AppendLine("SELECT * WHERE vcChangeNo = '" + time + "'");
+                    DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                    if (dt.Rows.Count > 0)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
                 return true;
             }
             catch (Exception ex)
@@ -505,6 +522,47 @@ namespace DataAccess
         }
 
         #endregion
+
+        public DataTable getModify(DateTime DXR)
+        {
+            try
+            {
+                DataTable dt = getCalendar(DXR);
+                Hashtable hs = getDay(dt, DXR, 5);
+                StringBuilder sbr = new StringBuilder();
+
+                foreach (string key in hs.Keys)
+                {
+                    string YMD = hs[key].ToString();
+                    string ym = YMD.Substring(0, 6);
+                    string day = YMD.Substring(6, 2);
+                    if (day[0] == '0')
+                        day = day[1].ToString();
+                    if (sbr.Length > 0)
+                    {
+                        sbr.AppendLine("union all");
+                    }
+                    sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
+                    sbr.AppendLine("WHERE vcMakingOrderType = '0'");
+                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
+                }
+
+                if (sbr.Length > 0)
+                {
+                    StringBuilder sql = new StringBuilder();
+                    sql.AppendLine("select vcPart_id,vcDXYM,ISNULL(DayNum,0) AS DayNum,DXR  from (");
+                    sql.AppendLine(sbr.ToString());
+                    sql.AppendLine(") a");
+
+                    return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                }
+                return new DataTable();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }

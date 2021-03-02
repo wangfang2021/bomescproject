@@ -315,7 +315,7 @@ namespace DataAccess
                 strSql.AppendLine("          select  [vcSupplier_id], isnull([vcWorkArea],'无') from [dbo].[THeZiManage]         ");
                 strSql.AppendLine("      )  s   where vcSupplier_id='"+ vcSupplier_id + "'   	        ");
                 strSql.AppendLine("    ");
-                strSql.AppendLine("  ) t   ");
+                strSql.AppendLine("  ) t  order by vcWorkArea asc ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

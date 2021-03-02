@@ -24,7 +24,7 @@ namespace Logic
 
         #region 日别导入
 
-        public void ImportFile(DateTime time, DataTable excelTable, string strUserId, ref string refMsg)
+        public void ImportFile(DateTime time, DataTable excelTable, string strUserId, ref List<Object> refMsg)
         {
 
             try
@@ -40,11 +40,11 @@ namespace Logic
                 Hashtable ht = fs0403_dataAccess.getFluctuate();
 
                 List<FS0403_DataAccess.PartIDNode> list = new List<FS0403_DataAccess.PartIDNode>();
-
+                string changeNo = DateTime.Now.ToString("yyyyMMdd");
                 for (int i = 0; i < excelTable.Rows.Count; i++)
                 {
 
-                    string changeNo = excelTable.Rows[i]["vcchangeNo"].ToString();
+                    //string changeNo = excelTable.Rows[i]["vcchangeNo"].ToString();
                     string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
                     int excelquantity = Convert.ToInt32(excelTable.Rows[i]["iQuantity"]);
                     int soqQuantity = -1;
@@ -66,16 +66,16 @@ namespace Logic
 
                 }
 
-                refMsg = "";
                 foreach (FS0403_DataAccess.PartIDNode partIdNode in list)
                 {
                     if (!partIdNode.flag)
                     {
-                        refMsg += "品番" + partIdNode.partId + ":" + partIdNode.message;
+                        refMsg.Add(partIdNode);
+                        //refMsg += "品番" + partIdNode.partId + ":" + partIdNode.message;
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(refMsg))
+                if (refMsg.Count > 0)
                 {
                     return;
                 }
@@ -93,7 +93,21 @@ namespace Logic
         #endregion
 
 
+        public DataTable downLoadApi(string vcChangeNo)
+        {
+            return fs0403_dataAccess.downLoadApi(vcChangeNo);
+        }
 
+        public bool isUpload()
+        {
+            return fs0403_dataAccess.isUpload();
+        }
+
+
+        public DataTable getModify(DateTime DXR)
+        {
+            return fs0403_dataAccess.getModify(DXR);
+        }
     }
 
 }

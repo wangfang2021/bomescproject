@@ -628,6 +628,15 @@ namespace Logic
         }
         #endregion
 
+        #region 判断是否生成生产计划
+        public DataTable getProData(string vcPlant, string vcYM)
+        {
+            return fs0610_DataAccess.getProData(vcPlant, vcYM);
+        }
+        #endregion
+
+
+
         public int getMinbeishu(int m, int n)//求最小公倍数
         {
             int i = 0;
@@ -849,26 +858,16 @@ namespace Logic
             return dt;
         }
 
-        public string checkExcelData_Pro(ref DataTable dt1, string mon, string plant)
+        public string checkExcelData_Pro(ref DataTable dt, string mon, string plant)
         {
-            DataTable dt = dt1.Clone();
-            DataRow[] r = dt1.Select("vcPlant='#" + plant + "'");
-            for (int i = 0; i < r.Length; i++)
-            {
-                DataRow r1 = dt.NewRow();
-                for (int j = 0; j < dt.Columns.Count; j++)
-                {
-                    r1[j] = r[i][j];
-                }
-                dt.Rows.Add(r1);
-            }
-
             string msg = "";
             DataTable dt_Data = serchData(mon, "Importpro", "", plant, "");
-            dt_Data.Columns.Remove("vcEDflag");
-            dt.Columns.Remove("vcEDflag");
-            dt_Data.Columns.Remove("vcPlant");
-            dt.Columns.Remove("vcPlant");
+            if (dt_Data.Columns.Contains("vcEDflag"))
+                dt_Data.Columns.Remove("vcEDflag");
+            if (dt.Columns.Contains("vcEDflag"))
+                dt.Columns.Remove("vcEDflag");
+            //dt_Data.Columns.Remove("vcPlant");
+            //dt.Columns.Remove("vcPlant");
             if (dt_Data.Rows.Count != dt.Rows.Count)
             {
                 msg = "导入数据与本月初版生产计划不符，请重新导出修改！";
@@ -878,13 +877,13 @@ namespace Logic
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    DataRow[] dr = dt_Data.Select(" vcPartsno ='" + dt.Rows[i][1].ToString() + "' and  vcMonth ='" + dt.Rows[i][0].ToString() + "' and vcDock ='" + dt.Rows[i][2] + "' and vcCarType ='" + dt.Rows[i][3].ToString() + "'");
+                    DataRow[] dr = dt_Data.Select(" vcPartsno ='" + dt.Rows[i]["vcPartsno"].ToString() + "' and vcMonth ='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcDock ='" + dt.Rows[i]["vcDock"] + "' and vcCarType ='" + dt.Rows[i]["vcCarType"].ToString() + "'");
                     if (dr.Length == 0)
                     {
                         msg = "第" + (i + 2) + "行，初版生产计划无该条数据。";
                         return msg;
                     }
-                    for (int j = 0; j < 13; j++)//前13列基础信息 需要一致
+                    for (int j = 0; j < 14; j++)//前13列基础信息 需要一致
                     {
                         if (dr[0][j].ToString().Trim() != dt.Rows[i][j].ToString().Trim())
                         {
@@ -892,8 +891,8 @@ namespace Logic
                             return msg;
                         }
                     }
-                    int Totalnum = Convert.ToInt32(dr[0][12].ToString().Trim());
-                    for (int j = 13; j < dt_Data.Columns.Count; j++)
+                    int Totalnum = Convert.ToInt32(dr[0][13].ToString().Trim());
+                    for (int j = 14; j < dt_Data.Columns.Count; j++)
                     {
                         int k = 0;
                         if (dr[0][j].ToString().Trim().Length == 0 && dt.Rows[i][j].ToString().Trim().Length > 0)
@@ -927,6 +926,8 @@ namespace Logic
             dt = dt_Data;
             return msg;
         }
+
+
         public string ExcelPos(int i)//取得列位置
         {
             string re = "error";

@@ -18,27 +18,35 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcWorkArea, string dExpectReceiveDate)
+        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id, string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select [iAutoId], [dOrderHandleDate], [vcOrderNo], [vcPartNo], c.vcName as [vcInsideOutsideType], d.vcName as [vcNewOldFlag],    ");
+                strSql.AppendLine("  select [iAutoId],case when vcIsExportFlag ='1' then '已导入' else '未导入' end as vcIsExportFlag, convert(varchar(10), dOrderHandleDate,111) as [dOrderHandleDate], [vcOrderNo], [vcPartNo], c.vcName as [vcInsideOutsideType], d.vcName as [vcNewOldFlag],    ");
                 strSql.AppendLine("  b.vcName as [vcInjectionFactory], [vcDock], [vcSupplier_id], [vcWorkArea], [vcCHCCode], [vcCarType], [vcOrderNum],     ");
-                strSql.AppendLine("  [dExpectReceiveDate], [vcOderTimes],[vcInjectionOrderNo], [vcMemo],      ");
+                strSql.AppendLine("   convert(varchar(10), dExpectReceiveDate,111) as [dExpectReceiveDate], [vcOderTimes],[vcInjectionOrderNo], [vcMemo],      ");
                 strSql.AppendLine("   [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag  from TEmergentOrderManage a   ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C000') b on a.vcInjectionFactory = b.vcValue   ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C003') c on a.vcInsideOutsideType = c.vcValue   ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C004') d on a.vcNewOldFlag = d.vcValue where 1=1    ");
 
+                if (vcIsExportFlag.Length>0)
+                {
+                    strSql.AppendLine("  and  vcIsExportFlag = '" + vcIsExportFlag + "' ");
+                }
+                if (dOrderHandleDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  convert(varchar(10), dOrderHandleDate,112) = '" + dOrderHandleDate.Replace("-", "").Replace("/", "") + "'  ");
+                }
                 if (vcOrderNo.Length > 0)
                 {
                     strSql.AppendLine("  and  vcOrderNo like '%" + vcOrderNo + "%' ");
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPartNo like '%" + vcPartNo + "%' ");
+                    strSql.AppendLine("  and  vcPartNo like '" + vcPartNo + "%' ");
                 }
                 if (vcInsideOutsideType.Length > 0)
                 {
@@ -52,13 +60,42 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  vcInjectionFactory = '" + vcInjectionFactory + "' ");
                 }
+                if (vcSupplier_id.Length > 0)
+                {
+                    if (vcSupplier_id=="无")
+                    {
+                        strSql.AppendLine("  and  isnull(vcSupplier_id,'') = '' ");
+                    } else
+                    {
+                        strSql.AppendLine("  and  vcSupplier_id = '" + vcSupplier_id + "' ");
+                    }
+                }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea like '" + vcWorkArea + "' ");
+                    if (vcWorkArea == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(vcWorkArea,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                    }
+                    
+                }
+                if (vcInjectionOrderNo.Length>0)
+                {
+                    if (vcInjectionOrderNo == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(vcInjectionOrderNo,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  left(vcInjectionOrderNo,6) like '" + vcInjectionOrderNo + "%' ");
+                    }
                 }
                 if (dExpectReceiveDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExpectReceiveDate,112) = '" + dExpectReceiveDate.Replace("-", "") + "' ");
+                    strSql.AppendLine("  and   convert(varchar(10), dExpectReceiveDate,112) = '" + dExpectReceiveDate.Replace("-", "").Replace("/", "") + "'  ");
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
@@ -70,7 +107,113 @@ namespace DataAccess
             }
         }
 
-      
+        public void creatInjectionOrderNo(DataTable dtWZ, string userId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                //
+                int iAutoId = 0;
+                string dExpectReceiveDate = string.Empty;
+                string vcOderTimes = string.Empty;
+                string vcInjectionOrderNo = string.Empty;
+                for (int i=0;i<dtWZ.Rows.Count;i++)
+                {
+                    iAutoId = Convert.ToInt32(dtWZ.Rows[i]["iAutoId"]);
+                    dExpectReceiveDate = dtWZ.Rows[i]["dExpectReceiveDate"].ToString();
+                    vcOderTimes = dtWZ.Rows[i]["vcOderTimes"].ToString();
+                    vcInjectionOrderNo = dExpectReceiveDate.Replace("/", "") + vcOderTimes + "E1";
+                    sql.Append("   update TEmergentOrderManage set vcInjectionOrderNo='"+ vcInjectionOrderNo + "',vcOperatorID='"+ userId + "',dOperatorTime=GETDATE() where iAutoId="+ iAutoId + ";  ");
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("   select vcWorkArea as vcValue,vcWorkArea as vcName from(     ");
+                strSql.AppendLine("   select distinct isnull(vcWorkArea,'无') as vcWorkArea from     ");
+                strSql.AppendLine("   TEmergentOrderManage   where vcSupplier_id='"+ supplierCode + "'    ");
+                strSql.AppendLine("   ) t  order by vcWorkArea asc     ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetInjectionOrderNo()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("    select vcInjectionOrderNo as vcValue,vcInjectionOrderNo as vcName from(     ");
+                strSql.AppendLine("    select distinct isnull(left(vcInjectionOrderNo,6),'无') as vcInjectionOrderNo from TEmergentOrderManage     ");
+                strSql.AppendLine("    ) t  order by vcInjectionOrderNo asc     ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkArea()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("     select vcWorkArea as vcValue,vcWorkArea as vcName from(    ");
+                strSql.AppendLine("     select distinct isnull(vcWorkArea,'无') as vcWorkArea from TEmergentOrderManage      ");
+                strSql.AppendLine("     ) t  order by vcWorkArea asc    ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetSupplier()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("    select vcSupplier_id as vcValue,vcSupplier_id as vcName from(     ");
+                strSql.AppendLine("    select distinct isnull(vcSupplier_id,'无') as vcSupplier_id from TEmergentOrderManage     ");
+                strSql.AppendLine("    ) t  order by vcSupplier_id asc     ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
         /// <summary>
         /// 保存
@@ -185,6 +328,9 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    string iAutoId = dt.Rows[i]["iAutoId"] == System.DBNull.Value ? "" : dt.Rows[i]["iAutoId"].ToString();
+                    string vcIsExportFlag = dt.Rows[i]["vcIsExportFlag"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIsExportFlag"].ToString();
+                    string dOrderHandleDate = dt.Rows[i]["dOrderHandleDate"] == System.DBNull.Value ? DateTime.Now.ToString("yyyy-MM-dd") : Convert.ToDateTime(dt.Rows[i]["dOrderHandleDate"].ToString()).ToString();
                     string vcOrderNo = dt.Rows[i]["vcOrderNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOrderNo"].ToString();
                     string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
                     string vcInsideOutsideType = dt.Rows[i]["vcInsideOutsideType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInsideOutsideType"].ToString();
@@ -218,20 +364,38 @@ namespace DataAccess
                     string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString();
                     string vcOrderNum = dt.Rows[i]["vcOrderNum"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOrderNum"].ToString();
 
-                    string dExpectReceiveDate = dt.Rows[i]["dExpectReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dExpectReceiveDate"].ToString()).ToString();
-                    string vcOderTimes = dt.Rows[i]["vcOderTimes"] == System.DBNull.Value ? "null" : dt.Rows[i]["vcOderTimes"].ToString();
+                    string dExpectReceiveDate = dt.Rows[i]["dExpectReceiveDate"] == System.DBNull.Value ? "" : Convert.ToDateTime(dt.Rows[i]["dExpectReceiveDate"].ToString()).ToString();
+                    string vcOderTimes = dt.Rows[i]["vcOderTimes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOderTimes"].ToString();
                     string vcInjectionOrderNo = dt.Rows[i]["vcInjectionOrderNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInjectionOrderNo"].ToString();
                     string vcMemo = dt.Rows[i]["vcMemo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMemo"].ToString();
 
+                    if (iAutoId == "")
+                    {
+                        strSql.AppendLine("  insert into TEmergentOrderManage ( [dOrderHandleDate], [vcOrderNo], [vcPartNo], [vcInsideOutsideType], [vcNewOldFlag],   ");
+                        strSql.AppendLine("  [vcInjectionFactory], [vcDock], [vcSupplier_id], [vcWorkArea], [vcCHCCode], [vcCarType], [vcOrderNum],   ");
+                        strSql.AppendLine("  [dExpectReceiveDate], [vcOderTimes], [vcInjectionOrderNo], [vcMemo], [vcOperatorID], [dOperatorTime]) values(   ");
+                        strSql.AppendLine("  " + getSqlValue(dOrderHandleDate, true) + "," + getSqlValue(vcOrderNo, true) + ",'" + vcPartNo + "','" + vcInsideOutsideType + "','" + vcNewOldFlag + "'  ");
+                        strSql.AppendLine("   ,'" + vcInjectionFactory + "','" + vcDock + "','" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCHCCode + "','" + vcCarType + "','" + vcOrderNum + "'  ");
+                        strSql.AppendLine("   ," + getSqlValue(dExpectReceiveDate, true) + "," + getSqlValue(vcOderTimes, true) + "," + getSqlValue(vcInjectionOrderNo, true) + "," + getSqlValue(vcMemo, true) + "' ");
+                        strSql.AppendLine("   ,'" + strUserId + "',GETDATE()) ;   ");
+                    }
+                    else
+                    {
 
-                    strSql.AppendLine("  insert into TEmergentOrderManage ( [dOrderHandleDate], [vcOrderNo], [vcPartNo], [vcInsideOutsideType], [vcNewOldFlag],   ");
-                    strSql.AppendLine("  [vcInjectionFactory], [vcDock], [vcSupplier_id], [vcWorkArea], [vcCHCCode], [vcCarType], [vcOrderNum],   ");
-                    strSql.AppendLine("  [dExpectReceiveDate], [vcOderTimes], [vcInjectionOrderNo], [vcMemo], [vcOperatorID], [dOperatorTime]) values(   ");
-                    strSql.AppendLine("   GETDATE(),'" + vcOrderNo + "','" + vcPartNo + "','" + vcInsideOutsideType + "','" + vcNewOldFlag + "'  ");
-                    strSql.AppendLine("   ,'" + vcInjectionFactory + "','" + vcDock + "','" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCHCCode + "','" + vcCarType + "','" + vcOrderNum + "'  ");
-                    strSql.AppendLine("   ,'" + dExpectReceiveDate + "','" + vcOderTimes + "','" + vcInjectionOrderNo + "','" + vcMemo + "' ");
-                    strSql.AppendLine("   ,'" + strUserId + "',GETDATE()) ;   ");
-
+                        if (dExpectReceiveDate.Length>0)
+                        {
+                            if (vcOderTimes.Length > 0)
+                            {
+                            }
+                            else
+                            {
+                                vcOderTimes = "01";
+                            }
+                        }
+                        strSql.AppendLine("   update TEmergentOrderManage set   ");
+                        strSql.AppendLine("   dExpectReceiveDate=" + getSqlValue(dExpectReceiveDate, true) + ",vcOderTimes=" + getSqlValue(vcOderTimes, true) + ",vcOperatorID='" + strUserId + "',dOperatorTime=GETDATE()  where iAutoId='" + iAutoId + "';  ");
+                        strSql.AppendLine("     ");
+                    }
                 }
                 if (strSql.Length > 0)
                 {

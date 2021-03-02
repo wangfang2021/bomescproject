@@ -39,7 +39,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select a.iAutoId, b.vcGroupName,a.vcPartNo,a.vcFluctuationRange,b.vcDefinition,   ");
+                strSql.AppendLine("  select a.iAutoId, b.vcGroupName,a.vcPartNo,cast(isnull(a.vcFluctuationRange,0) as decimal(18,2)) as vcFluctuationRange,b.vcDefinition,   ");
                 strSql.AppendLine("  '0' as vcModFlag,'0' as vcAddFlag,a.vcOperatorID,a.dOperatorTime   ");
                 strSql.AppendLine("  from TDaysChangeOrdersBaseData a   ");
                 strSql.AppendLine("  left join (select iAutoId,vcGroupName,vcDefinition from [dbo].[TGroup]) b    ");

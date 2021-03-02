@@ -8,6 +8,7 @@ using System.Text;
 using Common;
 using DataAccess;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Office.Core;
 using NPOI.HSSF.UserModel;
 using NPOI.HSSF.Util;
 using NPOI.SS.Formula.Functions;
@@ -24,11 +25,11 @@ namespace Logic
 
         #region 获取抽取状态
 
-        public DataTable getExtractState(string OriginCompany)
+        public DataTable getExtractState(string userId)
         {
             DataTable dt = fs0307_dataAccess.getExtractState();
-
-            int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
+            string OriginCompany = getOriginCompany(userId);
+            string[] arrInt = OriginCompany.Split(",");
             string tmp = "";
             for (int i = 0; i < arrInt.Length; i++)
             {
@@ -54,9 +55,20 @@ namespace Logic
 
         #region 检索
 
-        public DataTable searchApi(string strYear, string FinishFlag, string OriginCompany)
+        public DataTable searchApi(string strYear, string FinishFlag, string userId)
         {
-            return fs0307_dataAccess.searchApi(strYear, FinishFlag, OriginCompany);
+            string OriginCompany = getOriginCompany(userId);
+            string[] arrInt = OriginCompany.Split(",");
+            string tmp = "";
+            for (int i = 0; i < arrInt.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(tmp))
+                {
+                    tmp += ",";
+                }
+                tmp += "'" + arrInt[i].ToString() + "'";
+            }
+            return fs0307_dataAccess.searchApi(strYear, FinishFlag, tmp);
         }
 
         #endregion
@@ -476,6 +488,24 @@ namespace Logic
                 return "";
                 throw;
             }
+        }
+
+        public string getOriginCompany(string userId)
+        {
+            return fs0307_dataAccess.getOriginCompany(userId);
+        }
+
+        public List<string> OriginCompanys(string userId)
+        {
+            List<string> list = new List<string>();
+            string ori = fs0307_dataAccess.getOriginCompany(userId);
+            string[] arrInt = ori.Split(",");
+            for (int i = 0; i < arrInt.Length; i++)
+            {
+                list.Add(arrInt[i]);
+            }
+
+            return list;
         }
     }
 }

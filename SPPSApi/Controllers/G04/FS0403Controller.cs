@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G04
 {
@@ -50,7 +51,7 @@ namespace SPPSApi.Controllers.G04
             {
                 DataTable dt = fs0403_Logic.searchApi(changeNo, state, orderNo);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dFileUpload", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFileUpload", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -67,6 +68,55 @@ namespace SPPSApi.Controllers.G04
         #endregion
 
 
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
+            JArray listInfo = dataForm.multipleSelection;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+
+            try
+            {
+                string changeNo = listInfoData[0]["vcChangeNo"].ToString();
+
+                DateTime t2;
+                DateTime.TryParseExact(changeNo, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+
+                DataTable dt = fs0403_Logic.getModify(t2);
+                string resMsg = "";
+                string[] heads = { "品番", "对象月", "对象日", "日订单数" };
+                string[] fields = { "vcPart_id", "vcDXYM", "DXR", "DayNum" };
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0103", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

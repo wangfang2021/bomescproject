@@ -20,7 +20,7 @@ namespace DataAccess
                 //string ssql = " select * from dbo.MonthPackPlanTbl t where (montouch = '" + mon + "' or vcMonth = '" + mon + "') and exists (select vcPartsNo from dbo.tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = t.vcPartsno) ";
                 string ssql = " select * from WeekPackPlanTbl where (montouch = '" + mon + "' or (vcMonth = '" + mon + "' and  montouch is null)) and exists ( select distinct vcPartsNo,vcDock ,vcCarType from tPlanPartInfo where tPlanPartInfo.vcMonth = '" + mon + "' and tPlanPartInfo.vcPlant ='" + plant + "' and tPlanPartInfo.vcPartsNo = MonthPackPlanTbl.vcPartsno and tPlanPartInfo.vcDock = MonthPackPlanTbl.vcDock and tPlanPartInfo.vcCarType = MonthPackPlanTbl.vcCarType  ) ;";
                 //2013-6-8 改造 end
-                DataTable dt =excute.ExcuteSqlWithSelectToDT(ssql);
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(ssql);
                 if (dt.Rows.Count > 0)
                 {
                     return "已经存在该月计划！";
@@ -32,6 +32,20 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        #region 取得txt文件路径
+        /// <summary>
+        /// 取得txt路径
+        /// </summary>
+        /// <param name="vcYM"></param>
+        /// <param name="vcWeek"></param>
+        /// <returns></returns>
+        public DataTable getTxtFileRoute(string vcYM, string vcWeek)
+        {
+            string sql = "select top 1 * from TOrderUploadManage where vcTargetYear+'-'+vcTargetMonth='" + vcYM + "' and vcTargetWeek='" + vcWeek + "' order by dUploadDate desc";
+            return excute.ExcuteSqlWithSelectToDT(sql);
+        }
+        #endregion
 
         //获取临时表的值别计划
         public DataTable getMonPackPlanTMP(string mon, string tablename, string plant)

@@ -438,9 +438,12 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                List<Object> strSupplierCode = new List<object>();
+                FS0701_Logic FS0701_Logic = new FS0701_Logic();
+                DataTable dt = FS0702_Logic.Search("","","","","","","","","","","");
+                DataTable dt1 = FS0701_Logic.Search("", "", "", strSupplierCode, "", "", "", "");
                 string strErrorPartId = "";
-                FS0702_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                FS0702_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, dt, dt1);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

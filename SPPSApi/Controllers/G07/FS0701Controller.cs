@@ -94,7 +94,12 @@ namespace SPPSApi.Controllers.G07
             string PackSpot = dataForm.PackSpot;//包装厂
             string PackNo = dataForm.PackNo;//包材品番
             string PackGPSNo = dataForm.PackGPSNo;//GPS品番
-            string strSupplierCode = dataForm.SupplierCode;//供应商
+
+           //供应商
+            List<Object> strSupplierCode = new List<object>();
+            strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+
+
             string dFromB = dataForm.dtKaishiBegin;
             string dFromE = dataForm.dtKaishiEnd;
             string dToB = dataForm.dtJieshuBegin;
@@ -150,7 +155,8 @@ namespace SPPSApi.Controllers.G07
             string PackSpot = dataForm.PackSpot;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string strSupplierCode = dataForm.SupplierCode;
+            List<Object> strSupplierCode = new List<object>();
+            strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
             string dFromB = dataForm.dtKaishiBegin;
             string dFromE = dataForm.dtKaishiEnd;
             string dToB = dataForm.dtJieshuBegin;

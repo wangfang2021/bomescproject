@@ -147,7 +147,6 @@ namespace DataAccess
         }
         #endregion
 
-
         #region 获取原单位生确单发行的逻辑Sql语句
         /// <summary>
         /// 获取原单位生确单发行的逻辑Sql语句
@@ -171,7 +170,7 @@ namespace DataAccess
                 strSql.AppendLine("         ,vcSumLater         ");
                 strSql.AppendLine("         ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6         ");
                 strSql.AppendLine("         ,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcSCSName         ");
-                strSql.AppendLine("         ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate         ");
+                strSql.AppendLine("         ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate,GUID         ");
                 strSql.AppendLine("        )         ");
                 strSql.AppendLine("        select          ");
                 strSql.AppendLine("        	a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDev         ");
@@ -179,7 +178,7 @@ namespace DataAccess
                 strSql.AppendLine("           ,a.vcSumLater_Name         ");
                 strSql.AppendLine("           ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");
                 strSql.AppendLine("           ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcSYTCode,a.vcProduct_name         ");
-                strSql.AppendLine("           ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate         ");
+                strSql.AppendLine("           ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate,'"+Guid.NewGuid().ToString()+"'         ");
                 strSql.AppendLine("         from          ");
                 strSql.AppendLine("        (         ");
                 strSql.AppendLine("        	select a.*         ");
@@ -194,14 +193,6 @@ namespace DataAccess
                 strSql.AppendLine("        	 ) b on a.vcSupplier_id = b.vcSupplier_id         ");
                 strSql.AppendLine("                 ");
                 strSql.AppendLine("        ) a         ");
-                strSql.AppendLine("        left join         ");
-                strSql.AppendLine("        (         ");
-                strSql.AppendLine("        	select vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from TSQJD         ");
-                strSql.AppendLine("        ) b on a.vcPart_id = b.vcPart_id         ");
-                strSql.AppendLine("        	and a.vcSupplier_id = b.vcSupplier_id         ");
-                strSql.AppendLine("        	and a.vcSYTCode = b.vcSYTCode         ");
-                strSql.AppendLine("        	and a.vcReceiver = b.vcReceiver         ");
-                strSql.AppendLine("        where b.vcPart_id is null         ");
                 strSql.AppendLine("                 ");
                 #endregion
 
@@ -216,20 +207,21 @@ namespace DataAccess
 
         #region 获取更新原单位纳期Sql语句
         /// <summary>
-        /// 获取更新原单位纳期Sql语句
+        /// 更新原单位信息
         /// </summary>
         /// <param name="strNqDate">纳期日期</param>
-        /// <param name="listInfoData">要更改的数据列表</param>
+        /// <param name="listInfoData">要更改的数据集</param>
         /// <returns>sql语句</returns>
-        public StringBuilder getUpdateTunitNqSql(string strNqDate,List<Dictionary<string, Object>> listInfoData)
+        public StringBuilder getUpdateUnitSql(string strNqDate,List<Dictionary<string, Object>> listInfoData)
         {
             StringBuilder strSql = new StringBuilder();
             try
             {
+                string date = DateTime.Now.ToString("yyyyMMdd");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string iAuto = listInfoData[i]["iAutoId"].ToString();
-                    strSql.AppendLine("      update TUnit set dNqDate = '"+strNqDate+"' where iAutoId = '"+iAuto+"'       \n");
+                    strSql.AppendLine("      update TUnit set dNqDate = '"+strNqDate+"',vcSQContent = '确认中 "+date+ "',vcSQState = '1' where iAutoId = '" + iAuto+"'       \n");
                 }
                 return strSql;
             }

@@ -39,6 +39,20 @@ namespace Logic
             }
         }
 
+        #region 取得txt文件路径
+        /// <summary>
+        /// 取得txt路径
+        /// </summary>
+        /// <param name="vcYM"></param>
+        /// <param name="vcWeek"></param>
+        /// <returns></returns>
+        public DataTable getTxtFileRoute(string vcYM, string vcWeek)
+        {
+            return fs0610_DataAccess.getTxtFileRoute(vcYM, vcWeek);
+        }
+        #endregion
+
+
         #region 导入Excel文件数据校验 - 李兴旺整理
 
         public string checkExcelHeadpos(DataTable dt, DataTable dtTmplate)
@@ -95,7 +109,7 @@ namespace Logic
         }
         #endregion
 
-        public DataTable BdpdFileExport(DataTable dt, ref string exlName,ref string msg)
+        public DataTable BdpdFileExport(DataTable dt, ref string exlName, ref string msg)
         {
             DataTable dtResult = new DataTable();//生成表格，导出到Excel
             dtResult.Columns.Add("vcMonth");//对象月

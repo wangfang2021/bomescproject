@@ -53,5 +53,10 @@ namespace Logic
         {
             return fs0618_DataAccess.getSupplier();
         }
+
+        public DataTable getOrderType()
+        {
+            return fs0618_DataAccess.getOrderType();
+        }
     }
 }

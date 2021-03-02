@@ -161,6 +161,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string dOperatorTime = dataForm.dOperatorTime == null ? "" : dataForm.dOperatorTime;
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
@@ -170,7 +171,7 @@ namespace SPPSApi.Controllers.G06
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                DataTable dt = fs0620_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+                DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -203,6 +204,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string dOperatorTime = dataForm.dOperatorTime == null ? "" : dataForm.dOperatorTime;
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
@@ -212,15 +214,15 @@ namespace SPPSApi.Controllers.G06
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                DataTable dt = fs0620_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
+                DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
                 head = new string[] { "导入时间","年计类型","收货方", "包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
                 field = new string[] { "dOperatorTime","vcType", "vcReceiver", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType","vcSupplier_id", "vcWorkArea",  "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
-                string msg = string.Empty;
-                //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
-                string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
+                string msg = string.Empty; 
+                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0620_Data.xlsx", 1, loginInfo.UserId, FunctionID);
+                //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -240,7 +242,47 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+        #region 删除操作
+        [HttpPost]
+        [EnableCors("any")]
+        public string delApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
 
+                //以下开始业务处理
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先检索数据，再进行删除操作！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fs0620_Logic.del(listInfoData);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2008", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
         #region 年计邮件发送
         [HttpPost]
         [EnableCors("any")]
@@ -338,8 +380,8 @@ namespace SPPSApi.Controllers.G06
                 string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                 StringBuilder strErr = new StringBuilder();
                 bool bReault = true;
-                FS0603_Logic fs0603_Logic = new FS0603_Logic();
-                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                //FS0603_Logic fs0603_Logic = new FS0603_Logic();
+                DataTable dtMessage = fs0620_Logic.createTable("email");
                 for (int i=0;i<dtSelect.Rows.Count;i++)
                 {
                     //组织制定供应商和工区的数据
@@ -357,6 +399,8 @@ namespace SPPSApi.Controllers.G06
                     if (filepath == "")
                     {
                         DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcSupplier_id"] = vcSupplier_id;
+                        dataRow["vcWorkArea"] = vcWorkArea;
                         dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件没有生产成功，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
@@ -376,6 +420,8 @@ namespace SPPSApi.Controllers.G06
                         writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea+ "缺少邮箱，不能发送!");
                         DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcSupplier_id"] = vcSupplier_id;
+                        dataRow["vcWorkArea"] = vcWorkArea;
                         dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "没有维护邮箱，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
@@ -387,6 +433,8 @@ namespace SPPSApi.Controllers.G06
                         writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱冗余,不能发送!");
                         DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcSupplier_id"] = vcSupplier_id;
+                        dataRow["vcWorkArea"] = vcWorkArea;
                         dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱维护冗余有误，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
@@ -416,6 +464,8 @@ namespace SPPSApi.Controllers.G06
                         writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空,不能发送!");
                         DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcSupplier_id"] = vcSupplier_id;
+                        dataRow["vcWorkArea"] = vcWorkArea;
                         dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
@@ -483,6 +533,8 @@ namespace SPPSApi.Controllers.G06
                     else
                     {
                         DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcSupplier_id"] = vcSupplier_id;
+                        dataRow["vcWorkArea"] = vcWorkArea;
                         dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送失败，邮件发送公共方法未知原因！";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
@@ -578,6 +630,61 @@ namespace SPPSApi.Controllers.G06
         //}
         //#endregion
 
+        /// <summary>
+        /// 导出消息信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                //DataTable dataTable = fs0603_Logic.createTable("MES");
+                //FS0404_Logic fs0404_Logic = new FS0404_Logic();
+                DataTable dataTable = fs0620_Logic.createTable("email");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"].ToString();
+                    dataRow["vcWorkArea"] = listInfoData[i]["vcWorkArea"].ToString();
+                    dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
+                    dataTable.Rows.Add(dataRow);
+                }
+
+                string[] fields = { "vcSupplier_id", "vcWorkArea", "vcMessage" };
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0620_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
         #region  报表导出
         [HttpPost]
         [EnableCors("any")]
@@ -594,15 +701,24 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
+            string vcType= dataForm.vcType == null ? "" : dataForm.vcType;
             if (vcTargetYear=="")
             {
-                vcTargetYear = DateTime.Now.ToString("yyyy");
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "对象年份为空，无法导出报表！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            if (vcType == "")
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "年计类型为空，无法导出报表！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             string filepath = "";
             try
             {
                 //获取内制  根据工厂动态生成Datatable
-                DataTable dtPlant = fs0620_Logic.getPlant(vcTargetYear);
+                DataTable dtPlant = fs0620_Logic.getPlant(vcTargetYear, vcType);
                 if (dtPlant.Rows.Count==0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -614,15 +730,15 @@ namespace SPPSApi.Controllers.G06
                 for (int i=0;i<dtPlant.Rows.Count;i++)
                 {
                     string plantCode = dtPlant.Rows[i]["vcInjectionFactory"].ToString(); //发注工厂
-                    DataTable dt = fs0620_Logic.getDtByTargetYearAndPlant(vcTargetYear, plantCode);
+                    DataTable dt = fs0620_Logic.getDtByTargetYearAndPlant(vcTargetYear, plantCode, vcType);
                     arrayList.Add(dt);
                 }
                 // 外注
                 DataTable dtWaiZhu = new DataTable();
-                dtWaiZhu = fs0620_Logic.getWaiZhuDt(vcTargetYear);
+                dtWaiZhu = fs0620_Logic.getWaiZhuDt(vcTargetYear, vcType);
                 //最终合计
                 DataTable dthuiZong = new DataTable();
-                dthuiZong = fs0620_Logic.getHuiZongDt(vcTargetYear);
+                dthuiZong = fs0620_Logic.getHuiZongDt(vcTargetYear, vcType);
 
                 #region 导出报表
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();//用于创建xlsx

@@ -404,7 +404,7 @@ namespace DataAccess
                     sql.Append("       ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDate         \n");
                     sql.Append("       ,vcMeno,vcFXDiff,vcFXNo,vcNum1,vcNum2,vcNum3,vcNum4         \n");
                     sql.Append("       ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10         \n");
-                    sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo         \n");
+                    sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcSumLater,vcZXBZNo         \n");
                     sql.Append("       ,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime,vcRemark         \n");
                     sql.Append("       ) values         \n");
                     sql.Append("                ");
@@ -482,6 +482,18 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum13"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum14"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum15"], true) + "      \n");
+
+                    #region 计算旧型经年必要计算数
+                    if (dt.Rows[i]["vcNum1"]==null && dt.Rows[i]["vcNum2"] == null && dt.Rows[i]["vcNum3"] == null && dt.Rows[i]["vcNum4"] == null && dt.Rows[i]["vcNum5"] == null && dt.Rows[i]["vcNum6"] == null && dt.Rows[i]["vcNum7"] == null && dt.Rows[i]["vcNum8"] == null && dt.Rows[i]["vcNum9"] == null && dt.Rows[i]["vcNum10"] == null && dt.Rows[i]["vcNum11"] == null && dt.Rows[i]["vcNum12"] == null && dt.Rows[i]["vcNum13"] == null && dt.Rows[i]["vcNum14"] == null && dt.Rows[i]["vcNum15"] == null)
+                    {
+                        sql.Append("      ,null      \n");
+                    }
+                    else
+                    {
+
+                    }
+                    #endregion
+
                     sql.Append(@"      ," + ComFunction.getSqlValue(dt.Rows[i]["vcZXBZNo"], true) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcReceiver_Name"], true) + "     \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcOriginCompany_Name"], true) + "     \n");
@@ -631,11 +643,58 @@ namespace DataAccess
         {
             try
             {
-                StringBuilder sql = new StringBuilder();
+                StringBuilder strSql = new StringBuilder();
 
-                sql = sync.getUpdateTunitNqSql(strSqDate, listInfoData);
-                sql.Append(sync.getSQSendSql(listInfoData));
-                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+                #region 创建临时表，将所选数据插入临时表
+                strSql.AppendLine("        if object_id('tempdb...#TUnit_temp') is not null        ");
+                strSql.AppendLine("        begin         ");
+                strSql.AppendLine("        drop table #TUnit_temp        ");
+                strSql.AppendLine("        end        ");
+                strSql.AppendLine("        select * into #TUnit_temp from TUnit       ");
+                strSql.AppendLine("        where 1=0        ");
+                #endregion
+
+                #region 根据品番、供应商代码、包装事业体、收货方，将数据插入生确表
+                strSql.AppendLine("        insert into TSQJD         ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("         dSSDate,vcJD,vcPart_id,vcSPINo,vcChange,vcCarType         ");
+                strSql.AppendLine("         ,vcInOutflag,vcPartName,vcOE,vcSupplier_id,vcFXDiff,vcFXNo         ");
+                strSql.AppendLine("         ,vcSumLater         ");
+                strSql.AppendLine("         ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6         ");
+                strSql.AppendLine("         ,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcSCSName         ");
+                strSql.AppendLine("         ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate,GUID         ");
+                strSql.AppendLine("        )         ");
+                strSql.AppendLine("        select          ");
+                strSql.AppendLine("        	a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDev         ");
+                strSql.AppendLine("           ,a.vcInOutflag,a.vcPartNameEn,a.vcOE,a.vcSupplier_id,a.vcFXDiff,a.vcFXNo         ");
+                strSql.AppendLine("           ,a.vcSumLater_Name         ");
+                strSql.AppendLine("           ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");
+                strSql.AppendLine("           ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcSYTCode,a.vcProduct_name         ");
+                strSql.AppendLine("           ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate,'" + Guid.NewGuid().ToString() + "'         ");
+                strSql.AppendLine("         from          ");
+                strSql.AppendLine("        (         ");
+                strSql.AppendLine("        	select a.*         ");
+                strSql.AppendLine("        	,(CONVERT(int,vcNum1)+CONVERT(int,vcNum2)+CONVERT(int,vcNum3)          ");
+                strSql.AppendLine("        	  +CONVERT(int,vcNum4)+CONVERT(int,vcNum5)+CONVERT(int,vcNum6)         ");
+                strSql.AppendLine("        	  +CONVERT(int,vcNum7)+CONVERT(int,vcNum8)+CONVERT(int,vcNum9)         ");
+                strSql.AppendLine("        	  +CONVERT(int,vcNum10)) as 'vcSumLater_Name',b.vcProduct_name,b.vcAddress         ");
+                strSql.AppendLine("        	from #TUnit_temp a         ");
+                strSql.AppendLine("        	 inner join          ");
+                strSql.AppendLine("        	 (         ");
+                strSql.AppendLine("        		select vcsupplier_id,vcProduct_name,vcAddress from TSupplier         ");
+                strSql.AppendLine("        	 ) b on a.vcSupplier_id = b.vcSupplier_id         ");
+                strSql.AppendLine("                 ");
+                strSql.AppendLine("        ) a         ");
+                strSql.AppendLine("                 ");
+                #endregion
+
+                #region 更新原单位的生确状态、纳期日期、生确描述（生确状态+日期）
+
+                #endregion
+
+                strSql = sync.getUpdateUnitSql(strSqDate, listInfoData);
+                strSql.Append(sync.getSQSendSql(listInfoData));
+                excute.ExcuteSqlWithStringOper(strSql.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -682,11 +741,11 @@ namespace DataAccess
 
                 sync2.setTempTalbeData(listInfoData, strSql);
 
-                sync2.getUnit2TagMasterSync();
+                //sync2.getUnit2TagMasterSync();
 
                 sync2.getUnit2PriceSync(sytCode);
 
-                sync2.getUnit2SpMasterSync();
+                //sync2.getUnit2SpMasterSync();
 
                 if (strSql.Length > 0)
                 {
@@ -757,7 +816,6 @@ namespace DataAccess
         }
         #endregion
 
-
         #region 检查是否有异常数据
         public DataTable getErrPartId()
         {
@@ -779,7 +837,6 @@ namespace DataAccess
         }
         #endregion
 
-
         #region 按检索条件返回dt
         public DataTable getEmailSetting(string strUserId)
         {
@@ -795,7 +852,6 @@ namespace DataAccess
             }
         }
         #endregion
-
 
         #region 保存特记
         public void SaveTeJi(List<Dictionary<string, Object>> listInfoData, string strUserId, string strPartId)

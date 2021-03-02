@@ -43,7 +43,7 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable dt = fs0307_logic.getExtractState(loginInfo.PlantCode);
+                DataTable dt = fs0307_logic.getExtractState(loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);

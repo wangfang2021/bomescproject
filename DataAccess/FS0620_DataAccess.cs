@@ -62,6 +62,31 @@ namespace DataAccess
                 throw ex;
             }
         }
+        /// <summary>
+        /// 删除
+        /// </summary>
+        /// <param name="listInfoData"></param>
+        public void Del(List<Dictionary<string, object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  delete [TAnnualManagement] where iAutoId in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public DataTable GetSupplierWorkArea()
         {
@@ -105,23 +130,23 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
+        public DataTable Search(string dOperatorTime,  string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select [iAutoId], d.vcName as vcType, a.vcReceiver,[vcPackPlant], [vcTargetYear], [vcPartNo], [vcInjectionFactory],   ");
-                strSql.AppendLine("  c.vcName as [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], [vcAcceptNum],  ");
-                strSql.AppendLine("  [vcJanuary], [vcFebruary], [vcMarch], [vcApril], [vcMay], [vcJune], [vcJuly],   ");
-                strSql.AppendLine("  [vcAugust], [vcSeptember], [vcOctober], [vcNovember], [vcDecember],   ");
+                strSql.AppendLine("  select [iAutoId], d.vcName as vcType, a.vcReceiver,[vcPackPlant],cast([vcTargetYear] as int) as [vcTargetYear], [vcPartNo], [vcInjectionFactory],   ");
+                strSql.AppendLine("  c.vcName as [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], cast(isnull(a.vcAcceptNum,0) as int) [vcAcceptNum],  ");
+                strSql.AppendLine("  cast(isnull(a.vcJanuary,0) as decimal(18,2)) as  [vcJanuary],cast(isnull(a.vcFebruary,0) as decimal(18,2)) as [vcFebruary],cast(isnull(a.vcMarch,0) as decimal(18,2)) as [vcMarch],cast(isnull(a.vcApril,0) as decimal(18,2)) as [vcApril],cast(isnull(a.vcMay,0) as decimal(18,2)) as [vcMay],cast(isnull(a.vcJune,0) as decimal(18,2)) as [vcJune],cast(isnull(a.vcJuly,0) as decimal(18,2)) as [vcJuly],   ");
+                strSql.AppendLine("  cast(isnull(a.vcAugust,0) as decimal(18,2)) as [vcAugust], cast(isnull(a.vcSeptember,0) as decimal(18,2)) as [vcSeptember],cast(isnull(a.vcOctober,0) as decimal(18,2)) as [vcOctober],cast(isnull(a.vcNovember,0) as decimal(18,2)) as [vcNovember],cast(isnull(a.vcDecember,0) as decimal(18,2)) as [vcDecember],   ");
 
                 strSql.AppendLine("  cast(isnull(a.vcJanuary,0) as decimal(18,6))+cast(isnull(a.[vcFebruary],0) as decimal(18,6))+cast(isnull(a.vcMarch,0) as decimal(18,6))    ");
                 strSql.AppendLine("  +cast(isnull(a.vcApril,0) as decimal(18,6))+cast(isnull(a.vcMay,0) as decimal(18,6))+cast(isnull(a.vcJune,0) as decimal(18,6))    ");
                 strSql.AppendLine("  +cast(isnull(a.vcJuly,0) as decimal(18,6))+cast(isnull(a.vcAugust,0) as decimal(18,6))+cast(isnull(a.vcSeptember,0) as decimal(18,6))    ");
                 strSql.AppendLine("  +cast(isnull(a.vcOctober,0) as decimal(18,6))+cast(isnull(a.vcNovember,0) as decimal(18,6))+cast(isnull(a.vcDecember,0) as decimal(18,6))as vcSum,    ");
 
-                strSql.AppendLine("  [vcNextOneYear],[vcNextTwoYear], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
+                strSql.AppendLine("  cast(isnull(a.vcNextOneYear,0) as decimal(18,2)) as [vcNextOneYear],cast(isnull(a.vcNextTwoYear,0) as decimal(18,2)) as [vcNextTwoYear], [vcOperatorID],convert(varchar(10), dOperatorTime,111) as [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("  from TAnnualManagement a  ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C000') b on a.vcInjectionFactory=b.vcValue  ");
                 strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C003') c on a.vcInsideOutsideType=c.vcValue  ");
@@ -160,6 +185,10 @@ namespace DataAccess
                 if (vcCarType.Length > 0)
                 {
                     strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
+                }
+                if (dOperatorTime.Length>0)
+                {
+                    strSql.AppendLine("  and  convert(varchar(10), dOperatorTime,112) = '" + dOperatorTime.Replace("-", "").Replace("/", "") + "' ");
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
@@ -372,12 +401,12 @@ namespace DataAccess
         /// </summary>
         /// <param name="vcTargetYear"></param>
         /// <returns></returns>
-        public DataTable getPlant(string vcTargetYear)
+        public DataTable getPlant(string vcTargetYear, string vcType)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select distinct vcInjectionFactory from TAnnualManagement where vcTargetYear='"+ vcTargetYear + "'  ");
+                strSql.AppendLine("  select distinct vcInjectionFactory from TAnnualManagement where vcTargetYear='"+ vcTargetYear + "' and vcType='"+ vcType + "'  ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -386,7 +415,7 @@ namespace DataAccess
             }
         }
 
-        public DataTable getDtByTargetYearAndPlant(string vcTargetYear, string plantCode)
+        public DataTable getDtByTargetYearAndPlant(string vcTargetYear, string plantCode, string vcType)
         {
             try
             {
@@ -423,7 +452,7 @@ namespace DataAccess
                 strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*    ");
                 strSql.AppendLine("  from TAnnualManagement a     ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue    ");
-                strSql.AppendLine("   where  b.vcValue is not null and vcTargetYear='"+ vcTargetYear + "' and vcInjectionFactory='"+ plantCode + "'    ");
+                strSql.AppendLine("   where  b.vcValue is not null and vcTargetYear='"+ vcTargetYear + "' and vcType='"+ vcType + "' and vcInjectionFactory='" + plantCode + "'    ");
                 strSql.AppendLine("   ) S group by vcInjectionFactory,vcSupplierId    ");
                 strSql.AppendLine("   ) T    ");
                 strSql.AppendLine("    union all   ");
@@ -469,7 +498,7 @@ namespace DataAccess
                 strSql.AppendLine("   [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*   ");
                 strSql.AppendLine("   from TAnnualManagement a    ");
                 strSql.AppendLine("    left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue   ");
-                strSql.AppendLine("    where  b.vcValue is not null and vcTargetYear='"+vcTargetYear+"' and vcInjectionFactory='"+plantCode+"'   ");
+                strSql.AppendLine("    where  b.vcValue is not null and vcTargetYear='"+vcTargetYear+ "' and vcType='" + vcType + "' and vcInjectionFactory='" + plantCode+"'   ");
                 strSql.AppendLine("    ) S group by vcInjectionFactory,vcSupplierId   ");
                 strSql.AppendLine("    ) T   ");
                 strSql.AppendLine("     ) W   ");
@@ -489,7 +518,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="vcTargetYear"></param>
         /// <returns></returns>
-        public DataTable getWaiZhuDt(string vcTargetYear)
+        public DataTable getWaiZhuDt(string vcTargetYear, string vcType)
         {
             try
             {
@@ -526,7 +555,7 @@ namespace DataAccess
                 strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*  ");
                 strSql.AppendLine("  from TAnnualManagement a   ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue  ");
-                strSql.AppendLine("   where  b.vcValue is  null and vcTargetYear='2021'  ");
+                strSql.AppendLine("   where  b.vcValue is  null and vcTargetYear='"+vcTargetYear+"' and vcType='"+ vcType + "'  ");
                 strSql.AppendLine("   ) S group by vcInjectionFactory,vcSupplierId  ");
                 strSql.AppendLine("   ) T  ");
                 strSql.AppendLine("    union all  ");
@@ -572,7 +601,7 @@ namespace DataAccess
                 strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*  ");
                 strSql.AppendLine("  from TAnnualManagement a   ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue  ");
-                strSql.AppendLine("   where  b.vcValue is  null and vcTargetYear='2021'  ");
+                strSql.AppendLine("   where  b.vcValue is  null and vcTargetYear='" + vcTargetYear + "' and vcType='" + vcType + "'  ");
                 strSql.AppendLine("   ) S group by vcInjectionFactory,vcSupplierId  ");
                 strSql.AppendLine("   ) T  ");
                 strSql.AppendLine("    ) W  ");
@@ -657,7 +686,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="vcTargetYear"></param>
         /// <returns></returns>
-        public DataTable getHuiZongDt(string vcTargetYear)
+        public DataTable getHuiZongDt(string vcTargetYear, string vcType)
         {
             try
             {
@@ -696,7 +725,7 @@ namespace DataAccess
                 strSql.AppendLine("  [vcDecember], [vcNextOneYear], [vcNextTwoYear], a.[vcOperatorID], a.[dOperatorTime] ,b.*  ");
                 strSql.AppendLine("  from TAnnualManagement a   ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C055') b on a.[vcSupplier_id] = b.vcValue  ");
-                strSql.AppendLine("   where   vcTargetYear='"+ vcTargetYear + "'  ");
+                strSql.AppendLine("   where   vcTargetYear='"+ vcTargetYear + "' and vcType = '"+ vcType + "'  ");
                 strSql.AppendLine("   ) S   ");
                 strSql.AppendLine("   ) T  ");
                 

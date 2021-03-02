@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Common;
+using ICSharpCode.SharpZipLib.Zip;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
@@ -54,9 +55,21 @@ namespace SPPSApi.Controllers.G06
                 List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> dataList_C004 = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
+
+                DataTable dtSupplier = fs0628_Logic.GetSupplier();
+                DataTable dtWorkArea = fs0628_Logic.GetWorkArea();
+                DataTable dtInjectionOrderNo = fs0628_Logic.GetInjectionOrderNo();
+               
+                List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_InjectionOrderNo = ComFunction.convertToResult(dtInjectionOrderNo, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
+
                 res.Add("C000", dataList_C000);
                 res.Add("C003", dataList_C003);
                 res.Add("C004", dataList_C004);
+                res.Add("Supplier", dataList_Supplier);
+                res.Add("InjectionOrderNo", dataList_InjectionOrderNo);
+                res.Add("WorkArea", dataList_WorkArea);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -70,7 +83,40 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+        [HttpPost]
+        [EnableCors("any")]
+        public string changeSupplieridApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string supplierCode = dataForm.supplierCode == null ? "" : dataForm.supplierCode;
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtWorkAreaBySupplier = fs0628_Logic.GetWorkAreaBySupplier(supplierCode);
 
+                List<Object> dataList_WorkAreaBySupplier = ComFunction.convertToResult(dtWorkAreaBySupplier, new string[] { "vcValue", "vcName" });
+
+                res.Add("WorkAreaBySupplier", dataList_WorkAreaBySupplier);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0410", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "选择供应商联动工区失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -86,16 +132,20 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcIsExportFlag = dataForm.vcIsExportFlag == null ? "" : dataForm.vcIsExportFlag;
+            string dOrderHandleDate = dataForm.dOrderHandleDate == null ? "" : dataForm.dOrderHandleDate;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
             string vcNewOldFlag = dataForm.vcNewOldFlag == null ? "" : dataForm.vcNewOldFlag;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
+            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+            string vcInjectionOrderNo = dataForm.vcInjectionOrderNo == null ? "" : dataForm.vcInjectionOrderNo;
             string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
             try
             {
-                DataTable dt = fs0628_Logic.Search(vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcWorkArea, dExpectReceiveDate);
+                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate,vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -131,24 +181,28 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcIsExportFlag = dataForm.vcIsExportFlag == null ? "" : dataForm.vcIsExportFlag;
+            string dOrderHandleDate = dataForm.dOrderHandleDate == null ? "" : dataForm.dOrderHandleDate;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
             string vcNewOldFlag = dataForm.vcNewOldFlag == null ? "" : dataForm.vcNewOldFlag;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
+            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+            string vcInjectionOrderNo = dataForm.vcInjectionOrderNo == null ? "" : dataForm.vcInjectionOrderNo;
             string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
             try
             {
-                DataTable dt = fs0628_Logic.Search(vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcWorkArea, dExpectReceiveDate);
+                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
                 //const tHeader = ["订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工厂", "受入", "供应商代码", "工区", "出荷场代码", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注"];
                 //const filterVal = ["dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo"];
 
-                head = new string[] { "订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工场", "受入", "供应商代码", "工区", "出荷场", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注" };
-                field = new string[] { "dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo" };
+                head = new string[] { "iAutoId", "进度状态管理", "订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工场", "受入", "供应商代码", "工区", "出荷场", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注" };
+                field = new string[] { "iAutoId", "vcIsExportFlag", "dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -375,16 +429,98 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "请先进行数据检索，再进行生成N-KBS文件操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string filepath = CreatKBS(listInfoData,loginInfo.UnitCode,loginInfo.UserId);
-               
-                if (filepath == "")
+                DataTable dt = new DataTable();
+                dt.Columns.Add("iAutoId");
+                dt.Columns.Add("vcOrderNo");
+                dt.Columns.Add("vcPartNo");
+                dt.Columns.Add("vcInsideOutsideType");
+                dt.Columns.Add("vcNewOldFlag");
+                dt.Columns.Add("vcInjectionFactory");
+                dt.Columns.Add("vcDock");
+                dt.Columns.Add("vcSupplier_id");
+                dt.Columns.Add("vcWorkArea");
+                dt.Columns.Add("vcCHCCode");
+                dt.Columns.Add("vcCarType");
+                dt.Columns.Add("vcOrderNum");
+                dt.Columns.Add("dExpectReceiveDate");
+                dt.Columns.Add("vcOderTimes");
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    dr["iAutoId"] = listInfoData[i]["iAutoId"] == null ? "" : listInfoData[i]["iAutoId"].ToString();
+                    dr["vcOrderNo"] = listInfoData[i]["vcOrderNo"] == null ? "" : listInfoData[i]["vcOrderNo"].ToString();
+                    dr["vcPartNo"] = listInfoData[i]["vcPartNo"] == null ? "" : listInfoData[i]["vcPartNo"].ToString();
+                    dr["vcInsideOutsideType"] = listInfoData[i]["vcInsideOutsideType"] == null ? "" : listInfoData[i]["vcInsideOutsideType"].ToString();
+                    dr["vcNewOldFlag"] = listInfoData[i]["vcNewOldFlag"] == null ? "" : listInfoData[i]["vcNewOldFlag"].ToString();
+                    dr["vcInjectionFactory"] = listInfoData[i]["vcInjectionFactory"] == null ? "" : listInfoData[i]["vcInjectionFactory"].ToString();
+                    dr["vcDock"] = listInfoData[i]["vcDock"] == null ? "" : listInfoData[i]["vcDock"].ToString();
+                    dr["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"] == null ? "" : listInfoData[i]["vcSupplier_id"].ToString();
+                    dr["vcWorkArea"] = listInfoData[i]["vcWorkArea"] == null ? "" : listInfoData[i]["vcWorkArea"].ToString();
+                    dr["vcCHCCode"] = listInfoData[i]["vcCHCCode"] == null ? "" : listInfoData[i]["vcCHCCode"].ToString();
+                    dr["vcCarType"] = listInfoData[i]["vcCarType"] == null ? "" : listInfoData[i]["vcCarType"].ToString();
+                    dr["vcOrderNum"] = listInfoData[i]["vcOrderNum"] == null ? "" : listInfoData[i]["vcOrderNum"].ToString();
+                    dr["dExpectReceiveDate"] = listInfoData[i]["dExpectReceiveDate"] == null ? "" : listInfoData[i]["dExpectReceiveDate"].ToString();
+                    dr["vcOderTimes"] = listInfoData[i]["vcOderTimes"] == null ? "" : listInfoData[i]["vcOderTimes"].ToString();
+                    dt.Rows.Add(dr);
+                }
+                DataRow[] drArray = dt.Select("vcInsideOutsideType='外注'");
+                if (drArray.Length==0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "待生成的数据无外注数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dtWZ = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                string msg = string.Empty;
+                foreach (DataRow dr in drArray)
+                {
+                    dtWZ.ImportRow(dr);
+                }
+
+                Dictionary<string, byte[]> filepathList = CreatKBS(dtWZ, loginInfo.UnitCode,loginInfo.UserId);
+
+                if (filepathList.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "导出生成N-KBS文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "FS0628_KBS" + Path.DirectorySeparatorChar;
+                string zipName = "紧急订单_" + loginInfo.UserId + "_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".zip";
+                if (filepathList.Count>1)
+                {
+                    using (FileStream zip = System.IO.File.Create(realPath+zipName))
+                    {
+                        using (ZipOutputStream zipStream = new ZipOutputStream(zip))
+                        {
+                            foreach (KeyValuePair<string, byte[]> kv in filepathList)
+                            {
+                                //压缩包内条目
+                                ZipEntry entry = new ZipEntry(kv.Key);
+                                //添加条目
+                                zipStream.PutNextEntry(entry);
+                                //设置压缩级别1~9
+                                zipStream.SetLevel(5);
+                                //写入
+                                zipStream.Write(kv.Value, 0, kv.Value.Length);
+                            }
+                        }
+                    }
+
+                }
+                //生成 发注订单号
+                fs0628_Logic.creatInjectionOrderNo(dtWZ,loginInfo.UserId);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
+                if (filepathList.Count > 1)
+                {
+                    apiResult.data = zipName;
+                } else
+                {
+                    apiResult.data = filepathList;
+                }
+                
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -395,48 +531,90 @@ namespace SPPSApi.Controllers.G06
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-
-        private string CreatKBS(List<Dictionary<string, object>> listInfoData,string career,string userId)
+        /// <summary>
+        /// 创建压缩包
+        /// </summary>
+        /// <param name="zipName">压缩包名称（路径）</param>
+        /// <param name="files">要压缩的文件，key-文件名，value-文件字节数组</param>
+        private void CreateZipPackage(string zipName, Dictionary<string, byte[]> files)
         {
-            String realPath = string.Empty;
-            realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "FS0628_KBS" + Path.DirectorySeparatorChar;
-            string filename = "紧急订单_" + userId+"_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            String dir = getDir(filename); // /f/e/d/c/4/9/8/4
-            String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
-            
-            if (!Directory.Exists(realPath))
+            using (FileStream zip = System.IO.File.Create(zipName))
             {
-                Directory.CreateDirectory(realPath);
-            }
-
-            if (!System.IO.File.Exists(realPath+filename))
-            {
-                FileStream stream = System.IO.File.Create(realPath + filename);
-                stream.Close();
-                stream.Dispose();
-            }
-            using (StreamWriter writer = new StreamWriter(realPath + filename, true))
-            {
-                for (int i=0;i< listInfoData.Count;i++)
+                using (ZipOutputStream zipStream = new ZipOutputStream(zip))
                 {
-                    if (listInfoData[i]["vcInsideOutsideType"].ToString()=="外注")
+                    foreach (KeyValuePair<string, byte[]> kv in files)
                     {
-                        writer.Write(listInfoData[i]["vcDock"].ToString()+ "\t");
-                        writer.Write(listInfoData[i]["vcSupplier_id"].ToString() + "\t");
-                        writer.Write(listInfoData[i]["vcWorkArea"].ToString() + "\t");
-                        writer.Write(listInfoData[i]["vcCHCCode"].ToString() + "\t");
-                        writer.Write(listInfoData[i]["vcOrderNo"].ToString() + "\t\t");
-                        writer.Write(listInfoData[i]["vcPartNo"].ToString() + "\t\t\t\t");
-                        writer.WriteLine(listInfoData[i]["vcOrderNum"].ToString());
+                        //压缩包内条目
+                        ZipEntry entry = new ZipEntry(kv.Key);
+                        //添加条目
+                        zipStream.PutNextEntry(entry);
+                        //设置压缩级别1~9
+                        zipStream.SetLevel(5);
+                        //写入
+                        zipStream.Write(kv.Value, 0, kv.Value.Length);
                     }
                 }
-                //清空缓冲区内容，并把缓冲区内容写入基础流 
-                writer.Flush();
-                //关闭写数据流 
-                writer.Close();
-
             }
-            return filename;
+        }
+
+        private Dictionary<string, byte[]> CreatKBS(DataTable dtWZ, string career,string userId)
+        {
+            String realPath = string.Empty;
+            //List<Object> fileList = new List<object>();
+            Dictionary<string, byte[]> files = new Dictionary<string, byte[]>();
+            realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "FS0628_KBS" + Path.DirectorySeparatorChar;
+            string[] columnArray = { "vcInjectionFactory" };
+            DataView dtSelectView = dtWZ.DefaultView;
+            DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt 
+
+            for (int i = 0; i < dtSelect.Rows.Count; i++)
+            {
+                string vcInjectionFactory = dtSelect.Rows[i]["vcInjectionFactory"].ToString();
+                DataRow[] drArray = dtWZ.Select("vcInjectionFactory='" + vcInjectionFactory + "'");
+                DataTable dtNewInjectionFactory = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                string msg = string.Empty;
+                foreach (DataRow dr in drArray)
+                {
+                    dtNewInjectionFactory.ImportRow(dr);
+                }
+
+                string filename = "紧急订单_"+ vcInjectionFactory + userId + "_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                String dir = getDir(filename); // /f/e/d/c/4/9/8/4
+                String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
+
+                if (!Directory.Exists(realPath))
+                {
+                    Directory.CreateDirectory(realPath);
+                }
+
+                if (!System.IO.File.Exists(realPath + filename))
+                {
+                    FileStream stream = System.IO.File.Create(realPath + filename);
+                    stream.Close();
+                    stream.Dispose();
+                }
+                using (StreamWriter writer = new StreamWriter(realPath + filename, true))
+                {
+                    for (int j = 0; j < dtNewInjectionFactory.Rows.Count; j++)
+                    {
+                        writer.Write(dtNewInjectionFactory.Rows[j]["vcDock"].ToString() + "\t");
+                        writer.Write(dtNewInjectionFactory.Rows[j]["vcSupplier_id"].ToString() + "\t");
+                        writer.Write(dtNewInjectionFactory.Rows[j]["vcWorkArea"].ToString() + "\t");
+                        writer.Write(dtNewInjectionFactory.Rows[j]["vcCHCCode"].ToString() + "\t");
+                        writer.Write(dtNewInjectionFactory.Rows[j]["dExpectReceiveDate"].ToString().Replace("/", "") + dtNewInjectionFactory.Rows[j]["vcOderTimes"].ToString()+ "\t\t");
+                        writer.Write(dtNewInjectionFactory.Rows[j]["vcPartNo"].ToString() + "\t\t\t\t");
+                        writer.WriteLine(dtNewInjectionFactory.Rows[j]["vcOrderNum"].ToString());
+                    }
+                    //清空缓冲区内容，并把缓冲区内容写入基础流 
+                    writer.Flush();
+                    //关闭写数据流 
+                    writer.Close();
+
+                }
+                string key = filename.ToString().Trim().Substring(0, filename.ToString().Trim().LastIndexOf("."));
+                files.Add(key, System.IO.File.ReadAllBytes(realPath + filename));
+            }
+            return files;
         }
         public String getDir(String name)
         {

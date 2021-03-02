@@ -25,7 +25,7 @@ namespace SPPSApi.Controllers.G06
         FS0610_Logic fs0610_Logic = new FS0610_Logic();
 
         public FS0610Controller(IWebHostEnvironment webHostEnvironment)
-        { 
+        {
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -49,68 +49,66 @@ namespace SPPSApi.Controllers.G06
                 DateTime dNow = DateTime.Now.AddMonths(1);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
 
-                #region 1厂
-                int iStep1 = 0;
-                DataTable dt_1 = fs0610_Logic.getZhankaiData(false, "1");
-                if (dt_1.Rows.Count != 0)
-                {
-                    iStep1 = 1;
-                }
-                //DataTable dt2_1 = fs0610_Logic.getZhankaiData(true);
-                //if (dt2_1.Rows.Count != 0)
-                //{
-                iStep1 = 2;
-                //}
-                DataTable dt3_1 = fs0610_Logic.getZhankaiData(true, "1");
-                if (dt3_1.Rows.Count != 0)
-                {
-                    iStep1 = 3;
-                }
-                res.Add("iStep1", iStep1);
-                #endregion
-
-                #region 2厂
-                int iStep2 = 0;
-                DataTable dt_2 = fs0610_Logic.getZhankaiData(false, "2");
-                if (dt_2.Rows.Count != 0)
-                {
-                    iStep2 = 1;
-                }
-                //DataTable dt2_2 = fs0610_Logic.getZhankaiData(true);
-                //if (dt2_2.Rows.Count != 0)
-                //{
-                iStep2 = 2;
-                //}
-                DataTable dt3_2 = fs0610_Logic.getZhankaiData(true, "2");
-                if (dt3_2.Rows.Count != 0)
-                {
-                    iStep2 = 3;
-                }
-                res.Add("iStep2", iStep2);
-                #endregion
-
-                #region 3厂
-                int iStep3 = 0;
-                DataTable dt_3 = fs0610_Logic.getZhankaiData(false, "3");
-                if (dt_3.Rows.Count != 0)
-                {
-                    iStep3 = 1;
-                }
-                //DataTable dt2_3 = fs0610_Logic.getZhankaiData(true);
-                //if (dt2_3.Rows.Count != 0)
-                //{
-                iStep3 = 2;
-                //}
-                DataTable dt3_3 = fs0610_Logic.getZhankaiData(true, "3");
-                if (dt3_3.Rows.Count != 0)
-                {
-                    iStep3 = 3;
-                }
-                res.Add("iStep3", iStep3);
-                #endregion
-
                 List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//工厂
                 res.Add("C000", dataList_C000);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 发注工厂下拉框改变
+        [HttpPost]
+        [EnableCors("any")]
+        public string FZGCChangeApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string strCLYM = DateTime.Now.ToString("yyyyMM");
+                //用户选择的发注工厂
+                JArray vcPlants = dataForm.vcFZGC;
+                List<string> plantList = null;
+                try
+                {
+                    plantList = vcPlants.ToObject<List<string>>();
+                }
+                catch (Exception ex)
+                {
+                }
+                if (plantList != null && plantList.Count > 0)
+                {
+                    for(int i=0;i<plantList.Count;i++)
+                    {
+                        int iStep = 0;
+                        string plant = plantList[i].ToString();
+                        if (fs0610_Logic.isHaveSORReplyData(plant, strCLYM))
+                            iStep = 1;
+                        //if(fs0610_Logic.isSCPlan(plant,strCLYM))
+                        //    iStep = 2;
+                        if (fs0610_Logic.isZhankai(plant, strCLYM))
+                            iStep = 3;
+                        res.Add("iStep_"+ plant.ToString(), iStep);
+                    }
+                }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -146,6 +144,7 @@ namespace SPPSApi.Controllers.G06
                 string strYearMonth = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM + "/01").ToString("yyyyMM");
                 string strYearMonth_2 = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM).AddMonths(1).ToString("yyyyMM");
                 string strYearMonth_3 = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM).AddMonths(2).ToString("yyyyMM");
+                string type = dataForm.type == null ? "" : dataForm.type;
                 //用户选择的发注工厂
                 JArray vcPlants = dataForm.vcFZGC;
                 List<string> plantList = null;
@@ -162,6 +161,15 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "请选择工厂。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //判断是否计算过
+                if (type == "check" && fs0610_Logic.isCal(strYearMonth, plantList))
+                {//已经计算了
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "message";
+                    apiResult.data = "已经计算过";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 ComputeMain soqCompute = new ComputeMain();
                 for (int i = 0; i < plantList.Count; i++)
                 {

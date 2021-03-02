@@ -96,10 +96,14 @@ namespace SPPSApi.Controllers.G12
             {
                 string _msg;
                 DataTable dt = logic.GetFzjsRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
-                DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<Object> dataList =new List<object>();
+                if (dt != null)
+                {
+                    DtConverter dtConverter = new DtConverter();
+                    dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                    dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                    dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -263,7 +267,7 @@ namespace SPPSApi.Controllers.G12
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             DataTable dt = ListToDataTable(listInfoData);
 
-           // DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
+            // DataTable dt = JsonConvert.DeserializeObject<DataTable>(Convert.ToString(dataForm.temp));
             vcType = vcType == null ? "" : vcType;
             vcOrder = vcOrder == null ? "" : vcOrder;
             vcSaleUser = vcSaleUser == null ? "" : vcSaleUser;

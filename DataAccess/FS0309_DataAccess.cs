@@ -93,7 +93,7 @@ namespace DataAccess
                     strSql.Append("       and vcReceiver like '%" + strReceiver + "%'         \n");
                 if (strPriceState != null && strPriceState != "")
                     strSql.Append("       and vcPriceState='" + strPriceState + "'         \n");
-                strSql.Append("     order by  vcPart_id    \n");
+                strSql.Append("     order by  vcReceiver,vcSupplier_id,vcPart_id,dOperatorTime asc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -143,8 +143,8 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + ",  \r\n");
 
                         //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceAfter"], true));
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceTNPWithTax"], true));
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceAfter"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceTNPWithTax"], true) + ",  \r\n");
 
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dPricebegin"], true) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dPriceEnd"], true) + ",  \r\n");
@@ -183,7 +183,7 @@ namespace DataAccess
                         sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(listInfoData[i]["dPricebegin"], true) + "   \r\n");
                         sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(listInfoData[i]["dPriceEnd"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
-                        sql.Append("  ,dOperatorTime=getdate()   \r\n");
+                        //sql.Append("  ,dOperatorTime=getdate()   \r\n");
                         sql.Append("  ,vcLastTimeFlag='" + strLastTimeFlag + "'   \r\n");
                         
                         sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
@@ -295,7 +295,7 @@ namespace DataAccess
                     sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
                     sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
                     sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
-                    sql.Append("  ,dOperatorTime=getdate()   \r\n");
+                    //sql.Append("  ,dOperatorTime=getdate()   \r\n");
                     sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
                     sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");
                     sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null   \r\n");
@@ -701,7 +701,7 @@ namespace DataAccess
         #endregion
 
         #region 根据选择公式返回对应金额
-        public DataTable getGSChangePrice(string strPartId,string strSupplier,string strReceiver, int iAutoId,string strGSName,decimal decPriceOrigin)
+        public DataTable getGSChangePrice(string strPartId,string strSupplier,string strReceiver, string strAutoId, string strGSName,decimal decPriceOrigin)
         {
             try
             {
@@ -720,8 +720,9 @@ namespace DataAccess
                 strSql.Append("    select @lastPriceOrigin=b.decPriceOrigin,@lastPriceAfter=b.decPriceAfter,@lastPriceTNPWithTax=b.decPriceTNPWithTax from          \n");
                 strSql.Append("    (          \n");
                 strSql.Append("       select vcSupplier_id,vcPart_id,vcReceiver,max(iAutoId) as iMaxId from TPrice           \n");
-                strSql.Append("       where          \n");
-                strSql.Append("       iAutoId<>"+ iAutoId + "          \n");
+                strSql.Append("       where   1=1       \n");
+                if(strAutoId!="")
+                 strSql.Append("       and iAutoId<>"+ strAutoId + "          \n");
                 strSql.Append("       and vcPart_id='"+ strPartId + "'          \n");
                 strSql.Append("       and vcSupplier_id='" + strSupplier + "'          \n");
                 strSql.Append("       and vcReceiver='" + strReceiver + "'                     \n");
@@ -780,14 +781,15 @@ namespace DataAccess
         #endregion
 
         #region 公式计算B需要验证该品番是否存在上个状态的数据
-        public DataTable getLastStateGsData(string strPartId, string strSupplier,string strReceiver, int iAutoId)
+        public DataTable getLastStateGsData(string strPartId, string strSupplier,string strReceiver, string strAutoId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("    select vcSupplier_id,vcPart_id,vcReceiver,max(iAutoId) as iMaxId from TPrice             \n");
-                strSql.Append("    where                     \n");
-                strSql.Append("    iAutoId<>"+ iAutoId + "                     \n");
+                strSql.Append("    where  1=1                   \n");
+                if(strAutoId!="")
+                    strSql.Append("  and  iAutoId<>"+ strAutoId + "                     \n");
                 strSql.Append("    and vcPart_id='"+ strPartId + "'                     \n");
                 strSql.Append("    and vcSupplier_id='"+ strSupplier + "'                     \n");
                 strSql.Append("    and vcReceiver='" + strReceiver + "'                     \n");

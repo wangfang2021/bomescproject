@@ -490,11 +490,12 @@ namespace Logic
 
 
         #region 导出带模板
-        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, string strUserId, string strFunctionName,string strNeiWai)
         {
             try
             {
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+                int startRow = 8;
 
                 string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
                 using (FileStream fs = File.OpenRead(XltPath))
@@ -541,17 +542,17 @@ namespace Logic
 
 
         #region 根据选择公式返回对应金额
-        public DataTable getGSChangePrice(string strPartId, string strSupplier, string strReceiver, int iAutoId, string strGSName, decimal decPriceOrigin)
+        public DataTable getGSChangePrice(string strPartId, string strSupplier, string strReceiver, string strAutoId, string strGSName, decimal decPriceOrigin)
         {
-            return fs0309_DataAccess.getGSChangePrice(strPartId,strSupplier, strReceiver, iAutoId,strGSName,decPriceOrigin);
+            return fs0309_DataAccess.getGSChangePrice(strPartId,strSupplier, strReceiver, strAutoId, strGSName,decPriceOrigin);
         }
         #endregion
 
 
         #region 公式计算B需要验证该品番是否存在上个状态的数据
-        public bool getLastStateGsData(string strPartId, string strSupplier, string strReceiver, int iAutoId)
+        public bool getLastStateGsData(string strPartId, string strSupplier, string strReceiver, string strAutoId)
         {
-            DataTable dt=fs0309_DataAccess.getLastStateGsData(strPartId, strSupplier, strReceiver, iAutoId);
+            DataTable dt=fs0309_DataAccess.getLastStateGsData(strPartId, strSupplier, strReceiver, strAutoId);
             if (dt.Rows.Count == 0)
                 return false;
             else

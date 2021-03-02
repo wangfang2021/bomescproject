@@ -50,7 +50,7 @@ namespace SPPSApi.Controllers.G08
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //获取登录人包装厂
-                DataTable dtPackingPlant = ComFunction.getTCode("C017");
+                DataTable dtPackingPlant = ComFunction.getTCode("C023");
                 if (dtPackingPlant == null || dtPackingPlant.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

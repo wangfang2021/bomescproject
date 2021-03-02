@@ -128,7 +128,7 @@ namespace SPPSApi.Controllers.G03
             string strHaoJiu = dataForm.HaoJiu;
             string strProjectType = dataForm.ProjectType;
             if (loginInfo.Special == "财务用户")
-                strProjectType = "内制";
+                strProjectType = "0";
 
             string strPriceChangeInfo = dataForm.PriceChangeInfo;
             string strCarTypeDev = dataForm.CarTypeDev;
@@ -272,12 +272,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧","TNP含税","价格开始","价格结束"},
-                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","decPriceTNPWithTax","dPricebegin","dPriceEnd"},
-                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"","","","" },
-                                                {"25","12","0","0","0","4","50","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"0","10","1","1","1","1","1","1","1","1","0","0","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7","8","9","10","20","21","22"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧","TNP含税","价格开始","价格结束","收货方","所属原单位"},
+                                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu","decPriceTNPWithTax","dPricebegin","dPriceEnd","vcReceiver","vcOriginCompany"},
+                                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"","","","","","" },
+                                                {"25","12","0","0","0","4","50","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"0","10","1","1","1","1","1","1","1","1","0","0","0","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5","6","7","8","9","10","20","21","22","31","32"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
@@ -427,35 +427,24 @@ namespace SPPSApi.Controllers.G03
                 Object multipleSelection=dataForm.multipleSelection;
                 if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
                 {
-                    string strChange = dataForm.Change;
-                    string strPart_id = dataForm.Part_id;
-                    string strOriginCompany = dataForm.OriginCompany;
-                    string strHaoJiu = dataForm.HaoJiu;
-                    string strProjectType = dataForm.ProjectType;
-                    if (loginInfo.Special == "财务用户")
-                        strProjectType = "内制";
-                    string strPriceChangeInfo = dataForm.PriceChangeInfo;
-                    string strCarTypeDev = dataForm.CarTypeDev;
-                    string strSupplier_id = dataForm.Supplier_id;
-                    string strReceiver = dataForm.Receiver;
-                    string strPriceState = dataForm.PriceState;
-                    string strErr = "";
-                    fs0309_Logic.sendMail(strChange, strPart_id, strOriginCompany, strHaoJiu, strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id, strReceiver, strPriceState, ref strErr);
-                    if (strErr!="")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strErr;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "至少选择一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else
                 {
                     JArray checkedInfo = dataForm.multipleSelection;
                     List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
+                    if (listInfoData==null || listInfoData.Count<=0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "至少选择一条数据！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                     string strErr = "";
-                    string strAutoId = dataForm.iAutoId;
-                    fs0309_Logic.sendMail(listInfoData, loginInfo.Email, loginInfo.UserId, loginInfo.UserName, ref strErr);
+                    fs0309_Logic.sendMail(listInfoData, ref strErr);
                     if (strErr!="")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -463,8 +452,6 @@ namespace SPPSApi.Controllers.G03
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                //发送邮件
-                //发件人邮箱，对方邮箱，邮件标题、内容、附件需要确认
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -533,6 +520,7 @@ namespace SPPSApi.Controllers.G03
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 Object multipleSelection = dataForm.multipleSelection;
+                string strNeiWai = dataForm.neiwai;
 
                 //切替预定日计算逻辑
                 //新设：使用开始时间
@@ -659,7 +647,7 @@ namespace SPPSApi.Controllers.G03
                         result.Rows.Add(row);
                     }
 
-                    string filepath = fs0309_Logic.generateExcelWithXlt(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa.xlsx", 8, loginInfo.UserId, FunctionID);
+                    string filepath = fs0309_Logic.generateExcelWithXlt(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa.xlsx", loginInfo.UserId, FunctionID, strNeiWai);
                     if (filepath == "")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -776,7 +764,7 @@ namespace SPPSApi.Controllers.G03
                         result.Rows.Add(row);
                     }
 
-                    string filepath = fs0309_Logic.generateExcelWithXlt(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa.xlsx", 8, loginInfo.UserId, FunctionID);
+                    string filepath = fs0309_Logic.generateExcelWithXlt(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa.xlsx",  loginInfo.UserId, FunctionID, strNeiWai);
                     if (filepath == "")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -831,7 +819,7 @@ namespace SPPSApi.Controllers.G03
 
 
 
-                if (listInfoData[0]["decPriceOrigin"]==null|| listInfoData[0]["decPriceOrigin"].ToString().Trim()=="")
+                if (listInfoData[0]["decPriceOrigin"]==null|| listInfoData[0]["decPriceOrigin"].ToString().Trim()==""|| listInfoData[0]["vcPriceGS"]==null|| listInfoData[0]["vcPriceGS"].ToString()=="")
                 {
                     Dictionary<string, object> res_return = new Dictionary<string, object>();
                     res_return.Add("priceAfter", "");
@@ -843,12 +831,17 @@ namespace SPPSApi.Controllers.G03
 
                 string strPartId = listInfoData[0]["vcPart_id"].ToString();
                 string strSupplier = listInfoData[0]["vcSupplier_id"].ToString();
-                int iAutoId = Convert.ToInt32(listInfoData[0]["iAutoId"]);
+                string strAutoId ="";
+                if (listInfoData[0]["iAutoId"]!=null&& listInfoData[0]["iAutoId"].ToString()!="")
+                {
+                    strAutoId=listInfoData[0]["iAutoId"].ToString();
+                }
+                    
                 string strGS = listInfoData[0]["vcPriceGS"].ToString();
                 decimal decPriceOrigin = Convert.ToDecimal(listInfoData[0]["decPriceOrigin"]);
                 string strReceiver = listInfoData[0]["vcReceiver"].ToString();
 
-                if ((strGS == "2") &&!fs0309_Logic.getLastStateGsData(strPartId, strSupplier, strReceiver, iAutoId))
+                if ((strGS == "2") &&!fs0309_Logic.getLastStateGsData(strPartId, strSupplier, strReceiver, strAutoId))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "选择公式B的品番必须存在上个状态的价格信息！";
@@ -862,7 +855,7 @@ namespace SPPSApi.Controllers.G03
                 }
 
 
-                DataTable dt=fs0309_Logic.getGSChangePrice(strPartId, strSupplier, strReceiver, iAutoId, strGS, decPriceOrigin);
+                DataTable dt=fs0309_Logic.getGSChangePrice(strPartId, strSupplier, strReceiver, strAutoId, strGS, decPriceOrigin);
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 if (dt.Rows[0]["priceAfter"] == DBNull.Value)
                 {

@@ -25,7 +25,7 @@ namespace SPPSApi.Controllers.G06
         FS0610_Logic fs0610_Logic = new FS0610_Logic();
 
         public FS0610Controller(IWebHostEnvironment webHostEnvironment)
-        { 
+        {
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -56,11 +56,16 @@ namespace SPPSApi.Controllers.G06
                 {
                     iStep1 = 1;
                 }
-                //DataTable dt2_1 = fs0610_Logic.getZhankaiData(true);
-                //if (dt2_1.Rows.Count != 0)
-                //{
-                iStep1 = 2;
-                //}
+
+                #region 初始化生产计划
+                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                DataTable dt2_1 = fs0610_Logic.getProData("1", vcDxny);
+                if (dt2_1.Rows.Count != 0)
+                {
+                    iStep1 = 2;
+                }
+                #endregion
+
                 DataTable dt3_1 = fs0610_Logic.getZhankaiData(true, "1");
                 if (dt3_1.Rows.Count != 0)
                 {
@@ -417,7 +422,7 @@ namespace SPPSApi.Controllers.G06
             {
                 string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
-                string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(','); ;
+                string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 //生成生产计划  
                 string msg = fs0610_Logic.createProPlan(vcDxny, vcFZGC, loginInfo.UserId);
                 if (msg != "")

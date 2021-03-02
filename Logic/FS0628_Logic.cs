@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcWorkArea, string dExpectReceiveDate)
+        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id,string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate)
         {
-            return fs0628_DataAccess.Search(vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcWorkArea, dExpectReceiveDate);
+            return fs0628_DataAccess.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate);
         }
 
         public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
@@ -41,6 +41,26 @@ namespace Logic
         public void ImportProgress(List<Dictionary<string, object>> listInfoData, string userId,string strUnitCode)
         {
             fs0628_DataAccess.ImportProgress(listInfoData, userId, strUnitCode);
+        }
+
+        public DataTable GetSupplier()
+        {
+            return fs0628_DataAccess.GetSupplier();
+        }
+
+        public DataTable GetWorkArea()
+        {
+            return fs0628_DataAccess.GetWorkArea();
+        }
+
+        public DataTable GetInjectionOrderNo()
+        {
+            return fs0628_DataAccess.GetInjectionOrderNo();
+        }
+
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            return fs0628_DataAccess.GetWorkAreaBySupplier(supplierCode);
         }
     }
 }

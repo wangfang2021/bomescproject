@@ -73,7 +73,14 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(strJD))
                 {
-                    strSql.Append("      and vcJD = '" + strJD + "'   ");
+                    if (strJD=="5")
+                    {
+                        strSql.Append("      and vcJD in ('1','2','3')   ");
+                    }
+                    else
+                    {
+                        strSql.Append("      and vcJD = '" + strJD + "'   ");
+                    }
                 }
                 if (!string.IsNullOrEmpty(strPart_id))
                 {

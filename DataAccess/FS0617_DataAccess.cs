@@ -111,6 +111,20 @@ namespace DataAccess
             try
             {
                 #region 写入数据库
+                #region sqlCommand_deleteinfo
+                SqlCommand sqlCommand_deleteinfo = sqlConnection.CreateCommand();
+                sqlCommand_deleteinfo.Transaction = sqlTransaction;
+                sqlCommand_deleteinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_deleteinfo = new StringBuilder();
+                #region SQL and Parameters
+                strSql_deleteinfo.AppendLine("DELETE from tPrintTemp_main_FS0617 where vcOperator='"+ strOperId + "'");
+                strSql_deleteinfo.AppendLine("DELETE from tPrintTemp_FS0617 where vcOperator='" + strOperId + "'");
+                sqlCommand_deleteinfo.CommandText = strSql_deleteinfo.ToString();
+                #endregion
+                sqlCommand_deleteinfo.ExecuteNonQuery();
+                #endregion
+
+
                 #region sqlCommand_main
                 SqlCommand sqlCommand_main = sqlConnection.CreateCommand();
                 sqlCommand_main.Transaction = sqlTransaction;

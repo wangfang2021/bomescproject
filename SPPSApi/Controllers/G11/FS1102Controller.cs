@@ -91,13 +91,29 @@ namespace SPPSApi.Controllers.G11
             string strTagId = dataForm.TagId == null ? "" : dataForm.TagId;
             try
             {
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                if (strReceiver == "" && strCaseNo == "" && strTagId == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请输入至少一个检索条件";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 DataTable dataTable = fS1102_Logic.getSearchInfo(strReceiver, strCaseNo, strTagId);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
 
+                res.Add("tempList", dataList);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -131,26 +147,48 @@ namespace SPPSApi.Controllers.G11
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             try
             {
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (listInfoData.Count != 0)
                 {
-                    //获取待打印的数据
-                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
-                    //执行打印操作
-                    //===========================================
-                    DataTable dtMessage = fS0603_Logic.createTable("MES");
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "错误测试";
-                    dtMessage.Rows.Add(dataRow);
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        string strReceiver = listInfoData[0]["vcReceiver"] == null ? "" : listInfoData[0]["vcReceiver"].ToString();
+                        string strCaseNo = listInfoData[0]["vcCaseNo"] == null ? "" : listInfoData[0]["vcCaseNo"].ToString();
+                        if (strCaseNo == "" || strReceiver == "")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("收货方或装箱单号{0}为空，无法打印", strCaseNo);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    if (dtMessage.Rows.Count != 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    bool bResult = fS1102_Logic.getPrintInfo(listInfoData,  loginInfo.UserId, ref dtMessage);
+                    if (!bResult)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    string strPrintName = "";//打印机
+                    string strReportName = "fs1104_cry.rpt";//水晶报表模板
+                    string strPrintData = "tPrintTemp_FS1102";//数据表
+                    //引进打印调用
+                    //主表    tPrintTemp_FS1102
 
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
-
-                    //===========================================
+                    if (!bResult)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = "打印成功";
                 }

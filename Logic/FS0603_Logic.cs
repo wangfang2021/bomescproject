@@ -2053,6 +2053,24 @@ namespace Logic
                 dataTable.Columns.Add("UUID2", typeof(string));
                 dataTable.Columns.Add("UUID3", typeof(string));
             }
+            if (strSpSub == "updtFs1401")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcSPISStatus", typeof(string));
+            }
+            if (strSpSub == "savFs1402")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("dFromTime", typeof(string));
+                dataTable.Columns.Add("dToTime", typeof(string));
+                dataTable.Columns.Add("vcCarfamilyCode", typeof(string));
+                dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("vcSupplierPlant", typeof(string));
+                dataTable.Columns.Add("vcCheckP", typeof(string));
+                dataTable.Columns.Add("vcChangeRea", typeof(string));
+                dataTable.Columns.Add("vcTJSX", typeof(string));
+            }
             return dataTable;
         }
     }

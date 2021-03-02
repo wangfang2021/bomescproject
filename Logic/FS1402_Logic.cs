@@ -13,6 +13,7 @@ namespace Logic
     public class FS1402_Logic
     {
         FS1402_DataAccess fs1402_DataAccess;
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
 
         public FS1402_Logic()
         {
@@ -22,6 +23,32 @@ namespace Logic
         {
             return fs1402_DataAccess.getSearchInfo(strCheckQf, strPartId, strSuplierId, strSuplierPlant);
         }
+        public DataTable checkSaveInfo(dynamic dataForm, ref bool bReault, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtImport = fS0603_Logic.createTable("savFs1402");
+                DataRow drImport = dtImport.NewRow();
+                drImport["LinId"] = "";
+                drImport["vcPartId"] = dataForm.PartId;
+                drImport["dFromTime"] = dataForm.FromTime != "" ? Convert.ToDateTime(dataForm.FromTime).ToString("yyyy-MM-dd") : "";
+                drImport["dToTime"] = dataForm.ToTime != "" ? Convert.ToDateTime(dataForm.ToTime).ToString("yyyy-MM-dd") : "";
+                drImport["vcCarfamilyCode"] = "";
+                drImport["vcSupplierId"] = dataForm.SupplierId;
+                drImport["vcSupplierPlant"] = dataForm.SupplierPlant;
+                drImport["vcCheckP"] = dataForm.CheckType;
+                drImport["vcChangeRea"] = dataForm.ChangeReason;
+                drImport["vcTJSX"] = dataForm.TeJi;
+                dtImport.Rows.Add(drImport);
+                bReault = true;
+                return dtImport;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public bool ImportFile(DirectoryInfo theFolder, string fileSavePath, string sheetName, string[,] headers, bool bSourceFile, string strOperId, ref string strMessage)
         {
             try
@@ -108,7 +135,7 @@ namespace Logic
                 //本次的起始日期不能小于上次的起始时间
                 #region 
                 dataTable.Columns.Add("vcType");
-                strMessage = checkDbInfo(dataTable, strMessage);
+                //strMessage = checkDbInfo(dataTable, strMessage);
                 if (strMessage != "")
                     return false;
                 #endregion
@@ -118,34 +145,38 @@ namespace Logic
             }
             catch (Exception ex)
             {
-                throw ex; 
+                throw ex;
             }
         }
-        public string checkDbInfo(DataTable dataTable, string strMessage)
+        public DataTable checkDbInfo(DataTable dataTable, ref DataTable dtMessage)
         {
-            for (int i = 0; i < dataTable.Rows.Count; i++)
-            {
-                DataTable dtCheck = fs1402_DataAccess.getCheckInfo(dataTable.Rows[i]["vcPartId"].ToString(), dataTable.Rows[i]["vcSupplierCode"].ToString(), dataTable.Rows[i]["vcSupplierPlant"].ToString());
-                if (dtCheck.Rows.Count != 0 && dtCheck.Rows[0]["vcTimeFrom"].ToString() != "")
-                {
-                    if (Convert.ToDateTime(dtCheck.Rows[0]["vcTimeFrom"].ToString()) >= Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString()))
-                    {
-                        strMessage = strMessage + "第" + (i + 1) + "本次的起始日期不能小于上次的起始时间";
-                    }
-                    else
-                    {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcPartId"] = dataTable.Rows[i]["vcPartId"].ToString();
-                        dataRow["vcSupplierCode"] = dataTable.Rows[i]["vcSupplierCode"].ToString();
-                        dataRow["vcSupplierPlant"] = dataTable.Rows[i]["vcSupplierPlant"].ToString();
-                        dataRow["vcTimeFrom"] = dtCheck.Rows[0]["vcTimeFrom"].ToString();
-                        dataRow["vcTimeTo"] = Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString()).AddDays(-1).ToString("yyyy-MM-dd");
-                        dataRow["vcType"] = "update";
-                        dataTable.Rows.Add(dataRow);
-                    }
-                }
-            }
-            return strMessage;
+            //for (int i = 0; i < dataTable.Rows.Count; i++)
+            //{
+            //    string strPartId = dataTable.Rows[i]["vcPartId"].ToString();
+            //    DataTable dtCheck = fs1402_DataAccess.getCheckInfo(dataTable.Rows[i]["vcPartId"].ToString(), dataTable.Rows[i]["vcSupplierId"].ToString(), dataTable.Rows[i]["vcSupplierPlant"].ToString());
+            //    if (dtCheck.Rows.Count != 0 && dtCheck.Rows[0]["vcTimeFrom"].ToString() != "")
+            //    {
+            //        if (Convert.ToDateTime(dtCheck.Rows[0]["vcTimeFrom"].ToString()) >= Convert.ToDateTime(dataTable.Rows[i]["dFromTime"].ToString()))
+            //        {
+            //            DataRow dataRow = dtMessage.NewRow();
+            //            dataRow["vcMessage"] = "品番"+ strPartId+ "起始日期不能小于上次的起始时间";
+            //            dtMessage.Rows.Add(dataRow);
+            //        }
+            //        else
+            //        {
+            //            DataRow dataRow = dataTable.NewRow();
+            //            dataRow["vcPartId"] = dataTable.Rows[i]["vcPartId"].ToString();
+            //            dataRow["vcSupplierCode"] = dataTable.Rows[i]["vcSupplierCode"].ToString();
+            //            dataRow["vcSupplierPlant"] = dataTable.Rows[i]["vcSupplierPlant"].ToString();
+            //            dataRow["vcTimeFrom"] = dtCheck.Rows[0]["vcTimeFrom"].ToString();
+            //            dataRow["vcTimeTo"] = Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString()).AddDays(-1).ToString("yyyy-MM-dd");
+            //            dataRow["vcType"] = "update";
+            //            dataTable.Rows.Add(dataRow);
+            //        }
+            //    }
+            //}
+            //return strMessage;
+            return dataTable;
         }
         public DataTable getSubInfo(string strLinid)
         {
@@ -154,33 +185,33 @@ namespace Logic
 
         public bool setDataInfo(string strType, string strInfo, string strPartNo, string strFromTime, string strToTime, string strSupplierCode, string strSupplierPlant, string strCarFamilyCode, string strCheckQf, string strTeJi, string strChangeReason, string strOperId, ref string strMessage)
         {
-            DataTable dataTable = new DataTable();
-            dataTable.Columns.Add("vcPartId");
-            dataTable.Columns.Add("vcTimeFrom");
-            dataTable.Columns.Add("vcTimeTo");
-            dataTable.Columns.Add("vcSupplierCode");
-            dataTable.Columns.Add("vcSupplierPlant");
-            dataTable.Columns.Add("vcCarfamilyCode");
-            dataTable.Columns.Add("vcCheckP");
-            dataTable.Columns.Add("vcChangeRea");
-            dataTable.Columns.Add("vcTJSX");
-            DataRow dataRow = dataTable.NewRow();
-            dataRow["vcPartId"] = strPartNo;
-            dataRow["vcTimeFrom"] = strFromTime;
-            dataRow["vcTimeTo"] = strToTime;
-            dataRow["vcSupplierCode"] = strSupplierCode;
-            dataRow["vcSupplierPlant"] = strSupplierPlant;
-            dataRow["vcCarfamilyCode"] = strCarFamilyCode;
-            dataRow["vcCheckP"] = strCheckQf;
-            dataRow["vcChangeRea"] = strChangeReason;
-            dataRow["vcTJSX"] = strTeJi;
-            dataRow["vcType"] = strType;
-            dataTable.Rows.Add(dataRow);
-            strMessage = checkDbInfo(dataTable, strMessage);
-            if (strMessage != "")
-                return false;
-            //插入数据库
-            fs1402_DataAccess.setDataInfo(dataTable, strOperId);
+            //DataTable dataTable = new DataTable();
+            //dataTable.Columns.Add("vcPartId");
+            //dataTable.Columns.Add("vcTimeFrom");
+            //dataTable.Columns.Add("vcTimeTo");
+            //dataTable.Columns.Add("vcSupplierCode");
+            //dataTable.Columns.Add("vcSupplierPlant");
+            //dataTable.Columns.Add("vcCarfamilyCode");
+            //dataTable.Columns.Add("vcCheckP");
+            //dataTable.Columns.Add("vcChangeRea");
+            //dataTable.Columns.Add("vcTJSX");
+            //DataRow dataRow = dataTable.NewRow();
+            //dataRow["vcPartId"] = strPartNo;
+            //dataRow["vcTimeFrom"] = strFromTime;
+            //dataRow["vcTimeTo"] = strToTime;
+            //dataRow["vcSupplierCode"] = strSupplierCode;
+            //dataRow["vcSupplierPlant"] = strSupplierPlant;
+            //dataRow["vcCarfamilyCode"] = strCarFamilyCode;
+            //dataRow["vcCheckP"] = strCheckQf;
+            //dataRow["vcChangeRea"] = strChangeReason;
+            //dataRow["vcTJSX"] = strTeJi;
+            //dataRow["vcType"] = strType;
+            //dataTable.Rows.Add(dataRow);
+            //strMessage = checkDbInfo(dataTable, strMessage);
+            //if (strMessage != "")
+            //    return false;
+            ////插入数据库
+            //fs1402_DataAccess.setDataInfo(dataTable, strOperId);
             return true;
 
         }

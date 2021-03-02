@@ -133,16 +133,16 @@ namespace Logic
 
         #region 保存后校验
         public void SaveCheck(List<Dictionary<string, Object>> listInfoData, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3,
-            ref List<string> errMessageList, string strUnit)
+            ref Dictionary<string,string> errMessageList, string strUnit)
         {
             fs0501_DataAccess.SaveCheck(listInfoData, strUserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, strUnit);
         }
         #endregion
 
         #region 插入导入履历
-        public void importHistory(string strYearMonth, List<string> errMessageList, string strUserId)
+        public void importHistory(string strYearMonth, Dictionary<string,string> errMessageDict, string strUserId)
         {
-            fs0501_DataAccess.importHistory(strYearMonth, errMessageList, strUserId);
+            fs0501_DataAccess.importHistory(strYearMonth, errMessageDict, strUserId);
         }
         #endregion
 

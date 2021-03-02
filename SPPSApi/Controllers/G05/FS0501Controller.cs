@@ -340,11 +340,12 @@ namespace SPPSApi.Controllers.G05
                     #endregion
                 }
 
-                List<string> errMessageList = new List<string>();//记录导入错误消息
-                fs0501_Logic.SaveCheck(listInfoData, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, loginInfo.UnitCode);
-                if (errMessageList.Count > 0)
+                //记录导入错误消息 (string,string) -- (品番,错误消息)
+                Dictionary<string, string> errMessageDict = new Dictionary<string, string>(new RepeatDictionaryComparer());
+                fs0501_Logic.SaveCheck(listInfoData, loginInfo.UserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageDict, loginInfo.UnitCode);
+                if (errMessageDict.Count > 0)
                 {
-                    fs0501_Logic.importHistory(strYearMonth, errMessageList, loginInfo.UserId);
+                    fs0501_Logic.importHistory(strYearMonth, errMessageDict, loginInfo.UserId);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "发现问题数据，导入终止，请查看导入履历。";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
@@ -383,8 +384,8 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 DataTable dt = fs0501_Logic.SearchHistory(strYearMonth,loginInfo.UserId);
-                string[] heads = { "年月", "错误消息" };
-                string[] fields = { "vcYearMonth", "vcMessage" };
+                string[] heads = { "对象年月","品番", "错误消息" };
+                string[] fields = { "vcYearMonth", "vcPart_id", "vcMessage" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -407,5 +408,18 @@ namespace SPPSApi.Controllers.G05
         }
         #endregion
 
+    }
+
+    //为了让dictionary<string,string>（品番,错误消息）的key可以重复，因为一个品番可以有多条错误信息数据
+    public class RepeatDictionaryComparer : IEqualityComparer<string>
+    {
+        public bool Equals(string x, string y)
+        {
+            return x != y;
+        }
+        public int GetHashCode(string obj)
+        {
+            return obj.GetHashCode();
+        }
     }
 }

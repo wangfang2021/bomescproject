@@ -511,16 +511,19 @@ namespace SPPSApi.Controllers.G03
                  * 修改人：董镇
                  * 修改内容：生确单发行数据校验
                  */
-                string[,] strField = new string[,] {{"变更事项"     ,"生确"          ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"英文品名"    ,"供应商代码"   ,"OE=SP"    ,"防錆"    ,"防錆指示书号","收货方"         },
+                string[,] strField = new string[,] {{"变更事项"     ,"生确"          ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"英文品名"    ,"供应商代码"   ,"OE=SP"    ,"防锈"    ,"防锈指示书号","收货方"         },
                                                     {"vcChange_Name","vcSQState_Name","vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcPartNameEn","vcSupplier_id","vcOE_Name","vcFXDiff","vcFXNo"      ,"vcReceiver_Name"},
                                                     {""             ,""              ,""         ,""            ,""               ,""            ,""             ,""         ,""        ,""            ,""               },
                                                     {"0"            ,"0"             ,"12"       ,"4"           ,"4"              ,"100"         ,"4"            ,"0"        ,"2"       ,"12"          ,"0"              },//最大长度设定,不校验最大长度用0
-                                                    {"1"            ,"1"             ,"1"        ,"1"           ,"1"              ,"1"           ,"1"            ,"1"        ,"1"       ,"1"           ,"1"              },//最小长度设定,可以为空用0
+                                                    {"1"            ,"1"             ,"1"        ,"1"           ,"1"              ,"1"           ,"1"            ,"1"        ,"0"       ,"0"           ,"1"              },//最小长度设定,可以为空用0
                                                     {"2"            ,"4"             ,"6"        ,"7"           ,"8"              ,"15"          ,"20"           ,"29"       ,"38"      ,"39"          ,"56"             }
                     };
                 //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = { };
-                string[,] strSpecialCheck = { };
+                /*                         验证vcChange字段     当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
+                string[,] strSpecialCheck = {
+                                            { "防锈","vcFXDiff"    ,"R"  ,"R"     ,"防锈指示书号" ,"vcFXNo" ,"1",           "","" }
+                };
 
                 List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0303");
                 if (checkRes != null)

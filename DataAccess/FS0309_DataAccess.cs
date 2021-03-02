@@ -86,9 +86,9 @@ namespace DataAccess
                 if (strPriceChangeInfo != null && strPriceChangeInfo != "")
                     strSql.Append("       and vcPriceChangeInfo='" + strPriceChangeInfo + "'         \n");
                 if (strCarTypeDev != null && strCarTypeDev != "")
-                    strSql.Append("       and vcCarTypeDev='" + strCarTypeDev + "'         \n");
+                    strSql.Append("       and vcCarTypeDev like '" + strCarTypeDev + "%'         \n");
                 if (strSupplier_id != null && strSupplier_id != "")
-                    strSql.Append("       and vcSupplier_id='" + strSupplier_id + "'         \n");
+                    strSql.Append("       and vcSupplier_id like '" + strSupplier_id + "%'         \n");
                 if (strReceiver != null && strReceiver != "")
                     strSql.Append("       and vcReceiver like '%" + strReceiver + "%'         \n");
                 if (strPriceState != null && strPriceState != "")
@@ -139,7 +139,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceState"], false) + ",  \r\n");
                         sql.Append("getDate(),  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], true) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + ",  \r\n");
 
                         //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
@@ -173,7 +173,7 @@ namespace DataAccess
                         sql.Append("  update TPrice set    \r\n");
                         sql.Append("  vcChange=" + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "   \r\n");
                         sql.Append("  ,vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
-                        sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], false) + "   \r\n");
+                        sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], true) + "   \r\n");
                         sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
 
                         //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
@@ -196,30 +196,30 @@ namespace DataAccess
                 if (sql.Length > 0)
                 {
                     //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-                    //sql.Append("  DECLARE @errorPart varchar(4000)   \r\n");
-                    //sql.Append("  set @errorPart=''   \r\n");
-                    //sql.Append("  set @errorPart=(   \r\n");
-                    //sql.Append("  	select a.vcPart_id+';' from   \r\n");
-                    //sql.Append("  	(   \r\n");
-                    //sql.Append("  		select distinct a.vcPart_id from TPrice a   \r\n");
-                    //sql.Append("  		left join   \r\n");
-                    //sql.Append("  		(   \r\n");
-                    //sql.Append("  		   select * from TPrice   \r\n");
-                    //sql.Append("  		)b on a.vcPart_id=b.vcPart_id and a.iAutoId<>b.iAutoId   \r\n");
-                    //sql.Append("  		   and    \r\n");
-                    //sql.Append("  		   (   \r\n");
-                    //sql.Append("  			   (a.dUseBegin>=b.dUseBegin and a.dUseBegin<=b.dUseEnd)   \r\n");
-                    //sql.Append("  			   or   \r\n");
-                    //sql.Append("  			   (a.dUseEnd>=b.dUseBegin and a.dUseEnd<=b.dUseEnd)   \r\n");
-                    //sql.Append("  		   )   \r\n");
-                    //sql.Append("  		where b.iAutoId is not null   \r\n");
-                    //sql.Append("  	)a for xml path('')   \r\n");
-                    //sql.Append("  )   \r\n");
-                    //sql.Append("      \r\n");
-                    //sql.Append("  if @errorPart<>''   \r\n");
-                    //sql.Append("  begin   \r\n");
-                    //sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
-                    //sql.Append("  end    \r\n");
+                    sql.Append("  DECLARE @errorPart varchar(4000)   \r\n");
+                    sql.Append("  set @errorPart=''   \r\n");
+                    sql.Append("  set @errorPart=(   \r\n");
+                    sql.Append("  	select a.vcPart_id+';' from   \r\n");
+                    sql.Append("  	(   \r\n");
+                    sql.Append("  		select distinct a.vcPart_id from TPrice a   \r\n");
+                    sql.Append("  		left join   \r\n");
+                    sql.Append("  		(   \r\n");
+                    sql.Append("  		   select * from TPrice   \r\n");
+                    sql.Append("  		)b on a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.iAutoId<>b.iAutoId   \r\n");
+                    sql.Append("  		   and    \r\n");
+                    sql.Append("  		   (   \r\n");
+                    sql.Append("  			   (a.dPricebegin>=b.dPricebegin and a.dPricebegin<=b.dPriceEnd)   \r\n");
+                    sql.Append("  			   or   \r\n");
+                    sql.Append("  			   (a.dPriceEnd>=b.dPricebegin and a.dPriceEnd<=b.dPriceEnd)   \r\n");
+                    sql.Append("  		   )   \r\n");
+                    sql.Append("  		where b.iAutoId is not null   \r\n");
+                    sql.Append("  	)a for xml path('')   \r\n");
+                    sql.Append("  )   \r\n");
+                    sql.Append("      \r\n");
+                    sql.Append("  if @errorPart<>''   \r\n");
+                    sql.Append("  begin   \r\n");
+                    sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
+                    sql.Append("  end    \r\n");
 
 
                     excute.ExcuteSqlWithStringOper(sql.ToString());
@@ -381,38 +381,38 @@ namespace DataAccess
                 if (sql.Length > 0)
                 {
                     //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-                    //sql.Append("  	  DECLARE @errorName varchar(50)      \r\n");
-                    //sql.Append("  	  set @errorName=''      \r\n");
-                    //sql.Append("  	  set @errorName=(      \r\n");
-                    //sql.Append("  	  	select vcName +';' from      \r\n");
-                    //sql.Append("  	  	(      \r\n");
-                    //sql.Append("  	  		select distinct a.vcName from    \r\n");
-                    //sql.Append("  			(   \r\n");
-                    //sql.Append("  				select * from TPrice_GS a   \r\n");
-                    //sql.Append("  				inner join   \r\n");
-                    //sql.Append("  				(   \r\n");
-                    //sql.Append("  					select vcValue,vcName from TCode where vcCodeId = 'C038'   \r\n");
-                    //sql.Append("  				) b   \r\n");
-                    //sql.Append("  				on a.vcGSName = b.vcValue   \r\n");
-                    //sql.Append("  			) a      \r\n");
-                    //sql.Append("  	  		left join      \r\n");
-                    //sql.Append("  	  		(      \r\n");
-                    //sql.Append("  	  		   select * from TPrice_GS      \r\n");
-                    //sql.Append("  	  		)b on a.vcGSName=b.vcGSName and a.iAutoId<>b.iAutoId      \r\n");
-                    //sql.Append("  	  		   and       \r\n");
-                    //sql.Append("  	  		   (      \r\n");
-                    //sql.Append("  	  			   (a.dBegin>=b.dBegin and a.dBegin<=b.dEnd)      \r\n");
-                    //sql.Append("  	  			   or      \r\n");
-                    //sql.Append("  	  			   (a.dEnd>=b.dBegin and a.dEnd<=b.dEnd)      \r\n");
-                    //sql.Append("  	  		   )      \r\n");
-                    //sql.Append("  	  		where b.iAutoId is not null      \r\n");
-                    //sql.Append("  	  	)a for xml path('')      \r\n");
-                    //sql.Append("  	  )      \r\n");
-                    //sql.Append("  	         \r\n");
-                    //sql.Append("  	  if @errorName<>''      \r\n");
-                    //sql.Append("  	  begin      \r\n");
-                    //sql.Append("  	    select CONVERT(int,'-->'+@errorName+'<--')      \r\n");
-                    //sql.Append("  	  end       \r\n");
+                    sql.Append("  	  DECLARE @errorName varchar(50)      \r\n");
+                    sql.Append("  	  set @errorName=''      \r\n");
+                    sql.Append("  	  set @errorName=(      \r\n");
+                    sql.Append("  	  	select vcName +';' from      \r\n");
+                    sql.Append("  	  	(      \r\n");
+                    sql.Append("  	  		select distinct a.vcName from    \r\n");
+                    sql.Append("  			(   \r\n");
+                    sql.Append("  				select * from TPrice_GS a   \r\n");
+                    sql.Append("  				inner join   \r\n");
+                    sql.Append("  				(   \r\n");
+                    sql.Append("  					select vcValue,vcName from TCode where vcCodeId = 'C038'   \r\n");
+                    sql.Append("  				) b   \r\n");
+                    sql.Append("  				on a.vcGSName = b.vcValue   \r\n");
+                    sql.Append("  			) a      \r\n");
+                    sql.Append("  	  		left join      \r\n");
+                    sql.Append("  	  		(      \r\n");
+                    sql.Append("  	  		   select * from TPrice_GS      \r\n");
+                    sql.Append("  	  		)b on a.vcGSName=b.vcGSName and a.iAutoId<>b.iAutoId      \r\n");
+                    sql.Append("  	  		   and       \r\n");
+                    sql.Append("  	  		   (      \r\n");
+                    sql.Append("  	  			   (a.dBegin>=b.dBegin and a.dBegin<=b.dEnd)      \r\n");
+                    sql.Append("  	  			   or      \r\n");
+                    sql.Append("  	  			   (a.dEnd>=b.dBegin and a.dEnd<=b.dEnd)      \r\n");
+                    sql.Append("  	  		   )      \r\n");
+                    sql.Append("  	  		where b.iAutoId is not null      \r\n");
+                    sql.Append("  	  	)a for xml path('')      \r\n");
+                    sql.Append("  	  )      \r\n");
+                    sql.Append("  	         \r\n");
+                    sql.Append("  	  if @errorName<>''      \r\n");
+                    sql.Append("  	  begin      \r\n");
+                    sql.Append("  	    select CONVERT(int,'-->'+@errorName+'<--')      \r\n");
+                    sql.Append("  	  end       \r\n");
 
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
@@ -578,7 +578,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    strSql.AppendLine("      update TPrice set vcChange = null,vcPriceState = '4'       ");
+                    strSql.AppendLine("      update TPrice set vcChange = null,vcPriceState = 'PIC'       ");
                     strSql.AppendLine("      where iAutoId = '" + listInfoData[i]["iAutoId"] + "'       ");
                 }
                 if (strSql.Length>0)
@@ -701,7 +701,7 @@ namespace DataAccess
         #endregion
 
         #region 根据选择公式返回对应金额
-        public DataTable getGSChangePrice(string strPartId,string strSupplier,int iAutoId,string strGSName,decimal decPriceOrigin)
+        public DataTable getGSChangePrice(string strPartId,string strSupplier,string strReceiver, int iAutoId,string strGSName,decimal decPriceOrigin)
         {
             try
             {
@@ -719,12 +719,13 @@ namespace DataAccess
                 strSql.Append("              \n");
                 strSql.Append("    select @lastPriceOrigin=b.decPriceOrigin,@lastPriceAfter=b.decPriceAfter,@lastPriceTNPWithTax=b.decPriceTNPWithTax from          \n");
                 strSql.Append("    (          \n");
-                strSql.Append("       select vcSupplier_id,vcPart_id,max(iAutoId) as iMaxId from TPrice           \n");
+                strSql.Append("       select vcSupplier_id,vcPart_id,vcReceiver,max(iAutoId) as iMaxId from TPrice           \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       iAutoId<>"+ iAutoId + "          \n");
                 strSql.Append("       and vcPart_id='"+ strPartId + "'          \n");
                 strSql.Append("       and vcSupplier_id='" + strSupplier + "'          \n");
-                strSql.Append("       group by vcSupplier_id,vcPart_id          \n");
+                strSql.Append("       and vcReceiver='" + strReceiver + "'                     \n");
+                strSql.Append("       group by vcSupplier_id,vcPart_id,vcReceiver          \n");
                 strSql.Append("    )a           \n");
                 strSql.Append("    left join          \n");
                 strSql.Append("    (          \n");
@@ -745,11 +746,11 @@ namespace DataAccess
                 strSql.Append("    end          \n");
                 strSql.Append("              \n");
 
-                strSql.Append("    --公式B/C	          \n");
+                strSql.Append("    --公式B	          \n");
                 strSql.Append("    --参考值	上一状态的参考值-上一状态的原价+本状态的原价											          \n");
                 strSql.Append("    --TNP含税	(本状态参考值*税率-上一状态TNP含税)>0?本状态参考值*税率:上一状态TNP含税		          \n");
 
-                strSql.Append("    if('" + strGSName + "'='2' or '" + strGSName + "'='3')          \n");//公式B/C
+                strSql.Append("    if('" + strGSName + "'='2' )          \n");//公式B
                 strSql.Append("    begin          \n");
                 strSql.Append("    	set @priceAfter=@lastPriceAfter-@lastPriceOrigin+@priceOrigin          \n");
                 strSql.Append("    	if(@priceAfter*@decTaxRate-@lastPriceTNPWithTax)>0          \n");
@@ -762,7 +763,7 @@ namespace DataAccess
                 strSql.Append("    	end          \n");
                 strSql.Append("    end          \n");
                 strSql.Append("              \n");
-                strSql.Append("    if('" + strGSName + "'='4')          \n");//公式D
+                strSql.Append("    if('" + strGSName + "'='3')          \n");//公式C
                 strSql.Append("    begin           \n");
                 strSql.Append("    set @priceAfter=null          \n");
                 strSql.Append("    set @priceTNPWithTax=null          \n");
@@ -778,18 +779,19 @@ namespace DataAccess
         }
         #endregion
 
-        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
-        public DataTable getLastStateGsData(string strPartId, string strSupplier, int iAutoId)
+        #region 公式计算B需要验证该品番是否存在上个状态的数据
+        public DataTable getLastStateGsData(string strPartId, string strSupplier,string strReceiver, int iAutoId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcSupplier_id,vcPart_id,max(iAutoId) as iMaxId from TPrice             \n");
+                strSql.Append("    select vcSupplier_id,vcPart_id,vcReceiver,max(iAutoId) as iMaxId from TPrice             \n");
                 strSql.Append("    where                     \n");
                 strSql.Append("    iAutoId<>"+ iAutoId + "                     \n");
                 strSql.Append("    and vcPart_id='"+ strPartId + "'                     \n");
                 strSql.Append("    and vcSupplier_id='"+ strSupplier + "'                     \n");
-                strSql.Append("    group by vcSupplier_id,vcPart_id                     \n");
+                strSql.Append("    and vcReceiver='" + strReceiver + "'                     \n");
+                strSql.Append("    group by vcSupplier_id,vcPart_id,vcReceiver                \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -800,7 +802,7 @@ namespace DataAccess
         #endregion
 
 
-        #region 公式计算B、C需要验证该品番是否存在上个状态的数据
+        #region 公式是否存在
         public DataTable isGsExist(string strGs)
         {
             try

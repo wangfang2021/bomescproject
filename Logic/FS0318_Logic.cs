@@ -12,6 +12,10 @@ namespace Logic
     {
         FS0318_DataAccess fs0318_dataAccess = new FS0318_DataAccess();
 
+        public DataTable search(string vcCarType)
+        {
+            return fs0318_dataAccess.search(vcCarType);
+        }
 
     }
 }

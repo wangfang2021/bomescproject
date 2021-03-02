@@ -30,6 +30,7 @@ namespace DataAccess
                 strSql.Append("       ,b6.vcName as 'vcOriginCompany_Name'      \n");
                 strSql.Append("       ,b7.vcName as 'vcReceiver_Name'      \n");
                 strSql.Append("       ,b8.vcName as 'vcPriceGS_Name'      \n");
+                strSql.Append("       ,b9.vcName as 'vcPriceChangeInfo_Name'        \n");
                 strSql.Append("       ,'0' as vcModFlag,'0' as vcAddFlag     \n");
                 strSql.Append("       from TPrice a     \n");
                 strSql.Append("       left join      \n");
@@ -63,9 +64,11 @@ namespace DataAccess
                 strSql.Append("       left join      \n");
                 strSql.Append("       (      \n");
                 strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C038'      \n");
-                strSql.Append("       )b8 on a.vcReceiver=b8.vcValue      \n");
-
-                
+                strSql.Append("       )b8 on a.vcPriceGS=b8.vcValue      \n");
+                strSql.Append("       left join             \n");
+                strSql.Append("       (             \n");
+                strSql.Append("          select vcValue,vcName from TCode where vcCodeId='C002'        \n");
+                strSql.Append("       )b9 on a.vcPriceChangeInfo=b9.vcValue           \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
                 if(strChange!=null && strChange != "" && strChange != "空")
@@ -136,7 +139,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBegin"], true) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], true) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuBeginSustain"], true) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceState"], false) + ",  \r\n");
                         sql.Append("getDate(),  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], true) + ",  \r\n");
@@ -162,9 +165,32 @@ namespace DataAccess
                         sql.Append("getdate(),  \r\n");
                         sql.Append("'" + strLastTimeFlag + "'");
                         sql.Append(" );  \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState<>'4'   \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and decPriceTNPWithTax is null   \r\n");
-                        sql.Append("  update TPrice set vcPriceState='0',dPriceStateDate=GETDATE() where vcPriceState is null   \r\n");
+                        sql.Append("  update TPrice set vcPriceState='0',dPriceStateDate=GETDATE() where  vcLastTimeFlag='" + strLastTimeFlag + "' ; \r\n");
+                        sql.Append("  update TPrice set vcChange="+ ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) 
+                            + "  where vcPart_id="+ ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) 
+                            + "  and vcSupplier_id="+ ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) 
+                            + "  and vcReceiver="+ ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) 
+                            + " ; \r\n");
+                        //以下补全旧型十年的内容（新增的，这部分没有）
+                        sql.Append("   update TPrice set    \r\n");
+                        sql.Append("   vcnum1=c.vcNum1,vcnum2=c.vcNum2,vcnum3=c.vcNum3,vcnum4=c.vcNum4,vcnum5=c.vcNum5,vcnum6=c.vcNum6,vcnum7=c.vcNum7,vcnum8=c.vcNum8,vcnum9=c.vcNum9,vcnum10=c.vcNum10   \r\n");
+                        sql.Append("   ,vcnum11=c.vcNum11,vcnum12=c.vcNum12,vcnum13=c.vcNum13,vcnum14=c.vcNum14,vcnum15=c.vcNum15,vcSumLater=c.vcSumLater   \r\n");
+                        sql.Append("   from TPrice a   \r\n");
+                        sql.Append("   inner join   \r\n");
+                        sql.Append("   (   \r\n");
+                        sql.Append("      select vcReceiver,vcSupplier_id,vcPart_id,MIN(iAutoId) as iAutoId from TPrice where vcLastTimeFlag<>'" + strLastTimeFlag + "'   \r\n");
+                        sql.Append("      group by vcReceiver,vcSupplier_id,vcPart_id   \r\n");
+                        sql.Append("   )b on a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver   \r\n");
+                        sql.Append("   inner join   \r\n");
+                        sql.Append("   (   \r\n");
+                        sql.Append("      select iAutoId,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10   \r\n");
+                        sql.Append("      ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcSumLater from TPrice      \r\n");
+                        sql.Append("   )c on b.iAutoId=c.iAutoId    \r\n");
+                        sql.Append("   where a.vcLastTimeFlag='" + strLastTimeFlag + "'   \r\n");
+                        sql.Append("   and a.vcPart_id=" + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "     \r\n");
+                        sql.Append("   and a.vcSupplier_id=" + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) +"     \r\n");
+                        sql.Append("   and a.vcReceiver=" + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) +"    \r\n");
+                        sql.Append("   ;   \r\n");
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
@@ -187,8 +213,8 @@ namespace DataAccess
                         sql.Append("  ,vcLastTimeFlag='" + strLastTimeFlag + "'   \r\n");
                         
                         sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState<>'4'   \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and decPriceTNPWithTax is null   \r\n");
+                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcLastTimeFlag='" + strLastTimeFlag + "'  \r\n");
+                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where isnull(vcChange,'')<>'' and decPriceOrigin is not null and decPriceTNPWithTax is null  and vcLastTimeFlag='" + strLastTimeFlag + "'    \r\n");
                     }
                 }
  
@@ -266,7 +292,7 @@ namespace DataAccess
         
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
+        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId)
         {
             try
             {
@@ -281,9 +307,8 @@ namespace DataAccess
                     string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
 
                     sql.Append("  update TPrice set    \r\n");
-                    sql.Append("  vcChange=" + ComFunction.getSqlValue(dt.Rows[i]["vcChange"], false) + "   \r\n");
-                    sql.Append("  ,vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
-                    sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS"], false) + "   \r\n");
+                    sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                    sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
                     sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
 
 
@@ -302,12 +327,46 @@ namespace DataAccess
                 }
                 if (sql.Length > 0)
                 {
+                    //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
+                    sql.Append("  DECLARE @errorPart varchar(4000)   \r\n");
+                    sql.Append("  set @errorPart=''   \r\n");
+                    sql.Append("  set @errorPart=(   \r\n");
+                    sql.Append("  	select a.vcPart_id+';' from   \r\n");
+                    sql.Append("  	(   \r\n");
+                    sql.Append("  		select distinct a.vcPart_id from TPrice a   \r\n");
+                    sql.Append("  		left join   \r\n");
+                    sql.Append("  		(   \r\n");
+                    sql.Append("  		   select * from TPrice   \r\n");
+                    sql.Append("  		)b on a.vcPart_id=b.vcPart_id and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.iAutoId<>b.iAutoId   \r\n");
+                    sql.Append("  		   and    \r\n");
+                    sql.Append("  		   (   \r\n");
+                    sql.Append("  			   (a.dPricebegin>=b.dPricebegin and a.dPricebegin<=b.dPriceEnd)   \r\n");
+                    sql.Append("  			   or   \r\n");
+                    sql.Append("  			   (a.dPriceEnd>=b.dPricebegin and a.dPriceEnd<=b.dPriceEnd)   \r\n");
+                    sql.Append("  		   )   \r\n");
+                    sql.Append("  		where b.iAutoId is not null   \r\n");
+                    sql.Append("  	)a for xml path('')   \r\n");
+                    sql.Append("  )   \r\n");
+                    sql.Append("      \r\n");
+                    sql.Append("  if @errorPart<>''   \r\n");
+                    sql.Append("  begin   \r\n");
+                    sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
+                    sql.Append("  end    \r\n");
+
+
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
             }
             catch (Exception ex)
             {
-                throw ex;
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
             }
         }
         #endregion
@@ -463,6 +522,55 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("     select  * from TPrice where vcPriceState='0'      \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 获取十年年计
+        public DataTable getOld_10_Year(List<Dictionary<string, object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("        if object_id('tempdb..#TPrice10Year_temp') is not null  \n");
+                strSql.Append("        Begin  \n");
+                strSql.Append("        drop  table #TPrice10Year_temp  \n");
+                strSql.Append("        End  \n");
+                strSql.Append("        select * into #TPrice10Year_temp from       \n");
+                strSql.Append("        (      \n");
+                strSql.Append("      	  select vcSupplier_id,vcReceiver,vcPart_id from TPrice where 1=0      \n");
+                strSql.Append("        ) a      ;\n");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                    string strReceiver = listInfoData[i]["vcReceiver"].ToString();
+                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+
+                    strSql.Append("      insert into #TPrice10Year_temp       \n");
+                    strSql.Append("       (         \n");
+                    strSql.Append("        vcSupplier_id,vcReceiver,vcPart_id        \n");
+                    strSql.Append("       ) values         \n");
+                    strSql.Append("      (      \n");
+                    strSql.Append("       '" + strSupplier_id + "'      \n");
+                    strSql.Append("      ,'" + strReceiver + "'      \n");
+                    strSql.Append("      ,'" + strPart_id + "'      \n");
+                    strSql.Append("      );      \n");
+                }
+                strSql.Append("   select ROW_NUMBER() over(order by vcPart_id) as iNo,* from     \n");
+                strSql.Append("   (      \n");
+                strSql.Append("     select distinct a.vcPart_id,a.vcCarTypeDev,a.vcPart_Name,a.vcSupplier_Name,a.vcSupplier_id,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10 from TPrice a          \n");
+                strSql.Append("     inner join          \n");
+                strSql.Append("     (          \n");
+                strSql.Append("        select * from #TPrice10Year_temp          \n");
+                strSql.Append("     )b on a.vcReceiver=b.vcReceiver and a.vcSupplier_id=b.vcSupplier_id and a.vcPart_id=b.vcPart_id          \n");
+                strSql.Append("     where a.vcHaoJiu='Q'         \n");//只有旧型才有十年年记
+                strSql.Append("   )a     \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -838,5 +946,46 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 根据Name获取Value或者根据Value获取Name
+        /// <summary>
+        /// 根据Name获取Value或者根据Value获取Name
+        /// </summary>
+        /// <param name="codeId">Codeid</param>
+        /// <param name="strNameOrValue">Name或Value</param>
+        /// <param name="_bool">true:返回Value    false:返回Name</param>
+        /// <returns></returns>
+        public string Name2Value(string codeId, string strNameOrValue, bool _bool)
+        {
+            StringBuilder strSql = new StringBuilder();
+            if (string.IsNullOrEmpty(strNameOrValue))
+            {
+                return null;
+            }
+            try
+            {
+                if (_bool)
+                {
+                    strSql.Append("     select vcValue from TCode     \n");
+                    strSql.Append("     where vcCodeid = '" + codeId + "'    \n");
+                    strSql.Append("     and vcName = '" + strNameOrValue + "'    \n");
+                }
+                else
+                {
+                    strSql.Append("     select vcName from TCode     \n");
+                    strSql.Append("     where vcCodeid = '" + codeId + "'    \n");
+                    strSql.Append("     and vcValue = '" + strNameOrValue + "'    \n");
+                }
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString()).Rows[0][0].ToString();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+        #endregion
+ 
     }
 }

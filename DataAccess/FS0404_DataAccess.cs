@@ -475,15 +475,7 @@ namespace DataAccess
                                 {
                                     dicPartNo.Add(vcPart_id, vcPart_id);
                                 }
-                                if (dicPartNo.Count != drArrayTmp.Length)
-                                {
-                                    DataRow dataRow = dtMessage.NewRow();
-                                    dataRow["vcOrder"] = fileName;
-                                    dataRow["vcPartNo"] = "";
-                                    dataRow["vcMessage"] = fileName+"文件的品番个数与月度replay的品番个数不一样";
-                                    dtMessage.Rows.Add(dataRow);
-                                    bReault = false;
-                                }
+                                
                                 ////检测数量
                                 if (SoqDt.Rows.Count>0)
                                 {
@@ -517,6 +509,15 @@ namespace DataAccess
                                 bReault = false;
                             }
                         }
+                        if (dicPartNo.Count != drArrayTmp.Length)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcOrder"] = fileName;
+                            dataRow["vcPartNo"] = "";
+                            dataRow["vcMessage"] = fileName + "文件的品番个数与月度replay的品番个数不一样";
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
                     }
                     if (!bReault)
                     {
@@ -544,7 +545,7 @@ namespace DataAccess
                     strSql.AppendLine("             ,[vcTargetWeek]  ,[vcOrderType],[vcInOutFlag]   ");
                     strSql.AppendLine("             ,[vcOrderState],[vcMemo]   ");
                     strSql.AppendLine("             ,[dUploadDate],[dCreateDate]   ");
-                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,[vcOperatorID],[dOperatorTime])   ");
+                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag, [vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
                     strSql.AppendLine("             ('" + fileName + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
@@ -556,9 +557,14 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',  ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',1,  ");
                     strSql.AppendLine("  		   '"+ userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
+
+                    if (vcOrderType == "D")
+                    {
+                        strSql.AppendLine("   update [dbo].[TSoqDayChange] set vcOrderNo='"+ fileName + "' where vcChangeNo='"+ dTargetDate.Replace("-", "") + "'  ");
+                    }
                 }
                 
                 if (strSql.Length > 0)
@@ -855,7 +861,7 @@ namespace DataAccess
                     strSql.AppendLine("             ,[vcTargetWeek]  ,[vcOrderType],[vcInOutFlag]   ");
                     strSql.AppendLine("             ,[vcOrderState],[vcMemo]   ");
                     strSql.AppendLine("             ,[dUploadDate],[dCreateDate]   ");
-                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,[vcOperatorID],[dOperatorTime])   ");
+                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag,[vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
                     strSql.AppendLine("             ('" + fileName + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
@@ -867,7 +873,7 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',  ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',0,  ");
                     strSql.AppendLine("  		   '" + userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
 
@@ -1045,7 +1051,7 @@ namespace DataAccess
                     strSql.AppendLine("             ,[vcTargetWeek]  ,[vcOrderType],[vcInOutFlag]   ");
                     strSql.AppendLine("             ,[vcOrderState],[vcMemo]   ");
                     strSql.AppendLine("             ,[dUploadDate],[dCreateDate]   ");
-                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,[vcOperatorID],[dOperatorTime])   ");
+                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag,[vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
                     strSql.AppendLine("             ('" + fileName + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
@@ -1057,7 +1063,7 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',  ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',0,  ");
                     strSql.AppendLine("  		   '" + userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
 

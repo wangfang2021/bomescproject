@@ -23,7 +23,7 @@ namespace DataAccess
                 sbr.AppendLine(" SELECT * INTO #temp FROM  ");
                 sbr.AppendLine(" ( ");
                 sbr.AppendLine(" 	SELECT REPLACE(vcPart_id,'-','') as vcPart_id,vcSupplier_id,vcOriginCompany,vcReceiver,vcCarTypeDesign,vcInOutflag,vcSYTCode FROM Tunit  ");
-                sbr.AppendLine(" 	WHERE dTimeFrom >= GETDATE() AND dTimeTo <= GETDATE() AND dTimeTo <> dTimeFrom AND vcCarTypeDesign = '" + vcCarType + "'  ");
+                sbr.AppendLine(" 	WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() AND dTimeTo <> dTimeFrom AND vcCarTypeDesign = '" + vcCarType + "'  ");
                 sbr.AppendLine(" ) a ");
                 sbr.AppendLine(" DECLARE @inSum INT ");
                 sbr.AppendLine(" DECLARE @outSum INT ");

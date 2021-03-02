@@ -80,7 +80,7 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
            
 
-            string carType = dataForm.carType;
+            string carType = dataForm.vcCarType;
 
             try
             {
@@ -115,7 +115,7 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string carType = dataForm.carType;
+            string carType = dataForm.vcCarType;
 
 
             try

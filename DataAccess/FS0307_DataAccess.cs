@@ -240,18 +240,18 @@ namespace DataAccess
                 //    }
                 //}
 
-                DataTable CompanyTable = getTable("C006");
+                //DataTable CompanyTable = getTable("C006");
 
-                int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
-                string tmp = "";
-                for (int i = 0; i < arrInt.Length; i++)
-                {
-                    if (!string.IsNullOrWhiteSpace(tmp))
-                    {
-                        tmp += ",";
-                    }
-                    tmp += "'" + getName(CompanyTable, arrInt[i].ToString()) + "'";
-                }
+                //int[] arrInt = Array.ConvertAll<string, int>(OriginCompany.Split(','), s => int.Parse(s));
+                //string tmp = "";
+                //for (int i = 0; i < arrInt.Length; i++)
+                //{
+                //    if (!string.IsNullOrWhiteSpace(tmp))
+                //    {
+                //        tmp += ",";
+                //    }
+                //    tmp += "'" + getName(CompanyTable, arrInt[i].ToString()) + "'";
+                //}
 
                 StringBuilder sbr = new StringBuilder();
 
@@ -272,7 +272,7 @@ namespace DataAccess
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C006') g ON a.vcOriginCompany = g.vcValue \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
-                sbr.Append(" AND a.vcOriginCompany in (" + tmp + ") \r\n");
+                sbr.Append(" AND a.vcOriginCompany in (" + OriginCompany + ") \r\n");
 
                 if (!string.IsNullOrWhiteSpace(strYear))
                 {
@@ -885,6 +885,26 @@ namespace DataAccess
                         return dt.Rows[i]["vcName"].ToString();
                     }
                 }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public string getOriginCompany(string userId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcValue1 AS vcName,vcValue2 AS vcOriginCompany FROM TOutCode WHERE vcCodeId = 'C011' AND vcIsColum = '0' AND vcValue1 = '" + userId + "'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0]["vcOriginCompany"].ToString();
+                }
+
                 return "";
             }
             catch (Exception ex)

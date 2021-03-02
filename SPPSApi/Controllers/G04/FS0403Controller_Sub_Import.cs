@@ -54,6 +54,15 @@ namespace SPPSApi.Controllers.G04
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+
+            //if (!fs0403_Logic.isUpload())
+            //{
+            //    apiResult.code = ComConstant.ERROR_CODE;
+            //    apiResult.data = "导入终止:10点后导入,或今日已经导入";
+            //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            //}
+
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string DXR = dataForm.DXR == null ? "" : dataForm.DXR;
             if (string.IsNullOrWhiteSpace(DXR))
@@ -81,11 +90,11 @@ namespace SPPSApi.Controllers.G04
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
 
-                string[,] headers = new string[,] {{"变更号","品番","变更数量"},
-                                                {"vcChangeNo", "vcPart_Id", "iQuantity"},
-                                                {"","",FieldCheck.Num},
-                                                {"0","12","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","10","1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"品番","变更数量"},
+                                                {"vcPart_Id", "iQuantity"},
+                                                {FieldCheck.NumCharLLL,FieldCheck.Num},
+                                                {"12","0"},//最大长度设定,不校验最大长度用0
+                                                {"10","1"}};//最小长度设定,可以为空用0
 
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -115,11 +124,12 @@ namespace SPPSApi.Controllers.G04
 
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-                string refMsg = "";
+                List<Object> refMsg = new List<object>();
                 fs0403_Logic.ImportFile(time, importDt, loginInfo.UserId, ref refMsg);
-                if (!string.IsNullOrWhiteSpace(refMsg))
+                if (refMsg.Count > 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
                     apiResult.data = refMsg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -139,7 +149,65 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion
 
+        /// <summary>
+        /// 导出消息信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dt = new DataTable();
+                dt.Columns.Add("partId");
+                dt.Columns.Add("message");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dt.NewRow();
+                    dataRow["partId"] = listInfoData[i]["partId"].ToString();
+                    dataRow["message"] = listInfoData[i]["message"].ToString();
+                    dt.Rows.Add(dataRow);
+                }
 
+                string refMsg = "";
+                string[] head = { "品番", "错误信息" };
+
+                string[] fields = { "partId", "message" };
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref refMsg);
+
+
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
 
     }
 }

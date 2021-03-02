@@ -13,37 +13,89 @@ namespace Logic
     public class FS1402_Logic
     {
         FS1402_DataAccess fs1402_DataAccess;
+        FS0603_Logic fS0603_Logic = new FS0603_Logic();
 
         public FS1402_Logic()
         {
             fs1402_DataAccess = new FS1402_DataAccess();
         }
-        public DataTable getSearchInfo(string strCheckQf, string strPartId, string strSuplierId, string strSuplierPlant)
+        public DataTable getSearchInfo(string strCheckType, string strPartId, string strSupplierId, string strSupplierPlant)
         {
-            return fs1402_DataAccess.getSearchInfo(strCheckQf, strPartId, strSuplierId, strSuplierPlant);
+            return fs1402_DataAccess.getSearchInfo(strCheckType, strPartId, strSupplierId, strSupplierPlant);
         }
-        public bool ImportFile(DirectoryInfo theFolder, string fileSavePath, string sheetName, string[,] headers, bool bSourceFile, string strOperId, ref string strMessage)
+        public DataTable checkSaveInfo(DataTable dtImport, ref DataTable dtMessage)
+        {
+            try
+            {
+                for (int i = 0; i < dtImport.Rows.Count; i++)
+                {
+                    string strPartId = dtImport.Rows[i]["vcPartId"].ToString();
+                    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString();
+                    string strSupplierPlant = dtImport.Rows[i]["vcSupplierPlant"].ToString();
+                    string strFromTime = dtImport.Rows[i]["dFromTime"].ToString();
+                    DataTable dtCheckTime = getSearchInfo("", strPartId, strSupplierId, strSupplierPlant);
+                    if (dtCheckTime.Rows.Count > 0)
+                    {
+                        string strLinid_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
+                        string strFromTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dFromTime"].ToString();
+                        string strToTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dToTime"].ToString();
+                        if (Convert.ToDateTime(strFromTime_before) >= Convert.ToDateTime(strFromTime))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "品番" + strPartId + "【检查频度】维护有误(当前有效的开始使用时间小于维护的开始使用时间)";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        strToTime_before = Convert.ToDateTime(strFromTime).AddDays(-1).ToString("yyyy-MM-dd");
+                        DataRow drImport = dtImport.NewRow();
+                        drImport["LinId"] = strPartId;
+                        drImport["dToTime"] = strToTime_before;
+                        drImport["vcType"] = "mod";
+                        dtImport.Rows.Add(drImport);
+                    }
+                }
+                return dtImport;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setSaveInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
+        {
+            try
+            {
+                fs1402_DataAccess.setSaveInfo(dtImport, strOperId, ref dtMessage);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable ImportFile(DirectoryInfo theFolder, string fileSavePath, string sheetName, string[,] headers, bool bSourceFile, string strOperId, ref DataTable dtMessage)
         {
             try
             {
                 DataTable dataTable = new DataTable();
                 //读取导入文件信息
+                string strMessage = "";
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
                     DataTable dt = ComFunction.ExcelToDataTable(info.FullName, sheetName, headers, ref strMessage);
                     if (strMessage != "")
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                        strMessage = "导入终止，文件" + info.Name + ":" + strMessage;
-                        return false;
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "导入终止，文件" + info.Name + ":" + strMessage;
+                        dtMessage.Rows.Add(dataRow);
                     }
                     if (dataTable.Columns.Count == 0)
                         dataTable = dt.Clone();
                     if (dt.Rows.Count == 0)
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                        strMessage = "导入终止，文件" + info.Name + "没有要导入的数据";
-                        return false;
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "导入终止，文件" + info.Name + "没有要导入的数据";
+                        dtMessage.Rows.Add(dataRow);
                     }
                     foreach (DataRow row in dt.Rows)
                     {
@@ -68,16 +120,19 @@ namespace Logic
                     {
                         sbr.Append("品番:" + item.Key.r2 + " 供应商编码:" + item.Key.r3 + " 供应商工区:" + item.Key.r4 + "<br/>");
                     }
-                    strMessage = sbr.ToString();
-                    return false;
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = sbr.ToString();
+                    dtMessage.Rows.Add(dataRow);
                 }
-                //校验格式
-                #region
+                dataTable.Columns.Add("vcType");
                 for (int i = 0; i < dataTable.Rows.Count; i++)
                 {
+                    dataTable.Rows[i]["vcPartId"] = "add";
                     if (dataTable.Rows[i]["vcPartId"].ToString().Replace("-", "").Length != 12)
                     {
-                        strMessage = strMessage + "Excel第" + (i + 1) + "行品番格式错误";
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "Excel第" + (i + 1) + "行品番格式错误";
+                        dtMessage.Rows.Add(dataRow);
                     }
                     try
                     {
@@ -85,104 +140,37 @@ namespace Logic
                         Convert.ToDateTime(dataTable.Rows[i]["vcTimeTo"].ToString());
                         if (Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString()) > Convert.ToDateTime(dataTable.Rows[i]["vcTimeTo"].ToString()))
                         {
-                            strMessage = strMessage + "Excel第" + (i + 1) + "行起始时间大于结束时间";
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "Excel第" + (i + 1) + "行起始时间大于结束时间";
+                            dtMessage.Rows.Add(dataRow);
                         }
                     }
                     catch
                     {
-                        strMessage = strMessage + "Excel文件中第" + (i + 1) + "行日期格式有误";
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "Excel文件中第" + (i + 1) + "行日期格式有误";
+                        dtMessage.Rows.Add(dataRow);
                     }
-                    if (!(dataTable.Rows[i]["vcSupplierCode"].ToString().Length == 4 && dataTable.Rows[i]["vcCarfamilyCode"].ToString().Length == 4 && dataTable.Rows[i]["vcSupplierPlant"].ToString().Length == 1))
+                    if (!(dataTable.Rows[i]["vcSupplierCode"].ToString().Length == 4  && dataTable.Rows[i]["vcSupplierPlant"].ToString().Length == 1))
                     {
-                        strMessage = strMessage + "Excel第" + (i + 1) + "行车种代码、供应商(工区)格式错误";
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "Excel第" + (i + 1) + "行车种代码、供应商(工区)格式错误";
+                        dtMessage.Rows.Add(dataRow);
                     }
                     if (!(dataTable.Rows[i]["vcCheckP"].ToString() == "全检" || dataTable.Rows[i]["vcCheckP"].ToString() == "抽检" || dataTable.Rows[i]["vcCheckP"].ToString() == "免检"))
                     {
-                        strMessage = strMessage + "Excel第" + (i + 1) + "行检查区类型错误,选填:全检|抽检|免检";
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "Excel第" + (i + 1) + "行检查区类型错误,选填:全检|抽检|免检";
+                        dtMessage.Rows.Add(dataRow);
                     }
                 }
-                if (strMessage != "")
-                    return false;
-                #endregion
-                //数据库校验
-                //本次的起始日期不能小于上次的起始时间
-                #region 
-                dataTable.Columns.Add("vcType");
-                strMessage = checkDbInfo(dataTable, strMessage);
-                if (strMessage != "")
-                    return false;
-                #endregion
-                //插入数据库
-                fs1402_DataAccess.setDataInfo(dataTable, strOperId);
-                return true;
+
+                return dataTable;
             }
             catch (Exception ex)
             {
-                throw ex; 
+                throw ex;
             }
-        }
-        public string checkDbInfo(DataTable dataTable, string strMessage)
-        {
-            for (int i = 0; i < dataTable.Rows.Count; i++)
-            {
-                DataTable dtCheck = fs1402_DataAccess.getCheckInfo(dataTable.Rows[i]["vcPartId"].ToString(), dataTable.Rows[i]["vcSupplierCode"].ToString(), dataTable.Rows[i]["vcSupplierPlant"].ToString());
-                if (dtCheck.Rows.Count != 0 && dtCheck.Rows[0]["vcTimeFrom"].ToString() != "")
-                {
-                    if (Convert.ToDateTime(dtCheck.Rows[0]["vcTimeFrom"].ToString()) >= Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString()))
-                    {
-                        strMessage = strMessage + "第" + (i + 1) + "本次的起始日期不能小于上次的起始时间";
-                    }
-                    else
-                    {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["vcPartId"] = dataTable.Rows[i]["vcPartId"].ToString();
-                        dataRow["vcSupplierCode"] = dataTable.Rows[i]["vcSupplierCode"].ToString();
-                        dataRow["vcSupplierPlant"] = dataTable.Rows[i]["vcSupplierPlant"].ToString();
-                        dataRow["vcTimeFrom"] = dtCheck.Rows[0]["vcTimeFrom"].ToString();
-                        dataRow["vcTimeTo"] = Convert.ToDateTime(dataTable.Rows[i]["vcTimeFrom"].ToString()).AddDays(-1).ToString("yyyy-MM-dd");
-                        dataRow["vcType"] = "update";
-                        dataTable.Rows.Add(dataRow);
-                    }
-                }
-            }
-            return strMessage;
-        }
-        public DataTable getSubInfo(string strLinid)
-        {
-            return fs1402_DataAccess.getSubInfo(strLinid);
-        }
-
-        public bool setDataInfo(string strType, string strInfo, string strPartNo, string strFromTime, string strToTime, string strSupplierCode, string strSupplierPlant, string strCarFamilyCode, string strCheckQf, string strTeJi, string strChangeReason, string strOperId, ref string strMessage)
-        {
-            DataTable dataTable = new DataTable();
-            dataTable.Columns.Add("vcPartId");
-            dataTable.Columns.Add("vcTimeFrom");
-            dataTable.Columns.Add("vcTimeTo");
-            dataTable.Columns.Add("vcSupplierCode");
-            dataTable.Columns.Add("vcSupplierPlant");
-            dataTable.Columns.Add("vcCarfamilyCode");
-            dataTable.Columns.Add("vcCheckP");
-            dataTable.Columns.Add("vcChangeRea");
-            dataTable.Columns.Add("vcTJSX");
-            DataRow dataRow = dataTable.NewRow();
-            dataRow["vcPartId"] = strPartNo;
-            dataRow["vcTimeFrom"] = strFromTime;
-            dataRow["vcTimeTo"] = strToTime;
-            dataRow["vcSupplierCode"] = strSupplierCode;
-            dataRow["vcSupplierPlant"] = strSupplierPlant;
-            dataRow["vcCarfamilyCode"] = strCarFamilyCode;
-            dataRow["vcCheckP"] = strCheckQf;
-            dataRow["vcChangeRea"] = strChangeReason;
-            dataRow["vcTJSX"] = strTeJi;
-            dataRow["vcType"] = strType;
-            dataTable.Rows.Add(dataRow);
-            strMessage = checkDbInfo(dataTable, strMessage);
-            if (strMessage != "")
-                return false;
-            //插入数据库
-            fs1402_DataAccess.setDataInfo(dataTable, strOperId);
-            return true;
-
         }
     }
 }

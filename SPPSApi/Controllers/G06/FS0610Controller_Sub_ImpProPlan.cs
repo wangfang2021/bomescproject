@@ -204,7 +204,8 @@ namespace SPPSApi.Controllers.G06
                 Exception ex = new Exception();
                 for (int i = 0; i < vcFZGC.Length; i++)
                 {
-                    strMsg = fs0610_Logic.updatePro(importDt, loginInfo.UserId, vcMon, ref ex, vcFZGC[i]);
+                    string mon = vcMon.Substring(0, 4) + "-" + vcMon.Substring(4, 2);
+                    strMsg = fs0610_Logic.updatePro(importDt, loginInfo.UserId, mon, ref ex, vcFZGC[i]);
                     if (strMsg.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

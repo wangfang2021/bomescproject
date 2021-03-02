@@ -2070,6 +2070,7 @@ namespace Logic
                 dataTable.Columns.Add("vcCheckP", typeof(string));
                 dataTable.Columns.Add("vcChangeRea", typeof(string));
                 dataTable.Columns.Add("vcTJSX", typeof(string));
+                dataTable.Columns.Add("vcType", typeof(string));
             }
             return dataTable;
         }

@@ -17,5 +17,9 @@ namespace Logic
             return fs0318_dataAccess.search(vcCarType);
         }
 
+        public DataTable getcarType()
+        {
+            return fs0318_dataAccess.getcarType();
+        }
     }
 }

@@ -46,7 +46,7 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //TODO 选择车型TCode
-                List<Object> carType = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//车型
+                List<Object> carType = ComFunction.convertAllToResult(fs0318_logic.getcarType());//车型
                 res.Add("carType", carType);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

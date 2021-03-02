@@ -102,6 +102,12 @@ namespace Logic
         {
             return fs0403_dataAccess.isUpload();
         }
+
+
+        public DataTable getModify(DateTime DXR)
+        {
+            return fs0403_dataAccess.getModify(DXR);
+        }
     }
 
 }

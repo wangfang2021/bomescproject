@@ -107,6 +107,32 @@ namespace DataAccess
             }
         }
 
+        public void creatInjectionOrderNo(DataTable dtWZ, string userId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                //
+                int iAutoId = 0;
+                string dExpectReceiveDate = string.Empty;
+                string vcOderTimes = string.Empty;
+                string vcInjectionOrderNo = string.Empty;
+                for (int i=0;i<dtWZ.Rows.Count;i++)
+                {
+                    iAutoId = Convert.ToInt32(dtWZ.Rows[i]["iAutoId"]);
+                    dExpectReceiveDate = dtWZ.Rows[i]["dExpectReceiveDate"].ToString();
+                    vcOderTimes = dtWZ.Rows[i]["vcOderTimes"].ToString();
+                    vcInjectionOrderNo = dExpectReceiveDate.Replace("/", "") + vcOderTimes + "E1";
+                    sql.Append("   update TEmergentOrderManage set vcInjectionOrderNo='"+ vcInjectionOrderNo + "',vcOperatorID='"+ userId + "',dOperatorTime=GETDATE() where iAutoId="+ iAutoId + ";  ");
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public DataTable GetWorkAreaBySupplier(string supplierCode)
         {
             try

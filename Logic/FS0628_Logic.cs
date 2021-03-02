@@ -62,5 +62,10 @@ namespace Logic
         {
             return fs0628_DataAccess.GetWorkAreaBySupplier(supplierCode);
         }
+
+        public void creatInjectionOrderNo(DataTable dtWZ, string userId)
+        {
+            fs0628_DataAccess.creatInjectionOrderNo(dtWZ, userId);
+        }
     }
 }

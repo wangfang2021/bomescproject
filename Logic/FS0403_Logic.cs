@@ -41,11 +41,15 @@ namespace Logic
 
                 List<FS0403_DataAccess.PartIDNode> list = new List<FS0403_DataAccess.PartIDNode>();
                 string changeNo = DateTime.Now.ToString("yyyyMMdd");
+
+                List<string> partList = new List<string>();
+
                 for (int i = 0; i < excelTable.Rows.Count; i++)
                 {
 
                     //string changeNo = excelTable.Rows[i]["vcchangeNo"].ToString();
                     string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    partList.Add(partId);
                     int excelquantity = Convert.ToInt32(excelTable.Rows[i]["iQuantity"]);
                     int soqQuantity = -1;
                     string DXR = "";
@@ -70,19 +74,26 @@ namespace Logic
                 {
                     if (!partIdNode.flag)
                     {
-                        refMsg.Add(partIdNode);
-                        //refMsg += "品番" + partIdNode.partId + ":" + partIdNode.message;
+                        refMsg.Add(new MessageNode(partIdNode.partId, partIdNode.message));
                     }
                 }
+
+                foreach (string key in quantity.Keys)
+                {
+
+                    if (!partList.Contains(key))
+                    {
+                        refMsg.Add(new MessageNode(key, "导入日次订单该品番不存在"));
+
+                    }
+                }
+
 
                 if (refMsg.Count > 0)
                 {
                     return;
                 }
-                //TODO 创建账单号
-                string orderNo = "test";
-                //无误则继续，修改soqreply,记录修改
-                fs0403_dataAccess.ChangeSoq(list, strUserId, orderNo);
+                fs0403_dataAccess.ChangeSoq(list, strUserId);
             }
             catch (Exception ex)
             {
@@ -107,6 +118,18 @@ namespace Logic
         public DataTable getModify(DateTime DXR)
         {
             return fs0403_dataAccess.getModify(DXR);
+        }
+
+        public class MessageNode
+        {
+            public string partId;
+            public string message;
+
+            public MessageNode(string partId, string message)
+            {
+                this.partId = partId;
+                this.message = message;
+            }
         }
     }
 

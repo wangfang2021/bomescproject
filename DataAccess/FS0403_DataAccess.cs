@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Common;
 using System.Data;
+using System.Drawing;
 using System.Security.Policy;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
@@ -250,7 +251,11 @@ namespace DataAccess
                 {
                     string plant = htKey;
                     string DXYM = ht[htKey].ToString().Substring(0, 6);
-                    string tmp = " (vcDXYM = '" + DXYM + "' AND vcFZGC = '" + plant + "') ";
+                    DateTime t2;
+                    DateTime.TryParseExact(DXYM + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                    t2 = t2.AddMonths(-1);
+                    string CLYM = t2.ToString("yyyyMM");
+                    string tmp = " (vcDXYM = '" + DXYM + "' AND vcFZGC = '" + plant + "' AND vcCLYM = '" + CLYM + "') ";
                     if (!string.IsNullOrWhiteSpace(choose))
                     {
                         choose = choose + "OR" + tmp;
@@ -270,7 +275,7 @@ namespace DataAccess
 
                 //TODO 应修改日度订货次数
                 //sbr.AppendLine("SELECT * FROM TSoqReply WHERE vcMakingOrderType = '3' " + choose);
-                sbr.AppendLine("SELECT * FROM TSoqReply WHERE 1=1 " + choose);
+                sbr.AppendLine("SELECT * FROM TSoqReply WHERE 1=1 and vcMakingOrderType = '3' " + choose);
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
 
 
@@ -347,7 +352,7 @@ namespace DataAccess
 
         #region 修改soqReply并导入履历表
 
-        public void ChangeSoq(List<PartIDNode> list, string strUserId, string orderNo)
+        public void ChangeSoq(List<PartIDNode> list, string strUserId)
         {
             try
             {
@@ -564,5 +569,9 @@ namespace DataAccess
             }
         }
 
+        public bool isSame(DataTable dtSQL, DataTable dtFile)
+        {
+            return true;
+        }
     }
 }

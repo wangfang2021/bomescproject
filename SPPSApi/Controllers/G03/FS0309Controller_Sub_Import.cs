@@ -99,28 +99,49 @@ namespace SPPSApi.Controllers.G03
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-
-                var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPart_id"), r3 = r.Field<string>("dUseBegin"), r4 = r.Field<string>("dUseEnd") } into g
-                             where g.Count() > 1
-                             select g;
-                if (result.Count() > 0)
+                for (int i = 0; i < importDt.Rows.Count; i++)
                 {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
+                    string strAutoId = importDt.Rows[i]["iAutoId"] == System.DBNull.Value ? "" : importDt.Rows[i]["iAutoId"].ToString();
+                    string strPart_id = importDt.Rows[i]["vcPart_id"] == System.DBNull.Value ? "" : importDt.Rows[i]["vcPart_id"].ToString();
+                    string strPriceTNPWithTax = importDt.Rows[i]["decPriceTNPWithTax"]==System.DBNull.Value?"": importDt.Rows[i]["decPriceTNPWithTax"].ToString();
+                    string strPricebegin = importDt.Rows[i]["dPricebegin"] == System.DBNull.Value ? "" : importDt.Rows[i]["dPricebegin"].ToString();
+                    string strPriceEnd = importDt.Rows[i]["dPriceEnd"] == System.DBNull.Value ? "" : importDt.Rows[i]["dPriceEnd"].ToString();
+                    if (strPriceTNPWithTax != "" && (strPricebegin == "" || strPriceEnd == ""))
                     {
-                        sbr.Append("品番:" + item.Key.r2 + " 使用开始:" + item.Key.r3 + " 使用结束:" + item.Key.r4 + "<br/>");
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "ID:" + strAutoId +" 品番:"+ strPart_id + " TNP含税不为空时，价格开始、价格结束不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    if (strPricebegin != "" && strPriceEnd != "")
+                    {
+                        DateTime dbegin = DateTime.Parse(strPricebegin);
+                        DateTime dend = DateTime.Parse(strPriceEnd);
+                        if (dbegin > dend)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "ID:" + strAutoId + " 品番:" + strPart_id + " 价格开始时间不能晚于价格结束时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
                 }
 
 
 
+                FS0309_Logic fS0309_Logic = new FS0309_Logic();
 
-                fs0309_Logic.importSave(importDt, loginInfo.UserId);
+                List<FS0309_Logic.NameOrValue> lists = new List<FS0309_Logic.NameOrValue>();
+                lists.Add(new FS0309_Logic.NameOrValue() { strTitle = "公式选择", strHeader = "vcPriceGS", strCodeid = "C038", isNull = true });
+                string strErr = "";         //记录错误信息
+                importDt = fS0309_Logic.ConverDT(importDt, lists, ref strErr);
+
+                string strErrorPartId = "";
+                fs0309_Logic.importSave(importDt, loginInfo.UserId, ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败，以下品番价格开始、价格结束区间存在重叠：<br/>" + strErrorPartId;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

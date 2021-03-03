@@ -106,7 +106,7 @@ namespace SPPSApi.Controllers.G12
                 string vcTBZ = dataForm.vcTBZ == null ? "" : dataForm.vcTBZ;
                 string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
                 string vcPartsNo_ = vcPartsNo.Replace("-", "");
-                string vcCarType = dataForm.vcCarTyp == null ? "" : dataForm.vcCarTypee;
+                string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
                 string vcGC = dataForm.vcGC == null ? "" : dataForm.vcGC;
                 string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
                 string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;

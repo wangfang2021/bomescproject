@@ -30,22 +30,24 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id,string vcDelete)
+        public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id, string vcDelete)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select t1.iAutoId,t1.vcStatus,t2.vcName as vcStatusName,t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,    \n");
-                strSql.Append("t1.vcGQ,t1.vcChuHePlant,t1.dReplyOverDate,iOrderQuantity,t3.iDuiYingQuantity,t3.dDeliveryDate,     \n");
-                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag,         \n");
-                strSql.Append("CASE WHEN vcStatus='1' and vcDelete='0' then '0'  else '1' end as bSelectFlag,vcDelete        \n");
+                strSql.Append("t1.vcGQ,t1.vcChuHePlant,t1.dReplyOverDate,t1.iPackingQty,t1.iOrderQuantity,t3.iDuiYingQuantity,     \n");
+                strSql.Append("cast(t1.iOrderQuantity/(t1.iPackingQty*1.0) as decimal(18,1)) as decBoxes,t3.dDeliveryDate,'0' as vcModFlag,'0' as vcAddFlag,         \n");
+                strSql.Append("CASE WHEN t1.vcStatus='1' and t1.vcDelete='0' then '0'  else '1' end as bSelectFlag,t1.vcDelete,        \n");
+                strSql.Append("case when iOrderQuantity%iPackingQty<>0 then 'red' else '' end as boxColor,    \n");
+                strSql.Append("case when t3.iDuiYingQuantity<t1.iOrderQuantity then 'red' else '' end as DuiYingQuantityColor    \n");
                 strSql.Append("from(        \n");
                 strSql.Append("	select * from TUrgentOrder         \n");
                 strSql.Append("	where vcSupplier_id='" + vcSupplier_id + "'      \n");
                 strSql.Append("	and vcStatus in ('1','2')--0:未发送  1:待回复   2:已回复   3:回复销售   \n");
                 strSql.Append("	and vcStatus='" + vcStatus + "'    \n");
                 strSql.Append("	and vcOrderNo like '%" + vcOrderNo + "%'    \n");
-                strSql.Append("	and vcPart_id like '%" + vcPart_id + "%'    \n");
+                strSql.Append("	and vcPart_id like '" + vcPart_id + "%'    \n");
                 strSql.Append(" and vcDelete ='" + vcDelete + "' ");
                 strSql.Append(")t1        \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C056')t2 on t1.vcStatus=t2.vcValue        \n");
@@ -68,7 +70,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.*,t2.iOrderQuantity,t2.vcStatus,'1' as vcModFlag,'0' as vcAddFlag     \n");
+                strSql.Append("select t1.*,t2.iOrderQuantity,t2.vcStatus,'1' as vcModFlag,'0' as vcAddFlag,     \n");
+                strSql.Append("cast(t1.iDuiYingQuantity/(t2.iPackingQty*1.0) as decimal(18,1)) as decBoxes    \n");
                 strSql.Append("from    \n");
                 strSql.Append("(    \n");
                 strSql.Append("	select * from VI_UrgentOrder_OperHistory_s where vcInputType='supplier'        \n");
@@ -105,12 +108,15 @@ namespace DataAccess
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main,string vcSupplier_id)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main,
+            string vcPart_id, string vcOrderNo, string vcSupplier_id, ref string infopart)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 string strdate = System.DateTime.Now.ToString();
+                List<string> lsOrderNo = new List<string>();
+                List<string> lsPart_id = new List<string>();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
@@ -119,6 +125,10 @@ namespace DataAccess
                     {//新增  只有分批纳入时才会新增，strautoid_main 是从主画面带过来的所选数据的iautoid
                         if (listInfoData[i]["iDuiYingQuantity"].ToString() != "0")
                         {
+                            if (lsOrderNo.Contains(vcOrderNo) == false)
+                                lsOrderNo.Add(vcOrderNo);
+                            if (lsPart_id.Contains(vcPart_id) == false)
+                                lsPart_id.Add(vcPart_id);
                             //插历史
                             sql.Append("INSERT INTO [TUrgentOrder_OperHistory]    \n");
                             sql.Append("           ([vcOrderNo]    \n");
@@ -138,6 +148,10 @@ namespace DataAccess
                     {//修改  主画面的修改和分批导入的修改可以通用
                         if (listInfoData[i]["iDuiYingQuantity"].ToString() != "0")
                         {
+                            if (lsOrderNo.Contains(listInfoData[i]["vcOrderNo"].ToString()) == false)
+                                lsOrderNo.Add(listInfoData[i]["vcOrderNo"].ToString());
+                            if (lsPart_id.Contains(listInfoData[i]["vcPart_id"].ToString()) == false)
+                                lsPart_id.Add(listInfoData[i]["vcPart_id"].ToString());
                             //插历史
                             sql.Append("INSERT INTO [TUrgentOrder_OperHistory]    \n");
                             sql.Append("           ([vcOrderNo]    \n");
@@ -161,36 +175,84 @@ namespace DataAccess
                         else
                         {
                             string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                            sql.Append("delete from TUrgentOrder_OperHistory where iAutoId="+ iAutoId + "    \n");
+                            sql.Append("delete from TUrgentOrder_OperHistory where iAutoId=" + iAutoId + "    \n");
                         }
                     }
                 }
                 if (sql.Length > 0)
                 {
-                    //以下追加验证数据库中是否存在可对应数量与订货总数不同判断，如果存在则终止提交
+                    string strOrderNo = "";
+                    for (int i = 0; i < lsOrderNo.Count; i++)
+                        strOrderNo += "'" + lsOrderNo[i].ToString() + "',";
+                    if (strOrderNo.Length > 0)
+                        strOrderNo = strOrderNo.Substring(0, strOrderNo.Length - 1);
+
+                    string strPart_id = "";
+                    for (int i = 0; i < lsPart_id.Count; i++)
+                        strPart_id += "'" + lsPart_id[i].ToString() + "',";
+                    if (strPart_id.Length > 0)
+                        strPart_id = strPart_id.Substring(0, strPart_id.Length - 1);
+                    //以下追加验证数据库中是否存在可对应数量>订货总数，如果存在则终止提交
                     sql.Append("  DECLARE @errorPart varchar(4000)   \r\n");
                     sql.Append("  set @errorPart=''   \r\n");
                     sql.Append("  set @errorPart=(   \r\n");
                     sql.Append("  	select a.vcPart_id+';' from   \r\n");
                     sql.Append("  	(   \r\n");
                     sql.Append("       select distinct t1.vcPart_id from (    \r\n");
-                    sql.Append("       	select * from TUrgentOrder where vcSupplier_id='"+ vcSupplier_id + "' and  vcStatus='1' and vcDelete='0'   \r\n");
+                    sql.Append("       	select * from TUrgentOrder where vcSupplier_id='" + vcSupplier_id + "' and  vcStatus='1' and vcDelete='0'   \r\n");
+                    sql.Append("          and vcOrderNo in (" + strOrderNo + ") and vcPart_id in (" + strPart_id + ")    \n");
                     sql.Append("       )t1    \r\n");
                     sql.Append("       left join (            \r\n");
                     sql.Append("           select vcOrderNo,vcPart_id,sum(iDuiYingQuantity) as iDuiYingQuantity from VI_UrgentOrder_OperHistory_s     \r\n");
                     sql.Append("       	where vcInputType='supplier'      \r\n");
                     sql.Append("       	group by vcOrderNo,vcPart_id    \r\n");
                     sql.Append("       )t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id        \r\n");
-                    sql.Append("       where t1.iOrderQuantity<>t2.iDuiYingQuantity    \r\n");
+                    sql.Append("       where t2.iDuiYingQuantity>t1.iOrderQuantity    \r\n");
                     sql.Append("  	)a for xml path('')   \r\n");
                     sql.Append("  )   \r\n");
                     sql.Append("      \r\n");
-                    sql.Append("  if @errorPart<>''   \r\n");
+                    sql.Append("  if @errorPart<>''  \r\n");
                     sql.Append("  begin   \r\n");
                     sql.Append("    select CONVERT(int,'-->'+@errorPart+'<--')   \r\n");
                     sql.Append("  end    \r\n");
-
                     excute.ExcuteSqlWithStringOper(sql.ToString());
+
+                    sql = new StringBuilder();
+                    //验证箱数是否为小数
+                    sql.Append("  DECLARE @errorPart2 varchar(4000)   \r\n");
+                    sql.Append("  set @errorPart2=''   \r\n");
+                    sql.Append("  set @errorPart2=(   \r\n");
+                    sql.Append("  	select a.vcPart_id+';' from   \r\n");
+                    sql.Append("  	(   \r\n");
+                    sql.Append("        select distinct t1.vcPart_id     \n");
+                    sql.Append("        from    \n");
+                    sql.Append("        (    \n");
+                    sql.Append("        	select * from VI_UrgentOrder_OperHistory_s where vcInputType='supplier'        \n");
+                    sql.Append("        )t1    \n");
+                    sql.Append("        inner join (            \n");
+                    sql.Append("            select * from TUrgentOrder    \n");
+                    sql.Append("        	where vcOrderNo in (" + strOrderNo + ") and vcPart_id in (" + strPart_id + ") and vcSupplier_id='" + vcSupplier_id + "'     \n");
+                    sql.Append("        )t2 on t1.vcOrderNo=t2.vcOrderNo and t1.vcPart_id=t2.vcPart_id       \n");
+                    sql.Append("        where t2.iOrderQuantity%t2.iPackingQty=0 and t1.iDuiYingQuantity%t2.iPackingQty<>0   \r\n");
+                    sql.Append("  	)a for xml path('')   \r\n");
+                    sql.Append("  )   \r\n");
+                    sql.Append("  if @errorPart2<>''  \r\n");
+                    sql.Append("  begin   \r\n");
+                    sql.Append("    select @errorPart2   \r\n");
+                    sql.Append("  end    \r\n");
+                    sql.Append("  else  \r\n");
+                    sql.Append("  begin   \r\n");
+                    sql.Append("    select 'no'   \r\n");
+                    sql.Append("  end    \r\n");
+                    DataTable temp = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                    infopart = "";
+                    for (int i = 0; i < temp.Rows.Count; i++)
+                    {
+                        if (temp.Rows[i][0].ToString() != "no")
+                            infopart += "'" + temp.Rows[i][0].ToString() + "',";
+                    }
+                    if (infopart.Length > 0)
+                        infopart = infopart.Substring(0, infopart.Length - 1);
                 }
             }
             catch (Exception ex)
@@ -253,7 +315,7 @@ namespace DataAccess
                         }
                     }
                 }
-                else if (strType == "submit") 
+                else if (strType == "submit")
                 {
                     for (int i = 0; i < listInfoData.Count; i++)
                     {

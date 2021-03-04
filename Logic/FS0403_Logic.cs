@@ -31,7 +31,8 @@ namespace Logic
             {
                 DataTable Calendar = fs0403_dataAccess.getCalendar(time);
                 //各工厂的指定日
-                Hashtable Day = fs0403_dataAccess.getDay(Calendar, time, 5);
+                int count = fs0403_dataAccess.getCountDay();
+                Hashtable Day = fs0403_dataAccess.getDay(Calendar, time, count);
 
                 //品番的数量
                 Hashtable quantity = fs0403_dataAccess.getCount(Day);
@@ -67,6 +68,20 @@ namespace Logic
                     }
 
                     list.Add(new FS0403_DataAccess.PartIDNode(partId, excelquantity, soqQuantity, allowPercent, DXR, changeNo));
+
+                }
+                List<string> listPart = new List<string>();
+                for (int i = 0; i < excelTable.Rows.Count; i++)
+                {
+                    string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    if (listPart.Contains(partId))
+                    {
+                        refMsg.Add(new MessageNode(partId, "变更中品番重复"));
+                    }
+                    else
+                    {
+                        listPart.Add(partId);
+                    }
 
                 }
 

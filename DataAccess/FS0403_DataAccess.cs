@@ -533,7 +533,8 @@ namespace DataAccess
             try
             {
                 DataTable dt = getCalendar(DXR);
-                Hashtable hs = getDay(dt, DXR, 5);
+                int count = getCountDay();
+                Hashtable hs = getDay(dt, DXR, count);
                 StringBuilder sbr = new StringBuilder();
 
                 foreach (string key in hs.Keys)
@@ -572,6 +573,21 @@ namespace DataAccess
         public bool isSame(DataTable dtSQL, DataTable dtFile)
         {
             return true;
+        }
+
+        public int getCountDay()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue1 FROM TOutCode WHERE vcCodeId = 'C031' AND vcIsColum = '0'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                return Convert.ToInt32(dt.Rows[0]["vcValue1"].ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

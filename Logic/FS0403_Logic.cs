@@ -31,7 +31,8 @@ namespace Logic
             {
                 DataTable Calendar = fs0403_dataAccess.getCalendar(time);
                 //各工厂的指定日
-                Hashtable Day = fs0403_dataAccess.getDay(Calendar, time, 5);
+                int count = fs0403_dataAccess.getCountDay();
+                Hashtable Day = fs0403_dataAccess.getDay(Calendar, time, count);
 
                 //品番的数量
                 Hashtable quantity = fs0403_dataAccess.getCount(Day);

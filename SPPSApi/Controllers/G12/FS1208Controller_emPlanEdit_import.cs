@@ -138,9 +138,8 @@ namespace SPPSApi.Controllers.G12
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
-                apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

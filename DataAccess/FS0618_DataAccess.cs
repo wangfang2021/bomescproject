@@ -66,40 +66,40 @@ namespace DataAccess
                 strSql.AppendLine("  cast(isnull(a.[vcInputQtyDaily28],0) as int) as [vcInputQtyDaily28],cast(isnull(a.[vcResultQtyDaily28],0) as int) as [vcResultQtyDaily28], cast(isnull(a.[vcPlantQtyDaily29],0) as int) as[vcPlantQtyDaily29],cast(isnull(a.[vcInputQtyDaily29],0) as int) as [vcInputQtyDaily29],cast(isnull(a.[vcResultQtyDaily29],0) as int) as [vcResultQtyDaily29],      ");
                 strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDaily30],0) as int) as [vcPlantQtyDaily30],cast(isnull(a.[vcInputQtyDaily30],0) as int) as [vcInputQtyDaily30], cast(isnull(a.[vcResultQtyDaily30],0) as int) as [vcResultQtyDaily30],cast(isnull(a.[vcPlantQtyDaily31],0) as int) as [vcPlantQtyDaily31],cast(isnull(a.[vcInputQtyDaily31],0) as int) as [vcInputQtyDaily31],cast(isnull(a.[vcResultQtyDaily31],0) as int) as[vcResultQtyDaily31],      ");
                
-                strSql.AppendLine("  cast(isnull(a.vcPlantQtyDaily1,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily2,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily3,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily4,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily5,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily6,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily7,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily8,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily9,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily10,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily11,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily12,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily13,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily14,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily15,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily16,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily17,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily18,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily19,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily20,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily21,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily22,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily23,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily24,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily27,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily30,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily31,0) as decimal(18,6)) as vcPlantQtyTotal,   ");
-                strSql.AppendLine("  cast(isnull(a.vcInputQtyDaily1,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily2,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily3,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily4,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily5,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily6,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily7,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily8,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily9,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily10,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily11,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily12,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily13,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily14,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily15,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily16,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily17,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily18,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily19,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily20,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily21,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily22,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily23,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily24,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily27,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily30,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily31,0) as decimal(18,6)) as vcInputQtyTotal,   ");
-                strSql.AppendLine("  cast(isnull(a.vcResultQtyDaily1,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily2,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily3,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily4,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily5,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily6,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily7,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily8,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily9,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily10,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily11,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily12,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily13,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily14,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily15,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily16,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily17,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily18,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily19,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily20,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily21,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily22,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily23,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily24,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily27,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily30,0) as decimal(18,6))   ");
-                strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily31,0) as decimal(18,6)) as vcResultQtyTotal,   ");
-                strSql.AppendLine("  '0' as vcModFlag,'0' as vcAddFlag, case when [vcTargetMonthFlag]='0' then '0:确定月' else vcTargetMonthFlag  end as vcTargetMonthFlag, [vcTargetMonthLast], [vcOperatorID], [dOperatorTime]    ");
+                //strSql.AppendLine("  cast(isnull(a.vcPlantQtyDaily1,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily2,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily3,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily4,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily5,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily6,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily7,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily8,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily9,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily10,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily11,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily12,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily13,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily14,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily15,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily16,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily17,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily18,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily19,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily20,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily21,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily22,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily23,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily24,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily27,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcPlantQtyDaily30,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcPlantQtyDaily31,0) as decimal(18,6)) as vcPlantQtyDailySum,   ");
+                //strSql.AppendLine("  cast(isnull(a.vcInputQtyDaily1,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily2,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily3,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily4,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily5,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily6,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily7,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily8,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily9,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily10,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily11,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily12,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily13,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily14,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily15,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily16,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily17,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily18,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily19,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily20,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily21,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily22,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily23,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily24,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily27,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcInputQtyDaily30,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcInputQtyDaily31,0) as decimal(18,6)) as vcInputQtyDailySum,   ");
+                //strSql.AppendLine("  cast(isnull(a.vcResultQtyDaily1,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily2,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily3,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily4,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily5,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily6,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily7,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily8,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily9,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily10,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily11,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily12,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily13,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily14,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily15,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily16,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily17,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily18,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily19,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily20,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily21,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily22,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily23,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily24,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily27,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily30,0) as decimal(18,6))   ");
+                //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily31,0) as decimal(18,6)) as vcResultQtyDailySum,   ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDailySum],0) as int) as [vcPlantQtyDailySum],cast(isnull(a.[vcInputQtyDailySum],0) as int) as [vcInputQtyDailySum],cast(isnull(a.[vcResultQtyDailySum],0) as int) as [vcResultQtyDailySum],'0' as vcModFlag,'0' as vcAddFlag, case when [vcTargetMonthFlag]='0' then '0:确定月' else vcTargetMonthFlag  end as vcTargetMonthFlag, [vcTargetMonthLast], [vcOperatorID], [dOperatorTime]    ");
                 strSql.AppendLine("  from [dbo].[SP_M_ORD] a    ");
                 strSql.AppendLine("  left join (select vcOrderInitials as vcValue,vcOrderDifferentiation as vcName from TOrderDifferentiation) b on a.vcOrderType = b.vcValue   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C018') c on a.vcCpdcompany = c.vcValue   ");
@@ -271,6 +271,30 @@ namespace DataAccess
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
+
+                        int vcPlantQtyDailySum = Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily1"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily2"])+ Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily3"])+ Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily4"])+
+                            Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily5"])+ Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily6"])+ Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily7"])+ Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily8"])
+                            +Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily9"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily10"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily11"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily12"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily13"])
+                            + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily14"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily15"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily16"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily17"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily18"])
+                            + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily19"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily20"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily21"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily22"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily23"])
+                            + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily24"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily25"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily26"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily27"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily28"])
+                            + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily29"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily30"]) + Convert.ToInt32(listInfoData[i]["vcPlantQtyDaily31"]);
+                        int vcInputQtyDailySum = Convert.ToInt32(listInfoData[i]["vcInputQtyDaily1"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily2"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily3"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily4"]) +
+                            Convert.ToInt32(listInfoData[i]["vcInputQtyDaily5"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily6"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily7"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily8"])
+                            + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily9"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily10"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily11"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily12"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily13"])
+                            + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily14"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily15"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily16"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily17"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily18"])
+                            + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily19"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily20"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily21"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily22"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily23"])
+                            + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily24"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily25"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily26"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily27"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily28"])
+                            + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily29"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily30"]) + Convert.ToInt32(listInfoData[i]["vcInputQtyDaily31"]);
+
+                        int vcResultQtyDailySum = Convert.ToInt32(listInfoData[i]["vcResultQtyDaily1"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily2"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily3"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily4"]) +
+                            Convert.ToInt32(listInfoData[i]["vcResultQtyDaily5"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily6"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily7"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily8"])
+                           + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily9"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily10"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily11"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily12"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily13"])
+                           + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily14"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily15"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily16"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily17"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily18"])
+                           + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily19"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily20"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily21"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily22"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily23"])
+                           + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily24"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily25"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily26"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily27"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily28"])
+                           + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily29"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily30"]) + Convert.ToInt32(listInfoData[i]["vcResultQtyDaily31"]);
+
                         sql.Append("  update SP_M_ORD set    \r\n");
                         sql.Append("  vcPlantQtyDaily1=" + getSqlValue(listInfoData[i]["vcPlantQtyDaily1"], true) + ",vcInputQtyDaily1=" + getSqlValue(listInfoData[i]["vcInputQtyDaily1"], true) + ",vcResultQtyDaily1=" + getSqlValue(listInfoData[i]["vcResultQtyDaily1"], true) + ",   \r\n");
                         sql.Append("  vcPlantQtyDaily2=" + getSqlValue(listInfoData[i]["vcPlantQtyDaily2"], true) + ",vcInputQtyDaily2=" + getSqlValue(listInfoData[i]["vcInputQtyDaily2"], true) + ",vcResultQtyDaily2=" + getSqlValue(listInfoData[i]["vcResultQtyDaily2"], true) + ",   \r\n");
@@ -303,7 +327,7 @@ namespace DataAccess
                         sql.Append("  vcPlantQtyDaily29=" + getSqlValue(listInfoData[i]["vcPlantQtyDaily29"], true) + ",vcInputQtyDaily29=" + getSqlValue(listInfoData[i]["vcInputQtyDaily29"], true) + ",vcResultQtyDaily29=" + getSqlValue(listInfoData[i]["vcResultQtyDaily29"], true) + ",   \r\n");
                         sql.Append("  vcPlantQtyDaily30=" + getSqlValue(listInfoData[i]["vcPlantQtyDaily30"], true) + ",vcInputQtyDaily30=" + getSqlValue(listInfoData[i]["vcInputQtyDaily30"], true) + ",vcResultQtyDaily30=" + getSqlValue(listInfoData[i]["vcResultQtyDaily30"], true) + ",   \r\n");
                         sql.Append("  vcPlantQtyDaily31=" + getSqlValue(listInfoData[i]["vcPlantQtyDaily31"], true) + ",vcInputQtyDaily31=" + getSqlValue(listInfoData[i]["vcInputQtyDaily31"], true) + ",vcResultQtyDaily31=" + getSqlValue(listInfoData[i]["vcResultQtyDaily31"], true) + ",   \r\n");
-
+                        sql.Append("  vcPlantQtyDailySum=" + vcPlantQtyDailySum + ",vcInputQtyDailySum=" + vcInputQtyDailySum + ",vcResultQtyDailySum=" + vcResultQtyDailySum + ",   \r\n");
                         sql.Append("  vcOperatorID='" + userId + "',dOperatorTime=GETDATE() \r\n");
                         sql.Append(" where iAutoId=" + iAutoId + " ;  \n");
 

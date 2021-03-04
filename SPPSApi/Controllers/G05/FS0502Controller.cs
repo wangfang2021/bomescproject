@@ -211,9 +211,9 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id,vcDelete);
-                string[] heads = { "状态", "订单编号", "品番", "供应商代码","工区","出荷场代码","回复截至日期","订货总数(个)","可对应数量(个)","纳期"};
-                string[] fields = { "vcStatusName","vcOrderNo","vcPart_id","vcSupplier_id","vcGQ","vcChuHePlant","dReplyOverDate","iOrderQuantity",
-                    "iDuiYingQuantity","dDeliveryDate"};
+                string[] heads = { "状态", "订单编号", "品番", "供应商代码","工区","回复截至日期","收容数(个)","订货总数(个)","可对应数量(个)","箱数","纳期"};
+                string[] fields = { "vcStatusName","vcOrderNo","vcPart_id","vcSupplier_id","vcGQ","dReplyOverDate","iPackingQty","iOrderQuantity",
+                    "iDuiYingQuantity","decBoxes","dDeliveryDate"};
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -319,16 +319,26 @@ namespace SPPSApi.Controllers.G05
                     #endregion
                 }
                 string strErrorPartId = "";
-                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId,"", vcSupplier_id);
+                string infopart = "";
+                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId,"","","",vcSupplier_id,ref infopart);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番可对应数量与订货总数不匹配：<br/>" + strErrorPartId;
+                    apiResult.data = "保存失败，以下品番可对应数量大于订货总数：<br/>" + strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                if (infopart != "")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.type = "information";
+                    apiResult.data = "请按收容数调整：<br/>" + infopart;
+                }
+                else
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = null;
+                }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -359,6 +369,8 @@ namespace SPPSApi.Controllers.G05
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
+                string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
+                string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
                 string iAutoId = dataForm.iAutoId == null ? "" : dataForm.iAutoId;
                 //JArray listInfo = dataForm.multipleSelection;
                 //List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
@@ -411,7 +423,7 @@ namespace SPPSApi.Controllers.G05
                         {FieldCheck.Num,FieldCheck.Date},//数据类型校验
                         {"0","0"},//最大长度设定,不校验最大长度用0
                         {"1","1"},//最小长度设定,可以为空用0
-                        {"1","2"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"1","3"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listSubInfo, strField, null, null, true, "FS0502_Sub");
                     if (checkRes != null)
@@ -423,17 +435,28 @@ namespace SPPSApi.Controllers.G05
                     }
                     #endregion
                 }
+
                 string strErrorPartId = "";
-                fs0502_Logic.Save(listSubInfo, loginInfo.UserId, ref strErrorPartId,iAutoId,vcSupplier_id);
+                string infopart = "";
+                fs0502_Logic.Save(listSubInfo, loginInfo.UserId, ref strErrorPartId, iAutoId, vcPart_id,vcOrderNo,vcSupplier_id,ref infopart);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番可对应数量与订货总数不匹配：<br/>" + strErrorPartId;
+                    apiResult.data = "保存失败，以下品番可对应数量大于订货总数：<br/>" + strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                if (infopart!="")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.type = "information";
+                    apiResult.data = "请按收容数调整：<br/>" + infopart;
+                }
+                else
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = null;
+                }
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

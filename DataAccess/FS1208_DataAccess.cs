@@ -358,7 +358,7 @@ namespace DataAccess
                 cmd.CommandText += "   vcPro1Zhi, vcPro2Day, vcPro2Zhi, vcPro3Day, vcPro3Zhi, vcPro4Day, vcPro4Zhi , UpdateFlag ,t3.vcPorType, ";
                 cmd.CommandText += "   t3.vcProName0 ,t3.vcProName1,t3.vcProName2 ,t3.vcProName3,t3.vcProName4  ";
                 cmd.CommandText += "  FROM  EDMonthPlanTMP t1";
-                cmd.CommandText += "  left join (select * from  tPlanPartInfo where vcmonth='" + mon + "'  and vcEDFlag ='E' ) t2 ";
+                cmd.CommandText += "  left join (select * from tPlanPartInfo where vcmonth='" + mon + "'  and vcEDFlag ='E' ) t2 ";
                 cmd.CommandText += "  on t1.vcPartsno = t2.vcPartsNo and t1.vcCarType = t2.vcCarType and t1.vcDock = t2.vcDock ";
                 cmd.CommandText += "  left join dbo.ProRuleMst t3 ";
                 cmd.CommandText += "  on t3.vcPorType = t2.vcProType and t3.vcZB = t2.vcZB";
@@ -379,8 +379,8 @@ namespace DataAccess
                     string srs = dt_print.Rows[i]["iQuantityPerContainer"].ToString();
                     string plant = getPartsPlant(partsno, dock, mon);//20180917根据品番和受入确定该品番厂区 - 李兴旺
                                                                      //根据对象月、品番、受入确定该品番5个工程的vcCalendar - 李兴旺
-                    string partsql = " select vcPartsno, vcDock, vcCarFamilyCode, t1.iQuantityPerContainer, t1.vcPorType, t1.vcZB, t2.vcProName0, t2.vcProName1, t2.vcProName2, t2.vcProName3, t2.vcProName4, t2.vcCalendar0, t2.vcCalendar1, t2.vcCalendar2, t2.vcCalendar3, t2.vcCalendar4 from dbo.tPartInfoMaster t1 ";
-                    partsql += " left join dbo.ProRuleMst t2 on t1.vcPorType = t2.vcPorType and t1.vcZB = t2.vcZB ";
+                    string partsql = " select vcPartsno, vcDock, vcCarFamilyCode, t1.iQuantityPerContainer, t1.vcPorType, t1.vcZB, t2.vcProName0, t2.vcProName1, t2.vcProName2, t2.vcProName3, t2.vcProName4, t2.vcCalendar0, t2.vcCalendar1, t2.vcCalendar2, t2.vcCalendar3, t2.vcCalendar4 from tPartInfoMaster t1 ";
+                    partsql += " left join ProRuleMst t2 on t1.vcPorType = t2.vcPorType and t1.vcZB = t2.vcZB ";
                     partsql += " where exists (select vcPartsno from EDMonthPlanTMP where vcMonth = '" + mon + "' and vcPartsno = t1.vcPartsno) and t1.dTimeFrom <= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "' ";//20181204修改
                     partsql += " and vcPartsno = '" + partsno + "' and vcDock = '" + dock + "' ";
                     DataTable dtCalendar = getCalendar(partsql);
@@ -543,7 +543,7 @@ namespace DataAccess
                     dv.Sort = "vcProject01";//按工位排序
                     dt = dv.ToTable();
                     //找到打印表中的紧急订单，相同订单号相同部署相同打印日期生产日期的最大连番
-                    string tmpsql = "select MAX(vcKBSerial) as serial from dbo.tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock  = t2.vcDock where vcEDflag ='E' and  ";
+                    string tmpsql = "select MAX(vcKBSerial) as serial from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock  = t2.vcDock where vcEDflag ='E' and  ";
                     tmpsql += " vcKBorderno ='" + dt.Rows[0]["vcKBorderno"].ToString() + "' and vcPorType ='" + dt.Rows[0]["bushu"].ToString() + "'";
                     tmpsql += " and vcComDate00 ='" + dt.Rows[0]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[0]["vcBanZhi00"].ToString() + "'";
                     tmpsql += " and vcComDate01 ='" + dt.Rows[0]["vcComDate01"].ToString() + "' and vcBanZhi01 ='" + dt.Rows[0]["vcBanZhi01"].ToString() + "'";
@@ -904,7 +904,7 @@ namespace DataAccess
 
         public DataTable getPartsInfo()
         {
-            string sql = " select * from dbo.tPartInfoMaster ";
+            string sql = " select * from tPartInfoMaster ";
             return excute.ExcuteSqlWithSelectToDT(sql);
         }
 
@@ -1023,7 +1023,7 @@ namespace DataAccess
                         return msg;
                     }
                     dtExist = new DataTable();
-                    string ssql = "select iQuantityPerContainer as srs , vcPartPlant,vcPartsNameCHN,vcCurrentPastCode,vcPorType,vcZB,vcQFflag from dbo.tPartInfoMaster where vcPartsNo ='" + parts + "' and vcDock ='" + dock + "'  and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
+                    string ssql = "select iQuantityPerContainer as srs , vcPartPlant,vcPartsNameCHN,vcCurrentPastCode,vcPorType,vcZB,vcQFflag from tPartInfoMaster where vcPartsNo ='" + parts + "' and vcDock ='" + dock + "'  and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
 
                     cmd.CommandText = ssql;
                     apt.Fill(dtExist);

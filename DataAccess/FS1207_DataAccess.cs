@@ -33,7 +33,7 @@ namespace DataAccess
         }
         public DataTable getPlant()
         {
-            string str = "select vcData2 from ConstMst where vcDataId='Plant' ";
+            string str = "select vcData2 from ConstMst where vcDataId='Plant' order by vcData2";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
         }
         public DataTable getClass()

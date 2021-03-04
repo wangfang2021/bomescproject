@@ -58,6 +58,7 @@ namespace SPPSApi.Controllers.G06
                 List<Object> ReceiverForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcReceiver_Name", "vcReceiver_Value"));//收货方选项
                 List<Object> InOutForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcInOut_Name", "vcInOut_Value"));//内外区分选项
                 List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商编码选项
+                List<Object> SupplierPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierPlant_Name", "vcSupplierPlant_Value"));//工区
                 List<Object> FromTimeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcFromTime_Name", "vcFromTime_Value"));//开始使用选项
                 List<Object> ToTimeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcToTime_Name", "vcToTime_Value"));//结束使用选项
                 List<Object> HaoJiuForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcHaoJiu_Name", "vcHaoJiu_Value"));//号旧区分选项
@@ -66,6 +67,7 @@ namespace SPPSApi.Controllers.G06
                 List<Object> SupplierPackingForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierPacking_Name", "vcSupplierPacking_Value"));//供应商包装选项
                 List<Object> OldProductionForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOldProduction_Name", "vcOldProduction_Value"));//旧型年限生产区分选项
                 List<Object> DebugTimeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcDebugTime_Name", "vcDebugTime_Value"));//实施年月选项
+                List<Object> BoxTypeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcBoxType_Name", "vcBoxType_Value"));//箱种
 
                 List<Object> ChangesList = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
                 List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装工厂
@@ -84,6 +86,7 @@ namespace SPPSApi.Controllers.G06
                 res.Add("ReceiverForForm", ReceiverForForm);
                 res.Add("InOutForForm", InOutForForm);
                 res.Add("SupplierIdForForm", SupplierIdForForm);
+                res.Add("SupplierPlantForForm", SupplierPlantForForm);
                 res.Add("FromTimeForForm", FromTimeForForm);
                 res.Add("ToTimeForForm", ToTimeForForm);
                 res.Add("HaoJiuForForm", HaoJiuForForm);
@@ -92,6 +95,7 @@ namespace SPPSApi.Controllers.G06
                 res.Add("SupplierPackingForForm", SupplierPackingForForm);
                 res.Add("OldProductionForForm", OldProductionForForm);
                 res.Add("DebugTimeForForm", DebugTimeForForm);
+                res.Add("BoxTypeForForm", BoxTypeForForm);
 
                 res.Add("ChangesList", ChangesList);
                 res.Add("PackingPlantList", PackingPlantList);
@@ -161,25 +165,37 @@ namespace SPPSApi.Controllers.G06
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
                     strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
 
+                res.Add("taskNum", fs0603_Logic.gettaskNum());
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
+                List<Object> dataList = null;
+                if (dataTable.Rows.Count > 10000)
+                {
+                    DataTable dtMessage = fs0603_Logic.createTable("MES");
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "本次检索数据条数超过10000,为避免浏览器内存溢出，请调整检索条件或进行数据导出。";
+                    dtMessage.Rows.Add(dataRow);
 
-                //dtConverter.addField("dSyncTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //dtConverter.addField("dDebugTime", ConvertFieldType.DateType, "yyyy/MM");
-                //dtConverter.addField("dSupplierFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //dtConverter.addField("dSupplierToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //dtConverter.addField("dFrontProjectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                //dtConverter.addField("dShipmentTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-                res.Add("tempList", dataList);
-                res.Add("taskNum", fs0603_Logic.gettaskNum());
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = res;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    DataTable table = dataTable.Clone();
+                    dataList = ComFunction.convertAllToResultByConverter(table, dtConverter);
+                    res.Add("tempList", dataList);
+                    res.Add("messageList", dtMessage);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "message";
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
+                    res.Add("tempList", dataList);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
             }
             catch (Exception ex)
             {
@@ -226,19 +242,26 @@ namespace SPPSApi.Controllers.G06
             string strDebugTime = dataForm.DebugTime;
             try
             {
-                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                DataTable dtMainInfo = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
                     strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
+                DataTable dtSPInfo = fs0603_Logic.getEditLoadInfo("SupplierPlantEdit", "", strPartId, strReceiver, strSupplierId, "");
+                DataTable dtPQInfo = fs0603_Logic.getEditLoadInfo("PackingQtyEdit", "", strPartId, strReceiver, strSupplierId, "");
+                DataTable dtSIInfo = fs0603_Logic.getEditLoadInfo("SufferInEdit", "", strPartId, strReceiver, strSupplierId, "");
+                DataTable dtOPInfo = fs0603_Logic.getEditLoadInfo("OrderPlantEdit", "", "", "", strSupplierId, "");
 
-                string[] fields = {"dSyncTime","vcChanges_name","vcPackingPlant_name","vcPartId","vcPartENName","vcCarfamilyCode","vcReceiver","dFromTime","dToTime",
-                    "vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dDebugTime","vcSupplierId",
-                    "dSupplierFromTime","dSupplierToTime","vcSupplierName","vcSupplierPlant",
-                    "iPackingQty","vcBoxType","iLength","iWidth","iHeight","iVolume",
-                    "vcSufferIn","vcOrderPlant_name",
-                    "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime","vcPartImage","vcBillType_name",
-                    "vcRemark1","vcRemark2","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name"
+                DataTable dtExport = fs0603_Logic.setExportInfo(dtMainInfo, dtSPInfo, dtPQInfo, dtSIInfo, dtOPInfo, ref dtMessage);
+
+
+                string[] fields = {"dSyncTime ","vcChanges_name ","vcPackingPlant_name ","vcPartId ","vcPartENName ","vcCarfamilyCode ","vcReceiver ","dFromTime ","dToTime ",
+                    "vcPartId_Replace ","vcInOut_name ","vcOESP_name ","vcHaoJiu_name ","vcOldProduction_name ","dDebugTime ","vcSupplierId ","dSupplierFromTime ",
+                    "dSupplierToTime ","vcSupplierName ","vcSupplierPlant ","dSupplierPlantFromTime","dSupplierPlantToTime ","vcSupplierPlace ","iPackingQty ",
+                    "vcBoxType ","iLength ","iWidth ","iHeight ","iVolume ","dBoxFromTime ","dBoxToTime ","vcSufferIn ","dSufferInFromTime ","dSufferInToTime ",
+                    "vcOrderPlant_name ","dOrderPlantFromTime ","dOrderPlantToTime ","vcInteriorProject ","vcPassProject ","vcFrontProject ","dFrontProjectTime ",
+                    "dShipmentTime ","vcPartImage ","vcBillType_name ","vcRemark1 ","vcRemark2 ","vcOrderingMethod_name ","vcMandOrder_name ","vcSupplierPacking_name"
                 };
 
-                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0603_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "FS0603_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -582,23 +605,24 @@ namespace SPPSApi.Controllers.G06
                 }
                 if (strEditType == "OrderPlantEdit")
                 {
+                    string strSupplierPlant = dRowinfo.vcSupplierPlant == null ? "" : dRowinfo.vcSupplierPlant.ToString().Trim();
                     string OrderPlant_ed = dRowinfo.OrderPlant_ed == null ? "" : dRowinfo.OrderPlant_ed.ToString();
                     string OrderPlantLinId_ed = dRowinfo.OrderPlantLinId_ed == null ? "" : dRowinfo.OrderPlantLinId_ed.ToString();
                     string OrderPlantFromTime_ed = dRowinfo.OrderPlantFromTime_ed == null ? "" : dRowinfo.OrderPlantFromTime_ed.ToString();
                     string OrderPlantToTime_ed = dRowinfo.OrderPlantToTime_ed == null ? "" : dRowinfo.OrderPlantToTime_ed.ToString();
 
-                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
-                    if (OrderPlantLinId_ed != "" && dataTable.Select("LinId='" + OrderPlantLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
-                    {
-                        DataRow dataRow = dataTable.NewRow();
-                        dataRow["LinId"] = OrderPlantLinId_ed;
-                        dataRow["dFromTime"] = OrderPlantFromTime_ed;
-                        dataRow["dToTime"] = OrderPlantToTime_ed;
-                        dataRow["vcOrderPlant"] = OrderPlant_ed;
-                        dataRow["bAddFlag"] = "1";
-                        dataRow["vcBgColor"] = "";
-                        dataTable.Rows.InsertAt(dataRow, 0);//插入到第一行
-                    }
+                    DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, "", "", "", strSupplierId, strSupplierPlant);
+                    //if (OrderPlantLinId_ed != "" && dataTable.Select("LinId='" + OrderPlantLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
+                    //{
+                    //    DataRow dataRow = dataTable.NewRow();
+                    //    dataRow["LinId"] = OrderPlantLinId_ed;
+                    //    dataRow["dFromTime"] = OrderPlantFromTime_ed;
+                    //    dataRow["dToTime"] = OrderPlantToTime_ed;
+                    //    dataRow["vcOrderPlant"] = OrderPlant_ed;
+                    //    dataRow["bAddFlag"] = "1";
+                    //    dataRow["vcBgColor"] = "";
+                    //    dataTable.Rows.InsertAt(dataRow, 0);//插入到第一行
+                    //}
                     DtConverter dtConverter = new DtConverter();
                     dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                     dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -729,10 +753,24 @@ namespace SPPSApi.Controllers.G06
 
                         string strLinId = listSubInfo[0]["LinId"].ToString();
                         string strSupplierPlant = listSubInfo[0]["vcSupplierPlant"].ToString();
+                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
+                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
                         if (strSupplierPlant == "")
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "未维护工区信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (dFromTime == "" || dToTime == "")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "未维护开始使用时间或结束使用时间信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (dFromTime != "" && dToTime != "" && Convert.ToDateTime(dFromTime) > Convert.ToDateTime(dToTime))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "所维护的使用有效期开始时间大于结束时间，无法继续保存。";
                             dtMessage.Rows.Add(dataRow);
                         }
                         if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -743,8 +781,6 @@ namespace SPPSApi.Controllers.G06
                             apiResult.data = dtMessage;
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
-                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
                         DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
                         if (Convert.ToInt32(strLinId) == -1)
                         {
@@ -821,6 +857,8 @@ namespace SPPSApi.Controllers.G06
                         //只取第一行数据（每次只能追加一条数据有效期）
                         string strLinId = listSubInfo[0]["LinId"].ToString();
                         string strPackingQty = listSubInfo[0]["iPackingQty"].ToString();
+                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
+                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
                         string strBoxType = listSubInfo[0]["vcBoxType"].ToString();
                         string strLength = listSubInfo[0]["iLength"].ToString();
                         string strWidth = listSubInfo[0]["iWidth"].ToString();
@@ -829,6 +867,24 @@ namespace SPPSApi.Controllers.G06
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "未维护收容数或者箱种信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (strBoxType.Length < 2)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "请填写完整箱种信息(至少两位)，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (dFromTime == "" || dToTime == "")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "未维护开始使用时间或结束使用时间信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (dFromTime != "" && dToTime != "" && Convert.ToDateTime(dFromTime) > Convert.ToDateTime(dToTime))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "所维护的使用有效期开始时间大于结束时间，无法继续保存。";
                             dtMessage.Rows.Add(dataRow);
                         }
                         if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -840,8 +896,6 @@ namespace SPPSApi.Controllers.G06
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                         string strVolume = ((Convert.ToInt32(listSubInfo[0]["iLength"].ToString()) * Convert.ToInt32(listSubInfo[0]["iWidth"].ToString()) * Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())) / 1000000000).ToString();
-                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
-                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
                         DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
                         if (Convert.ToInt32(strLinId) == -1)
                         {
@@ -934,10 +988,24 @@ namespace SPPSApi.Controllers.G06
                         //只取第一行数据（每次只能追加一条数据有效期）
                         string strLinId = listSubInfo[0]["LinId"].ToString();
                         string strSufferIn = listSubInfo[0]["vcSufferIn"].ToString();
+                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
+                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
                         if (strSufferIn == "")
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "未维护受入信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (dFromTime == "" || dToTime == "")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "未维护开始使用时间或结束使用时间信息，无法继续保存。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (dFromTime != "" && dToTime != "" && Convert.ToDateTime(dFromTime) > Convert.ToDateTime(dToTime))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "所维护的使用有效期开始时间大于结束时间，无法继续保存。";
                             dtMessage.Rows.Add(dataRow);
                         }
                         if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -948,8 +1016,6 @@ namespace SPPSApi.Controllers.G06
                             apiResult.data = dtMessage;
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        string dFromTime = listSubInfo[0]["dFromTime"] == null || listSubInfo[0]["dFromTime"].ToString() == "" ? Convert.ToDateTime(strFromTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dFromTime"].ToString();
-                        string dToTime = listSubInfo[0]["dToTime"] == null || listSubInfo[0]["dToTime"].ToString() == "" ? Convert.ToDateTime(strToTime_fixed).ToString("yyyy/MM/dd") : listSubInfo[0]["dToTime"].ToString();
                         DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
                         if (Convert.ToInt32(strLinId) == -1)
                         {
@@ -1093,36 +1159,41 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strSyncTime = string.Empty;
-            string strPartId = string.Empty;
-            string strCarModel = string.Empty;
-            string strReceiver = string.Empty;
-            string strInOut = string.Empty;
-            string strSupplierId = string.Empty;
-            string strSupplierPlant = string.Empty;
-            string strFromTime = string.Empty;
-            string strToTime = string.Empty;
-            string strHaoJiu = string.Empty;
-            string strOrderPlant = string.Empty;
+            string strSyncTime = dataForm.SyncTime;
+            string strPartId = dataForm.PartId;
+            string strCarModel = dataForm.CarModel;
+            string strReceiver = dataForm.Receiver;
+            string strInOut = dataForm.InOut;
+            string strHaoJiu = dataForm.HaoJiu;
+            string strSupplierId = dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant;
+            string strOrderPlant = dataForm.OrderPlant;
+            string strFromTime = dataForm.FromTime;
+            string strToTime = dataForm.ToTime;
+            string strBoxType = dataForm.BoxType;
+            string strSufferIn = dataForm.SufferIn;
+            string strSupplierPacking = dataForm.SupplierPacking;
+            string strOldProduction = dataForm.OldProduction;
+            string strDebugTime = dataForm.DebugTime;
             try
             {
-                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut,
-                   strSupplierId, strSupplierPlant, strFromTime, strToTime, strHaoJiu, strOrderPlant, "", "", "", "", "", "");
-
-                string[] fields = {"dSyncTime","vcChanges_name","vcPackingPlant","vcPackingPlant_name","vcPartId","vcPartENName","vcCarfamilyCode",
-                    "vcReceiver","vcReceiver_name","dFromTime","dToTime","vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name",
-                    "vcOldProduction_name","dOldStartTime","dDebugTime","vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName",
+                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
+                dataTable.Columns.Add("vcType");
+                string[] fields = {"vcType","dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
+                    "vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name",
+                    "vcOldProduction_name","dDebugTime","vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName",
                     "SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed",
                     "vcSupplierPlace",
                     "BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed",
                     "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",
-                    "vcOrderPlant_name","OrderPlantFromTime_ed","OrderPlantToTime_ed",
+                    "vcOrderPlant_name",
                     "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime",
-                    "vcBillType_name","vcRemark1","vcRemark2",
-                    "vcOrderingMethod_name","vcMandOrder_name"
+                    "vcPartImage","vcBillType_name","vcRemark1","vcRemark2",
+                    "vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name"
                 };
 
-                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0603_Template.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0603_Template.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -1180,17 +1251,17 @@ namespace SPPSApi.Controllers.G06
                         "收货方","品番-使用开始","品番-使用结束","替代品番",
                         "内外区分","OE=SP","号旧区分","旧型年限生产区分","实施年月(年限)",
                         "供应商编号","供应商使用开始","供应商使用结束","供应商名称",
-                        "工区","工区-使用开始","工区-使用结束",
-                        "补给收容数","收容数-使用开始","收容数-使用结束","箱种","长(mm)","宽(mm)","高(mm)","体积(m³)",
+                        "工区","工区-使用开始","工区-使用结束","出荷场",
+                        "收容数","收容数-使用开始","收容数-使用结束","箱种","长(mm)","宽(mm)","高(mm)","体积(m³)",
                         "受入","受入-使用开始","受入-使用结束",
-                        "发注工厂",
+                        "发注工场",
                         "内制工程","通过工程","前工程","前工程通过时间","自工程出货时间","照片",
                         "单据区分","备注1","备注2","订货方式","强制订货","供应商包装"},
                     {"vcType","dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
                         "vcReceiver","dFromTime","dToTime","vcPartId_Replace",
                         "vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dDebugTime",
                         "vcSupplierId","dSupplierFromTime","dSupplierToTime","vcSupplierName",
-                        "SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed",
+                        "SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed","vcSupplierPlace",
                         "BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed",
                         "SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",
                         "vcOrderPlant_name",
@@ -1200,7 +1271,7 @@ namespace SPPSApi.Controllers.G06
                         "","","","",
                         "","","","","",
                         "","","","",
-                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,
+                        FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"",
                         FieldCheck.Num,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,"",
                         FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,
                         "",
@@ -1210,7 +1281,7 @@ namespace SPPSApi.Controllers.G06
                         "0","0","0","0",
                         "0","0","0","0","0",
                         "0","0","0","0",
-                        "1","0","0",
+                        "1","0","0","0",
                         "0","0","0","0","0","0","0","0",
                         "0","0","0",
                         "0",
@@ -1220,7 +1291,7 @@ namespace SPPSApi.Controllers.G06
                         "0","0","0","0",
                         "0","0","0","0","0",
                         "0","0","0","0",
-                        "1","0","0",
+                        "1","0","0","0",
                         "0","0","0","0","0","0","0","0",
                         "0","0","0",
                         "0",
@@ -1232,7 +1303,7 @@ namespace SPPSApi.Controllers.G06
                 bool bReault = true;
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTableformRows(info.FullName, "sheet1", headers, 2, 3, ref strMsg);
+                    DataTable dt = ComFunction.ExcelToDataTableformRows(info.FullName, "sheet1", headers, 2, 2, ref strMsg);
                     if (strMsg != "")
                     {
                         DataRow dataRow = dtMessage.NewRow();

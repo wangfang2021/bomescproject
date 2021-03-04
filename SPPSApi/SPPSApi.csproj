@@ -5,9 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Connected Services\FS1209_PrExcel\**" />
+    <Compile Remove="Connected Services\PrintCR\**" />
     <Compile Remove="Doc\Import\FS0201\**" />
+    <Content Remove="Connected Services\FS1209_PrExcel\**" />
+    <Content Remove="Connected Services\PrintCR\**" />
     <Content Remove="Doc\Import\FS0201\**" />
+    <EmbeddedResource Remove="Connected Services\FS1209_PrExcel\**" />
+    <EmbeddedResource Remove="Connected Services\PrintCR\**" />
     <EmbeddedResource Remove="Doc\Import\FS0201\**" />
+    <None Remove="Connected Services\FS1209_PrExcel\**" />
+    <None Remove="Connected Services\PrintCR\**" />
     <None Remove="Doc\Import\FS0201\**" />
   </ItemGroup>
 
@@ -176,6 +184,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Connected Services\" />
     <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G17\" />
     <Folder Include="Controllers\G99\" />

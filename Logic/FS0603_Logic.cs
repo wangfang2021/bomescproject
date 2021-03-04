@@ -1890,12 +1890,12 @@ namespace Logic
                     {
                         for (int j = 0; j < drChild.Length; j++)
                         {
-                            string dSyncTime1 = drChild[i]["dSyncTime"].ToString();
-                            string strSyncMessage1 = drChild[i]["vcSyncMessage"].ToString();
+                            string dSyncTime1 = drChild[j]["dSyncTime"].ToString();
+                            string strSyncMessage1 = drChild[j]["vcSyncMessage"].ToString();
                             DataRow dataRow1 = dtInfo.NewRow();
-                            dataRow["dSyncTime"] = "   " + dSyncTime1;
-                            dataRow["vcSyncMessage"] = strSyncMessage1;
-                            dtInfo.Rows.Add(dataRow);
+                            dataRow1["dSyncTime"] = "   " + dSyncTime1;
+                            dataRow1["vcSyncMessage"] = strSyncMessage1;
+                            dtInfo.Rows.Add(dataRow1);
                         }
                     }
                 }
@@ -2507,6 +2507,11 @@ namespace Logic
             {
                 dataTable.Columns.Add("dSyncTime", typeof(string));
                 dataTable.Columns.Add("vcChanges", typeof(string));
+            }
+            if (strSpSub == "mailaddress")
+            {
+                dataTable.Columns.Add("address", typeof(string));
+                dataTable.Columns.Add("displayName", typeof(string));
             }
             return dataTable;
         }

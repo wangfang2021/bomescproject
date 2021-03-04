@@ -20,6 +20,7 @@ namespace Logic
         private MultiExcute excute = new MultiExcute();
         FS0602_DataAccess fs0602_DataAccess = new FS0602_DataAccess();
         FS0603_DataAccess fs0603_DataAccess = new FS0603_DataAccess();
+        FS0307_DataAccess fs0307_dataAccess = new FS0307_DataAccess();
         FS0603_Logic fs0603_Logic = new FS0603_Logic();
         FS0625_Logic fs0625_Logic = new FS0625_Logic();
 
@@ -150,16 +151,12 @@ namespace Logic
 
         }
         public DataTable checkSaveInfo(DataTable dtMultiple, string strYearMonth, string strYearMonth1, string strYearMonth2,
-            string strOperId, string strPackingPlant, string strReceiver, ref bool bReault, ref DataTable dtMessage)
+            string strOperId, string strPackingPlant, string strReceiver, ref DataTable dtMessage)
         {
             try
             {
                 fs0602_DataAccess.checkSaveInfo(dtMultiple, strYearMonth, strYearMonth1, strYearMonth2,
                     strOperId, strPackingPlant, strReceiver, ref dtMessage);
-                if (dtMessage == null || dtMessage.Rows.Count == 0)
-                    bReault = true;
-                else
-                    bReault = false;
                 return dtMultiple;
             }
             catch (Exception ex)
@@ -178,30 +175,30 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable checkopenplanInfo(List<Dictionary<string, Object>> listInfoData, DataTable dataTable, string dExpectTime,
-            string strOperId, string strPackingPlant, string strReceiver, ref bool bReault, ref DataTable dtMessage)
+        public DataTable checkopenplanInfo(List<Dictionary<string, Object>> multipleInfoData, DataTable dtInfo, string dExpectTime, string strOperId, string strPackingPlant, string strReceiver, ref DataTable dtMessage)
         {
             try
             {
                 DataTable dtImport = fs0603_Logic.createTable("SOQ602");
-                if (listInfoData.Count == 0)
+                if (multipleInfoData.Count == 0)
                 {
-                    for (int i = 0; i < dataTable.Rows.Count; i++)
+                    for (int i = 0; i < dtInfo.Rows.Count; i++)
                     {
-                        string strYearMonth = dataTable.Rows[i]["vcYearMonth"] == null ? "" : dataTable.Rows[i]["vcYearMonth"].ToString();
-                        string strPart_id = dataTable.Rows[i]["vcPart_id"] == null ? "" : dataTable.Rows[i]["vcPart_id"].ToString();
-                        string strSupplierId = dataTable.Rows[i]["vcSupplierId"] == null ? "" : dataTable.Rows[i]["vcSupplierId"].ToString();
-                        string strDyState = dataTable.Rows[i]["vcDyState"] == null ? "" : dataTable.Rows[i]["vcDyState"].ToString();
-                        string strHyState = dataTable.Rows[i]["vcHyState"] == null ? "" : dataTable.Rows[i]["vcHyState"].ToString();
-                        string strCbSOQN = dataTable.Rows[i]["iCbSOQN"].ToString() == "" ? "0" : dataTable.Rows[i]["iCbSOQN"].ToString();
-                        string strCbSOQN1 = dataTable.Rows[i]["iCbSOQN1"].ToString() == "" ? "0" : dataTable.Rows[i]["iCbSOQN1"].ToString();
-                        string strCbSOQN2 = dataTable.Rows[i]["iCbSOQN2"].ToString() == "" ? "0" : dataTable.Rows[i]["iCbSOQN2"].ToString();
-                        string strTzhSOQN = dataTable.Rows[i]["iTzhSOQN"].ToString() == "" ? "0" : dataTable.Rows[i]["iTzhSOQN"].ToString();
-                        string strTzhSOQN1 = dataTable.Rows[i]["iTzhSOQN1"].ToString() == "" ? "0" : dataTable.Rows[i]["iTzhSOQN1"].ToString();
-                        string strTzhSOQN2 = dataTable.Rows[i]["iTzhSOQN2"].ToString() == "" ? "0" : dataTable.Rows[i]["iTzhSOQN2"].ToString();
+                        string strYearMonth = dtInfo.Rows[i]["vcYearMonth"] == null ? "" : dtInfo.Rows[i]["vcYearMonth"].ToString();
+                        string strPart_id = dtInfo.Rows[i]["vcPart_id"] == null ? "" : dtInfo.Rows[i]["vcPart_id"].ToString();
+                        string strSupplierId = dtInfo.Rows[i]["vcSupplierId"] == null ? "" : dtInfo.Rows[i]["vcSupplierId"].ToString();
+                        string strDyState = dtInfo.Rows[i]["vcDyState"] == null ? "" : dtInfo.Rows[i]["vcDyState"].ToString();
+                        string strHyState = dtInfo.Rows[i]["vcHyState"] == null ? "" : dtInfo.Rows[i]["vcHyState"].ToString();
+                        string strCbSOQN = dtInfo.Rows[i]["iCbSOQN"].ToString() == "" ? "0" : dtInfo.Rows[i]["iCbSOQN"].ToString();
+                        string strCbSOQN1 = dtInfo.Rows[i]["iCbSOQN1"].ToString() == "" ? "0" : dtInfo.Rows[i]["iCbSOQN1"].ToString();
+                        string strCbSOQN2 = dtInfo.Rows[i]["iCbSOQN2"].ToString() == "" ? "0" : dtInfo.Rows[i]["iCbSOQN2"].ToString();
+                        string strTzhSOQN = dtInfo.Rows[i]["iTzhSOQN"].ToString() == "" ? "0" : dtInfo.Rows[i]["iTzhSOQN"].ToString();
+                        string strTzhSOQN1 = dtInfo.Rows[i]["iTzhSOQN1"].ToString() == "" ? "0" : dtInfo.Rows[i]["iTzhSOQN1"].ToString();
+                        string strTzhSOQN2 = dtInfo.Rows[i]["iTzhSOQN2"].ToString() == "" ? "0" : dtInfo.Rows[i]["iTzhSOQN2"].ToString();
                         string strExpectTime = fs0603_DataAccess.setNullValue(dExpectTime, "", "");
                         string strInputType = "company";
-                        if ((strDyState == "0"|| strDyState == "2"|| strDyState == "3") && (strHyState == "0" || strHyState == "3"))
+                        if ((strDyState == "0" || strDyState == "2" || strDyState == "3") &&
+                            (strHyState == "0" || strHyState == "3"))//0：未发送；2：有调整；3：无调整//0：待回复(TFTM)；3：退回
                         {
                             DataRow drImport = dtImport.NewRow();
                             drImport["vcYearMonth"] = strYearMonth;
@@ -223,12 +220,14 @@ namespace Logic
                 }
                 else
                 {
-                    dtImport = setListInfo(listInfoData, dtImport, dExpectTime);
+                    dtImport = setListInfo(multipleInfoData, dtImport, dExpectTime);
                     int count = dtImport.Rows.Count;
                     for (int i = count - 1; i >= 0; i--)
                     {
-                        if (!((dtImport.Rows[i]["vcDyState"].ToString() == "0"|| dtImport.Rows[i]["vcDyState"].ToString() == "2"|| dtImport.Rows[i]["vcDyState"].ToString() == "3")
-                            && (dtImport.Rows[i]["vcHyState"].ToString() == "0" || dtImport.Rows[i]["vcHyState"].ToString() == "3")))
+                        string strDyState = dtImport.Rows[i]["vcDyState"].ToString();
+                        string strHyState = dtImport.Rows[i]["vcHyState"].ToString();
+                        if (!((strDyState == "0" || strDyState == "2" || strDyState == "3")
+                            && (strHyState == "0" || strHyState == "3")))
                             dtImport.Rows.RemoveAt(i);
                     }
                 }
@@ -237,7 +236,6 @@ namespace Logic
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "没有可供内示展开的数据";
                     dtMessage.Rows.Add(dataRow);
-                    bReault = false;
                 }
                 string sYearMonth = "";
                 string sYearMonth1 = "";
@@ -248,9 +246,15 @@ namespace Logic
                     sYearMonth1 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(1).ToString("yyyyMM");
                     sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(2).ToString("yyyyMM");
                 }
-                dtImport = checkSaveInfo(dtImport, sYearMonth, sYearMonth1, sYearMonth2,
-                     strOperId, strPackingPlant, strReceiver, ref bReault, ref dtMessage);
-                return dtImport;
+                if (sYearMonth == "" || sYearMonth1 == "" || sYearMonth2 == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "内示月份为空，无法继续操作";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    return null;
+                return checkSaveInfo(dtImport, sYearMonth, sYearMonth1, sYearMonth2, strOperId, strPackingPlant, strReceiver, ref dtMessage);
             }
             catch (Exception ex)
             {
@@ -270,29 +274,62 @@ namespace Logic
                 throw ex;
             }
         }
-        public void sendMail(LoginInfo loginInfo, DataTable dataTable, ref DataTable dtMessage)
+        /// <summary>
+        /// 发送邮件
+        /// </summary>
+        /// <param name="strFRId">发件人ID</param>
+        /// <param name="strFRName">发件人Name</param>
+        /// <param name="strFRAddress">发件人地址</param>
+        /// <param name="strTheme">主题</param>
+        /// <param name="strEmailBody">邮件体</param>
+        /// <param name="dtToList">收件人List</param>
+        /// <param name=""></param>
+        public void sendEmailInfo(string strFRId, string strFRName, string strFRAddress, string strTheme, string strEmailBody, DataTable dtToList, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtEmail = fs0307_dataAccess.getSupplierEmail();
+                for (int i = 0; i < dtToList.Rows.Count; i++)
+                {
+                    string strSupplierId = dtToList.Rows[i]["vcSupplierId"].ToString();
+                    DataTable dtToInfo = fs0603_Logic.createTable("mailaddress");
+                    DataRow[] drEmail = dtEmail.Select("vcSupplier_id = '" + strSupplierId + "'");
+                    for (int j = 0; j < drEmail.Length; j++)
+                    {
+                        DataRow drToInfo = dtToInfo.NewRow();
+                        drToInfo["address"] = drEmail[j]["vcEmail1"].ToString();
+                        drToInfo["displayName"] = drEmail[j]["vcLXR1"].ToString();
+                        dtToInfo.Rows.Add(drToInfo);
+                    }
+                    DataTable dtCcInfo = null;
+                    string result = ComFunction.SendEmailInfo(strFRAddress, strFRName, strEmailBody, dtToInfo, dtCcInfo, strTheme, "", false);
+                    if (result != "Success")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = strSupplierId+"邮件发送失败，请采取其他形式联络。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public DataTable getToList(DataTable dataTable, ref DataTable dtMessage)
         {
             try
             {
                 //根据供应商及纳期进行分组
                 DataTable dtb = new DataTable("dtb");
-                DataColumn dc1 = new DataColumn("vcYearMonth", Type.GetType("System.String"));
-                DataColumn dc2 = new DataColumn("vcSupplierId", Type.GetType("System.String"));
-                DataColumn dc3 = new DataColumn("vcSupplierName", Type.GetType("System.String"));
-                DataColumn dc4 = new DataColumn("vcAddress", Type.GetType("System.String"));
-                DataColumn dc5 = new DataColumn("dExpectTime", Type.GetType("System.String"));
+                DataColumn dc1 = new DataColumn("vcSupplierId", Type.GetType("System.String"));
                 dtb.Columns.Add(dc1);
-                dtb.Columns.Add(dc2);
-                dtb.Columns.Add(dc3);
-                dtb.Columns.Add(dc4);
-                dtb.Columns.Add(dc5);
                 var query = from t in dataTable.AsEnumerable()
-                            group t by new { t1 = t.Field<string>("vcYearMonth"), t2 = t.Field<string>("vcSupplierId"), t3 = t.Field<string>("dExpectTime") } into m
+                            group t by new {t1 = t.Field<string>("vcSupplierId")} into m
                             select new
                             {
-                                YearMonth = m.Key.t1,
-                                SupplierId = m.Key.t2,
-                                ExpectTime = m.Key.t3,
+                                SupplierId = m.Key.t1,
                                 rowcount = m.Count()
                             };
                 if (query.ToList().Count > 0)
@@ -300,96 +337,15 @@ namespace Logic
                     query.ToList().ForEach(q =>
                     {
                         DataRow dr = dtb.NewRow();
-                        dr["vcYearMonth"] = q.YearMonth;
                         dr["vcSupplierId"] = q.SupplierId;
-                        dr["dExpectTime"] = q.ExpectTime;
                         dtb.Rows.Add(dr);
                     });
                 }
-                for (int cc = 0; cc < dtb.Rows.Count; cc++)
-                {
-                    string strYearMonth = dtb.Rows[cc]["vcYearMonth"].ToString();
-                    string strSupplierId = dtb.Rows[cc]["vcSupplierId"].ToString();
-                    string strExpectTime = dtb.Rows[cc]["dExpectTime"].ToString();
-                    string strCharacter = "select '" + strSupplierId + "'";
-                    //string strCharacter = this.setCharacter(dtb);
-                    //发件人
-                    string strReceiver = loginInfo.Email;
-                    //收件人
-                    DataTable dtSender = new DataTable();
-                    dtSender.Columns.Add("address");
-                    dtSender.Columns.Add("displayName");
-                    DataTable dtEmail = fs0602_DataAccess.getEmail(strCharacter);
-                    if (dtEmail != null && dtEmail.Rows.Count != 0)
-                    {
-                        for (int i = 0; i < dtEmail.Rows.Count; i++)
-                        {
-                            string[] emailArray = dtEmail.Rows[i]["vcEmail"].ToString().Split(';');
-                            for (int j = 0; j < emailArray.Length; j++)
-                            {
-                                if (emailArray[j].ToString().Length > 0)
-                                {
-                                    string strmail = emailArray[j].ToString();
-                                    string strname = dtEmail.Rows[i]["vcLinkMan"].ToString();
-                                    if (dtSender.Select("address='" + strmail + "'").Length == 0)
-                                    {
-                                        DataRow dr = dtSender.NewRow();
-                                        dr["address"] = strmail;
-                                        dr["displayName"] = strname;
-                                        dtSender.Rows.Add(dr);
-                                    }
-                                }
-                            }
-                        }
-                        //抄送人
-                        DataTable dtCCer = new DataTable();
-                        dtCCer.Columns.Add("address");
-                        dtCCer.Columns.Add("displayName");
-                        DataTable dtCCEmail = fs0625_Logic.getCCEmail("C054");
-                        if (dtCCEmail.Rows.Count > 0)
-                        {
-                            dtCCer = dtCCEmail;
-                        }
-                        //主题
-                        string strThemeInfo = strYearMonth + " SOQ月度内示待确认";
-                        //内容
-                        string strEmailBody = "";
-                        strEmailBody += "<div style='font-family:宋体;font-size:12'>" + "供应商：" + strSupplierId + "<br /><br />";
-                        strEmailBody += "  您好 ! <br /><br />";
-                        strEmailBody += "请尽快进行" + strYearMonth + " SOQ月度内示确认，本次确认纳期为:" + strExpectTime + " <br /><br />";
-                        strEmailBody += "以上，请对应，<br /><br />";
-                        strEmailBody += "谢谢！！<br /><br />";
-                        strEmailBody += " <div style='color:Red;font-weight:bold;'>";
-                        strEmailBody += "  （系统邮件，请勿直接回复）<br /></div>";
-                        strEmailBody += "   <div>";
-                        strEmailBody += " </div>";
-                        //附件
-                        string strEnclosure = "";
-
-                        string result = ComFunction.SendEmailInfo(strReceiver, loginInfo.UnitName, strEmailBody, dtSender, dtCCer, strThemeInfo, strEnclosure, false);
-                        //if (result == "Success")
-                        //{
-                        //    logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送成功！\n";
-                        //}
-                        //else
-                        //{
-                        //    logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送失败，邮件发送公共方法未知原因！\n";
-                        //}
-                    }
-                    else
-                    {
-                        DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = "内示展开成功，供应商" + strSupplierId + "未找到邮箱信息，未进行邮件提醒发送";
-                        dtMessage.Rows.Add(dataRow);
-                    }
-                }
-
+                return dtb;
             }
             catch (Exception ex)
             {
-                DataRow dataRow = dtMessage.NewRow();
-                dataRow["vcMessage"] = "内示展开成功，对供应商邮件提醒发送失败！";
-                dtMessage.Rows.Add(dataRow);
+                throw ex;
             }
         }
         public DataTable checkreplyplanInfo(List<Dictionary<string, Object>> listInfoData, DataTable dataTable, string dExpectTime,
@@ -463,7 +419,7 @@ namespace Logic
                     sYearMonth2 = Convert.ToDateTime(dtImport.Rows[0]["vcYearMonth"].ToString().Substring(0, 4) + "-" + dtImport.Rows[0]["vcYearMonth"].ToString().Substring(4, 2) + "-01").AddMonths(2).ToString("yyyyMM");
                 }
                 dtImport = checkSaveInfo(dtImport, sYearMonth, sYearMonth1, sYearMonth2,
-                     strOperId, strPackingPlant, strReceiver, ref bReault, ref dtMessage);
+                     strOperId, strPackingPlant, strReceiver, ref dtMessage);
                 return dtImport;
             }
             catch (Exception ex)
@@ -557,6 +513,22 @@ namespace Logic
             {
                 throw ex;
             }
+        }
+
+        public string setEmailBody(string strExpectTime, string strFlag)
+        {
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine("<p>各位供应商殿&nbsp;（请转发给贵司社内相关人员）</p>");
+            sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
+            sbr.AppendLine("<p><br></p>");
+            sbr.AppendLine("<p>关于标题一事，</p>");
+            sbr.AppendLine("<p>内示情报确认情况展开。 </p>");
+            sbr.AppendLine("<p>请查收。</p>");
+            sbr.AppendLine("<p>回复纳期：<u style=\"color: rgb(230, 0, 0);\">" + strExpectTime + "</u>下班前</p><p><br></p><p>请在补给系统上进行调整回复</p>");
+            sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666-xxxx）。</p><p><br></p>");
+            sbr.AppendLine("<p>以上。</p><p><br></p>");
+
+            return sbr.ToString();
         }
 
     }

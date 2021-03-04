@@ -87,55 +87,54 @@ namespace Common
             }
             return res;
         }
-        public static List<Object> convertAllToResultByConverter1(DataTable dt, DataTable dt2, DtConverter dtConverter)
+        public static List<Object> convertAllToResultByConverter_main(DataTable dtMain, DataTable dtChild, DtConverter dtConverter)
         {
             List<Object> res = new List<Object>();
-            for (int i = 0; i < dt.Rows.Count; i++)
+            for (int i = 0; i < dtMain.Rows.Count; i++)
             {
                 Dictionary<string, object> row = new Dictionary<string, object>();
-                for (int j = 0; j < dt.Columns.Count; j++)
+                row["iAPILineNo"] = i.ToString();
+                for (int j = 0; j < dtMain.Columns.Count; j++)
                 {
-                    string colName = dt.Columns[j].ColumnName;
+                    string colName = dtMain.Columns[j].ColumnName;
                     if (colName == "children")
                     {
-                        string strChidren = dt.Rows[i][colName].ToString();
-                        if (dt2.Select("children='" + strChidren + "'").Length > 0)
+                        string strChidren = dtMain.Rows[i][colName].ToString();
+                        DataRow[] drChild = dtChild.Select("children='" + strChidren + "'");
+                        if (drChild.Length > 0)
                         {
-                            row[colName] = convertAllToResultByConverter2(strChidren, dt2, dtConverter);
+                            row[colName] = convertAllToResultByConverter_child(strChidren, dtMain, drChild, i, dtConverter);
                         }
                     }
                     else
                     {
-                        row[colName] = dtConverter.doConvert(dt.Rows[i][colName], colName);
+                        row[colName] = dtConverter.doConvert(dtMain.Rows[i][colName], colName);
                     }
                 }
-                row["iAPILineNo"] = i;
                 res.Add(row);
             }
             return res;
         }
-        public static List<Object> convertAllToResultByConverter2(string strChidren, DataTable dt, DtConverter dtConverter)
+        public static List<Object> convertAllToResultByConverter_child(string strChidren, DataTable dtMain, DataRow[] drChild, int index, DtConverter dtConverter)
         {
             List<Object> res = new List<Object>();
-            DataRow[] dataRows = dt.Select("children='" + strChidren + "'");
-            DataTable dataTable = dt.Clone();
-            for (int i = 0; i < dataRows.Length; i++)
+            DataTable dtChild = dtMain.Clone();
+            for (int i = 0; i < drChild.Length; i++)
             {
-                dataTable.ImportRow(dataRows[i]);
-                //dataTable.Rows.Add(dataRows[i]);
+                dtChild.ImportRow(drChild[i]);
             }
-            for (int i = 0; i < dataTable.Rows.Count; i++)
+            for (int i = 0; i < dtChild.Rows.Count; i++)
             {
                 Dictionary<string, object> row = new Dictionary<string, object>();
-                for (int j = 0; j < dataTable.Columns.Count; j++)
+                row["iAPILineNo"] = index.ToString() + i.ToString();
+                for (int j = 0; j < dtChild.Columns.Count; j++)
                 {
-                    string colName = dataTable.Columns[j].ColumnName;
+                    string colName = dtChild.Columns[j].ColumnName;
                     if (colName != "children")
                     {
-                        row[colName] = dtConverter.doConvert(dataTable.Rows[i][colName], colName);
+                        row[colName] = dtConverter.doConvert(dtChild.Rows[i][colName], colName);
                     }
                 }
-                row["iAPILineNo"] = i;
                 res.Add(row);
             }
             return res;

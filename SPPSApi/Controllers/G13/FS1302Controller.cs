@@ -95,7 +95,7 @@ namespace SPPSApi.Controllers.G13
                 dr22["children"] = "wf";
                 dt2.Rows.Add(dr22);
                 DtConverter dtConverter = new DtConverter();
-                List<Object> dataList = ComFunction.convertAllToResultByConverter1(dt1, dt2, dtConverter);
+                List<Object> dataList = ComFunction.convertAllToResultByConverter_main(dt1, dt2, dtConverter);
                 res.Add("tempList", dataList);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;

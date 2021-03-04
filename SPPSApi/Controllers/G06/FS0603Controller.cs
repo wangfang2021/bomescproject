@@ -109,8 +109,16 @@ namespace SPPSApi.Controllers.G06
                 res.Add("MandOrderList", MandOrderList);
                 res.Add("SupplierPackingList", SupplierPackingList);
                 res.Add("OrderPlantList", OrderPlantList);
-
-                res.Add("taskNum", fs0603_Logic.gettaskNum());
+                DataTable dttaskNum = fs0603_Logic.gettaskNum();
+                string taskoutNum = "0";
+                string taskinNum = "0";
+                if(!(dttaskNum==null|| dttaskNum.Rows.Count==0))
+                {
+                    taskoutNum = dttaskNum.Select("vcInOut='1'").Length.ToString();
+                    taskinNum = dttaskNum.Select("vcInOut='0'").Length.ToString();
+                }
+                res.Add("taskoutNum", taskoutNum);
+                res.Add("taskinNum", taskinNum);
                 res.Add("synclist", fs0603_Logic.getSyncInfo());
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -165,7 +173,16 @@ namespace SPPSApi.Controllers.G06
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
                     strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
 
-                res.Add("taskNum", fs0603_Logic.gettaskNum());
+                DataTable dttaskNum = fs0603_Logic.gettaskNum();
+                string taskoutNum = "0";
+                string taskinNum = "0";
+                if (!(dttaskNum == null || dttaskNum.Rows.Count == 0))
+                {
+                    taskoutNum = dttaskNum.Select("vcInOut='1'").Length.ToString();
+                    taskinNum = dttaskNum.Select("vcInOut='0'").Length.ToString();
+                }
+                res.Add("taskoutNum", taskoutNum);
+                res.Add("taskinNum", taskinNum);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
@@ -1399,6 +1416,111 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 导出方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportsyncApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            try
+            {
+                DataTable dtExport = fs0603_Logic.getSyncTable();
+                string[] fields = {"dSyncTime ","vcSyncMessage "
+                };
+
+                string filepath = ComFunction.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "Sync_Info.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 我了解了方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string readsyncApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (listInfoData.Count==0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "info";
+                    apiResult.data = "最少选择一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                DataTable dtImport = fs0603_Logic.createTable("SyncData");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow drImport = dtImport.NewRow();
+                    drImport["dSyncTime"] = listInfoData[i]["dSyncTime"].ToString();
+                    drImport["vcChanges"] = listInfoData[i]["vcChanges"].ToString();
+                    dtImport.Rows.Add(drImport);
+                }
+                fs0603_Logic.setSyncInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.type = "info";
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

@@ -1833,7 +1833,7 @@ namespace Logic
                 throw ex;
             }
         }
-        public int gettaskNum()
+        public DataTable gettaskNum()
         {
             try
             {
@@ -1844,22 +1844,73 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable getSyncInfo()
+        public List<Object> getSyncInfo()
         {
             try
             {
-                return fs0603_DataAccess.getSyncInfo();
+                DataSet dsInfo = fs0603_DataAccess.getSyncInfo();
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
+                if (dsInfo.Tables[0].Rows.Count == 0)
+                {
+                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dsInfo.Tables[0], dtConverter);
+                    return dataList;
+                }
+                else
+                {
+                    List<Object> dataList = ComFunction.convertAllToResultByConverter_main(dsInfo.Tables[0], dsInfo.Tables[1], dtConverter);
+                    return dataList;
+                }
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public void setSyncInfo()
+        public DataTable getSyncTable()
         {
             try
             {
-                fs0603_DataAccess.setSyncInfo();
+                DataSet dsInfo = fs0603_DataAccess.getSyncInfo();
+                DataTable dtInfo = dsInfo.Tables[0].Clone();
+
+                for (int i = 0; i < dsInfo.Tables[0].Rows.Count; i++)
+                {
+                    DataRow dataRow = dtInfo.NewRow();
+                    string dSyncTime = dsInfo.Tables[0].Rows[i]["dSyncTime"].ToString();
+                    string strSyncMessage = dsInfo.Tables[0].Rows[i]["vcSyncMessage"].ToString();
+                    string strChidren = dsInfo.Tables[0].Rows[i]["children"].ToString();
+                    dataRow["dSyncTime"] = dSyncTime;
+                    dataRow["vcSyncMessage"] = strSyncMessage;
+                    dtInfo.Rows.Add(dataRow);
+                    DataRow[] drChild = dsInfo.Tables[1].Select("children='" + strChidren + "'");
+                    if (drChild.Length > 0)
+                    {
+                        for (int j = 0; j < drChild.Length; j++)
+                        {
+                            string dSyncTime1 = drChild[i]["dSyncTime"].ToString();
+                            string strSyncMessage1 = drChild[i]["vcSyncMessage"].ToString();
+                            DataRow dataRow1 = dtInfo.NewRow();
+                            dataRow["dSyncTime"] = "   " + dSyncTime1;
+                            dataRow["vcSyncMessage"] = strSyncMessage1;
+                            dtInfo.Rows.Add(dataRow);
+                        }
+                    }
+                }
+                return dtInfo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setSyncInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
+        {
+            try
+            {
+                fs0603_DataAccess.setSyncInfo(dtImport, strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {
@@ -2451,6 +2502,11 @@ namespace Logic
                 dataTable.Columns.Add("vcSupplierId", typeof(string));
                 dataTable.Columns.Add("dFromTime", typeof(string));
                 dataTable.Columns.Add("dToTime", typeof(string));
+            }
+            if (strSpSub == "SyncData")
+            {
+                dataTable.Columns.Add("dSyncTime", typeof(string));
+                dataTable.Columns.Add("vcChanges", typeof(string));
             }
             return dataTable;
         }

@@ -18,28 +18,33 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select  a.vcDXYM,'文件名'as'vcFileName',b.vcName as 'vcInOutFlag'     \n");
-                strSql.Append("    ,case when dZhanKaiTime is null then '未展开' when dZhanKaiTime is not null then '已展开' end as 'vcState'     \n");
-                strSql.Append("    from TSoqReply a     \n");
-                strSql.Append("    inner join     \n");
-                strSql.Append("    (     \n");
-                strSql.Append("    	select * from TCode where vcCodeId = 'C003'     \n");
-                strSql.Append("    )b     \n");
-                strSql.Append("    on a.vcInOutFlag = b.vcValue     \n");
-                strSql.Append("    where 1=1     \n");
+                strSql.Append("     select a.vcCLYM,a.vcInOutFlag,case when a.vcFZGC <> null and a.dZhanKaiTime <> null then '可下载' else '未发送' end as '状态',MAX( a.dZhanKaiTime) as '展开时间' from    \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     select * from     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select distinct vcCLYM,vcInOutFlag,vcFZGC from TSoqReply     \n");
+                strSql.Append("     	where 1=1    \n");
                 if (!string.IsNullOrEmpty(strDXDateMonth))
                 {
-                    strSql.Append("     and vcDXYM = '"+strDXDateMonth+"'    \n");
+                    strSql.Append("         and vcCLYM = '"+strDXDateMonth+"'    \n");
                 }
                 if (!string.IsNullOrEmpty(strInOutFlag))
                 {
-                    strSql.Append("     and vcInOutFlag = '"+strInOutFlag+"'    \n");
+                    strSql.Append("         and vcInOutFlag = '" + strInOutFlag + "'    \n");
                 }
-
-                if (!string.IsNullOrEmpty(strState))
-                {
-                    strSql.Append("         \n");
-                }
+                strSql.Append("     ) a    \n");
+                strSql.Append("     right join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select vcValue from TCode where vcCodeId = 'C000'    \n");
+                strSql.Append("     ) b on a.vcFZGC = b.vcValue    \n");
+                strSql.Append("     left join     \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select distinct vcCLYM as 'vcCLYM_',vcInOutFlag as 'vcInOutFlag_',vcFZGC as 'vcFZGC_',dZhanKaiTime from TSoqReply    \n");
+                strSql.Append("     ) c on a.vcCLYM = c.vcCLYM_ and a.vcInOutFlag = c.vcInOutFlag_ and a.vcFZGC = c.vcFZGC_    \n");
+                strSql.Append("     )a    \n");
+                strSql.Append("     group by a.vcCLYM,vcInOutFlag    \n");
+                strSql.Append("     order by vcCLYM    \n");
+                
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

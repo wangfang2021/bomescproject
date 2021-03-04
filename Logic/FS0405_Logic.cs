@@ -18,10 +18,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strDXDateMonth, string strFileName, string strInOutFlag, string strState)
+        public DataTable Search(string strDXDateMonth, string strInOutFlag, string strState)
         {
-            return null;
-            //return fs0405_DataAccess.Search(strDXDateMonth, strFileName, strInOutFlag, strState);
+            return fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag, strState);
         }
         #endregion
     }

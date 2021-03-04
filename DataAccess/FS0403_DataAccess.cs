@@ -549,7 +549,7 @@ namespace DataAccess
                         sbr.AppendLine("union all");
                     }
                     sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
-                    sbr.AppendLine("WHERE vcMakingOrderType = '0'");
+                    sbr.AppendLine("WHERE vcMakingOrderType = '3'");
                     sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
                 }
 

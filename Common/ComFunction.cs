@@ -87,7 +87,58 @@ namespace Common
             }
             return res;
         }
-
+        public static List<Object> convertAllToResultByConverter_main(DataTable dtMain, DataTable dtChild, DtConverter dtConverter)
+        {
+            List<Object> res = new List<Object>();
+            for (int i = 0; i < dtMain.Rows.Count; i++)
+            {
+                Dictionary<string, object> row = new Dictionary<string, object>();
+                row["iAPILineNo"] = i.ToString();
+                for (int j = 0; j < dtMain.Columns.Count; j++)
+                {
+                    string colName = dtMain.Columns[j].ColumnName;
+                    if (colName == "children")
+                    {
+                        string strChidren = dtMain.Rows[i][colName].ToString();
+                        DataRow[] drChild = dtChild.Select("children='" + strChidren + "'");
+                        if (drChild.Length > 0)
+                        {
+                            row[colName] = convertAllToResultByConverter_child(strChidren, dtMain, drChild, i, dtConverter);
+                        }
+                    }
+                    else
+                    {
+                        row[colName] = dtConverter.doConvert(dtMain.Rows[i][colName], colName);
+                    }
+                }
+                res.Add(row);
+            }
+            return res;
+        }
+        public static List<Object> convertAllToResultByConverter_child(string strChidren, DataTable dtMain, DataRow[] drChild, int index, DtConverter dtConverter)
+        {
+            List<Object> res = new List<Object>();
+            DataTable dtChild = dtMain.Clone();
+            for (int i = 0; i < drChild.Length; i++)
+            {
+                dtChild.ImportRow(drChild[i]);
+            }
+            for (int i = 0; i < dtChild.Rows.Count; i++)
+            {
+                Dictionary<string, object> row = new Dictionary<string, object>();
+                row["iAPILineNo"] = index.ToString() + i.ToString();
+                for (int j = 0; j < dtChild.Columns.Count; j++)
+                {
+                    string colName = dtChild.Columns[j].ColumnName;
+                    if (colName != "children")
+                    {
+                        row[colName] = dtConverter.doConvert(dtChild.Rows[i][colName], colName);
+                    }
+                }
+                res.Add(row);
+            }
+            return res;
+        }
         #endregion
 
         #region 根据Datatable某个字段，把“值”的集合转换json结果
@@ -546,7 +597,7 @@ namespace Common
                                     //    HSSFFormulaEvaluator eva = new HSSFFormulaEvaluator(workbook);
                                     //    dataRow[j] = eva.Evaluate(cell).StringValue;
                                     //    break;
-                                    default: 
+                                    default:
                                         dataRow[j] = cell.ToString();
                                         break;
                                 }
@@ -1065,7 +1116,7 @@ namespace Common
                         }
                         else if (type == Type.GetType("System.Int32"))
                         {
-                            if(dt.Rows[i][field[j]].ToString().Trim()!="")
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
                                 cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
                         }
                         else if (type == Type.GetType("System.Int16"))
@@ -1403,7 +1454,7 @@ namespace Common
                             System.IO.File.Delete(strFilePath);
                         }
                     }
-                    
+
                 }
             }
         }

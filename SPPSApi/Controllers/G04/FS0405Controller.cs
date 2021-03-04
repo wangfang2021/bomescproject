@@ -93,7 +93,7 @@ namespace SPPSApi.Controllers.G03
 
             try
             {
-                DataTable dt = fs0405_Logic.Search(strDXDataMonth, strFileName, strInOutFlag, strState);
+                DataTable dt = fs0405_Logic.Search(strDXDataMonth, strInOutFlag, strState);
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);

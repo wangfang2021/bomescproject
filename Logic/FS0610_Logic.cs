@@ -59,6 +59,17 @@ namespace Logic
         }
         #endregion
 
+        #region 判断是否计算过
+        public bool isCal(string strYearMonth, List<string> plantList)
+        {
+            int num = fs0610_DataAccess.GetCalNum(strYearMonth, plantList);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
+        #endregion
+
         #region 下载SOQReply（检索内容）
         public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3, List<string> plantList)
         {
@@ -67,9 +78,9 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strYearMonth, string strUserId)
+        public void importSave(DataTable dt, string strYearMonth, string strUserId, List<string> plantList)
         {
-            fs0610_DataAccess.importSave(dt, strYearMonth, strUserId);
+            fs0610_DataAccess.importSave(dt, strYearMonth, strUserId, plantList);
         }
         #endregion
 
@@ -79,6 +90,28 @@ namespace Logic
             return fs0610_DataAccess.getZhankaiData(isZhankai, strPlant);
         }
         #endregion
+
+        public bool isHaveSORReplyData(string strPlant, string strCLYM)
+        {
+            int num = fs0610_DataAccess.isHaveSORReplyData(strPlant, strCLYM);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
+        public bool isZhankai(string strPlant, string strCLYM)
+        {
+            int num = fs0610_DataAccess.isZhankai(strPlant, strCLYM);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
+
+        public DataTable GetFilePlant(string strCLYM, DataTable dt)
+        {
+            return fs0610_DataAccess.GetFilePlant(strCLYM, dt);
+        }
 
         #region 生产计划方法（王立伟）2020-01-21
         #region 生成生产计划
@@ -124,7 +157,7 @@ namespace Logic
                 //平准 Pro4 包装计划 --4   与生产的zhi  一一对应
                 try
                 {
-                    dtpro4 = InitDataREP(dt_info, ref msg, ref dtpro0, ref dtpro1, ref dtpro2, ref dtpro3);
+                    dtpro4 = InitDataREP(dt_info, ref msg, ref dtpro0, ref dtpro1, ref dtpro2, ref dtpro3, int.Parse(vcDxny.Substring(4, 2)));
                 }
                 catch
                 {
@@ -143,10 +176,10 @@ namespace Logic
                 }
                 catch (Exception ex)
                 {
-                    return "生成计划失败！";
+                    return ex.ToString();
                 }
             }
-            return "计划生成成功！";
+            return "";
         }
         #endregion
 
@@ -235,9 +268,9 @@ namespace Logic
             }
         }
 
-        public List<DataTable> InitDataREP(DataTable dt, ref string msg, ref List<DataTable> dtPro0, ref List<DataTable> dtpro1, ref List<DataTable> dtPro2, ref List<DataTable> dtPro3)
+        public List<DataTable> InitDataREP(DataTable dt, ref string msg, ref List<DataTable> dtPro0, ref List<DataTable> dtpro1, ref List<DataTable> dtPro2, ref List<DataTable> dtPro3, int tmpmon)
         {
-            int tmpmon = Mon == 0 ? DateTime.Now.Month : Mon;
+            //int tmpmon = Mon == 0 ? DateTime.Now.Month : Mon;
             List<DataTable> dtall = new List<DataTable>();
             lock (lockflag)//锁定static变量
             {

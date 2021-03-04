@@ -20,14 +20,10 @@ namespace Logic
             return fs0614_DataAccess.searchApi(orderState, targetYM, orderNo, orderType, dUpload);
         }
 
-        public void cancelFile(List<Dictionary<string, Object>> list, string strUserId)
-        {
-            fs0614_DataAccess.cancelFile(list, strUserId);
-        }
 
-        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, ref string msg)
+        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage)
         {
-            return fs0614_DataAccess.CreateOrder(listInfoData, path, userId, ref msg);
+            return fs0614_DataAccess.CreateOrder(listInfoData, path, userId, uionCode, ref bReault, ref dtMessage);
         }
 
 
@@ -64,6 +60,11 @@ namespace Logic
             {
                 throw ex;
             }
+        }
+
+        public DataTable getType()
+        {
+            return fs0614_DataAccess.getType();
         }
     }
 }

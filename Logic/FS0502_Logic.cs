@@ -45,9 +45,10 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main,string vcSupplier_id)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main, 
+            string vcPart_id, string vcOrderNo, string vcSupplier_id,ref string infopart)
         {
-            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main, vcSupplier_id);
+            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main,  vcPart_id, vcOrderNo, vcSupplier_id,ref infopart);
         }
         #endregion
 

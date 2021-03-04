@@ -78,13 +78,13 @@ namespace SPPSApi.Controllers.G03
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-           
 
-            string carType = dataForm.carType;
+            string TimeFrom = dataForm.timeFrom == null ? "" : dataForm.timeFrom;
+            string carType = dataForm.vcCarType;
 
             try
             {
-                DataTable dt = fs0318_logic.search(carType);
+                DataTable dt = fs0318_logic.search(carType, TimeFrom);
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -115,12 +115,13 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string carType = dataForm.carType;
+            string carType = dataForm.vcCarType;
+            string TimeFrom = dataForm.timeFrom == null ? "" : dataForm.timeFrom;
 
 
             try
             {
-                DataTable dt = fs0318_logic.search(carType);
+                DataTable dt = fs0318_logic.search(carType, TimeFrom);
 
                 string filepath = "";
                 string strMsg = "";

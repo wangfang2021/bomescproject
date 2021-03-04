@@ -327,11 +327,12 @@ namespace SPPSApi.Controllers.G12
             string vcPorType = dataForm.vcPorType == null ? "" : dataForm.vcPorType;
             try
             {
+                Dictionary<string, Object> res = new Dictionary<string, Object>();
                 DataTable dt = logic.dllZB(vcPorType);
-                DtConverter dtConverter = new DtConverter();
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<Object> dataList_ZB = ComFunction.convertAllToResult(dt);
+                res.Add("ZBSource", dataList_ZB);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

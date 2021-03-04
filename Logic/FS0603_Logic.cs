@@ -210,6 +210,7 @@ namespace Logic
                         {
                             if (!ComFunction.CheckDate(strFromTime))
                             {
+                                strFromTime = "";
                                 DataRow dataRow = dtMessage.NewRow();
                                 dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报开始时间格式不正确", i + datarow);
                                 dtMessage.Rows.Add(dataRow);
@@ -227,6 +228,7 @@ namespace Logic
                             {
                                 if (!ComFunction.CheckDate(strFromTime))
                                 {
+                                    strToTime = "";
                                     DataRow dataRow = dtMessage.NewRow();
                                     dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报结束时间格式不正确", i + datarow);
                                     dtMessage.Rows.Add(dataRow);
@@ -240,6 +242,17 @@ namespace Logic
                         else
                             strToTime = "9999-12-31";
                         drImport["dToTime"] = strToTime;
+                        if (strType == "新增" || strType == "修改")
+                        {
+                            if (strFromTime != ""
+                                && strToTime != ""
+                                && Convert.ToDateTime(strFromTime) > Convert.ToDateTime(strToTime))
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报开始时间大于结束时间", i + datarow);
+                                dtMessage.Rows.Add(dataRow);
+                            }
+                        }
                         #endregion
                         //替代品番
                         string strPartId_Replace = dataTable.Rows[i]["vcPartId_Replace"].ToString().Trim();
@@ -394,7 +407,7 @@ namespace Logic
                         if (!(strSupplierPlant_ed == ""))
                         {
                             bool bCheck_sp = false;
-                            DataTable dtCheckTime = fs0603_DataAccess.getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                            DataTable dtCheckTime = fs0603_DataAccess.getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                             for (int ck = 0; ck < dtCheckTime.Rows.Count; ck++)
                             {
                                 string strSupplierPlant_ed_check = dtCheckTime.Rows[ck]["vcSupplierPlant"].ToString();
@@ -431,6 +444,9 @@ namespace Logic
                         drImport["SupplierPlantFromTime_ed"] = strSupplierPlantFromTime_ed;
                         drImport["SupplierPlantToTime_ed"] = strSupplierPlantToTime_ed;
                         #endregion
+                        //出荷场
+                        string strSupplierPlace = dataTable.Rows[i]["vcSupplierPlace"].ToString();
+                        drImport["vcSupplierPlace"] = strSupplierPlace;
                         #region 收容数
                         string strBoxLinId_ed = "999";
                         string strBoxPackingQty_ed = dataTable.Rows[i]["BoxPackingQty_ed"].ToString().Trim();
@@ -492,7 +508,7 @@ namespace Logic
                         if (strBoxPackingQty_ed != "" && strBoxPackingQty_ed != "0")
                         {
                             bool bCheck_pq = false;
-                            DataTable dtCheckTime = fs0603_DataAccess.getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                            DataTable dtCheckTime = fs0603_DataAccess.getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                             for (int ck = 0; ck < dtCheckTime.Rows.Count; ck++)
                             {
                                 string strBoxPackingQty_ed_check = dtCheckTime.Rows[ck]["iPackingQty"].ToString();
@@ -568,7 +584,7 @@ namespace Logic
                         if (!(strSufferIn_ed == ""))
                         {
                             bool bCheck_si = false;
-                            DataTable dtCheckTime = fs0603_DataAccess.getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                            DataTable dtCheckTime = fs0603_DataAccess.getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                             for (int ck = 0; ck < dtCheckTime.Rows.Count; ck++)
                             {
                                 string strSufferIn_ed_check = dtCheckTime.Rows[ck]["vcSufferIn"].ToString();
@@ -820,6 +836,13 @@ namespace Logic
                     drImport["dToTime"] = strToTime;
                     if (strToTime == "")
                         drImport["dToTime"] = "9999-12-31";
+                    if (strFromTime != "" && Convert.ToDateTime(drImport["dFromTime"].ToString()) > Convert.ToDateTime(drImport["dToTime"].ToString()))
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报所维护的开始使用时间大于结束时间", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
+                    }
                     drImport["vcPartId_Replace"] = listInfoData[i]["vcPartId_Replace"].ToString();
                     drImport["vcInOut"] = listInfoData[i]["vcInOut"].ToString();
                     drImport["vcOESP"] = listInfoData[i]["vcOESP"].ToString();
@@ -837,6 +860,15 @@ namespace Logic
                     }
                     drImport["dSupplierFromTime"] = listInfoData[i]["dSupplierFromTime"].ToString() == "" ? "" : Convert.ToDateTime(listInfoData[i]["dSupplierFromTime"].ToString()).ToString("yyyy-MM-dd");
                     drImport["dSupplierToTime"] = listInfoData[i]["dSupplierToTime"].ToString() == "" ? "" : Convert.ToDateTime(listInfoData[i]["dSupplierToTime"].ToString()).ToString("yyyy-MM-dd");
+                    if (drImport["dSupplierFromTime"].ToString() != ""
+                        && drImport["dSupplierToTime"].ToString() != ""
+                        && Convert.ToDateTime(drImport["dSupplierFromTime"].ToString()) > Convert.ToDateTime(drImport["dSupplierToTime"].ToString()))
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报所维护的供应商开始使用时间大于结束时间", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
+                    }
                     drImport["vcSupplierName"] = listInfoData[i]["vcSupplierName"].ToString();
                     if ((bool)listInfoData[i]["bAddFlag"] == true)
                     {
@@ -859,7 +891,7 @@ namespace Logic
                     {
                         string strSupplierPlantLinId_before = "";
                         string strSupplierPlantFromTime_before = "";
-                        DataTable dtCheckTime_sp = getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                        DataTable dtCheckTime_sp = getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime_sp.Rows.Count > 0)
                         {
                             strSupplierPlantLinId_before = dtCheckTime_sp.Rows[dtCheckTime_sp.Rows.Count - 1]["LinId"].ToString();
@@ -879,6 +911,7 @@ namespace Logic
                     drImport["SupplierPlantFromTime_ed"] = strSupplierPlantFromTime_ed;
                     drImport["SupplierPlantToTime_ed"] = strSupplierPlantToTime_ed;
                     #endregion
+                    drImport["vcSupplierPlace"] = listInfoData[i]["vcSupplierPlace"].ToString();
 
                     #region 验证收容数
                     string strBoxPackingQty = listInfoData[i]["iPackingQty"].ToString();
@@ -900,7 +933,7 @@ namespace Logic
                     {
                         string strBoxLinId_before = "";
                         string strBoxFromTime_before = "";
-                        DataTable dtCheckTime_pq = getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                        DataTable dtCheckTime_pq = getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime_pq.Rows.Count > 0)
                         {
                             strBoxLinId_before = dtCheckTime_pq.Rows[dtCheckTime_pq.Rows.Count - 1]["LinId"].ToString();
@@ -941,7 +974,7 @@ namespace Logic
                     {
                         string strSufferInLinId_before = "";
                         string strSufferInFromTime_before = "";
-                        DataTable dtCheckTime_si = getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                        DataTable dtCheckTime_si = getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime_si.Rows.Count > 0)
                         {
                             strSufferInLinId_before = dtCheckTime_si.Rows[dtCheckTime_si.Rows.Count - 1]["LinId"].ToString();
@@ -1039,6 +1072,7 @@ namespace Logic
                     dataRow_add["dSupplierToTime"] = dtImport.Rows[i]["dSupplierToTime"].ToString();
                     dataRow_add["vcSupplierName"] = dtImport.Rows[i]["vcSupplierName"].ToString();
                     dataRow_add["vcInteriorProject"] = dtImport.Rows[i]["vcInteriorProject"].ToString();
+                    dataRow_add["vcSupplierPlace"] = dtImport.Rows[i]["vcSupplierPlace"].ToString();
                     dataRow_add["vcPassProject"] = dtImport.Rows[i]["vcPassProject"].ToString();
                     dataRow_add["vcFrontProject"] = dtImport.Rows[i]["vcFrontProject"].ToString();
                     dataRow_add["dFrontProjectTime"] = dtImport.Rows[i]["dFrontProjectTime"].ToString();
@@ -1066,7 +1100,7 @@ namespace Logic
                         string strSupplierPlantLinId_before = "";
                         string strSupplierPlantToTime_before = "";
                         string strError = "";
-                        DataTable dtCheckTime = getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                        DataTable dtCheckTime = getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime.Rows.Count > 0)
                         {
                             strSupplierPlantLinId_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
@@ -1132,7 +1166,7 @@ namespace Logic
                         string strBoxLinId_before = "";
                         string strBoxToTime_before = "";
                         string strError = "";
-                        DataTable dtCheckTime = getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                        DataTable dtCheckTime = getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime.Rows.Count > 0)
                         {
                             strBoxLinId_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
@@ -1194,7 +1228,7 @@ namespace Logic
                         string strSufferInLinId_before = "";
                         string strSufferInToTime_before = "";
                         string strError = "";
-                        DataTable dtCheckTime = getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                        DataTable dtCheckTime = getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime.Rows.Count > 0)
                         {
                             strSufferInLinId_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
@@ -1396,6 +1430,15 @@ namespace Logic
                             strOperItem += "||修改供应商名称信息:" + strSupplierName + "==>" + dtImport.Rows[i]["vcSupplierName"].ToString();
                             dataRow_mod["vcSupplierName"] = dtImport.Rows[i]["vcSupplierName"].ToString();
                         }
+                        //出荷场    vcSupplierPlace
+                        string strSupplierPlace = drOperCheck[0]["vcSupplierPlace"].ToString();
+                        dataRow_mod["vcSupplierPlace"] = strSupplierPlace;
+                        if (strSupplierPlace != dtImport.Rows[i]["vcSupplierPlace"].ToString())
+                        {
+                            bCheckUpdate = true;
+                            strOperItem += "||修改出何地信息:" + strSupplierPlace + "==>" + dtImport.Rows[i]["vcSupplierPlace"].ToString();
+                            dataRow_mod["vcInteriorProject"] = dtImport.Rows[i]["vcInteriorProject"].ToString();
+                        }
                         //内制工程    vcInteriorProject
                         string strInteriorProject = drOperCheck[0]["vcInteriorProject"].ToString();
                         dataRow_mod["vcInteriorProject"] = strInteriorProject;
@@ -1524,7 +1567,7 @@ namespace Logic
                         string strSupplierPlantLinId_before = "";
                         string strSupplierPlantToTime_before = "";
                         string strError = "";
-                        DataTable dtCheckTime = getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant_ed);
+                        DataTable dtCheckTime = getEditLoadInfo("SupplierPlantEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime.Rows.Count > 0)
                         {
                             strSupplierPlantLinId_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
@@ -1604,7 +1647,7 @@ namespace Logic
                         string strBoxLinId_before = "";
                         string strBoxToTime_before = "";
                         string strError = "";
-                        DataTable dtCheckTime = getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                        DataTable dtCheckTime = getEditLoadInfo("PackingQtyEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime.Rows.Count > 0)
                         {
                             strBoxLinId_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
@@ -1685,7 +1728,7 @@ namespace Logic
                         string strSufferInLinId_before = "";
                         string strSufferInToTime_before = "";
                         string strError = "";
-                        DataTable dtCheckTime = getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+                        DataTable dtCheckTime = getEditLoadInfo("SufferInEdit", strPackingPlant, strPartId, strReceiver, strSupplierId, "");
                         if (dtCheckTime.Rows.Count > 0)
                         {
                             strSufferInLinId_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
@@ -1860,7 +1903,7 @@ namespace Logic
                     listInfoData[i]["SupplierPlantLinId_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SupplierPlantLinId_ed"], "", "");
                     listInfoData[i]["SupplierPlantFromTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SupplierPlantFromTime_ed"], "date", "");
                     listInfoData[i]["SupplierPlantToTime_ed"] = fs0603_DataAccess.setNullValue(listInfoData[i]["SupplierPlantToTime_ed"], "date", "");
-                    //listInfoData[i]["vcSupplierPlace"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSupplierPlace"], "", "");
+                    listInfoData[i]["vcSupplierPlace"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSupplierPlace"], "", "");
                     listInfoData[i]["iPackingQty"] = fs0603_DataAccess.setNullValue(listInfoData[i]["iPackingQty"], "", "");
                     listInfoData[i]["vcBoxType"] = fs0603_DataAccess.setNullValue(listInfoData[i]["vcBoxType"], "", "");
                     listInfoData[i]["iLength"] = fs0603_DataAccess.setNullValue(listInfoData[i]["iLength"], "", "");
@@ -1903,6 +1946,267 @@ namespace Logic
             }
             catch (Exception ex)
             { throw ex; }
+        }
+
+        public DataTable setExportInfo(DataTable dtMainInfo, DataTable dtSPInfo, DataTable dtPQInfo, DataTable dtSIInfo, DataTable dtOPInfo, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtExport = createTable("export0603");
+                for (int i = 0; i < dtMainInfo.Rows.Count; i++)
+                {
+                    #region 主数据
+                    string strSyncTime = dtMainInfo.Rows[i]["dSyncTime"].ToString();
+                    string strChanges_name = dtMainInfo.Rows[i]["vcChanges_name"].ToString();
+                    string strPartENName = dtMainInfo.Rows[i]["vcPartENName"].ToString();
+                    string strCarfamilyCode = dtMainInfo.Rows[i]["vcCarfamilyCode"].ToString();
+                    string strFromTime = dtMainInfo.Rows[i]["dFromTime"].ToString();
+                    string strToTime = dtMainInfo.Rows[i]["dToTime"].ToString();
+                    string strPartId_Replace = dtMainInfo.Rows[i]["vcPartId_Replace"].ToString();
+                    string strInOut_name = dtMainInfo.Rows[i]["vcInOut_name"].ToString();
+                    string strOESP_name = dtMainInfo.Rows[i]["vcOESP_name"].ToString();
+                    string strHaoJiu_name = dtMainInfo.Rows[i]["vcHaoJiu_name"].ToString();
+                    string strOldProduction_name = dtMainInfo.Rows[i]["vcOldProduction_name"].ToString();
+                    string strDebugTime = dtMainInfo.Rows[i]["dDebugTime"].ToString();
+                    string strSupplierFromTime = dtMainInfo.Rows[i]["dSupplierFromTime"].ToString();
+                    string strSupplierToTime = dtMainInfo.Rows[i]["dSupplierToTime"].ToString();
+                    string strSupplierName = dtMainInfo.Rows[i]["vcSupplierName"].ToString();
+                    string strSupplierPlace = dtMainInfo.Rows[i]["vcSupplierPlace"].ToString();
+                    string strInteriorProject = dtMainInfo.Rows[i]["vcInteriorProject"].ToString();
+                    string strPassProject = dtMainInfo.Rows[i]["vcPassProject"].ToString();
+                    string strFrontProject = dtMainInfo.Rows[i]["vcFrontProject"].ToString();
+                    string strFrontProjectTime = dtMainInfo.Rows[i]["dFrontProjectTime"].ToString();
+                    string strShipmentTime = dtMainInfo.Rows[i]["dShipmentTime"].ToString();
+                    string strPartImage = dtMainInfo.Rows[i]["vcPartImage"].ToString();
+                    string strBillType_name = dtMainInfo.Rows[i]["vcBillType_name"].ToString();
+                    string strRemark1 = dtMainInfo.Rows[i]["vcRemark1"].ToString();
+                    string strRemark2 = dtMainInfo.Rows[i]["vcRemark2"].ToString();
+                    string strOrderingMethod_name = dtMainInfo.Rows[i]["vcOrderingMethod_name"].ToString();
+                    string strMandOrder_name = dtMainInfo.Rows[i]["vcMandOrder_name"].ToString();
+                    string strSupplierPacking_name = dtMainInfo.Rows[i]["vcSupplierPacking_name"].ToString();
+                    #endregion
+
+                    DataTable dtExport_temp = createTable("export0603_temp");
+                    string strPackingPlant = dtMainInfo.Rows[i]["vcPackingPlant"].ToString();
+                    string strPackingPlant_name = dtMainInfo.Rows[i]["vcPackingPlant_name"].ToString();
+                    string strPartId = dtMainInfo.Rows[i]["vcPartId"].ToString();
+                    string strReceiver = dtMainInfo.Rows[i]["vcReceiver"].ToString();
+                    string strSupplierId = dtMainInfo.Rows[i]["vcSupplierId"].ToString();
+
+                    DataRow[] drSPInfo = dtSPInfo.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'");
+                    DataRow[] drPQInfo = dtPQInfo.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'");
+                    DataRow[] drSIInfo = dtSIInfo.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'");
+                    DataRow[] drOPInfo = dtOPInfo.Select("vcSupplierId='" + strSupplierId + "'");
+                    for (int j = 0; j < drSPInfo.Length; j++)
+                    {
+                        DataRow drExport_temp = dtExport_temp.NewRow();
+                        drExport_temp["vcPackingPlant"] = strPackingPlant;
+                        drExport_temp["vcPackingPlant_name"] = strPackingPlant_name;
+                        drExport_temp["vcPartId"] = strPartId;
+                        drExport_temp["vcReceiver"] = strReceiver;
+                        drExport_temp["vcSupplierId"] = strSupplierId;
+                        drExport_temp["dFromTime"] = drSPInfo[j]["dFromTime"].ToString();
+                        drExport_temp["dToTime"] = drSPInfo[j]["dToTime"].ToString();
+                        dtExport_temp.Rows.Add(drExport_temp);
+                    }
+                    for (int j = 0; j < drPQInfo.Length; j++)
+                    {
+                        DataRow drExport_temp = dtExport_temp.NewRow();
+                        drExport_temp["vcPackingPlant"] = strPackingPlant;
+                        drExport_temp["vcPackingPlant_name"] = strPackingPlant_name;
+                        drExport_temp["vcPartId"] = strPartId;
+                        drExport_temp["vcReceiver"] = strReceiver;
+                        drExport_temp["vcSupplierId"] = strSupplierId;
+                        drExport_temp["dFromTime"] = drPQInfo[j]["dFromTime"].ToString();
+                        drExport_temp["dToTime"] = drPQInfo[j]["dToTime"].ToString();
+                        dtExport_temp.Rows.Add(drExport_temp);
+                    }
+                    for (int j = 0; j < drSIInfo.Length; j++)
+                    {
+                        DataRow drExport_temp = dtExport_temp.NewRow();
+                        drExport_temp["vcPackingPlant"] = strPackingPlant;
+                        drExport_temp["vcPackingPlant_name"] = strPackingPlant_name;
+                        drExport_temp["vcPartId"] = strPartId;
+                        drExport_temp["vcReceiver"] = strReceiver;
+                        drExport_temp["vcSupplierId"] = strSupplierId;
+                        drExport_temp["dFromTime"] = drSIInfo[j]["dFromTime"].ToString();
+                        drExport_temp["dToTime"] = drSIInfo[j]["dToTime"].ToString();
+                        dtExport_temp.Rows.Add(drExport_temp);
+                    }
+                    for (int j = 0; j < drOPInfo.Length; j++)
+                    {
+                        DataRow drExport_temp = dtExport_temp.NewRow();
+                        drExport_temp["vcPackingPlant"] = strPackingPlant;
+                        drExport_temp["vcPackingPlant_name"] = strPackingPlant_name;
+                        drExport_temp["vcPartId"] = strPartId;
+                        drExport_temp["vcReceiver"] = strReceiver;
+                        drExport_temp["vcSupplierId"] = strSupplierId;
+                        drExport_temp["dFromTime"] = drOPInfo[j]["dFromTime"].ToString();
+                        drExport_temp["dToTime"] = drOPInfo[j]["dToTime"].ToString();
+                        dtExport_temp.Rows.Add(drExport_temp);
+                    }
+                    dtExport_temp.DefaultView.Sort = "dToTime";
+                    dtExport_temp = dtExport_temp.DefaultView.ToTable();
+
+                    for (int k = 0; k < dtExport_temp.Rows.Count; k++)
+                    {
+                        DateTime dFromTime_temp = Convert.ToDateTime(dtExport_temp.Rows[k]["dFromTime"].ToString());
+                        DateTime dToTime_temp = Convert.ToDateTime(dtExport_temp.Rows[k]["dToTime"].ToString());
+
+                        #region SupplierPlant
+                        string strSupplierPlant = "";
+                        string strSupplierPlantFromTime = "";
+                        string strSupplierPlantToTime = "";
+                        for (int q = 0; q < drSPInfo.Length; q++)
+                        {
+                            string strSupplierPlant_fixed = drSPInfo[q]["vcSupplierPlant"].ToString();
+                            DateTime dFromTime_fixed = Convert.ToDateTime(drSPInfo[q]["dFromTime"].ToString());
+                            DateTime dToTime_fixed = Convert.ToDateTime(drSPInfo[q]["dToTime"].ToString());
+                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                            {
+                                strSupplierPlant = strSupplierPlant_fixed;
+                                strSupplierPlantFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                strSupplierPlantToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                break;
+                            }
+                        }
+                        #endregion
+
+                        #region PackingQty
+                        string strPackingQty = "";
+                        string strBoxType = "";
+                        string strLength = "";
+                        string strWidth = "";
+                        string strHeight = "";
+                        string strVolume = "";
+                        string strBoxFromTime = "";
+                        string strBoxToTime = "";
+                        for (int q = 0; q < drPQInfo.Length; q++)
+                        {
+                            string strPackingQty_fixed = drPQInfo[q]["iPackingQty"].ToString();
+                            string strBoxType_fixed = drPQInfo[q]["vcBoxType"].ToString();
+                            string strLength_fixed = drPQInfo[q]["iLength"].ToString();
+                            string strWidth_fixed = drPQInfo[q]["iWidth"].ToString();
+                            string strHeight_fixed = drPQInfo[q]["iHeight"].ToString();
+                            string strVolume_fixed = drPQInfo[q]["iVolume"].ToString();
+                            DateTime dFromTime_fixed = Convert.ToDateTime(drPQInfo[q]["dFromTime"].ToString());
+                            DateTime dToTime_fixed = Convert.ToDateTime(drPQInfo[q]["dToTime"].ToString());
+                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                            {
+                                strPackingQty = strPackingQty_fixed;
+                                strBoxType = strBoxType_fixed;
+                                strLength = strLength_fixed;
+                                strWidth = strWidth_fixed;
+                                strHeight = strHeight_fixed;
+                                strVolume = strVolume_fixed;
+                                strBoxFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                strBoxToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                break;
+                            }
+                        }
+                        #endregion
+
+                        #region SufferIn
+                        string strSufferIn = "";
+                        string strSufferInFromTime = "";
+                        string strSufferInToTime = "";
+                        for (int q = 0; q < drSIInfo.Length; q++)
+                        {
+                            string strSufferIn_fixed = drSIInfo[q]["vcSufferIn"].ToString();
+                            DateTime dFromTime_fixed = Convert.ToDateTime(drSIInfo[q]["dFromTime"].ToString());
+                            DateTime dToTime_fixed = Convert.ToDateTime(drSIInfo[q]["dToTime"].ToString());
+                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                            {
+                                strSufferIn = strSufferIn_fixed;
+                                strSufferInFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                strSufferInToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                break;
+                            }
+                        }
+                        #endregion
+
+                        #region OrderPlant
+                        string strOrderPlant_name = "";
+                        string strOrderPlantFromTime = "";
+                        string strOrderPlantToTime = "";
+                        for (int q = 0; q < drOPInfo.Length; q++)
+                        {
+                            string strOrderPlant_name_fixed = drOPInfo[q]["vcOrderPlant_name"].ToString();
+                            DateTime dFromTime_fixed = Convert.ToDateTime(drOPInfo[q]["dFromTime"].ToString());
+                            DateTime dToTime_fixed = Convert.ToDateTime(drOPInfo[q]["dToTime"].ToString());
+                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                            {
+                                strOrderPlant_name = strOrderPlant_name_fixed;
+                                strOrderPlantFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                strOrderPlantToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                break;
+                            }
+                        }
+                        #endregion
+
+                        #region AddToTable
+                        DataRow drExport = dtExport.NewRow();
+                        drExport["dSyncTime"] = strSyncTime;
+                        drExport["vcChanges_name"] = strChanges_name;
+                        drExport["vcPackingPlant_name"] = strPackingPlant_name;
+                        drExport["vcPartId"] = strPartId;
+                        drExport["vcPartENName"] = strPartENName;
+                        drExport["vcCarfamilyCode"] = strCarfamilyCode;
+                        drExport["vcReceiver"] = strReceiver;
+                        drExport["dFromTime"] = strFromTime;
+                        drExport["dToTime"] = dToTime_temp.ToString("yyyy/MM/dd");
+                        drExport["vcPartId_Replace"] = strPartId_Replace;
+                        drExport["vcInOut_name"] = strInOut_name;
+                        drExport["vcOESP_name"] = strOESP_name;
+                        drExport["vcHaoJiu_name"] = strHaoJiu_name;
+                        drExport["vcOldProduction_name"] = strOldProduction_name;
+                        drExport["dDebugTime"] = strDebugTime;
+                        drExport["vcSupplierId"] = strSupplierId;
+                        drExport["dSupplierFromTime"] = strSupplierFromTime;
+                        drExport["dSupplierToTime"] = strSupplierToTime;
+                        drExport["vcSupplierName"] = strSupplierName;
+                        drExport["vcSupplierPlant"] = strSupplierPlant;
+                        drExport["dSupplierPlantFromTime"] = strSupplierPlantFromTime;
+                        drExport["dSupplierPlantToTime"] = strSupplierPlantToTime;
+                        drExport["vcSupplierPlace"] = strSupplierPlace;
+                        drExport["iPackingQty"] = strPackingQty;
+                        drExport["vcBoxType"] = strBoxType;
+                        drExport["iLength"] = strLength;
+                        drExport["iWidth"] = strWidth;
+                        drExport["iHeight"] = strHeight;
+                        drExport["iVolume"] = strVolume;
+                        drExport["dBoxFromTime"] = strBoxFromTime;
+                        drExport["dBoxToTime"] = strBoxToTime;
+                        drExport["vcSufferIn"] = strSufferIn;
+                        drExport["dSufferInFromTime"] = strSufferInFromTime;
+                        drExport["dSufferInToTime"] = strSufferInToTime;
+                        drExport["vcOrderPlant_name"] = strOrderPlant_name;
+                        drExport["dOrderPlantFromTime"] = strOrderPlantFromTime;
+                        drExport["dOrderPlantToTime"] = strOrderPlantToTime;
+                        drExport["vcInteriorProject"] = strInteriorProject;
+                        drExport["vcPassProject"] = strPassProject;
+                        drExport["vcFrontProject"] = strFrontProject;
+                        drExport["dFrontProjectTime"] = strFrontProjectTime;
+                        drExport["dShipmentTime"] = strShipmentTime;
+                        drExport["vcPartImage"] = strPartImage;
+                        drExport["vcBillType_name"] = strBillType_name;
+                        drExport["vcRemark1"] = strRemark1;
+                        drExport["vcRemark2"] = strRemark2;
+                        drExport["vcOrderingMethod_name"] = strOrderingMethod_name;
+                        drExport["vcMandOrder_name"] = strMandOrder_name;
+                        drExport["vcSupplierPacking_name"] = strSupplierPacking_name;
+                        #endregion
+                        dtExport.Rows.Add(drExport);
+                    }
+                }
+
+
+                return dtExport;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         public DataTable createTable(string strSpSub)
         {
@@ -2085,6 +2389,68 @@ namespace Logic
                 dataTable.Columns.Add("vcChangeRea", typeof(string));
                 dataTable.Columns.Add("vcTJSX", typeof(string));
                 dataTable.Columns.Add("vcType", typeof(string));
+            }
+            if (strSpSub == "export0603")
+            {
+                dataTable.Columns.Add("dSyncTime", typeof(string));
+                dataTable.Columns.Add("vcChanges_name", typeof(string));
+                dataTable.Columns.Add("vcPackingPlant_name", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("vcPartENName", typeof(string));
+                dataTable.Columns.Add("vcCarfamilyCode", typeof(string));
+                dataTable.Columns.Add("vcReceiver", typeof(string));
+                dataTable.Columns.Add("dFromTime", typeof(string));
+                dataTable.Columns.Add("dToTime", typeof(string));
+                dataTable.Columns.Add("vcPartId_Replace", typeof(string));
+                dataTable.Columns.Add("vcInOut_name", typeof(string));
+                dataTable.Columns.Add("vcOESP_name", typeof(string));
+                dataTable.Columns.Add("vcHaoJiu_name", typeof(string));
+                dataTable.Columns.Add("vcOldProduction_name", typeof(string));
+                dataTable.Columns.Add("dDebugTime", typeof(string));
+                dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("dSupplierFromTime", typeof(string));
+                dataTable.Columns.Add("dSupplierToTime", typeof(string));
+                dataTable.Columns.Add("vcSupplierName", typeof(string));
+                dataTable.Columns.Add("vcSupplierPlant", typeof(string));
+                dataTable.Columns.Add("dSupplierPlantFromTime", typeof(string));
+                dataTable.Columns.Add("dSupplierPlantToTime", typeof(string));
+                dataTable.Columns.Add("vcSupplierPlace", typeof(string));
+                dataTable.Columns.Add("iPackingQty", typeof(string));
+                dataTable.Columns.Add("vcBoxType", typeof(string));
+                dataTable.Columns.Add("iLength", typeof(string));
+                dataTable.Columns.Add("iWidth", typeof(string));
+                dataTable.Columns.Add("iHeight", typeof(string));
+                dataTable.Columns.Add("iVolume", typeof(string));
+                dataTable.Columns.Add("dBoxFromTime", typeof(string));
+                dataTable.Columns.Add("dBoxToTime", typeof(string));
+                dataTable.Columns.Add("vcSufferIn", typeof(string));
+                dataTable.Columns.Add("dSufferInFromTime", typeof(string));
+                dataTable.Columns.Add("dSufferInToTime", typeof(string));
+                dataTable.Columns.Add("vcOrderPlant_name", typeof(string));
+                dataTable.Columns.Add("dOrderPlantFromTime", typeof(string));
+                dataTable.Columns.Add("dOrderPlantToTime", typeof(string));
+                dataTable.Columns.Add("vcInteriorProject", typeof(string));
+                dataTable.Columns.Add("vcPassProject", typeof(string));
+                dataTable.Columns.Add("vcFrontProject", typeof(string));
+                dataTable.Columns.Add("dFrontProjectTime", typeof(string));
+                dataTable.Columns.Add("dShipmentTime", typeof(string));
+                dataTable.Columns.Add("vcPartImage", typeof(string));
+                dataTable.Columns.Add("vcBillType_name", typeof(string));
+                dataTable.Columns.Add("vcRemark1", typeof(string));
+                dataTable.Columns.Add("vcRemark2", typeof(string));
+                dataTable.Columns.Add("vcOrderingMethod_name", typeof(string));
+                dataTable.Columns.Add("vcMandOrder_name", typeof(string));
+                dataTable.Columns.Add("vcSupplierPacking_name", typeof(string));
+            }
+            if (strSpSub == "export0603_temp")
+            {
+                dataTable.Columns.Add("vcPackingPlant", typeof(string));
+                dataTable.Columns.Add("vcPackingPlant_name", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("vcReceiver", typeof(string));
+                dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("dFromTime", typeof(string));
+                dataTable.Columns.Add("dToTime", typeof(string));
             }
             return dataTable;
         }

@@ -48,8 +48,7 @@ namespace SPPSApi.Controllers.G06
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
                 List<Object> dataList_C044 = ComFunction.convertAllToResult(ComFunction.getTCode("C044")); //收货方
-                List<Object> dataList_C045 = ComFunction.convertAllToResult(ComFunction.getTCode("C045")); //原单位
-
+                List<Object> dataList_C045 = ComFunction.convertAllToResult(fs0614_logic.getType()); //原单位
 
                 res.Add("C044", dataList_C044);
                 res.Add("C045", dataList_C045);
@@ -162,13 +161,23 @@ namespace SPPSApi.Controllers.G06
                     string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
                                       Path.DirectorySeparatorChar + "orders";
 
-                    bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, ref refMsg);
-                    if (!resflag && !string.IsNullOrWhiteSpace(refMsg))
+                    DataTable dtMessage = new DataTable();
+                    dtMessage.Columns.Add("vcOrder");
+                    dtMessage.Columns.Add("vcPartNo");
+                    dtMessage.Columns.Add("vcMessage");
+                    bool result = true;
+                    bool resflag = fs0614_logic.CreateOrder(listInfoData, realPath, loginInfo.UserId, loginInfo.UnitCode, ref result, ref dtMessage);
+
+
+                    if (dtMessage.Rows.Count > 0)
                     {
+                        //弹出错误dtMessage
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = refMsg;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
                 }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -186,58 +195,7 @@ namespace SPPSApi.Controllers.G06
 
         #endregion
 
-        #region 撤销订单
-        [HttpPost]
-        [EnableCors("any")]
-        public string cancelApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool hasFind = false;//是否找到需要新增或者修改的数据
-                if (listInfoData.Count > 0)
-                {
-                    hasFind = true;
-                }
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选中一行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
 
-                string refMsg = "";
-                //开始数据验证
-                if (hasFind)
-                {
-                    fs0614_logic.cancelFile(listInfoData, loginInfo.UserId);
-                }
-
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0705", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-
-        #endregion
 
         #region 导出
 
@@ -325,6 +283,62 @@ namespace SPPSApi.Controllers.G06
         #endregion
 
         #endregion
+        /// <summary>
+        /// 导出消息信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dataTable = new DataTable();
+                dataTable.Columns.Add("vcOrder");
+                dataTable.Columns.Add("vcPartNo");
+                dataTable.Columns.Add("vcMessage");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow["vcOrder"] = listInfoData[i]["vcOrder"].ToString();
+                    dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                    dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
+                    dataTable.Rows.Add(dataRow);
+                }
+                string[] head = { "订单号", "品番", "错误信息" };
+                string[] fields = { "vcOrder", "vcPartNo", "vcMessage" };
+                string refMsg = "";
+                string filepath = ComFunction.DataTableToExcel(head, fields, dataTable, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref refMsg);
 
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
     }
 }

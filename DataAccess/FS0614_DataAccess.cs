@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 
 
 namespace DataAccess
@@ -15,20 +16,20 @@ namespace DataAccess
     public class FS0614_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
+        private bool bReault;
 
         #region 检索
-
         public DataTable searchApi(string orderState, string targetYM, string orderNo, string vcOrderType, string dUpload)
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT a.iAutoId,a.vcOrderNo,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcName as vcOrderType,b.vcName as vcOrderState,a.vcMemo,a.dUploadDate,a.dCreateDate,a.vcFilePath FROM ");
+                    "SELECT a.iAutoId,a.vcOrderNo,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcOrderDifferentiation as vcOrderType,b.vcName as vcOrderState,a.vcMemo,a.dUploadDate,a.dCreateDate,a.vcFilePath FROM ");
                 sbr.AppendLine("(");
                 sbr.AppendLine(
                     "SELECT iAutoId,vcOrderNo,vcTargetYear,vcTargetMonth,vcTargetDay,vcOrderType,vcOrderState,vcMemo,dUploadDate,dCreateDate,vcFilePath");
-                sbr.AppendLine("FROM TOrderUploadManage");
+                sbr.AppendLine("FROM TOrderUploadManage  WHERE vcOrderShowFlag='1' ");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(");
@@ -36,8 +37,8 @@ namespace DataAccess
                 sbr.AppendLine(") b ON a.vcOrderState = b.vcValue");
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C045'");
-                sbr.AppendLine(") c ON a.vcOrderType = c.vcValue");
+                sbr.AppendLine("SELECT vcOrderDifferentiation,vcOrderInitials FROM TOrderDifferentiation");
+                sbr.AppendLine(") c ON a.vcOrderType = c.vcOrderInitials");
                 sbr.AppendLine("WHERE 1=1");
                 if (!string.IsNullOrWhiteSpace(orderState))
                 {
@@ -72,39 +73,14 @@ namespace DataAccess
                 throw ex;
             }
         }
-
         #endregion
 
-        #region 撤销
-
-        public void cancelFile(List<Dictionary<string, Object>> list, string strUserId)
-        {
-            try
-            {
-                StringBuilder sbr = new StringBuilder();
-                for (int i = 0; i < list.Count; i++)
-                {
-                    int iAutoId = Convert.ToInt32(list[i]["iAutoId"]);
-                    sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '2' ,vcOperatorID = '" + strUserId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
 
 
-                    //删除订单表中该订单数据
-                }
 
-                if (sbr.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
 
         #region 生成
-        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, ref string msg)
+        public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage)
         {
             try
             {
@@ -119,289 +95,308 @@ namespace DataAccess
                 DataTable dockTmp = getDockTable();
                 //获取soq验收数量
                 DataTable SoqDt = getSoqDt(TargetYM);
+                DataRow[] drArrayN = SoqDt.Select("vcInOutFlag='0'"); //0 內制 1外制
+                DataRow[] drArrayW = SoqDt.Select("vcInOutFlag='1'"); //0 內制 1外制
+                DataRow[] drArrayTmp = drArrayN;
+
                 //获取包装厂
                 DataTable PackSpot = getPackSpot();
                 //获取包装工厂
                 string vcPackingFactory = getFactory();
 
+
+
+
                 //读取文件
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    string msg = "";
                     //读取Order
                     Order order = GetPartFromFile(path + listInfoData[i]["vcFilePath"].ToString(), listInfoData[i]["vcOrderNo"].ToString(), ref msg);
                     string vcOrderNo = order.Head.No;
-                    DateTime LastTime = DateTime.ParseExact(listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                    LastTime.AddMonths(1).AddDays(-1);
-                    if (!string.IsNullOrWhiteSpace(msg))
-                    {
-                        return false;
-                    }
+                    DateTime Time = DateTime.ParseExact(listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
+                    DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                     StringBuilder sbr = new StringBuilder();
 
-                    if (listInfoData[i]["vcOrderType"].Equals("S"))
+                    if (listInfoData[i]["vcOrderType"].Equals("月度订单"))
                     {
                         string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
 
+
+                        #region 月度校验
+                        int No = 1;
+                        string strInOutflag = string.Empty;
+                        Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                         foreach (Detail detail in order.Details)
                         {
                             string tmp = "";
                             string vcPart_id = detail.PartsNo.Trim();
                             string CPD = detail.CPD.Trim();
                             string vcSeqno = detail.ItemNo.Trim();
-                            string vcDock = "";
                             string vcSupplierId = "";
-                            string vcCarType = "";
-                            string vcPartId_Replace = "";
                             string inout = "";
-
-                            DataRow[] packingSpotRow = PackSpot.Select("vcPart_id = '" + vcPart_id + "' AND vcReceiver = '" + CPD + "' AND vcSupplierId = '" + vcSupplierId + "' AND vcPackingPlant = '" + vcPackingFactory + "'");
-
-                            string packingSpot = packingSpotRow[0]["vcBZPlant"].ToString();
-                            DataRow[] rows = SoqDt.Select(" vcPart_id = '" + vcPart_id + "' ");
-
-                            string dateTime = detail.Date.Trim();
-                            string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
-                            Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
-                            if (hashtable.Keys.Count > 0)
-                            {
-                                inout = hashtable["vcInOut"].ToString();
-                                vcDock = hashtable["vcSufferIn"].ToString();
-                                vcSupplierId = hashtable["vcSupplierId"].ToString();
-                                vcCarType = hashtable["vcCarfamilyCode"].ToString();
-                                vcPartId_Replace = hashtable["vcPartId_Replace"].ToString();
-                            }
-                            else
-                            {
-                                tmp += "品番基础数据表不包含品番" + vcPart_id + ";\r\n";
-                            }
-
-                            //新增订单
-                            sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily1,vcPlantQtyDaily2,vcPlantQtyDaily3,vcPlantQtyDaily4,vcPlantQtyDaily5,vcPlantQtyDaily6,vcPlantQtyDaily7,vcPlantQtyDaily8,vcPlantQtyDaily9,vcPlantQtyDaily10,vcPlantQtyDaily11,vcPlantQtyDaily12,vcPlantQtyDaily13,vcPlantQtyDaily14,vcPlantQtyDaily15,vcPlantQtyDaily16,vcPlantQtyDaily17,vcPlantQtyDaily18,vcPlantQtyDaily19,vcPlantQtyDaily20,vcPlantQtyDaily21,vcPlantQtyDaily22,vcPlantQtyDaily23,vcPlantQtyDaily24,vcPlantQtyDaily25,vcPlantQtyDaily26,vcPlantQtyDaily27,vcPlantQtyDaily28,vcPlantQtyDaily29,vcPlantQtyDaily30,vcPlantQtyDaily31,  vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime)");
-                            sbr.Append(" VALUES( ");
-                            sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(OrderTargetYM, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcDock, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(CPD, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue('S', false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcOrderNo, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcSeqno, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(dateTime, true) + ",");
-                            sbr.Append("GetDate(),");
-                            sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(inout, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcCarType, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcPartId_Replace, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(packingSpot, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD1"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD2"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD3"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD4"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD5"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD6"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD7"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD8"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD9"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD10"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD11"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD12"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD13"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD14"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD15"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD16"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD17"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD18"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD19"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD20"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD21"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD22"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD23"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD24"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD25"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD26"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD27"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD28"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD29"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD30"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue(rows[0]["iD31"], true) + ",");
-                            sbr.Append(ComFunction.getSqlValue('0', false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(LastTime, true) + ",");
-                            sbr.Append("'" + vcSupplierId + "',");
-                            sbr.Append("GetDate(),");
-                        }
-
-
-                        //N+1
-                        DateTime N1 = LastTime.AddMonths(1);
-                        sbr.AppendLine("DECLARE @TargetYM VARCHAR(6)");
-                        sbr.AppendLine("DECLARE @startTime DATETIME");
-                        sbr.AppendLine("DECLARE @endTime DATETIME");
-                        sbr.AppendLine("SET @TargetYM = '" + N1.ToString("yyyyMM") + "'");
-                        sbr.AppendLine("SET @startTime = CONVERT(DATETIME,@TargetYM+'01')");
-                        sbr.AppendLine("SET @endTime = DATEADD(DAY,-1,DATEADD(Month,1,@startTime))");
-                        sbr.AppendLine("DELETE TNeiShi WHERE TARGETMONTH = @TargetYM");
-                        sbr.AppendLine("INSERT INTO TNeiShi(CPDCOMPANY, dInputDate, TARGETMONTH, PARTSNO, CARFAMCODE, INOUTFLAG, SUPPLIERCODE, iSupplierPlant, DOCK, RESULTQTYTOTAL, varInputUser, vcOperatorID, dOperatorTime)");
-                        sbr.AppendLine("SELECT a.*,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
-                        sbr.AppendLine("(");
-                        sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = '202104' AND vcMakingOrderType = '0'");
-                        sbr.AppendLine(") A");
-                        sbr.AppendLine("LEFT JOIN ");
-                        sbr.AppendLine("(");
-                        sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn FROM");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) a");
-                        sbr.AppendLine("	LEFT JOIN");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SufferIn WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
-                        sbr.AppendLine("	");
-                        sbr.AppendLine("	WHERE  b.vcSufferIn IS NOT NULL ");
-                        sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId ");
-                        sbr.AppendLine("LEFT JOIN");
-                        sbr.AppendLine("(");
-                        sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant FROM");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) a");
-                        sbr.AppendLine("	LEFT JOIN");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
-                        sbr.AppendLine("	WHERE b.vcSupplierPlant IS NOT NULL ");
-                        sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId ");
-
-
-                        //N+2
-
-                        DateTime N2 = LastTime.AddMonths(2);
-                        sbr.AppendLine("DECLARE @TargetYM VARCHAR(6)");
-                        sbr.AppendLine("DECLARE @startTime DATETIME");
-                        sbr.AppendLine("DECLARE @endTime DATETIME");
-                        sbr.AppendLine("SET @TargetYM = '" + N2.ToString("yyyyMM") + "'");
-                        sbr.AppendLine("SET @startTime = CONVERT(DATETIME,@TargetYM+'01')");
-                        sbr.AppendLine("SET @endTime = DATEADD(DAY,-1,DATEADD(Month,1,@startTime))");
-                        sbr.AppendLine("DELETE TNeiShi WHERE TARGETMONTH = @TargetYM");
-                        sbr.AppendLine("INSERT INTO TNeiShi(CPDCOMPANY, dInputDate, TARGETMONTH, PARTSNO, CARFAMCODE, INOUTFLAG, SUPPLIERCODE, iSupplierPlant, DOCK, RESULTQTYTOTAL, varInputUser, vcOperatorID, dOperatorTime)");
-                        sbr.AppendLine("SELECT a.*,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
-                        sbr.AppendLine("(");
-                        sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = '202104' AND vcMakingOrderType = '0'");
-                        sbr.AppendLine(") A");
-                        sbr.AppendLine("LEFT JOIN ");
-                        sbr.AppendLine("(");
-                        sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn FROM");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) a");
-                        sbr.AppendLine("	LEFT JOIN");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SufferIn WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
-                        sbr.AppendLine("	");
-                        sbr.AppendLine("	WHERE  b.vcSufferIn IS NOT NULL ");
-                        sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId ");
-                        sbr.AppendLine("LEFT JOIN");
-                        sbr.AppendLine("(");
-                        sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant FROM");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) a");
-                        sbr.AppendLine("	LEFT JOIN");
-                        sbr.AppendLine("	(");
-                        sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
-                        sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
-                        sbr.AppendLine("	WHERE b.vcSupplierPlant IS NOT NULL ");
-                        sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId ");
-
-                        if (!string.IsNullOrWhiteSpace(msg))
-                        {
-                            return false;
-                        }
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-
-                        //修改状态
-                        sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
-
-                    }
-                    else if (listInfoData[i]["vcOrderType"].Equals("D"))
-                    {
-
-                    }
-                    else if (listInfoData[i]["vcOrderType"].Equals("H") || listInfoData[i]["vcOrderType"].Equals("F") || listInfoData[i]["vcOrderType"].Equals("C"))
-                    {
-                        string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
-
-                        foreach (Detail detail in order.Details)
-                        {
-                            string tmp = "";
-                            string vcPart_id = detail.PartsNo.Trim();
-                            string CPD = detail.CPD.Trim();
-                            string vcSeqno = detail.ItemNo.Trim();
-                            string vcDock = "";
-                            string vcSupplierId = "";
-                            string vcCarType = "";
-                            string vcPartId_Replace = "";
-                            string inout = "";
+                            string vcSupplierPlant = "";//工区
+                            string vcSupplierPlace = "";//出荷场
+                            string vcOrderNum = detail.QTY;
                             string vcOrderingMethod = "";
 
                             string dateTime = detail.Date.Trim();
                             string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
-                            string Field = "vcPlantQtyDaily" + Day;
                             //检测品番表是否存在该品番
                             Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
                             if (hashtable.Keys.Count > 0)
                             {
-                                inout = hashtable["vcInOut"].ToString();
-                                vcDock = hashtable["vcSufferIn"].ToString();
-                                vcSupplierId = hashtable["vcSupplierId"].ToString();
-                                vcCarType = hashtable["vcCarfamilyCode"].ToString();
-                                vcPartId_Replace = hashtable["vcPartId_Replace"].ToString();
-                                vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
+                                inout = ObjToString(hashtable["vcInOut"]);
+                                vcSupplierId = ObjToString(hashtable["vcSupplierId"]);
+                                vcSupplierPlant = ObjToString(hashtable["vcSupplierPlant"]);
+                                vcSupplierPlace = ObjToString(hashtable["vcSupplierPlace"]);
+                                vcOrderingMethod = ObjToString(hashtable["vcOrderingMethod"]);
+
+
+                                //验证品番个数 及其总数 以及内外区分
+                                if (No == 1)
+                                {
+                                    strInOutflag = inout;
+                                    if (inout == "1")
+                                    {
+                                        drArrayTmp = drArrayW;
+                                    }
+                                }
+                                else
+                                {
+                                    if (inout != strInOutflag) //判定此次文件的内外区分是否一致
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcOrder"] = vcOrderNo;
+                                        dataRow["vcPartNo"] = vcPart_id;
+                                        dataRow["vcMessage"] = vcOrderNo + "文件中的品番" + vcPart_id + "与第一个品番的内外区分不一样";
+                                        dtMessage.Rows.Add(dataRow);
+                                        bReault = false;
+                                    }
+                                }
+                                // 判定品番是否在临时品番里面
+                                bool isExist = false;
+                                for (int m = 0; m < drArrayTmp.Length; m++)
+                                {
+                                    if (drArrayTmp[m]["vcPart_id"].ToString() == vcPart_id)
+                                    {
+                                        isExist = true;
+                                        break;
+                                    }
+                                }
+                                if (!isExist)
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = vcOrderNo;
+                                    dataRow["vcPartNo"] = vcPart_id;
+                                    dataRow["vcMessage"] = vcOrderNo + "文件中的品番" + vcPart_id + "解析的内外区分与主数据该品番的内外不对应";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
+                                if (!dicPartNo.ContainsKey(vcPart_id))
+                                {
+                                    dicPartNo.Add(vcPart_id, vcPart_id);
+                                }
+
+                                ////检测数量
+                                if (SoqDt.Rows.Count > 0)
+                                {
+                                    if (!CheckTotalNumEqual(OrderTargetYM, vcPart_id, vcOrderingMethod, SoqDt, detail.QTY))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcOrder"] = vcOrderNo;
+                                        dataRow["vcPartNo"] = vcPart_id;
+                                        dataRow["vcMessage"] = vcOrderNo + "文件中的品番" + vcPart_id + "订单数量不正确";
+                                        dtMessage.Rows.Add(dataRow);
+                                        bReault = false;
+                                    }
+                                }
+                                else
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = vcOrderNo;
+                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcMessage"] = OrderTargetYM + "月的月度Replay的数据为0条";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
+
                             }
                             else
                             {
-                                tmp += "品番基础数据表不包含品番" + vcPart_id + ";\r\n";
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = vcOrderNo;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = vcOrderNo + "文件中品番基础数据表不包含品番" + vcPart_id;
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
                             }
-
-                            if (!string.IsNullOrWhiteSpace(tmp))
-                            {
-                                msg += tmp;
-                                continue;
-                            }
-
-                            sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory,vcTargetYearMonth,vcDock,vcCpdcompany,vcOrderType,vcOrderNo,vcSeqno,dOrderDate,dOrderExportDate,vcPartNo,vcInsideOutsideType,vcCarType,vcLastPartNo,vcSupplier_id,vcOperatorID,dOperatorTime, ");
-                            sbr.Append(Field + ") VALUES");
-                            sbr.Append("(");
-                            sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(OrderTargetYM, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcDock, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(CPD, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcOrderType"], false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcOrderNo, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcSeqno, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(detail.Date, true) + ",");
-                            sbr.Append("GETDATE(),");
-                            sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(inout, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcCarType, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcPartId_Replace, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
-                            sbr.Append(ComFunction.getSqlValue(userId, false) + ",");
-                            sbr.Append("GETDATE(),");
-                            sbr.Append(ComFunction.getSqlValue(Convert.ToInt32(detail.QTY), false));
-                            sbr.Append(") \r\n");
                         }
-
-                        if (!string.IsNullOrWhiteSpace(msg))
+                        if (dicPartNo.Count != drArrayTmp.Length)
                         {
-                            return false;
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcOrder"] = vcOrderNo;
+                            dataRow["vcPartNo"] = "";
+                            dataRow["vcMessage"] = vcOrderNo + "文件的品番个数与月度replay的品番个数不一样";
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
                         }
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                        //修改状态
-                        sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
+                        #endregion
 
+                        if (bReault)
+                        {
+                            foreach (Detail detail in order.Details)
+                            {
+                                string tmp = "";
+                                string vcPart_id = detail.PartsNo.Trim();
+                                string CPD = detail.CPD.Trim();
+                                string vcSeqno = detail.ItemNo.Trim();
+                                string vcDock = "";
+                                string vcSupplierId = "";
+                                string vcCarType = "";
+                                string vcPartId_Replace = "";
+                                string inout = "";
+                                string packingSpot = "";
+                                DataRow[] packingSpotRow = PackSpot.Select("vcPart_id = '" + vcPart_id + "' AND vcReceiver = '" + CPD + "' AND vcSupplierId = '" + vcSupplierId + "' AND vcPackingPlant = '" + vcPackingFactory + "'");
+
+                                if (packingSpotRow.Length > 0)
+                                {
+                                    packingSpot = ObjToString(packingSpotRow[0]["vcBZPlant"]);
+                                }
+
+
+                                DataRow[] rows = SoqDt.Select(" vcPart_id = '" + vcPart_id + "' ");
+
+                                string dateTime = detail.Date.Trim();
+                                string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                                Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+
+                                inout = ObjToString(hashtable["vcInOut"]);
+                                vcDock = ObjToString(hashtable["vcSufferIn"]);
+                                vcSupplierId = ObjToString(hashtable["vcSupplierId"]);
+                                vcCarType = ObjToString(hashtable["vcCarfamilyCode"]);
+                                vcPartId_Replace = ObjToString(hashtable["vcPartId_Replace"]);
+
+                                //新增订单
+                                sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily1,vcPlantQtyDaily2,vcPlantQtyDaily3,vcPlantQtyDaily4,vcPlantQtyDaily5,vcPlantQtyDaily6,vcPlantQtyDaily7,vcPlantQtyDaily8,vcPlantQtyDaily9,vcPlantQtyDaily10,vcPlantQtyDaily11,vcPlantQtyDaily12,vcPlantQtyDaily13,vcPlantQtyDaily14,vcPlantQtyDaily15,vcPlantQtyDaily16,vcPlantQtyDaily17,vcPlantQtyDaily18,vcPlantQtyDaily19,vcPlantQtyDaily20,vcPlantQtyDaily21,vcPlantQtyDaily22,vcPlantQtyDaily23,vcPlantQtyDaily24,vcPlantQtyDaily25,vcPlantQtyDaily26,vcPlantQtyDaily27,vcPlantQtyDaily28,vcPlantQtyDaily29,vcPlantQtyDaily30,vcPlantQtyDaily31,  vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcInputQtyDailySum,vcResultQtyDailySum)");
+                                sbr.Append(" VALUES( ");
+                                sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(OrderTargetYM, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcDock, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(CPD, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue('S', false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcOrderNo, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcSeqno, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(dateTime, true) + ",");
+                                sbr.Append("GetDate(),");
+                                sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(inout, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcCarType, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcPartId_Replace, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(packingSpot, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD1"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD2"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD3"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD4"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD5"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD6"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD7"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD8"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD9"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD10"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD11"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD12"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD13"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD14"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD15"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD16"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD17"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD18"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD19"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD20"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD21"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD22"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD23"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD24"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD25"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD26"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD27"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD28"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD29"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD30"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iD31"], true) + ",");
+                                sbr.Append(ComFunction.getSqlValue('0', false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(LastTime, true) + ",");
+                                sbr.Append("'" + vcSupplierId + "',");
+                                sbr.Append("GetDate(),");
+                                sbr.Append(ComFunction.getSqlValue(rows[0]["iPartNums"], true) + ",");
+                                sbr.Append("'0','0') \r\n");
+                            }
+
+                            //进入内示
+                            sbr.AppendLine(MonthToNeishi(Time, userId));
+                            //修改状态
+                            int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                            sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
+
+                        }
+
+                    }
+                    else if (listInfoData[i]["vcOrderType"].Equals("紧急订单"))
+                    {
+
+                        #region 紧急检测
+                        string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
+
+
+
+                        //判断头
+                        foreach (Detail detail in order.Details)
+                        {
+                            string tmp = "";
+                            string vcPart_id = detail.PartsNo.Trim();
+                            string CPD = detail.CPD.Trim();
+                            string vcSeqno = detail.ItemNo.Trim();
+                            string vcSupplierId = "";
+                            //string vcCarType = "";
+                            //string vcPartId_Replace = "";
+                            //string inout = "";
+                            string vcSupplierPlant = "";//工区
+                            string vcSupplierPlace = "";//出荷场
+                            string vcOrderNum = detail.QTY;
+                            string vcOrderingMethod = "";
+
+                            string dateTime = detail.Date.Trim();
+                            string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                            //检测品番表是否存在该品番
+                            Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                            if (hashtable.Keys.Count == 0)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = vcOrderNo;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = vcOrderNo + "文件中品番基础数据表不包含品番" + vcPart_id;
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+
+
+
+                        #endregion
+                    }
+
+                    DataRow dataRow1 = dtMessage.NewRow();
+                    dataRow1["vcOrder"] = vcOrderNo;
+                    dataRow1["vcPartNo"] = "";
+                    dataRow1["vcMessage"] = vcOrderNo + "文件的品番个数与月度replay的品番个数不一样";
+                    dtMessage.Rows.Add(dataRow1);
+                    if (dtMessage.Rows.Count > 0)
+                    {
+                        return false;
                     }
 
                     if (sbr.Length > 0)
@@ -417,6 +412,110 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #endregion
+
+
+
+        #region 月度订单传入内示
+
+        public string MonthToNeishi(DateTime time, string userId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                //N+1
+                DateTime N1 = time.AddMonths(1);
+
+                DateTime CL = time.AddMonths(-1);
+                sbr.AppendLine("DECLARE @TargetYM VARCHAR(6)");
+                sbr.AppendLine("DECLARE @CLYM VARCHAR(6)");
+                sbr.AppendLine("DECLARE @startTime DATETIME");
+                sbr.AppendLine("DECLARE @endTime DATETIME");
+                sbr.AppendLine("SET @TargetYM = '" + N1.ToString("yyyyMM") + "'");
+                sbr.AppendLine("SET @CLYM = '" + CL.ToString("yyyyMM") + "'");
+                sbr.AppendLine("SET @startTime = CONVERT(DATETIME,@TargetYM+'01')");
+                sbr.AppendLine("SET @endTime = DATEADD(DAY,-1,DATEADD(Month,1,@startTime))");
+                sbr.AppendLine("DELETE TNeiShi WHERE TARGETMONTH = @TargetYM");
+                sbr.AppendLine("INSERT INTO TNeiShi(CPDCOMPANY, dInputDate, TARGETMONTH, PARTSNO, CARFAMCODE, INOUTFLAG, SUPPLIERCODE, iSupplierPlant, DOCK, RESULTQTYTOTAL, varInputUser, vcOperatorID, dOperatorTime)");
+                sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
+                sbr.AppendLine("(");
+                //sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = @TargetYM  AND vcCLYM = @CLYM AND vcMakingOrderType = '0'");
+                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
+                sbr.AppendLine(") A");
+                sbr.AppendLine("LEFT JOIN ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn FROM");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) a");
+                sbr.AppendLine("	LEFT JOIN");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SufferIn WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
+                sbr.AppendLine("	");
+                sbr.AppendLine("	WHERE  b.vcSufferIn IS NOT NULL ");
+                sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId ");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant FROM");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) a");
+                sbr.AppendLine("	LEFT JOIN");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
+                sbr.AppendLine("	WHERE b.vcSupplierPlant IS NOT NULL ");
+                sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId ");
+
+
+                //N+2
+
+                DateTime N2 = time.AddMonths(2);
+
+                sbr.AppendLine("SET @TargetYM = '" + N2.ToString("yyyyMM") + "'");
+                sbr.AppendLine("SET @startTime = CONVERT(DATETIME,@TargetYM+'01')");
+                sbr.AppendLine("SET @endTime = DATEADD(DAY,-1,DATEADD(Month,1,@startTime))");
+                sbr.AppendLine("DELETE TNeiShi WHERE TARGETMONTH = @TargetYM");
+                sbr.AppendLine("INSERT INTO TNeiShi(CPDCOMPANY, dInputDate, TARGETMONTH, PARTSNO, CARFAMCODE, INOUTFLAG, SUPPLIERCODE, iSupplierPlant, DOCK, RESULTQTYTOTAL, varInputUser, vcOperatorID, dOperatorTime)");
+                sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
+                sbr.AppendLine("(");
+                //sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = @TargetYM  AND vcCLYM = @CLYM AND vcMakingOrderType = '0'");
+                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
+                sbr.AppendLine(") A");
+                sbr.AppendLine("LEFT JOIN ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn FROM");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) a");
+                sbr.AppendLine("	LEFT JOIN");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SufferIn WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
+                sbr.AppendLine("	");
+                sbr.AppendLine("	WHERE  b.vcSufferIn IS NOT NULL ");
+                sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId ");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant FROM");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) a");
+                sbr.AppendLine("	LEFT JOIN");
+                sbr.AppendLine("	(");
+                sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
+                sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
+                sbr.AppendLine("	WHERE b.vcSupplierPlant IS NOT NULL ");
+                sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId ");
+                return sbr.ToString();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
         #region 读取txt
@@ -448,7 +547,7 @@ namespace DataAccess
                     detail.Date = temp.Substring(6, 8);
                     detail.Type = temp.Substring(14, 8);
                     detail.ItemNo = temp.Substring(22, 4);
-                    detail.PartsNo = temp.Substring(26, 12);
+                    detail.PartsNo = temp.Substring(26, 12).Replace(" ", "0");
                     detail.QTY = temp.Substring(41, 7);
                     detail.Price = temp.Substring(48, 9);
                     details.Add(detail);
@@ -542,28 +641,27 @@ namespace DataAccess
         #endregion
 
         #region 获取soq数量
-
         public DataTable getSoqDt(List<string> TargetYM)
         {
             try
             {
-                string target = "";
+                StringBuilder sql = new StringBuilder();
                 foreach (string s in TargetYM)
                 {
-                    if (!string.IsNullOrWhiteSpace(target))
+                    DateTime t2;
+                    DateTime.TryParseExact(s + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                    string CLYM = t2.AddMonths(-1).ToString("yyyyMM");
+                    if (sql.Length > 0)
                     {
-                        target += ",'" + s + "'";
+                        sql.Append(" OR ");
                     }
-                    else
-                    {
-                        target += "'" + s + "'";
-                    }
+                    sql.Append("(vcDXYM = '" + s + "' AND vcCLYM = '" + CLYM + "')");
                 }
 
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(" SELECT vcPart_id,vcInOutFlag,vcDXYM,vcFZGC,vcCarType,vcMakingOrderType,iPartNums,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31 FROM TSOQReply");
-                sbr.AppendLine(" WHERE ");
-                sbr.AppendLine(" vcDXYM in (" + target + ") ");
+                sbr.AppendLine(" WHERE vcMakingOrderType = '0' AND ");
+                sbr.AppendLine(sql.ToString());
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 return dt;
             }
@@ -754,5 +852,36 @@ namespace DataAccess
         }
 
         #endregion
+
+        #region 获取订单类型
+
+        public DataTable getType()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcOrderDifferentiation AS vcName,vcOrderInitials AS vcValue FROM TOrderDifferentiation");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        public string ObjToString(Object obj)
+        {
+            try
+            {
+                return obj.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
     }
 }

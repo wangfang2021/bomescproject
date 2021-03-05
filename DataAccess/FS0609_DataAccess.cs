@@ -168,45 +168,65 @@ namespace DataAccess
             }
         }
 
-        public string CopyTo(string vcPlantFrom, List<string> vcPlantTo, string vcMon, string strUserId)
+        public string CopyTo(string vcPlantFrom, List<string> vcPlantTo, List<string> vcMon, string strUserId)
         {
             try
             {
-                string sql = "select iAutoId from TCalendar_PingZhun_Nei where vcFZGC='" + vcPlantFrom + "' and TARGETMONTH='" + vcMon + "';";
-                DataTable ckb1 = excute.ExcuteSqlWithSelectToDT(sql);
-                if (!(ckb1 != null && ckb1.Rows.Count > 0))
+                string sql = string.Empty;
+                for (int i = 0; i < vcMon.Count; i++)
                 {
-                    return "所复制的工厂和月份不存在！";
+                    sql = "select iAutoId from TCalendar_PingZhun_Nei where vcFZGC='" + vcPlantFrom + "' and TARGETMONTH='" + vcMon[i] + "';";
+                    DataTable ckb1 = excute.ExcuteSqlWithSelectToDT(sql);
+                    if (!(ckb1 != null && ckb1.Rows.Count > 0))
+                        return "所复制的" + vcPlantFrom + "工厂、" + vcMon[i] + "月日历不存在！";
                 }
-                string sql_insert = "";
+                sql = "";
                 for (int i = 0; i < vcPlantTo.Count; i++)
                 {
-                    sql = "select b.vcName from TCalendar_PingZhun_Nei a " +
-                          "left join(select vcName, vcValue from TCode where vcCodeId= 'C000') b " +
-                          "on a.vcFZGC = b.vcValue " +
-                          "where a.vcFZGC='" + vcPlantTo[i] + "' and a.TARGETMONTH='" + vcMon + "';";
-                    DataTable ckb2 = excute.ExcuteSqlWithSelectToDT(sql);
-                    if (ckb2 != null && ckb2.Rows.Count > 0)
+                    if (vcPlantTo[i] != vcPlantFrom)//源工厂与目标工厂不相同，即可复制
                     {
-                        return ckb2.Rows[0][0].ToString() + vcMon + "月已存在，不能复制！";
-                    }
-                    else
-                    {
-                        sql_insert += "insert into TCalendar_PingZhun_Nei (" +
-                                      "vcFZGC, TARGETMONTH, TARGETDAY1, TARGETDAY2, TARGETDAY3, TARGETDAY4, TARGETDAY5, TARGETDAY6, TARGETDAY7, TARGETDAY8, " +
-                                      "TARGETDAY9, TARGETDAY10, TARGETDAY11, TARGETDAY12, TARGETDAY13, TARGETDAY14, TARGETDAY15, TARGETDAY16, TARGETDAY17, TARGETDAY18, " +
-                                      "TARGETDAY19, TARGETDAY20, TARGETDAY21, TARGETDAY22, TARGETDAY23, TARGETDAY24, TARGETDAY25, TARGETDAY26, TARGETDAY27, TARGETDAY28, " +
-                                      "TARGETDAY29, TARGETDAY30, TARGETDAY31, TOTALWORKDAYS, DADDTIME, CUPDUSER) " +
-                                      "select '" + vcPlantTo[i] + "', '" + vcMon + "', TARGETDAY1, TARGETDAY2, TARGETDAY3, TARGETDAY4, TARGETDAY5, TARGETDAY6, TARGETDAY7, TARGETDAY8, " +
-                                      "TARGETDAY9, TARGETDAY10, TARGETDAY11, TARGETDAY12, TARGETDAY13, TARGETDAY14, TARGETDAY15, TARGETDAY16, TARGETDAY17, TARGETDAY18, " +
-                                      "TARGETDAY19, TARGETDAY20, TARGETDAY21, TARGETDAY22, TARGETDAY23, TARGETDAY24, TARGETDAY25, TARGETDAY26, TARGETDAY27, TARGETDAY28, " +
-                                      "TARGETDAY29, TARGETDAY30, TARGETDAY31, TOTALWORKDAYS, '" + DateTime.Now.ToString() + "','" + strUserId + "' from TCalendar_PingZhun_Nei " +
-                                      "where TARGETMONTH = '" + vcMon + "' and vcFZGC = '" + vcPlantFrom + "';";
+                        for (int j = 0; j < vcMon.Count; j++)
+                        {
+                            sql += "delete from TCalendar_PingZhun_Nei where vcFZGC='" + vcPlantTo[i] + "' and TARGETMONTH='" + vcMon[j] + "';";
+                            sql += "insert into TCalendar_PingZhun_Nei (" +
+                                    "vcFZGC, TARGETMONTH, TARGETDAY1, TARGETDAY2, TARGETDAY3, TARGETDAY4, TARGETDAY5, TARGETDAY6, TARGETDAY7, TARGETDAY8, " +
+                                    "TARGETDAY9, TARGETDAY10, TARGETDAY11, TARGETDAY12, TARGETDAY13, TARGETDAY14, TARGETDAY15, TARGETDAY16, TARGETDAY17, TARGETDAY18, " +
+                                    "TARGETDAY19, TARGETDAY20, TARGETDAY21, TARGETDAY22, TARGETDAY23, TARGETDAY24, TARGETDAY25, TARGETDAY26, TARGETDAY27, TARGETDAY28, " +
+                                    "TARGETDAY29, TARGETDAY30, TARGETDAY31, TOTALWORKDAYS, DADDTIME, CUPDUSER) " +
+                                    "select '" + vcPlantTo[i] + "', '" + vcMon[j] + "', TARGETDAY1, TARGETDAY2, TARGETDAY3, TARGETDAY4, TARGETDAY5, TARGETDAY6, TARGETDAY7, TARGETDAY8, " +
+                                    "TARGETDAY9, TARGETDAY10, TARGETDAY11, TARGETDAY12, TARGETDAY13, TARGETDAY14, TARGETDAY15, TARGETDAY16, TARGETDAY17, TARGETDAY18, " +
+                                    "TARGETDAY19, TARGETDAY20, TARGETDAY21, TARGETDAY22, TARGETDAY23, TARGETDAY24, TARGETDAY25, TARGETDAY26, TARGETDAY27, TARGETDAY28, " +
+                                    "TARGETDAY29, TARGETDAY30, TARGETDAY31, TOTALWORKDAYS, '" + DateTime.Now.ToString() + "','" + strUserId + "' from TCalendar_PingZhun_Wai " +
+                                    "where TARGETMONTH = '" + vcMon[j] + "' and vcFZGC = '" + vcPlantFrom + "';";
+                        }
                     }
                 }
-                if (excute.ExecuteSQLNoQuery(sql_insert) <= 0)
-                    return "复制失败！";
-                return string.Empty;
+                if (sql == "")
+                {
+                    return "不能从同一工厂复制到同一工厂！";
+                }
+                using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
+                {
+                    if (conn.State != ConnectionState.Open)
+                        conn.Open();
+                    SqlTransaction trans = conn.BeginTransaction();
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = conn;
+                    cmd.CommandText = sql;
+                    cmd.Transaction = trans;
+                    int inums;
+                    try
+                    {
+                        inums = cmd.ExecuteNonQuery();
+                        trans.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        trans.Rollback();
+                        throw ex;
+                    }
+                    return inums > 0 ? "" : "复制工作日历失败！";
+                }
             }
             catch (Exception ex)
             {

@@ -22,28 +22,28 @@ namespace Logic
 
         public JObject Search(DateTime varDxny, string varFZGC)
         {
-            JObject data = new JObject {};
+            JObject data = new JObject { };
+            string vcYM = varDxny.ToString("yyyyMM");
+            string vcYM1 = varDxny.AddMonths(1).ToString("yyyyMM");
+            string vcYM2 = varDxny.AddMonths(2).ToString("yyyyMM");
 
-             DataTable re = fs0609_DataAccess.Search(varDxny, varFZGC);
+            DataTable re = fs0609_DataAccess.SearchData(varDxny, varFZGC);
+            DataTable re1 = fs0609_DataAccess.SearchData(varDxny.AddMonths(1), varFZGC);
+            DataTable re2 = fs0609_DataAccess.SearchData(varDxny.AddMonths(2), varFZGC);
 
-            string[] dxnyArray = new string[]
-                { varDxny.ToString("yyyyMM"),
-                  varDxny.AddMonths(1).ToString("yyyyMM"),
-                  varDxny.AddMonths(2).ToString("yyyyMM")
-                };
-
-            for (int i = 0; i < dxnyArray.Length; i++)
+            #region 第1个月
+            if (re != null && re.Rows.Count > 0)
             {
                 for (int j = 0; j < re.Rows.Count; j++)
                 {
-                    if (dxnyArray[i] == re.Rows[j]["TARGETMONTH"].ToString())
+                    if (vcYM == re.Rows[j]["TARGETMONTH"].ToString())
                     {
-
                         string[] dayTempalte = new string[31];
                         string[] weekTempalte = new string[31];
                         for (int k = 0; k < re.Columns.Count - 2; k++)
                         {
-                            if (!string.IsNullOrEmpty(re.Rows[j][k].ToString())) {
+                            if (!string.IsNullOrEmpty(re.Rows[j][k].ToString()))
+                            {
                                 //单值
                                 if (re.Rows[j][k].ToString().Contains("*"))
                                 {
@@ -55,7 +55,6 @@ namespace Logic
                                     dayTempalte[k] = "休";
                                 }
                                 //双值
-             
                                 else
                                 {
                                     dayTempalte[k] = "双";
@@ -64,13 +63,111 @@ namespace Logic
                                 weekTempalte[k] = re.Rows[j][k].ToString()[0].ToString();
                             }
                         }
-                        data["dayTypeValsN" + (i == 0 ? "" : i.ToString())] = new JArray(dayTempalte);
-                        data["weekTypeValsN" + (i == 0 ? "" : i.ToString())] = new JArray(weekTempalte);
-                        data["totalWorkDaysN" + (i == 0 ? "" : i.ToString())] = re.Rows[j]["TOTALWORKDAYS"].ToString();
+                        data["dayTypeValsN"] = new JArray(dayTempalte);
+                        data["weekTypeValsN"] = new JArray(weekTempalte);
+                        data["totalWorkDaysN"] = re.Rows[j]["TOTALWORKDAYS"].ToString();
                     }
                 }
             }
+            else
+            {
+                data["dayTypeValsN"] = "";
+                data["weekTypeValsN"] = "";
+                data["totalWorkDaysN"] = "";
+            }
+            #endregion
 
+            #region 第2个月
+            if (re1 != null && re1.Rows.Count > 0)
+            {
+                for (int j = 0; j < re1.Rows.Count; j++)
+                {
+                    if (vcYM1 == re1.Rows[j]["TARGETMONTH"].ToString())
+                    {
+                        string[] dayTempalte = new string[31];
+                        string[] weekTempalte = new string[31];
+                        for (int k = 0; k < re1.Columns.Count - 2; k++)
+                        {
+                            if (!string.IsNullOrEmpty(re1.Rows[j][k].ToString()))
+                            {
+                                //单值
+                                if (re1.Rows[j][k].ToString().Contains("*"))
+                                {
+                                    dayTempalte[k] = "单";
+                                }
+                                //休
+                                else if (re1.Rows[j][k].ToString() == "0")
+                                {
+                                    dayTempalte[k] = "休";
+                                }
+                                //双值
+                                else
+                                {
+                                    dayTempalte[k] = "双";
+                                }
+                                //周数（取第一位数字）
+                                weekTempalte[k] = re1.Rows[j][k].ToString()[0].ToString();
+                            }
+                        }
+                        data["dayTypeValsN1"] = new JArray(dayTempalte);
+                        data["weekTypeValsN1"] = new JArray(weekTempalte);
+                        data["totalWorkDaysN1"] = re1.Rows[j]["TOTALWORKDAYS"].ToString();
+                    }
+                }
+            }
+            else
+            {
+                data["dayTypeValsN1"] = "";
+                data["weekTypeValsN1"] = "";
+                data["totalWorkDaysN1"] = "";
+            }
+            #endregion
+
+            #region 第3个月
+            if (re2 != null && re2.Rows.Count > 0)
+            {
+                for (int j = 0; j < re2.Rows.Count; j++)
+                {
+                    if (vcYM2 == re2.Rows[j]["TARGETMONTH"].ToString())
+                    {
+                        string[] dayTempalte = new string[31];
+                        string[] weekTempalte = new string[31];
+                        for (int k = 0; k < re2.Columns.Count - 2; k++)
+                        {
+                            if (!string.IsNullOrEmpty(re2.Rows[j][k].ToString()))
+                            {
+                                //单值
+                                if (re2.Rows[j][k].ToString().Contains("*"))
+                                {
+                                    dayTempalte[k] = "单";
+                                }
+                                //休
+                                else if (re2.Rows[j][k].ToString() == "0")
+                                {
+                                    dayTempalte[k] = "休";
+                                }
+                                //双值
+                                else
+                                {
+                                    dayTempalte[k] = "双";
+                                }
+                                //周数（取第一位数字）
+                                weekTempalte[k] = re2.Rows[j][k].ToString()[0].ToString();
+                            }
+                        }
+                        data["dayTypeValsN2"] = new JArray(dayTempalte);
+                        data["weekTypeValsN2"] = new JArray(weekTempalte);
+                        data["totalWorkDaysN2"] = re2.Rows[j]["TOTALWORKDAYS"].ToString();
+                    }
+                }
+            }
+            else
+            {
+                data["dayTypeValsN2"] = "";
+                data["weekTypeValsN2"] = "";
+                data["totalWorkDaysN2"] = "";
+            }
+            #endregion
 
             return data;
         }
@@ -97,8 +194,10 @@ namespace Logic
             }
 
             //如果不够31，则补齐
-            if (re.Count < 31) {
-                for (int i = 0; i < 31 - re.Count; i++) {
+            if (re.Count < 31)
+            {
+                for (int i = 0; i < 31 - re.Count; i++)
+                {
                     re.Add(null);
                 }
             }

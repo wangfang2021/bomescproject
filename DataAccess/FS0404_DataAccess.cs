@@ -21,7 +21,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcOrderState, string vcInOutFlag,string vcOrderNo, string dTargetDate, string vcOrderType,string userID)
+        public DataTable Search(string vcOrderState, string vcInOutFlag,string vcOrderNo, string dTargetDate, string vcOrderType,string vcMemo,string userID)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace DataAccess
                 strSql.AppendLine("    	when vcOrderType='S' then [vcTargetYear]+'/'+[vcTargetMonth]  ");
                 strSql.AppendLine("    else '' end as [dTargetDate],  ");
                 strSql.AppendLine("  b.vcOrderDifferentiation as [vcOrderType],e.vcName as  vcInOutFlag, case when [vcOrderState]=2 then '撤销' when [vcOrderState]=3 then '已修正' else '已上传' end as vcOrderState, [vcMemo],   ");
-                strSql.AppendLine("  [dUploadDate], [vcFilePath], [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[TOrderUploadManage]  a  ");
+                strSql.AppendLine("  [dUploadDate], [vcFilePath], [vcOperatorID], [dOperatorTime],vcLastOrderNo,'0' as vcModFlag,'0' as vcAddFlag from [dbo].[TOrderUploadManage]  a  ");
                 strSql.AppendLine("  left join (select vcOrderDifferentiation,vcOrderInitials from [dbo].[TOrderDifferentiation] )b on a.vcOrderType= b.vcOrderInitials     ");
                 strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C046' )c on a.vcTargetWeek= c.vcValue      ");
                 strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C003' )e on a.vcInOutFlag= e.vcValue      ");
@@ -65,6 +65,11 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  a.vcOrderType = '" + vcOrderType + "' ");
                 }
+                if (vcMemo.Length>0)
+                {
+                    strSql.AppendLine("  and  a.vcMemo  like  '" + vcMemo + "%' ");
+                }
+
                 strSql.AppendLine("  order by  dOperatorTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -266,8 +271,14 @@ namespace DataAccess
                         fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                         fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
                         DataTable dockTmp = getDockTable();
+                        DataTable dtRiDuCheck = null;
+                        if (vcOrderType == "D")
+                        {
+                            FS0403_DataAccess fs0403DataAccess = new FS0403_DataAccess();
+                            dtRiDuCheck= fs0403DataAccess.getModify(Convert.ToDateTime(dTargetDate));
+                        }
                         //读取文件
-
+                        Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                         string vcPackingFactory = uionCode;
                         string vcOrderNo = fileName;
                         string msg = string.Empty;
@@ -324,6 +335,70 @@ namespace DataAccess
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
                                 }
+                                if (!dicPartNo.ContainsKey(vcPart_id))
+                                {
+                                    dicPartNo.Add(vcPart_id, vcPart_id);
+                                }
+                                else
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = fileName;
+                                    dataRow["vcPartNo"] = vcPart_id;
+                                    dataRow["vcMessage"] = "该品番重复存在！";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
+                                #region 追加日度订单
+                                if (vcOrderType == "D")
+                                {
+                                    if (dtRiDuCheck.Rows.Count == 0)
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcOrder"] = fileName;
+                                        dataRow["vcPartNo"] = "";
+                                        dataRow["vcMessage"] = "当前日的Soq日度订单平准化的品番数量为0条,无法进行日度校验!";
+                                        dtMessage.Rows.Add(dataRow);
+                                        bReault = false;
+                                    }
+                                    else
+                                    {
+                                        DataRow[] drArrayPart = dtRiDuCheck.Select("vcPart_id='"+vcPart_id+"'"); //获取品番的数量
+                                        if (drArrayPart.Length == 0)
+                                        {
+                                            DataRow dataRow = dtMessage.NewRow();
+                                            dataRow["vcOrder"] = fileName;
+                                            dataRow["vcPartNo"] = vcPart_id;
+                                            dataRow["vcMessage"] = "当前日的Soq日度订单平准化未找到该品番!";
+                                            dtMessage.Rows.Add(dataRow);
+                                            bReault = false;
+                                        }
+                                        else
+                                        {
+                                            if (Convert.ToInt32(drArrayPart[0]["DayNum"]) == 0)
+                                            {
+                                                DataRow dataRow = dtMessage.NewRow();
+                                                dataRow["vcOrder"] = fileName;
+                                                dataRow["vcPartNo"] = vcPart_id;
+                                                dataRow["vcMessage"] = "当前日的Soq日度订单平准化品番数量为0!";
+                                                dtMessage.Rows.Add(dataRow);
+                                                bReault = false;
+                                            }
+                                            else
+                                            {
+                                                if (Convert.ToInt32(drArrayPart[0]["DayNum"])!=Convert.ToInt32(vcOrderNum)) {
+                                                    DataRow dataRow = dtMessage.NewRow();
+                                                    dataRow["vcOrder"] = fileName;
+                                                    dataRow["vcPartNo"] = vcPart_id;
+                                                    dataRow["vcMessage"] = "当前日的日度订单与Soq日度订单平准化品番的数量"+ Convert.ToInt32(drArrayPart[0]["DayNum"]) + "无法匹配";
+                                                    dtMessage.Rows.Add(dataRow);
+                                                    bReault = false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                #endregion
+
                             }
                             else
                             {
@@ -475,6 +550,15 @@ namespace DataAccess
                                 {
                                     dicPartNo.Add(vcPart_id, vcPart_id);
                                 }
+                                else
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = fileName;
+                                    dataRow["vcPartNo"] = vcPart_id;
+                                    dataRow["vcMessage"] = "该品番重复存在！";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
                                 
                                 ////检测数量
                                 if (SoqDt.Rows.Count>0)
@@ -585,23 +669,23 @@ namespace DataAccess
         {
             try
             {
-                string target = "";
+                StringBuilder sql = new StringBuilder();
                 foreach (string s in TargetYM)
                 {
-                    if (!string.IsNullOrWhiteSpace(target))
+                    DateTime t2;
+                    DateTime.TryParseExact(s + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                    string CLYM = t2.AddMonths(-1).ToString("yyyyMM");
+                    if (sql.Length > 0)
                     {
-                        target += ",'" + s + "'";
+                        sql.Append(" OR ");
                     }
-                    else
-                    {
-                        target += "'" + s + "'";
-                    }
+                    sql.Append("(vcDXYM = '" + s + "' AND vcCLYM = '" + CLYM + "')");
                 }
 
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(" SELECT vcPart_id,vcInOutFlag,vcDXYM,vcFZGC,vcCarType,vcMakingOrderType,iPartNums,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31 FROM TSOQReply");
-                sbr.AppendLine(" WHERE ");
-                sbr.AppendLine(" vcDXYM in (" + target + ") ");
+                sbr.AppendLine(" WHERE vcMakingOrderType = '0' AND ");
+                sbr.AppendLine(sql.ToString());
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 return dt;
             }
@@ -766,6 +850,7 @@ namespace DataAccess
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
                     DataTable dockTmp = getDockTable();
+                    Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                     //读取文件
 
                     string vcPackingFactory = uionCode;
@@ -820,6 +905,19 @@ namespace DataAccess
                                 dataRow["vcOrder"] = fileName;
                                 dataRow["vcPartNo"] = vcPart_id;
                                 dataRow["vcMessage"] = "选中的订单类型与"+ fileName + "文件中品番" + vcPart_id + "的订单方式不匹配";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                            if (!dicPartNo.ContainsKey(vcPart_id))
+                            {
+                                dicPartNo.Add(vcPart_id, vcPart_id);
+                            }
+                            else
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = fileName;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = "该品番重复存在！";
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -940,10 +1038,51 @@ namespace DataAccess
             }
         }
 
-        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool  bReault, ref DataTable dtMessage, ref string msg)
+        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool  bReault, ref DataTable dtMessage, ref string msg,string vcJiLuLastOrderNo)
         {
             try
             {
+                #region 获取原订单
+                StringBuilder strSq0 = new StringBuilder();
+                strSq0.AppendLine(" select * from TOrderUploadManage where vcOrderNo='"+ lastOrderNo + "'  ");
+                DataTable dtLastOrder = excute.ExcuteSqlWithSelectToDT(strSq0.ToString());
+                string filePathYS = dtLastOrder.Rows[0]["vcFilePath"].ToString();
+                string fileNameYS = dtLastOrder.Rows[0]["vcOrderNo"].ToString();
+                Dictionary<string, int> dicOrderYS = new Dictionary<string, int>();
+                //读取Order
+                Order orderYS = GetPartFromFile(realPath + filePathYS, fileNameYS, ref msg);//判断头
+                foreach (Detail detail in orderYS.Details)
+                {
+                    string vcPart_id = detail.PartsNo.Trim();
+                    string CPD = detail.CPD.Trim();
+                    string vcSeqno = detail.ItemNo.Trim();
+                    int vcOrderNum = Convert.ToInt32(detail.QTY);
+                    dicOrderYS.Add(vcPart_id, vcOrderNum);
+                }
+                StringBuilder strSq01 = new StringBuilder();
+                strSq01.AppendLine(" select * from TOrderUploadManage where vcLastOrderNo='" + lastOrderNo + "'  ");
+                DataTable dtLastOrderChild = excute.ExcuteSqlWithSelectToDT(strSq01.ToString());
+                for (int i=0;i<dtLastOrderChild.Rows.Count;i++) {
+
+                    string filePathYSChild = dtLastOrder.Rows[0]["vcFilePath"].ToString();
+                    string fileNameYSChild = dtLastOrder.Rows[0]["vcOrderNo"].ToString();
+                    //读取Order
+                    Order orderYSChild = GetPartFromFile(realPath + filePathYSChild, fileNameYSChild, ref msg);//判断头
+                    foreach (Detail detail in orderYSChild.Details)
+                    {
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        int vcOrderNum = Convert.ToInt32(detail.QTY);
+                        if (dicOrderYS.ContainsKey(vcPart_id))
+                        {
+                            int num = dicOrderYS[vcPart_id];
+                            dicOrderYS[vcPart_id] = num - Convert.ToInt32(vcOrderNum);
+                        }
+                    }
+                }
+                #endregion
+
                 StringBuilder strSql1 = new StringBuilder();
                 strSql1.AppendLine(" select b.vcValue,c.vcOrderInitials from [dbo].[TOrderGoodsAndDifferentiation] a  ");
                 strSql1.AppendLine(" left join TCode b on a.vcOrderGoodsId=b.iAutoId  ");
@@ -964,6 +1103,7 @@ namespace DataAccess
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
                     DataTable dockTmp = getDockTable();
+                    Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                     //读取文件
 
                     string vcPackingFactory = uionCode;
@@ -1018,6 +1158,45 @@ namespace DataAccess
                                 dataRow["vcOrder"] = fileName;
                                 dataRow["vcPartNo"] = vcPart_id;
                                 dataRow["vcMessage"] = "选中的订单类型与" + fileName + "文件中品番" + vcPart_id + "的订单方式不匹配";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                            if (!dicPartNo.ContainsKey(vcPart_id))
+                            {
+                                dicPartNo.Add(vcPart_id, vcPart_id);
+                            }
+                            else
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = fileName;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = "该品番重复存在！";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                            if (dicOrderYS.ContainsKey(vcPart_id))
+                            {
+                                int num = dicOrderYS[vcPart_id];
+                                if (num - Convert.ToInt32(vcOrderNum) >= 0)
+                                {
+                                    dicOrderYS[vcPart_id] = num - Convert.ToInt32(vcOrderNum);
+                                }
+                                else
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = fileName;
+                                    dataRow["vcPartNo"] = vcPart_id;
+                                    dataRow["vcMessage"] = "修正订单的品番数量大于原始文件的品番数量";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
+                            }
+                            else
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = fileName;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = "修正订单的品番不存在于原始订单文件里面";
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }

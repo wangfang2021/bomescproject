@@ -42,6 +42,50 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable getDataChuRuKuByTargetMonth(string vcTargetMonth)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select [iAutoId], [vcPackingFactory], left([vcTargetYearMonth],4)+'/'+right([vcTargetYearMonth],2) as [vcTargetYearMonth], [vcDock],a.vcCpdcompany as [vcCpdcompany],b.vcName as [vcOrderType],    ");
+                strSql.AppendLine("  [vcOrderNo], [vcSeqno],convert(varchar(10), dOrderDate,111) as [dOrderDate],convert(varchar(10), dOrderExportDate,111) as [dOrderExportDate], [vcPartNo],d.vcName as [vcInsideOutsideType],    ");
+                strSql.AppendLine("  [vcCarType], [vcLastPartNo], [vcPackingSpot], [vcSupplier_id], cast(isnull(a.vcPlantQtyDaily1,0) as int) as [vcPlantQtyDaily1],cast(isnull(a.[vcInputQtyDaily1],0) as int) as [vcInputQtyDaily1],      ");
+                strSql.AppendLine("  cast(isnull(a.vcResultQtyDaily1,0) as int) as vcResultQtyDaily1, cast(isnull(a.[vcPlantQtyDaily2],0) as int) as [vcPlantQtyDaily2],cast(isnull(a.[vcInputQtyDaily2],0) as int) as [vcInputQtyDaily2],cast(isnull(a.[vcResultQtyDaily2],0) as int) as [vcResultQtyDaily2],cast(isnull(a.[vcPlantQtyDaily3],0) as int) as [vcPlantQtyDaily3],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcInputQtyDaily3],0) as int) as [vcInputQtyDaily3], cast(isnull(a.[vcResultQtyDaily3],0) as int) as [vcResultQtyDaily3],cast(isnull(a.[vcPlantQtyDaily4],0) as int) as [vcPlantQtyDaily4],cast(isnull(a.[vcInputQtyDaily4],0) as int) as [vcInputQtyDaily4],cast(isnull(a.[vcResultQtyDaily4],0) as int) as [vcResultQtyDaily4],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDaily5],0) as int) as [vcPlantQtyDaily5], cast(isnull(a.[vcInputQtyDaily5],0) as int) as [vcInputQtyDaily5],cast(isnull(a.[vcResultQtyDaily5],0) as int) as [vcResultQtyDaily5],cast(isnull(a.[vcPlantQtyDaily6],0) as int) as [vcPlantQtyDaily6],cast(isnull(a.[vcInputQtyDaily6],0) as int) as [vcInputQtyDaily6],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcResultQtyDaily6],0) as int) as [vcResultQtyDaily6],cast(isnull(a.[vcPlantQtyDaily7],0) as int) as [vcPlantQtyDaily7],cast(isnull(a.[vcInputQtyDaily7],0) as int) as [vcInputQtyDaily7],cast(isnull(a.[vcResultQtyDaily7],0) as int) as [vcResultQtyDaily7],cast(isnull(a.[vcPlantQtyDaily8],0) as int) as [vcPlantQtyDaily8],       ");
+                strSql.AppendLine("  cast(isnull(a.[vcInputQtyDaily8],0) as int) as [vcInputQtyDaily8],cast(isnull(a.[vcResultQtyDaily8],0) as int) as [vcResultQtyDaily8],cast(isnull(a.[vcPlantQtyDaily9],0) as int) as [vcPlantQtyDaily9],cast(isnull(a.[vcInputQtyDaily9],0) as int) as [vcInputQtyDaily9],cast(isnull(a.[vcResultQtyDaily9],0) as int) as [vcResultQtyDaily9],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDaily10],0) as int) as [vcPlantQtyDaily10],cast(isnull(a.[vcInputQtyDaily10],0) as int) as [vcInputQtyDaily10],cast(isnull(a.[vcResultQtyDaily10],0) as int) as [vcResultQtyDaily10],cast(isnull(a.[vcPlantQtyDaily11],0) as int) as [vcPlantQtyDaily11],cast(isnull(a.[vcInputQtyDaily11],0) as int) as [vcInputQtyDaily11],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcResultQtyDaily11],0) as int) as [vcResultQtyDaily11],cast(isnull(a.[vcPlantQtyDaily12],0) as int) as [vcPlantQtyDaily12],cast(isnull(a.[vcInputQtyDaily12],0) as int) as [vcInputQtyDaily12],cast(isnull(a.[vcResultQtyDaily12],0) as int) as [vcResultQtyDaily12],cast(isnull(a.[vcPlantQtyDaily13],0) as int) as [vcPlantQtyDaily13],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcInputQtyDaily13],0) as int) as [vcInputQtyDaily13],cast(isnull(a.[vcResultQtyDaily13],0) as int) as [vcResultQtyDaily13],cast(isnull(a.[vcPlantQtyDaily14],0) as int) as [vcPlantQtyDaily14],cast(isnull(a.[vcInputQtyDaily14],0) as int) as [vcInputQtyDaily14],cast(isnull(a.[vcResultQtyDaily14],0) as int) as [vcResultQtyDaily14],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDaily15],0) as int) as [vcPlantQtyDaily15],cast(isnull(a.[vcInputQtyDaily15],0) as int) as [vcInputQtyDaily15],cast(isnull(a.[vcResultQtyDaily15],0) as int) as [vcResultQtyDaily15],cast(isnull(a.[vcPlantQtyDaily16],0) as int) as [vcPlantQtyDaily16],cast(isnull(a.[vcInputQtyDaily16],0) as int) as [vcInputQtyDaily16],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcResultQtyDaily16],0) as int) as [vcResultQtyDaily16],cast(isnull(a.[vcPlantQtyDaily17],0) as int) as [vcPlantQtyDaily17],cast(isnull(a.[vcInputQtyDaily17],0) as int) as [vcInputQtyDaily17],cast(isnull(a.[vcResultQtyDaily17],0) as int) as [vcResultQtyDaily17],cast(isnull(a.[vcPlantQtyDaily18],0) as int) as [vcPlantQtyDaily18],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcInputQtyDaily18],0) as int) as [vcInputQtyDaily18],cast(isnull(a.[vcResultQtyDaily18],0) as int) as [vcResultQtyDaily18],cast(isnull(a.[vcPlantQtyDaily19],0) as int) as [vcPlantQtyDaily19],cast(isnull(a.[vcInputQtyDaily19],0) as int) as [vcInputQtyDaily19],cast(isnull(a.[vcResultQtyDaily19],0) as int) as [vcResultQtyDaily19],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDaily20],0) as int) as [vcPlantQtyDaily20],cast(isnull(a.[vcInputQtyDaily20],0) as int) as [vcInputQtyDaily20],cast(isnull(a.[vcResultQtyDaily20],0) as int) as [vcResultQtyDaily20],cast(isnull(a.[vcPlantQtyDaily21],0) as int) as [vcPlantQtyDaily21],cast(isnull(a.[vcInputQtyDaily21],0) as int) as [vcInputQtyDaily21],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcResultQtyDaily21],0) as int) as [vcResultQtyDaily21],cast(isnull(a.[vcPlantQtyDaily22],0) as int) as [vcPlantQtyDaily22],cast(isnull(a.[vcInputQtyDaily22],0) as int) as [vcInputQtyDaily22],cast(isnull(a.[vcResultQtyDaily22],0) as int) as [vcResultQtyDaily22],cast(isnull(a.[vcPlantQtyDaily23],0) as int) as [vcPlantQtyDaily23],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcInputQtyDaily23],0) as int) as [vcInputQtyDaily23],cast(isnull(a.[vcResultQtyDaily23],0) as int) as [vcResultQtyDaily23],cast(isnull(a.[vcPlantQtyDaily24],0) as int) as [vcPlantQtyDaily24],cast(isnull(a.[vcInputQtyDaily24],0) as int) as [vcInputQtyDaily24], cast(isnull(a.[vcResultQtyDaily24],0) as int) as[vcResultQtyDaily24],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDaily25],0) as int) as [vcPlantQtyDaily25],cast(isnull(a.[vcInputQtyDaily25],0) as int) as [vcInputQtyDaily25], cast(isnull(a.[vcResultQtyDaily25],0) as int) as [vcResultQtyDaily25],cast(isnull(a.[vcPlantQtyDaily26],0) as int) as [vcPlantQtyDaily26],cast(isnull(a.[vcInputQtyDaily26],0) as int) as [vcInputQtyDaily26],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcResultQtyDaily26],0) as int) as [vcResultQtyDaily26],cast(isnull(a.[vcPlantQtyDaily27],0) as int) as [vcPlantQtyDaily27],cast(isnull(a.[vcInputQtyDaily27],0) as int) as [vcInputQtyDaily27],cast(isnull(a.[vcResultQtyDaily27],0) as int) as [vcResultQtyDaily27],cast(isnull(a.[vcPlantQtyDaily28],0) as int) as [vcPlantQtyDaily28],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcInputQtyDaily28],0) as int) as [vcInputQtyDaily28],cast(isnull(a.[vcResultQtyDaily28],0) as int) as [vcResultQtyDaily28], cast(isnull(a.[vcPlantQtyDaily29],0) as int) as[vcPlantQtyDaily29],cast(isnull(a.[vcInputQtyDaily29],0) as int) as [vcInputQtyDaily29],cast(isnull(a.[vcResultQtyDaily29],0) as int) as [vcResultQtyDaily29],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDaily30],0) as int) as [vcPlantQtyDaily30],cast(isnull(a.[vcInputQtyDaily30],0) as int) as [vcInputQtyDaily30], cast(isnull(a.[vcResultQtyDaily30],0) as int) as [vcResultQtyDaily30],cast(isnull(a.[vcPlantQtyDaily31],0) as int) as [vcPlantQtyDaily31],cast(isnull(a.[vcInputQtyDaily31],0) as int) as [vcInputQtyDaily31],cast(isnull(a.[vcResultQtyDaily31],0) as int) as[vcResultQtyDaily31],      ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDailySum],0) as int) as [vcPlantQtyDailySum],cast(isnull(a.[vcInputQtyDailySum],0) as int) as [vcInputQtyDailySum],cast(isnull(a.[vcResultQtyDailySum],0) as int) as [vcResultQtyDailySum],'0' as vcModFlag,'0' as vcAddFlag, case when [vcTargetMonthFlag]='0' then '0:确定月' else vcTargetMonthFlag  end as vcTargetMonthFlag,convert(varchar(10), vcTargetMonthLast,111) as [vcTargetMonthLast], [vcOperatorID], [dOperatorTime]    ");
+                strSql.AppendLine("  from [dbo].[SP_M_ORD] a    ");
+                strSql.AppendLine("  left join (select vcOrderInitials as vcValue,vcOrderDifferentiation as vcName from TOrderDifferentiation) b on a.vcOrderType = b.vcValue   ");
+                strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C018') c on a.vcCpdcompany = c.vcValue   ");
+                strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C003') d on a.vcInsideOutsideType = d.vcValue where 1=1    ");
+                if (vcTargetMonth.Length > 0)
+                {
+                    strSql.AppendLine("  and  a.vcTargetYearMonth = '" + vcTargetMonth.Replace("-", "").Replace("/", "") + "' ");
+                }
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 获取千品数据
         /// </summary>

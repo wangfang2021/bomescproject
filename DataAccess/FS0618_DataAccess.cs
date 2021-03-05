@@ -23,6 +23,11 @@ namespace DataAccess
         {
             try
             {
+                string vcWorkArea = string.Empty;
+                if (vcSupplier_id.Length > 4)
+                {
+                     vcWorkArea = vcSupplier_id.Substring(4, 1);
+                }
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select [iAutoId], [vcPackingFactory], left([vcTargetYearMonth],4)+'/'+right([vcTargetYearMonth],2) as [vcTargetYearMonth], [vcDock],a.vcCpdcompany as [vcCpdcompany],b.vcName as [vcOrderType],    ");
@@ -99,7 +104,7 @@ namespace DataAccess
                 //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily25,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily26,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily27,0) as decimal(18,6))   ");
                 //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily28,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily29,0) as decimal(18,6))+cast(isnull(a.vcResultQtyDaily30,0) as decimal(18,6))   ");
                 //strSql.AppendLine("  +cast(isnull(a.vcResultQtyDaily31,0) as decimal(18,6)) as vcResultQtyDailySum,   ");
-                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDailySum],0) as int) as [vcPlantQtyDailySum],cast(isnull(a.[vcInputQtyDailySum],0) as int) as [vcInputQtyDailySum],cast(isnull(a.[vcResultQtyDailySum],0) as int) as [vcResultQtyDailySum],'0' as vcModFlag,'0' as vcAddFlag, case when [vcTargetMonthFlag]='0' then '0:确定月' else vcTargetMonthFlag  end as vcTargetMonthFlag, [vcTargetMonthLast], [vcOperatorID], [dOperatorTime]    ");
+                strSql.AppendLine("  cast(isnull(a.[vcPlantQtyDailySum],0) as int) as [vcPlantQtyDailySum],cast(isnull(a.[vcInputQtyDailySum],0) as int) as [vcInputQtyDailySum],cast(isnull(a.[vcResultQtyDailySum],0) as int) as [vcResultQtyDailySum],'0' as vcModFlag,'0' as vcAddFlag, case when [vcTargetMonthFlag]='0' then '0:确定月' else vcTargetMonthFlag  end as vcTargetMonthFlag,convert(varchar(10), vcTargetMonthLast,111) as [vcTargetMonthLast], [vcOperatorID], [dOperatorTime]    ");
                 strSql.AppendLine("  from [dbo].[SP_M_ORD] a    ");
                 strSql.AppendLine("  left join (select vcOrderInitials as vcValue,vcOrderDifferentiation as vcName from TOrderDifferentiation) b on a.vcOrderType = b.vcValue   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where  vcCodeId='C018') c on a.vcCpdcompany = c.vcValue   ");
@@ -131,7 +136,11 @@ namespace DataAccess
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id = '" + vcSupplier_id + "' ");
+                    strSql.AppendLine("  and  vcSupplier_id like '" + vcSupplier_id.Substring(0,4) + "%' ");
+                }
+                if (vcWorkArea.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcWorkArea like '" + vcWorkArea + "%' ");
                 }
                 if (dOrderExportDate.Length > 0)
                 {
@@ -168,11 +177,13 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine(" select a.vcSupplier_id as vcValue,a.vcSupplier_id+':'+b.vcSupplier_name as vcName from   ");
-                strSql.AppendLine(" (select distinct vcSupplier_id from SP_M_ORD) a  ");
-                strSql.AppendLine(" left join (select vcSupplier_id,vcSupplier_name from TSupplier) b  ");
-                strSql.AppendLine(" on a.vcSupplier_id =b.vcSupplier_id order by a.vcSupplier_id asc  ");
-
+                //strSql.AppendLine("     select a.vcSupplier_id as vcValue,a.vcSupplier_id  as vcName from       ");
+                //strSql.AppendLine("     (select distinct vcSupplier_id+isnull(vcWorkArea,'') as vcSupplier_id from SP_M_ORD) a      ");
+                //strSql.AppendLine("     order by a.vcSupplier_id asc     ");
+                strSql.AppendLine("      select a.vcSupplier_id as vcValue, isnull(a.vcSupplier_id+':'+b.vcSupplier_name,a.vcSupplier_id)   as vcName from      ");
+                strSql.AppendLine("     (select distinct vcSupplier_id+isnull(vcWorkArea,'') as vcSupplier_id from SP_M_ORD) a      ");
+                strSql.AppendLine("      left join (select vcSupplier_id,vcSupplier_name from TSupplier) b      ");
+                strSql.AppendLine("     on left(a.vcSupplier_id,4) =b.vcSupplier_id order by a.vcSupplier_id asc     ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

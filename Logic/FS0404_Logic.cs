@@ -18,9 +18,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcOrderState,string vcInOutFlag, string vcOrderNo, string dTargetDate,  string vcOrderType,string userID)
+        public DataTable Search(string vcOrderState,string vcInOutFlag, string vcOrderNo, string dTargetDate,  string vcOrderType,string vcMemo,string userID)
         {
-            return fs0404_DataAccess.Search(vcOrderState, vcInOutFlag, vcOrderNo, dTargetDate, vcOrderType, userID);
+            return fs0404_DataAccess.Search(vcOrderState, vcInOutFlag, vcOrderNo, dTargetDate, vcOrderType, vcMemo, userID);
         }
 
         public DataTable isCheckByOrderNo(string lastOrderNo)
@@ -38,9 +38,9 @@ namespace Logic
             fs0404_DataAccess.addOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uincode, ref bReault, ref dtMessage);
         }
 
-        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref string msg)
+        public void updateEditeOrderNo(string realPath,string vcOrderType, string vcInOutFlag, string dTargetDate, string dTargetWeek, string lastOrderNo, string newOrderNo, string vcMemo, List<Dictionary<string, object>> fileList, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage, ref string msg,string vcJiLuLastOrderNo)
         {
-            fs0404_DataAccess.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode, ref bReault, ref dtMessage, ref msg);
+            fs0404_DataAccess.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemo, fileList, userId, uionCode, ref bReault, ref dtMessage, ref msg, vcJiLuLastOrderNo);
         }
 
         public DataTable getOrderType()

@@ -1151,6 +1151,72 @@ namespace Common
                 return "";
             }
         }
+
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(sheetindex);
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        Type type = dt.Columns[field[j]].DataType;
+                        ICell cell = row.CreateCell(j);
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                    }
+                }
+                ISheet sheet1 = hssfworkbook.GetSheetAt(0);
+                sheet1.ForceFormulaRecalculation = true;
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "";
+            }
+        }
         #endregion
 
         #region 校验日期

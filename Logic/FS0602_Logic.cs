@@ -237,6 +237,8 @@ namespace Logic
                     dataRow["vcMessage"] = "没有可供内示展开的数据";
                     dtMessage.Rows.Add(dataRow);
                 }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    return null;
                 string sYearMonth = "";
                 string sYearMonth1 = "";
                 string sYearMonth2 = "";
@@ -249,7 +251,7 @@ namespace Logic
                 if (sYearMonth == "" || sYearMonth1 == "" || sYearMonth2 == "")
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "内示月份为空，无法继续操作";
+                    dataRow["vcMessage"] = "对象月为空，无法继续操作";
                     dtMessage.Rows.Add(dataRow);
                 }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -288,7 +290,7 @@ namespace Logic
         {
             try
             {
-                DataTable dtEmail = fs0307_dataAccess.getSupplierEmail();
+                DataTable dtEmail = fs0602_DataAccess.getSupplierEmail();
                 for (int i = 0; i < dtToList.Rows.Count; i++)
                 {
                     string strSupplierId = dtToList.Rows[i]["vcSupplierId"].ToString();
@@ -306,7 +308,7 @@ namespace Logic
                     if (result != "Success")
                     {
                         DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = strSupplierId+"邮件发送失败，请采取其他形式联络。";
+                        dataRow["vcMessage"] = strSupplierId + "邮件发送失败，请采取其他形式联络。";
                         dtMessage.Rows.Add(dataRow);
                     }
                 }
@@ -326,7 +328,7 @@ namespace Logic
                 DataColumn dc1 = new DataColumn("vcSupplierId", Type.GetType("System.String"));
                 dtb.Columns.Add(dc1);
                 var query = from t in dataTable.AsEnumerable()
-                            group t by new {t1 = t.Field<string>("vcSupplierId")} into m
+                            group t by new { t1 = t.Field<string>("vcSupplierId") } into m
                             select new
                             {
                                 SupplierId = m.Key.t1,
@@ -529,6 +531,143 @@ namespace Logic
             sbr.AppendLine("<p>以上。</p><p><br></p>");
 
             return sbr.ToString();
+        }
+
+        public DataTable getExportRef(string strYearMonth, string strDXYNum, string strNSYNum, string strNNSYNum, ref DataTable dtMessage)
+        {
+            try
+            {
+                string strYear = strYearMonth.Substring(0, 4);
+                string strYear_Last = (Convert.ToInt32(strYearMonth.Substring(0, 4)) + 1).ToString();
+
+                string strYearMonth_before = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").AddMonths(-1).ToString("yyyyMM");
+
+                string strYearMonth_now = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").AddMonths(0).ToString("yyyy年MM月");
+                string strYearMonth_next = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").AddMonths(1).ToString("yyyy年MM月");
+                string strYearMonth_last = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").AddMonths(2).ToString("yyyy年MM月");
+
+                string strMonth = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").AddMonths(0).ToString("MM月");
+                string strMonth_next = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").AddMonths(1).ToString("MM月");
+                string strMonth_last = Convert.ToDateTime(strYearMonth.Substring(0, 4) + "-" + strYearMonth.Substring(4, 2) + "-01").AddMonths(2).ToString("MM月");
+
+                DataTable dtRef_SOQ = fs0602_DataAccess.getExportRef_SOQ(strYearMonth, strYearMonth_before, ref dtMessage);
+                DataTable dtRef_ANN = fs0602_DataAccess.getExportRef_ANN(strYear, strYear_Last, ref dtMessage);
+                DataTable dtRef = fs0603_Logic.createTable("ExportRef0602");
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    return null;
+                for (int i = 0; i < dtRef_SOQ.Rows.Count; i++)
+                {
+                    DataRow drRef = dtRef.NewRow();
+                    drRef["vcExportDate"] = System.DateTime.Now.ToString("yyyy-MM-dd");
+                    drRef["vcRefDate"] = strYearMonth_now + "～" + strYearMonth_last;
+                    drRef["vcMonth_dx"] = strMonth;
+                    drRef["vcMonth_ns"] = strMonth_next;
+                    drRef["vcMonth_nns"] = strMonth_last;
+                    drRef["decDXYNum"] = strDXYNum;
+                    drRef["decNSYNum"] = strNSYNum;
+                    drRef["decNNSYNum"] = strNNSYNum;
+                    string vcProject = dtRef_SOQ.Rows[i]["vcProject"].ToString();
+                    drRef["vcProject"] = vcProject;
+                    string vcYearMonth_dx = dtRef_SOQ.Rows[i]["vcYearMonth_dx"].ToString();
+                    drRef["vcYearMonth_dx"] = vcYearMonth_dx;
+                    drRef["decSOQ_dx"] = dtRef_SOQ.Rows[i]["decSOQ_dx"].ToString();
+                    drRef["decSOQ_ns_before"] = dtRef_SOQ.Rows[i]["decSOQ_ns_before"].ToString();
+                    string vcYearMonth_ns = dtRef_SOQ.Rows[i]["vcYearMonth_ns"].ToString();
+                    drRef["vcYearMonth_ns"] = vcYearMonth_ns;
+                    drRef["decSOQ_ns"] = dtRef_SOQ.Rows[i]["decSOQ_ns"].ToString();
+                    drRef["decSOQ_nns_before"] = dtRef_SOQ.Rows[i]["decSOQ_nns_before"].ToString();
+                    string vcYearMonth_nns = dtRef_SOQ.Rows[i]["vcYearMonth_nns"].ToString();
+                    drRef["vcYearMonth_nns"] = vcYearMonth_nns;
+                    drRef["decSOQ_nns"] = dtRef_SOQ.Rows[i]["decSOQ_nns"].ToString();
+                    DataRow[] drNNA_dx = dtRef_ANN.Select("vcProject='" + vcProject + "' and vcYear='" + vcYearMonth_dx.Substring(0, 4) + "'");
+                    DataRow[] drNNA_ns = dtRef_ANN.Select("vcProject='" + vcProject + "' and vcYear='" + vcYearMonth_ns.Substring(0, 4) + "'");
+                    DataRow[] drNNA_nns = dtRef_ANN.Select("vcProject='" + vcProject + "' and vcYear='" + vcYearMonth_nns.Substring(0, 4) + "'");
+                    #region drRef["decNNA_dx"]
+                    if (strMonth == "01月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcJanuary"].ToString();
+                    if (strMonth == "02月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcFebruary"].ToString();
+                    if (strMonth == "03月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcMarch"].ToString();
+                    if (strMonth == "04月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcApril"].ToString();
+                    if (strMonth == "05月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcMay"].ToString();
+                    if (strMonth == "06月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcJune"].ToString();
+                    if (strMonth == "07月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcJuly"].ToString();
+                    if (strMonth == "08月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcAugust"].ToString();
+                    if (strMonth == "09月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcSeptember"].ToString();
+                    if (strMonth == "10月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcOctober"].ToString();
+                    if (strMonth == "11月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcNovember"].ToString();
+                    if (strMonth == "12月")
+                        drRef["decNNA_dx"] = drNNA_dx.Length == 0 ? "" : drNNA_dx[0]["vcDecember"].ToString();
+                    #endregion
+                    #region drRef["decNNA_ns"]
+                    if (strMonth_next == "01月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcJanuary"].ToString();
+                    if (strMonth_next == "02月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcFebruary"].ToString();
+                    if (strMonth_next == "03月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcMarch"].ToString();
+                    if (strMonth_next == "04月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcApril"].ToString();
+                    if (strMonth_next == "05月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcMay"].ToString();
+                    if (strMonth_next == "06月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcJune"].ToString();
+                    if (strMonth_next == "07月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcJuly"].ToString();
+                    if (strMonth_next == "08月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcAugust"].ToString();
+                    if (strMonth_next == "09月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcSeptember"].ToString();
+                    if (strMonth_next == "10月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcOctober"].ToString();
+                    if (strMonth_next == "11月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcNovember"].ToString();
+                    if (strMonth_next == "12月")
+                        drRef["decNNA_ns"] = drNNA_ns.Length == 0 ? "" : drNNA_ns[0]["vcDecember"].ToString();
+                    #endregion
+                    #region drRef["decNNA_nns"]
+                    if (strMonth_last == "01月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcJanuary"].ToString();
+                    if (strMonth_last == "02月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcFebruary"].ToString();
+                    if (strMonth_last == "03月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcMarch"].ToString();
+                    if (strMonth_last == "04月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcApril"].ToString();
+                    if (strMonth_last == "05月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcMay"].ToString();
+                    if (strMonth_last == "06月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcJune"].ToString();
+                    if (strMonth_last == "07月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcJuly"].ToString();
+                    if (strMonth_last == "08月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcAugust"].ToString();
+                    if (strMonth_last == "09月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcSeptember"].ToString();
+                    if (strMonth_last == "10月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcOctober"].ToString();
+                    if (strMonth_last == "11月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcNovember"].ToString();
+                    if (strMonth_last == "12月")
+                        drRef["decNNA_nns"] = drNNA_nns.Length == 0 ? "" : drNNA_nns[0]["vcDecember"].ToString();
+                    #endregion
+                    dtRef.Rows.Add(drRef);
+                }
+                return dtRef;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }

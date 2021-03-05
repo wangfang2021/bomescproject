@@ -2513,7 +2513,34 @@ namespace Logic
                 dataTable.Columns.Add("address", typeof(string));
                 dataTable.Columns.Add("displayName", typeof(string));
             }
+            if (strSpSub == "ExportRef0602")
+            {
+                dataTable.Columns.Add("vcExportDate", typeof(string));
+                dataTable.Columns.Add("vcRefDate", typeof(string));
+                dataTable.Columns.Add("vcMonth_dx", typeof(string));
+                dataTable.Columns.Add("vcMonth_ns", typeof(string));
+                dataTable.Columns.Add("vcMonth_nns", typeof(string));
+                dataTable.Columns.Add("decDXYNum", typeof(string));
+                dataTable.Columns.Add("decNSYNum", typeof(string));
+                dataTable.Columns.Add("decNNSYNum", typeof(string));
+                dataTable.Columns.Add("vcProject", typeof(string));
+                dataTable.Columns.Add("vcYearMonth_dx", typeof(string));
+                dataTable.Columns.Add("decSOQ_dx", typeof(string));
+                dataTable.Columns.Add("decSOQ_ns_before", typeof(string));
+                dataTable.Columns.Add("vcYearMonth_ns", typeof(string));
+                dataTable.Columns.Add("decSOQ_ns", typeof(string));
+                dataTable.Columns.Add("decSOQ_nns_before", typeof(string));
+                dataTable.Columns.Add("vcYearMonth_nns", typeof(string));
+                dataTable.Columns.Add("decSOQ_nns", typeof(string));
+                dataTable.Columns.Add("decNNA_dx", typeof(string));
+                dataTable.Columns.Add("decNNA_ns", typeof(string));
+                dataTable.Columns.Add("decNNA_nns", typeof(string));
+            }
             return dataTable;
+
+
+            //																			
+
         }
     }
 }

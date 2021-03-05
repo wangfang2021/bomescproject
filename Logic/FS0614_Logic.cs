@@ -42,11 +42,6 @@ namespace Logic
                     string vcOrderNo = listInfoData[i]["vcOrderNo"].ToString();
                     string vcOrderType = listInfoData[i]["vcOrderType"].ToString();
                     string vcOrderState = listInfoData[i]["vcOrderState"].ToString();
-                    if (vcOrderType == "日度")
-                    {
-                        msg += "订单" + vcOrderNo + "为日度订单,请重新选择;\r\n";
-                        flag = false;
-                    }
 
                     if (vcOrderState == "已做成")
                     {

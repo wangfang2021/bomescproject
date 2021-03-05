@@ -170,8 +170,8 @@ namespace SPPSApi.Controllers.G06
                                      "vcResultQtyDaily24", "vcPlantQtyDaily25", "vcInputQtyDaily25", "vcResultQtyDaily25", "vcPlantQtyDaily26", "vcInputQtyDaily26",
                                      "vcResultQtyDaily26", "vcPlantQtyDaily27", "vcInputQtyDaily27", "vcResultQtyDaily27", "vcPlantQtyDaily28", "vcInputQtyDaily28",
                                      "vcResultQtyDaily28", "vcPlantQtyDaily29", "vcInputQtyDaily29", "vcResultQtyDaily29", "vcPlantQtyDaily30", "vcInputQtyDaily30",
-                                     "vcResultQtyDaily30", "vcPlantQtyDaily31", "vcInputQtyDaily31", "vcResultQtyDaily31","vcPlantQtyTotal","vcInputQtyTotal",
-                                     "vcResultQtyTotal", "vcCarType", "vcLastPartNo", "vcPackingSpot","vcTargetMonthFlag", "vcTargetMonthLast"
+                                     "vcResultQtyDaily30", "vcPlantQtyDaily31", "vcInputQtyDaily31", "vcResultQtyDaily31","vcPlantQtyDailySum","vcInputQtyDailySum",
+                                     "vcResultQtyDailySum", "vcCarType", "vcLastPartNo", "vcPackingSpot","vcTargetMonthFlag", "vcTargetMonthLast"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0618_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -266,8 +266,8 @@ namespace SPPSApi.Controllers.G06
                                      "vcResultQtyDaily24", "vcPlantQtyDaily25", "vcInputQtyDaily25", "vcResultQtyDaily25", "vcPlantQtyDaily26", "vcInputQtyDaily26",
                                      "vcResultQtyDaily26", "vcPlantQtyDaily27", "vcInputQtyDaily27", "vcResultQtyDaily27", "vcPlantQtyDaily28", "vcInputQtyDaily28",
                                      "vcResultQtyDaily28", "vcPlantQtyDaily29", "vcInputQtyDaily29", "vcResultQtyDaily29", "vcPlantQtyDaily30", "vcInputQtyDaily30",
-                                     "vcResultQtyDaily30", "vcPlantQtyDaily31", "vcInputQtyDaily31", "vcResultQtyDaily31","vcPlantQtyTotal","vcInputQtyTotal",
-                                     "vcResultQtyTotal", "vcCarType", "vcLastPartNo", "vcPackingSpot","vcTargetMonthFlag", "vcTargetMonthLast"
+                                     "vcResultQtyDaily30", "vcPlantQtyDaily31", "vcInputQtyDaily31", "vcResultQtyDaily31","vcPlantQtyDailySum","vcInputQtyDailySum",
+                                     "vcResultQtyDailySum", "vcCarType", "vcLastPartNo", "vcPackingSpot","vcTargetMonthFlag", "vcTargetMonthLast"
                         },
                                                 {"","","","","","","",FieldCheck.Date,FieldCheck.Date,"","","",
                         FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,
@@ -331,7 +331,327 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        #region
+                        int vcInputQtyDaily1 = listInfoData[i]["vcInputQtyDaily1"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily1"].ToString());
+                        int vcPlantQtyDaily1 = listInfoData[i]["vcPlantQtyDaily1"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily1"].ToString());
+                        int vcResultQtyDaily1 = listInfoData[i]["vcResultQtyDaily1"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily1"].ToString());
 
+                        int vcInputQtyDaily2 = listInfoData[i]["vcInputQtyDaily2"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily2"].ToString());
+                        int vcPlantQtyDaily2 = listInfoData[i]["vcPlantQtyDaily2"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily2"].ToString());
+                        int vcResultQtyDaily2 = listInfoData[i]["vcResultQtyDaily2"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily2"].ToString());
+
+                        int vcInputQtyDaily3 = listInfoData[i]["vcInputQtyDaily3"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily3"].ToString());
+                        int vcPlantQtyDaily3 = listInfoData[i]["vcPlantQtyDaily3"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily3"].ToString());
+                        int vcResultQtyDaily3 = listInfoData[i]["vcResultQtyDaily3"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily3"].ToString());
+
+                        int vcInputQtyDaily4 = listInfoData[i]["vcInputQtyDaily4"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily4"].ToString());
+                        int vcPlantQtyDaily4 = listInfoData[i]["vcPlantQtyDaily4"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily4"].ToString());
+                        int vcResultQtyDaily4 = listInfoData[i]["vcResultQtyDaily4"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily4"].ToString());
+
+                        int vcInputQtyDaily5 = listInfoData[i]["vcInputQtyDaily5"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily5"].ToString());
+                        int vcPlantQtyDaily5 = listInfoData[i]["vcPlantQtyDaily5"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily5"].ToString());
+                        int vcResultQtyDaily5 = listInfoData[i]["vcResultQtyDaily5"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily5"].ToString());
+
+                        int vcInputQtyDaily6 = listInfoData[i]["vcInputQtyDaily6"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily6"].ToString());
+                        int vcPlantQtyDaily6 = listInfoData[i]["vcPlantQtyDaily6"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily6"].ToString());
+                        int vcResultQtyDaily6 = listInfoData[i]["vcResultQtyDaily6"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily6"].ToString());
+
+                        int vcInputQtyDaily7 = listInfoData[i]["vcInputQtyDaily7"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily7"].ToString());
+                        int vcPlantQtyDaily7 = listInfoData[i]["vcPlantQtyDaily7"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily7"].ToString());
+                        int vcResultQtyDaily7 = listInfoData[i]["vcResultQtyDaily7"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily7"].ToString());
+
+                        int vcInputQtyDaily8 = listInfoData[i]["vcInputQtyDaily8"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily8"].ToString());
+                        int vcPlantQtyDaily8 = listInfoData[i]["vcPlantQtyDaily8"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily8"].ToString());
+                        int vcResultQtyDaily8 = listInfoData[i]["vcResultQtyDaily8"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily8"].ToString());
+
+                        int vcInputQtyDaily9 = listInfoData[i]["vcInputQtyDaily9"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily9"].ToString());
+                        int vcPlantQtyDaily9 = listInfoData[i]["vcPlantQtyDaily9"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily9"].ToString());
+                        int vcResultQtyDaily9 = listInfoData[i]["vcResultQtyDaily9"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily9"].ToString());
+
+                        int vcInputQtyDaily10 = listInfoData[i]["vcInputQtyDaily10"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily10"].ToString());
+                        int vcPlantQtyDaily10 = listInfoData[i]["vcPlantQtyDaily10"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily10"].ToString());
+                        int vcResultQtyDaily10 = listInfoData[i]["vcResultQtyDaily10"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily10"].ToString());
+
+                        int vcInputQtyDaily11 = listInfoData[i]["vcInputQtyDaily11"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily11"].ToString());
+                        int vcPlantQtyDaily11 = listInfoData[i]["vcPlantQtyDaily11"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily11"].ToString());
+                        int vcResultQtyDaily11 = listInfoData[i]["vcResultQtyDaily11"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily11"].ToString());
+
+                        int vcInputQtyDaily12 = listInfoData[i]["vcInputQtyDaily12"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily12"].ToString());
+                        int vcPlantQtyDaily12 = listInfoData[i]["vcPlantQtyDaily12"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily12"].ToString());
+                        int vcResultQtyDaily12 = listInfoData[i]["vcResultQtyDaily12"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily12"].ToString());
+
+                        int vcInputQtyDaily13 = listInfoData[i]["vcInputQtyDaily13"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily13"].ToString());
+                        int vcPlantQtyDaily13 = listInfoData[i]["vcPlantQtyDaily13"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily13"].ToString());
+                        int vcResultQtyDaily13 = listInfoData[i]["vcResultQtyDaily13"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily13"].ToString());
+
+                        int vcInputQtyDaily14 = listInfoData[i]["vcInputQtyDaily14"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily14"].ToString());
+                        int vcPlantQtyDaily14 = listInfoData[i]["vcPlantQtyDaily14"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily14"].ToString());
+                        int vcResultQtyDaily14 = listInfoData[i]["vcResultQtyDaily14"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily14"].ToString());
+
+                        int vcInputQtyDaily15 = listInfoData[i]["vcInputQtyDaily15"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily15"].ToString());
+                        int vcPlantQtyDaily15 = listInfoData[i]["vcPlantQtyDaily15"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily15"].ToString());
+                        int vcResultQtyDaily15 = listInfoData[i]["vcResultQtyDaily15"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily15"].ToString());
+
+                        int vcInputQtyDaily16 = listInfoData[i]["vcInputQtyDaily16"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily16"].ToString());
+                        int vcPlantQtyDaily16 = listInfoData[i]["vcPlantQtyDaily16"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily16"].ToString());
+                        int vcResultQtyDaily16 = listInfoData[i]["vcResultQtyDaily16"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily16"].ToString());
+
+                        int vcInputQtyDaily17 = listInfoData[i]["vcInputQtyDaily17"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily17"].ToString());
+                        int vcPlantQtyDaily17 = listInfoData[i]["vcPlantQtyDaily17"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily17"].ToString());
+                        int vcResultQtyDaily17 = listInfoData[i]["vcResultQtyDaily17"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily17"].ToString());
+
+                        int vcInputQtyDaily18 = listInfoData[i]["vcInputQtyDaily18"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily18"].ToString());
+                        int vcPlantQtyDaily18 = listInfoData[i]["vcPlantQtyDaily18"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily18"].ToString());
+                        int vcResultQtyDaily18 = listInfoData[i]["vcResultQtyDaily18"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily18"].ToString());
+
+                        int vcInputQtyDaily19 = listInfoData[i]["vcInputQtyDaily19"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily19"].ToString());
+                        int vcPlantQtyDaily19 = listInfoData[i]["vcPlantQtyDaily19"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily19"].ToString());
+                        int vcResultQtyDaily19 = listInfoData[i]["vcResultQtyDaily19"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily19"].ToString());
+
+                        int vcInputQtyDaily20 = listInfoData[i]["vcInputQtyDaily20"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily20"].ToString());
+                        int vcPlantQtyDaily20 = listInfoData[i]["vcPlantQtyDaily20"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily20"].ToString());
+                        int vcResultQtyDaily20 = listInfoData[i]["vcResultQtyDaily20"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily20"].ToString());
+
+                        int vcInputQtyDaily21 = listInfoData[i]["vcInputQtyDaily21"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily21"].ToString());
+                        int vcPlantQtyDaily21 = listInfoData[i]["vcPlantQtyDaily21"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily21"].ToString());
+                        int vcResultQtyDaily21 = listInfoData[i]["vcResultQtyDaily21"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily21"].ToString());
+
+                        int vcInputQtyDaily22 = listInfoData[i]["vcInputQtyDaily22"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily22"].ToString());
+                        int vcPlantQtyDaily22 = listInfoData[i]["vcPlantQtyDaily22"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily22"].ToString());
+                        int vcResultQtyDaily22 = listInfoData[i]["vcResultQtyDaily22"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily22"].ToString());
+
+                        int vcInputQtyDaily23 = listInfoData[i]["vcInputQtyDaily23"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily23"].ToString());
+                        int vcPlantQtyDaily23 = listInfoData[i]["vcPlantQtyDaily23"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily23"].ToString());
+                        int vcResultQtyDaily23 = listInfoData[i]["vcResultQtyDaily23"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily23"].ToString());
+                        int vcInputQtyDaily24 = listInfoData[i]["vcInputQtyDaily24"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily24"].ToString());
+                        int vcPlantQtyDaily24 = listInfoData[i]["vcPlantQtyDaily24"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily24"].ToString());
+                        int vcResultQtyDaily24 = listInfoData[i]["vcResultQtyDaily24"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily24"].ToString());
+
+                        int vcInputQtyDaily25 = listInfoData[i]["vcInputQtyDaily25"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily25"].ToString());
+                        int vcPlantQtyDaily25 = listInfoData[i]["vcPlantQtyDaily25"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily25"].ToString());
+                        int vcResultQtyDaily25 = listInfoData[i]["vcResultQtyDaily25"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily25"].ToString());
+                        int vcInputQtyDaily26 = listInfoData[i]["vcInputQtyDaily26"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily26"].ToString());
+                        int vcPlantQtyDaily26 = listInfoData[i]["vcPlantQtyDaily26"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily26"].ToString());
+                        int vcResultQtyDaily26 = listInfoData[i]["vcResultQtyDaily26"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily26"].ToString());
+
+                        int vcInputQtyDaily27 = listInfoData[i]["vcInputQtyDaily27"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily27"].ToString());
+                        int vcPlantQtyDaily27 = listInfoData[i]["vcPlantQtyDaily27"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily27"].ToString());
+                        int vcResultQtyDaily27 = listInfoData[i]["vcResultQtyDaily27"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily27"].ToString());
+                        int vcInputQtyDaily28 = listInfoData[i]["vcInputQtyDaily28"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily28"].ToString());
+                        int vcPlantQtyDaily28 = listInfoData[i]["vcPlantQtyDaily28"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily28"].ToString());
+                        int vcResultQtyDaily28 = listInfoData[i]["vcResultQtyDaily28"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily28"].ToString());
+
+                        int vcInputQtyDaily29 = listInfoData[i]["vcInputQtyDaily29"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily29"].ToString());
+                        int vcPlantQtyDaily29 = listInfoData[i]["vcPlantQtyDaily29"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily29"].ToString());
+                        int vcResultQtyDaily29 = listInfoData[i]["vcResultQtyDaily29"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily29"].ToString());
+                        int vcInputQtyDaily30 = listInfoData[i]["vcInputQtyDaily30"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily30"].ToString());
+                        int vcPlantQtyDaily30 = listInfoData[i]["vcPlantQtyDaily30"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily30"].ToString());
+                        int vcResultQtyDaily30 = listInfoData[i]["vcResultQtyDaily30"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily30"].ToString());
+                        int vcInputQtyDaily31 = listInfoData[i]["vcInputQtyDaily31"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcInputQtyDaily31"].ToString());
+                        int vcPlantQtyDaily31 = listInfoData[i]["vcPlantQtyDaily31"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcPlantQtyDaily31"].ToString());
+                        int vcResultQtyDaily31 = listInfoData[i]["vcResultQtyDaily31"].ToString() == "" ? 0 : int.Parse(listInfoData[i]["vcResultQtyDaily31"].ToString());
+                        #endregion
+
+                        #region
+                        if (vcInputQtyDaily1 > vcPlantQtyDaily1 || vcResultQtyDaily1>vcPlantQtyDaily1)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号"+ listInfoData[i]["vcOrderNo"]+"对应的品番"+ listInfoData[i]["vcPartNo"]+ "日期为1日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily2 > vcPlantQtyDaily2 || vcResultQtyDaily2 > vcPlantQtyDaily2)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为2日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily3 > vcPlantQtyDaily3 || vcResultQtyDaily3 > vcPlantQtyDaily3)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为3日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily4 > vcPlantQtyDaily4 || vcResultQtyDaily4 > vcPlantQtyDaily4)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为4日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily5 > vcPlantQtyDaily5 || vcResultQtyDaily5 > vcPlantQtyDaily5)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为5日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily6 > vcPlantQtyDaily6 || vcResultQtyDaily6 > vcPlantQtyDaily6)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为6日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily7 > vcPlantQtyDaily7 || vcResultQtyDaily7 > vcPlantQtyDaily7)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为7日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily8 > vcPlantQtyDaily8 || vcResultQtyDaily8 > vcPlantQtyDaily8)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为8日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily9 > vcPlantQtyDaily9 || vcResultQtyDaily9 > vcPlantQtyDaily9)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为9日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily10 > vcPlantQtyDaily10 || vcResultQtyDaily10 > vcPlantQtyDaily10)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为10日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily11 > vcPlantQtyDaily11 || vcResultQtyDaily11 > vcPlantQtyDaily11)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为11日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily12 > vcPlantQtyDaily12 || vcResultQtyDaily12 > vcPlantQtyDaily12)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为12日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily13 > vcPlantQtyDaily13 || vcResultQtyDaily13 > vcPlantQtyDaily13)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为13日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily14 > vcPlantQtyDaily14 || vcResultQtyDaily14 > vcPlantQtyDaily14)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为14日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily15 > vcPlantQtyDaily15 || vcResultQtyDaily15 > vcPlantQtyDaily15)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为15日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily16 > vcPlantQtyDaily16 || vcResultQtyDaily16 > vcPlantQtyDaily16)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为16日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily17 > vcPlantQtyDaily17 || vcResultQtyDaily17 > vcPlantQtyDaily17)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为17日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily18 > vcPlantQtyDaily18 || vcResultQtyDaily18 > vcPlantQtyDaily18)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为18日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily19 > vcPlantQtyDaily19 || vcResultQtyDaily19 > vcPlantQtyDaily19)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为19日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily20 > vcPlantQtyDaily20 || vcResultQtyDaily20 > vcPlantQtyDaily20)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为20日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily21 > vcPlantQtyDaily21 || vcResultQtyDaily21 > vcPlantQtyDaily21)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为21日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily22 > vcPlantQtyDaily22 || vcResultQtyDaily22 > vcPlantQtyDaily22)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为22日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily23 > vcPlantQtyDaily23 || vcResultQtyDaily23 > vcPlantQtyDaily23)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为23日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily24 > vcPlantQtyDaily24 || vcResultQtyDaily24 > vcPlantQtyDaily24)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为24日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily25 > vcPlantQtyDaily25 || vcResultQtyDaily25 > vcPlantQtyDaily25)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为25日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily26 > vcPlantQtyDaily26 || vcResultQtyDaily26 > vcPlantQtyDaily26)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为26日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily27 > vcPlantQtyDaily27 || vcResultQtyDaily27 > vcPlantQtyDaily27)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为27日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily28 > vcPlantQtyDaily28 || vcResultQtyDaily28 > vcPlantQtyDaily28)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为28日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily29 > vcPlantQtyDaily29 || vcResultQtyDaily29 > vcPlantQtyDaily29)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为29日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily30 > vcPlantQtyDaily30 || vcResultQtyDaily30 > vcPlantQtyDaily30)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为30日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (vcInputQtyDaily31 > vcPlantQtyDaily31 || vcResultQtyDaily31 > vcPlantQtyDaily31)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "编辑的订单号" + listInfoData[i]["vcOrderNo"] + "对应的品番" + listInfoData[i]["vcPartNo"] + "日期为31日数量维护有误,发货数≤到货数≤订货数！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        
+                        #endregion
+                    }
+                }
                 string strErrorPartId = "";
                 fs0618_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")

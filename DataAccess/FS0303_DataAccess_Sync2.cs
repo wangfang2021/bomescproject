@@ -203,7 +203,7 @@ namespace DataAccess
         /// 原单位向标签表同步数据
         /// </summary>
         /// <returns></returns>
-        public StringBuilder getUnit2TagMasterSync()
+        public void getUnit2TagMasterSync()
         {
             #region 新车新设
             strSql.Append("      insert into TtagMaster        \r\n");
@@ -682,8 +682,6 @@ namespace DataAccess
             strSql.Append("      where b.vcPart_Id is null       \r\n");
             #endregion
             #endregion
-
-            return strSql;
         }
 
         #endregion
@@ -694,9 +692,10 @@ namespace DataAccess
         /// </summary>
         /// <param name="strSYTCode">事业体代码</param>
         /// <returns></returns>
-        public StringBuilder getUnit2PriceSync(string strSYTCode)
+        public void getUnit2PriceSync(string strSYTCode)
         {
             #region 不相同的数据插入价格表
+            string vcLastTimeFlag = DateTime.Now.ToString("yyyy") + DateTime.Now.ToString("MM") + DateTime.Now.ToString("dd") + DateTime.Now.ToString("HH") + DateTime.Now.ToString("mm") + DateTime.Now.ToString("ss");
             strSql.Append("       insert into TPrice       \r\n");
             strSql.Append("       (      \r\n");
             strSql.Append("       	 vcChange,vcPart_id,dUseBegin,dUseEnd,vcProjectType      \r\n");
@@ -714,7 +713,7 @@ namespace DataAccess
             strSql.Append("       	,a.vcPartNameEn,a.vcOE,a.vcHKPart_id,a.vcFXDiff,a.vcFXNo      \r\n");
             strSql.Append("       	,a.vcSumLater,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcNum11,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15      \r\n");
             strSql.Append("         ,a.vcDownRecever,a.vcOriginCompany,GETDATE(),'0',GETDATE()        \r\n");
-            strSql.Append("         ,GETDATE()       \r\n");
+            strSql.Append("         ,'"+vcLastTimeFlag+"'       \r\n");
             strSql.Append("        from       \r\n");
             strSql.Append("       (      \r\n");
             strSql.Append("       	select a.*      \r\n");
@@ -784,7 +783,7 @@ namespace DataAccess
             strSql.Append("       ,vcSumLater = b.vcSumLater       \r\n");
             strSql.Append("       ,vcOriginCompany = b.vcOriginCompany             \r\n");
             strSql.Append("       ,dDataSyncTime = GETDATE()             \r\n");
-            strSql.Append("       ,vcLastTimeFlag = GETDATE()             \r\n");
+            strSql.Append("       ,vcLastTimeFlag = '"+vcLastTimeFlag+"'             \r\n");
             strSql.Append("       from  TPrice a       \r\n");
             strSql.Append("       inner join        \r\n");
             strSql.Append("       (       \r\n");
@@ -816,8 +815,6 @@ namespace DataAccess
             strSql.Append("       and a.vcReceiver = b.vcDownRecever            \r\n");
             strSql.Append("       and b.vcSYTCode = '" + strSYTCode + "'      \r\n");
             #endregion
-
-            return strSql;
         }
 
         #endregion
@@ -827,7 +824,7 @@ namespace DataAccess
         /// 原单位向采购表同步数据
         /// </summary>
         /// <returns></returns>
-        public StringBuilder getUnit2SpMasterSync()
+        public void getUnit2SpMasterSync()
         {
             #region 新车新设
             #region 对相同部分进行更新操作
@@ -2263,8 +2260,6 @@ namespace DataAccess
             strSql.Append("      where b.vcPartId is null       \r\n");
             #endregion
             #endregion
-
-            return strSql;
         }
 
         #endregion

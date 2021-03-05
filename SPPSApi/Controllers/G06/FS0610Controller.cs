@@ -96,7 +96,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 if (plantList != null && plantList.Count > 0)
                 {
-                    for(int i=0;i<plantList.Count;i++)
+                    for (int i = 0; i < plantList.Count; i++)
                     {
                         int iStep = 0;
                         string plant = plantList[i].ToString();
@@ -106,7 +106,7 @@ namespace SPPSApi.Controllers.G06
                         //    iStep = 2;
                         if (fs0610_Logic.isZhankai(plant, strCLYM))
                             iStep = 3;
-                        res.Add("iStep_"+ plant.ToString(), iStep);
+                        res.Add("iStep_" + plant.ToString(), iStep);
                     }
                 }
 
@@ -421,29 +421,23 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string msg = "";
             try
             {
                 string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(','); ;
                 //生成生产计划  
-                string msg = fs0610_Logic.createProPlan(vcDxny, vcFZGC, loginInfo.UserId);
-                if (msg != "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = msg;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                msg = fs0610_Logic.createProPlan(vcDxny, vcFZGC, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "生成成功。";
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0201", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "生成失败";
+                apiResult.data = "生成失败" + msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -501,7 +495,7 @@ namespace SPPSApi.Controllers.G06
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
+                    apiResult.data = "未生成 " + tbName + " 厂生产计划，不能导出！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

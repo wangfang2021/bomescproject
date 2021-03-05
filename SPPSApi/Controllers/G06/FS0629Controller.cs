@@ -101,7 +101,7 @@ namespace SPPSApi.Controllers.G06
             else
             {
                 vcLastTargetMonth = Convert.ToDateTime(vcTargetMonth).AddMonths(-1).ToString("yyyyMM");
-                vcTargetMonth = vcTargetMonth.Replace("-","");
+                vcTargetMonth = vcTargetMonth.Replace("/","");
             }
             try
             {
@@ -176,7 +176,9 @@ namespace SPPSApi.Controllers.G06
         }
         #endregion
 
-        #region 导出
+        
+
+        #region 导出报表
         [HttpPost]
         [EnableCors("any")]
         public string createReportApi([FromBody] dynamic data)
@@ -203,708 +205,646 @@ namespace SPPSApi.Controllers.G06
             else
             {
                 vcLastTargetMonth = Convert.ToDateTime(vcTargetMonth).AddMonths(-1).ToString("yyyyMM");
-                vcTargetMonth = vcTargetMonth.Replace("-", "");
+                vcTargetMonth = vcTargetMonth.Replace("/", "");
             }
-            string filepath = "";
             try
             {
                 DataSet ds = fs0629_Logic.Search(vcConsignee, vcInjectionFactory, vcTargetMonth, vcLastTargetMonth);
-                DataTable dtNum = ds.Tables[0];
-                DataTable dtMonty = ds.Tables[1];
+                DataTable dt = ds.Tables[0];
+                DataTable dtPlantSum = ds.Tables[1];
+                DataTable dtSum = ds.Tables[2];
+                DataTable dtSumReport = dtSum.Copy();
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "检索的对象年月没有数据!";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                string[] columnConsigneeArray = { "收货方" };
+                DataView dtConsigneeSelectView = dt.DefaultView;
+                DataTable dtConsigneeSelect = dtConsigneeSelectView.ToTable(true, columnConsigneeArray);//去重后的dt 
+                DataTable dtNew = dt.Clone();//复制表结构 页面显示的 
+                for (int m = 0; m < dtConsigneeSelect.Rows.Count; m++)
+                {
+                    string strConsignee = dtConsigneeSelect.Rows[m]["收货方"].ToString();
+                    DataRow[] drArray = dt.Select("收货方='" + strConsignee + "' ");
+                    DataTable dt1 = drArray[0].Table.Clone();
+                    foreach (DataRow dr in drArray)
+                    {
+                        dt1.ImportRow(dr);
+                    }
+
+                    string[] columnArray = { "收货方", "工厂" };
+                    DataView dtSelectView = dt1.DefaultView;
+                    DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt1 
+
+                    for (int i = 0; i < dtSelect.Rows.Count; i++)
+                    {
+                        string strConsigneeChild = dtSelect.Rows[i]["收货方"].ToString();
+                        string strPlantChild = dtSelect.Rows[i]["工厂"].ToString();
+                        DataRow[] drArrayChild = dt.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        string msg = string.Empty;
+                        foreach (DataRow dr in drArrayChild)
+                        {
+                            dtNew.ImportRow(dr);
+                        }
+                        DataRow[] drArrayPlantSum = dtPlantSum.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        foreach (DataRow dr in drArrayPlantSum)
+                        {
+                            dtNew.ImportRow(dr);
+                        }
+                    }
+                    DataRow[] drArraySum = dtSum.Select("收货方='" + strConsignee + "' ");
+                    foreach (DataRow dr in drArraySum)
+                    {
+                        dr["收货方"] = "合计";
+                        dtNew.ImportRow(dr);
+                    }
+                }
+
+                DataSet dsQianPin = fs0629_Logic.GetQianPin(vcConsignee, vcInjectionFactory, vcTargetMonth);
+                DataTable dtQianPin = dsQianPin.Tables[0];
+                DataTable dtQianPinSum = dsQianPin.Tables[1];
+
+                string[] columnConsigneeArrayQianPin = {"vcReceiver" };
+                DataView dtConsigneeSelectViewQianPin = dtQianPin.DefaultView;
+                DataTable dtConsigneeSelectQianPin = dtConsigneeSelectViewQianPin.ToTable(true, columnConsigneeArrayQianPin);//去重后的dt 
+                DataTable dtNewQianPin = dtQianPin.Clone();//复制表结构 页面显示的 
+                for (int m = 0; m < dtConsigneeSelectQianPin.Rows.Count; m++)
+                {
+                    string strConsigneeQianPin = dtConsigneeSelectQianPin.Rows[m]["vcReceiver"].ToString();
+                    DataRow[] drArrayQianPin = dtQianPin.Select("vcReceiver='" + strConsigneeQianPin + "' ");
+                    DataTable dt1QianPin = drArrayQianPin[0].Table.Clone();
+                    foreach (DataRow dr in drArrayQianPin)
+                    {
+                        dt1QianPin.ImportRow(dr);
+                    }
+
+                    string[] columnArrayQianPin = { "vcReceiver", "vcOrderPlant" };
+                    DataView dtSelectViewQianPin = dt1QianPin.DefaultView;
+                    DataTable dtSelectQianPin = dtSelectViewQianPin.ToTable(true, columnArrayQianPin);//去重后的dt1 
+
+                    for (int i = 0; i < dtSelectQianPin.Rows.Count; i++)
+                    {
+                        string strConsigneeChildQianPin = dtSelectQianPin.Rows[i]["vcReceiver"].ToString();
+                        string strPlantChildQianPin = dtSelectQianPin.Rows[i]["vcOrderPlant"].ToString();
+                        DataRow[] drArrayChildQianPin = dtQianPin.Select("vcReceiver='" + strConsigneeChildQianPin + "' and vcOrderPlant='" + strPlantChildQianPin + "' ");
+                        string msg = string.Empty;
+                        foreach (DataRow dr in drArrayChildQianPin)
+                        {
+                            dtNewQianPin.ImportRow(dr);
+                        }
+                        DataRow[] drArrayPlantSumQianPin = dtQianPinSum.Select("vcReceiver='" + strConsigneeChildQianPin + "' and vcOrderPlant='" + strPlantChildQianPin + "' ");
+                        foreach (DataRow dr in drArrayPlantSumQianPin)
+                        {
+                            dtNewQianPin.ImportRow(dr);
+                        }
+                    }
+                }
+
 
                 #region 导出报表
-
-
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();//用于创建xlsx
-                ISheet mysheetHSSF = hssfworkbook.CreateSheet("销售数据");//创建sheet名称 
-                #region 设置单元格对齐方式
-                //创建CellStyle  
-                //ICellStyle styleGeneral = hssfworkbook.CreateCellStyle();
-                //styleGeneral.Alignment = HorizontalAlignment.General;//【General】数字、时间默认：右对齐；BOOL：默认居中；字符串：默认左对齐  
-
-                //ICellStyle styleLeft = hssfworkbook.CreateCellStyle();
-                //styleLeft.Alignment = HorizontalAlignment.Left;//【Left】左对齐  
-
-                //ICellStyle styleCenter = hssfworkbook.CreateCellStyle();
-                //styleCenter.Alignment = HorizontalAlignment.Center;//【Center】居中  
-
-                //ICellStyle styleRight = hssfworkbook.CreateCellStyle();
-                //styleRight.Alignment = HorizontalAlignment.Right;//【Right】右对齐  
-
-                //ICellStyle styleFill = hssfworkbook.CreateCellStyle();
-                //styleFill.Alignment = HorizontalAlignment.Fill;//【Fill】填充  
-
-                //ICellStyle styleJustify = hssfworkbook.CreateCellStyle();
-                //styleJustify.Alignment = HorizontalAlignment.Justify;//【Justify】两端对齐[会自动换行]（主要针对英文）  
-                //ICellStyle styleCenterSelection = hssfworkbook.CreateCellStyle();
-                //styleCenterSelection.Alignment = HorizontalAlignment.CenterSelection;//【CenterSelection】跨列居中  
-
-                //ICellStyle styleDistributed = hssfworkbook.CreateCellStyle();
-                //styleDistributed.Alignment = HorizontalAlignment.Distributed;//【Distributed】分散对齐[会自动换行]
-                #endregion
+                string XltPath = "." + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0629_reportData.xlsx";
+                using (FileStream fs = System.IO.File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+               
                 #region 设置字体样式
-                //设置第一种
-                //IFont font = hssfworkbook.CreateFont();
-                ////font.Boldweight = (Int16)FontBoldWeight.Bold;//原始字体
-                ////【Tips】
-                //// 1.Boldweight 要使用(Int16)FontBoldWeight 对应的数值 否则无效
-                //font.Color = IndexedColors.Black.Index; //设置字体颜色
-                ////font.FontHeight = 15;//设置字体高度【FontHeightInPoints也是设置字体高度，我还不知道有啥区别】
-                ////font.FontName = "宋体";//设置字体
-                ////font.IsBold = true;//是否加粗
-                ////font.IsItalic = false;//是否斜体
-                ////font.IsStrikeout = false;//是否加删除线
-                ////font.TypeOffset = FontSuperScript.Sub;//设置脚本上的字体【Sub 下；Super 上】
-                ////font.Underline = FontUnderlineType.Single;//下划线【Single一条线；Double两条线】
-                ////创建CellStyle并加载字体
-                //ICellStyle Fontstyle = hssfworkbook.CreateCellStyle();
-                //Fontstyle.SetFont(font);
-                ////设置第二种
-                //IFont font1 = hssfworkbook.CreateFont();
-                ////font.Boldweight = (Int16)FontBoldWeight.Bold;//原始字体
-                ////【Tips】
-                //// 1.Boldweight 要使用(Int16)FontBoldWeight 对应的数值 否则无效
-                //font1.Color = IndexedColors.Black.Index; //设置字体颜色
-                ////font1.FontHeight = 9;//设置字体高度【FontHeightInPoints也是设置字体高度，我还不知道有啥区别】
-                ////font1.FontName = "宋体";//设置字体
-                ////font1.IsBold = false;//是否加粗
-                ////font1.IsItalic = false;//是否斜体
-                ////font1.IsStrikeout = false;//是否加删除线
-                ////font.TypeOffset = FontSuperScript.Sub;//设置脚本上的字体【Sub 下；Super 上】
-                ////font.Underline = FontUnderlineType.Single;//下划线【Single一条线；Double两条线】
-                ////创建CellStyle并加载字体
-                //ICellStyle Fontstyle1 = hssfworkbook.CreateCellStyle();
-                //Fontstyle1.SetFont(font1);
-                ////设置第三种
-                //IFont font2 = hssfworkbook.CreateFont();
-                ////font.Boldweight = (Int16)FontBoldWeight.Bold;//原始字体
-                ////【Tips】
-                //// 1.Boldweight 要使用(Int16)FontBoldWeight 对应的数值 否则无效
-                //font2.Color = IndexedColors.Black.Index; //设置字体颜色
-                //font2.FontHeight = 9;//设置字体高度【FontHeightInPoints也是设置字体高度，我还不知道有啥区别】
-                ////font2.FontName = "宋体";//设置字体
-                ////font2.IsBold = true;//是否加粗
-                ////font2.IsItalic = false;//是否斜体
-                ////font2.IsStrikeout = false;//是否加删除线
-                ////font.TypeOffset = FontSuperScript.Sub;//设置脚本上的字体【Sub 下；Super 上】
-                ////font.Underline = FontUnderlineType.Single;//下划线【Single一条线；Double两条线】
-                ////创建CellStyle并加载字体
-                //ICellStyle Fontstyle2 = hssfworkbook.CreateCellStyle();
-                //Fontstyle2.SetFont(font2);
-                #endregion
+                ICellStyle style1 = hssfworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题
+                ICellStyle style2 = hssfworkbook.CreateCellStyle();//nian月日 补给
+                ICellStyle style3 = hssfworkbook.CreateCellStyle();// 11 号字体 1-左边
+                ICellStyle style4 = hssfworkbook.CreateCellStyle();//11 -2
+                ICellStyle style5 = hssfworkbook.CreateCellStyle();// 11 号字体 11个单元格
+                ICellStyle style6 = hssfworkbook.CreateCellStyle();//11 号字体 16个单元格
+                ICellStyle style7 = hssfworkbook.CreateCellStyle();//9号字体不加粗 以上
+                ICellStyle style8 = hssfworkbook.CreateCellStyle();//12号字体
+                ICellStyle style9 = hssfworkbook.CreateCellStyle();//11号加粗字体
+                ICellStyle style10 = hssfworkbook.CreateCellStyle();//最后合计去掉样式
 
-                ICellStyle style1 = hssfworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式
-                ICellStyle style2 = hssfworkbook.CreateCellStyle();//9号字体加粗 没有背景色
-                ICellStyle style3 = hssfworkbook.CreateCellStyle();//9号字体不加粗 没有背景色
-                ICellStyle style4 = hssfworkbook.CreateCellStyle();//9号字体不加粗 深蓝蓝
-                ICellStyle style5 = hssfworkbook.CreateCellStyle();//9号字体不加粗 紫色
-                ICellStyle style6 = hssfworkbook.CreateCellStyle();//9号字体不加粗 LIGHT_TURQUOISE
+                ICellStyle style11 = hssfworkbook.CreateCellStyle();//绿色
+                ICellStyle style12 = hssfworkbook.CreateCellStyle();//第一个表单最后一个格子
+                ICellStyle style13 = hssfworkbook.CreateCellStyle();//第一个表单最后一个格子
                 IFont font = hssfworkbook.CreateFont();
                 font.Color = IndexedColors.Black.Index;
-                font.IsBold = true; ;
-                font.FontHeightInPoints = 15;
+                font.IsBold = false; ;
+                font.FontHeightInPoints = 18;
                 //font.FontName = "宋体";
                 style1.SetFont(font);
                 style1.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
                 style1.VerticalAlignment = VerticalAlignment.Center;
-                style1.BorderLeft = BorderStyle.Thin;
-                style1.BorderRight = BorderStyle.Thin;
-                style1.BorderTop = BorderStyle.Thin;
+
 
                 IFont font2 = hssfworkbook.CreateFont();
                 font2.Color = IndexedColors.Black.Index;
-                font2.IsBold = true; ;
-                font2.FontHeightInPoints = 9;
+                font2.IsBold = false; ;
+                font2.FontHeightInPoints = 12;
                 //font.FontName = "宋体";
                 style2.SetFont(font2);
                 style2.Alignment = HorizontalAlignment.Center;
                 style2.VerticalAlignment = VerticalAlignment.Center;
-                style2.BorderLeft = BorderStyle.Thin;
-                style2.BorderRight = BorderStyle.Thin;
-                style2.BorderTop = BorderStyle.Thin;
+
 
                 IFont font3 = hssfworkbook.CreateFont();
                 font3.Color = IndexedColors.Black.Index;
                 font3.IsBold = false; ;
-                font3.FontHeightInPoints = 9;
-                //font.FontName = "宋体";
+                font3.FontHeightInPoints = 11;
                 style3.SetFont(font3);
                 style3.Alignment = HorizontalAlignment.Center;
                 style3.VerticalAlignment = VerticalAlignment.Center;
-                style3.BorderLeft = BorderStyle.Thin;
-                style3.BorderRight = BorderStyle.Thin;
-                style3.BorderTop = BorderStyle.Thin;
+                style3.BorderLeft = BorderStyle.Medium;
+                style3.BorderBottom = BorderStyle.Thin;
 
                 IFont font4 = hssfworkbook.CreateFont();
                 font4.Color = IndexedColors.Black.Index;
                 font4.IsBold = false; ;
-                font4.FontHeightInPoints = 9;
-                //font.FontName = "宋体";
-                style4.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Turquoise.Index;
-                style4.FillPattern = FillPattern.SolidForeground;
+                font4.FontHeightInPoints = 11;
                 style4.SetFont(font4);
                 style4.Alignment = HorizontalAlignment.Center;
                 style4.VerticalAlignment = VerticalAlignment.Center;
                 style4.BorderLeft = BorderStyle.Thin;
-                style4.BorderRight = BorderStyle.Thin;
-                style4.BorderTop = BorderStyle.Thin;
+                style4.BorderBottom = BorderStyle.Thin;
 
                 IFont font5 = hssfworkbook.CreateFont();
                 font5.Color = IndexedColors.Black.Index;
                 font5.IsBold = false; ;
-                font5.FontHeightInPoints = 9;
-                //font.FontName = "宋体";
-                style5.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Lavender.Index;
+                font5.FontHeightInPoints = 11;
+                style5.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.LightTurquoise.Index;
                 style5.FillPattern = FillPattern.SolidForeground;
                 style5.SetFont(font5);
                 style5.Alignment = HorizontalAlignment.Center;
                 style5.VerticalAlignment = VerticalAlignment.Center;
-                style5.BorderLeft = BorderStyle.Thin;
+                style5.BorderLeft = BorderStyle.Medium;
                 style5.BorderRight = BorderStyle.Thin;
-                style5.BorderTop = BorderStyle.Thin;
                 style5.BorderBottom = BorderStyle.Thin;
 
                 IFont font6 = hssfworkbook.CreateFont();
                 font6.Color = IndexedColors.Black.Index;
                 font6.IsBold = false; ;
-                font5.FontHeightInPoints = 9;
-                //font6.FontName = "宋体";
+                font6.FontHeightInPoints = 11;
                 style6.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.LightTurquoise.Index;
                 style6.FillPattern = FillPattern.SolidForeground;
                 style6.SetFont(font6);
                 style6.Alignment = HorizontalAlignment.Center;
                 style6.VerticalAlignment = VerticalAlignment.Center;
-                style6.BorderLeft = BorderStyle.Thin;
-                style6.BorderRight = BorderStyle.Thin;
-                style6.BorderTop = BorderStyle.Thin;
+                style6.BorderLeft = BorderStyle.Medium;
+                style6.BorderRight = BorderStyle.Medium;
+                style6.BorderBottom = BorderStyle.Thin;
+
+                
+                style7.BorderLeft = BorderStyle.Thin;
+                style7.BorderRight = BorderStyle.Thin;
+                style7.BorderBottom = BorderStyle.Thin;
+
+                IFont font8 = hssfworkbook.CreateFont();
+                font8.Color = IndexedColors.Black.Index;
+                font8.IsBold = false; ;
+                font8.FontHeightInPoints = 12;
+                style8.SetFont(font8);
+                style8.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                style8.VerticalAlignment = VerticalAlignment.Center;
+
+                IFont font9 = hssfworkbook.CreateFont();
+                font9.Color = IndexedColors.Black.Index;
+                font9.IsBold = true; ;
+                font9.FontHeightInPoints = 11;
+                style9.SetFont(font9);
+                style9.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                style9.VerticalAlignment = VerticalAlignment.Center;
+
+                style10.BorderLeft = BorderStyle.None;
+                style10.BorderBottom = BorderStyle.None;
+                
+                style11.SetFont(font9);
+                style11.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Lime.Index;
+                style11.FillPattern = FillPattern.SolidForeground;
+                style11.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                style11.VerticalAlignment = VerticalAlignment.Center;
+                style11.BorderLeft = BorderStyle.Thin;
+                style11.BorderBottom = BorderStyle.Medium;
+
+                style12.SetFont(font9);
+                style12.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Lime.Index;
+                style12.FillPattern = FillPattern.SolidForeground;
+                style12.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                style12.VerticalAlignment = VerticalAlignment.Center;
+                style12.BorderLeft = BorderStyle.Thin;
+                style12.BorderRight = BorderStyle.Medium;
+                style12.BorderBottom = BorderStyle.Medium;
+                style13.BorderBottom = BorderStyle.Medium;
+
+                #endregion
                 #region 设置列的宽度
-                mysheetHSSF.SetColumnWidth(0, 17 * 256); //设置第1列的列宽为17个字符
-                mysheetHSSF.SetColumnWidth(1, 5 * 256); //设置第2列的列宽为31个字符
-                mysheetHSSF.SetColumnWidth(2, 10 * 256); //设置第3列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(3, 10 * 256); //设置第4列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(4, 10 * 256); //设置第5列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(5, 10 * 256); //设置第6列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(6, 10 * 256); //设置第7列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(7, 10 * 256); //设置第8列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(8, 10 * 256); //设置第9列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(9, 10 * 256); //设置第10列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(10, 10 * 256); //设置第11列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(11, 10 * 256); //设置第12列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(12, 10 * 256); //设置第13列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(13, 17 * 256); //设置第14列的列宽为17个字符
+                //mysheetHSSF.SetColumnWidth(0, 17 * 256); //设置第1列的列宽为17个字符
+                //mysheetHSSF.SetColumnWidth(1, 5 * 256); //设置第2列的列宽为31个字符
+                //mysheetHSSF.SetColumnWidth(2, 10 * 256); //设置第3列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(3, 10 * 256); //设置第4列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(4, 10 * 256); //设置第5列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(5, 10 * 256); //设置第6列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(6, 10 * 256); //设置第7列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(7, 10 * 256); //设置第8列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(8, 10 * 256); //设置第9列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(9, 10 * 256); //设置第10列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(10, 10 * 256); //设置第11列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(11, 10 * 256); //设置第12列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(12, 10 * 256); //设置第13列的列宽为10个字符
+                //mysheetHSSF.SetColumnWidth(13, 17 * 256); //设置第14列的列宽为17个字符
                 #endregion
 
-                #region //设置第一行
+                #region  设置标题
+                ISheet sheetOrder = hssfworkbook.GetSheet("data");
+                sheetOrder.GetRow(0).GetCell(1).SetCellValue("【"+vcTargetMonth.Replace("/","").Substring(0,4)+"年"+ vcTargetMonth.Replace("/", "").Substring(4, 2) + "月】补给品纳入 & 出荷总结");//标题名称
+                sheetOrder.GetRow(0).GetCell(1).CellStyle = style1;
 
-                IRow FirstrowHSSF = mysheetHSSF.CreateRow(0);//创建row 行 从0开始
+                string strDate = DateTime.Now.ToString("yyyy年MM月dd日");
+                sheetOrder.GetRow(0).GetCell(15).SetCellValue(strDate);//标题名称
+                sheetOrder.GetRow(0).GetCell(15).CellStyle = style2;
 
-                FirstrowHSSF.Height = 50 * 20; //设置高度为50个点
-                FirstrowHSSF.CreateCell(0).SetCellValue("销售数据用");
-                FirstrowHSSF.GetCell(0).CellStyle = style1;//将CellStyle应用于具体单元格 
                 #endregion
-                #region //设置第二行 
-                //设置第二行 统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
-                mysheetHSSF.AddMergedRegion(new CellRangeAddress(1, 1, 0, 1)); //合并单元格第二行从第1列到第2列
-                IRow SecondRowHSSF = mysheetHSSF.CreateRow(1); //添加第二行
-                SecondRowHSSF.CreateCell(0).SetCellValue("统计项目");
-                SecondRowHSSF.GetCell(0).CellStyle = style3;//将CellStyle应用于具体单元格 
-                SecondRowHSSF.CreateCell(1).SetCellValue("");
-                SecondRowHSSF.GetCell(1).CellStyle = style3;//将CellStyle应用于具体单元格 
-                SecondRowHSSF.CreateCell(2).SetCellValue("1月");
-                SecondRowHSSF.GetCell(2).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(3).SetCellValue("2月");
-                SecondRowHSSF.GetCell(3).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(4).SetCellValue("3月");
-                SecondRowHSSF.GetCell(4).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(5).SetCellValue("4月");
-                SecondRowHSSF.GetCell(5).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(6).SetCellValue("5月");
-                SecondRowHSSF.GetCell(6).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(7).SetCellValue("6月");
-                SecondRowHSSF.GetCell(7).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(8).SetCellValue("7月");
-                SecondRowHSSF.GetCell(8).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(9).SetCellValue("8月");
-                SecondRowHSSF.GetCell(9).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(10).SetCellValue("9月");
-                SecondRowHSSF.GetCell(10).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(11).SetCellValue("10月");
-                SecondRowHSSF.GetCell(11).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(12).SetCellValue("11月");
-                SecondRowHSSF.GetCell(12).CellStyle = style3;
-
-
-                SecondRowHSSF.CreateCell(13).SetCellValue("12月");
-                SecondRowHSSF.GetCell(13).CellStyle = style3;
-
-                SecondRowHSSF.CreateCell(14).SetCellValue("合计");
-                SecondRowHSSF.GetCell(14).CellStyle = style3;
-                #endregion
-
-                #region //设置第三行 
-                //设置第二行 统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
-                IRow ThreeRowHSSF = mysheetHSSF.CreateRow(2); //添加第二行
-                ThreeRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
-                ThreeRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
-
-                ThreeRowHSSF.CreateCell(1).SetCellValue("");
-                ThreeRowHSSF.GetCell(1).CellStyle = style4;
-                // 金额数赋值
-                int lastMontyRow = dtMonty.Rows.Count - 1;
-                for (var i = 3; i < dtMonty.Columns.Count; i++)
+                #region 创建行
+                int startRowIndexFor2 = 7;
+                if (dtNewQianPin.Rows.Count > 1)
                 {
-                    ThreeRowHSSF.CreateCell(i - 1).SetCellValue(dtMonty.Rows[lastMontyRow][i].ToString());
-                    ThreeRowHSSF.GetCell(i - 1).CellStyle = style4;
-                }
-
-                #endregion
-                #region //设置第四行 
-                //设置第四行  统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
-                IRow FourRowHSSF = mysheetHSSF.CreateRow(3); //添加第二行
-                FourRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
-                FourRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
-
-                FourRowHSSF.CreateCell(1).SetCellValue("");
-                FourRowHSSF.GetCell(1).CellStyle = style5;
-                // 金额数赋值
-                int lastNumRow = dtNum.Rows.Count - 1;
-                for (var i = 3; i < dtNum.Columns.Count; i++)
-                {
-                    FourRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[lastNumRow][i].ToString());
-                    FourRowHSSF.GetCell(i - 1).CellStyle = style5;
-                }
-
-                #endregion
-
-                #region 设置第五行
-                IRow FiveRowHSSF = mysheetHSSF.CreateRow(4);
-                #endregion
-                #region 设置第六行
-                IRow SixRowHSSF = mysheetHSSF.CreateRow(5);
-                SixRowHSSF.CreateCell(0).SetCellValue("需求统计用");
-                #endregion
-                #region 设置第七行
-                IRow SevenRowHSSF = mysheetHSSF.CreateRow(6);
-                SevenRowHSSF.CreateCell(0).SetCellValue("销售数量（件)");
-                #endregion
-                #region 设置第八行 存在列的合并单元格
-                int heBingStartRow = 7;
-                int hebingEndRow = 8;
-                int nextRow = 7;
-                bool isNeedNumCol = true;//是否需要设置列头
-                if (dtNum.Rows.Count > 0)
-                {
-                    string strPlantName = dtNum.Rows[0]["vcInjectionFactory"].ToString();
-                    int j = 0;
-                    for (int i = 1; i < dtNum.Rows.Count; i++)
+                    sheetOrder.ShiftRows(startRowIndexFor2, sheetOrder.LastRowNum, dtNewQianPin.Rows.Count - 1, true, false);
+                    for (int k = startRowIndexFor2; k < startRowIndexFor2 + dtNewQianPin.Rows.Count - 1; k++)
                     {
-                        if (dtNum.Rows[i]["vcInjectionFactory"].ToString() != strPlantName)
+                        var rowInsert = sheetOrder.CreateRow(k);
+                        rowInsert.Height = 34 * 20;
+
+                        for (int col = 0; col < 17; col++)
                         {
-                            if (heBingStartRow != hebingEndRow)
+                            var cellInsert = rowInsert.CreateCell(col);
+                            if (col == 0)
                             {
-                                mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                                cellInsert.CellStyle = style3;
                             }
-                            if (isNeedNumCol)
+                            else if (col == 16)
                             {
-                                #region 追加列头
-                                IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                EightRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                EightRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                EightRowHSSF.CreateCell(1).SetCellValue("工程");
-                                EightRowHSSF.GetCell(1).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(2).SetCellValue("1月");
-                                EightRowHSSF.GetCell(2).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(3).SetCellValue("2月");
-                                EightRowHSSF.GetCell(3).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(4).SetCellValue("3月");
-                                EightRowHSSF.GetCell(4).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(5).SetCellValue("4月");
-                                EightRowHSSF.GetCell(5).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(6).SetCellValue("5月");
-                                EightRowHSSF.GetCell(6).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(7).SetCellValue("6月");
-                                EightRowHSSF.GetCell(7).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(8).SetCellValue("7月");
-                                EightRowHSSF.GetCell(8).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(9).SetCellValue("8月");
-                                EightRowHSSF.GetCell(9).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(10).SetCellValue("9月");
-                                EightRowHSSF.GetCell(10).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(11).SetCellValue("10月");
-                                EightRowHSSF.GetCell(11).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(12).SetCellValue("11月");
-                                EightRowHSSF.GetCell(12).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(13).SetCellValue("12月");
-                                EightRowHSSF.GetCell(13).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(14).SetCellValue("合计");
-                                EightRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                #endregion
-                                nextRow++;
+                                cellInsert.CellStyle = style7;
                             }
-                            for (; j < i; j++)//行
+                            else
                             {
-                                IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                if (heBingStartRow == nextRow)
-                                {
-                                    NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                    NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                }
-                                int colNum = 1;//用于计数
-                                for (var k = 1; k < dtNum.Columns.Count; k++)
-                                {
-                                    if (k != 2)//k=2是 年份 去掉
-                                    {
-                                        NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[j][k].ToString());
-                                        NextRowHSSF.GetCell(colNum).CellStyle = style6;
-                                        colNum++;
-                                    }
-                                }
-                                nextRow++;
+                                cellInsert.CellStyle = style4;
                             }
-                            strPlantName = dtNum.Rows[i]["vcInjectionFactory"].ToString();
-                            isNeedNumCol = false;
-                            heBingStartRow = hebingEndRow + 1;
-                            hebingEndRow++;
-                            j = i;
-                        }
-                        else
-                        {
-                            hebingEndRow++;
-                            //IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                            //int colNum = 1;//用于计数
-                            //for (var k = 1; k < dtNum.Columns.Count; k++)
-                            //{
-                            //    if (k != 2)//k=2是 年份 去掉
-                            //    {
-                            //        NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[i][k].ToString());
-                            //        NextRowHSSF.GetCell(colNum).CellStyle = styleCenter;
-                            //        NextRowHSSF.GetCell(colNum).CellStyle = Fontstyle1;
-                            //    }
-                            //    colNum++;
-                            //}
-                            //nextRow++;
                         }
                     }
-
-                    //创建销售数据最后一行
-                    #region
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
-                    NineRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
-
-                    NineRowHSSF.CreateCell(1).SetCellValue("");
-                    NineRowHSSF.CreateCell(1).CellStyle = style2;
-                    for (var i = 3; i < dtNum.Columns.Count; i++)
-                    {
-                        NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
-                        NineRowHSSF.GetCell(i - 1).CellStyle = style2;
-                    }
-                    nextRow++;
-                    #endregion
                 }
-                else
+                int startRowIndex = 4;
+                if (dtNew.Rows.Count > 1)
                 {
-                    #region  不存在数据 就只创建列头 
-                    IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    EightRowHSSF.CreateCell(0).SetCellValue("");
-                    EightRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(1).SetCellValue("工程");
-                    EightRowHSSF.GetCell(1).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(2).SetCellValue("1月");
-                    EightRowHSSF.GetCell(2).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(3).SetCellValue("2月");
-                    EightRowHSSF.GetCell(3).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(4).SetCellValue("3月");
-                    EightRowHSSF.GetCell(4).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(5).SetCellValue("4月");
-                    EightRowHSSF.GetCell(5).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(6).SetCellValue("5月");
-                    EightRowHSSF.GetCell(6).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(7).SetCellValue("6月");
-                    EightRowHSSF.GetCell(7).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(8).SetCellValue("7月");
-                    EightRowHSSF.GetCell(8).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(9).SetCellValue("8月");
-                    EightRowHSSF.GetCell(9).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(10).SetCellValue("9月");
-                    EightRowHSSF.GetCell(10).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(11).SetCellValue("10月");
-                    EightRowHSSF.GetCell(11).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(12).SetCellValue("11月");
-                    EightRowHSSF.GetCell(12).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(13).SetCellValue("12月");
-                    EightRowHSSF.GetCell(13).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(14).SetCellValue("合计");
-                    EightRowHSSF.GetCell(14).CellStyle = style2;//将CellStyle应用于具体单元格 
-                    nextRow++;
-                    //下一行
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
-                    NineRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
-                    #endregion
-                    nextRow++;
-                }
-
-                // 写 销售额(万元）
-                #region 设置第十行
-                IRow MoneySellNameRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                MoneySellNameRowHSSF.CreateCell(0).SetCellValue("销售额(万元）");
-                MoneySellNameRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
-                nextRow++;
-                #endregion
-                #region 销售万元明细
-                heBingStartRow = nextRow;
-                hebingEndRow = nextRow + 1;
-                isNeedNumCol = true;
-                if (dtMonty.Rows.Count > 0)
-                {
-                    string strPlantName = dtMonty.Rows[0]["vcInjectionFactory"].ToString();
-                    int j = 0;
-                    for (int i = 1; i < dtMonty.Rows.Count; i++)
+                    sheetOrder.ShiftRows(startRowIndex, sheetOrder.LastRowNum, dtNew.Rows.Count - 1, true, false);
+                    for (int k = startRowIndex; k < startRowIndex + dtNew.Rows.Count - 1; k++)
                     {
-                        if (dtMonty.Rows[i]["vcInjectionFactory"].ToString() != strPlantName)
+                        var rowInsert = sheetOrder.CreateRow(k);
+                        rowInsert.Height = 34 * 20;
+
+                        for (int col = 0; col < 17; col++)
                         {
-                            if (heBingStartRow != hebingEndRow)
+                            var cellInsert = rowInsert.CreateCell(col);
+                            if (col == 0||col==7||col==10||col==15)
                             {
-                                mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                                cellInsert.CellStyle = style3;
                             }
-
-                            if (isNeedNumCol)
+                            else if(col==11)
                             {
-                                #region 追加列头
-                                IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                NextRowHSSF.CreateCell(1).SetCellValue("工程");
-                                NextRowHSSF.GetCell(1).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(2).SetCellValue("1月");
-                                NextRowHSSF.GetCell(2).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(3).SetCellValue("2月");
-                                NextRowHSSF.GetCell(3).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(4).SetCellValue("3月");
-                                NextRowHSSF.GetCell(4).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(5).SetCellValue("4月");
-                                NextRowHSSF.GetCell(5).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(6).SetCellValue("5月");
-                                NextRowHSSF.GetCell(6).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(7).SetCellValue("6月");
-                                NextRowHSSF.GetCell(7).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(8).SetCellValue("7月");
-                                NextRowHSSF.GetCell(8).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(9).SetCellValue("8月");
-                                NextRowHSSF.GetCell(9).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(10).SetCellValue("9月");
-                                NextRowHSSF.GetCell(10).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(11).SetCellValue("10月");
-                                NextRowHSSF.GetCell(11).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(12).SetCellValue("11月");
-                                NextRowHSSF.GetCell(12).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(13).SetCellValue("12月");
-                                NextRowHSSF.GetCell(13).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(14).SetCellValue("合计");
-                                NextRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                #endregion
-                                nextRow++;
-
+                                cellInsert.CellStyle = style5;
                             }
-                            for (; j < i; j++)//行
+                            else if (col==16)
                             {
-                                IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                if (heBingStartRow == nextRow)
-                                {
-                                    NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                    NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                }
-                                int colNum = 1;//用于计数
-                                for (var k = 1; k < dtMonty.Columns.Count; k++)
-                                {
-                                    if (k != 2)//k=2是 年份 去掉
-                                    {
-                                        NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[j][k].ToString());
-                                        NextRowHSSF.GetCell(colNum).CellStyle = style6;
-                                        colNum++;
-                                    }
-                                }
-                                nextRow++;
+                                cellInsert.CellStyle = style6;
                             }
-                            strPlantName = dtNum.Rows[i]["vcInjectionFactory"].ToString();
-                            isNeedNumCol = false;
-                            heBingStartRow = hebingEndRow + 1;
-                            hebingEndRow++;
-                            j = i;
-                        }
-                        else
-                        {
-                            hebingEndRow++;
-                            //IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                            //int colNum = 1;//用于计数
-                            //for (var k = 1; k < dtMonty.Columns.Count; k++)
-                            //{
-                            //    if (k != 2)//k=2是 年份 去掉
-                            //    {
-                            //        NextRowHSSF.CreateCell(colNum).SetCellValue(dtMonty.Rows[i][k].ToString());
-                            //        NextRowHSSF.GetCell(colNum).CellStyle = styleCenter;
-                            //        NextRowHSSF.GetCell(colNum).CellStyle = Fontstyle1;
-                            //    }
-                            //    colNum++;
-                            //}
-                            //nextRow++;
+                            else 
+                            {
+                                cellInsert.CellStyle = style4;
+                            }
                         }
                     }
-
-                    //创建销售数据最后一行
-                    #region
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
-                    NineRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
-
-                    NineRowHSSF.CreateCell(1).SetCellValue("");
-                    NineRowHSSF.CreateCell(1).CellStyle = style2;
-                    for (var i = 3; i < dtNum.Columns.Count; i++)
-                    {
-                        NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
-                        NineRowHSSF.GetCell(i - 1).CellStyle = style2;
-                    }
-                    nextRow++;
-                    #endregion
                 }
-                else
+                #endregion
+
+                #region 填充数据
+                #region//纳入出荷 统计
+                int startRowNum = 3;//开始填写数据
+                int endRowNum = 0;
+                int nextRowNum = startRowNum;
+                for (int m = 0; m < dtConsigneeSelect.Rows.Count; m++)
                 {
-                    #region  不存在数据 就只创建列头 
-                    IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    EightRowHSSF.CreateCell(0).SetCellValue("");
-                    EightRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
+                    string strConsignee = dtConsigneeSelect.Rows[m]["收货方"].ToString();
+                    DataRow[] drArray = dtNew.Select("收货方='" + strConsignee + "' ");
+                    DataTable dt1 = drArray[0].Table.Clone();
+                    foreach (DataRow dr in drArray)
+                    {
+                        dt1.ImportRow(dr);
+                    }
+                    //设置第二行 统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
+                    sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum+ dt1.Rows.Count-1, 0, 0)); //合并单元格第二行从第1列到第2列
+                    sheetOrder.GetRow(nextRowNum).GetCell(0).SetCellValue(strConsignee);//收货方
+                    //sheetOrder.GetRow(nextRowNum).GetCell(0).CellStyle = style8;
 
-                    EightRowHSSF.CreateCell(1).SetCellValue("工程");
-                    EightRowHSSF.GetCell(1).CellStyle = style2;//将CellStyle应用于具体单元格 
+                    string[] columnArray = { "收货方", "工厂" };
+                    DataView dtSelectView = dt1.DefaultView;
+                    DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt1 
 
-                    EightRowHSSF.CreateCell(2).SetCellValue("1月");
-                    EightRowHSSF.GetCell(2).CellStyle = style2;//将CellStyle应用于具体单元格 
+                    for (int i = 0; i < dtSelect.Rows.Count; i++)
+                    {
+                        string strConsigneeChild = dtSelect.Rows[i]["收货方"].ToString();
+                        string strPlantChild = dtSelect.Rows[i]["工厂"].ToString();
+                        DataRow[] drArrayChild = dtNew.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        DataTable dt4plant = drArrayChild[0].Table.Clone();
+                        foreach (DataRow dr in drArrayChild)
+                        {
+                            dt4plant.ImportRow(dr);
+                        }
+                        //工厂
+                        sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChild.Length-1, 1, 1)); //合并单元格第二行从第1列到第2列
+                        sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue(strPlantChild);//工厂
+                        //sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style8;
 
-                    EightRowHSSF.CreateCell(3).SetCellValue("2月");
-                    EightRowHSSF.GetCell(3).CellStyle = style2;//将CellStyle应用于具体单元格 
+                        DataRow[] drArrayChild4NeiZhi = dt4plant.Select("工程<>'外注' and 工程<>'合计' ");
+                        if (drArrayChild4NeiZhi.Length>0)
+                        {
+                            if (drArrayChild4NeiZhi.Length > 1)
+                            {
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChild4NeiZhi.Length - 1, 2, 2)); //合并单元格第二行从第1列到第2列
+                            }
+                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("內制");//工厂
+                            //sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style8;
+                            foreach (DataRow dr in drArrayChild4NeiZhi)
+                            {
+                                //行赋值
+                                sheetOrder.GetRow(nextRowNum).GetCell(3).SetCellValue(dr["工程"].ToString());//工厂
+                                //sheetOrder.GetRow(nextRowNum).GetCell(3).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(4).SetCellValue(Convert.ToDouble(dr["月度订单"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(4).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(5).SetCellValue(Convert.ToDouble(dr["紧急订单"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(5).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(6).SetCellValue(Convert.ToDouble(dr["应纳合计(A)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["月度订单纳入实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(8).SetCellValue(Convert.ToDouble(dr["紧急订单纳入实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(8).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(9).SetCellValue(Convert.ToDouble(dr["纳入合计(B)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(9).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(10).SetCellValue(dr["纳入率(B/A)"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(10).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(11).SetCellValue(dr["前月纳入率"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(11).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(12).SetCellValue(Convert.ToDouble(dr["月度订单出荷实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(12).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(13).SetCellValue(Convert.ToDouble(dr["紧急订单出荷实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(13).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(14).SetCellValue(Convert.ToDouble(dr["出荷合计(D)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(14).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(15).SetCellValue(dr["出荷率(D/A)"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(15).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(16).SetCellValue(dr["前月出荷率"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(16).CellStyle = style8;
+                                nextRowNum++;
+                            }
+                        }
+                        //外注
+                        DataRow[] drArrayChild4WaiZhu = dt4plant.Select("工程='外注'");
+                        if (drArrayChild4WaiZhu.Length > 0)
+                        {
+                            sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 2, 3)); //合并单元格第二行从第1列到第2列
+                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("外注");//工厂
+                            //sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style8;
+                            foreach (DataRow dr in drArrayChild4WaiZhu)
+                            {
+                                //行赋值
+                                sheetOrder.GetRow(nextRowNum).GetCell(4).SetCellValue(Convert.ToDouble(dr["月度订单"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(4).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(5).SetCellValue(Convert.ToDouble(dr["紧急订单"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(5).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(6).SetCellValue(Convert.ToDouble(dr["应纳合计(A)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["月度订单纳入实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(8).SetCellValue(Convert.ToDouble(dr["紧急订单纳入实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(8).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(9).SetCellValue(Convert.ToDouble(dr["纳入合计(B)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(9).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(10).SetCellValue(dr["纳入率(B/A)"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(10).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(11).SetCellValue(dr["前月纳入率"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(11).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(12).SetCellValue(Convert.ToDouble(dr["月度订单出荷实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(12).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(13).SetCellValue(Convert.ToDouble(dr["紧急订单出荷实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(13).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(14).SetCellValue(Convert.ToDouble(dr["出荷合计(D)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(14).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(15).SetCellValue(dr["出荷率(D/A)"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(15).CellStyle = style8;
+                                sheetOrder.GetRow(nextRowNum).GetCell(16).SetCellValue(dr["前月出荷率"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(16).CellStyle = style8;
+                                nextRowNum++;
+                            }
+                        }
+                        //合计
+                        DataRow[] drArrayChild4HeJi = dt4plant.Select("工程='合计'");
+                        if (drArrayChild4HeJi.Length > 0)
+                        {
+                            sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 2, 3)); //合并单元格第二行从第1列到第2列
+                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("合计");//工厂
+                            //sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style8;
+                            foreach (DataRow dr in drArrayChild4HeJi)
+                            {
+                                //行赋值
+                                sheetOrder.GetRow(nextRowNum).GetCell(4).SetCellValue(Convert.ToDouble(dr["月度订单"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(4).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(5).SetCellValue(Convert.ToDouble(dr["紧急订单"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(5).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(6).SetCellValue(Convert.ToDouble(dr["应纳合计(A)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["月度订单纳入实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(8).SetCellValue(Convert.ToDouble(dr["紧急订单纳入实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(8).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(9).SetCellValue(Convert.ToDouble(dr["纳入合计(B)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(9).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(10).SetCellValue(dr["纳入率(B/A)"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(10).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(11).SetCellValue(dr["前月纳入率"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(11).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(12).SetCellValue(Convert.ToDouble(dr["月度订单出荷实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(12).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(13).SetCellValue(Convert.ToDouble(dr["紧急订单出荷实绩"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(13).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(14).SetCellValue(Convert.ToDouble(dr["出荷合计(D)"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(14).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(15).SetCellValue(dr["出荷率(D/A)"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(15).CellStyle = style9;
+                                sheetOrder.GetRow(nextRowNum).GetCell(16).SetCellValue(dr["前月出荷率"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(16).CellStyle = style9;
+                                nextRowNum++;
+                            }
+                        }
+                    }
+                    DataRow[] drArraySum = dtSumReport.Select("收货方='" + strConsignee + "' ");
+                    foreach (DataRow dr in drArraySum)
+                    {
+                        sheetOrder.GetRow(nextRowNum).GetCell(0).SetCellValue("");
+                        sheetOrder.GetRow(nextRowNum).GetCell(0).CellStyle = style10;
+                        sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 1, 3)); //合并单元格第二行从第1列到第2列
+                        sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue("合计");//工厂
+                        sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style13;
+                        sheetOrder.GetRow(nextRowNum).GetCell(3).CellStyle = style13;
+                        sheetOrder.GetRow(nextRowNum).GetCell(4).SetCellValue(Convert.ToDouble(dr["月度订单"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(4).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(5).SetCellValue(Convert.ToDouble(dr["紧急订单"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(5).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(6).SetCellValue(Convert.ToDouble(dr["应纳合计(A)"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["月度订单纳入实绩"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(8).SetCellValue(Convert.ToDouble(dr["紧急订单纳入实绩"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(8).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(9).SetCellValue(Convert.ToDouble(dr["纳入合计(B)"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(9).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(10).SetCellValue(dr["纳入率(B/A)"].ToString());
+                        sheetOrder.GetRow(nextRowNum).GetCell(10).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(11).SetCellValue(dr["前月纳入率"].ToString());
+                        sheetOrder.GetRow(nextRowNum).GetCell(11).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(12).SetCellValue(Convert.ToDouble(dr["月度订单出荷实绩"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(12).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(13).SetCellValue(Convert.ToDouble(dr["紧急订单出荷实绩"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(13).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(14).SetCellValue(Convert.ToDouble(dr["出荷合计(D)"].ToString()));
+                        sheetOrder.GetRow(nextRowNum).GetCell(14).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(15).SetCellValue(dr["出荷率(D/A)"].ToString());
+                        sheetOrder.GetRow(nextRowNum).GetCell(15).CellStyle = style11;
+                        sheetOrder.GetRow(nextRowNum).GetCell(16).SetCellValue(dr["前月出荷率"].ToString());
+                        sheetOrder.GetRow(nextRowNum).GetCell(16).CellStyle = style12;
+                        nextRowNum++;
+                    }
+                }
+                #endregion
 
-                    EightRowHSSF.CreateCell(4).SetCellValue("3月");
-                    EightRowHSSF.GetCell(4).CellStyle = style2;//将CellStyle应用于具体单元格 
+                #region
+                nextRowNum = nextRowNum + 3;
+                for (int m = 0; m < dtConsigneeSelectQianPin.Rows.Count; m++)
+                {
+                    string strConsigneeQianPin = dtConsigneeSelectQianPin.Rows[m]["vcReceiver"].ToString();
+                    DataRow[] drArrayQianPin = dtNewQianPin.Select("vcReceiver='" + strConsigneeQianPin + "' ");
+                    DataTable dt1QianPin = drArrayQianPin[0].Table.Clone();
+                    foreach (DataRow dr in drArrayQianPin)
+                    {
+                        dt1QianPin.ImportRow(dr);
+                    }
+                    //收货方
+                    sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayQianPin.Length-1, 0, 0)); //合并单元格第二行从第1列到第2列
+                    sheetOrder.GetRow(nextRowNum).GetCell(0).SetCellValue(strConsigneeQianPin);//收货方
+                    //sheetOrder.GetRow(nextRowNum).GetCell(0).CellStyle = style8;
 
-                    EightRowHSSF.CreateCell(5).SetCellValue("4月");
-                    EightRowHSSF.GetCell(5).CellStyle = style2;//将CellStyle应用于具体单元格 
+                    string[] columnArrayQianPin = { "vcReceiver", "vcOrderPlant" };
+                    DataView dtSelectViewQianPin = dt1QianPin.DefaultView;
+                    DataTable dtSelectQianPin = dtSelectViewQianPin.ToTable(true, columnArrayQianPin);//去重后的dt1 
 
-                    EightRowHSSF.CreateCell(6).SetCellValue("5月");
-                    EightRowHSSF.GetCell(6).CellStyle = style2;//将CellStyle应用于具体单元格 
+                    for (int i = 0; i < dtSelectQianPin.Rows.Count; i++)
+                    {
+                        string strConsigneeChildQianPin = dtSelectQianPin.Rows[i]["vcReceiver"].ToString();
+                        string strPlantChildQianPin = dtSelectQianPin.Rows[i]["vcOrderPlant"].ToString();
+                        DataRow[] drArrayChildQianPin = dtNewQianPin.Select("vcReceiver='" + strConsigneeChildQianPin + "' and vcOrderPlant='" + strPlantChildQianPin + "' ");
 
-                    EightRowHSSF.CreateCell(7).SetCellValue("6月");
-                    EightRowHSSF.GetCell(7).CellStyle = style2;//将CellStyle应用于具体单元格 
+                        DataTable dtChildQianPin4Class = drArrayChildQianPin[0].Table.Clone();
+                        //发注工厂
+                        sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChildQianPin.Length-2, 1, 2)); //合并单元格第二行从第1列到第2列
+                        sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue(strPlantChildQianPin);
+                        //sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style8;
 
-                    EightRowHSSF.CreateCell(8).SetCellValue("7月");
-                    EightRowHSSF.GetCell(8).CellStyle = style2;//将CellStyle应用于具体单元格 
 
-                    EightRowHSSF.CreateCell(9).SetCellValue("8月");
-                    EightRowHSSF.GetCell(9).CellStyle = style2;//将CellStyle应用于具体单元格 
+                        string msg = string.Empty;
+                        foreach (DataRow dr in drArrayChildQianPin)
+                        {
+                            dtChildQianPin4Class.ImportRow(dr);
+                        }
+                        //纳入
+                        DataRow[] drArrayChildQianPin4Class4Naru = dtChildQianPin4Class.Select("vcClassType='纳入' ");
+                        if (drArrayChildQianPin4Class4Naru.Length>0)
+                        {
+                            if (drArrayChildQianPin4Class4Naru.Length > 1)
+                            {
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChildQianPin4Class4Naru.Length - 1, 3, 3)); //合并单元格第二行从第1列到第2列
+                            }
+                            
+                            sheetOrder.GetRow(nextRowNum).GetCell(3).SetCellValue("纳入");
+                            //sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style8;
 
-                    EightRowHSSF.CreateCell(10).SetCellValue("9月");
-                    EightRowHSSF.GetCell(10).CellStyle = style2;//将CellStyle应用于具体单元格 
+                            foreach (DataRow dr in drArrayChildQianPin4Class4Naru)
+                            {
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 4, 5)); //合并单元格第二行从第1列到第2列
+                                sheetOrder.GetRow(nextRowNum).GetCell(4).SetCellValue(dr["vcSupplierId"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(4).CellStyle = style11;
+                                sheetOrder.GetRow(nextRowNum).GetCell(6).SetCellValue(Convert.ToDouble(dr["partNum"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
+                                sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
+                                nextRowNum++;
+                            }
+                        }
 
-                    EightRowHSSF.CreateCell(11).SetCellValue("10月");
-                    EightRowHSSF.GetCell(11).CellStyle = style2;//将CellStyle应用于具体单元格 
+                        DataRow[] drArrayChildQianPin4Class4chuhe = dtChildQianPin4Class.Select("vcClassType='出荷' ");
+                        if (drArrayChildQianPin4Class4chuhe.Length > 0)
+                        {
+                            if (drArrayChildQianPin4Class4chuhe.Length > 1)
+                            {
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChildQianPin4Class4chuhe.Length - 1, 3, 3)); //合并单元格第二行从第1列到第2列
+                            }
+                            sheetOrder.GetRow(nextRowNum).GetCell(3).SetCellValue("出荷");
+                            //sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style8;
 
-                    EightRowHSSF.CreateCell(12).SetCellValue("11月");
-                    EightRowHSSF.GetCell(12).CellStyle = style2;//将CellStyle应用于具体单元格 
+                            foreach (DataRow dr in drArrayChildQianPin4Class4chuhe)
+                            {
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 4, 5)); //合并单元格第二行从第1列到第2列
+                                sheetOrder.GetRow(nextRowNum).GetCell(4).SetCellValue(dr["vcSupplierId"].ToString());
+                                //sheetOrder.GetRow(nextRowNum).GetCell(4).CellStyle = style11;
+                                sheetOrder.GetRow(nextRowNum).GetCell(6).SetCellValue(Convert.ToDouble(dr["partNum"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
+                                sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
+                                nextRowNum++;
+                            }
+                        }
+                        DataRow[] drArrayChildQianPin4Class4heji = dtChildQianPin4Class.Select("vcClassType='合计' ");
+                        if (drArrayChildQianPin4Class4heji.Length > 0)
+                        {
+                            sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum , 1, 5)); //合并单元格第二行从第1列到第2列
+                            sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue("合计");
+                            //sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style8;
 
-                    EightRowHSSF.CreateCell(13).SetCellValue("12月");
-                    EightRowHSSF.GetCell(13).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(14).SetCellValue("合计");
-                    EightRowHSSF.GetCell(14).CellStyle = style2;//将CellStyle应用于具体单元格 
-                    nextRow++;
-                    //下一行
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
-                    NineRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
-                    #endregion
-                    nextRow++;
+                            foreach (DataRow dr in drArrayChildQianPin4Class4heji)
+                            {
+                                sheetOrder.GetRow(nextRowNum).GetCell(6).SetCellValue(Convert.ToDouble(dr["partNum"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
+                                sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
+                                //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
+                                nextRowNum++;
+                            }
+                        }
+                    }
                 }
                 #endregion
                 #endregion
-
 
                 string rootPath = _webHostEnvironment.ContentRootPath;
-                string strFunctionName = "FS0627_Export";
+                string strFunctionName = "FS0629_Export";
+
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
-                filepath = fileSavePath + strFileName;
+                string filepath = fileSavePath + strFileName;
 
-                using (FileStream file = new FileStream(filepath, FileMode.Create))
+                using (FileStream fs = System.IO.File.OpenWrite(filepath))
                 {
-                    hssfworkbook.Write(file);//向打开的这个xls文件中写入数据  
-                    file.Close();
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
                 }
                 #endregion
-                #region delete
-                //输出的文件名称
-                //string fileName = "故障码信息" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-ffff") + ".xls";
-                ////把Excel转为流，输出
-                ////创建文件流
-                //System.IO.MemoryStream bookStream = new System.IO.MemoryStream();
-                ////将工作薄写入文件流
-                //excelBook.Write(bookStream);
-
-                ////输出之前调用Seek（偏移量，游标位置) 把0位置指定为开始位置
-                //bookStream.Seek(0, System.IO.SeekOrigin.Begin);
-                ////Stream对象,文件类型,文件名称
-                //return File(bookStream, "application/vnd.ms-excel", fileName);
-                #endregion
-
                 if (strFileName == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -917,14 +857,14 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2903", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出报表失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
-
         }
         #endregion
+
     }
 }
 

@@ -23,7 +23,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                
-                strSql.AppendLine("  select vcBoxType as vcValue,vcBoxType as vcName from(select distinct isnull(left(vcBoxType,2),'') as vcBoxType from THeZiManage) a  ");
+                strSql.AppendLine("  select vcBoxType as vcValue,vcBoxType as vcName from(select distinct isnull(left(vcBoxType,2),'无') as vcBoxType from THeZiManage) a  ");
                   
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -101,12 +101,12 @@ namespace DataAccess
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  n.vcPartNo like '%" + vcPartNo + "%' ");
+                    strSql.AppendLine("  and  n.vcPartNo like '" + vcPartNo + "%' ");
                 }
                 
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  n.vcSupplier_id  like  '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  n.vcSupplier_id  like  '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
@@ -126,7 +126,14 @@ namespace DataAccess
                 }
                 if (vcBoxType.Length > 0)
                 {
-                    strSql.AppendLine("  and  isnull(left(n.vcBoxType,2),'')= '" + vcBoxType + "' ");
+                    if (vcBoxType == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(n.vcBoxType,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  n.vcBoxType like '" + vcBoxType + "%' ");
+                    }
                 }
 
                 strSql.AppendLine("  order by  n.[vcState] asc,  n.[dOperatorTime] desc ");

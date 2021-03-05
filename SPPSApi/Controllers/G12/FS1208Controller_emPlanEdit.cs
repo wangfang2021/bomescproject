@@ -225,15 +225,8 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 strMsg = logic.UpdatePlan(strMon, loginInfo.UserId);
-                if (strMsg != "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strMsg;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "更新成功！";
+                apiResult.data = strMsg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

@@ -78,7 +78,8 @@ namespace Common
         #region 获取数据库连接字符串 子获取主
         public static string GetConnectionString_UnitToMain(string strUnitCode)
         {
-            return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
+            return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb_TEST; Data Source =172.23.180.116";
+            //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
             //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =.";
         }
         #endregion

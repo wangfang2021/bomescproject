@@ -32,7 +32,15 @@ namespace DataAccess
                 strSql.Append("     ,b9.vcName as 'vcOriginCompany_Name'    \n");
                 strSql.Append("     ,b10.vcName as 'vcFXDiff_Name'    \n");
                 strSql.Append("     ,'0' as selected,'0' as vcModFlag,'0' as vcAddFlag    \n");
-                strSql.Append("     from TUnit a    \n");
+                strSql.Append("     from     \n");
+                strSql.Append("     (     \n");
+                strSql.Append("         select * from TUnit \n");
+                strSql.Append("         where 1=1  \n");
+                if (!string.IsNullOrEmpty(strOriginCompany))
+                {
+                    strSql.Append("         and vcOriginCompany = '"+strOriginCompany+"'  \n");
+                }
+                strSql.Append("     ) a    \n");
                 strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C002'    \n");
@@ -75,10 +83,6 @@ namespace DataAccess
                 strSql.Append("     )b10 on a.vcFXDiff = b10.vcValue    \n");
                 strSql.Append("     where     \n");
                 strSql.Append("     1=1    \n");
-                if (!string.IsNullOrEmpty(strOriginCompany))
-                {
-                    strSql.Append("     and vcOriginCompany='" + strOriginCompany + "'   \n");
-                }
                 if (string.IsNullOrEmpty(strIsShowAll) || strIsShowAll == "0")//如果没点击显示全部，则附加常规条件：变更事项不为空
                 {
                     strSql.Append("     and vcChange<>''    \n");
@@ -490,7 +494,8 @@ namespace DataAccess
                     }
                     else
                     {
-
+                        int sumLater = (Convert.ToInt32(dt.Rows[i]["vcNum1"]) + Convert.ToInt32(dt.Rows[i]["vcNum2"]) + Convert.ToInt32(dt.Rows[i]["vcNum3"]) + Convert.ToInt32(dt.Rows[i]["vcNum4"]) + Convert.ToInt32(dt.Rows[i]["vcNum5"]) + Convert.ToInt32(dt.Rows[i]["vcNum6"]) + Convert.ToInt32(dt.Rows[i]["vcNum7"]) + Convert.ToInt32(dt.Rows[i]["vcNum8"]) + Convert.ToInt32(dt.Rows[i]["vcNum9"]) + Convert.ToInt32(dt.Rows[i]["vcNum10"]) + Convert.ToInt32(dt.Rows[i]["vcNum11"]) + Convert.ToInt32(dt.Rows[i]["vcNum12"]) + Convert.ToInt32(dt.Rows[i]["vcNum13"]) + Convert.ToInt32(dt.Rows[i]["vcNum14"]) + Convert.ToInt32(dt.Rows[i]["vcNum15"]));
+                        sql.Append("      ,'"+sumLater+"'      \n");
                     }
                     #endregion
 

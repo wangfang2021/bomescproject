@@ -118,7 +118,7 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strIsShowAll = dataForm.isShowAll;
-            string strOriginCompany = dataForm.OriginCompany;
+            string strOriginCompany = dataForm.OriginCompanyName;
 
 
             string strSearchKey = dataForm.searchKey;

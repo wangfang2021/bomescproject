@@ -83,19 +83,24 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcPlantFrom = dataForm.vcPlantFrom;
-            List<string> vcPlantTo = dataForm.vcPlantTo.ToObject<List<string>>();
-            string vcMon = Convert.ToDateTime(dataForm.vcMon).ToString("yyyyMM");
+
+            string vcPlantFrom = dataForm.vcPlantFrom; //源工厂
+            List<string> vcPlantTo = dataForm.vcPlantTo.ToObject<List<string>>(); //目标工厂
+            List<string> vcMon = new List<string>();//源年月
+            vcMon.Add(Convert.ToDateTime(dataForm.vcMonFrom1).ToString("yyyyMM"));
+            vcMon.Add(Convert.ToDateTime(dataForm.vcMonFrom2).ToString("yyyyMM"));
+            vcMon.Add(Convert.ToDateTime(dataForm.vcMonFrom3).ToString("yyyyMM"));
+
             try
             {
                 string msg = logic.CopyTo(vcPlantFrom, vcPlantTo, vcMon, loginInfo.UserId);
                 if (msg.Length > 0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = msg;
+                    apiResult.code = ComConstant.ERROR_CODE;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.data = "复制成功！";
+                apiResult.data = "复制工作日历成功！";
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

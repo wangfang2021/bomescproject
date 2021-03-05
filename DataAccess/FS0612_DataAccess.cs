@@ -25,7 +25,7 @@ namespace DataAccess
                 strSql.Append("from (    \n");
                 strSql.Append("	select * from VI_NQCStatus_HS_FORECAST where 1=1     \n");
                 if (vcCLYM != "" && vcCLYM != null)
-                    strSql.Append("and t1.vcCLYM= '" + vcCLYM + "'   \n");
+                    strSql.Append("and vcCLYM= '" + vcCLYM + "'   \n");
                 strSql.Append(")t1    \n");
                 strSql.Append("order by t1.vcCLYM,t1.iTimes    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -121,7 +121,7 @@ namespace DataAccess
                 for (int i = 0; i < dtPlant.Rows.Count; i++)
                 {
                     string strPlant = dtPlant.Rows[i]["vcValue"].ToString();
-                    string strMaxTimes = GetMaxTimes2(strPlant, vcCLYM);
+                    string strMaxTimes = GetMaxTimes(strPlant, vcCLYM);
                     sql.Append("insert into TNQCStatus_HS_FORECAST (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime) values     \n");
                     sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",getdate(),'" + strUserId + "','"+ strdate + "')    \n");
                 }

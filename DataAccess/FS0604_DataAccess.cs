@@ -145,6 +145,28 @@ namespace DataAccess
             }
         }
 
+        public DataTable checkIsExistByPartNo(string vcPartNo)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("    select LinId, dSyncTime, vcChanges, vcPackingPlant, vcPartId, vcPartENName, vcCarfamilyCode,     ");
+                strSql.AppendLine("    vcCarModel, vcReceiver, dFromTime, dToTime, vcPartId_Replace, vcInOut, vcOESP, vcHaoJiu,     ");
+                strSql.AppendLine("     vcOldProduction, dOldStartTime, dDebugTime, vcSupplierId, dSupplierFromTime, dSupplierToTime,     ");
+                strSql.AppendLine("  	vcSupplierName, vcSupplierPlace, vcInteriorProject, vcPassProject, vcFrontProject,     ");
+                strSql.AppendLine("  	dFrontProjectTime, dShipmentTime, vcBillType, vcOrderingMethod, vcMandOrder, vcPartImage,     ");
+                strSql.AppendLine("  	 vcRemark1, vcRemark2, vcSupplierPacking, vcDelete,    ");
+                strSql.AppendLine("     vcOperatorID, dOperatorTime, dSyncToSPTime from [dbo].[TSPMaster] where vcPartId='"+ vcPartNo + "'    ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public DataTable GetCarType()
         {
             try
@@ -634,25 +656,25 @@ namespace DataAccess
                     //string dSynchronizationDate = listInfoData[i]["dSynchronizationDate"].ToString();
                     string vcPartNo = listInfoData[i]["vcPartNo"].ToString();
                     string vcState = listInfoData[i]["vcState"].ToString();
-                    string dUseStartDate = listInfoData[i]["dUseStartDate"].ToString();
-                    string dUserEndDate = listInfoData[i]["dUserEndDate"].ToString();
-                    string vcPartName = listInfoData[i]["vcPartName"].ToString();
-                    string vcCarType = listInfoData[i]["vcCarType"].ToString();
-                    string vcOEOrSP = listInfoData[i]["vcOEOrSP"].ToString();
-                    string vcSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
-                    string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();
-                    string dExpectDeliveryDate = listInfoData[i]["dExpectDeliveryDate"].ToString();
-                    string vcExpectIntake = listInfoData[i]["vcExpectIntake"].ToString();
+                    string dUseStartDate = listInfoData[i]["dUseStartDate"] == null ? null : listInfoData[i]["dUseStartDate"].ToString();
+                    string dUserEndDate = listInfoData[i]["dUserEndDate"] == null ? null : listInfoData[i]["dUserEndDate"].ToString();
+                    string vcPartName = listInfoData[i]["vcPartName"] == null ? null : listInfoData[i]["vcPartName"].ToString();
+                    string vcCarType = listInfoData[i]["vcCarType"]==null?null: listInfoData[i]["vcCarType"].ToString();
+                    string vcOEOrSP = listInfoData[i]["vcOEOrSP"] == null ?null: listInfoData[i]["vcOEOrSP"].ToString();
+                    string vcSupplier_id = listInfoData[i]["vcSupplier_id"] == null ? null : listInfoData[i]["vcSupplier_id"].ToString();
+                    string vcWorkArea = listInfoData[i]["vcWorkArea"] == null ? null : listInfoData[i]["vcWorkArea"].ToString();
+                    string dExpectDeliveryDate = listInfoData[i]["dExpectDeliveryDate"] == null ? null : listInfoData[i]["dExpectDeliveryDate"].ToString();
+                    string vcExpectIntake = listInfoData[i]["vcExpectIntake"] == null ? null : listInfoData[i]["vcExpectIntake"].ToString();
                     //[vcIntake]  ,[vcBoxMaxIntake]  ,[vcBoxType] ,[vcLength] ,[vcWide] ,[vcHeight]  ,[vcEmptyWeight]  ,[vcUnitNetWeight]
-                    string vcIntake = listInfoData[i]["vcIntake"].ToString();
-                    string vcBoxMaxIntake = listInfoData[i]["vcBoxMaxIntake"].ToString();
-                    string vcBoxType = listInfoData[i]["vcBoxType"].ToString();
-                    string vcLength = listInfoData[i]["vcLength"].ToString();
-                    string vcWide = listInfoData[i]["vcWide"].ToString();
-                    string vcHeight = listInfoData[i]["vcHeight"].ToString();
-                    string vcEmptyWeight = listInfoData[i]["vcEmptyWeight"].ToString();
-                    string vcUnitNetWeight = listInfoData[i]["vcUnitNetWeight"].ToString();
-                    string vcMemo = listInfoData[i]["vcMemo"].ToString();
+                    string vcIntake = listInfoData[i]["vcIntake"] == null ? null : listInfoData[i]["vcIntake"].ToString();
+                    string vcBoxMaxIntake = listInfoData[i]["vcBoxMaxIntake"] == null ? null : listInfoData[i]["vcBoxMaxIntake"].ToString();
+                    string vcBoxType = listInfoData[i]["vcBoxType"] == null ? null : listInfoData[i]["vcBoxType"].ToString();
+                    string vcLength = listInfoData[i]["vcLength"] == null ? null : listInfoData[i]["vcLength"].ToString();
+                    string vcWide = listInfoData[i]["vcWide"] == null ? null : listInfoData[i]["vcWide"].ToString();
+                    string vcHeight = listInfoData[i]["vcHeight"] == null ? null : listInfoData[i]["vcHeight"].ToString();
+                    string vcEmptyWeight = listInfoData[i]["vcEmptyWeight"] == null ? null : listInfoData[i]["vcEmptyWeight"].ToString();
+                    string vcUnitNetWeight = listInfoData[i]["vcUnitNetWeight"] == null ? null : listInfoData[i]["vcUnitNetWeight"].ToString();
+                    string vcMemo = listInfoData[i]["vcMemo"] == null ? null : listInfoData[i]["vcMemo"].ToString();
                     if (bAddFlag == true)
                     {//新增
                         strSql.AppendLine("   INSERT INTO [dbo].[THeZiManage]   ");

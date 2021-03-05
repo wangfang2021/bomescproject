@@ -48,5 +48,10 @@ namespace Logic
         {
             return fs0629_DataAccess.GetQianPin(vcConsignee, vcInjectionFactory, vcTargetMonth);
         }
+
+        public DataTable getDataChuRuKuByTargetMonth(string vcTargetMonth)
+        {
+            return fs0629_DataAccess.getDataChuRuKuByTargetMonth(vcTargetMonth);
+        }
     }
 }

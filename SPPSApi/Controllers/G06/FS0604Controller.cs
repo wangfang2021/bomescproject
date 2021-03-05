@@ -211,9 +211,9 @@ namespace SPPSApi.Controllers.G06
                 DataTable dt = fs0604_Logic.Search(dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
-                //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "包装工厂", "收货方", "同步时间", "状态", "品番", "使用开始时间", "使用结束时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)",  "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
-                field = new string[] { "vcPackingPlant", "vcReceiver", "dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "dUserEndDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
+                //[vcPartNo], [dBeginDate], [dEndDate]"使用结束时间", "dUserEndDate",
+                head = new string[] { "包装工厂", "收货方", "同步时间", "状态", "品番", "使用开始时间",  "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)",  "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
+                field = new string[] { "vcPackingPlant", "vcReceiver", "dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -304,7 +304,23 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-
+                // 追加新增品番的是否存在基础信息
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        string vcPartNo = listInfoData[i]["vcPartNo"].ToString();
+                        DataTable dtExist = fs0604_Logic.checkIsExistByPartNo(vcPartNo);
+                        if (dtExist.Rows.Count==0) {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "新增的品番" + vcPartNo+"原单位表不存在!";
+                            apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                }
                 string strErrorPartId = "";
                 fs0604_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")

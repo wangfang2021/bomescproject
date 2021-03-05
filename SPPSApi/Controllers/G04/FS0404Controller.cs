@@ -94,9 +94,10 @@ namespace SPPSApi.Controllers.G04
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
             string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
+            string vcMemo = dataForm.vcMemo == null ? "" : dataForm.vcMemo;
             try
             {
-                DataTable dt = fs0404_Logic.Search(vcOrderState, vcInOutFlag,vcOrderNo, dTargetDate, vcOrderType,loginInfo.UserId);
+                DataTable dt = fs0404_Logic.Search(vcOrderState, vcInOutFlag,vcOrderNo, dTargetDate, vcOrderType, vcMemo,loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -135,9 +136,10 @@ namespace SPPSApi.Controllers.G04
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string dTargetDate = dataForm.dTargetDate == null ? "" : dataForm.dTargetDate;
             string vcOrderType = dataForm.vcOrderType == null ? "" : dataForm.vcOrderType;
+            string vcMemo = dataForm.vcMemo == null ? "" : dataForm.vcMemo;
             try
             {
-                DataTable dt = fs0404_Logic.Search(vcOrderState, vcInOutFlag, vcOrderNo, dTargetDate, vcOrderType, loginInfo.UserId);
+                DataTable dt = fs0404_Logic.Search(vcOrderState, vcInOutFlag, vcOrderNo, dTargetDate, vcOrderType, vcMemo, loginInfo.UserId);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcOrderNo], [dTargetDate], [vcOrderType] ,vcOrderState,[dUploadDate],[vcMemo]
@@ -678,6 +680,7 @@ namespace SPPSApi.Controllers.G04
             string newOrderNo = dataForm.newOrderNo == null ? "" : dataForm.newOrderNo;
             string vcMemo = dataForm.vcMemo == null ? "" : dataForm.vcMemo;
             string dTargetWeek = dataForm.dTargetWeek == null ? "" : dataForm.dTargetWeek;
+            string vcJiLuLastOrderNo = dataForm.vcJiLuLastOrderNo == null ? "" : dataForm.vcJiLuLastOrderNo;
             List<Dictionary<string, Object>> orderModifList = dataForm.orderModifList.ToObject<List<Dictionary<string, Object>>>();
             List<Dictionary<string, Object>> fileList = dataForm.file.ToObject<List<Dictionary<string, Object>>>();
             List<Dictionary<string, Object>> fileDelList = dataForm.fileDel.ToObject<List<Dictionary<string, Object>>>();
@@ -723,31 +726,31 @@ namespace SPPSApi.Controllers.G04
                 }
 
                 //修正的订单号不能为空
-                for (int i = 0; i < orderModifList.Count; i++) {
-                    if (orderModifList[i]["newOrderNoD"].ToString()=="") {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "修正时修正的订单号不能为空,请确认！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //判定修正的订单号跟上传的文件名称能否对应起来
-                    bool flag = false;
-                    for (int j = 0; j < fileList.Count; j++)
-                    {
-                        string fileName = fileList[j]["fileName"].ToString().Trim().Substring(0, fileList[j]["fileName"].ToString().Trim().LastIndexOf("."));
-                        string strOrderName = orderModifList[i]["newOrderNoD"].ToString();
-                        if (strOrderName == fileName)
-                        {
-                            flag = true;
-                            break;
-                        }
-                    }
-                    if (!flag)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = orderModifList[i]["newOrderNoD"].ToString() + "修正订单名称与上传文件对应不起来，请确认！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
+                //for (int i = 0; i < orderModifList.Count; i++) {
+                //    if (orderModifList[i]["newOrderNoD"].ToString()=="") {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = "修正时修正的订单号不能为空,请确认！";
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //    //判定修正的订单号跟上传的文件名称能否对应起来
+                //    bool flag = false;
+                //    for (int j = 0; j < fileList.Count; j++)
+                //    {
+                //        string fileName = fileList[j]["fileName"].ToString().Trim().Substring(0, fileList[j]["fileName"].ToString().Trim().LastIndexOf("."));
+                //        string strOrderName = orderModifList[i]["newOrderNoD"].ToString();
+                //        if (strOrderName == fileName)
+                //        {
+                //            flag = true;
+                //            break;
+                //        }
+                //    }
+                //    if (!flag)
+                //    {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = orderModifList[i]["newOrderNoD"].ToString() + "修正订单名称与上传文件对应不起来，请确认！";
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //}
                
                 #region
                 String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
@@ -818,7 +821,7 @@ namespace SPPSApi.Controllers.G04
                
                 string msg = string.Empty;
                 string vcMemos = vcMemo;
-                fs0404_Logic.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemos, fileList, loginInfo.UserId,loginInfo.UnitCode, ref bReault, ref dtMessage, ref msg);
+                fs0404_Logic.updateEditeOrderNo(realPath,vcOrderType, vcInOutFlag, dTargetDate, dTargetWeek, lastOrderNo, newOrderNo, vcMemos, fileList, loginInfo.UserId,loginInfo.UnitCode, ref bReault, ref dtMessage, ref msg, vcJiLuLastOrderNo);
 
                 if (!bReault)
                 {

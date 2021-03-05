@@ -23,7 +23,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT * FROM");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT distinct vcDXDate,vcOrderNo,vcChangeNo,dFileUpload,CASE ISNULL(a.vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange a");
+                sbr.AppendLine("SELECT vcDXDate,vcOrderNo,vcChangeNo,MAX(dFileUpload) AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("WHERE 1=1 ");
                 if (!string.IsNullOrWhiteSpace(state))
@@ -155,7 +155,6 @@ namespace DataAccess
                     string day29 = dt.Rows[i]["TARGETDAY29"].ToString();
                     string day30 = dt.Rows[i]["TARGETDAY30"].ToString();
                     string day31 = dt.Rows[i]["TARGETDAY31"].ToString();
-
                     Hashtable hs = new Hashtable();
                     hs.Add(month + "01", day1);
                     hs.Add(month + "02", day2);
@@ -294,6 +293,8 @@ namespace DataAccess
                         {
                             node.quantity = Convert.ToInt32(rows[0]["iD" + day.TrimStart('0')].ToString());
                         }
+
+                        node.iSRS = Convert.ToInt32(rows[0]["iQuantityPercontainer"]);
                         res.Add(vcPart_id, node);
                     }
                 }
@@ -315,6 +316,7 @@ namespace DataAccess
             }
 
             public int quantity;
+            public int iSRS;
             public string DXR;
         }
 
@@ -407,15 +409,15 @@ namespace DataAccess
             public bool flag;//是否允许存在
             public string message;//错误记录
             //public decimal realPercent;//变更波动率
-
-            public PartIDNode(string partId, int excelQuantity, int soqQuantity, string allowPercent, string DXR, string ChangeNo)
+            public int iSRS;
+            public PartIDNode(string partId, int excelQuantity, int soqQuantity, string allowPercent, string DXR, string ChangeNo, int iSRS)
             {
                 try
                 {
                     this.partId = partId;
                     this.flag = true;
                     this.DXR = DXR;
-
+                    this.iSRS = iSRS;
                     this.IQuantityNow = excelQuantity;
                     this.message = "";
                     if (soqQuantity == -1 || string.IsNullOrWhiteSpace(DXR))
@@ -437,10 +439,9 @@ namespace DataAccess
                     //波动率范围
                     int max = 0;
                     int min = 0;
-
                     //TODO 当日订货数量为0是否要置为1？
-                    iQuantityBefore = iQuantityBefore == 0 ? 1 : iQuantityBefore;
-                    //
+                    //iQuantityBefore = iQuantityBefore == 0 ? 1 : iQuantityBefore;
+
                     max = (int)Math.Floor(iQuantityBefore * (1 + this.allowPercent / 100));
                     min = (int)Math.Ceiling(iQuantityBefore * (1 - this.allowPercent / 100));
                     min = min < 0 ? 0 : min;
@@ -452,6 +453,12 @@ namespace DataAccess
                     else if (IQuantityNow < min)
                     {
                         IQuantityNow = min;
+                    }
+
+                    int tmp = IQuantityNow % iSRS;
+                    if (tmp > 0)
+                    {
+                        IQuantityNow = ((IQuantityNow / iSRS) + 1) * iSRS;
                     }
                 }
                 catch (Exception ex)

@@ -97,7 +97,8 @@ namespace BatchProcess
                     StringBuilder sql = new StringBuilder();
                     sql.Append("select * from NQCSRStatusInfo    \n");
                     sql.Append("where Process_Factory='TFTM" + vcPlant + "' and Process_YYYYMM='" + vcCLYM + "' and Process_Cycle_NO=" + iTimes + " \n");
-                    sql.Append("and Process_Name= 'NQCE0" + vcPlant + "'   \n");//NQCE01/NQCE02/NQCE03：#1/#2/#3内外合EKANBAN   
+                    sql.Append("and Process_Name= 'NQCS02'   \n");
+                    /* sql.Append("and Process_Name= 'NQCE0" + vcPlant + "'   \n");*///NQCE01/NQCE02/NQCE03：#1/#2/#3内外合EKANBAN   
                     DataTable dtNQCStatus = NQCSearch(sql.ToString());
                     if (dtNQCStatus.Rows.Count > 0)
                     {//有处理完成的数据

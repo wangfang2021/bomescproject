@@ -123,15 +123,26 @@ namespace SPPSApi.Controllers.G05
 
             try
             {
+                Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, vcDelete);
+                int dhfNum = dt.Rows.Count;//待回复条数
+                string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                DataRow[] drs = dt.Select(" '"+now+"' > dReplyOverDate ");
+                int yyqNum = drs.Length;//已逾期条数
+
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dReplyOverDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dDeliveryDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                res.Add("dataList", dataList);
+                res.Add("dhfNum", dhfNum);
+                res.Add("yyqNum", yyqNum);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -279,9 +290,31 @@ namespace SPPSApi.Controllers.G05
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                else
+                
+                //开始数据验证
+                if (hasFind)
                 {
-                    if (fs0502_Logic.IsDQR(listInfoData, ref strMsg_status,ref strMsg_null, "save"))
+                    #region 数据格式校验
+                    string[,] strField = new string[,]
+                    {
+                        {"可对应数量(个)","纳期"},//中文字段名
+                        {"iDuiYingQuantity","dDeliveryDate"},//英文字段名
+                        {FieldCheck.Num,FieldCheck.Date},//数据类型校验
+                        {"0","0"},//最大长度设定,不校验最大长度用0
+                        {"1","1"},//最小长度设定,可以为空用0
+                        {"9","11"},//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0502");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+
+                    if (fs0502_Logic.IsDQR(listInfoData, ref strMsg_status, ref strMsg_null, "save"))
                     {//全是可操作的数据
                         //继续向下执行
                     }
@@ -294,29 +327,6 @@ namespace SPPSApi.Controllers.G05
                         }
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                }
-                //开始数据验证
-                if (hasFind)
-                {
-                    #region 数据格式校验
-                    string[,] strField = new string[,]
-                    {
-                        {"可对应数量(个)","纳期"},//中文字段名
-                        {"iDuiYingQuantity","dDeliveryDate"},//英文字段名
-                        {FieldCheck.Num,FieldCheck.Date},//数据类型校验
-                        {"0","0"},//最大长度设定,不校验最大长度用0
-                        {"1","1"},//最小长度设定,可以为空用0
-                        {"9","10"},//前台显示列号，从0开始计算,注意有选择框的是0
-                    };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0502");
-                    if (checkRes != null)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = checkRes;
-                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    #endregion
                 }
                 string strErrorPartId = "";
                 string infopart = "";
@@ -423,7 +433,7 @@ namespace SPPSApi.Controllers.G05
                         {FieldCheck.Num,FieldCheck.Date},//数据类型校验
                         {"0","0"},//最大长度设定,不校验最大长度用0
                         {"1","1"},//最小长度设定,可以为空用0
-                        {"1","3"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"0","2"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listSubInfo, strField, null, null, true, "FS0502_Sub");
                     if (checkRes != null)

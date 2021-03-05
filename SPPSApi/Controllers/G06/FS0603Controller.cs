@@ -1442,7 +1442,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dtExport = fs0603_Logic.getSyncTable();
-                string[] fields = {"dSyncTime ","vcSyncMessage "
+                string[] fields = {"dSyncTime","vcSyncMessage"
                 };
 
                 string filepath = ComFunction.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "Sync_Info.xlsx", 1, loginInfo.UserId, FunctionID);

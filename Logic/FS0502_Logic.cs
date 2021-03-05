@@ -57,9 +57,9 @@ namespace Logic
         {
             DataSet ds = fs0502_DataAccess.IsDQR(listInfoData, strType);
             DataTable dt_status = ds.Tables[0];
-            DataTable dt_null = ds.Tables[1];
+            //DataTable dt_null = ds.Tables[1];
 
-            if (dt_status.Rows.Count == 0 && dt_null.Rows.Count==0)
+            if (dt_status.Rows.Count == 0 )
                 return true;
             else
             {
@@ -71,14 +71,14 @@ namespace Logic
                     }
                     strMsg_status = strMsg_status.Substring(0, strMsg_status.Length - 1);
                 }
-                if(dt_null.Rows.Count>0)
-                {
-                    for(int i=0;i<dt_null.Rows.Count;i++)
-                    {
-                        strMsg_null += dt_null.Rows[i]["vcPart_id"].ToString() + "/";
-                    }
-                    strMsg_null = strMsg_null.Substring(0, strMsg_null.Length - 1);
-                }
+                //if(dt_null.Rows.Count>0)
+                //{
+                //    for(int i=0;i<dt_null.Rows.Count;i++)
+                //    {
+                //        strMsg_null += dt_null.Rows[i]["vcPart_id"].ToString() + "/";
+                //    }
+                //    strMsg_null = strMsg_null.Substring(0, strMsg_null.Length - 1);
+                //}
                 return false;
             }
         }

@@ -92,9 +92,10 @@ namespace SPPSApi.Controllers.G06
             string orderNo = dataForm.orderNo == null ? "" : dataForm.orderNo;
             string orderType = dataForm.orderType == null ? "" : dataForm.orderType;
             string dUpload = dataForm.dUpload == null ? "" : dataForm.dUpload;
+            string memo = dataForm.memo == null ? "" : dataForm.memo;
             try
             {
-                DataTable dt = fs0614_logic.searchApi(orderState, targetYM, orderNo, orderType, dUpload);
+                DataTable dt = fs0614_logic.searchApi(orderState, targetYM, orderNo, orderType, dUpload, memo);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dUploadDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dCreateDate", ConvertFieldType.DateType, "yyyy/MM/dd");

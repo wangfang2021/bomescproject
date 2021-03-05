@@ -15,9 +15,9 @@ namespace Logic
         FS0614_DataAccess fs0614_DataAccess = new FS0614_DataAccess();
 
 
-        public DataTable searchApi(string orderState, string targetYM, string orderNo, string orderType, string dUpload)
+        public DataTable searchApi(string orderState, string targetYM, string orderNo, string orderType, string dUpload, string memo)
         {
-            return fs0614_DataAccess.searchApi(orderState, targetYM, orderNo, orderType, dUpload);
+            return fs0614_DataAccess.searchApi(orderState, targetYM, orderNo, orderType, dUpload, memo);
         }
 
 

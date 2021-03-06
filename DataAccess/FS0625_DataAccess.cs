@@ -23,7 +23,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                
-                strSql.AppendLine("  select vcPurposes as vcCodeId,vcPurposes as vcCodeName from(select distinct vcPurposes from TOralTestManage) a  ");
+                strSql.AppendLine("  select vcValue1 as vcValue, vcValue2  as vcName from TOutCode where vcCodeId='C012' and vcIsColum='0'  ");
                   
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -44,12 +44,15 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select [iAutoId], [dExportDate], [vcCarType], [vcPartNo], [vcPartName], [vcInsideOutsideType],   ");
-                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea], [vcIsNewRulesFlag], [vcOEOrSP], [vcDock], [vcNumber], [vcPurposes],   ");
-                strSql.AppendLine("   [dOrderPurposesDate], [dOrderReceiveDate], [vcReceiveTimes], [dActualReceiveDate], [vcAccountOrderNo],    ");
-                strSql.AppendLine("   [dAccountOrderReceiveDate], [dOrderSendDate], [vcMemo],b.vcSupplier_name, [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
+                strSql.AppendLine("   select [iAutoId],convert(varchar(10), dExportDate,111) as [dExportDate], [vcCarType], [vcPartNo], [vcPartName],c.vcName as [vcInsideOutsideType],   ");
+                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea], case when vcIsNewRulesFlag='1' then '是' else '否' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock], [vcNumber],e.vcName as [vcPurposes],   ");
+                strSql.AppendLine("   convert(varchar(10), dOrderPurposesDate,111) as [dOrderPurposesDate], convert(varchar(10), dOrderReceiveDate,111) as [dOrderReceiveDate], [vcReceiveTimes],convert(varchar(10), dActualReceiveDate,111) as [dActualReceiveDate], [vcAccountOrderNo],    ");
+                strSql.AppendLine("   convert(varchar(10), dAccountOrderReceiveDate,111) as [dAccountOrderReceiveDate], convert(varchar(10), dOrderSendDate,111) as [dOrderSendDate], [vcMemo],b.vcSupplier_name, [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("   from TOralTestManage a    ");
-                strSql.AppendLine("   left join (select vcSupplier_id,vcSupplier_name from Tsupplier) b on a.vcSupplier_id = b.vcSupplier_id  where 1=1  ");
+                strSql.AppendLine("   left join (select vcSupplier_id,vcSupplier_name from Tsupplier) b on a.vcSupplier_id = b.vcSupplier_id   ");
+                strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C003') c on a.vcInsideOutsideType = c.vcValue   ");
+                strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C012') d on a.vcOEOrSP = d.vcValue  ");
+                strSql.AppendLine("   left join (select vcValue1 as vcValue, vcValue2  as vcName from TOutCode where vcCodeId='C012' and vcIsColum='0') e on a.vcPurposes = e.vcValue  where 1=1  ");
 
                 if (dExportDate.Length > 0)
                 {
@@ -61,7 +64,7 @@ namespace DataAccess
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPartNo = '" + vcPartNo + "' ");
+                    strSql.AppendLine("  and  vcPartNo liek  '" + vcPartNo + "%' ");
                 }
                 if (vcInsideOutsideType.Length > 0)
                 {
@@ -69,11 +72,11 @@ namespace DataAccess
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id  like  '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  vcSupplier_id  like  '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                    strSql.AppendLine("  and  vcWorkArea like '" + vcWorkArea + "%' ");
                 }
                 if (vcIsNewRulesFlag.Length > 0)
                 {
@@ -85,6 +88,78 @@ namespace DataAccess
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select  vcWorkArea as vcValue,vcWorkArea as vcName  from (   ");
+                strSql.AppendLine("  select distinct  isnull (vcWorkArea,'无') as vcWorkArea from TOralTestManage where vcSupplier_id='"+ supplierCode + "'   ");
+                strSql.AppendLine("  ) a  order by a.vcWorkArea asc   ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetCarType()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select   vcCarfamilyCode as vcValue,vcCarfamilyCode as vcName  from (   ");
+                strSql.AppendLine("  select distinct isnull (vcCarfamilyCode,'无') as    vcCarfamilyCode from [dbo].[TSPMaster] where vcCarfamilyCode<>''   ");
+                strSql.AppendLine("  ) a order by a.vcCarfamilyCode asc   ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetSupplier()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("   select  vcSupplier_id as vcValue,vcSupplier_id as vcName  from (   ");
+                strSql.AppendLine("   select distinct  isnull (vcSupplier_id,'无') as vcSupplier_id from TOralTestManage   ");
+                strSql.AppendLine("   ) a  order by a.vcSupplier_id asc   ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkArea()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select  vcWorkArea as vcValue,vcWorkArea as vcName  from (   ");
+                strSql.AppendLine("  select distinct  isnull (vcWorkArea,'无') as vcWorkArea from TOralTestManage   ");
+                strSql.AppendLine("  ) a  order by a.vcWorkArea asc   ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

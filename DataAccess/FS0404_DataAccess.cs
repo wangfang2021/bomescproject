@@ -427,9 +427,9 @@ namespace DataAccess
                     TargetYM.Add(dTargetDate.Replace("-", ""));
                     //获取soq验收数量
                     DataTable SoqDt = getSoqDt(TargetYM);
-
-                    DataRow[] drArrayN = SoqDt.Select("vcInOutFlag='0'"); //0 內制 1外制
-                    DataRow[] drArrayW = SoqDt.Select("vcInOutFlag='1'"); //0 內制 1外制
+                    string vcMakingOrderType = getTypeMethod(vcOrderType);
+                    DataRow[] drArrayN = SoqDt.Select("vcInOutFlag='0' AND vcMakingOrderType in (" + vcMakingOrderType + ") "); //0 內制 1外制
+                    DataRow[] drArrayW = SoqDt.Select("vcInOutFlag='1' AND vcMakingOrderType in (" + vcMakingOrderType + ") "); //0 內制 1外制
                     DataRow[] drArrayTmp = drArrayN;
                     //DataTable dtNei = drArray[0].Table.Clone(); // 复制DataRow的表结构
                     //foreach (DataRow dr in drArray)
@@ -1064,8 +1064,8 @@ namespace DataAccess
                 DataTable dtLastOrderChild = excute.ExcuteSqlWithSelectToDT(strSq01.ToString());
                 for (int i=0;i<dtLastOrderChild.Rows.Count;i++) {
 
-                    string filePathYSChild = dtLastOrder.Rows[0]["vcFilePath"].ToString();
-                    string fileNameYSChild = dtLastOrder.Rows[0]["vcOrderNo"].ToString();
+                    string filePathYSChild = dtLastOrderChild.Rows[0]["vcFilePath"].ToString();
+                    string fileNameYSChild = dtLastOrderChild.Rows[0]["vcOrderNo"].ToString();
                     //读取Order
                     Order orderYSChild = GetPartFromFile(realPath + filePathYSChild, fileNameYSChild, ref msg);//判断头
                     foreach (Detail detail in orderYSChild.Details)
@@ -1186,7 +1186,7 @@ namespace DataAccess
                                     DataRow dataRow = dtMessage.NewRow();
                                     dataRow["vcOrder"] = fileName;
                                     dataRow["vcPartNo"] = vcPart_id;
-                                    dataRow["vcMessage"] = "修正订单的品番数量大于原始文件的品番数量";
+                                    dataRow["vcMessage"] = "本次修正的品番数量+累计修正订单的品番数量不能大于原始文件的品番数量";
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
                                 }
@@ -1224,13 +1224,22 @@ namespace DataAccess
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);
                     vcMemo = lastOrderNo + "----->" + fileName;
                     filePath = fileList[i]["filePath"].ToString();
+                    string chushiLastOrderNo = string.Empty;
+                    if (vcJiLuLastOrderNo.Length > 0)
+                    {
+                        chushiLastOrderNo = vcJiLuLastOrderNo;
+                    }
+                    else
+                    {
+                        chushiLastOrderNo = lastOrderNo;
+                    }
                     strSql.AppendLine("  INSERT INTO [dbo].[TOrderUploadManage]   ");
                     strSql.AppendLine("             ([vcOrderNo] ,[vcTargetYear]   ");
                     strSql.AppendLine("             ,[vcTargetMonth] ,[vcTargetDay]   ");
                     strSql.AppendLine("             ,[vcTargetWeek]  ,[vcOrderType],[vcInOutFlag]   ");
                     strSql.AppendLine("             ,[vcOrderState],[vcMemo]   ");
                     strSql.AppendLine("             ,[dUploadDate],[dCreateDate]   ");
-                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag,[vcOperatorID],[dOperatorTime])   ");
+                    strSql.AppendLine("             ,[vcFilePath],vcFileOrderNo,vcOrderShowFlag,vcLastOrderNo,[vcOperatorID],[dOperatorTime])   ");
                     strSql.AppendLine("       VALUES   ");
                     strSql.AppendLine("             ('" + fileName + "',   ");
                     strSql.AppendLine("  		   '" + vcTargetYear + "',   ");
@@ -1242,10 +1251,10 @@ namespace DataAccess
                     strSql.AppendLine("  		   '" + vcMemo + "',   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
                     strSql.AppendLine("  		    GETDATE(),   ");
-                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',0,  ");
+                    strSql.AppendLine("  		   '" + filePath + "', '" + fileOrderNo + "',0,'"+ chushiLastOrderNo + "',  ");
                     strSql.AppendLine("  		   '" + userId + "',GETDATE())   ");
                     strSql.AppendLine("   ;  ");
-
+                    strSql.AppendLine("   insert into TUploadOrderRelation (vcLastOrderNo,vcNewOrderNo) values ('"+ chushiLastOrderNo + "','"+ fileName + "');   ");
                    
                     //获取基础信息
                     DataTable dockTmp = getDockTable();
@@ -1328,7 +1337,37 @@ namespace DataAccess
         }
 
         #region  来自王继伟
+        public string getTypeMethod(string vcType)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue FROM TCode WHERE iAutoId IN(");
+                sbr.AppendLine("SELECT vcOrderGoodsId FROM TOrderGoodsAndDifferentiation WHERE vcOrderDifferentiationId in");
+                sbr.AppendLine("(SELECT iAutoId FROM TOrderDifferentiation WHERE vcOrderInitials = '" + vcType + "')) ");
 
+                string res = "";
+
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (!string.IsNullOrWhiteSpace(res))
+                        {
+                            res += ",";
+                        }
+                        res += "'" + dt.Rows[i] + "'";
+                    }
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public Hashtable getDock(string PartID, string receiver, string vcPackingPlant, DataTable dt)
         {
             try

@@ -290,10 +290,18 @@ namespace SPPSApi.Controllers.G05
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
+            string vcBoxType = dataForm.vcBoxType == null ? "" : dataForm.vcBoxType;
             try
             {
-                //
+                Regex r = new Regex("^[a-zA-Z0-9]+$");
+                if (vcBoxType.Length>0) { 
+                    if (!r.IsMatch(vcBoxType))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "箱种仅支持英数格式！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 if (fs0503_Logic.editOk(dataForm, loginInfo.UserId))
                 {
                     //有误需要删除的冗余图片

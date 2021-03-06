@@ -172,7 +172,7 @@ namespace Logic
                 string user = strUserId;
                 try
                 {
-                    msg = fs0610_DataAccess.updateProPlan(dtpro0, dtpro1, dtpro2, dtpro3, dtpro4, dt_info, user, vcDxny, vcFZGC[k]); //更新到包装计划临时表
+                    //msg = fs0610_DataAccess.updateProPlan(dtpro0, dtpro1, dtpro2, dtpro3, dtpro4, dt_info, user, vcDxny, vcFZGC[k]); //更新到包装计划临时表
                 }
                 catch (Exception ex)
                 {

@@ -17,7 +17,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
 
                 sbr.AppendLine("DECLARE @time DATETIME");
-                sbr.AppendLine("SET @time = '" + timeFrom+"'");
+                sbr.AppendLine("SET @time = '" + timeFrom + "'");
                 sbr.AppendLine("IF EXISTS (SELECT *  ");
                 sbr.AppendLine("FROM tempdb.dbo.sysobjects  ");
                 sbr.AppendLine("WHERE id=OBJECT_ID(N'tempdb..#temp')AND type='U') ");
@@ -25,8 +25,8 @@ namespace DataAccess
                 sbr.AppendLine(" ");
                 sbr.AppendLine("SELECT * INTO #temp FROM  ");
                 sbr.AppendLine("( ");
-                sbr.AppendLine("	SELECT REPLACE(vcPart_id,'-','') as vcPart_id,vcSupplier_id,vcOriginCompany,vcReceiver,vcCarTypeDesign,vcInOutflag,vcSYTCode FROM Tunit  ");
-                sbr.AppendLine("	WHERE dTimeFrom <= @time AND dTimeTo >= @time AND dTimeTo <> dTimeFrom AND vcCarTypeDesign = '" + vcCarType + "'  ");
+                sbr.AppendLine("	SELECT REPLACE(vcPart_id,'-','') as vcPart_id,vcSupplier_id,vcOriginCompany,vcReceiver,vcCarTypeDev,vcInOutflag,vcSYTCode FROM Tunit  ");
+                sbr.AppendLine("	WHERE dTimeFrom <= @time AND dTimeTo >= @time AND dTimeTo <> dTimeFrom AND vcCarTypeDev = '" + vcCarType + "'  ");
                 sbr.AppendLine(") a ");
                 sbr.AppendLine("DECLARE @inSum INT ");
                 sbr.AppendLine("DECLARE @outSum INT ");
@@ -130,7 +130,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT distinct vcCarTypeDesign FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
+                sbr.AppendLine("SELECT distinct vcCarTypeDev FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() ");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)

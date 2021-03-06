@@ -405,7 +405,7 @@ namespace SPPSApi.Controllers.G06
                     dataRow["vcMessage"] = "期望回复日期不能为空。";
                     dtMessage.Rows.Add(dataRow);
                 }
-                if (strExpectTime != "" && Convert.ToDateTime(strExpectTime + "23:59:59") < System.DateTime.Now)
+                if (strExpectTime != "" && Convert.ToDateTime(strExpectTime + " 23:59:59") < System.DateTime.Now)
                 {
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "期望恢复期不能小于当前时间。";
@@ -661,6 +661,84 @@ namespace SPPSApi.Controllers.G06
                 String emailBody = fs0602_Logic.setEmailBody(strExpectTime, strFlag);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = emailBody;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0708", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "邮件预览失败" + ex.Message;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 下载报表
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportRefApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                string strDXYNum = dataForm.decDXYNum == null ? "" : dataForm.decDXYNum;
+                string strNSYNum = dataForm.decNSYNum == null ? "" : dataForm.decNSYNum;
+                string strNNSYNum = dataForm.decNNSYNum == null ? "" : dataForm.decNNSYNum;
+                DateTime dNow = DateTime.Now.AddMonths(1);
+                string strYearMonth = dNow.ToString("yyyyMM");
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                if (strDXYNum == "" || strNSYNum == "" || strNNSYNum == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "稼动天数存在未填写的情况，请填写后再试。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strYearMonth == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "对象年月不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dtRef = fs0602_Logic.getExportRef(strYearMonth, strDXYNum, strNSYNum, strNNSYNum, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string[] fields = {"vcExportDate","vcRefDate","vcMonth_dx","vcMonth_ns","vcMonth_nns","decDXYNum","decNSYNum","decNNSYNum",
+                    "vcProject","decSOQ_dx","decSOQ_ns_before","decSOQ_ns","decSOQ_nns_before","decSOQ_nns","decNNA_dx","decNNA_ns","decNNA_nns"};
+
+                string filepath = ComFunction.generateExcelWithXlt(dtRef, fields, _webHostEnvironment.ContentRootPath, "FTMS内示总结.xlsx", 1,1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

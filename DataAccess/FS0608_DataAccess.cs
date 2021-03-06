@@ -171,9 +171,7 @@ namespace DataAccess
                     new SqlParameter("@vcFZGC", SqlDbType.VarChar),
                 };
                 parameters[0].Value = vcFZGC;
-
                 StringBuilder strSql = new StringBuilder();
-
                 strSql.AppendLine("  SELECT ");
                 strSql.AppendLine(" TARGETDAY1, ");
                 strSql.AppendLine(" TARGETDAY2, ");
@@ -219,7 +217,6 @@ namespace DataAccess
                 throw ex;
             }
         }
-
 
         public string CopyTo(string vcPlantFrom, List<string> vcPlantTo, List<string> vcMon, string strUserId)
         {

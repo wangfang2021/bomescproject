@@ -125,18 +125,19 @@ namespace SPPSApi.Controllers.G06
 
             //属于第几周（0、1、2、3、4）
             List<string> weekTypeVals = dataForm.weekTypeVals.ToObject<List<string>>();
-            
+
             //对象年月
-            string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+            DateTime Dxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny);
+            string varDxny = Dxny.AddMonths(1).ToString("yyyyMM");
             //发注工厂
             string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
             //总稼动日
-            decimal TOTALWORKDAYS = dataForm.TOTALWORKDAYS == null ? 0 : Convert.ToDecimal( dataForm.TOTALWORKDAYS);
-            
+            decimal TOTALWORKDAYS = dataForm.TOTALWORKDAYS == null ? 0 : Convert.ToDecimal(dataForm.TOTALWORKDAYS);
+
             try
             {
                 fs0609_Logic.save(dayTypeVals, weekTypeVals, varDxny, varFZGC, TOTALWORKDAYS, loginInfo.UserId);
-                
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

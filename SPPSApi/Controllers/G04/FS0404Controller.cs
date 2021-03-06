@@ -696,10 +696,10 @@ namespace SPPSApi.Controllers.G04
                 //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 //}
 
-                if (vcOrderState != "撤销")
+                if (vcOrderState != "撤销"&& vcOrderState != "已修正")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正的原订单订购状态必须是撤销,请确认！";
+                    apiResult.data = "修正的原订单订购状态必须是撤销或已修正,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
@@ -718,12 +718,12 @@ namespace SPPSApi.Controllers.G04
                     apiResult.data = "修正紧急订单时,附件不能为空,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                if (orderModifList.Count != fileList.Count)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正的订单号和上传的文件个数不匹配,请确认！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //if (orderModifList.Count != fileList.Count)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "修正的订单号和上传的文件个数不匹配,请确认！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
                 //修正的订单号不能为空
                 //for (int i = 0; i < orderModifList.Count; i++) {
@@ -812,10 +812,10 @@ namespace SPPSApi.Controllers.G04
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 // 判断状态 是0  或者2 撤销  1已做成
-                if (dt.Rows[0]["vcOrderState"].ToString() != "2" )
+                if (dt.Rows[0]["vcOrderState"].ToString() != "2" && dt.Rows[0]["vcOrderState"].ToString() != "3")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "修正订单的状态必须是撤销,请确认！";
+                    apiResult.data = "修正订单的状态必须是撤销或已修正,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                

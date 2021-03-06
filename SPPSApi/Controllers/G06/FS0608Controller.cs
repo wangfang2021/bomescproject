@@ -128,7 +128,7 @@ namespace SPPSApi.Controllers.G06
 
             //对象年月
             DateTime Dxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny);
-            string varDxny = Dxny.AddMonths(1).ToString("yyyyMM");
+            string varDxny = Dxny.ToString("yyyyMM");
             //发注工厂
             string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
             //总稼动日

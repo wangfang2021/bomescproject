@@ -50,6 +50,21 @@ namespace Logic
             return fs0625_DataAccess.getEmail(vcSupplier_id, vcWorkArea);
         }
 
+        public DataTable GetWorkArea()
+        {
+            return fs0625_DataAccess.GetWorkArea();
+        }
+
+        public DataTable GetCarType()
+        {
+            return fs0625_DataAccess.GetCarType();
+        }
+
+        public DataTable GetSupplier()
+        {
+            return fs0625_DataAccess.GetSupplier();
+        }
+
         public DataTable getCCEmail(string code)
         {
             return fs0625_DataAccess.getCCEmail(code);
@@ -57,6 +72,11 @@ namespace Logic
         public DataTable getHSHD(string vcCodeID)
         {
             return fs0625_DataAccess.getHSHD(vcCodeID);
+        }
+
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            return fs0625_DataAccess.GetWorkAreaBySupplier(supplierCode);
         }
     }
 }

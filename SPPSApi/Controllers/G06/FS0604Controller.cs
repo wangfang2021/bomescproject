@@ -284,7 +284,7 @@ namespace SPPSApi.Controllers.G06
                 {
                     string[,] strField = new string[,] {{"同步时间", "状态", "品番", "使用开始时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "照片","发送时间","回复时间","承认时间","原单位织入时间","备注"},
                                                 {"dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcImageRoutes","dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo"},
-                                                {"","","","","","","","","",FieldCheck.Date,FieldCheck.Num,"","","","", "","","","","","","","","",""},
+                                                {"","","","","","","","","",FieldCheck.Date,FieldCheck.Num,"","",FieldCheck.NumChar,"", "","","","","","","","","",""},
                                                 {"0","5","12","0","200","50","200","4","50","0","20","20","20","50","20","20","20","20","20","0","0","0","0","0","500"},//最大长度设定,不校验最大长度用0
                                                 {"0","1","1","0","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"}//前台显示列号，从0开始计算,注意有选择框的是0

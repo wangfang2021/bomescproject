@@ -465,7 +465,7 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
-                string vcDxny = DateTime.Now.AddMonths(0).ToString("yyyyMM");
+                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",
@@ -504,7 +504,7 @@ namespace SPPSApi.Controllers.G06
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "";
+                    apiResult.data = "未生成 " + tbName + " 厂生产计划，不能导出！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

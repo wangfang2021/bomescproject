@@ -24,7 +24,7 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 
 namespace SPPSApi.Controllers.G06
-{ 
+{
     [Route("api/FS0610_Sub_ImpProPlan/[action]")]
     [EnableCors("any")]
     [ApiController]
@@ -55,8 +55,8 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMon = DateTime.Now.AddMonths(1).ToString("yyyyMM");
-            string[] vcFZGC = dataForm.vcFZGC.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
+            string vcMon = DateTime.Now.AddMonths(0).ToString("yyyyMM");
+            //string[] vcFZGC = dataForm.vcFZGC.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
@@ -189,9 +189,15 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0610_Logic.TranColName(ref importDt);
-                fs0610_Logic.PartsNoFomatTo12(ref importDt);//2013-4-18 10位品番后两位加00
-                for (int i = 0; i < vcFZGC.Length; i++)
+
+                #region 获取导入文件中的工厂
+                List<string> vcFZGC = new List<string>();
+                DataTable dtPlants = importDt.DefaultView.ToTable(true, "vcPlant");
+                for (int i = 0; i < dtPlants.Rows.Count; i++)
+                    vcFZGC.Add(dtPlants.Rows[i][0].ToString().Replace("#", ""));
+                #endregion
+
+                for (int i = 0; i < vcFZGC.Count; i++)
                 {
                     strMsg = fs0610_Logic.checkExcelData_Pro(ref importDt, vcMon, vcFZGC[i]);//校验数据
                     if (strMsg.Length > 0)
@@ -201,8 +207,12 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+
+                fs0610_Logic.TranColName(ref importDt);
+                fs0610_Logic.PartsNoFomatTo12(ref importDt);//2013-4-18 10位品番后两位加00
+
                 Exception ex = new Exception();
-                for (int i = 0; i < vcFZGC.Length; i++)
+                for (int i = 0; i < vcFZGC.Count; i++)
                 {
                     string mon = vcMon.Substring(0, 4) + "-" + vcMon.Substring(4, 2);
                     strMsg = fs0610_Logic.updatePro(importDt, loginInfo.UserId, mon, ref ex, vcFZGC[i]);

@@ -93,8 +93,8 @@ namespace SPPSApi.Controllers.G06
                 DataTable dt = fs0626_Logic.Search(vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcExpectRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                dtConverter.addField("vcRealRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+                dtConverter.addField("vcExpectRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd");
+                dtConverter.addField("vcRealRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);

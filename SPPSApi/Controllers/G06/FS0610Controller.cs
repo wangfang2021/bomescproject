@@ -465,7 +465,7 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
-                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                string vcDxny = DateTime.Now.AddMonths(0).ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",
@@ -492,10 +492,6 @@ namespace SPPSApi.Controllers.G06
                 for (int i = 0; i < vcFZGC.Length; i++)
                 {
                     dt.Merge(fs0610_Logic.dowloadProPlan(vcDxny, vcFZGC[i], loginInfo.UserId));
-                    for (int c = 0; c < dt.Rows.Count; c++)
-                    {
-                        dt.Rows[c]["vcPartsno"] = dt.Rows[c]["vcPartsno"].ToString().Replace("-", "");
-                    }
                     tbName += "#" + vcFZGC[i];
                 }
                 if (dt != null && dt.Rows.Count > 0)

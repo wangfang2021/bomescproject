@@ -870,7 +870,7 @@ namespace Logic
             //dt.Columns.Remove("vcPlant");
             if (dt_Data.Rows.Count != dt.Rows.Count)
             {
-                msg = "导入数据与本月初版生产计划不符，请重新导出修改！";
+                msg = plant + "厂上传数据与本月初版生产计划不符，请重新导出修改！";
                 return msg;
             }
             else
@@ -880,14 +880,14 @@ namespace Logic
                     DataRow[] dr = dt_Data.Select(" vcPartsno ='" + dt.Rows[i]["vcPartsno"].ToString() + "' and vcMonth ='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcDock ='" + dt.Rows[i]["vcDock"] + "' and vcCarType ='" + dt.Rows[i]["vcCarType"].ToString() + "'");
                     if (dr.Length == 0)
                     {
-                        msg = "第" + (i + 2) + "行，初版生产计划无该条数据。";
+                        msg = "第" + (i + 1) + "行，初版生产计划无该条数据。";
                         return msg;
                     }
                     for (int j = 0; j < 14; j++)//前13列基础信息 需要一致
                     {
                         if (dr[0][j].ToString().Trim() != dt.Rows[i][j].ToString().Trim())
                         {
-                            msg = "第" + (i + 2) + "行，" + ExcelPos(j + 2) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
+                            msg = "第" + (i + 1) + "行，" + ExcelPos(j + 1) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
                             return msg;
                         }
                     }
@@ -897,7 +897,7 @@ namespace Logic
                         int k = 0;
                         if (dr[0][j].ToString().Trim().Length == 0 && dt.Rows[i][j].ToString().Trim().Length > 0)
                         {
-                            msg = "第" + (i + 2) + "行，" + ExcelPos(j + 2) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
+                            msg = "第" + (i + 1) + "行，" + ExcelPos(j + 2) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
                             return msg;
                         }
                         else if (dr[0][j].ToString().Trim().Length > 0)
@@ -908,7 +908,7 @@ namespace Logic
                             }
                             catch (Exception ex)
                             {
-                                msg = "第" + (i + 2) + "行，" + ExcelPos(j + 2) + "列，输入数据应为数字！";
+                                msg = "第" + (i + 1) + "行，" + ExcelPos(j + 2) + "列，输入数据应为数字！";
                                 return msg;
                             }
                         }

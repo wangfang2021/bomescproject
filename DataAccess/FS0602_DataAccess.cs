@@ -42,7 +42,7 @@ namespace DataAccess
                 strSql.AppendLine("		T1.vcSupplierPlant AS vcSupplierPlant,");
                 strSql.AppendLine("		T1.iQuantityPercontainer AS iPackingQty,");
                 strSql.AppendLine("		T1.iCbSOQN AS iCbSOQN,");
-                strSql.AppendLine("		T1.decCbBdl AS decCbBdl,");
+                strSql.AppendLine("		case when isnull( cast(T1.decCbBdl as varchar(10)),'')='' then '' else cast(T1.decCbBdl as varchar(10))+'%' end AS decCbBdl,");
                 strSql.AppendLine("		T1.iCbSOQN1 AS iCbSOQN1,");
                 strSql.AppendLine("		T1.iCbSOQN2 AS iCbSOQN2,");
                 strSql.AppendLine("		CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,ISNULL(T1.iCbSOQN,0)) ELSE ISNULL(T1.iTzhSOQN,0) END AS iTzhSOQN,");
@@ -225,6 +225,7 @@ namespace DataAccess
                 string month_temp = "";
                 for (int i = 0; i < dt2.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt2.Rows[i]["vcPart_id"].ToString();
                     string strPart1 = dt2.Rows[i]["vcPartId_1"].ToString();
                     string strPart2 = dt2.Rows[i]["vcPartId_2"].ToString();
@@ -289,7 +290,7 @@ namespace DataAccess
                 strSql.AppendLine("    left join");
                 strSql.AppendLine("    	(select vcPartId,vcMandOrder,vcSupplierId");
                 strSql.AppendLine("    	from TSPMaster");
-                strSql.AppendLine("    	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='"+ strReceiver + "'");
+                strSql.AppendLine("    	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "'");
                 strSql.AppendLine("    	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)");
                 strSql.AppendLine("       and dFromTime<>dToTime)c");
                 strSql.AppendLine("     on a.vcPart_id=c.vcPartId  and a.vcSupplier_id=c.vcSupplierId");
@@ -396,9 +397,9 @@ namespace DataAccess
                 strSql.AppendLine(" (fzgc_2.供应商编号 is null or t5_2.vcPartId is null or t6_2.vcPartId is null) or       \r\n ");
                 strSql.AppendLine(" (fzgc_3.供应商编号 is null or t5_3.vcPartId is null or t6_3.vcPartId is null)       \r\n ");
                 DataTable dt6_1 = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                month_temp = "";
                 for (int i = 0; i < dt6_1.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt6_1.Rows[i]["vcPart_id"].ToString();
                     string vcOrderPlant = dt6_1.Rows[i]["发注工厂"].ToString();//发注工厂
                     string iPackingQty = dt6_1.Rows[i]["iPackingQty"].ToString();//收容数
@@ -718,7 +719,7 @@ namespace DataAccess
                 strSql.AppendLine("left join (        \n");
                 strSql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut        \n");
                 strSql.AppendLine("	from TSPMaster         \n");
-                strSql.AppendLine("	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='"+strReceiver+"'         \n");
+                strSql.AppendLine("	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "'         \n");
                 strSql.AppendLine("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)        \n");
                 strSql.AppendLine("    and dFromTime<>dToTime     \n");
                 strSql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId       \n");
@@ -749,7 +750,7 @@ namespace DataAccess
                 strSql.AppendLine("left join (        \n");
                 strSql.AppendLine("	select vcPartId,dDebugTime       \n");
                 strSql.AppendLine("	from TSPMaster         \n");
-                strSql.AppendLine("	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='"+ strReceiver + "'         \n");
+                strSql.AppendLine("	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "'         \n");
                 strSql.AppendLine("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
                 strSql.AppendLine("    and '" + strYearMonth + "'>=convert(varchar(6),dDebugTime,112)    \n");
                 strSql.AppendLine("    and dFromTime<>dToTime     \n");
@@ -772,9 +773,9 @@ namespace DataAccess
                 strSql.AppendLine(")t4 on t1.vcPart_id=t4.vcPartId     \n");
                 strSql.AppendLine("where t2.vcPartId is not null or t3.vcPartId is not null or t4.vcPartId is not null    \n");
                 DataTable dt10 = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-                month_temp = "";
                 for (int i = 0; i < dt10.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt10.Rows[i]["vcPart_id"].ToString();
                     string dDebugTime1 = dt2.Rows[i]["dDebugTime_1"].ToString();
                     string dDebugTime2 = dt2.Rows[i]["dDebugTime_2"].ToString();
@@ -849,13 +850,13 @@ namespace DataAccess
                 strSql.AppendLine("insert into TSoq_OperHistory (vcYearMonth,vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcInputType,vcOperator,dOperatorTime)");
                 strSql.AppendLine("select vcYearMonth,vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,'company',vcOperator,GETDATE() from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strOperId + "'");
                 strSql.AppendLine("--更新调整后字段");
-                strSql.AppendLine("update t2 set t2.iTzhSOQN=t1.iTzhSOQN,t2.iTzhSOQN1=t1.iTzhSOQN1,t2.iTzhSOQN2=t1.iTzhSOQN2,vcOperator='" + strOperId + "',dOperatorTime=GETDATE(),vcLastTimeFlag='" + strLastTimeFlag + "'");
-                strSql.AppendLine("from");
-                strSql.AppendLine("(select * from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strOperId + "')t1 ");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(select * from  TSoq where vcYearMonth='" + strYearMonth + "')t2 ");
-                strSql.AppendLine("on t1.vcYearMonth=t2.vcYearMonth and t1.vcPart_id=t2.vcPart_id");
-                strSql.AppendLine("where t1.iTzhSOQN<>t2.iTzhSOQN or t1.iTzhSOQN1<>t2.iTzhSOQN1 or t1.iTzhSOQN2<>t2.iTzhSOQN2");
+                //strSql.AppendLine("update t2 set t2.iTzhSOQN=t1.iTzhSOQN,t2.iTzhSOQN1=t1.iTzhSOQN1,t2.iTzhSOQN2=t1.iTzhSOQN2,vcOperator='" + strOperId + "',dOperatorTime=GETDATE(),vcLastTimeFlag='" + strLastTimeFlag + "'");
+                //strSql.AppendLine("from");
+                //strSql.AppendLine("(select * from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strOperId + "')t1 ");
+                //strSql.AppendLine("left join ");
+                //strSql.AppendLine("(select * from  TSoq where vcYearMonth='" + strYearMonth + "')t2 ");
+                //strSql.AppendLine("on t1.vcYearMonth=t2.vcYearMonth and t1.vcPart_id=t2.vcPart_id");
+                //strSql.AppendLine("where isnull(t1.iTzhSOQN,'')<>isnull(t2.iTzhSOQN,'') or isnull(t1.iTzhSOQN1,'')<>isnull(t2.iTzhSOQN1,'') or isnull(t1.iTzhSOQN2,'')<>isnull(t2.iTzhSOQN2,'')");
                 strSql.AppendLine("--走到保存，则异常信息肯定没有了，删除TSoqInputErrDetail_Save");
                 strSql.AppendLine("delete TSoqInputErrDetail_Save where vcOperator='" + strOperId + "' and vcYearMonth='" + strYearMonth + "'");
                 strSql.AppendLine("--记录日志");
@@ -887,11 +888,11 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("   SET [vcDyState] = '" + strDyState + "'");
                 strSql_modinfo.AppendLine("      ,[dExpectTime] = @dExpectTime");
                 strSql_modinfo.AppendLine("      ,[dOpenTime] = GETDATE()");
-                strSql_modinfo.AppendLine("      ,[vcOpenUser] = '" + strOperId + "'");
+                strSql_modinfo.AppendLine("      ,[vcOpenUser] = '" + strOperId + "',vcSReplyUser=null,dSReplyTime=null");
                 strSql_modinfo.AppendLine(" WHERE [vcYearMonth] = @vcYearMonth");
                 strSql_modinfo.AppendLine(" AND [vcPart_id] = @vcPart_id and vcDyState in ('0','2','3') and vcHyState in ('0','3') ");
                 strSql_modinfo.AppendLine(" INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
-                strSql_modinfo.AppendLine(" select [vcYearMonth],[vcPart_id],iCbSOQN,iCbSOQN1,iCbSOQN2,'supplier' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
+                strSql_modinfo.AppendLine(" select [vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],'supplier' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
                 strSql_modinfo.AppendLine(" from TSoq_temp where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcHyState in ('0','3') and vcDyState in ('0','2','3') AND vcOperator='" + strOperId + "' ");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@dExpectTime", "");
@@ -950,6 +951,10 @@ namespace DataAccess
                 StringBuilder strSql_modinfo = new StringBuilder();
                 strSql_modinfo.AppendLine("update T1 SET");
                 strSql_modinfo.AppendLine("	 T1.[vcHyState]='" + strHyState + "'");
+                strSql_modinfo.AppendLine("	 ,T1.vcDyState=(case when (ISNULL(T2.iTzhSOQN,0)<>ISNULL(T1.iCbSOQN,0) or ");
+                strSql_modinfo.AppendLine("	 						   ISNULL(T2.iTzhSOQN1,0)<>ISNULL(T1.iCbSOQN1,0) or");
+                strSql_modinfo.AppendLine("	 						   ISNULL(T2.iTzhSOQN2,0)<>ISNULL(T1.iCbSOQN2,0))");
+                strSql_modinfo.AppendLine("	 	   then '2' else '3' end)");
                 strSql_modinfo.AppendLine("	,T1.iTzhSOQN=ISNULL(T2.iTzhSOQN,0)");
                 strSql_modinfo.AppendLine("	,T1.iTzhSOQN1=ISNULL(T2.iTzhSOQN1,0)");
                 strSql_modinfo.AppendLine("	,T1.iTzhSOQN2=ISNULL(T2.iTzhSOQN2,0)");
@@ -963,7 +968,7 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') AND vcOperator='" + strOperId + "')T2");
                 strSql_modinfo.AppendLine("ON T1.vcYearMonth=T2.vcYearMonth AND T1.vcPart_id=T2.vcPart_id ");
                 strSql_modinfo.AppendLine("INSERT INTO [dbo].[TSoq_OperHistory]([vcYearMonth],[vcPart_id],[iTzhSOQN],[iTzhSOQN1],[iTzhSOQN2],[vcInputType],[vcOperator],[dOperatorTime])");
-                strSql_modinfo.AppendLine("select [vcYearMonth],[vcPart_id],iCbSOQN,iCbSOQN1,iCbSOQN2,'company' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
+                strSql_modinfo.AppendLine("select [vcYearMonth],[vcPart_id],iTzhSOQN,iTzhSOQN1,iTzhSOQN2,'company' as [vcInputType],'" + strOperId + "' as [vcOperator],GETDATE() as [dOperatorTime] ");
                 strSql_modinfo.AppendLine("from TSoq_temp where vcYearMonth=@vcYearMonth and vcPart_id=@vcPart_id and vcDyState in ('0','1','2','3') and vcHyState in ('0','3') AND vcOperator='" + strOperId + "' ");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
@@ -1026,6 +1031,86 @@ namespace DataAccess
                 }
             }
         }
+        public DataTable getSupplierEmail()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcSupplier_id,vcLXR1,vcEmail1 FROM TSupplier ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public DataTable getExportRef_SOQ(string strYearMonth, string strYearMonth_before, ref DataTable dtMessage)
+        {
+            try
+            {
+                SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+                SqlParameter[] pars = new SqlParameter[]{
+                    new SqlParameter("@YearMonth", strYearMonth),
+                    new SqlParameter("@YearMonth_before", strYearMonth_before)
+                };
+                string cmdText = "BSP0616_ExportRef_SOQ";
+                SqlDataAdapter sa = new SqlDataAdapter(cmdText, sqlConnection);
+                if (pars != null && pars.Length > 0)
+                {
+                    foreach (SqlParameter p in pars)
+                    {
+                        sa.SelectCommand.Parameters.Add(p);
+                    }
+                }
+                sa.SelectCommand.CommandTimeout = 0;
+                sa.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable dt = new DataTable();
+                sa.Fill(dt);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据读取失败！";
+                dtMessage.Rows.Add(dataRow);
+                throw ex;
+            }
+
+        }
+
+        public DataTable getExportRef_ANN(string strYear, string strYear_Last, ref DataTable dtMessage)
+        {
+            try
+            {
+                SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+                SqlParameter[] pars = new SqlParameter[]{
+                    new SqlParameter("@Year", strYear),
+                    new SqlParameter("@Year_Last",strYear_Last)
+                };
+                string cmdText = "BSP0616_ExportRef_ANN";
+                SqlDataAdapter sa = new SqlDataAdapter(cmdText, sqlConnection);
+                if (pars != null && pars.Length > 0)
+                {
+                    foreach (SqlParameter p in pars)
+                    {
+                        sa.SelectCommand.Parameters.Add(p);
+                    }
+                }
+                sa.SelectCommand.CommandTimeout = 0;
+                sa.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable dt = new DataTable();
+                sa.Fill(dt);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据读取失败！";
+                dtMessage.Rows.Add(dataRow);
+                throw ex;
+            }
+
+        }
     }
 }

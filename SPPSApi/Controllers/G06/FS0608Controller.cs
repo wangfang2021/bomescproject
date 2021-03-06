@@ -127,7 +127,8 @@ namespace SPPSApi.Controllers.G06
             List<string> weekTypeVals = dataForm.weekTypeVals.ToObject<List<string>>();
 
             //对象年月
-            string varDxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny).ToString("yyyyMM");
+            DateTime Dxny = dataForm.varDxny == null ? "" : Convert.ToDateTime(dataForm.varDxny);
+            string varDxny = Dxny.ToString("yyyyMM");
             //发注工厂
             string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
             //总稼动日

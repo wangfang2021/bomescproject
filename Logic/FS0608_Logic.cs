@@ -71,8 +71,32 @@ namespace Logic
             }
             else
             {
-                data["dayTypeValsN"] = "";
-                data["weekTypeValsN"] = "";
+                string[] dayTempalte = new string[31];
+                string[] weekTempalte = new string[31];
+                for (int k = 1; k < 32; k++)
+                {
+                    string currentDate = vcYM.Substring(0, 4) + "-" + vcYM.Substring(4, 2) + "-" + k.ToString();
+                    try
+                    {
+                        DateTime cd = Convert.ToDateTime(currentDate);
+                        if (cd.DayOfWeek == DayOfWeek.Saturday || cd.DayOfWeek == DayOfWeek.Sunday)
+                        {
+                            dayTempalte[k - 1] = "休";
+                        }
+                        else
+                        {
+                            dayTempalte[k - 1] = "双";
+                        }
+                    }
+                    catch
+                    {
+                        dayTempalte[k - 1] = null;
+                    }
+                    //周数（取第一位数字）
+                    weekTempalte[k - 1] = "";
+                }
+                data["dayTypeValsN"] = new JArray(dayTempalte);
+                data["weekTypeValsN"] = new JArray(weekTempalte);
                 data["totalWorkDaysN"] = "";
             }
             #endregion
@@ -117,8 +141,32 @@ namespace Logic
             }
             else
             {
-                data["dayTypeValsN1"] = "";
-                data["weekTypeValsN1"] = "";
+                string[] dayTempalte = new string[31];
+                string[] weekTempalte = new string[31];
+                for (int k = 1; k < 32; k++)
+                {
+                    string currentDate = vcYM1.Substring(0, 4) + "-" + vcYM1.Substring(4, 2) + "-" + k.ToString();
+                    try
+                    {
+                        DateTime cd = Convert.ToDateTime(currentDate);
+                        if (cd.DayOfWeek == DayOfWeek.Saturday || cd.DayOfWeek == DayOfWeek.Sunday)
+                        {
+                            dayTempalte[k - 1] = "休";
+                        }
+                        else
+                        {
+                            dayTempalte[k - 1] = "双";
+                        }
+                    }
+                    catch
+                    {
+                        dayTempalte[k - 1] = null;
+                    }
+                    //周数（取第一位数字）
+                    weekTempalte[k - 1] = "";
+                }
+                data["dayTypeValsN1"] = new JArray(dayTempalte);
+                data["weekTypeValsN1"] = new JArray(weekTempalte);
                 data["totalWorkDaysN1"] = "";
             }
             #endregion
@@ -163,8 +211,32 @@ namespace Logic
             }
             else
             {
-                data["dayTypeValsN2"] = "";
-                data["weekTypeValsN2"] = "";
+                string[] dayTempalte = new string[31];
+                string[] weekTempalte = new string[31];
+                for (int k = 1; k < 32; k++)
+                {
+                    string currentDate = vcYM2.Substring(0, 4) + "-" + vcYM2.Substring(4, 2) + "-" + k.ToString();
+                    try
+                    {
+                        DateTime cd = Convert.ToDateTime(currentDate);
+                        if (cd.DayOfWeek == DayOfWeek.Saturday || cd.DayOfWeek == DayOfWeek.Sunday)
+                        {
+                            dayTempalte[k - 1] = "休";
+                        }
+                        else
+                        {
+                            dayTempalte[k - 1] = "双";
+                        }
+                    }
+                    catch
+                    {
+                        dayTempalte[k - 1] = null;
+                    }
+                    //周数（取第一位数字）
+                    weekTempalte[k - 1] = "";
+                }
+                data["dayTypeValsN2"] = new JArray(dayTempalte);
+                data["weekTypeValsN2"] = new JArray(weekTempalte);
                 data["totalWorkDaysN2"] = "";
             }
             #endregion

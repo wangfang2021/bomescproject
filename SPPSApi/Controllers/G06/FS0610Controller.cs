@@ -429,8 +429,14 @@ namespace SPPSApi.Controllers.G06
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(','); ;
                 //生成生产计划  
                 msg = fs0610_Logic.createProPlan(vcDxny, vcFZGC, loginInfo.UserId);
+                if (msg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = msg;
+                apiResult.data = "";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -459,7 +465,7 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
-                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                string vcDxny = DateTime.Now.AddMonths(0).ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",
@@ -481,7 +487,6 @@ namespace SPPSApi.Controllers.G06
                     "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
                 };
                 string filepath = "";
-                string msg = "";
                 string tbName = "";
                 DataTable dt = new DataTable();
                 for (int i = 0; i < vcFZGC.Length; i++)

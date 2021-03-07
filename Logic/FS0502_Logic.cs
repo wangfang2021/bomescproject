@@ -17,9 +17,9 @@ namespace Logic
         FS0502_DataAccess fs0502_DataAccess = new FS0502_DataAccess();
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id,string vcDelete)
+        public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id)
         {
-            return fs0502_DataAccess.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, vcDelete);
+            return fs0502_DataAccess.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
         }
         #endregion
 

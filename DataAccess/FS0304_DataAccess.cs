@@ -181,6 +181,7 @@ namespace DataAccess
         }
         #endregion
 
+        /*需要重写逻辑*/
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
@@ -236,22 +237,26 @@ namespace DataAccess
         }
         #endregion
 
+        /*
+         * 删除时，同时需要删除供应商生确表中的数据
+         */
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("  delete TSQJD where iAutoId in(   \r\n ");
+                StringBuilder sqlStr = new StringBuilder();
+
+                /*后面还要删除退回履历表的数据*/
+                #region 根据GUID删除TFTM生确表中的数据、供应商生确表中的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (i != 0)
-                        sql.Append(",");
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                    sql.Append(iAutoId);
+                    sqlStr.Append("        delete TSQJD where GUID = "+ComFunction.getSqlValue(listInfoData[i]["GUID"],false)+"         ");
+                    sqlStr.Append("        delete TSQJD_Supplier where GUID = " + ComFunction.getSqlValue(listInfoData[i]["GUID"], false) + "         ");
                 }
-                sql.Append("  )   \r\n ");
-                excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+                #endregion
+
+                excute.ExcuteSqlWithStringOper(sqlStr.ToString(), "TK");
             }
             catch (Exception ex)
             {
@@ -260,6 +265,9 @@ namespace DataAccess
         }
         #endregion
 
+        /*
+         * 需要重写逻辑,更改TFTM生确进度表的进度状态，同时更改供应商生确表的进度状态
+         */
         #region 退回
         public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strTH)
         {
@@ -291,6 +299,9 @@ namespace DataAccess
         }
         #endregion
 
+        /*
+         * 需要重写逻辑
+         */
         #region 日期一括付与
         public void DateKFY(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string dTFTM_BJ)
         {
@@ -366,16 +377,16 @@ namespace DataAccess
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSumLater"], false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum3"],false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum4"],false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum5"],false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum6"],false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum7"],false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum8"],false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum3"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum4"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum5"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum6"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum7"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], true) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcIsDYJG"],false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcIsDYFX"],false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcYQorNG"], false) + "        \n");
@@ -389,7 +400,7 @@ namespace DataAccess
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCSPlace"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dSupplier_BJ"], true) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dSupplier_HK"], true) + "        \n");
-                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dTFTM_BJ"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dTFTM_BJ"], true) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZDiff"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "        \n");
@@ -409,6 +420,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -428,6 +440,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -443,10 +456,11 @@ namespace DataAccess
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
                 #endregion
 
-                #region 旧型
+                #region 旧型(打切旧型/设变旧型)
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dJiuBegin = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -466,6 +480,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dJiuEnd = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -488,6 +503,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dTimeTo = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -507,6 +523,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeTo = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -527,6 +544,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -547,6 +565,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeTo = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -567,6 +586,7 @@ namespace DataAccess
                 sql.Append("        update TUnit set        \n");
                 sql.Append("         dGYSTimeFrom = b.dTFTM_BJ       \n");
                 sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
@@ -584,15 +604,15 @@ namespace DataAccess
                 #endregion
                 #endregion
 
-
                 #region 对应不可时，将生确状态改为NG
                 sql.Append("        update TUnit set        \n");
                 sql.Append("        vcSQState = '3'       \n");
+                sql.Append("        ,vcSQContent = 'NG'       \n");
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join        \n");
                 sql.Append("        (       \n");
                 sql.Append("        	select vcPart_id from #TSQJD_temp       \n");
-                sql.Append("        	where vcIsDYJG = '0'       \n");
+                sql.Append("        	where vcIsDYJG = '2'       \n");
                 sql.Append("        ) b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
                 #endregion
@@ -601,10 +621,7 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     var iAutoId = listInfoData[i]["iAutoId"].ToString();
-                    sql.Append("        update TSQJD set vcJD =         \n");
-                    sql.Append("        (        \n");
-                    sql.Append("        	select vcValue from TCode where vcCodeId = 'C026' and vcName like '%已织入%'        \n");
-                    sql.Append("        )        \n");
+                    sql.Append("        update TSQJD set vcJD = '4'        \n");
                     sql.Append("        where iAutoId = '"+iAutoId+"'        \n");
                 }
                 #endregion

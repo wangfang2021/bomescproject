@@ -267,7 +267,6 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-
         #region 退回
         [HttpPost]
         [EnableCors("any")]
@@ -499,6 +498,20 @@ namespace SPPSApi.Controllers.G03
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "未选中任何行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                /*
+                 * 织入原单位时，必须是已回复的才可以织入原单位
+                 */
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcJD"].ToString()=="4")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "已织入数据不可重复织入！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
 
                 //开始数据验证

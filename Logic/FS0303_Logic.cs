@@ -282,6 +282,8 @@ namespace Logic
                 }
                 #endregion
 
+
+
                 #region 向下游同步数据
                 //获取所有的事业体
                 DataTable dt = ComFunction.getTCode("C016");
@@ -289,12 +291,25 @@ namespace Logic
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     string strSYTName = dt.Rows[i]["vcName"].ToString();
-                    var tempList = getSendData(dt.Rows[i]["vcValue"].ToString(), listInfoData);
+                    List<Dictionary<string, Object>> tempList = getSendData(dt.Rows[i]["vcValue"].ToString(), listInfoData);
                     if (tempList.Count > 0)  //有要发送的数据
                     {
-                        //发送数据的方法
-                        strMessage += dt.Rows[i]["vcName"].ToString()+": ";
+                        strMessage += dt.Rows[i]["vcName"].ToString() + ": ";
+                        /*
+                         * 2021-3-5
+                         * 测试事业体服务器连通性
+                        */
+                        #region 测试该事业体服务器连通性
+
+                        #endregion
+
+                        #region 测试该事业体下游收货方是否已经维护
+
+                        #endregion
+
+                        #region 准备就绪，开始同步操作
                         fs0303_DataAccess.dataSync(strSYTName, tempList, strUserId, ref strMessage);
+                        #endregion
                         
                         #region 如果同步成功，将此次同步的数据的同步时间更新
                         fs0303_DataAccess.dataSync(tempList, strUserId);

@@ -193,6 +193,7 @@ namespace DataAccess
                 string month_temp = "";
                 for (int i = 0; i < dt2.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt2.Rows[i]["vcPart_id"].ToString();
                     string strPart1 = dt2.Rows[i]["vcPartId_1"].ToString();
                     string strPart2 = dt2.Rows[i]["vcPartId_2"].ToString();
@@ -375,6 +376,7 @@ namespace DataAccess
                 month_temp = "";
                 for (int i = 0; i < dt6_1.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt6_1.Rows[i]["vcPart_id"].ToString();
                     string vcOrderPlant = dt6_1.Rows[i]["发注工厂"].ToString();//发注工厂
                     string iPackingQty = dt6_1.Rows[i]["iPackingQty"].ToString();//收容数
@@ -740,6 +742,7 @@ namespace DataAccess
                 month_temp = "";
                 for (int i = 0; i < dt10.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt10.Rows[i]["vcPart_id"].ToString();
                     string dDebugTime1 = dt2.Rows[i]["dDebugTime_1"].ToString();
                     string dDebugTime2 = dt2.Rows[i]["dDebugTime_2"].ToString();
@@ -1164,12 +1167,9 @@ namespace DataAccess
                 strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
                 strSql.AppendLine("      ,dOperatorTime=getDate() ");
                 strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
-                strSql.AppendLine(" WHERE 1=1 ");
-                //筛选条件：对象年月
-                if (!string.IsNullOrEmpty(strYearMonth))
-                {
-                    strSql.AppendLine(" AND vcYearMonth='" + strYearMonth + "' ");
-                }
+                strSql.AppendLine("      ,iTzhSOQN=null,iTzhSOQN1=null,iTzhSOQN2=null,iHySOQN=null,iHySOQN1=null,iHySOQN2=null      \n");
+                strSql.AppendLine("      ,dExpectTime=null,dOpenTime=null,vcOpenUser=null,dSReplyTime=null,vcSReplyUser=null,dReplyTime=null       \n");
+                strSql.AppendLine(" WHERE vcYearMonth='" + strYearMonth + "' ");
                 //筛选条件：对应状态
                 if (!string.IsNullOrEmpty(strDyState))
                 {
@@ -1185,7 +1185,15 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" AND vcPart_id like '%" + strPart_id + "%' ");
                 }
-                strSql.Append("; \r\n ");
+                strSql.AppendLine("; \r\n ");
+
+
+                strSql.AppendLine("delete from TSoq_OperHistory where vcYearMonth='" + strYearMonth + "'          \r\n ");
+                //筛选条件：品番
+                if (!string.IsNullOrEmpty(strPart_id))
+                {
+                    strSql.AppendLine(" AND vcPart_id like '%" + strPart_id + "%' ");
+                }
 
                 //本次修改的数据记录日志
                 strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");
@@ -1234,12 +1242,20 @@ namespace DataAccess
                 strSql.AppendLine("      ,vcOperator='" + strUserId + "' ");
                 strSql.AppendLine("      ,dOperatorTime=getDate() ");
                 strSql.AppendLine("      ,vcLastTimeFlag='" + strLastTimeFlag + "' ");
+                strSql.AppendLine("      ,iTzhSOQN=null,iTzhSOQN1=null,iTzhSOQN2=null,iHySOQN=null,iHySOQN1=null,iHySOQN2=null      \n");
+                strSql.AppendLine("      ,dExpectTime=null,dOpenTime=null,vcOpenUser=null,dSReplyTime=null,vcSReplyUser=null,dReplyTime=null       \n");
                 strSql.AppendLine(" from TSoq a  \n ");
                 strSql.AppendLine(" inner join  \n ");
                 strSql.AppendLine(" (  \n ");
                 strSql.AppendLine("    select vcPart_id from #TSoq_temp_back  \n ");
                 strSql.AppendLine(" )b on a.vcPart_id=b.vcPart_id  \n ");
                 strSql.Append(";  \n ");
+                strSql.Append("delete t1    \n ");
+                strSql.Append("from   \n ");
+                strSql.Append("(select * from TSoq_OperHistory where vcYearMonth='"+strYearMonth+"')t1   \n ");
+                strSql.Append("inner join (   \n ");
+                strSql.Append("  select vcPart_id from #TSoq_temp_back   \n ");
+                strSql.Append(")t2 on t1.vcPart_id=t2.vcPart_id   \n ");
 
                 //本次修改的数据记录日志
                 strSql.AppendLine("  INSERT INTO TSoqLog( vcYearMonth,vcPart_id,vcMessage,vcOperator,dOperatorTime)");

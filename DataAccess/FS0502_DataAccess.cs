@@ -16,7 +16,6 @@ namespace DataAccess
         {
             try
             {
-                MultiExcute excute = new MultiExcute();
                 DataTable dt = new DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "' and vcValue in ('1','2')  ORDER BY iAutoId    \n");
@@ -28,6 +27,21 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public DataTable getOrderNo(string vcSupplier_id)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select distinct vcOrderNo as vcName,vcOrderNo as vcValue from TUrgentOrder where vcSupplier_id='" + vcSupplier_id + "' " +
+                    "and vcStatus in ('1','2') and vcDelete='0'  \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region 按检索条件检索,返回dt
         public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id, string vcDelete)

@@ -44,6 +44,11 @@ namespace Logic
         }
         #endregion
 
+        public DataTable getOrderNo(string vcSupplier_id)
+        {
+            return fs0502_DataAccess.getOrderNo(vcSupplier_id);
+        }
+
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main, 
             string vcPart_id, string vcOrderNo, string vcSupplier_id,ref string infopart)

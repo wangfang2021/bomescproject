@@ -42,7 +42,9 @@ namespace SPPSApi.Controllers.G05
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_C056 = ComFunction.convertAllToResult(fs0502_Logic.getTCode("C056"));//状态
+                List<Object> dataList_OrderNo = ComFunction.convertAllToResult(fs0502_Logic.getOrderNo(loginInfo.UserId));//订单号
                 res.Add("C056", dataList_C056);
+                res.Add("OrderNo", dataList_OrderNo);
                 res.Add("vcSupplier_id", loginInfo.UserId);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

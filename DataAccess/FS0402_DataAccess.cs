@@ -31,7 +31,7 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strYearMonth, string strDyState, string strHyState, string strPart_id)
+        public DataSet Search(string strYearMonth, string strDyState, string strHyState, string strPart_id)
         {
             try
             {
@@ -74,7 +74,35 @@ namespace DataAccess
                     strSql.Append(" and vcPart_id like '%"+ strPart_id + "%'");
                 }
                 strSql.Append("order by a.iAutoId    \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+
+                //合计行
+                strSql.Append("SELECT '' as vcYearMonth,'' as vcDyState_Name,'' as vcHyState_Name,'' as vcPart_id,sum(iCbSOQN) as iCbSOQN,        \n");
+                strSql.Append("'' as decCbBdl,sum(iCbSOQN1) as iCbSOQN1,sum(iCbSOQN2) as iCbSOQN2,sum(iTzhSOQN) as iTzhSOQN,sum(iTzhSOQN1) as iTzhSOQN1,    \n");
+                strSql.Append("sum(iTzhSOQN2) as iTzhSOQN2,sum(iHySOQN) as iHySOQN,sum(iHySOQN1) as iHySOQN1,sum(iHySOQN2) as iHySOQN2,'' as dHyTime    \n");
+                strSql.Append("  FROM TSoq a  \n");
+                strSql.Append("  WHERE 1=1  \n");
+
+                if (!string.IsNullOrEmpty(strYearMonth))
+                {//对象年月
+                    strSql.Append(" and vcYearMonth='" + strYearMonth + "'");
+                }
+                if (!string.IsNullOrEmpty(strDyState))//对应状态
+                {
+                    if (strDyState == "4")
+                        strSql.Append(" and vcDyState in ('0','1') ");
+                    else
+                        strSql.Append(" and vcDyState='" + strDyState + "'");
+                }
+                if (!string.IsNullOrEmpty(strHyState))//合意状态
+                {
+                    strSql.Append(" and vcHyState='" + strHyState + "'");
+                }
+                if (!string.IsNullOrEmpty(strPart_id))//品番
+                {
+                    strSql.Append(" and vcPart_id like '%" + strPart_id + "%'");
+                }
+
+                return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }
             catch (Exception ex)
             {

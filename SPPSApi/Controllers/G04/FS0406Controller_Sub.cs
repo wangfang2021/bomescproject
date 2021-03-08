@@ -77,7 +77,6 @@ namespace SPPSApi.Controllers.G04
         #endregion
 
 
-        #region 生成
 
         #region 生成
 
@@ -106,7 +105,15 @@ namespace SPPSApi.Controllers.G04
 
             try
             {
-                fs0406_Logic.createInfo(Receiver, RKCheck, RKDate, CKCheck, startTime, endTime, loginInfo.UserId);
+                string msg = "";
+                fs0406_Logic.createInfo(Receiver, RKCheck, RKDate, CKCheck, startTime, endTime, loginInfo.UserId, ref msg);
+
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "生成成功";
@@ -122,6 +129,5 @@ namespace SPPSApi.Controllers.G04
         }
         #endregion 
 
-        #endregion
     }
 }

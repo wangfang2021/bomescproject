@@ -58,10 +58,10 @@ namespace Logic
             }
         }
         public DataTable getSearchInfo(string strSyncTime, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant)
+                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck)
         {
             DataTable dataTable = fs0603_DataAccess.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant);
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck);
 
             foreach (DataRow dataRow in dataTable.Rows)
             {
@@ -89,10 +89,10 @@ namespace Logic
                 int count = dataTable.Rows.Count;
                 for (int i = count - 1; i >= 0; i--)
                 {
-                    if (dataTable.Rows[i][""].ToString().Trim() == "")
+                    if (dataTable.Rows[i]["vcType"].ToString().Trim() == "")
                         dataTable.Rows.RemoveAt(i);
                 }
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 #region 检验数据重复性及数据格式
@@ -155,15 +155,18 @@ namespace Logic
                             dataTable.Rows[i]["dSyncTime"] = "";
                         else
                         {
-                            if (strSyncTime != "" && !ComFunction.CheckDate(strSyncTime))
+                            if (strSyncTime != "")
                             {
-                                DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报同步时间格式不正确", i + datarow);
-                                dtMessage.Rows.Add(dataRow);
-                            }
-                            else
-                            {
-                                strSyncTime = Convert.ToDateTime(strSyncTime).ToString("yyyy-MM-dd HH:mm:ss");
+                                if (!ComFunction.CheckDate(strSyncTime))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报同步时间格式不正确", i + datarow);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                else
+                                {
+                                    strSyncTime = Convert.ToDateTime(strSyncTime).ToString("yyyy-MM-dd HH:mm:ss");
+                                }
                             }
                         }
                         drImport["dSyncTime"] = strSyncTime;
@@ -503,7 +506,7 @@ namespace Logic
                         string strBoxVolume_ed = "";
                         if (ComFunction.CheckDecimal(strBoxLength_ed) && ComFunction.CheckDecimal(strBoxWidth_ed) && ComFunction.CheckDecimal(strBoxHeight_ed))
                         {
-                            strBoxVolume_ed = ((Convert.ToDecimal(strBoxLength_ed) * Convert.ToDecimal(strBoxWidth_ed) * Convert.ToDecimal(strBoxHeight_ed)) / 1000000000).ToString("#0.00");
+                            strBoxVolume_ed = ((Convert.ToDecimal(strBoxLength_ed) * Convert.ToDecimal(strBoxWidth_ed) * Convert.ToDecimal(strBoxHeight_ed)) / (Convert.ToDecimal("1000000000.00"))).ToString("#.0000");
                         }
                         if (strBoxPackingQty_ed != "" && strBoxPackingQty_ed != "0")
                         {
@@ -767,7 +770,7 @@ namespace Logic
                 //处理List集合
                 listInfoData = setNullData(listInfoData);
                 bReault = true;
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -1024,7 +1027,7 @@ namespace Logic
         public void setSPInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
         {
             //用于检查变更情况
-            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
             //用于新增数据
             DataTable dtAddInfo = dtOperCheck.Clone();
             //用于修改数据--修改主数据表
@@ -1922,6 +1925,11 @@ namespace Logic
             DataTable dataTable = fs0603_DataAccess.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
             return dataTable;
         }
+        public DataTable getSubInfo(string strEditType, string strPackingPlant, string strPartId, string strReceiver, string strSupplierId, string strSupplierPlant)
+        {
+            DataTable dataTable = fs0603_DataAccess.getSubInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, strSupplierPlant);
+            return dataTable;
+        }
         public List<Dictionary<string, Object>> setNullData(List<Dictionary<string, Object>> listInfoData)
         {
             try
@@ -2047,7 +2055,7 @@ namespace Logic
                     DataRow[] drSPInfo = dtSPInfo.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'");
                     DataRow[] drPQInfo = dtPQInfo.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'");
                     DataRow[] drSIInfo = dtSIInfo.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'");
-                    DataRow[] drOPInfo = dtOPInfo.Select("vcSupplierId='" + strSupplierId + "'");
+                    //DataRow[] drOPInfo = dtOPInfo.Select("vcSupplierId='" + strSupplierId + "'");
                     for (int j = 0; j < drSPInfo.Length; j++)
                     {
                         DataRow drExport_temp = dtExport_temp.NewRow();
@@ -2084,117 +2092,178 @@ namespace Logic
                         drExport_temp["dToTime"] = drSIInfo[j]["dToTime"].ToString();
                         dtExport_temp.Rows.Add(drExport_temp);
                     }
-                    for (int j = 0; j < drOPInfo.Length; j++)
-                    {
-                        DataRow drExport_temp = dtExport_temp.NewRow();
-                        drExport_temp["vcPackingPlant"] = strPackingPlant;
-                        drExport_temp["vcPackingPlant_name"] = strPackingPlant_name;
-                        drExport_temp["vcPartId"] = strPartId;
-                        drExport_temp["vcReceiver"] = strReceiver;
-                        drExport_temp["vcSupplierId"] = strSupplierId;
-                        drExport_temp["dFromTime"] = drOPInfo[j]["dFromTime"].ToString();
-                        drExport_temp["dToTime"] = drOPInfo[j]["dToTime"].ToString();
-                        dtExport_temp.Rows.Add(drExport_temp);
-                    }
+                    //for (int j = 0; j < drOPInfo.Length; j++)
+                    //{
+                    //    DataRow drExport_temp = dtExport_temp.NewRow();
+                    //    drExport_temp["vcPackingPlant"] = strPackingPlant;
+                    //    drExport_temp["vcPackingPlant_name"] = strPackingPlant_name;
+                    //    drExport_temp["vcPartId"] = strPartId;
+                    //    drExport_temp["vcReceiver"] = strReceiver;
+                    //    drExport_temp["vcSupplierId"] = strSupplierId;
+                    //    drExport_temp["dFromTime"] = drOPInfo[j]["dFromTime"].ToString();
+                    //    drExport_temp["dToTime"] = drOPInfo[j]["dToTime"].ToString();
+                    //    dtExport_temp.Rows.Add(drExport_temp);
+                    //}
+                    dtExport_temp = dtExport_temp.DefaultView.ToTable(true, "vcPackingPlant", "vcPackingPlant_name", "vcPartId", "vcReceiver", "vcSupplierId", "dFromTime", "dToTime");
                     dtExport_temp.DefaultView.Sort = "dToTime";
                     dtExport_temp = dtExport_temp.DefaultView.ToTable();
-
-                    for (int k = 0; k < dtExport_temp.Rows.Count; k++)
+                    if (dtExport_temp.Rows.Count != 0)
                     {
-                        DateTime dFromTime_temp = Convert.ToDateTime(dtExport_temp.Rows[k]["dFromTime"].ToString());
-                        DateTime dToTime_temp = Convert.ToDateTime(dtExport_temp.Rows[k]["dToTime"].ToString());
-
-                        #region SupplierPlant
-                        string strSupplierPlant = "";
-                        string strSupplierPlantFromTime = "";
-                        string strSupplierPlantToTime = "";
-                        for (int q = 0; q < drSPInfo.Length; q++)
+                        for (int k = 0; k < dtExport_temp.Rows.Count; k++)
                         {
-                            string strSupplierPlant_fixed = drSPInfo[q]["vcSupplierPlant"].ToString();
-                            DateTime dFromTime_fixed = Convert.ToDateTime(drSPInfo[q]["dFromTime"].ToString());
-                            DateTime dToTime_fixed = Convert.ToDateTime(drSPInfo[q]["dToTime"].ToString());
-                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
-                            {
-                                strSupplierPlant = strSupplierPlant_fixed;
-                                strSupplierPlantFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
-                                strSupplierPlantToTime = dToTime_fixed.ToString("yyyy/MM/dd");
-                                break;
-                            }
-                        }
-                        #endregion
+                            DateTime dFromTime_temp = Convert.ToDateTime(dtExport_temp.Rows[k]["dFromTime"].ToString());
+                            DateTime dToTime_temp = Convert.ToDateTime(dtExport_temp.Rows[k]["dToTime"].ToString());
 
-                        #region PackingQty
-                        string strPackingQty = "";
-                        string strBoxType = "";
-                        string strLength = "";
-                        string strWidth = "";
-                        string strHeight = "";
-                        string strVolume = "";
-                        string strBoxFromTime = "";
-                        string strBoxToTime = "";
-                        for (int q = 0; q < drPQInfo.Length; q++)
-                        {
-                            string strPackingQty_fixed = drPQInfo[q]["iPackingQty"].ToString();
-                            string strBoxType_fixed = drPQInfo[q]["vcBoxType"].ToString();
-                            string strLength_fixed = drPQInfo[q]["iLength"].ToString();
-                            string strWidth_fixed = drPQInfo[q]["iWidth"].ToString();
-                            string strHeight_fixed = drPQInfo[q]["iHeight"].ToString();
-                            string strVolume_fixed = drPQInfo[q]["iVolume"].ToString();
-                            DateTime dFromTime_fixed = Convert.ToDateTime(drPQInfo[q]["dFromTime"].ToString());
-                            DateTime dToTime_fixed = Convert.ToDateTime(drPQInfo[q]["dToTime"].ToString());
-                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                            #region SupplierPlant
+                            string strSupplierPlant = "";
+                            string strSupplierPlantFromTime = "";
+                            string strSupplierPlantToTime = "";
+                            for (int q = 0; q < drSPInfo.Length; q++)
                             {
-                                strPackingQty = strPackingQty_fixed;
-                                strBoxType = strBoxType_fixed;
-                                strLength = strLength_fixed;
-                                strWidth = strWidth_fixed;
-                                strHeight = strHeight_fixed;
-                                strVolume = strVolume_fixed;
-                                strBoxFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
-                                strBoxToTime = dToTime_fixed.ToString("yyyy/MM/dd");
-                                break;
+                                string strSupplierPlant_fixed = drSPInfo[q]["vcSupplierPlant"].ToString();
+                                DateTime dFromTime_fixed = Convert.ToDateTime(drSPInfo[q]["dFromTime"].ToString());
+                                DateTime dToTime_fixed = Convert.ToDateTime(drSPInfo[q]["dToTime"].ToString());
+                                if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                                {
+                                    strSupplierPlant = strSupplierPlant_fixed;
+                                    strSupplierPlantFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                    strSupplierPlantToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                    break;
+                                }
                             }
-                        }
-                        #endregion
+                            #endregion
 
-                        #region SufferIn
-                        string strSufferIn = "";
-                        string strSufferInFromTime = "";
-                        string strSufferInToTime = "";
-                        for (int q = 0; q < drSIInfo.Length; q++)
-                        {
-                            string strSufferIn_fixed = drSIInfo[q]["vcSufferIn"].ToString();
-                            DateTime dFromTime_fixed = Convert.ToDateTime(drSIInfo[q]["dFromTime"].ToString());
-                            DateTime dToTime_fixed = Convert.ToDateTime(drSIInfo[q]["dToTime"].ToString());
-                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                            #region PackingQty
+                            string strPackingQty = "";
+                            string strBoxType = "";
+                            string strLength = "";
+                            string strWidth = "";
+                            string strHeight = "";
+                            string strVolume = "";
+                            string strBoxFromTime = "";
+                            string strBoxToTime = "";
+                            for (int q = 0; q < drPQInfo.Length; q++)
                             {
-                                strSufferIn = strSufferIn_fixed;
-                                strSufferInFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
-                                strSufferInToTime = dToTime_fixed.ToString("yyyy/MM/dd");
-                                break;
+                                string strPackingQty_fixed = drPQInfo[q]["iPackingQty"].ToString();
+                                string strBoxType_fixed = drPQInfo[q]["vcBoxType"].ToString();
+                                string strLength_fixed = drPQInfo[q]["iLength"].ToString();
+                                string strWidth_fixed = drPQInfo[q]["iWidth"].ToString();
+                                string strHeight_fixed = drPQInfo[q]["iHeight"].ToString();
+                                string strVolume_fixed = drPQInfo[q]["iVolume"].ToString();
+                                DateTime dFromTime_fixed = Convert.ToDateTime(drPQInfo[q]["dFromTime"].ToString());
+                                DateTime dToTime_fixed = Convert.ToDateTime(drPQInfo[q]["dToTime"].ToString());
+                                if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                                {
+                                    strPackingQty = strPackingQty_fixed;
+                                    strBoxType = strBoxType_fixed;
+                                    strLength = strLength_fixed;
+                                    strWidth = strWidth_fixed;
+                                    strHeight = strHeight_fixed;
+                                    strVolume = strVolume_fixed;
+                                    strBoxFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                    strBoxToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                    break;
+                                }
                             }
-                        }
-                        #endregion
+                            #endregion
 
-                        #region OrderPlant
-                        string strOrderPlant_name = "";
-                        string strOrderPlantFromTime = "";
-                        string strOrderPlantToTime = "";
-                        for (int q = 0; q < drOPInfo.Length; q++)
-                        {
-                            string strOrderPlant_name_fixed = drOPInfo[q]["vcOrderPlant_name"].ToString();
-                            DateTime dFromTime_fixed = Convert.ToDateTime(drOPInfo[q]["dFromTime"].ToString());
-                            DateTime dToTime_fixed = Convert.ToDateTime(drOPInfo[q]["dToTime"].ToString());
-                            if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                            #region SufferIn
+                            string strSufferIn = "";
+                            string strSufferInFromTime = "";
+                            string strSufferInToTime = "";
+                            for (int q = 0; q < drSIInfo.Length; q++)
                             {
-                                strOrderPlant_name = strOrderPlant_name_fixed;
-                                strOrderPlantFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
-                                strOrderPlantToTime = dToTime_fixed.ToString("yyyy/MM/dd");
-                                break;
+                                string strSufferIn_fixed = drSIInfo[q]["vcSufferIn"].ToString();
+                                DateTime dFromTime_fixed = Convert.ToDateTime(drSIInfo[q]["dFromTime"].ToString());
+                                DateTime dToTime_fixed = Convert.ToDateTime(drSIInfo[q]["dToTime"].ToString());
+                                if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                                {
+                                    strSufferIn = strSufferIn_fixed;
+                                    strSufferInFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                    strSufferInToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                    break;
+                                }
                             }
-                        }
-                        #endregion
+                            #endregion
 
+                            #region OrderPlant
+                            DataRow[] drOPInfo = dtOPInfo.Select("vcSupplierId='" + strSupplierId + "' and vcSupplierPlant='" + strSupplierPlant + "'");
+
+                            string strOrderPlant_name = "";
+                            string strOrderPlantFromTime = "";
+                            string strOrderPlantToTime = "";
+                            for (int q = 0; q < drOPInfo.Length; q++)
+                            {
+                                string strOrderPlant_name_fixed = drOPInfo[q]["vcOrderPlant_name"].ToString();
+                                DateTime dFromTime_fixed = Convert.ToDateTime(drOPInfo[q]["dFromTime"].ToString());
+                                DateTime dToTime_fixed = Convert.ToDateTime(drOPInfo[q]["dToTime"].ToString());
+                                if (dToTime_temp >= dFromTime_fixed && dToTime_temp <= dToTime_fixed)
+                                {
+                                    strOrderPlant_name = strOrderPlant_name_fixed;
+                                    strOrderPlantFromTime = dFromTime_fixed.ToString("yyyy/MM/dd");
+                                    strOrderPlantToTime = dToTime_fixed.ToString("yyyy/MM/dd");
+                                    break;
+                                }
+                            }
+                            #endregion
+
+                            #region AddToTable
+                            DataRow drExport = dtExport.NewRow();
+                            drExport["dSyncTime"] = strSyncTime;
+                            drExport["vcChanges_name"] = strChanges_name;
+                            drExport["vcPackingPlant_name"] = strPackingPlant_name;
+                            drExport["vcPartId"] = strPartId;
+                            drExport["vcPartENName"] = strPartENName;
+                            drExport["vcCarfamilyCode"] = strCarfamilyCode;
+                            drExport["vcReceiver"] = strReceiver;
+                            drExport["dFromTime"] = strFromTime;
+                            drExport["dToTime"] = dToTime_temp.ToString("yyyy/MM/dd");
+                            drExport["vcPartId_Replace"] = strPartId_Replace;
+                            drExport["vcInOut_name"] = strInOut_name;
+                            drExport["vcOESP_name"] = strOESP_name;
+                            drExport["vcHaoJiu_name"] = strHaoJiu_name;
+                            drExport["vcOldProduction_name"] = strOldProduction_name;
+                            drExport["dDebugTime"] = strDebugTime;
+                            drExport["vcSupplierId"] = strSupplierId;
+                            drExport["dSupplierFromTime"] = strSupplierFromTime;
+                            drExport["dSupplierToTime"] = strSupplierToTime;
+                            drExport["vcSupplierName"] = strSupplierName;
+                            drExport["vcSupplierPlant"] = strSupplierPlant;
+                            drExport["dSupplierPlantFromTime"] = strSupplierPlantFromTime;
+                            drExport["dSupplierPlantToTime"] = strSupplierPlantToTime;
+                            drExport["vcSupplierPlace"] = strSupplierPlace;
+                            drExport["iPackingQty"] = strPackingQty;
+                            drExport["vcBoxType"] = strBoxType;
+                            drExport["iLength"] = strLength;
+                            drExport["iWidth"] = strWidth;
+                            drExport["iHeight"] = strHeight;
+                            drExport["iVolume"] = strVolume;
+                            drExport["dBoxFromTime"] = strBoxFromTime;
+                            drExport["dBoxToTime"] = strBoxToTime;
+                            drExport["vcSufferIn"] = strSufferIn;
+                            drExport["dSufferInFromTime"] = strSufferInFromTime;
+                            drExport["dSufferInToTime"] = strSufferInToTime;
+                            drExport["vcOrderPlant_name"] = strOrderPlant_name;
+                            drExport["dOrderPlantFromTime"] = strOrderPlantFromTime;
+                            drExport["dOrderPlantToTime"] = strOrderPlantToTime;
+                            drExport["vcInteriorProject"] = strInteriorProject;
+                            drExport["vcPassProject"] = strPassProject;
+                            drExport["vcFrontProject"] = strFrontProject;
+                            drExport["dFrontProjectTime"] = strFrontProjectTime;
+                            drExport["dShipmentTime"] = strShipmentTime;
+                            drExport["vcPartImage"] = strPartImage;
+                            drExport["vcBillType_name"] = strBillType_name;
+                            drExport["vcRemark1"] = strRemark1;
+                            drExport["vcRemark2"] = strRemark2;
+                            drExport["vcOrderingMethod_name"] = strOrderingMethod_name;
+                            drExport["vcMandOrder_name"] = strMandOrder_name;
+                            drExport["vcSupplierPacking_name"] = strSupplierPacking_name;
+                            #endregion
+                            dtExport.Rows.Add(drExport);
+                        }
+                    }
+                    else
+                    {
                         #region AddToTable
                         DataRow drExport = dtExport.NewRow();
                         drExport["dSyncTime"] = strSyncTime;
@@ -2205,7 +2274,7 @@ namespace Logic
                         drExport["vcCarfamilyCode"] = strCarfamilyCode;
                         drExport["vcReceiver"] = strReceiver;
                         drExport["dFromTime"] = strFromTime;
-                        drExport["dToTime"] = dToTime_temp.ToString("yyyy/MM/dd");
+                        drExport["dToTime"] = strToTime;
                         drExport["vcPartId_Replace"] = strPartId_Replace;
                         drExport["vcInOut_name"] = strInOut_name;
                         drExport["vcOESP_name"] = strOESP_name;
@@ -2216,24 +2285,24 @@ namespace Logic
                         drExport["dSupplierFromTime"] = strSupplierFromTime;
                         drExport["dSupplierToTime"] = strSupplierToTime;
                         drExport["vcSupplierName"] = strSupplierName;
-                        drExport["vcSupplierPlant"] = strSupplierPlant;
-                        drExport["dSupplierPlantFromTime"] = strSupplierPlantFromTime;
-                        drExport["dSupplierPlantToTime"] = strSupplierPlantToTime;
+                        drExport["vcSupplierPlant"] = string.Empty;
+                        drExport["dSupplierPlantFromTime"] = string.Empty;
+                        drExport["dSupplierPlantToTime"] = string.Empty;
                         drExport["vcSupplierPlace"] = strSupplierPlace;
-                        drExport["iPackingQty"] = strPackingQty;
-                        drExport["vcBoxType"] = strBoxType;
-                        drExport["iLength"] = strLength;
-                        drExport["iWidth"] = strWidth;
-                        drExport["iHeight"] = strHeight;
-                        drExport["iVolume"] = strVolume;
-                        drExport["dBoxFromTime"] = strBoxFromTime;
-                        drExport["dBoxToTime"] = strBoxToTime;
-                        drExport["vcSufferIn"] = strSufferIn;
-                        drExport["dSufferInFromTime"] = strSufferInFromTime;
-                        drExport["dSufferInToTime"] = strSufferInToTime;
-                        drExport["vcOrderPlant_name"] = strOrderPlant_name;
-                        drExport["dOrderPlantFromTime"] = strOrderPlantFromTime;
-                        drExport["dOrderPlantToTime"] = strOrderPlantToTime;
+                        drExport["iPackingQty"] = string.Empty;
+                        drExport["vcBoxType"] = string.Empty;
+                        drExport["iLength"] = string.Empty;
+                        drExport["iWidth"] = string.Empty;
+                        drExport["iHeight"] = string.Empty;
+                        drExport["iVolume"] = string.Empty;
+                        drExport["dBoxFromTime"] = string.Empty;
+                        drExport["dBoxToTime"] = string.Empty;
+                        drExport["vcSufferIn"] = string.Empty;
+                        drExport["dSufferInFromTime"] = string.Empty;
+                        drExport["dSufferInToTime"] = string.Empty;
+                        drExport["vcOrderPlant_name"] = string.Empty;
+                        drExport["dOrderPlantFromTime"] = string.Empty;
+                        drExport["dOrderPlantToTime"] = string.Empty;
                         drExport["vcInteriorProject"] = strInteriorProject;
                         drExport["vcPassProject"] = strPassProject;
                         drExport["vcFrontProject"] = strFrontProject;

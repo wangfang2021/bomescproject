@@ -514,7 +514,7 @@ namespace Common
 
                 if (sheet != null)
                 {
-                    IRow firstRow = sheet.GetRow(heardrow - 1);
+                    IRow firstRow = sheet.GetRow(0);
                     int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
 
                     //对应索引
@@ -550,8 +550,7 @@ namespace Common
                     }
 
                     //获取数据首尾行
-                    startRow = datarow - 1;
-                    //startRow = sheet.FirstRowNum + 1;
+                    startRow = sheet.FirstRowNum + 1;
                     int rowCount = sheet.LastRowNum;
 
                     //读取数据

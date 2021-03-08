@@ -96,9 +96,9 @@ namespace Logic
         #endregion
 
         #region 织入原单位
-        public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr,ref string strErrorPartId)
+        public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
         {
-            fs0304_DataAccess.sendUnit(listInfoData, strUserId, ref strErr,ref strErrorPartId);
+            fs0304_DataAccess.sendUnit(listInfoData, strUserId, ref strErr);
         }
         #endregion
 

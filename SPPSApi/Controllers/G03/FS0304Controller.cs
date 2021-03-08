@@ -406,13 +406,12 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
 
-                string strErrorPartId = "";
-                fs0304_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
-                if (strErrorPartId != "")
+                string strErr = "";
+                fs0304_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
+                if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data =  strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.data = strErr;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -519,7 +518,7 @@ namespace SPPSApi.Controllers.G03
                                                     {"vcSYTCode","dTFTM_BJ"         },
                                                     {""         ,FieldCheck.Date    },
                                                     {"100"      ,"0"                },//最大长度设定,不校验最大长度用0
-                                                    {"0"        ,"1"                },//最小长度设定,可以为空用0
+                                                    {"0"        ,"0"                },//最小长度设定,可以为空用0
                                                     {"22"       ,"27"               } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 //需要判断时间区间先后关系的字段
@@ -547,7 +546,7 @@ namespace SPPSApi.Controllers.G03
                 }
                 string strErrorPartId = "";
                 string strErr = "";
-                fs0304_Logic.sendUnit(listInfoData, loginInfo.UserId, ref strErr,ref strErrorPartId);
+                fs0304_Logic.sendUnit(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

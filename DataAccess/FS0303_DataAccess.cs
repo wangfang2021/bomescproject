@@ -762,7 +762,7 @@ namespace DataAccess
                 strSql.AppendLine("        ,vcSumLater         ");
                 strSql.AppendLine("        ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6         ");
                 strSql.AppendLine("        ,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcSCSName         ");
-                strSql.AppendLine("        ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate,GUID         ");
+                strSql.AppendLine("        ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate,GUID,vcZXBZDiff         ");
                 strSql.AppendLine("        )         ");
                 strSql.AppendLine("        select          ");
                 strSql.AppendLine("         a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDev         ");
@@ -770,17 +770,21 @@ namespace DataAccess
                 strSql.AppendLine("        ,a.vcSumLater         ");
                 strSql.AppendLine("        ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");
                 strSql.AppendLine("        ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcSYTCode,a.vcProduct_name         ");
-                strSql.AppendLine("        ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate,REPLACE( NEWID(),'-','')         ");
+                strSql.AppendLine("        ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate,REPLACE( NEWID(),'-',''),vcZXBZDiff         ");
                 strSql.AppendLine("         from          ");
                 strSql.AppendLine("        (         ");
                 strSql.AppendLine("        	select a.*         ");
                 strSql.AppendLine("        	, case when (vcNum1=null and vcNum2=null and vcNum3=null and vcNum4=null and vcNum5=null and vcNum6 =null and vcNum7 = null and vcNum8 = null and vcNum9 = null and vcNum10 = null) then null         ");
                 strSql.AppendLine("        	  else (CONVERT(int,vcNum1)+ CONVERT(int,vcNum2)+ CONVERT(int,vcNum3)+ CONVERT(int,vcNum4)+ CONVERT(int,vcNum5)+ CONVERT(int,vcNum6)+ CONVERT(int,vcNum7)+ CONVERT(int,vcNum8)+ CONVERT(int,vcNum9)+ CONVERT(int,vcNum10))         ");
-                strSql.AppendLine("        	  end as 'vcSumLater',b.vcProduct_name,b.vcAddress from #TUnit_temp a         ");
+                strSql.AppendLine("        	  end as 'vcSumLater',b.vcProduct_name,b.vcAddress,c.vcValue2 as 'vcZXBZDiff' from #TUnit_temp a         ");
                 strSql.AppendLine("        	inner join          ");
                 strSql.AppendLine("        	(         ");
                 strSql.AppendLine("        		select vcsupplier_id,vcProduct_name,vcAddress from TSupplier         ");
                 strSql.AppendLine("        	) b on a.vcSupplier_id = b.vcSupplier_id         ");
+                strSql.AppendLine("        	left join          ");
+                strSql.AppendLine("        	(         ");
+                strSql.AppendLine("        		select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C007' and vcIsColum = '0'         ");
+                strSql.AppendLine("        	) c on SUBSTRING( a.vcPart_id,1,5) = c.vcValue1         ");
                 strSql.AppendLine("        ) a         ");
                 #endregion
 

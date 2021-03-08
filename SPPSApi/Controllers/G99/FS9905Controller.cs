@@ -551,5 +551,37 @@ namespace SPPSApi.Controllers.G99
         }
         #endregion
 
+        #region 下载PDF
+        [HttpPost]
+        [EnableCors("any")]
+        public string downloadPDFApi([FromBody] dynamic data)
+        {
+            string strtoken = Request.Headers["x-token"];
+            if (!isLogin(strtoken))
+            {
+                return error_login();
+            }
+            LoginInfo logininfo = getLoginByToken(strtoken);
+            //以下开始业务处理
+            ApiResult apiresult = new ApiResult();
+            dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strFileName = dataform.fileName;
+            
+            try
+            {
+                apiresult.code = ComConstant.SUCCESS_CODE;
+                apiresult.data = "";
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0504", ex, logininfo.UserId);
+                apiresult.code = ComConstant.ERROR_CODE;
+                apiresult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

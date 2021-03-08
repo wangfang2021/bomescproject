@@ -38,15 +38,15 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes)
+        public DataTable Search(string dExportDate, string vcCarType, string vcPartNo, string vcInsideOutsideType, string vcSupplier_id, string vcWorkArea, string vcIsNewRulesFlag, string vcPurposes,string vcOESP)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("   select [iAutoId],convert(varchar(10), dExportDate,111) as [dExportDate], [vcCarType], [vcPartNo], [vcPartName],c.vcName as [vcInsideOutsideType],   ");
-                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea], case when vcIsNewRulesFlag='1' then '是' else '否' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock], [vcNumber],e.vcName as [vcPurposes],   ");
-                strSql.AppendLine("   convert(varchar(10), dOrderPurposesDate,111) as [dOrderPurposesDate], convert(varchar(10), dOrderReceiveDate,111) as [dOrderReceiveDate], [vcReceiveTimes],convert(varchar(10), dActualReceiveDate,111) as [dActualReceiveDate], [vcAccountOrderNo],    ");
+                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea],case when vcIsNewRulesFlag='1' then '是' else '否' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock], [vcNumber],e.vcName as [vcPurposes],   ");
+                strSql.AppendLine("   convert(varchar(10), dOrderPurposesDate,111) as [dOrderPurposesDate], convert(varchar(10), dOrderReceiveDate,111) as [dOrderReceiveDate], [vcReceiveTimes],[vcActualNum],convert(varchar(10), dActualReceiveDate,111) as [dActualReceiveDate], [vcAccountOrderNo],    ");
                 strSql.AppendLine("   convert(varchar(10), dAccountOrderReceiveDate,111) as [dAccountOrderReceiveDate], convert(varchar(10), dOrderSendDate,111) as [dOrderSendDate], [vcMemo],b.vcSupplier_name, [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("   from TOralTestManage a    ");
                 strSql.AppendLine("   left join (select vcSupplier_id,vcSupplier_name from Tsupplier) b on a.vcSupplier_id = b.vcSupplier_id   ");
@@ -56,35 +56,39 @@ namespace DataAccess
 
                 if (dExportDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExportDate.Replace("-","") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExportDate.Replace("-","").Replace("/", "") + "' ");
                 }
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
+                    strSql.AppendLine("  and  a.vcCarType like  '" + vcCarType + "%' ");
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPartNo liek  '" + vcPartNo + "%' ");
+                    strSql.AppendLine("  and  a.vcPartNo like  '" + vcPartNo + "%' ");
                 }
                 if (vcInsideOutsideType.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcInsideOutsideType = '" + vcInsideOutsideType + "' ");
+                    strSql.AppendLine("  and  a.vcInsideOutsideType = '" + vcInsideOutsideType + "' ");
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id  like  '" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and   a.vcSupplier_id    like  '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea like '" + vcWorkArea + "%' ");
+                    strSql.AppendLine("  and  a.vcWorkArea like '" + vcWorkArea + "%' ");
                 }
                 if (vcIsNewRulesFlag.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcIsNewRulesFlag = '" + vcIsNewRulesFlag + "' ");
+                    strSql.AppendLine("  and  a.vcIsNewRulesFlag = '" + vcIsNewRulesFlag + "' ");
                 }
                 if (vcPurposes.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcPurposes = '" + vcPurposes + "' ");
+                    strSql.AppendLine("  and  a.vcPurposes = '" + vcPurposes + "' ");
+                }
+                if (vcOESP.Length > 0)
+                {
+                    strSql.AppendLine("  and   a.vcOEOrSP = '" + vcOESP + "' ");
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
@@ -190,22 +194,79 @@ namespace DataAccess
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
+                        string vcInsideOutsideType = listInfoData[i]["vcInsideOutsideType"] == null ? "" : listInfoData[i]["vcInsideOutsideType"].ToString();
+                        if (vcInsideOutsideType == "内制")
+                        {
+                            vcInsideOutsideType = "0";
+                        }
+                        else if (vcInsideOutsideType == "外注")
+                        {
+                            vcInsideOutsideType = "1";
+                        }
+                        else
+                        { }
+                        string vcIsNewRulesFlag = listInfoData[i]["vcIsNewRulesFlag"] == null ? "" : listInfoData[i]["vcIsNewRulesFlag"].ToString();
+                       
+                        string vcOEOrSP = listInfoData[i]["vcOEOrSP"] == null ? "" : listInfoData[i]["vcOEOrSP"].ToString();
+                        if (vcOEOrSP == "×")
+                        {
+                            vcOEOrSP = "1";
+                        }
+                        else if (vcOEOrSP == "⭕")
+                        {
+                            vcOEOrSP = "0";
+                        }
+                        else
+                        { }
+                        string vcPurposes = listInfoData[i]["vcPurposes"] == null ? "" : listInfoData[i]["vcPurposes"].ToString();
+                        if (vcPurposes == "包装设定")
+                        {
+                            vcPurposes = "1";
+                        }
+                        else if (vcPurposes == "品质确认")
+                        {
+                            vcPurposes = "2";
+                        }
+                        else if (vcPurposes == "内制引取器具检证")
+                        {
+                            vcPurposes = "3";
+                        }
+                        else if (vcPurposes == "物流测试")
+                        {
+                            vcPurposes = "4";
+                        }
+                        else if (vcPurposes == "作业训练")
+                        {
+                            vcPurposes = "5";
+                        }
+                        else if (vcPurposes == "新规供应商")
+                        {
+                            vcPurposes = "6";
+                        }
+                        else if (vcPurposes == "其他")
+                        {
+                            vcPurposes = "7";
+                        }
+                        else
+                        { }
+
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("   UPDATE [dbo].[TOralTestManage]   \r\n");
                         sql.Append("      SET [vcCarType] = " + getSqlValue(listInfoData[i]["vcCarType"], false) + "   \r\n");
                         sql.Append("         ,[vcPartNo] =  " + getSqlValue(listInfoData[i]["vcPartNo"], false) + "   \r\n");
                         sql.Append("         ,[vcPartName] =  " + getSqlValue(listInfoData[i]["vcPartName"], false) + "   \r\n");
-                        sql.Append("         ,[vcInsideOutsideType] =   " + getSqlValue(listInfoData[i]["vcInsideOutsideType"], false) + "  \r\n");
+                        sql.Append("         ,[vcInsideOutsideType] =   " + getSqlValue(vcInsideOutsideType, true) + "  \r\n");
                         sql.Append("         ,[vcSupplier_id] =  " + getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "   \r\n");
                         sql.Append("         ,[vcWorkArea] =  " + getSqlValue(listInfoData[i]["vcWorkArea"], false) + "   \r\n");
-                        sql.Append("         ,[vcIsNewRulesFlag] =  " + getSqlValue(listInfoData[i]["vcIsNewRulesFlag"], false) + "   \r\n");
-                        sql.Append("         ,[vcOEOrSP] =   " + getSqlValue(listInfoData[i]["vcOEOrSP"], false) + "  \r\n");
+                        sql.Append("         ,[vcIsNewRulesFlag] =  " + getSqlValue(vcIsNewRulesFlag, true) + "   \r\n");
+                        sql.Append("         ,[vcOEOrSP] =   " + getSqlValue(vcOEOrSP, true) + "  \r\n");
                         sql.Append("         ,[vcDock] =   " + getSqlValue(listInfoData[i]["vcDock"], false) + "  \r\n");
                         sql.Append("         ,[vcNumber] =   " + getSqlValue(listInfoData[i]["vcNumber"], false) + "  \r\n");
-                        sql.Append("         ,[vcPurposes] = " + getSqlValue(listInfoData[i]["vcPurposes"], false) + "    \r\n");
+                        sql.Append("         ,[vcPurposes] = " + getSqlValue(vcPurposes, true) + "    \r\n");
                         sql.Append("         ,[dOrderPurposesDate] = " + getSqlValue(listInfoData[i]["dOrderPurposesDate"], true) + "   \r\n");
                         sql.Append("         ,[dOrderReceiveDate] =  " + getSqlValue(listInfoData[i]["dOrderReceiveDate"], true) + "  \r\n");
                         sql.Append("         ,[vcReceiveTimes] =  " + getSqlValue(listInfoData[i]["vcReceiveTimes"], false) + "   \r\n");
+                        sql.Append("         ,[vcActualNum] =  " + getSqlValue(listInfoData[i]["vcActualNum"], true) + "   \r\n");
                         sql.Append("         ,[dActualReceiveDate] =  " + getSqlValue(listInfoData[i]["dActualReceiveDate"], true) + "  \r\n");
                         sql.Append("         ,[vcAccountOrderNo] =  " + getSqlValue(listInfoData[i]["vcAccountOrderNo"], false) + "   \r\n");
                         sql.Append("         ,[dAccountOrderReceiveDate] =   " + getSqlValue(listInfoData[i]["dAccountOrderReceiveDate"], false) + "  \r\n");
@@ -327,13 +388,52 @@ namespace DataAccess
                     } else
                     { }
                     string vcOEOrSP = dt.Rows[i]["vcOEOrSP"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOEOrSP"].ToString();
+                    if (vcOEOrSP == "×")
+                    {
+                        vcOEOrSP = "1";
+                    }
+                    else if (vcOEOrSP == "⭕")
+                    {
+                        vcOEOrSP = "0";
+                    }
+                    else
+                    { }
                     string vcDock = dt.Rows[i]["vcDock"] == System.DBNull.Value ? "" : dt.Rows[i]["vcDock"].ToString();
                     string vcNumber = dt.Rows[i]["vcNumber"] == System.DBNull.Value ? "" : dt.Rows[i]["vcNumber"].ToString();
                     string vcPurposes = dt.Rows[i]["vcPurposes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPurposes"].ToString();
-                    
+                    if (vcPurposes == "包装设定")
+                    {
+                        vcPurposes = "1";
+                    }
+                    else if (vcPurposes == "品质确认")
+                    {
+                        vcPurposes = "2";
+                    }
+                    else if (vcPurposes == "内制引取器具检证")
+                    {
+                        vcPurposes = "3";
+                    }
+                    else if (vcPurposes == "物流测试")
+                    {
+                        vcPurposes = "4";
+                    }
+                    else if (vcPurposes == "作业训练")
+                    {
+                        vcPurposes = "5";
+                    }
+                    else if (vcPurposes == "新规供应商")
+                    {
+                        vcPurposes = "6";
+                    }
+                    else
+                    {
+                        vcPurposes = "7";
+                    }
+
                     string dOrderPurposesDate = dt.Rows[i]["dOrderPurposesDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dOrderPurposesDate"].ToString()).ToString();
                     string dOrderReceiveDate = dt.Rows[i]["dOrderReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dOrderReceiveDate"].ToString()).ToString();
                     string vcReceiveTimes = dt.Rows[i]["vcReceiveTimes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiveTimes"].ToString();
+                    string vcActualNum = dt.Rows[i]["vcActualNum"] == System.DBNull.Value ? "" : dt.Rows[i]["vcActualNum"].ToString();
                     string dActualReceiveDate = dt.Rows[i]["dActualReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dActualReceiveDate"].ToString()).ToString();
                     string vcAccountOrderNo = dt.Rows[i]["vcAccountOrderNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcAccountOrderNo"].ToString();
                     string dAccountOrderReceiveDate = dt.Rows[i]["dAccountOrderReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dAccountOrderReceiveDate"].ToString()).ToString();
@@ -343,12 +443,12 @@ namespace DataAccess
                     strSql.AppendLine("  INSERT INTO [dbo].[TOralTestManage]   ");
                     strSql.AppendLine("             ([dExportDate] ,[vcCarType] ,[vcPartNo],[vcPartName]  ,[vcInsideOutsideType] ,[vcSupplier_id]   ");
                     strSql.AppendLine("             ,[vcWorkArea] ,[vcIsNewRulesFlag] ,[vcOEOrSP] ,[vcDock] ,[vcNumber],[vcPurposes] ,[dOrderPurposesDate] ,[dOrderReceiveDate]   ");
-                    strSql.AppendLine("             ,[vcReceiveTimes]  ,[dActualReceiveDate],[vcAccountOrderNo] ,[dAccountOrderReceiveDate]   ,[vcMemo] ,   ");
+                    strSql.AppendLine("             ,[vcReceiveTimes],vcActualNum  ,[dActualReceiveDate],[vcAccountOrderNo] ,[dAccountOrderReceiveDate]   ,[vcMemo] ,   ");
                     strSql.AppendLine("  		   [vcOperatorID] ,[dOperatorTime])   ");
                     strSql.AppendLine("  values(   ");
-                    strSql.AppendLine("   GETDATE(),'" + vcCarType + "','" + vcPartNo + "','" + vcPartName + "','" + vcInsideOutsideType + "','" + vcSupplier_id + "'  ");
-                    strSql.AppendLine("   ,'" + vcWorkArea + "','" + vcIsNewRulesFlag + "','" + vcOEOrSP + "','" + vcDock + "','" + vcNumber + "','" + vcPurposes + "','" + dOrderPurposesDate + "','" + dOrderReceiveDate + "'  ");
-                    strSql.AppendLine("   ,'" + vcReceiveTimes + "','" + dActualReceiveDate + "','" + vcAccountOrderNo + "','" + dAccountOrderReceiveDate + "','" + vcMemo + "'  ");
+                    strSql.AppendLine("   GETDATE()," + getSqlValue(vcCarType, true) + "," + getSqlValue(vcPartNo, true) + "," + getSqlValue(vcPartName, true) + "," + getSqlValue(vcInsideOutsideType, true) + "," + getSqlValue(vcSupplier_id, true) + "  ");
+                    strSql.AppendLine("   ," + getSqlValue(vcWorkArea, true) + "," + getSqlValue(vcIsNewRulesFlag, true) + "," + getSqlValue(vcOEOrSP, true) + "," + getSqlValue(vcDock, true) + "," + getSqlValue(vcNumber, true) + "," + getSqlValue(vcPurposes, true) + "," + getSqlValue(dOrderPurposesDate, true) + "," + getSqlValue(dOrderReceiveDate, true) + "  ");
+                    strSql.AppendLine("   ," + getSqlValue(vcReceiveTimes, true) + "," + getSqlValue(vcActualNum, true) + "," + getSqlValue(dActualReceiveDate, true) + "," + getSqlValue(vcAccountOrderNo, true) + "," + getSqlValue(dAccountOrderReceiveDate, true) + "," + getSqlValue(vcMemo, true) + "  ");
                     strSql.AppendLine("   ,'" + strUserId + "',GETDATE()) ;   ");
                    
                 }

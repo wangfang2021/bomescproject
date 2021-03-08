@@ -29,6 +29,7 @@ namespace DataAccess
                     strSql.Append("and ISNULL(t1.vcSR,'') like '%" + sr + "%'  \n");
                 if (vcPartsNoBefore5 != "" && vcPartsNoBefore5 != null)
                     strSql.Append("and ISNULL(t1.vcPartsNoBefore5,'') like '%" + vcPartsNoBefore5 + "%'  \n");
+                strSql.Append("order by t1.vcSR,t1.vcSupplier_id,t1.vcPartsNoBefore5,t1.vcBCPartsNo,t2.vcBigPM,t1.vcSmallPM    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -166,12 +167,13 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcBigPM as vcBigPM_init,vcSmallPM as vcSmallPM_init  \n");
+                strSql.Append("select iAutoId,vcBigPM,vcSmallPM,'0' as vcAddFlag,'0' as vcModFlag,vcStandardTime  \n");
                 strSql.Append("from TPMRelation where 1=1  \n");
                 if(smallpm!="" && smallpm!=null)
                     strSql.Append("and isnull(vcSmallPM,'') like '%" + smallpm + "%'  \n");
                 if(bigpm!="" && bigpm!=null)
                     strSql.Append("and isnull(vcBigPM,'') like '%" + bigpm + "%'  \n");
+                strSql.Append("order by vcBigPM,vcSmallPM    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -193,16 +195,17 @@ namespace DataAccess
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     string strBigPM = listInfoData[i]["vcBigPM"].ToString();
                     string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
+                    string strStandardTime= listInfoData[i]["vcStandardTime"].ToString();
 
                     if (baddflag == true && bmodflag == true)
                     {//新增
-                        sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM) values   \n");
-                        sql.Append("('" + strBigPM + "','" + strSmallPM + "')  \n");
+                        sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM,vcStandardTime) values   \n");
+                        sql.Append("('" + strBigPM + "','" + strSmallPM + "','"+strStandardTime+"')  \n");
                     }
                     else if (baddflag == false && bmodflag == true)
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("update TPMRelation set vcBigPM='" + strBigPM + "',vcSmallPM='" + strSmallPM + "' where iAutoId=" + iAutoId + "    \n");
+                        sql.Append("update TPMRelation set vcBigPM='" + strBigPM + "',vcSmallPM='" + strSmallPM + "',vcStandardTime='"+strStandardTime+"' where iAutoId=" + iAutoId + "    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -340,7 +343,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select COUNT(1) from TPMSmall where vcSmallPM='" + vcSmallPM + "'  \n");
+                sql.Append("select COUNT(1) from TPMRelation where vcSmallPM='" + vcSmallPM + "'  \n");
                 if (strMode == "mod")
                 {
                     sql.Append("and iAutoId!=" + strAutoId + "  \n");
@@ -366,18 +369,28 @@ namespace DataAccess
                     sql.Append("INSERT INTO [TPMRelation_Temp] \n");
                     sql.Append("           ([vcBigPM] \n");
                     sql.Append("           ,[vcSmallPM] \n");
+                    sql.Append("           ,[vcStandardTime] \n");
                     sql.Append("           ,[vcOperatorID] \n");
                     sql.Append("           ,[dOperatorTime]) \n");
                     sql.Append("     VALUES \n");
                     sql.Append("           ('" + dt.Rows[i]["vcBigPM"].ToString() + "' \n");
                     sql.Append("           ,'" + dt.Rows[i]["vcSmallPM"].ToString() + "' \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcStandardTime"].ToString() + "' \n");
                     sql.Append("           ,'" + strUserId + "' \n");
                     sql.Append("           ,getdate()) \n");
                 }
-                sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM,vcOperatorID,dOperatorTime) \n");
-                sql.Append("select t1.vcBigPM,t1.vcSmallPM,t1.vcOperatorID,t1.dOperatorTime from TPMRelation_Temp t1 \n");
+                sql.Append("insert into TPMRelation (vcBigPM,vcSmallPM,vcStandardTime,vcOperatorID,dOperatorTime) \n");
+                sql.Append("select t1.vcBigPM,t1.vcSmallPM,t1.vcStandardTime,t1.vcOperatorID,t1.dOperatorTime from TPMRelation_Temp t1 \n");
                 sql.Append("left join TPMRelation t2 on t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM \n");
                 sql.Append("where t2.iAutoId is null and t1.vcOperatorID='"+strUserId+"' \n");
+
+                sql.Append("update t2 set t2.vcStandardTime=t1.vcStandardTime,  \n");
+                sql.Append("t2.vcOperatorID=t1.vcOperatorID,t2.dOperatorTime=t1.dOperatorTime  \n");
+                sql.Append("from  \n");
+                sql.Append("(select * from TPMRelation_Temp) t1  \n");
+                sql.Append("inner join TPMRelation t2 on t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM  \n");
+                sql.Append("where isnull(t1.vcStandardTime,'')!=isnull(t2.vcStandardTime,'')  \n");
+                sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
 
                 if (sql.Length > 0)
                 {
@@ -491,7 +504,7 @@ namespace DataAccess
                 sql.Append("(select * from TPMSmall_Temp) t1  \n");
                 sql.Append("left join TPMSmall t2 on isnull(t1.vcPartsNoBefore5,'')=isnull(t2.vcPartsNoBefore5,'') and isnull(t1.vcSR,'')=isnull(t2.vcSR,'') " +
                     "and isnull(t1.vcBCPartsNo,'')=isnull(t2.vcBCPartsNo,'') and isnull(t1.vcSupplier_id,'')=isnull(t2.vcSupplier_id,'') \n");
-                sql.Append("where t2.iAutoId is not null and t1.vcSmallPM!=t2.vcSmallPM  \n");
+                sql.Append("where t2.iAutoId is not null and isnull(t1.vcSmallPM,'') != isnull(t2.vcSmallPM,'')  \n");
                 sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
 
                 //更新TPackageMaster中的小品目
@@ -548,19 +561,19 @@ namespace DataAccess
                 sql.Append("	and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
                 sql.Append(")t11 on t1.vcSR=t11.vcSR    \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='HC,HF,7H'     \n");
+                sql.Append("	select * from TPMSmall where vcSR='H2,HC,HF,7H'     \n");
                 sql.Append("	and vcSupplier_id='' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
                 sql.Append(")t12 on t1.vcSR=t12.vcSR    \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='N2,N3,N4'     \n");
+                sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
                 sql.Append("	and vcSupplier_id='TF1W,TF2W,TF3W,TF2T' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
                 sql.Append(")t13 on t1.vcSR=t13.vcSR and t1.vcSupplierId=t13.vcSupplier_id    \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='N2,N3,N4'     \n");
+                sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
                 sql.Append("	and vcSupplier_id='TF1R,TF2R,TF3R' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
                 sql.Append(")t14 on t1.vcSR=t14.vcSR and t1.vcSupplierId=t14.vcSupplier_id    \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select * from TPMSmall where vcSR='N2,N3,N4'     \n");
+                sql.Append("	select * from TPMSmall where vcSR='N1,N2,N3,N4'     \n");
                 sql.Append("	and vcSupplier_id='TF1A,TF2A,TF3A' and vcPartsNoBefore5='' and vcBCPartsNo=''    \n");
                 sql.Append(")t15 on t1.vcSR=t15.vcSR and t1.vcSupplierId=t15.vcSupplier_id    \n");
                 //剩下没带出小品目的，都更新成无

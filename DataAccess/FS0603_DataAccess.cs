@@ -85,7 +85,7 @@ namespace DataAccess
                 strSql.AppendLine("		ISNULL(CONVERT(VARCHAR(7),T1.dDebugTime,111),'--') AS vcDebugTime_Value,");
                 strSql.AppendLine("		ISNULL(CONVERT(VARCHAR(7),T1.dDebugTime,111),'--') AS vcDebugTime_Name");
                 strSql.AppendLine("		FROM ");
-                strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE ISNULL(vcDelete,'0')='0'");
+                strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE isnull(vcDelete, '') <> '1'");
                 if (strInOut != "")
                 {
                     strSql.AppendLine("AND vcInOut='" + strInOut + "'");
@@ -134,7 +134,7 @@ namespace DataAccess
             }
         }
         public DataTable getSearchInfo(string strSyncTime, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant)
+                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck)
         {
             try
             {
@@ -198,8 +198,12 @@ namespace DataAccess
                 strSql.AppendLine("		T15.vcName as vcMandOrder_name,");
                 strSql.AppendLine("		T1.vcSupplierPacking,");
                 strSql.AppendLine("		T16.vcName as vcSupplierPacking_name,");
-                strSql.AppendLine("		'0' as bModFlag,'0' as bAddFlag,'0' as bSelectFlag,'' as vcBgColor  FROM ");
+                strSql.AppendLine("		'0' as bModFlag,'0' as bAddFlag,'1' as bSelectFlag,'' as vcBgColor  FROM ");
                 strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE 1=1 ");
+                if (!bCheck)
+                {
+                    strSql.AppendLine(" and isnull(vcDelete, '') <> '1'");
+                }
                 if (strPackingPlant != "")
                 {
                     if (strPackingPlant == "--")
@@ -767,7 +771,7 @@ namespace DataAccess
                 strSql_delinfo.AppendLine("DELETE FROM TSPMaster_Box WHERE [vcPackingPlant]=@vcPackingPlant AND [vcPartId]=@vcPartId AND [vcReceiver]=@vcReceiver AND [vcSupplierId]=@vcSupplierId");
                 strSql_delinfo.AppendLine("DELETE FROM TSPMaster_SufferIn WHERE [vcPackingPlant]=@vcPackingPlant AND [vcPartId]=@vcPartId AND [vcReceiver]=@vcReceiver AND [vcSupplierId]=@vcSupplierId");
                 strSql_delinfo.AppendLine("DELETE FROM TSPMaster_SupplierPlant WHERE [vcPackingPlant]=@vcPackingPlant AND [vcPartId]=@vcPartId AND [vcReceiver]=@vcReceiver AND [vcSupplierId]=@vcSupplierId");
-                sqlCommand_delinfo.CommandText = strSql_modinfo.ToString();
+                sqlCommand_delinfo.CommandText = strSql_delinfo.ToString();
                 sqlCommand_delinfo.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_delinfo.Parameters.AddWithValue("@vcPartId", "");
                 sqlCommand_delinfo.Parameters.AddWithValue("@vcReceiver", "");
@@ -1246,6 +1250,103 @@ namespace DataAccess
                 throw ex;
             }
         }
+        public DataTable getSubInfo(string strEditType, string strPackingPlant, string strPartId, string strReceiver, string strSupplierId, string strSupplierPlant)
+        {
+            try
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                if (strEditType == "SupplierPlantEdit")
+                {
+                    stringBuilder.AppendLine("SELECT[LinId],vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,[dFromTime],[dToTime],[vcSupplierPlant],'0' as bAddFlag,'' as vcBgColor FROM [TSPMaster_SupplierPlant] ");
+                    stringBuilder.AppendLine("WHERE [vcOperatorType]='1'   ");
+                    if (strPackingPlant != "")
+                    {
+                        stringBuilder.AppendLine("and [vcPackingPlant]='" + strPackingPlant + "'");
+                    }
+                    if (strPartId != "")
+                    {
+                        stringBuilder.AppendLine("and [vcPartId]='" + strPartId + "'");
+                    }
+                    if (strReceiver != "")
+                    {
+                        stringBuilder.AppendLine("and [vcReceiver]='" + strReceiver + "'");
+                    }
+                    if (strSupplierId != "")
+                    {
+                        stringBuilder.AppendLine("and [vcSupplierId]='" + strSupplierId + "'");
+                    }
+                    stringBuilder.AppendLine("ORDER BY [dFromTime]");
+                }
+                if (strEditType == "PackingQtyEdit")
+                {
+                    stringBuilder.AppendLine("SELECT [LinId],vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,[dFromTime],[dToTime],[iPackingQty],[vcBoxType],[iLength],[iWidth],[iHeight],[iVolume],'0' as bAddFlag,'' as vcBgColor FROM [TSPMaster_Box]");
+                    stringBuilder.AppendLine("WHERE [vcOperatorType]='1' ");
+                    if (strPackingPlant != "")
+                    {
+                        stringBuilder.AppendLine("and [vcPackingPlant]='" + strPackingPlant + "'");
+                    }
+                    if (strPartId != "")
+                    {
+                        stringBuilder.AppendLine("and [vcPartId]='" + strPartId + "'");
+                    }
+                    if (strReceiver != "")
+                    {
+                        stringBuilder.AppendLine("and [vcReceiver]='" + strReceiver + "'");
+                    }
+                    if (strSupplierId != "")
+                    {
+                        stringBuilder.AppendLine("and [vcSupplierId]='" + strSupplierId + "'");
+                    }
+                    stringBuilder.AppendLine("ORDER BY [dFromTime]");
+
+                }
+                if (strEditType == "SufferInEdit")
+                {
+                    stringBuilder.AppendLine("SELECT [LinId],vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,[dFromTime],[dToTime],[vcSufferIn],'0' as bAddFlag,'' as vcBgColor FROM [TSPMaster_SufferIn]");
+                    stringBuilder.AppendLine("WHERE [vcOperatorType]='1' ");
+                    if (strPackingPlant != "")
+                    {
+                        stringBuilder.AppendLine("and [vcPackingPlant]='" + strPackingPlant + "'");
+                    }
+                    if (strPartId != "")
+                    {
+                        stringBuilder.AppendLine("and [vcPartId]='" + strPartId + "'");
+                    }
+                    if (strReceiver != "")
+                    {
+                        stringBuilder.AppendLine("and [vcReceiver]='" + strReceiver + "'");
+                    }
+                    if (strSupplierId != "")
+                    {
+                        stringBuilder.AppendLine("and [vcSupplierId]='" + strSupplierId + "'");
+                    }
+                    stringBuilder.AppendLine("ORDER BY [dFromTime]");
+                }
+                if (strEditType == "OrderPlantEdit")
+                {
+                    stringBuilder.AppendLine("select '' as [LinId],a.vcSupplierId,a.vcSupplierPlant,a.[dFromTime],a.[dToTime],a.[vcOrderPlant],b.vcName as vcOrderPlant_name,'0' as bAddFlag,'' as vcBgColor from (");
+                    stringBuilder.AppendLine("select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0')a");
+                    stringBuilder.AppendLine("left join");
+                    stringBuilder.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')b");
+                    stringBuilder.AppendLine("on a.vcOrderPlant=b.vcValue");
+                    stringBuilder.AppendLine("where 1=1");
+                    if (strSupplierId != "")
+                    {
+                        stringBuilder.AppendLine("and [vcSupplierId]='" + strSupplierId + "'");
+                    }
+                    if (strSupplierPlant != "")
+                    {
+                        stringBuilder.AppendLine("and [vcSupplierPlant]='" + strSupplierPlant + "'");
+                    }
+                    stringBuilder.AppendLine("ORDER BY [dFromTime]");
+                }
+                return excute.ExcuteSqlWithSelectToDT(stringBuilder.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public string setNullValue(Object obj, string strModle, string strDefault)
         {
             if (obj == null)
@@ -1264,7 +1365,7 @@ namespace DataAccess
         {
             StringBuilder strSql = new StringBuilder();
             strSql.AppendLine("SELECT *  FROM  ");
-            strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE 1=1  ");
+            strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE isnull(vcDelete, '') <> '1' ");
             strSql.AppendLine("AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))  ");
             strSql.AppendLine("OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))) ");
             strSql.AppendLine("  )T1 ");
@@ -1298,7 +1399,7 @@ namespace DataAccess
             StringBuilder strSql = new StringBuilder();
             strSql.AppendLine("select convert(varchar(10),dSyncTime,111) as dSyncTime,");
             strSql.AppendLine("		count(*) as iCount,");
-            strSql.AppendLine("		'一共同原单位情报'+cast(count(*) as varchar(10))+'条' as vcSyncMessage ,");
+            strSql.AppendLine("		'同步原单位情报'+cast(count(*) as varchar(10))+'条' as vcSyncMessage ,");
             strSql.AppendLine("		'*' as vcChanges,");
             strSql.AppendLine("		'0' as bModFlag,");
             strSql.AppendLine("		'0' as bAddFlag,");
@@ -1349,7 +1450,7 @@ namespace DataAccess
                 strSql_modinfo_sy_mod.AppendLine("begin");
                 strSql_modinfo_sy_mod.AppendLine("update TSPMaster set dSyncToSPTime=null where convert(varchar(10),dSyncTime,111)=@dSyncTime and vcChanges=@vcChanges");
                 strSql_modinfo_sy_mod.AppendLine("end");
-                sqlCommand_modinfo_sy_mod.CommandText = sqlCommand_modinfo_sy_mod.ToString();
+                sqlCommand_modinfo_sy_mod.CommandText = strSql_modinfo_sy_mod.ToString();
                 sqlCommand_modinfo_sy_mod.Parameters.AddWithValue("@vcChanges", "");
                 sqlCommand_modinfo_sy_mod.Parameters.AddWithValue("@dSyncTime", "");
                 #endregion

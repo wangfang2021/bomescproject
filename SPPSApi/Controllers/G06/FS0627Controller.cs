@@ -88,11 +88,11 @@ namespace SPPSApi.Controllers.G06
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //DataTable dtSupplier = fs0627_Logic.GetSupplier();
 
-                DataTable dtSupplier = new DataTable();
-                List <Object> dataList_WorkArea = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//ERSP
+                DataTable dtSupplier = fs0627_Logic.GetSupplier(); ;
+                List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//ERSP
               
-                res.Add("C003", dataList_WorkArea);
+                res.Add("Supplier", dataList_Supplier);
                 res.Add("C000", dataList_C000);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

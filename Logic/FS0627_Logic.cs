@@ -43,5 +43,10 @@ namespace Logic
         {
             return fs0627_DataAccess.bindInjectionFactoryApi();
         }
+
+        public DataTable GetSupplier()
+        {
+            return fs0627_DataAccess.GetSupplier();
+        }
     }
 }

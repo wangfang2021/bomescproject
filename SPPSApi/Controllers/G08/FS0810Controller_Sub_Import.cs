@@ -158,7 +158,7 @@ namespace SPPSApi.Controllers.G08
                             string part = item.part;
                             string bcpart = item.bcpart;
 
-                            //这3个字段不能同时为空(受入号，厂家代码，品番前5位，包材品番)
+                            //这4个字段不能同时为空(受入号，厂家代码，品番前5位，包材品番)
                             if (sr=="" && supplier=="" && part=="" && bcpart=="")
                             {
                                 StringBuilder sbr = new StringBuilder();

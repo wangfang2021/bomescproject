@@ -73,7 +73,12 @@ namespace DataAccess
                 strSql.AppendLine("      left join (  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]       ");
                 strSql.AppendLine("      FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1' ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId      ");
                 strSql.AppendLine("      and a.vcReceiver=c.vcReceiver and a.dFromTime = c.dFromTime and a.dToTime=c.dToTime       ");
-                strSql.AppendLine("      where b.vcPartNo is null      ");
+                strSql.AppendLine("     left join  (select vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime,    ");
+                strSql.AppendLine("     iPackingQty, vcBoxType, iLength, iWidth, iHeight, iVolume, vcOperatorType, vcOperatorID, dOperatorTime    ");
+                strSql.AppendLine("      from TSPMaster_Box  where vcOperatorType='1') d on a.vcPackingPlant=d.vcPackingPlant and a.vcPartId=d.vcPartId    ");
+                strSql.AppendLine("      and a.vcReceiver=d.vcReceiver and a.dFromTime = d.dFromTime and a.dToTime=d.dToTime   ");
+                strSql.AppendLine("        ");
+                strSql.AppendLine("      where b.vcPartNo is null and d.iPackingQty is null     ");
                 strSql.AppendLine("     union all      ");
                 strSql.AppendLine("       select * from (      ");
                 strSql.AppendLine("     	select [iAutoId], a.vcPackingPlant,a.vcReceiver, [dSynchronizationDate],  [vcState], [vcPartNo],      ");
@@ -114,7 +119,7 @@ namespace DataAccess
                 }
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  n.vcCarType = '" + vcCarType + "' ");
+                    strSql.AppendLine("  and  n.vcCarType = '" + vcCarType + "%' ");
                 }
                 if (dExpectDeliveryDate.Length > 0)
                 {
@@ -500,8 +505,14 @@ namespace DataAccess
                     //strSql.AppendLine("   '" + iHeight + "','" + iVolume + "','1', '" + userId + "',getdate()); ");
                     //strSql.AppendLine("  end ;  ");
                     //strSql.AppendLine("    update [THeZiManage] set  vcState='5',dWeaveDate =GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId = "+ iAutoId + "  ; ");
-
-                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                    if (!bReault)
+                    {
+                        return;
+                    }
+                    if (strSql.Length>0)
+                    {
+                        excute.ExcuteSqlWithStringOper(strSql.ToString());
+                    }
                 }
             }
             catch (Exception ex)
@@ -661,6 +672,16 @@ namespace DataAccess
                     string vcPartName = listInfoData[i]["vcPartName"] == null ? null : listInfoData[i]["vcPartName"].ToString();
                     string vcCarType = listInfoData[i]["vcCarType"]==null?null: listInfoData[i]["vcCarType"].ToString();
                     string vcOEOrSP = listInfoData[i]["vcOEOrSP"] == null ?null: listInfoData[i]["vcOEOrSP"].ToString();
+                    if (vcOEOrSP == "×")
+                    {
+                        vcOEOrSP = "1";
+                    }
+                    else if (vcOEOrSP == "⭕")
+                    {
+                        vcOEOrSP = "0";
+                    }
+                    else
+                    { }
                     string vcSupplier_id = listInfoData[i]["vcSupplier_id"] == null ? null : listInfoData[i]["vcSupplier_id"].ToString();
                     string vcWorkArea = listInfoData[i]["vcWorkArea"] == null ? null : listInfoData[i]["vcWorkArea"].ToString();
                     string dExpectDeliveryDate = listInfoData[i]["dExpectDeliveryDate"] == null ? null : listInfoData[i]["dExpectDeliveryDate"].ToString();
@@ -788,7 +809,17 @@ namespace DataAccess
                     string dUserEndDate = listInfoData[i]["dUserEndDate"].ToString();
                     string vcPartName = listInfoData[i]["vcPartName"].ToString();
                     //string vcCarType = listInfoData[i]["vcCarType"].ToString();
-                    //string vcOEOrSP = listInfoData[i]["vcOEOrSP"].ToString();
+                    string vcOEOrSP = listInfoData[i]["vcOEOrSP"].ToString();
+                    if (vcOEOrSP == "×")
+                    {
+                        vcOEOrSP = "1";
+                    }
+                    else if (vcOEOrSP == "⭕")
+                    {
+                        vcOEOrSP = "0";
+                    }
+                    else
+                    { }
                     string vcSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
                     //string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();
 
@@ -809,7 +840,7 @@ namespace DataAccess
                     strSql.AppendLine("          ,[dSendDate] ,[dReplyDate]  ,[dAdmitDate],[dWeaveDate] ,[vcMemo]  ,[vcImageRoutes]   ");
                     strSql.AppendLine("         ,[vcInserter]  ,[vcInserterDate] ,[vcFactoryOperatorID] ,[dFactoryOperatorTime]  ,[vcOperatorID] ,[dOperatorTime])  values (    ");
                     strSql.AppendLine("   '" + vcPackingPlant + "','" + vcReceiver + "'," + getSqlValue(listInfoData[i]["dSynchronizationDate"], true) + " ,'0','" + vcPartNo + "'," + getSqlValue(listInfoData[i]["dUseStartDate"], true) + "," + getSqlValue(listInfoData[i]["dUserEndDate"], true) + ",   ");
-                    strSql.AppendLine("   " + getSqlValue(listInfoData[i]["vcPartName"], true) + "," + getSqlValue(listInfoData[i]["vcCarType"], true) + "," + getSqlValue(listInfoData[i]["vcOEOrSP"], true) + "," + getSqlValue(listInfoData[i]["vcSupplier_id"], true) + "," + getSqlValue(listInfoData[i]["vcWorkArea"], true) + " ," + getSqlValue(listInfoData[i]["dExpectDeliveryDate"], true) + " ,'" + vcExpectIntake + "',   ");
+                    strSql.AppendLine("   " + getSqlValue(listInfoData[i]["vcPartName"], true) + "," + getSqlValue(listInfoData[i]["vcCarType"], true) + "," + getSqlValue(vcOEOrSP, true) + "," + getSqlValue(listInfoData[i]["vcSupplier_id"], true) + "," + getSqlValue(listInfoData[i]["vcWorkArea"], true) + " ," + getSqlValue(listInfoData[i]["dExpectDeliveryDate"], true) + " ,'" + vcExpectIntake + "',   ");
                     strSql.AppendLine("   " + getSqlValue(listInfoData[i]["vcIntake"], true) + "," + getSqlValue(listInfoData[i]["vcBoxMaxIntake"], true) + "," + getSqlValue(listInfoData[i]["vcBoxType"], true) + "," + getSqlValue(listInfoData[i]["vcLength"], true) + "," + getSqlValue(listInfoData[i]["vcWide"], true) + " ," + getSqlValue(listInfoData[i]["vcHeight"], true) + " ," + getSqlValue(listInfoData[i]["vcEmptyWeight"], true) + " ," + getSqlValue(listInfoData[i]["vcUnitNetWeight"], true) + ",    ");
                     strSql.AppendLine("   " + getSqlValue(listInfoData[i]["dSendDate"], true) + "," + getSqlValue(listInfoData[i]["dReplyDate"], true) + "," + getSqlValue(listInfoData[i]["dAdmitDate"], true) + "," + getSqlValue(listInfoData[i]["dWeaveDate"], true) + "," + getSqlValue(listInfoData[i]["vcMemo"], true) + " ," + getSqlValue(listInfoData[i]["vcImageRoutes"], true) + " ,   ");
                     strSql.AppendLine("   '" + userId + "',getdate()," + getSqlValue(listInfoData[i]["vcFactoryOperatorID"], true) + "," + getSqlValue(listInfoData[i]["dFactoryOperatorTime"], true) + ", '" + userId + "',getdate());   ");

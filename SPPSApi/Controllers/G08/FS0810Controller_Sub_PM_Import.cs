@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G08
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"大品目","小品目"},
-                                                {"vcBigPM", "vcSmallPM"},
-                                                {"",""},
-                                                {"25","25"},//最大长度设定,不校验最大长度用0
-                                                {"1","1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"大品目","小品目","基准时间(秒)"},
+                                                {"vcBigPM", "vcSmallPM","vcStandardTime"},
+                                                {"","",""},
+                                                {"25","25","25"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -100,7 +100,7 @@ namespace SPPSApi.Controllers.G08
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcBigPM"), r3 = r.Field<string>("vcSmallPM") } into g
+                             group r by new {  r3 = r.Field<string>("vcSmallPM") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -109,7 +109,7 @@ namespace SPPSApi.Controllers.G08
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("大品目:" + item.Key.r2 + " 小品目:" + item.Key.r3+ "<br/>");
+                        sbr.Append("小品目:" + item.Key.r3+ "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();

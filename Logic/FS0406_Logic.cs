@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Common;
 using DataAccess;
+using Org.BouncyCastle.Crmf;
 
 namespace Logic
 {
@@ -20,9 +21,9 @@ namespace Logic
         }
         #endregion
 
-        public void createInfo(string Receiver, bool inFlag, string inTime, bool outFlag, string outStart, string outEnd, string userId)
+        public void createInfo(string Receiver, bool inFlag, string inTime, bool outFlag, string outStart, string outEnd, string userId, ref string msg)
         {
-            fs0406_dataAccess.createInfo(Receiver, inFlag, inTime, outFlag, outStart, outEnd, userId);
+            fs0406_dataAccess.createInfo(Receiver, inFlag, inTime, outFlag, outStart, outEnd, userId, ref msg);
         }
     }
 }

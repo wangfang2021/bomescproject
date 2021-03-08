@@ -2344,8 +2344,10 @@ namespace Logic
                 dataTable.Columns.Add("vcOrderNo", typeof(string));
                 dataTable.Columns.Add("vcPart_id", typeof(string));
                 dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("iPackingQty", typeof(int));
                 dataTable.Columns.Add("iOrderQuantity", typeof(int));
                 dataTable.Columns.Add("iDuiYingQuantity", typeof(int));
+                dataTable.Columns.Add("decBoxQuantity", typeof(decimal));
                 dataTable.Columns.Add("dDeliveryDate", typeof(string));
                 dataTable.Columns.Add("dOutPutDate", typeof(string));
                 dataTable.Columns.Add("dReplyOverDate", typeof(string));

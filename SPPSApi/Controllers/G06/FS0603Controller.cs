@@ -112,7 +112,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dttaskNum = fs0603_Logic.gettaskNum();
                 string taskoutNum = "0";
                 string taskinNum = "0";
-                if(!(dttaskNum==null|| dttaskNum.Rows.Count==0))
+                if (!(dttaskNum == null || dttaskNum.Rows.Count == 0))
                 {
                     taskoutNum = dttaskNum.Select("vcInOut='1'").Length.ToString();
                     taskinNum = dttaskNum.Select("vcInOut='0'").Length.ToString();
@@ -171,7 +171,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false);
 
                 DataTable dttaskNum = fs0603_Logic.gettaskNum();
                 string taskoutNum = "0";
@@ -261,22 +261,22 @@ namespace SPPSApi.Controllers.G06
             {
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dtMainInfo = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
-                DataTable dtSPInfo = fs0603_Logic.getEditLoadInfo("SupplierPlantEdit", "", strPartId, strReceiver, strSupplierId, "");
-                DataTable dtPQInfo = fs0603_Logic.getEditLoadInfo("PackingQtyEdit", "", strPartId, strReceiver, strSupplierId, "");
-                DataTable dtSIInfo = fs0603_Logic.getEditLoadInfo("SufferInEdit", "", strPartId, strReceiver, strSupplierId, "");
-                DataTable dtOPInfo = fs0603_Logic.getEditLoadInfo("OrderPlantEdit", "", "", "", strSupplierId, "");
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false);
+                DataTable dtSPInfo = fs0603_Logic.getSubInfo("SupplierPlantEdit", "", strPartId, strReceiver, strSupplierId, "");
+                DataTable dtPQInfo = fs0603_Logic.getSubInfo("PackingQtyEdit", "", strPartId, strReceiver, strSupplierId, "");
+                DataTable dtSIInfo = fs0603_Logic.getSubInfo("SufferInEdit", "", strPartId, strReceiver, strSupplierId, "");
+                DataTable dtOPInfo = fs0603_Logic.getSubInfo("OrderPlantEdit", "", "", "", strSupplierId, "");
 
                 DataTable dtExport = fs0603_Logic.setExportInfo(dtMainInfo, dtSPInfo, dtPQInfo, dtSIInfo, dtOPInfo, ref dtMessage);
 
 
-                string[] fields = {"dSyncTime ","vcChanges_name ","vcPackingPlant_name ","vcPartId ","vcPartENName ","vcCarfamilyCode ","vcReceiver ","dFromTime ","dToTime ",
-                    "vcPartId_Replace ","vcInOut_name ","vcOESP_name ","vcHaoJiu_name ","vcOldProduction_name ","dDebugTime ","vcSupplierId ","dSupplierFromTime ",
-                    "dSupplierToTime ","vcSupplierName ","vcSupplierPlant ","dSupplierPlantFromTime","dSupplierPlantToTime ","vcSupplierPlace ","iPackingQty ",
-                    "vcBoxType ","iLength ","iWidth ","iHeight ","iVolume ","dBoxFromTime ","dBoxToTime ","vcSufferIn ","dSufferInFromTime ","dSufferInToTime ",
-                    "vcOrderPlant_name ","dOrderPlantFromTime ","dOrderPlantToTime ","vcInteriorProject ","vcPassProject ","vcFrontProject ","dFrontProjectTime ",
-                    "dShipmentTime ","vcPartImage ","vcBillType_name ","vcRemark1 ","vcRemark2 ","vcOrderingMethod_name ","vcMandOrder_name ","vcSupplierPacking_name"
-                };
+                string[] fields = {"dSyncTime","vcChanges_name","vcPackingPlant_name","vcPartId","vcPartENName","vcCarfamilyCode","vcReceiver","dFromTime","dToTime",
+"vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name","vcOldProduction_name","dDebugTime","vcSupplierId","dSupplierFromTime",
+"dSupplierToTime","vcSupplierName","vcSupplierPlant","dSupplierPlantFromTime","dSupplierPlantToTime","vcSupplierPlace","iPackingQty",
+"vcBoxType","iLength","iWidth","iHeight","iVolume","dBoxFromTime","dBoxToTime","vcSufferIn","dSufferInFromTime","dSufferInToTime",
+"vcOrderPlant_name","dOrderPlantFromTime","dOrderPlantToTime","vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime",
+"dShipmentTime","vcPartImage","vcBillType_name","vcRemark1","vcRemark2","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name"
+};
 
                 string filepath = ComFunction.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "FS0603_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -439,7 +439,6 @@ namespace SPPSApi.Controllers.G06
 
                 string strPackingPlant = dRowinfo.vcPackingPlant == null ? "" : dRowinfo.vcPackingPlant.ToString().Trim();
                 string strPackingPlant_name = dRowinfo.vcPackingPlant_name == null ? "" : dRowinfo.vcPackingPlant_name.ToString().Trim();
-
                 string strPartId = dRowinfo.vcPartId == null ? "" : dRowinfo.vcPartId.ToString().ToUpper().Trim();
                 string strReceiver = dRowinfo.vcReceiver == null ? "" : dRowinfo.vcReceiver.ToString().Trim();
                 string strSupplierId = dRowinfo.vcSupplierId == null ? "" : dRowinfo.vcSupplierId.ToString().Trim();
@@ -479,7 +478,7 @@ namespace SPPSApi.Controllers.G06
                 bool bAddFlag = (bool)dRowinfo.bAddFlag;//true可编辑,false不可编辑
                 if (bAddFlag == true)
                 {
-                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant);
+                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant, true);
                     if (dtSPInfo.Rows.Count != 0)
                     {
                         DataRow dataRow = dtMessage.NewRow();
@@ -494,6 +493,14 @@ namespace SPPSApi.Controllers.G06
                     apiResult.type = "list";
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //获取包装工厂名称
+                if (strPackingPlant_name == "")
+                {
+                    DataTable dtPackingPlant = ComFunction.getTCode("C017");
+                    DataRow[] drPackingPlant = dtPackingPlant.Select("vcValue='" + strPackingPlant + "'");
+                    if (drPackingPlant.Length != 0)
+                        strPackingPlant_name = drPackingPlant[0]["vcName"].ToString();
                 }
                 if (strEditType == "SupplierPlantEdit")
                 {
@@ -912,7 +919,7 @@ namespace SPPSApi.Controllers.G06
                             apiResult.data = dtMessage;
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        string strVolume = ((Convert.ToInt32(listSubInfo[0]["iLength"].ToString()) * Convert.ToInt32(listSubInfo[0]["iWidth"].ToString()) * Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())) / 1000000000).ToString();
+                        string strVolume = ((Convert.ToInt32(listSubInfo[0]["iLength"].ToString()) * Convert.ToInt32(listSubInfo[0]["iWidth"].ToString()) * Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())) / 1000000000.0000).ToString("#.0000");
                         DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
                         if (Convert.ToInt32(strLinId) == -1)
                         {
@@ -1195,7 +1202,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "");
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false);
                 dataTable.Columns.Add("vcType");
                 string[] fields = {"vcType","dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
                     "vcReceiver","dFromTime","dToTime","vcPartId_Replace","vcInOut_name","vcOESP_name","vcHaoJiu_name",
@@ -1487,7 +1494,7 @@ namespace SPPSApi.Controllers.G06
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (listInfoData.Count==0)
+                if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "info";

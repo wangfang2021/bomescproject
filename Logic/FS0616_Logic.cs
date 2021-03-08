@@ -124,6 +124,54 @@ namespace Logic
                 throw ex;
             }
         }
+        //public bool checkInfo(List<Dictionary<string, Object>> listInfoData, DataTable dtMultiple, ref DataTable dtMessage)
+        //{
+        //    //try
+        //    //{
+        //    //    DataTable dtInfo = fs0603_Logic.createTable("Multipleof616");
+        //    //    DataTable dtImport = fs0603_Logic.createTable("Multipleof616");
+        //    //    DataTable dtCheck = fs0603_Logic.createTable("Multipleof616");
+        //    //    for (int i = 0; i < listInfoData.Count; i++)
+        //    //    {
+        //    //        string strOrderNo = listInfoData[i]["vcOrderNo"] == null ? "" : listInfoData[i]["vcOrderNo"].ToString();
+        //    //        string strPart_id = listInfoData[i]["vcPart_id"] == null ? "" : listInfoData[i]["vcPart_id"].ToString();
+        //    //        string strSupplierId = listInfoData[i]["vcSupplierId"] == null ? "" : listInfoData[i]["vcSupplierId"].ToString();
+        //    //        string strPackingQty = listInfoData[i]["iPackingQty"] == null ? "0" : listInfoData[i]["iPackingQty"].ToString();
+        //    //        string strOrderQuantity = listInfoData[i]["iOrderQuantity"] == null ? "0" : listInfoData[i]["iOrderQuantity"].ToString();
+        //    //        string strDuiYingQuantity = listInfoData[i]["iDuiYingQuantity"] == null ? "0" : listInfoData[i]["iDuiYingQuantity"].ToString();
+        //    //        string strDeliveryDate = listInfoData[i]["dDeliveryDate"] == null ? "" : listInfoData[i]["dDeliveryDate"].ToString();
+        //    //        string strOutPutDate = listInfoData[i]["dOutPutDate"] == null ? "" : listInfoData[i]["dOutPutDate"].ToString();
+        //    //        string strInputType = "company";
+        //    //        if (dtMultiple.Select("vcOrderNo='" + strOrderNo + "' and vcPart_id='" + strPart_id + "' and vcSupplierId='" + strSupplierId + "'").Length != 0)
+        //    //        {
+        //    //            if (strDuiYingQuantity != "0")
+        //    //            {
+        //    //                DataRow drInfo = dtInfo.NewRow();
+        //    //                drInfo["vcOrderNo"] = strOrderNo;
+        //    //                drInfo["vcPart_id"] = strPart_id;
+        //    //                drInfo["vcSupplierId"] = strSupplierId;
+        //    //                drInfo["iPackingQty"] = Convert.ToInt32(strPackingQty);
+        //    //                drInfo["iOrderQuantity"] = Convert.ToInt32(strOrderQuantity);
+        //    //                drInfo["iDuiYingQuantity"] = Convert.ToInt32(strDuiYingQuantity);
+        //    //                drInfo["dDeliveryDate"] = strDeliveryDate;
+        //    //                drInfo["dOutPutDate"] = strOutPutDate;
+        //    //                drInfo["vcInputType"] = strInputType;
+        //    //                dtInfo.Rows.Add(drInfo);
+        //    //            }
+        //    //        }
+        //    //    }
+        //    //    for (int i = 0; i < dtInfo.Rows.Count; i++)
+        //    //    {
+
+        //    //    }
+        //    //    return dtImport;
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    throw ex;
+        //    //}
+        //}
+
         public int getManualCode()
         {
             return fs0616_DataAccess.getManualCode();
@@ -791,5 +839,10 @@ namespace Logic
         //    }
         //    return isHoliday;
         //}
+
+        public DataTable getSearchSubInfo(string strOrderNo, string strPart_id, string strSupplierId)
+        {
+            return fs0616_DataAccess.getSearchSubInfo(strOrderNo, strPart_id, strSupplierId);
+        }
     }
 }

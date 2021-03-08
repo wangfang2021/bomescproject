@@ -31,7 +31,7 @@ namespace Logic
         {
             try
             {
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "0", "", "", "", "", "", "", "", "", "", "", "", "");
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "0", "", "", "", "", "", "", "", "", "", "", "", "", false);
                 DataTable dataTable = fs0617_DataAccess.getPrintTemp("FS0617");
                 DataTable dtSub = dataTable.Clone();
                 DataTable dtMain = fS0603_Logic.createTable("mainFs0617");
@@ -56,7 +56,7 @@ namespace Logic
                             dataRow["iPackingQty"] = Convert.ToInt32(drSPInfo[0]["iPackingQty"].ToString() == "" ? "0" : drSPInfo[0]["iPackingQty"].ToString()).ToString();
                             dataRow["vcSufferIn"] = drSPInfo[0]["vcSufferIn"].ToString();
                             dataRow["vcInteriorProject"] = drSPInfo[0]["vcInteriorProject"].ToString();
-                            if(drSPInfo[0]["dFrontProjectTime"].ToString() != "")
+                            if (drSPInfo[0]["dFrontProjectTime"].ToString() != "")
                             {
                                 dataRow["dFrontProjectTime"] = drSPInfo[0]["dFrontProjectTime"].ToString();
                             }

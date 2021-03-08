@@ -301,7 +301,6 @@ namespace SPPSApi.Controllers.G03
                     {
                         sendUnitSum++;
                     }
-
                 }
                 if (backSum>0)
                 {
@@ -412,7 +411,7 @@ namespace SPPSApi.Controllers.G03
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
+                    apiResult.data =  strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -456,8 +455,9 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                
-                fs0304_Logic.del(listInfoData, loginInfo.UserId);
+
+                string strErr = "";
+                fs0304_Logic.del(listInfoData, loginInfo.UserId, ref strErr);
                 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -473,7 +473,7 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-        #region 织入原单位
+        #region 织入原单位 
         [HttpPost]
         [EnableCors("any")]
         public string sendUnitApi([FromBody] dynamic data)
@@ -545,10 +545,16 @@ namespace SPPSApi.Controllers.G03
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                string strErrorPartId = "";
                 string strErr = "";
-                fs0304_Logic.sendUnit(listInfoData, loginInfo.UserId, ref strErr);
-                if (strErr != "")
+                fs0304_Logic.sendUnit(listInfoData, loginInfo.UserId, ref strErr,ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败，以下品番TFTM调整时间小于品番开始时间：<br/>" + strErrorPartId;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strErr!="")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strErr;

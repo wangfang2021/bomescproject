@@ -837,6 +837,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
@@ -880,13 +881,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut                  \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime               \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'"+strOperatorID+"',GETDATE()       \r\n");
@@ -925,6 +926,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
@@ -968,13 +970,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'"+strOperatorID+"',GETDATE()       \r\n");
@@ -1013,6 +1015,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
@@ -1056,13 +1059,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1105,6 +1108,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo        \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
@@ -1150,13 +1154,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1312,6 +1316,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
@@ -1355,13 +1360,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,,vcPartNameCna.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1400,6 +1405,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
@@ -1443,13 +1449,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1488,6 +1494,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dGYSTimeFrom             \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo            \r\n");
@@ -1532,13 +1539,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1577,6 +1584,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dGYSTimeFrom             \r\n");
             strSql.Append("       ,dToTime          =b.dGYSTimeTo       \r\n");
@@ -1621,13 +1629,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1666,6 +1674,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dGYSTimeFrom       \r\n");
             strSql.Append("       ,dToTime          =b.dGYSTimeTo       \r\n");
@@ -1710,13 +1719,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1755,6 +1764,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dGYSTimeFrom       \r\n");
             strSql.Append("       ,dToTime          =b.dGYSTimeTo       \r\n");
@@ -1799,13 +1809,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1844,6 +1854,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dGYSTimeFrom       \r\n");
             strSql.Append("       ,dToTime          =b.dGYSTimeTo       \r\n");
@@ -1888,13 +1899,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -1933,6 +1944,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dGYSTimeFrom       \r\n");
             strSql.Append("       ,dToTime          =b.dGYSTimeTo       \r\n");
@@ -1977,13 +1989,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -2024,6 +2036,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dGYSTimeFrom       \r\n");
             strSql.Append("       ,dToTime          ='9999-12-31'        \r\n");
@@ -2069,13 +2082,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -2114,6 +2127,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dFromTime        =b.dTimeFrom        \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo        \r\n");
@@ -2159,13 +2173,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
@@ -2207,6 +2221,7 @@ namespace DataAccess
             strSql.Append("      update TSPMaster set        \r\n");
             strSql.Append("        vcChanges        =b.vcChange            \r\n");
             strSql.Append("       ,vcPartENName     =b.vcPartNameEn            \r\n");
+            strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,dToTime          =b.dTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
@@ -2250,13 +2265,13 @@ namespace DataAccess
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcCarfamilyCode       \r\n");
+            strSql.Append("      	 vcChanges,vcPackingPlant,vcPartId,vcPartENName,vcPartNameCn,vcCarfamilyCode       \r\n");
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut       \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime       \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");

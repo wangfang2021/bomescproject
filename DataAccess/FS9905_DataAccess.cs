@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strJD, string strInOutFlag,string strSupplier_id,string strCarType,string strPart_id)
+        public DataTable Search(string strJD, string strInOutFlag,string strSupplier_id,string strCarType,string strPart_id,string strUserID)
         {
             try
             {
@@ -44,6 +44,7 @@ namespace DataAccess
                 strSql.Append("     				  (    \n");
                 strSql.Append("     						select * from TSQJD    \n");
                 strSql.Append("     						where 1=1    \n");
+                strSql.Append("     						and vcSupplier_id = '" + strUserID+"'    \n");
                 if (!string.IsNullOrEmpty(strJD))
                 {
                     if (strJD == "4")
@@ -90,6 +91,7 @@ namespace DataAccess
                 strSql.Append("     			(    \n");
                 strSql.Append("     				select * from TSQJD_Supplier    \n");
                 strSql.Append("     				where 1=1    \n");
+                strSql.Append("     				and vcSupplier_id = '" + strUserID+"'    \n");
                 if (!string.IsNullOrEmpty(strJD))
                 {
                     if (strJD == "4")
@@ -172,7 +174,7 @@ namespace DataAccess
         #endregion
 
         #region 初始化检索
-        public DataTable Search()
+        public DataTable Search(string strUserID)
         {
             try
             {
@@ -203,6 +205,7 @@ namespace DataAccess
                 strSql.Append("     				  (    \n");
                 strSql.Append("     						select * from TSQJD    \n");
                 strSql.Append("     						where 1=1    \n");
+                strSql.Append("     						and vcSupplier_id = '" + strUserID+"'    \n");
                 strSql.Append("                             and vcJD in ('1','3')  ");
                 
                 strSql.Append("     				  )a    \n");
@@ -269,6 +272,22 @@ namespace DataAccess
                 strSql.Append("     select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C008' and vcIsColum = '0'    \n");
                 strSql.Append("     )b10 on a.vcIsDYFX = b9.vcValue    \n");
                 strSql.Append("     order by vcPart_id    \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 初始化检索
+        public DataTable SearchTHList(string strGUID)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("     select * from TSQJD_THList where GUID = '"+strGUID+"'   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
@@ -480,7 +499,7 @@ namespace DataAccess
                 sqlStr.Append("        where 1=0 ;       \r\n");
                 #endregion
 
-                #region 将有的数据都插入临时表
+                #region 将所选的数据都插入临时表
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     sqlStr.Append("        insert into #TSQJD_Supplier_temp         ");

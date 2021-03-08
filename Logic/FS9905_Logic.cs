@@ -18,16 +18,23 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strJD, string strInOutFlag, string strSupplier_id, string strCarType, string strPart_id)
+        public DataTable Search(string strJD, string strInOutFlag, string strSupplier_id, string strCarType, string strPart_id,string strUserID)
         {
-            return fs9905_DataAccess.Search(strJD, strInOutFlag, strSupplier_id, strCarType, strPart_id);
+            return fs9905_DataAccess.Search(strJD, strInOutFlag, strSupplier_id, strCarType, strPart_id, strUserID);
         }
         #endregion
 
         #region 初始化检索
-        public DataTable Search()
+        public DataTable Search(string strUserID)
         {
-            return fs9905_DataAccess.Search();
+            return fs9905_DataAccess.Search(strUserID);
+        }
+        #endregion
+
+        #region 检索退回履历
+        public DataTable SearchTHList(string strGUID)
+        {
+            return fs9905_DataAccess.SearchTHList(strGUID);
         }
         #endregion
 

@@ -202,7 +202,7 @@ namespace DataAccess
 
                 #region 更新供应商生确表中的数据,注意不更新进度(供应商的生确进度没有已织入)
                 sql.Append("          update TSQJD_Supplier set           \n");
-                sql.Append("          ,dTFTM_BJ = b.dTFTM_BJ          \n");
+                sql.Append("           dTFTM_BJ = b.dTFTM_BJ          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD a           \n");
@@ -220,7 +220,7 @@ namespace DataAccess
                     sql.Append("        (        \r\n");
                     sql.Append("           select distinct vcPart_id from         \r\n");
                     sql.Append("           (         \r\n");
-                    sql.Append("                select * from                 \r\n");
+                    sql.Append("                select a.* from                 \r\n");
                     sql.Append("         	    (                \r\n");
                     sql.Append("         	    	select vcPart_id,dTimeFrom,vcSYTCode,vcSupplier_id,vcReceiver from TUnit                \r\n");
                     sql.Append("                ) a                \r\n");

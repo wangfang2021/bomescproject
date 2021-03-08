@@ -500,7 +500,7 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 /*
-                 * 织入原单位时，必须是已回复的才可以织入原单位
+                 * 织入原单位时，必须是已回复的才可以织入原单位,已退回的也不能织入
                  */
 
                 for (int i = 0; i < listInfoData.Count; i++)

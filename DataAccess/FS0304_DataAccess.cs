@@ -773,6 +773,11 @@ namespace DataAccess
                 sql.Append("          inner join #TSQJD_temp b          \n");
                 sql.Append("          on a.[GUID] = b.[GUID]          \n");
                 #endregion
+
+                if (sql.Length>0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
+                }
             }
             catch (Exception ex)
             {

@@ -628,6 +628,10 @@ namespace DataAccess
                 sqlStr.Append("         ) b on a.GUID = b.GUID       \r\n");
                 #endregion
 
+                #region 将不可对应的/延期的数据插入履历表
+
+                #endregion
+
                 excute.ExcuteSqlWithStringOper(sqlStr.ToString(), "TK");
             }
             catch (Exception ex)

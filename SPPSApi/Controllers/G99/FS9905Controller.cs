@@ -381,15 +381,15 @@ namespace SPPSApi.Controllers.G99
             try
             {
                 DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id,logininfo.UserId);
-                string[] fields = { "dSSDateMonth", "vcJD_Name", "vcPart_id", "vcSPINo",
-                                    "vcChange_Name", "vcCarType_Name","vcInOutflag_Name","vcPartName",
+                string[] fields = { "vcPart_id", "dSSDate", "vcJD_Name", "vcSPINo",
+                                    "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
-                                    "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
-                                    "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
-                                    "vcPackFactory_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
-                                    "dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
+                                    "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcNotDY",
+                                    "vcYQorNG","vcTH","vcSCPlace_City","vcSCPlace_Province",
+                                    "vcCHPlace_City","vcCHPlace_Province","vcSCSName","vcSCSPlace",
+                                    "dSupplier_BJ","dSupplier_HK","dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "fs9905_export.xlsx", 2, logininfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS9905_Export.xlsx", 2, logininfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiresult.code = ComConstant.ERROR_CODE;
@@ -551,7 +551,7 @@ namespace SPPSApi.Controllers.G99
         }
         #endregion
 
-        #region 下载PDF
+        #region 下载PDF文件
         [HttpPost]
         [EnableCors("any")]
         public string downloadPDFApi([FromBody] dynamic data)
@@ -565,14 +565,14 @@ namespace SPPSApi.Controllers.G99
             //以下开始业务处理
             ApiResult apiresult = new ApiResult();
             dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strFileName = dataform.fileName;
-            
             try
-            {
+            { 
+                string strFileName = dataform.fileName;
+                string fileSavePath = strFileName + ".pdf";
                 apiresult.code = ComConstant.SUCCESS_CODE;
-                apiresult.data = "";
+                apiresult.data = fileSavePath;
                 return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+                
             }
             catch (Exception ex)
             {

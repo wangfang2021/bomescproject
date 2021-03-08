@@ -20,14 +20,14 @@ namespace DataAccess
                 sbr.Append(" and isnull(vcFileName,'') LIKE '" + filename.Trim() + "%' \r\n");
             if (!string.IsNullOrWhiteSpace(TimeFrom))
             {
-                DateTime tf = DateTime.ParseExact(TimeFrom, "yyyy/MM/dd", System.Globalization.CultureInfo.CurrentCulture).AddSeconds(-1);
+                DateTime tf = DateTime.Parse(TimeFrom).AddSeconds(-1);
 
                 sbr.Append(" and dOperatorTime> " + ComFunction.getSqlValue(tf, true) + "  \r\n");
             }
 
             if (!string.IsNullOrWhiteSpace(TimeTo))
             {
-                DateTime tt = DateTime.ParseExact(TimeTo, "yyyy/MM/dd", System.Globalization.CultureInfo.CurrentCulture).AddDays(1);
+                DateTime tt = DateTime.Parse(TimeTo).AddDays(1);
                 sbr.Append(" and dOperatorTime<" + ComFunction.getSqlValue(tt, true) + "  \r\n");
 
             }

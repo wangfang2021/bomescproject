@@ -20,6 +20,9 @@ namespace Logic
         }
         #endregion
 
-
+        public void createInfo(string Receiver, bool inFlag, string inTime, bool outFlag, string outStart, string outEnd, string userId)
+        {
+            fs0406_dataAccess.createInfo(Receiver, inFlag, inTime, outFlag, outStart, outEnd, userId);
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace DataAccess
 
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string Supplier)
+        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> Supplier)
         {
             try
             {
@@ -46,10 +46,21 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
                 if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
-                if (!string.IsNullOrEmpty(Supplier))
+                if (Supplier.Count != 0)
+                {
+                    strSql.AppendLine($"      AND vcSupplierID in( ");
+                    for (int i = 0; i < Supplier.Count; i++)
+                    {
+                        if (Supplier.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + Supplier[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + Supplier[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
 
-                    strSql.AppendLine($"      and vcSupplierID='{Supplier}'");
-            
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -59,6 +70,61 @@ namespace DataAccess
             }
         }
         #endregion
+
+
+        #region 按检索条件检索,返回dt
+        public DataTable Search_Sub(string PackSpot, string PackNo, string BeginTime, string EndTime)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(BeginTime))
+                {
+                    BeginTime = "1990-01-01 0:00:00";
+
+                }
+
+                if (string.IsNullOrEmpty(EndTime))
+                {
+                    EndTime = "9999-12-31 0:00:00";
+
+                }
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("   select a.vcPackSpot,a.vcPackNo,a.iLiLun+c.iNumber-b.iNumber as ibeginNum,b.iNumber as iRKNum,c.iNumber as iConsume,a.iLiLun from    ");
+                strSql.AppendLine("   (    ");
+                strSql.AppendLine("   select * from TPackZaiKu     ");
+                strSql.AppendLine("   where 1=1    ");
+                if (!string.IsNullOrEmpty(PackNo))
+                    strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+                strSql.AppendLine(" )a inner join      ");
+                strSql.AppendLine(" (      ");
+                strSql.AppendLine(" select * from TPackWork        ");
+                strSql.AppendLine(" where vcZuoYeQuFen ='0'      ");
+                strSql.AppendLine("    and dBuJiTime between '"+ BeginTime + "' and '"+ EndTime + "'   ");
+                strSql.AppendLine("  )b on a.vcPackNo=b.vcPackNo     ");
+                strSql.AppendLine("  inner join     ");
+                strSql.AppendLine("  (     ");
+                strSql.AppendLine("  select * from TPackWork       ");
+                strSql.AppendLine("  where vcZuoYeQuFen ='2'      ");
+                strSql.AppendLine("  and dBuJiTime between '"+ BeginTime + "' and '"+ EndTime + "'     ");
+                strSql.AppendLine("  )c on a.vcPackNo=c.vcPackNo     ");
+                strSql.AppendLine("       ");
+
+
+
+
+                
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)

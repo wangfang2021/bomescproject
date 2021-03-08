@@ -31,7 +31,7 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string ZuoYeQuFen, string PackSupplier, string dFrom, string dTo)
+        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> ZuoYeQuFen, List<Object> PackSupplier, string dFrom, string dTo)
         {
             try
             {
@@ -44,10 +44,10 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dTo))
                 {
-                    dTo = "3000-01-01 0:00:00";
+                    dTo = "9999-12-31 0:00:00";
 
                 }
-                
+
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
                 strSql.AppendLine("      FROM");
@@ -56,10 +56,35 @@ namespace DataAccess
                 strSql.AppendLine("      	1 = 1");
                 if (!string.IsNullOrEmpty(PackNo))
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
-                if (!string.IsNullOrEmpty(ZuoYeQuFen))
-                    strSql.AppendLine($"      AND vcZuoYeQuFen = '{ZuoYeQuFen}'");
-                if (!string.IsNullOrEmpty(PackSupplier))
-                    strSql.AppendLine($"      AND vcSupplierID = '{PackSupplier}'");
+                if (ZuoYeQuFen.Count != 0)
+                {
+                    strSql.AppendLine($"      AND vcZuoYeQuFen in ( ");
+                    for (int i = 0; i < ZuoYeQuFen.Count; i++)
+                    {
+                        if (ZuoYeQuFen.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + ZuoYeQuFen[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + ZuoYeQuFen[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+
+                }
+                if (PackSupplier.Count != 0)
+                {
+                    strSql.AppendLine($"      AND vcSupplierID in  ( ");
+                    for (int i = 0; i < PackSupplier.Count; i++)
+                    {
+                        if (PackSupplier.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + PackSupplier[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + PackSupplier[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
                 if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
                 strSql.AppendLine($"      AND dBuJiTime BETWEEN '{dFrom}' and '{dTo}'");
@@ -72,26 +97,6 @@ namespace DataAccess
             }
         }
 
-        #endregion
-
-        #region
-
-
-        public DataTable SearchZuoYeQuFen()
-        {
-            try
-            {
-
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcZuoYeQuFen as vcValue,vcZuoYeQuFen as vcName from TPackWork; ");
-
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         #endregion
 
 

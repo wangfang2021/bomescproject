@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 /// <summary>
 /// 获取资材入库数据
 /// </summary>
@@ -22,15 +23,28 @@ namespace BatchProcess
                 ComMessage.GetInstance().ProcessMessage(PageId, "批处理开始", null, strUserId);
                 //取最后一次更新时间
                 DataTable dtTime = this.GetEndData();
+                //取待更新订单号
+                DataTable dtOrder = this.GetOrder();
+                string date = "";
+                if (dtTime.Rows.Count > 0)
+                {
+                    date = dtTime.Rows[0]["dUpdateTime"].ToString();
+                }
+                else
+                {
+                    DateTime dt2 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                    date = dt2.ToString() + " 00:00:00";
+                }
+
                 //去资材取从更新时间需要入库数据
-                DataTable dtData = this.GetParkWorkData_MAPS(dtTime.Rows[0]["dOperatorTime"].ToString());
-                //创建临时表关联
-
-
-
-                bool isok = this.InsertDate(strUserId, dtData);
-
-                if (isok)
+                DataTable dtData = this.GetParkWorkData_MAPS(date, dtOrder);
+                List<Object> strSupplierCode = new List<object>();
+                DataTable dtBase = this.Search("", "", "", strSupplierCode, "", "", "", "");
+                DataTable dtisrkf = this.SearchRKFrist();
+                DataTable dtSave = this.SearchSaveDT();
+                //更新入库表
+                bool isokRK = this.InsertDate(strUserId, dtData, dtBase, dtisrkf, dtSave);
+                if (isokRK)
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行成功", null, strUserId);
                     return true;
@@ -50,13 +64,13 @@ namespace BatchProcess
         }
         #endregion
 
-        #region 取最后一次更新时间
+        #region 取包材入库验收时间（最后时间）
         public DataTable GetEndData()
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" select  top 1  dOperatorTime from TPackWork  order by dOperatorTime desc   \n");
+                sql.Append(" select top 1 dUpdateTime from TPackRuKuInFo order by dUpdateTime desc   \n");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
@@ -67,26 +81,73 @@ namespace BatchProcess
         }
         #endregion
 
-        #region 去资材取从更新时间需要入库数据
+        #region 取待更新订单号
+        public DataTable GetOrder()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append(" select vcOrderNo from TPackRuKuInFo  where vcSJTime is null or dYanshouTime is null or dEmailTime is null or PART_NO is null  \n");
 
-        public DataTable GetParkWorkData_MAPS(string strDate)
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 去资材取需要入库数据
+
+        public DataTable GetParkWorkData_MAPS(string strDate, DataTable dtOrder)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 DataTable dt = new DataTable();
-                sql.Append("  select a.PART_NO,a.ORDER_NO,a.QUANTITY,a.CREATE_TIME,b.SUPPLIER_CODE, \n");
-                sql.Append("  a.CREATE_USER+'-'+c.USER_NAME as vcYanShouID from( \n");
-                sql.Append("  select PART_NO,ORDER_NO,QUANTITY,CREATE_TIME,CREATE_USER from [TB_B0040] \n");
-                sql.Append("  where CREATE_TIME >='"+ strDate + "' \n");
-                sql.Append("  )a inner join \n");
-                sql.Append("  ( \n");
-                sql.Append("  select PART_NO,SUPPLIER_CODE  from [TB_M0050] \n");
-                sql.Append("  )b on a.PART_NO=b.PART_NO \n");
-                sql.Append("  inner join \n");
-                sql.Append("  ( \n");
-                sql.Append("  select * from TB_M0010 \n");
-                sql.Append("  )c on a.CREATE_USER=c.USER_ID \n");
+                sql.Append(" select a.ORDER_NO,b.PART_NO,a.ORDER_QUANTITY,a.ORDER_DATE,a.RECEIVED_QUANTITY,a.RECEIVED_DATE,     \n");
+                sql.Append(" a.COST_GROUP,a.YanShouDate,a.Email_TIME,a.CREATE_TIME,b.CREATE_USER,b.STORE_CODE,a.SUPPLIER_CODE     \n");
+                sql.Append(" from     \n");
+                sql.Append(" (     \n");
+                sql.Append(" --订单号，订单数，订单时间，验收数，验收时间,费用负担，验收时间，电送化时间，更新时间     \n");
+                sql.Append("   select c.ORDER_NO,c.ORDER_QUANTITY,c.ORDER_DATE,c.RECEIVED_QUANTITY,c.RECEIVED_DATE,c.COST_GROUP,c.YanShouDate,   \n");
+                sql.Append("   c.Email_TIME,c.CREATE_TIME,c.PART_ID,d.SUPPLIER_CODE     \n");
+                sql.Append("   from(   \n");
+                sql.Append("    select ORDER_NO,ORDER_QUANTITY,ORDER_DATE,RECEIVED_QUANTITY,RECEIVED_DATE,COST_GROUP,YanShouDate, \n");
+                sql.Append("    Email_TIME,CREATE_TIME,PART_ID  \n");
+                sql.Append("    from TB_B0030 where CREATE_TIME>='" + strDate + "' \n");
+                sql.Append("    and (ASCII(SUBSTRING(ORDER_NO,1,1))between 65 and 90) and (ASCII(SUBSTRING(ORDER_NO,2,1))between 65 and 90) \n");
+                if (dtOrder.Rows.Count > 0)
+                {
+                    sql.Append("  union all  \n");
+                    sql.Append("  select ORDER_NO,ORDER_QUANTITY,ORDER_DATE,RECEIVED_QUANTITY,RECEIVED_DATE,COST_GROUP,YanShouDate,  \n");
+                    sql.Append("  Email_TIME,CREATE_TIME,PART_ID  \n");
+                    sql.Append("  from TB_B0030 where ORDER_NO in (  \n");
+                    for (int i = 0; i < dtOrder.Rows.Count; i++)
+                    {
+                        if (dtOrder.Rows.Count - i == 1)
+                        {
+                            sql.AppendLine("   '" + dtOrder.Rows[i]["vcOrderNo"].ToString() + "'   \n");
+                        }
+                        else
+                            sql.AppendLine("  '" + dtOrder.Rows[i]["vcOrderNo"].ToString() + "' ,   \n");
+                    }
+                    sql.Append("     ) \n");
+                }
+                sql.Append("   )c inner join     \n");
+                sql.Append("   (     \n");
+                sql.Append("   select PART_ID,SUPPLIER_CODE from TB_M0050     \n");
+                sql.Append("   )d on c.PART_ID=d.PART_ID     \n");
+                sql.Append(" )a       \n");
+                sql.Append(" left join      \n");
+                sql.Append(" (      \n");
+                sql.Append(" --订单号，品番，验收者ID，仓库代码，      \n");
+                sql.Append("   select ORDER_NO,PART_NO,CREATE_USER,STORE_CODE from  TB_B0040 where CREATE_TIME>='" + strDate + "'     \n");
+                sql.Append("   and (ASCII(SUBSTRING(ORDER_NO,1,1))between 65 and 90) and (ASCII(SUBSTRING(ORDER_NO,2,1))between 65 and 90)     \n");
+                sql.Append(" )b on a.ORDER_NO=b.ORDER_NO      \n");
+                sql.Append(" order by  b.PART_NO      \n");
+
                 dt = this.MAPSSearch(sql.ToString());
                 return dt;
             }
@@ -124,49 +185,199 @@ namespace BatchProcess
         #endregion
 
         #region 更新数据准备
-        public bool InsertDate(string strUserId, DataTable dtNewItem)
+        public bool InsertDate(string strUserId, DataTable dtNewItem, DataTable dtBase, DataTable dtZk, DataTable dtSave)
         {
             try
             {
                 DataTable dt = new DataTable();
                 StringBuilder sql = new StringBuilder();
 
+                #region 更新入库表
+                for (int i = 0; i < dtNewItem.Rows.Count; i++)
+                {
+                    sql.Append("  delete from TPackRuKuInFo where vcOrderNo='" + dtNewItem.Rows[i]["ORDER_NO"].ToString() + "' \n");
+                }
 
                 for (int i = 0; i < dtNewItem.Rows.Count; i++)
                 {
-                    sql.Append("  INSERT INTO [dbo].[TPackWork]  \n");
-                    sql.Append("             ([vcOrderNo]  \n");
-                    sql.Append("             ,[vcPackNo]  \n");
-                    sql.Append("             ,[vcPackGPSNo]  \n");
-                    sql.Append("             ,[vcSupplierID]  \n");
-                    sql.Append("             ,[vcPackSpot]  \n");
-                    sql.Append("             ,[iNumber]  \n");
-                    sql.Append("             ,[dBuJiTime]  \n");
-                    sql.Append("             ,[dZiCaiTime]  \n");
-                    sql.Append("             ,[vcYanShouID]  \n");
-                    sql.Append("             ,[vcOperatorID]  \n");
-                    sql.Append("             ,[dOperatorTime]  \n");
-                    sql.Append("             ,[vcZuoYeQuFen])  \n");
+                    string PackNo = "";
+                    string PackSpot = "";
+                    if (string.IsNullOrEmpty(dtNewItem.Rows[i]["PART_NO"].ToString()))
+                    {
+                        PackNo = "";
+                        PackSpot = "";
+                    }
+                    else
+                    {
+                        DataRow[] dr1 = dtBase.Select("vcPackGPSNo='" + dtNewItem.Rows[i]["PART_NO"] + "'");
+                        PackNo = dr1[0]["vcPackNo"].ToString();
+                        PackSpot = dr1[0]["vcPackSpot"].ToString();
+                    }
+                    sql.Append("  INSERT INTO [TPackRuKuInFo] \n");
+                    sql.Append("   ([vcOrderNo]            \n");
+                    sql.Append("   ,[vcPackNo]           \n");
+                    sql.Append("   ,[vcPackGPSNo]           \n");
+                    sql.Append("   ,[vcPackSpot]         \n");
+                    sql.Append("   ,[vcSupplieCode]            \n");
+                    sql.Append("   ,[iDGNum]            \n");
+                    sql.Append("   ,[vcDGTime]            \n");
+                    sql.Append("   ,[iSJNum]            \n");
+                    sql.Append("   ,[vcSJTime]            \n");
+                    sql.Append("   ,[vcCostID]             \n");
+                    sql.Append("   ,[vcCodeID]          \n");
+                    sql.Append("   ,[dYanshouTime]      \n");
+                    sql.Append("   ,[dEmailTime]       \n");
+                    sql.Append("   ,[vcYanShouID]      \n");
+                    sql.Append("   ,[dUpdateTime]      \n");
+                    sql.Append("   ,[vcOperatorID]     \n");
+                    sql.Append("   ,[dOperatorTime])   \n");
                     sql.Append("    values  \n");
                     sql.Append("   ( \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcPartsNo"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackNo"].ToString() + "' ,  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcPackGPSNo"].ToString() + "',    \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcShouhuofangID"].ToString() + "',   \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcShouhuofang"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcCar"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["dUsedFrom"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["dUsedTo"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["dFrom"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["dTo"].ToString() + "',  \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["vcDistinguish"].ToString() + "',   \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["iBiYao"].ToString() + "',  \n");
-                        
+                    sql.Append("  '" + dtNewItem.Rows[i]["ORDER_NO"].ToString() + "',  \n");
+                    sql.Append("  '" + PackNo + "',    \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["PART_NO"].ToString() + "' ,  \n");
+                    sql.Append("  '" + PackSpot + "',    \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["SUPPLIER_CODE"].ToString() + "',   \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["ORDER_QUANTITY"].ToString() + "',   \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["ORDER_DATE"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["RECEIVED_QUANTITY"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["RECEIVED_DATE"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["COST_GROUP"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["STORE_CODE"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["YanShouDate"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["Email_TIME"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["CREATE_USER"].ToString() + "',   \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["CREATE_TIME"].ToString() + "',  \n");
                     sql.Append("  '" + strUserId + "', \n");
-                    sql.Append("   GETDATE(), \n");
-                    sql.Append("  '0' ) \n");//包材入库
+                    sql.Append("   GETDATE()) \n");
+                }
+                #endregion
+
+                //根据品番分组
+                DataTable dtcope = dtNewItem.Copy();
+                dtcope.Clear();
+                DataRow[] drnew = dtNewItem.Select("vcSJTime is not null or dYanshouTime is not null or dEmailTime is not null or PART_NO is not null ");
+                dtcope.Rows.Add(drnew);
+                DataTable dtb = new DataTable("dtb");
+                DataColumn dc1 = new DataColumn("vcPackGPSNo", Type.GetType("System.String"));
+                DataColumn dc2 = new DataColumn("iSJNum", Type.GetType("System.Int32"));
+                dtb.Columns.Add(dc1);
+                dtb.Columns.Add(dc2);
+                var query = from t in dtcope.AsEnumerable()
+                            group t by new { t1 = t.Field<string>("PART_NO") }
+                            into m
+                            select new
+                            {
+                                vcPackGPSNo = m.Key.t1,
+                                iSJNum = m.Sum(t => t.Field<int>("RECEIVED_QUANTITY"))
+                            };
+                if (query.ToList().Count > 0)
+                {
+                    query.ToList().ForEach(q =>
+                    {
+                        DataRow dr = dtb.NewRow();
+                        dr["vcPackGPSNo"] = q.vcPackGPSNo;
+                        dr["iSJNum"] = q.iSJNum;
+                        dtb.Rows.Add(dr);
+                    });
+                }
+                #region 更新在库表
+                for (int j = 0; j < dtb.Rows.Count; j++)
+                {
+                    DataRow[] dr = dtZk.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'");
+                    DataRow[] dsave = dtSave.Select("vcPackGPSNo='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'");
+                    DataRow[] dr1 = dtBase.Select("vcPackGPSNo='" + dtb.Rows[j]["PART_NO"] + "'");
+
+                    if (dr.Length >= 0)
+                    {//更新品番在库数据
+                        sql.Append(" UPDATE [dbo].[TPackZaiKu] set   \n");
+                        sql.Append("        [vcPackSpot] = '" + dr1[0]["vcPackSpot"].ToString() + "'   \n");
+                        sql.Append("       ,[vcPackNo] = '" + dr1[0]["vcPackNo"].ToString() + "'   \n");
+                        sql.Append("       ,[vcPackGPSNo] = '" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'   \n");
+                        sql.Append("       ,[vcSupplierID] = '" + dr1[0]["vcSupplierCode"].ToString() + "'   \n");
+                        sql.Append("       ,[iLiLun] =iLiLun+1   \n");
+                        sql.Append("       ,[iAnQuan] = '" + dsave[0]["vcSaveZK"].ToString() + "'   \n");
+                        sql.Append("       ,[vcOperatorID] = '" + strUserId + "'   \n");
+                        sql.Append("       ,[dOperatorTime] = getdate()   \n");
+                        sql.Append("  WHERE [vcPackGPSNo]='" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'   \n");
+                    }
+                    else
+                    {
+                        //插入新的品番在库
+                        sql.Append(" INSERT INTO [dbo].[TPackZaiKu]   \n");
+                        sql.Append("            ([vcPackSpot]   \n");
+                        sql.Append("            ,[vcPackNo]   \n");
+                        sql.Append("            ,[vcPackGPSNo]   \n");
+                        sql.Append("            ,[vcSupplierID]   \n");
+                        sql.Append("            ,[iLiLun]   \n");
+                        sql.Append("            ,[iAnQuan]   \n");
+                        sql.Append("            ,[vcOperatorID]   \n");
+                        sql.Append("            ,[dOperatorTime])   \n");
+                        sql.Append("  VALUES  \n");
+                        sql.Append("   ( \n");
+                        sql.Append("   '" + dr1[0]["vcPackSpot"].ToString() + "', \n");
+                        sql.Append("   '" + dr1[0]["vcPackNo"].ToString() + "', \n");
+                        sql.Append("   '" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "', \n");
+                        sql.Append("   '" + dr1[0]["vcSupplierCode"].ToString() + "', \n");
+                        sql.Append("   '" + dtb.Rows[j]["iSJNum"].ToString() + "', \n");
+                        sql.Append("   '" + dsave[0]["vcSaveZK"].ToString() + "', \n");
+                        sql.Append("   '" + strUserId + "', \n");
+                        sql.Append("   getdate() \n");
+                        sql.Append("   ) \n");
+
+                    }
 
                 }
+                #endregion
+
+                #region 更新实绩作业表（入库）
+                for (int z = 0; z < dtcope.Rows.Count; z++)
+                {
+                    string PackNo1 = "";
+                    string PackSpot1 = "";
+                    DataRow[] dr1 = dtBase.Select("vcPackGPSNo='" + dtcope.Rows[z]["PART_NO"] + "'");
+                    if (dr1.Length == 0)
+                    {
+                        PackNo1 = "";
+                        PackSpot1 = "";
+                    }
+                    else
+                    {
+                        PackNo1 = dr1[0]["vcPackNo"].ToString();
+                        PackSpot1 = dr1[0]["vcPackSpot"].ToString();
+                    }
+                
+                    sql.Append("  INSERT INTO [dbo].[TPackWork]    \n");
+                    sql.Append("             ([vcZuoYeQuFen]    \n");
+                    sql.Append("             ,[vcOrderNo]    \n");
+                    sql.Append("             ,[vcPackNo]    \n");
+                    sql.Append("             ,[vcPackGPSNo]    \n");
+                    sql.Append("             ,[vcSupplierID]    \n");
+                    sql.Append("             ,[vcPackSpot]    \n");
+                    sql.Append("             ,[iNumber]    \n");
+                    sql.Append("             ,[dBuJiTime]    \n");
+                    sql.Append("             ,[dZiCaiTime]    \n");
+                    sql.Append("             ,[vcYanShouID]    \n");
+                    sql.Append("             ,[vcOperatorID]    \n");
+                    sql.Append("             ,[dOperatorTime])    \n");
+                    sql.Append("       VALUES    \n");
+                    sql.Append("    (  \n");
+                    sql.Append("    '包材入库',  \n");
+                    sql.Append("    '" + dtcope.Rows[z]["ORDER_NO"].ToString() + "',  \n");
+                    sql.Append("    '" + PackNo1 + "',  \n");
+                    sql.Append("    '" + dtcope.Rows[z]["PART_NO"].ToString() + "',  \n");
+                    sql.Append("    '" + dtcope.Rows[z]["SUPPLIER_CODE"].ToString() + "',  \n");
+                    sql.Append("  '" + PackSpot1 + "',    \n");
+                    sql.Append("    '" + dtcope.Rows[z]["RECEIVED_QUANTITY"].ToString() + "',  \n");
+                    sql.Append("    '" + dtcope.Rows[z]["YanShouDate"].ToString() + "',  \n");
+                    sql.Append("    '" + dtcope.Rows[z]["CREATE_TIME"].ToString() + "',  \n");
+                    sql.Append("    '" + dtcope.Rows[z]["CREATE_USER"].ToString() + "',  \n");
+                    sql.Append("  '" + strUserId + "', \n");
+                    sql.Append("   GETDATE()  \n");
+                    sql.Append("     ) \n");
+                }
+                #endregion
+
                 int isok = 1;
                 if (sql.Length > 0)
                 {
@@ -193,5 +404,110 @@ namespace BatchProcess
         }
 
         #endregion
+
+        #region 更新GPS品番
+        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
+        {
+            try
+            {
+
+                if (string.IsNullOrEmpty(dFromB))
+                {
+                    dFromB = "1990-01-01 0:00:00";
+
+                }
+
+                if (string.IsNullOrEmpty(dFromE))
+                {
+                    dFromE = "9999-12-31 0:00:00";
+
+                }
+                if (string.IsNullOrEmpty(dToB))
+                {
+                    dToB = "1990-01-01 0:00:00";
+
+                }
+
+                if (string.IsNullOrEmpty(dToE))
+                {
+                    dToE = "9999-12-31 0:00:00";
+
+                }
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
+                strSql.AppendLine("      FROM");
+                strSql.AppendLine("      	TPackBase");
+                strSql.AppendLine("      WHERE");
+                strSql.AppendLine("      	1 = 1");
+                if (strSupplierCode.Count != 0)
+                {
+                    strSql.AppendLine($"      AND vcSupplierCode in( ");
+                    for (int i = 0; i < strSupplierCode.Count; i++)
+                    {
+                        if (strSupplierCode.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + strSupplierCode[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + strSupplierCode[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
+                if (!string.IsNullOrEmpty(PackNo))
+                    strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+                if (!string.IsNullOrEmpty(PackGPSNo))
+                    strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
+                strSql.AppendLine($"      AND dPackFrom BETWEEN '{dFromB}' and '{dFromE}'");
+                strSql.AppendLine($"      AND dPackTo BETWEEN '{dToB}' and '{dToE}'");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取是否是第一次入库
+
+        public DataTable SearchRKFrist()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select  * from TPackZaiKu ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 获取安全在库数据
+
+        public DataTable SearchSaveDT()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select * from TPackSaveZK ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
     }
 }

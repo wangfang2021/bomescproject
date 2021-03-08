@@ -88,6 +88,7 @@ namespace DataAccess
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" delete from TPackJSException   ;     \n");
+                strSql.AppendLine(" delete from TPackNSCalculation   ;     \n");
                 strSql.AppendLine(" select        \n");
                 strSql.AppendLine(" T_1.vcYearMonth       \n");
                 strSql.AppendLine("  ,T_1.vcPart_id         \n");
@@ -130,7 +131,10 @@ namespace DataAccess
                 strSql.AppendLine("  GETDATE() as dZCTime --作成时间        \n");
                 strSql.AppendLine(" from         \n");
                 strSql.AppendLine("  (       \n");
-                strSql.AppendLine("  select a.vcYearMonth,a.vcPart_id,a.iHySOQN,a.iHySOQN1,a.iHySOQN2      \n");
+                strSql.AppendLine("  select a.vcYearMonth,a.vcPart_id,      \n");
+                strSql.AppendLine("    case when b.vcDXYM is null then '0'else  a.iHySOQN end as iHySOQN,        \n");
+                strSql.AppendLine("    case when c.vcDXYM is null then '0'else  a.iHySOQN1 end as iHySOQN1,        \n");
+                strSql.AppendLine("    case when d.vcDXYM is null then '0'else  a.iHySOQN2 end as iHySOQN2        \n");
                 strSql.AppendLine("  ,b.vcDXYM as vcDXYM,c.vcDXYM as vcDXYM1,d.vcDXYM as vcDXYM2,b.iQuantityPercontainer,     \n");
                 strSql.AppendLine("  b.iD1 ,b.iD2,b.iD3,b.iD4,b.iD5,b.iD6,b.iD7,b.iD8,b.iD9,b.iD10,b.iD11,b.iD12,b.iD13,b.iD14,b.iD15,b.iD16,     \n");
                 strSql.AppendLine("  b.iD17,b.iD18,b.iD19,b.iD20,b.iD21,b.iD22,b.iD23,b.iD24,b.iD25,b.iD26,b.iD27,b.iD28,b.iD29,b.iD30,b.iD31     \n");
@@ -138,21 +142,21 @@ namespace DataAccess
                 strSql.AppendLine("  (         \n");
                 strSql.AppendLine("   select *from TSoq where vcYearMonth='" + strN + "'      \n");
                 strSql.AppendLine("  )a        \n");
-                strSql.AppendLine("  inner join      \n");
+                strSql.AppendLine("  left join      \n");
                 strSql.AppendLine("  (        \n");
                 strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "'      \n");
                 strSql.AppendLine("  )b on a.vcPart_id=b.vcPart_id      \n");
-                strSql.AppendLine("  inner join      \n");
+                strSql.AppendLine("  left join      \n");
                 strSql.AppendLine("  (        \n");
                 strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN_1 + "'     \n");
                 strSql.AppendLine("  )c on a.vcPart_id=c.vcPart_id       \n");
-                strSql.AppendLine("  inner join      \n");
+                strSql.AppendLine("  left join      \n");
                 strSql.AppendLine("   (         \n");
                 strSql.AppendLine("   select * from TSoqReply where vcDXYM='" + strN_2 + "'      \n");
                 strSql.AppendLine("   )d on a.vcPart_id=d.vcPart_id     \n");
                 strSql.AppendLine("   inner join     \n");
                 strSql.AppendLine("   (     \n");
-                strSql.AppendLine("     select * from TPackageMaster where vcBZPlant='" + PackSpot + "'     \n");
+                strSql.AppendLine("     select * from TPackageMaster where vcBZPlant='" + PackSpot + "'  and GETDATE() between dTimeFrom and dTimeTo    \n");
                 strSql.AppendLine("   )e on a.vcPart_id=e.vcPart_id     \n");
                 strSql.AppendLine("   )T_1      \n");
                 strSql.AppendLine("   left join     \n");
@@ -165,9 +169,6 @@ namespace DataAccess
                 strSql.AppendLine("  	  )s inner join     \n");
                 strSql.AppendLine("  	  (     \n");
                 strSql.AppendLine("  	    select * from TPackBase     \n");
-                strSql.AppendLine("  	  )ss on s.vcPackNo=ss.vcPackNo     \n");
-                strSql.AppendLine("       \n");
-                strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo         \n");
                 strSql.AppendLine("  where vcSupplierCode in (     \n");
                 for (int i = 0; i < strSupplierCode.Count; i++)
                 {
@@ -179,6 +180,10 @@ namespace DataAccess
                         strSql.AppendLine("  '" + strSupplierCode[i] + "' ,   \n");
                 }
                 strSql.AppendLine("  )    \n");
+                strSql.AppendLine("  	  )ss on s.vcPackNo=ss.vcPackNo     \n");
+                strSql.AppendLine("       \n");
+                strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo         \n");
+         
 
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -197,7 +202,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.AppendLine("     INSERT INTO [dbo].[TPackJSException]           \n");
+                sql.AppendLine("     INSERT INTO [TPackJSException]           \n");
                 sql.AppendLine("                ([vcPart_id]           \n");
                 sql.AppendLine("                ,[vcException]           \n");
                 sql.AppendLine("                ,[vcOperatorID]           \n");
@@ -208,7 +213,7 @@ namespace DataAccess
                 sql.AppendLine("             '"+ eX + "',   \n");
                 sql.AppendLine("             '"+ strUserId + "',   \n");
                 sql.AppendLine("             getdate())   \n");
-                excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
@@ -236,6 +241,29 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt----公式
+        public DataTable SearchCheck()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      select *from TPackNSCalculation         \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+
+
+
+
+
+
+        #region 按检索条件检索,返回dt----公式
         public DataTable Search(string PackSpot, string PackFrom, List<Object> strSupplierCode)
         {
             try
@@ -244,16 +272,16 @@ namespace DataAccess
                 string strN = dtn1.AddMonths(1).ToString("yyyyMM");
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("      select         \n");
-                strSql.Append("    vcYearMonth, vcPackNo,vcpart_id,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease         \n");
+                strSql.Append("    vcYearMonth, vcPackNo,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease         \n");
                 strSql.Append("    ,sum(iDayNNum)as iDayNNum,         \n");
-                strSql.Append("    sum(iDayN1Num)as iDayNNum1,         \n"); 
+                strSql.Append("    sum(iDayN1Num)as iDayN1Num,         \n"); 
                 strSql.Append("    sum(iDayN2Num)as iDayN2Num,         \n");
                 strSql.Append("    sum(iDay1)as iDay1,sum(iDay2)as iDay2,sum(iDay3)as iDay3,sum(iDay4)as iDay4,sum(iDay5)as iDay5,sum(iDay6)as iDay6,sum(iDay7)as iDay7         \n");
                 strSql.Append("   ,sum(iDay8)as iDay8,sum(iDay9)as iDay9,sum(iDay10)as iDay10,         \n");
                 strSql.Append("    sum(iDay11)as iDay11,sum(iDay12)as iDay12,sum(iDay13)as iDay13,sum(iDay14)as iDay14,sum(iDay15)as iDay15,sum(iDay16)as iDay16,sum(iDay17)as iDay17         \n");
                 strSql.Append("   ,sum(iDay18)as iDay18,sum(iDay19)as iDay19,sum(iDay20)as iDay20,         \n");
                 strSql.Append("    sum(iDay21)as iDay21,sum(iDay22)as iDay22,sum(iDay23)as iDay23,sum(iDay24)as iDay24,sum(iDay25)as iDay25,sum(iDay26)as iDay26,sum(iDay27)as iDay27         \n");
-                strSql.Append("   ,sum(iDay28)as iDay28,sum(iDay29)as iDay29,sum(iDay30)as iDay30,sum(iDay31)as iDay31,dZYTime,vcOperatorID,dOperatorTime         \n");
+                strSql.Append("   ,sum(iDay28)as iDay28,sum(iDay29)as iDay29,sum(iDay30)as iDay30,sum(iDay31)as iDay31,dZYTime         \n");
                 strSql.Append("      from TPackNSCalculation         \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
@@ -274,6 +302,7 @@ namespace DataAccess
                             strSql.AppendLine("  '" + strSupplierCode[i] + "' ,   \n");
                     }
                     strSql.Append("   )       \n");
+                    strSql.Append("     group by vcPackNo, vcYearMonth, vcPackNo,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease,dZYTime        \n");
                 }
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

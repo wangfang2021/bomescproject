@@ -89,25 +89,14 @@ namespace SPPSApi.Controllers.G07
 
             string PackSpot = dataForm.PackSpot;
             string PackNo = dataForm.PackNo;
-            string PackGPSNo = dataForm.PackGPSNo;
-            string Supplier = dataForm.Supplier;
+            string BeginTime = dataForm.dtKaishiBegin;
+            string EndTime = dataForm.dtJieshuBegin;
+
 
             try
             {
-                DataTable dt = FS0711_Logic.Search(PackSpot, PackNo, PackGPSNo, Supplier);
+                DataTable dt = FS0711_Logic.Search_Sub(PackSpot, PackNo, BeginTime, EndTime);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -141,14 +130,14 @@ namespace SPPSApi.Controllers.G07
 
             string PackSpot = dataForm.PackSpot;
             string PackNo = dataForm.PackNo;
-            string PackGPSNo = dataForm.PackGPSNo;
-            string Supplier = dataForm.Supplier;
+            string BeginTime = dataForm.dtKaishiBegin;
+            string EndTime = dataForm.dtJieshuBegin;
 
             try
             {
-                DataTable dt = FS0711_Logic.Search(PackSpot, PackNo, PackGPSNo, Supplier);
+                DataTable dt = FS0711_Logic.Search_Sub(PackSpot, PackNo, BeginTime, EndTime);
 
-                string[] fields = {"vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierID","iLiLun","iAnQuan"
+                string[] fields = {"vcPackSpot","vcPackNo","ibeginNum","iRKNum","iConsume","iLiLun"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0711_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
                 if (filepath == "")
@@ -170,110 +159,7 @@ namespace SPPSApi.Controllers.G07
             }
         }
         #endregion
-        //导出列值应该显示名字
-
-        #region 保存
-        [HttpPost]
-        [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool hasFind = false;//是否找到需要新增或者修改的数据
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        hasFind = true;
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        hasFind = true;
-                    }
-                }
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-             
-                string strErrorPartId = "";
-                FS0711_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
-                if (strErrorPartId != "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败";
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region 删除
-        [HttpPost]
-        [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (listInfoData.Count == 0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一条数据！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                FS0711_Logic.Del(listInfoData, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0903", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
+       
 
        
     }

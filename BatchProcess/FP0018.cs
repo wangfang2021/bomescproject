@@ -61,7 +61,7 @@ namespace BatchProcess
                 sql.Append("        ,a.[vcPackNo]           \n");
                 sql.Append("        ,a.[vcPackGPSNo]           \n");
                 sql.Append("        ,case when b.vcReceiver is not null then b.vcReceiver else a.vcShouhuofangID   end as vcShouhuofangID       \n");
-                sql.Append("        ,case when b.vcName is not null then b.vcName else a.vcCar  end as vcCar             \n");
+                sql.Append("        ,case when b.vcCarModel is not null then b.vcCarModel else a.vcCar  end as vcCar             \n");
                 sql.Append("        ,case when b.dFromTime is not null then b.dFromTime else a.dUsedFrom  end as dUsedFrom         \n");
                 sql.Append("        ,case when b.dToTime is not null then b.dToTime else a.dUsedTo  end as dUsedTo           \n");
                 sql.Append("        ,a.[dFrom]           \n");
@@ -78,15 +78,15 @@ namespace BatchProcess
                 sql.Append("      )a       \n");
                 sql.Append(" 	  left join          \n");
                 sql.Append("     (          \n");
-                sql.Append("         select a.vcPartId,a.vcReceiver,r.vcName,a.dFromTime,a.dToTime,a.vcChanges from    \n");
-                sql.Append(" 	     (    \n");
+                //sql.Append("         select a.vcPartId,a.vcReceiver,r.vcName,a.dFromTime,a.dToTime,a.vcChanges from    \n");
+                //sql.Append(" 	     (    \n");
                 sql.Append("         select * from TSPMaster    \n");
                 sql.Append(" 	     where GETDATE() between dFromTime and dToTime       \n");
-                sql.Append("         )a     \n");
-                sql.Append("         left join    \n");
-                sql.Append(" 	     (    \n");
-                sql.Append("          select * from TCode where vcCodeId='C098'    \n");
-                sql.Append(" 	     )r  on a.vcCarModel=r.vcValue          \n");
+                //sql.Append("         )a     \n");
+                //sql.Append("         left join    \n");
+                //sql.Append(" 	     (    \n");
+                //sql.Append("          select * from TCode where vcCodeId='C098'    \n");
+                //sql.Append(" 	     )r  on a.vcCarModel=r.vcValue          \n");
                 sql.Append("      )b on a.vcPartsNo=b.vcPartId and a.vcShouhuofangID=b.vcReceiver       \n");
                 sql.Append("    left join     \n");
                 sql.Append("    (     \n");
@@ -100,7 +100,7 @@ namespace BatchProcess
                 sql.Append("     '' as [vcPackNo],            \n");
                 sql.Append("     '' as [vcPackGPSNo],            \n");
                 sql.Append("     a.vcReceiver as [vcShouhuofangID],          \n");
-                sql.Append("     C.vcName as [vcCar],           \n");
+                sql.Append("     a.vcCarModel as [vcCar],           \n");
                 sql.Append("     a.dFromTime as [dUsedFrom],            \n");
                 sql.Append("     a.dToTime as [dUsedTo],            \n");
                 sql.Append("     '1990-01-01 0:00:00' as [dFrom],            \n");
@@ -141,10 +141,10 @@ namespace BatchProcess
                 sql.Append("     (        \n");
                 sql.Append("       select * from TPackageMaster where  GETDATE() between dTimeFrom  and dTimeTo          \n");
                 sql.Append("      )B on A.vcPartId=B.vcPart_id     \n");
-                sql.Append("     left join    \n");
-                sql.Append("     (    \n");
-                sql.Append("       select * from TCode where vcCodeId='C098'    \n");
-                sql.Append("     )C on a.vcCarModel=C.vcValue       \n");
+                //sql.Append("     left join    \n");
+                //sql.Append("     (    \n");
+                //sql.Append("       select * from TCode where vcCodeId='C098'    \n");
+                //sql.Append("     )C on a.vcCarModel=C.vcValue       \n");
 
 
                 dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());

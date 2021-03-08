@@ -144,7 +144,140 @@ namespace DataAccess
                 throw ex;
             }
         }
-
+        public DataTable getHeJiInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
+               string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+               string strDyInfo, string strHyInfo)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT '' as LinId,'合计' as vcYearMonth,'' as vcDyState,'' as vcDyState_Name,'' as vcHyState,'' as vcHyState_Name,'' as vcPart_id");
+                strSql.AppendLine("		,'' as vcCarfamilyCode,'' as vcHaoJiu,'' as vcOrderingMethod,'' as vcOrderPlant,'' as vcInOut");
+                strSql.AppendLine("		,'' as vcSupplierId,'' as vcSupplierPlant,'' as iPackingQty");
+                strSql.AppendLine("		,sum(isnull(tt.iCbSOQN,0)) as iCbSOQN,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN1,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN1");
+                strSql.AppendLine("		,sum(isnull(tt.iTzhSOQN,0)) as iTzhSOQN,sum(isnull(tt.iTzhSOQN1,0)) as iTzhSOQN1,sum(isnull(tt.iTzhSOQN2,0)) as iTzhSOQN2");
+                strSql.AppendLine("		,sum(isnull(tt.iHySOQN,0)) as iHySOQN,sum(isnull(tt.iHySOQN1,0)) as iHySOQN1,sum(isnull(tt.iHySOQN2,0)) as iHySOQN2");
+                strSql.AppendLine("		,'' as dExpectTime,'' as dSReplyTime,'' as vcOverDue,'' as dHyTime,");
+                strSql.AppendLine("'0' as vcShowColor, '' as vcBgColor,");
+                strSql.AppendLine("	'0' as bModFlag,'0' as bAddFlag,'0'  as bSelectFlag");
+                strSql.AppendLine("FROM (");
+                strSql.AppendLine("select T1.iAutoId AS LinId,");
+                strSql.AppendLine("		T1.vcYearMonth AS vcYearMonth,");
+                strSql.AppendLine("		T1.vcDyState,");
+                strSql.AppendLine("		T6.vcName AS vcDyState_Name,");
+                strSql.AppendLine("		T1.vcHyState,");
+                strSql.AppendLine("		T7.vcName AS vcHyState_Name,");
+                strSql.AppendLine("		T1.vcPart_id AS vcPart_id,");
+                strSql.AppendLine("		T1.vcCarFamilyCode AS vcCarfamilyCode,");
+                strSql.AppendLine("		T3.vcName AS vcHaoJiu,");
+                strSql.AppendLine("		T4.vcName AS vcOrderingMethod,");
+                strSql.AppendLine("		T5.vcName AS vcOrderPlant,");
+                strSql.AppendLine("		T2.vcName AS vcInOut,");
+                strSql.AppendLine("		T1.vcSupplier_id AS vcSupplierId,");
+                strSql.AppendLine("		T1.vcSupplierPlant AS vcSupplierPlant,");
+                strSql.AppendLine("		T1.iQuantityPercontainer AS iPackingQty,");
+                strSql.AppendLine("		T1.iCbSOQN AS iCbSOQN,");
+                strSql.AppendLine("		case when isnull( cast(T1.decCbBdl as varchar(10)),'')='' then '' else cast(T1.decCbBdl as varchar(10))+'%' end AS decCbBdl,");
+                strSql.AppendLine("		T1.iCbSOQN1 AS iCbSOQN1,");
+                strSql.AppendLine("		T1.iCbSOQN2 AS iCbSOQN2,");
+                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,ISNULL(T1.iCbSOQN,0)) ELSE ISNULL(T1.iTzhSOQN,0) END AS iTzhSOQN,");
+                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN1 IS NULL THEN ISNULL(T8.iTzhSOQN1,ISNULL(T1.iCbSOQN1,0)) ELSE ISNULL(T1.iTzhSOQN1,0) END AS iTzhSOQN1,");
+                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN2 IS NULL THEN ISNULL(T8.iTzhSOQN2,ISNULL(T1.iCbSOQN2,0)) ELSE ISNULL(T1.iTzhSOQN2,0) END AS iTzhSOQN2,");
+                strSql.AppendLine("		T1.iHySOQN AS iHySOQN,");
+                strSql.AppendLine("		T1.iHySOQN1 AS iHySOQN1,");
+                strSql.AppendLine("		T1.iHySOQN2 AS iHySOQN2,");
+                strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dExpectTime,23) END AS dExpectTime,");
+                strSql.AppendLine("		CASE WHEN T1.dSReplyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dSReplyTime,120) END AS dSReplyTime,");
+                strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE (");
+                strSql.AppendLine("			CASE WHEN T1.dSReplyTime IS NULL THEN (CASE WHEN CONVERT(VARCHAR(10),T1.dExpectTime,23)>=CONVERT(VARCHAR(10),GETDATE(),23) THEN '' ELSE '逾期' END) ");
+                strSql.AppendLine("				ELSE (CASE WHEN CONVERT(VARCHAR(10),T1.dSReplyTime,23)<=CONVERT(VARCHAR(10),T1.dExpectTime,23) THEN '' ELSE '逾期' END) END ");
+                strSql.AppendLine("		) END AS vcOverDue,		");
+                strSql.AppendLine("		CASE WHEN T1.dHyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dHyTime,120) END AS dHyTime");
+                strSql.AppendLine("		from ");
+                strSql.AppendLine("(select * from TSoq ");
+                strSql.AppendLine("where 1=1 and vcDyState in (" + strDyInfo + ") and vcHyState in (" + strHyInfo + ") ");
+                if (strYearMonth != "")
+                {
+                    strSql.AppendLine("and vcYearMonth='" + strYearMonth + "' ");
+                }
+                if (strDyState != "")
+                {
+                    strSql.AppendLine("and vcDyState ='" + strDyState + "'");
+                }
+                if (strHyState != "")
+                {
+                    strSql.AppendLine("and vcHyState ='" + strHyState + "'");
+                }
+                if (strPartId != "")
+                {
+                    strSql.AppendLine("and vcPart_id like '" + strPartId + "%'");
+                }
+                if (strCarModel != "")
+                {
+                    strSql.AppendLine("and vcCarFamilyCode='" + strCarModel + "'");
+                }
+                if (strInOut != "")
+                {
+                    strSql.AppendLine("and vcInOutFlag='" + strInOut + "'");
+                }
+                if (strOrderingMethod != "")
+                {
+                    strSql.AppendLine("and vcMakingOrderType='" + strOrderingMethod + "'");
+                }
+                if (strOrderPlant != "")
+                {
+                    strSql.AppendLine("and vcFZGC='" + strOrderPlant + "'");
+                }
+                if (strHaoJiu != "")
+                {
+                    strSql.AppendLine("and vcCurrentPastcode='" + strHaoJiu + "'");
+                }
+                if (strSupplierId != "")
+                {
+                    strSql.AppendLine("and vcSupplier_id='" + strSupplierId + "'");
+                }
+                if (strSupplierPlant != "")
+                {
+                    strSql.AppendLine("and vcSupplierPlant='" + strSupplierPlant + "'");
+                }
+                strSql.AppendLine(")T1 ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T2--内外区分 ");
+                strSql.AppendLine("on T1.vcInOutFlag=T2.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T3--号旧区分 ");
+                strSql.AppendLine("on T1.vcCurrentPastcode=T3.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T4--订货方式 ");
+                strSql.AppendLine("on T1.vcMakingOrderType=T4.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T5--发注工厂 ");
+                strSql.AppendLine("on T1.vcFZGC=T5.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C036')T6--对应状态 ");
+                strSql.AppendLine("on T1.vcDyState=T6.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C037')T7--合意状态 ");
+                strSql.AppendLine("on T1.vcHyState=T7.vcValue ");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2      ");
+                strSql.AppendLine("from  ");
+                strSql.AppendLine("(select * from TSoq_OperHistory  ");
+                strSql.AppendLine("where vcInputType in ('supplier','company'))a     ");
+                strSql.AppendLine("inner join  ");
+                strSql.AppendLine("(select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory ");
+                strSql.AppendLine("where vcInputType in ('supplier','company')   ");
+                strSql.AppendLine("group by vcYearMonth,vcPart_id     ");
+                strSql.AppendLine(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id  and a.dOperatorTime=b.dOperatorTime)T8 ");
+                strSql.AppendLine("on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id");
+                strSql.AppendLine(")TT");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void checkSaveInfo(DataTable dtInfo, string strYearMonth, string strYearMonth1, string strYearMonth2,
             string strOperId, string strPackingPlant, string strReceiver, ref DataTable dtMessage)
         {

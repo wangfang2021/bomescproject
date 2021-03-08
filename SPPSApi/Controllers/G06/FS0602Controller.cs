@@ -127,7 +127,9 @@ namespace SPPSApi.Controllers.G06
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
-                DtConverter dtConverter = new DtConverter();
+                DataTable dtHJ = fs0602_Logic.getHeJiInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
+                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
+                DtConverter dtConverter = new DtConverter(); 
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
@@ -137,6 +139,7 @@ namespace SPPSApi.Controllers.G06
                 res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
                 res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
                 res.Add("tempList", dataList);
+                res.Add("hejiList", dtHJ);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

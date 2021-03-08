@@ -53,6 +53,8 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray fileNameList = dataForm.fileNameList;
+            string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
+            string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             try

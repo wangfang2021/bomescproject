@@ -20,9 +20,9 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G06
+namespace SPPSApi.Controllers.G05
 {
-    [Route("api/FS0602/[action]")]
+    [Route("api/FS0504/[action]")]
     [EnableCors("any")]
     [ApiController]
     public class FS0504Controller : BaseController

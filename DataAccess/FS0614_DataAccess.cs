@@ -81,9 +81,6 @@ namespace DataAccess
         #endregion
 
 
-
-
-
         #region 生成
         public bool CreateOrder(List<Dictionary<string, Object>> listInfoData, string path, string userId, string uionCode, ref bool bReault, ref DataTable dtMessage)
         {
@@ -150,7 +147,8 @@ namespace DataAccess
 
                         string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
                         string TargetTmp = ObjToString(listInfoData[i]["vcTargetYM"]);
-                        DateTime Time = DateTime.ParseExact(TargetTmp.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
+                        //DateTime Time = DateTime.ParseExact(TargetTmp.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime Time = DateTime.Parse(TargetTmp.Substring(0, 6)+"01");
                         DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                         #region 月度校验
@@ -466,7 +464,8 @@ namespace DataAccess
 
                                 string TargetYMJJ = NQ.Substring(0, 6);
                                 string TargetD = Convert.ToInt32(NQ.Substring(6, 2)).ToString();
-                                DateTime Time = DateTime.ParseExact(NQ.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
+                                //DateTime Time = DateTime.ParseExact(NQ.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
+                                DateTime Time = DateTime.Parse(NQ.Substring(0, 6));
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
 
@@ -537,6 +536,58 @@ namespace DataAccess
                     {
                         #region 日度订单校验
                         //TODO 校验
+                        FS0403_DataAccess fs0403DataAccess = new FS0403_DataAccess();
+                        DataTable dtRiDuCheck = fs0403DataAccess.getModify(Convert.ToDateTime(listInfoData[i]["vcTargetYM"].ToString().Substring(0, 8)));
+                        if (dtRiDuCheck.Rows.Count == 0)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcOrder"] = vcOrderNo;
+                            dataRow["vcPartNo"] = "";
+                            dataRow["vcMessage"] = "当前日的Soq日度订单平准化的品番数量为0条,无法进行日度校验!";
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                        else
+                        {
+                            foreach (Detail detail in order.Details)
+                            {
+                                DataRow[] drArrayPart = dtRiDuCheck.Select("vcPart_id='" + detail.PartsNo.Trim() + "'"); //获取品番的数量
+                                if (drArrayPart.Length == 0)
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = vcOrderNo;
+                                    dataRow["vcPartNo"] = detail.PartsNo.Trim();
+                                    dataRow["vcMessage"] = "当前日的Soq日度订单平准化未找到该品番!";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
+                                else
+                                {
+                                    if (Convert.ToInt32(drArrayPart[0]["DayNum"]) == 0)
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcOrder"] = vcOrderNo;
+                                        dataRow["vcPartNo"] = detail.PartsNo.Trim();
+                                        dataRow["vcMessage"] = "当前日的Soq日度订单平准化品番数量为0!";
+                                        dtMessage.Rows.Add(dataRow);
+                                        bReault = false;
+                                    }
+                                    else
+                                    {
+                                        if (Convert.ToInt32(drArrayPart[0]["DayNum"]) != Convert.ToInt32(detail.QTY))
+                                        {
+                                            DataRow dataRow = dtMessage.NewRow();
+                                            dataRow["vcOrder"] = vcOrderNo;
+                                            dataRow["vcPartNo"] = detail.PartsNo.Trim();
+                                            dataRow["vcMessage"] = "当前日的日度订单与Soq日度订单平准化品番的数量" + Convert.ToInt32(drArrayPart[0]["DayNum"]) + "无法匹配";
+                                            dtMessage.Rows.Add(dataRow);
+                                            bReault = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
 
 
                         #endregion
@@ -593,7 +644,8 @@ namespace DataAccess
 
                                 string dateTime = detail.Date.Trim();
 
-                                DateTime Time = DateTime.ParseExact(timeYM, "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
+                                //DateTime Time = DateTime.ParseExact(timeYM, "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
+                                DateTime Time = DateTime.Parse(timeYM+"01");
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                                 //新增订单

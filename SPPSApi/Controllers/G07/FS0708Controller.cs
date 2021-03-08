@@ -61,7 +61,7 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0708_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
-                List<Object> dataList_OrderStateData = ComFunction.convertAllToResult(ComFunction.getTCode("C100"));//纳入状态
+                List<Object> dataList_OrderStateData = ComFunction.convertAllToResult(ComFunction.getTCode("C063"));//纳入状态
                 res.Add("OrderStateData", dataList_OrderStateData);
 
 
@@ -103,10 +103,9 @@ namespace SPPSApi.Controllers.G07
             string PackGPSNo = dataForm.PackGPSNo;
             string Type = dataForm.Type;
             List<Object> OrderState = new List<object>();
-            if (OrderState == null)
-            {
-                OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
-            }
+
+            OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
+
             string IsQianPin = dataForm.IsQianPin;
             string SupplierName = dataForm.SupplierName;
             string ZuCode = dataForm.ZuCode;

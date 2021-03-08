@@ -267,7 +267,6 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-
         #region 退回
         [HttpPost]
         [EnableCors("any")]
@@ -302,7 +301,6 @@ namespace SPPSApi.Controllers.G03
                     {
                         sendUnitSum++;
                     }
-
                 }
                 if (backSum>0)
                 {
@@ -408,13 +406,12 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
 
-                string strErrorPartId = "";
-                fs0304_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
-                if (strErrorPartId != "")
+                string strErr = "";
+                fs0304_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
+                if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.data = strErr;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -457,8 +454,9 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                
-                fs0304_Logic.del(listInfoData, loginInfo.UserId);
+
+                string strErr = "";
+                fs0304_Logic.del(listInfoData, loginInfo.UserId, ref strErr);
                 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -474,7 +472,7 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-        #region 织入原单位
+        #region 织入原单位 
         [HttpPost]
         [EnableCors("any")]
         public string sendUnitApi([FromBody] dynamic data)
@@ -501,12 +499,26 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
+                /*
+                 * 织入原单位时，必须是已回复的才可以织入原单位
+                 */
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcJD"].ToString()=="4")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "已织入数据不可重复织入！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
                 //开始数据验证
                 string[,] strField = new string[,] {{"包装工厂" ,"TFTM调整日期-补给"},
                                                     {"vcSYTCode","dTFTM_BJ"         },
                                                     {""         ,FieldCheck.Date    },
                                                     {"100"      ,"0"                },//最大长度设定,不校验最大长度用0
-                                                    {"0"        ,"1"                },//最小长度设定,可以为空用0
+                                                    {"0"        ,"0"                },//最小长度设定,可以为空用0
                                                     {"22"       ,"27"               } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 //需要判断时间区间先后关系的字段
@@ -532,10 +544,16 @@ namespace SPPSApi.Controllers.G03
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                string strErrorPartId = "";
                 string strErr = "";
                 fs0304_Logic.sendUnit(listInfoData, loginInfo.UserId, ref strErr);
-                if (strErr != "")
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败，以下品番TFTM调整时间小于品番开始时间：<br/>" + strErrorPartId;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (strErr!="")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strErr;

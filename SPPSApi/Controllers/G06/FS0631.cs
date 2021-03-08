@@ -33,6 +33,44 @@ namespace SPPSApi.Controllers.G06
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //if (loginInfo.Special == "财务用户")
+                //    res.Add("caiWuBtnVisible", false);
+                //else
+                //    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_C000 = ComFunction.convertAllToResult(fs0631_Logic.getTCode("C000",loginInfo.UnitCode));//工厂
+                res.Add("C000", dataList_C000);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -95,10 +133,10 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dt = fs0631_Logic.SearchNQCResult(strCLYM, strDXYM, strPartNo);
-                string[] heads = { "品番", "处理年月", "对象年月","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12",
+                string[] heads = { "品番", "处理年月", "对象年月","工厂","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12",
                     "D13","D14","D15","D16" ,"D17","D18","D19","D20","D21","D22","D23","D24","D25","D26","D27","D28","D29","D30","D31"
                 };
-                string[] fields = { "Part_No","Process_YYYYMM","Start_date_for_daily_qty","Daily_Qty_01","Daily_Qty_02","Daily_Qty_03","Daily_Qty_04",
+                string[] fields = { "Part_No","Process_YYYYMM","Start_date_for_daily_qty","Process_Factory","Daily_Qty_01","Daily_Qty_02","Daily_Qty_03","Daily_Qty_04",
                     "Daily_Qty_05","Daily_Qty_06","Daily_Qty_07","Daily_Qty_08","Daily_Qty_09","Daily_Qty_10","Daily_Qty_11","Daily_Qty_12",
                     "Daily_Qty_13","Daily_Qty_14","Daily_Qty_15","Daily_Qty_16","Daily_Qty_17","Daily_Qty_18","Daily_Qty_19","Daily_Qty_20",
                     "Daily_Qty_21","Daily_Qty_22","Daily_Qty_23","Daily_Qty_24","Daily_Qty_25","Daily_Qty_26","Daily_Qty_27","Daily_Qty_28",
@@ -171,27 +209,27 @@ namespace SPPSApi.Controllers.G06
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"品番", "处理年月", "对象年月","D1","D2","D3","D4",
+                        {"品番", "处理年月", "对象年月","工厂","D1","D2","D3","D4",
                          "D5","D6","D7","D8","D9","D10","D11","D12",
                          "D13","D14","D15","D16" ,"D17","D18","D19","D20",
                          "D21","D22","D23","D24","D25","D26","D27","D28",
                          "D29","D30","D31"},//中文字段名
-                        {"Part_No","Process_YYYYMM","Start_date_for_daily_qty","Daily_Qty_01","Daily_Qty_02","Daily_Qty_03","Daily_Qty_04",
+                        {"Part_No_Disp","Process_YYYYMM","Start_date_for_daily_qty","Process_Factory","Daily_Qty_01","Daily_Qty_02","Daily_Qty_03","Daily_Qty_04",
                          "Daily_Qty_05","Daily_Qty_06","Daily_Qty_07","Daily_Qty_08","Daily_Qty_09","Daily_Qty_10","Daily_Qty_11","Daily_Qty_12",
                          "Daily_Qty_13","Daily_Qty_14","Daily_Qty_15","Daily_Qty_16","Daily_Qty_17","Daily_Qty_18","Daily_Qty_19","Daily_Qty_20",
                          "Daily_Qty_21","Daily_Qty_22","Daily_Qty_23","Daily_Qty_24","Daily_Qty_25","Daily_Qty_26","Daily_Qty_27","Daily_Qty_28",
                          "Daily_Qty_29","Daily_Qty_30","Daily_Qty_31"},//英文字段名
-                        {FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num, FieldCheck.Num,
+                        {FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num, FieldCheck.Num,
                          FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                          FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                          FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                          FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},//数据类型校验
-                        {"12","0","0","9","9","9","9",
+                        {"20","0","0","5","9","9","9","9",
                          "9","9","9","9","9","9","9","9",
                          "9","9","9","9","9","9","9","9",
                          "9","9","9","9","9","9","9","9",
                          "9","9","9"},//最大长度设定,不校验最大长度用0
-                        {"1","1","1","0","0","0","0",
+                        {"14","1","1","1","0","0","0","0",
                          "0","0","0","0","0","0","0","0",
                          "0","0","0","0","0","0","0","0",
                          "0","0","0","0","0","0","0","0",
@@ -200,7 +238,7 @@ namespace SPPSApi.Controllers.G06
                          "8","9","10","11","12","13","14","15",
                          "16","17","18","19","20","21","22","23",
                          "24","25","26","27","28","29","30","31",
-                         "32","33","34"},//前台显示列号，从0开始计算,注意有选择框的是0
+                         "32","33","34","35"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0631");
                     if (checkRes != null)

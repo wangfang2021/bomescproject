@@ -1,0 +1,430 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading;
+using Common;
+using Logic;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace SPPSApi.Controllers.G07
+{
+    [Route("api/FS0707/[action]")]
+    [EnableCors("any")]
+    [ApiController]
+    public class FS0707Controller : BaseController
+    {
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        FS0707_Logic FS0707_Logic = new FS0707_Logic();
+        private readonly string FunctionID = "FS0707";
+
+        public FS0707Controller(IWebHostEnvironment webHostEnvironment)
+        {
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+
+                List<Object> strPartPlant = new List<object>();
+                List<Object> dataList_Project = ComFunction.convertAllToResult(FS0707_Logic.SearchKind(strPartPlant));//工程
+                res.Add("optionProject", dataList_Project);
+
+
+                List<Object> dataList_Kind = ComFunction.convertAllToResult(ComFunction.getTCode("C062"));//计划类别
+                res.Add("optionKind", dataList_Kind);
+
+
+                List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0707_Logic.SearchSupplier());//供应商
+                res.Add("optionSupplier", dataList_Supplier);
+
+
+                List<Object> dataList_PartPlant = ComFunction.convertAllToResult(FS0707_Logic.SearchPartPlant());//工厂
+                res.Add("optionPartPlant", dataList_PartPlant);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 工厂下拉选择触发事件
+        [HttpPost]
+        [EnableCors("any")]
+        public string selectApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            List<Object> strPartPlant = new List<object>();
+            strPartPlant = dataForm.selectVaule.ToObject<List<Object>>();
+
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                List<Object> dataList_Project = ComFunction.convertAllToResult(FS0707_Logic.SearchKind(strPartPlant));//工程
+                res.Add("optionProject", dataList_Project);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+
+
+        }
+
+        #endregion
+
+        #region 计算
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strBegin = dataForm.dFromBegin;
+            string strEnd = dataForm.dFromEnd;
+            List<Object> strProject = new List<object>();
+            strProject = dataForm.Project.ToObject<List<Object>>();
+            string strKind = dataForm.Kind;
+            List<Object> OrderState = new List<object>();
+            OrderState = dataForm.SupplierCode.ToObject<List<Object>>();
+            List<Object> OrderPartPlant = new List<object>();
+            OrderPartPlant = dataForm.PartPlant.ToObject<List<Object>>();
+            try
+            {
+                //判断当前时间不能超过31天
+                TimeSpan ts1 = new TimeSpan(Convert.ToDateTime(strBegin).Ticks);
+                TimeSpan ts2 = new TimeSpan(Convert.ToDateTime(strEnd).Ticks);
+                TimeSpan ts = ts1.Subtract(ts2).Duration();
+                int datediff = Convert.ToInt32(ts.Days.ToString());
+                if (datediff >= 31)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "时间间隔超过31天！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+                if (strKind == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择计划类别！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+                //计算开始生成结果
+                #region 计算开始生成结果
+                DataTable dt = FS0707_Logic.SearchCalculation(strBegin, strEnd, strProject, strKind, OrderState, OrderPartPlant);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    //是否在一个月内
+                    if (strBegin.Split("-")[1] == strEnd.Split("-")[1])
+                    {
+                        int count = Convert.ToInt32(strEnd.Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
+                        for (int j = 0; j <= count + 1; j++)
+                        {
+                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "bFShow"] = "true";
+                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "yFShow"] = "true";
+                        }
+                    }
+                    else
+                    {
+                        DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
+                        int ss = Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
+                        for (int z = 0; z <= ss + 1; z++)
+                        {
+                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "bFShow"] = "true";
+                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "yFShow"] = "true";
+                        }
+                        int cs = Convert.ToInt32(strEnd.Split("-")[2]);
+                        for (int r = 0; r < cs; r++)
+                        {
+                            dt.Rows[i]["vcD" + (1 + r).ToString() + "bTShow"] = "true";
+                            dt.Rows[i]["vcD" + (1 + r).ToString() + "yTShow"] = "true";
+                        }
+
+                    }
+                }
+                #endregion
+                //插入导出表
+                string strErrorName = "";
+                FS0707_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorName, strBegin, strEnd);
+
+                DataTable dt2 = FS0707_Logic.Search();
+                for (int t = 0; t < dt2.Rows.Count; t++)
+                {
+
+                    dt2.Rows[t]["vcNum"] = t.ToString();
+                }
+                DtConverter dtConverter = new DtConverter();
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt2, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strBegin = dataForm.dFromBegin;
+            string strEnd = dataForm.dFromEnd;
+            try
+            {
+
+                DataTable dt = FS0707_Logic.Search();
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可导出数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+                for (int t = 0; t < dt.Rows.Count; t++)
+                {
+
+                    dt.Rows[t]["vcNum"] = t.ToString();
+                }
+                string resMsg = "";
+                int count = 0;
+                string[] headData = new string[0];
+                string[] fieldsData = new string[0];
+                if (strBegin.Split("-")[1] == strEnd.Split("-")[1])
+                {
+                    count = Convert.ToInt32(strEnd.Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
+                    headData = new string[count + 5];
+                    fieldsData = new string[count + 5];
+                    headData[0] = "序号";
+                    headData[1] = "补给品番";
+                    headData[2] = "GPS品番";
+                    headData[3] = "包材厂家";
+                    headData[4] = "纳入收容数";
+                    fieldsData[0] = "vcNum";
+                    fieldsData[1] = "vcPackNo";
+                    fieldsData[2] = "vcPackGPSNo";
+                    fieldsData[3] = "vcSupplierName";
+                    fieldsData[4] = "iRelease";
+                    for (int j = 0; j <= count + 1; j++)
+                    {
+                        headData[5 + j] = (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "日夜值F";
+                        headData[5 + j] = (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "日白值F";
+                        fieldsData[5 + j] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "yF";
+                        fieldsData[5 + j] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "bF";
+                    }
+                }
+                else
+                {
+
+                    DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
+                    int ss = Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1;
+                    int cs = Convert.ToInt32(strEnd.Split("-")[2]);
+                    headData = new string[ss + 5 + cs];
+                    fieldsData = new string[ss + 5 + cs];
+                    headData[0] = "序号";
+                    headData[1] = "补给品番";
+                    headData[2] = "GPS品番";
+                    headData[3] = "包材厂家";
+                    headData[4] = "纳入收容数";
+                    fieldsData[0] = "vcNum";
+                    fieldsData[1] = "vcPackNo";
+                    fieldsData[2] = "vcPackGPSNo";
+                    fieldsData[3] = "vcSupplierName";
+                    fieldsData[4] = "iRelease";
+                    int cc = 0;
+                    for (int z = 0; z < ss; z++)
+                    {
+                        headData[5 + z] = (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "日夜值F";
+                        headData[5 + z] = (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "日白值F";
+                        fieldsData[5 + z] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "yF";
+                        fieldsData[5 + z] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "bF";
+                        cc++;
+                    }
+
+                    for (int r = 0; r < cs; r++)
+                    {
+                        headData[5 + cc + r] = (1 + r).ToString() + "日夜值T";
+                        headData[5 + cc + r] = (1 + r).ToString() + "日白值T";
+                        fieldsData[5 + cc + r] = "vcD" + (1 + r).ToString() + "yT";
+                        fieldsData[5 + cc + r] = "vcD" + (1 + r).ToString() + "bT";
+
+                    }
+
+                }
+                string[] head = headData;
+                string[] fields = fieldsData;
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+        //导出列值应该显示名字
+        #region 保存
+        [HttpPost]
+        [EnableCors("any")]
+        public string saveApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        hasFind = true;
+                    }
+                    Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
+                    bool b = regex.IsMatch(listInfoData[i]["iRelease"].ToString());
+                    if (!b)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "请填写正常的发住收容数格式！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少有一个编辑行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                string strErrorPartId = "";
+                FS0707_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败";
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+
+
+
+    }
+}

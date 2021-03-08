@@ -109,6 +109,7 @@ namespace SPPSApi.Controllers.G04
                 return error_login();
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
+            Dictionary<string, object> res = new Dictionary<string, object>();
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -121,12 +122,19 @@ namespace SPPSApi.Controllers.G04
 
             try
             {
-                DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
+                DataSet ds = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
+                DataTable dt = ds.Tables[0];
+                DataTable dt_heji = ds.Tables[1];
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dHyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<Object> hejiList = ComFunction.convertAllToResult(dt_heji);
+
+                res.Add("dataList", dataList);
+                res.Add("hejiList", dt_heji);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -320,7 +328,7 @@ namespace SPPSApi.Controllers.G04
 
             try
             {
-                DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id);
+                DataTable dt = fs0402_Logic.Search(strYearMonth, strDyState, strHyState, strPart_id).Tables[0];
                 string[] fields = { "vcYearMonth", "vcDyState_Name", "vcHyState_Name", "vcPart_id", "iCbSOQN", "decCbBdl"
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","iHySOQN","iHySOQN1","iHySOQN2"
                 ,"dHyTime"

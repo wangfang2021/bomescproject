@@ -57,6 +57,7 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
 
                 res.Add("C023", dataList_C023);
+
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0711_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
@@ -73,6 +74,7 @@ namespace SPPSApi.Controllers.G07
             }
         }
         #endregion
+
 
         #region 检索
         [HttpPost]
@@ -92,11 +94,22 @@ namespace SPPSApi.Controllers.G07
             string PackSpot = dataForm.PackSpot;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string Supplier = dataForm.Supplier;
+
+            List<Object> SupplierCodeList = new List<object>();
+
+            if (dataForm.PackSupplier.ToObject<List<Object>>() == null)
+            {
+                SupplierCodeList = new List<object>();
+            }
+            else
+            {
+                SupplierCodeList = dataForm.PackSupplier.ToObject<List<Object>>();
+            }
+
 
             try
             {
-                DataTable dt = FS0711_Logic.Search(PackSpot, PackNo, PackGPSNo, Supplier);
+                DataTable dt = FS0711_Logic.Search(PackSpot, PackNo, PackGPSNo, SupplierCodeList);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -144,15 +157,25 @@ namespace SPPSApi.Controllers.G07
             string PackSpot = dataForm.PackSpot;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string Supplier = dataForm.Supplier;
+            List<Object> SupplierCodeList = new List<object>();
+
+            if (dataForm.PackSupplier.ToObject<List<Object>>() == null)
+            {
+                SupplierCodeList = new List<object>();
+            }
+            else
+            {
+                SupplierCodeList = dataForm.PackSupplier.ToObject<List<Object>>();
+            }
+
 
             try
             {
-                DataTable dt = FS0711_Logic.Search(PackSpot, PackNo, PackGPSNo, Supplier);
+                DataTable dt = FS0711_Logic.Search(PackSpot, PackNo, PackGPSNo, SupplierCodeList);
 
                 string[] fields = {"vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierID","iLiLun","iAnQuan"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0711_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0711_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -177,7 +200,7 @@ namespace SPPSApi.Controllers.G07
         #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -213,9 +236,9 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-             
+
                 string strErrorPartId = "";
-                FS0711_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
+                FS0711_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -240,7 +263,7 @@ namespace SPPSApi.Controllers.G07
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -277,6 +300,6 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-       
+
     }
 }

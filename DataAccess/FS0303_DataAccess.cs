@@ -23,7 +23,6 @@ namespace DataAccess
                 strSql.Append("     select *    \n");
                 strSql.Append("     ,b.vcName as 'vcChange_Name'    \n");
                 strSql.Append("     ,b2.vcName as 'vcSQState_Name'    \n");
-                strSql.Append("     ,b3.vcName as 'vcCarTypeDev_Name'    \n");
                 strSql.Append("     ,b4.vcName as 'vcInOutflag_Name'    \n");
                 strSql.Append("     ,b5.vcName as 'vcSYTCode_Name'    \n");
                 strSql.Append("     ,b6.vcName as 'vcOE_Name'    \n");
@@ -49,10 +48,6 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue, vcName from TCode where vcCodeId = 'C019'    \n");
                 strSql.Append("     )b2 on a.vcSQState = b2.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     	select vcValue, vcName from TCode where vcCodeId='C009'    \n");
-                strSql.Append("     )b3 on a.vcCarTypeDev = b3.vcValue    \n");
                 strSql.Append("     left join    \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue, vcName from TCode where vcCodeId = 'C003'    \n");
@@ -132,7 +127,7 @@ namespace DataAccess
                         sql.Append("      INSERT INTO  TUnit       \n");
                         sql.Append("      (       \n");
                         sql.Append("       dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff      \n");
-                        sql.Append("       ,vcPart_id,vcCarTypeDev,vcCarTypeDesign,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ      \n");
+                        sql.Append("       ,vcPart_id,vcCarTypeDesign,vcCarTypeDev,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ      \n");
                         sql.Append("       ,vcBJDiff,vcPartReplace,vcPartNameEn,vcPartNameCn,vcHKGC,vcBJGC,vcInOutflag      \n");
                         sql.Append("       ,vcSupplier_id,vcSupplier_Name,vcSCPlace,vcCHPlace,vcSYTCode,vcSCSName,vcSCSAdress      \n");
                         sql.Append("       ,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id,vcHaoJiu,dJiuBegin,dJiuEnd      \n");
@@ -149,8 +144,8 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSQState"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + ",   \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarTypeName"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeFrom"], true) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dTimeTo"], true) + ",   \r\n");
@@ -234,8 +229,8 @@ namespace DataAccess
                         sql.Append("      ,vcSPINo = " + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "      \r\n");
                         sql.Append("      ,vcSQState = " + ComFunction.getSqlValue(listInfoData[i]["vcSQState"], false) + "      \r\n");
                         sql.Append("      ,vcDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + "      \r\n");
-                        sql.Append("      ,vcCarTypeDev = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + "      \r\n");
                         sql.Append("      ,vcCarTypeDesign = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + "      \r\n");
+                        sql.Append("      ,vcCarTypeDev = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + "      \r\n");
                         sql.Append("      ,vcCarTypeName = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeName"], false) + "      \r\n");
                         sql.Append("      ,dTimeFrom = " + ComFunction.getSqlValue(listInfoData[i]["dTimeFrom"], true) + "      \r\n");
                         sql.Append("      ,dTimeTo = " + ComFunction.getSqlValue(listInfoData[i]["dTimeTo"], true) + "      \r\n");
@@ -401,7 +396,7 @@ namespace DataAccess
                     sql.Append("      insert into #TUnit_temp       \n");
                     sql.Append("       (         \n");
                     sql.Append("       iAutoId,dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff,vcPart_id         \n");
-                    sql.Append("       ,vcCarTypeDev,vcCarTypeDesign,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ         \n");
+                    sql.Append("       ,vcCarTypeDesign,vcCarTypeDev,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ         \n");
                     sql.Append("       ,vcBJDiff,vcPartReplace,vcPartNameEn,vcPartNameCn,vcHKGC,vcBJGC         \n");
                     sql.Append("       ,vcInOutflag,vcSupplier_id,vcSupplier_Name,vcSCPlace,vcCHPlace,vcSYTCode         \n");
                     sql.Append("       ,vcSCSName,vcSCSAdress,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id         \n");
@@ -420,8 +415,8 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcSQState_Name"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcDiff"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + "      \n");
-                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDev"], false) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDesign"], false) + "       \n");
+                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDev"], false) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeName"], false) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dTimeFrom"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dTimeTo"], true) + "      \n");
@@ -517,8 +512,8 @@ namespace DataAccess
                 sql.Append("      ,vcSPINo=b.vcSPINo          \n");
                 sql.Append("      ,vcSQState=b.vcSQState          \n");
                 sql.Append("      ,vcDiff=b.vcDiff          \n");
-                sql.Append("      ,vcCarTypeDev=b.vcCarTypeDev          \n");
                 sql.Append("      ,vcCarTypeDesign=b.vcCarTypeDesign          \n");
+                sql.Append("      ,vcCarTypeDev=b.vcCarTypeDev          \n");
                 sql.Append("      ,vcCarTypeName=b.vcCarTypeName          \n");
                 sql.Append("      ,dTimeFrom=b.dTimeFrom          \n");
                 sql.Append("      ,dTimeTo=b.dTimeTo          \n");
@@ -580,7 +575,7 @@ namespace DataAccess
 
                 sql.Append("      insert into TUnit      \n");
                 sql.Append("      (      \n");
-                sql.Append("      dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff,vcPart_id,vcCarTypeDev,vcCarTypeDesign      \n");
+                sql.Append("      dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff,vcPart_id,vcCarTypeDesign,vcCarTypeDev      \n");
                 sql.Append("      ,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ,vcBJDiff,vcPartReplace,vcPartNameEn      \n");
                 sql.Append("      ,vcPartNameCn,vcHKGC,vcBJGC,vcInOutflag,vcSupplier_id,vcSupplier_Name,vcSCPlace      \n");
                 sql.Append("      ,vcCHPlace,vcSYTCode,vcSCSName,vcSCSAdress,dGYSTimeFrom,dGYSTimeTo,vcOE,vcHKPart_id      \n");
@@ -589,7 +584,7 @@ namespace DataAccess
                 sql.Append("      ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator      \n");
                 sql.Append("      ,dOperatorTime,vcRemark      \n");
                 sql.Append("      )       \n");
-                sql.Append("      select a.dSyncTime,a.vcChange,a.vcSPINo,a.vcSQState,a.vcDiff,a.vcPart_id,a.vcCarTypeDev,a.vcCarTypeDesign      \n");
+                sql.Append("      select a.dSyncTime,a.vcChange,a.vcSPINo,a.vcSQState,a.vcDiff,a.vcPart_id,a.vcCarTypeDesign,a.vcCarTypeDev      \n");
                 sql.Append("      ,a.vcCarTypeName,a.dTimeFrom,a.dTimeTo,a.dTimeFromSJ,a.vcBJDiff,a.vcPartReplace,a.vcPartNameEn      \n");
                 sql.Append("      ,a.vcPartNameCn,a.vcHKGC,a.vcBJGC,a.vcInOutflag,a.vcSupplier_id,a.vcSupplier_Name,a.vcSCPlace      \n");
                 sql.Append("      ,a.vcCHPlace,a.vcSYTCode,a.vcSCSName,a.vcSCSAdress,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcOE,a.vcHKPart_id      \n");
@@ -665,7 +660,7 @@ namespace DataAccess
                     strSql.Append("      insert into #TUnit_temp       \r\n");
                     strSql.Append("      (       \r\n");
                     strSql.Append("      dSyncTime,vcChange,vcSPINo,vcSQState,vcDiff       \r\n");
-                    strSql.Append("      ,vcPart_id,vcCarTypeDev,vcCarTypeDesign,vcCarTypeName,dTimeFrom       \r\n");
+                    strSql.Append("      ,vcPart_id,vcCarTypeDesign,vcCarTypeDev,vcCarTypeName,dTimeFrom       \r\n");
                     strSql.Append("      ,dTimeTo,dTimeFromSJ,vcBJDiff,vcPartReplace,vcPartNameEn       \r\n");
                     strSql.Append("      ,vcPartNameCn,vcHKGC,vcBJGC,vcInOutflag,vcSupplier_id       \r\n");
                     strSql.Append("      ,vcSupplier_Name,vcSCPlace,vcCHPlace,vcSYTCode,vcSCSName       \r\n");
@@ -703,8 +698,8 @@ namespace DataAccess
                         strSql.Append("      ,'" + vcPart_id + "'       \r\n");
                     }
                     #endregion
-                    strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + "       \r\n");
+                    strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeName"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["dTimeFrom"], true) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["dTimeTo"], true) + "       \r\n");
@@ -767,7 +762,7 @@ namespace DataAccess
                 strSql.AppendLine("        ,vcSumLater         ");
                 strSql.AppendLine("        ,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6         ");
                 strSql.AppendLine("        ,vcNum7,vcNum8,vcNum9,vcNum10,vcSYTCode,vcSCSName         ");
-                strSql.AppendLine("        ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate,GUID         ");
+                strSql.AppendLine("        ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate,GUID,vcZXBZDiff         ");
                 strSql.AppendLine("        )         ");
                 strSql.AppendLine("        select          ");
                 strSql.AppendLine("         a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDev         ");
@@ -775,17 +770,21 @@ namespace DataAccess
                 strSql.AppendLine("        ,a.vcSumLater         ");
                 strSql.AppendLine("        ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");
                 strSql.AppendLine("        ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcSYTCode,a.vcProduct_name         ");
-                strSql.AppendLine("        ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate,REPLACE( NEWID(),'-','')         ");
+                strSql.AppendLine("        ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate,REPLACE( NEWID(),'-',''),vcZXBZDiff         ");
                 strSql.AppendLine("         from          ");
                 strSql.AppendLine("        (         ");
                 strSql.AppendLine("        	select a.*         ");
                 strSql.AppendLine("        	, case when (vcNum1=null and vcNum2=null and vcNum3=null and vcNum4=null and vcNum5=null and vcNum6 =null and vcNum7 = null and vcNum8 = null and vcNum9 = null and vcNum10 = null) then null         ");
                 strSql.AppendLine("        	  else (CONVERT(int,vcNum1)+ CONVERT(int,vcNum2)+ CONVERT(int,vcNum3)+ CONVERT(int,vcNum4)+ CONVERT(int,vcNum5)+ CONVERT(int,vcNum6)+ CONVERT(int,vcNum7)+ CONVERT(int,vcNum8)+ CONVERT(int,vcNum9)+ CONVERT(int,vcNum10))         ");
-                strSql.AppendLine("        	  end as 'vcSumLater',b.vcProduct_name,b.vcAddress from #TUnit_temp a         ");
+                strSql.AppendLine("        	  end as 'vcSumLater',b.vcProduct_name,b.vcAddress,c.vcValue2 as 'vcZXBZDiff' from #TUnit_temp a         ");
                 strSql.AppendLine("        	inner join          ");
                 strSql.AppendLine("        	(         ");
                 strSql.AppendLine("        		select vcsupplier_id,vcProduct_name,vcAddress from TSupplier         ");
                 strSql.AppendLine("        	) b on a.vcSupplier_id = b.vcSupplier_id         ");
+                strSql.AppendLine("        	left join          ");
+                strSql.AppendLine("        	(         ");
+                strSql.AppendLine("        		select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C007' and vcIsColum = '0'         ");
+                strSql.AppendLine("        	) c on SUBSTRING( a.vcPart_id,1,5) = c.vcValue1         ");
                 strSql.AppendLine("        ) a         ");
                 #endregion
 
@@ -846,13 +845,13 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                FS0303_DataAccess_Sync2 sync2 = new FS0303_DataAccess_Sync2("#TUnit_temp",strSql);
+                FS0303_DataAccess_Sync2 sync2 = new FS0303_DataAccess_Sync2("#TUnit_temp",strSql,strUserId);
 
                 sync2.setTempTalbeData(listInfoData, strSql);
 
                 sync2.getUnit2TagMasterSync();
 
-                sync2.getUnit2PriceSync(sytCode);
+                sync2.getUnit2PriceSync();
 
                 sync2.getUnit2SpMasterSync();
 

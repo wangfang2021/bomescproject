@@ -450,6 +450,7 @@ namespace DataAccess
                 string month_temp = "";
                 for (int i = 0; i < dt2.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt2.Rows[i]["vcPart_id"].ToString();
                     string strPart1 = dt2.Rows[i]["vcPartId_1"].ToString();
                     string strPart2 = dt2.Rows[i]["vcPartId_2"].ToString();
@@ -632,6 +633,7 @@ namespace DataAccess
                 month_temp = "";
                 for (int i = 0; i < dt6_1.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt6_1.Rows[i]["vcPart_id"].ToString();
                     string vcOrderPlant = dt6_1.Rows[i]["发注工厂"].ToString();//发注工厂
                     string iPackingQty = dt6_1.Rows[i]["iPackingQty"].ToString();//收容数
@@ -1008,6 +1010,7 @@ namespace DataAccess
                 month_temp = "";
                 for (int i = 0; i < dt10.Rows.Count; i++)
                 {
+                    month_temp = "";
                     string strPart_id = dt10.Rows[i]["vcPart_id"].ToString();
                     string dDebugTime1 = dt2.Rows[i]["dDebugTime_1"].ToString();
                     string dDebugTime2 = dt2.Rows[i]["dDebugTime_2"].ToString();
@@ -1085,15 +1088,15 @@ namespace DataAccess
                 sql.Append("from TSoq_temp     \n");
                 sql.Append("where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strUserId + "'    \n");
                 //更新调整后字段
-                sql.Append("update t2 set t2.iTzhSOQN=t1.iTzhSOQN,t2.iTzhSOQN1=t1.iTzhSOQN1,t2.iTzhSOQN2=t1.iTzhSOQN2,    \n");
-                sql.Append("vcOperator='" + strUserId + "',dOperatorTime=GETDATE(),vcLastTimeFlag='" + strLastTimeFlag + "'     \n");
-                sql.Append("from(    \n");
-                sql.Append("	select * from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strUserId + "'    \n");
-                sql.Append(")t1    \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select * from  TSoq where vcYearMonth='" + strYearMonth + "'    \n");
-                sql.Append(")t2 on t1.vcYearMonth=t2.vcYearMonth and t1.vcPart_id=t2.vcPart_id    \n");
-                sql.Append("where t1.iTzhSOQN<>t2.iTzhSOQN or t1.iTzhSOQN1<>t2.iTzhSOQN1 or t1.iTzhSOQN2<>t2.iTzhSOQN2    \n");
+                //sql.Append("update t2 set t2.iTzhSOQN=t1.iTzhSOQN,t2.iTzhSOQN1=t1.iTzhSOQN1,t2.iTzhSOQN2=t1.iTzhSOQN2,    \n");
+                //sql.Append("vcOperator='" + strUserId + "',dOperatorTime=GETDATE(),vcLastTimeFlag='" + strLastTimeFlag + "'     \n");
+                //sql.Append("from(    \n");
+                //sql.Append("	select * from TSoq_temp where vcYearMonth='" + strYearMonth + "' and vcOperator='" + strUserId + "'    \n");
+                //sql.Append(")t1    \n");
+                //sql.Append("left join (    \n");
+                //sql.Append("	select * from  TSoq where vcYearMonth='" + strYearMonth + "'    \n");
+                //sql.Append(")t2 on t1.vcYearMonth=t2.vcYearMonth and t1.vcPart_id=t2.vcPart_id    \n");
+                //sql.Append("where t1.iTzhSOQN<>t2.iTzhSOQN or t1.iTzhSOQN1<>t2.iTzhSOQN1 or t1.iTzhSOQN2<>t2.iTzhSOQN2    \n");
                 //更新tsoq中手配相关字段
                 //sql.Append("update t1 set     \n");
                 //sql.Append("t1.vcCarFamilyCode=t2.vcCarfamilyCode,    \n");

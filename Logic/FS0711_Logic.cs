@@ -24,9 +24,16 @@ namespace Logic
         }
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string Supplier)
+        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> Supplier)
         {
             return FS0711_DataAccess.Search(PackSpot, PackNo, PackGPSNo, Supplier);
+        }
+        #endregion
+
+        #region 按履历检索条件检索,返回dt,注意这个dt返回的时候convert了
+        public DataTable Search_Sub(string PackSpot, string PackNo, string BeginTime,string EndTime )
+        {
+            return FS0711_DataAccess.Search_Sub(PackSpot, PackNo, BeginTime, EndTime);
         }
         #endregion
 

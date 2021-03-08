@@ -62,9 +62,17 @@ namespace Logic
             fs0626_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
-        public void importSave(DataTable importDt, string userId)
+
+        public void importSave(DataTable importDt, string vcPackPlant, string vcDate, string strUserId)
         {
-            fs0626_DataAccess.importSave(importDt, userId);
+            fs0626_DataAccess.importSave(importDt, vcPackPlant, vcDate, strUserId);
         }
+
+        #region 校验导入文件是否当日
+        public string checkCurrentDate(string vcDate, DataTable dt)
+        {
+            return fs0626_DataAccess.checkCurrentDate(vcDate, dt);
+        }
+        #endregion
     }
 }

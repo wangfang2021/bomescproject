@@ -48,11 +48,16 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" select [iAutoId], [vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea], [vcDock], ");
-                strSql.AppendLine(" [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber], [vcNoReceiveNumber], [vcNoReceiveReason], ");
-                strSql.AppendLine(" [vcExpectRedeemDate], [vcRealRedeemDate], [vcReceiveFlag], [vcOperatorID], [dOperatorTime],1 as vcFlag, '0'as iflag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId  ");
-                strSql.AppendLine(" from TOutsidePurchaseManage ");
-                strSql.AppendLine(" where 1=1 ");
+                strSql.AppendLine(" select b.vcBZPlant, a.vcInjectionFactory, a.vcTargetMonth, a.vcSupplier_id, a.vcWorkArea, ");
+                strSql.AppendLine(" a.vcDock, a.vcOrderNo, a.vcPartNo, a.vcNewOldFlag, ");
+                strSql.AppendLine(" CONVERT(int,a.vcOrderNumber), CONVERT(int, a.vcOrderNumber)-b.iQuantity as vcNoReceiveNumber, ");
+                strSql.AppendLine(" a.vcNoReceiveReason, a.vcExpectRedeemDate,a.vcRealRedeemDate,1 as vcFlag, '0'as iflag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId  ");
+                strSql.AppendLine(" from TOutsidePurchaseManage a ");
+                strSql.AppendLine(" left join (select sum(iQuantity) as iQuantity,vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant ");
+                strSql.AppendLine(" from TOperateSJ  ");
+                strSql.AppendLine(" where vcZYType='S0' ");
+                strSql.AppendLine(" group by vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant) b  ");
+                strSql.AppendLine(" on a.vcOrderNo=b.vcKBOrderNo and a.vcPartNo=b.vcPart_id and a.vcDock=b.vcSR and a.vcSupplier_id=b.vcSupplier_id ");
 
                 if (vcInjectionFactory.Length > 0)
                 {
@@ -303,48 +308,102 @@ namespace DataAccess
         }
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
+        public bool importSave(DataTable dt, string vcPackPlant, string vcDate, string strUserId)
         {
-            try
+            using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
             {
-                StringBuilder sql = new StringBuilder();
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+                SqlTransaction trans = conn.BeginTransaction();
+                bool b = false;
+                SqlCommand cmdDel = new SqlCommand("delete from TOutsidePurchaseManage where vcPackPlant='" + vcPackPlant + "' and vcDate='" + vcDate + "';", conn);
+                cmdDel.Transaction = trans;
+                cmdDel.ExecuteNonQuery();
+
+                DataTable dt1 = new DataTable();
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    dt1.Columns.Add(dt.Columns[i].ColumnName);
+                }
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql.Append(" insert into TOutsidePurchaseManage(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, \r\n");
-                    sql.Append(" vcPartNo, vcNewOldFlag, vcOrderNumber, vcNoReceiveNumber, vcNoReceiveReason, vcExpectRedeemDate, vcRealRedeemDate, dOperatorTime, vcOperatorID) \r\n");
-                    sql.Append(" values ( \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcPackPlant"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcInjectionFactory"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcTargetMonth"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcSupplier_id"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcWorkArea"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcDock"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcOrderNo"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcPartNo"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcNewOldFlag"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcOrderNumber"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcNoReceiveNumber"].ToString() + "',  \r\n");
-                    sql.Append(" '" + dt.Rows[i]["vcNoReceiveReason"].ToString() + "',  \r\n");
-                    if (dt.Rows[i]["vcExpectRedeemDate"].ToString().Length > 0)
-                        sql.Append(" '" + dt.Rows[i]["vcExpectRedeemDate"].ToString() + "',  \r\n");
-                    else
-                        sql.Append(" null,  \r\n");
-                    if (dt.Rows[i]["vcRealRedeemDate"].ToString().Length > 0)
-                        sql.Append(" '" + dt.Rows[i]["vcRealRedeemDate"].ToString() + "',  \r\n");
-                    else
-                        sql.Append(" null,  \r\n");
-                    sql.Append(" getdate(),  \r\n");
-                    sql.Append(" '" + strUserId + "') \r\n");
+                    DataRow dr = dt1.NewRow();
+                    for (int j = 0; j < dt.Columns.Count; j++)
+                    {
+                        dr[j] = dt.Rows[i][j].ToString().Trim();
+                    }
+                    dt1.Rows.Add(dr);
                 }
-                if (sql.Length > 0)
+                try
                 {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    SqlDataAdapter da = new SqlDataAdapter();
+                    da.InsertCommand = new SqlCommand();
+                    da.InsertCommand.Connection = conn;
+                    da.InsertCommand.CommandType = CommandType.Text;
+                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcPackPlant, vcYear, vcTargetMonth, vcDate, vcSupplier_id, vcInjectionFactory, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, dOperatorTime, vcOperatorID) ";
+                    da.InsertCommand.CommandText += "values ('" + vcPackPlant + "',SUBSTRING(@vcOrderNo,1,4), SUBSTRING(@vcOrderNo,1,6), '" + vcDate + "', @vcSupplier_id, @vcInjectionFactory, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, getdate(), '" + strUserId + "') ";
+                    da.InsertCommand.Parameters.Add("@vcSupplier_id", SqlDbType.VarChar, 4, "vcSupplier_id");
+                    da.InsertCommand.Parameters.Add("@vcInjectionFactory", SqlDbType.VarChar, 2, "vcInjectionFactory");
+                    da.InsertCommand.Parameters.Add("@vcDock", SqlDbType.VarChar, 6, "vcDock");
+                    da.InsertCommand.Parameters.Add("@vcOrderNo", SqlDbType.VarChar, 12, "vcOrderNo");
+                    da.InsertCommand.Parameters.Add("@vcPartNo", SqlDbType.VarChar, 12, "vcPartNo");
+                    da.InsertCommand.Parameters.Add("@vcOrderNumber", SqlDbType.Int, 4, "vcOrderNumber");
+                    da.InsertCommand.Transaction = trans;
+                    da.Update(dt1);
+                    trans.Commit();
+                    b = true;
+                }
+                catch (Exception ex)
+                {
+                    b = false;
+                    trans.Rollback();
+                    throw ex;
+                }
+                finally
+                {
+                    conn.Close();
+                }
+                return b;
+            }
+        }
+        #endregion
+
+        #region 匹配
+
+        #endregion
+
+        #region 校验导入文件是否当日
+        public string checkCurrentDate(string vcDate, DataTable dt)
+        {
+            DataTable dt1 = new DataTable();
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                dt1.Columns.Add(dt.Columns[i].ColumnName);
+            }
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = dt1.NewRow();
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    if (j == 3)
+                        dr[j] = dt.Rows[i][j].ToString().Trim().Substring(0, 8);
+                    else
+                        dr[j] = dt.Rows[i][j].ToString().Trim();
+                }
+                dt1.Rows.Add(dr);
+            }
+            if (dt1.DefaultView.ToTable(true, "vcOrderNo").Rows.Count > 1)
+            {
+                return "订单号存在非同一日的数据";
+            }
+            else
+            {
+                if(vcDate!= dt1.DefaultView.ToTable(true, "vcOrderNo").Rows[0][0].ToString())
+                {
+                    return "导入订单不是导入日期同一天";
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            return "";
         }
         #endregion
     }

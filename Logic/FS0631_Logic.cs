@@ -18,6 +18,20 @@ namespace Logic
             fs0631_DataAccess = new FS0631_DataAccess();
         }
 
+        #region 获取数据字典
+        public DataTable getTCode(string strCodeId, string unit)
+        {
+            try
+            {
+                return fs0631_DataAccess.getTCode(strCodeId, unit);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 检索NQC结果
 
         public DataTable SearchNQCResult(string strCLYM, string strDXYM, string strPartNo)

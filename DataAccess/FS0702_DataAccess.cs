@@ -62,8 +62,8 @@ namespace DataAccess
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,a.vcPackSpot,a.vcPartsNo,   ");
-                strSql.AppendLine("    a.vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
-                strSql.AppendLine("    b.vcValue as vcShouhuofangID,b.vcName as  from (       ");
+                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
+                strSql.AppendLine("  ,b.vcName as vcShouhuofang from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
@@ -90,6 +90,12 @@ namespace DataAccess
                 strSql.AppendLine("  	(    ");
                 strSql.AppendLine("   select * from TCode where vcCodeName='收货方'  and vcCodeId='C018'     ");
                 strSql.AppendLine("   )b on a.vcShouhuofangID=b.vcValue    ");
+                strSql.AppendLine("   left join	   ");
+                strSql.AppendLine("   (	   ");
+                strSql.AppendLine("    select * from TCode where vcCodeId='C098'	   ");
+                strSql.AppendLine("   )c on a.vcCar=c.vcValue   	   ");
+
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -116,7 +122,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dtFromEnd))
                 {
-                    dtFromEnd = "3000-01-01 0:00:00";
+                    dtFromEnd = "9999-12-31 0:00:00";
 
                 }
                 if (string.IsNullOrEmpty(dtToBegin))
@@ -127,14 +133,14 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dtToEnd))
                 {
-                    dtToEnd = "3000-01-01 0:00:00";
+                    dtToEnd = "9999-12-31 0:00:00";
 
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("    select a.varChangedItem,a.vcPackSpot,a.vcPartsNo,   ");
-                strSql.AppendLine("    a.vcCar,a.dUsedFrom,a.dUsedTo,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo   ");
-                strSql.AppendLine("    ,b.vcName as vcShouhuofang from (       ");
+                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,a.vcPackSpot,a.vcPartsNo,   ");
+                strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
+                strSql.AppendLine("  ,b.vcName as vcShouhuofang from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
@@ -159,8 +165,14 @@ namespace DataAccess
                 strSql.AppendLine($"      AND dTo BETWEEN '{dtToBegin}' and '{dtToEnd}'");
                 strSql.AppendLine("  	)a left join    ");
                 strSql.AppendLine("  	(    ");
-                strSql.AppendLine("   select * from TCode where vcCodeName='收货方'  and vcCodeId='C018'    ");
+                strSql.AppendLine("   select * from TCode where vcCodeName='收货方'  and vcCodeId='C018'     ");
                 strSql.AppendLine("   )b on a.vcShouhuofangID=b.vcValue    ");
+                strSql.AppendLine("   left join	   ");
+                strSql.AppendLine("   (	   ");
+                strSql.AppendLine("    select * from TCode where vcCodeId='C098'	   ");
+                strSql.AppendLine("   )c on a.vcCar=c.vcValue   	   ");
+
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

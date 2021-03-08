@@ -67,6 +67,14 @@ namespace Logic
         }
         #endregion
 
+
+        #region 按检索条件检索,返回dt
+        public DataTable SearchCheck()
+        {
+            return FS0703_DataAccess.SearchCheck();
+        }
+        #endregion
+
         #region 保存
         public void Save_GS(DataTable listInfoData, string strUserId, ref string strErrorName)
         {

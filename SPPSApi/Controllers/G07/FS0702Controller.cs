@@ -416,7 +416,7 @@ namespace SPPSApi.Controllers.G07
                         hasFind = true;
                     }
                     //判断品番是否存在
-                   
+
                     bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString());
                     if (!isok)
                     {

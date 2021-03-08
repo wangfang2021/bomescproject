@@ -55,6 +55,7 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
                 List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
+                dataList_C002.Add("");
                 List<string> dataList_C003 = convertTCodeToResult(getTCode("C003"));//内外区分
                 List<string> dataList_C004 = convertTCodeToResult(getTCode("C004"));//号旧区分
                 List<string> dataList_C005 = convertTCodeToResult(getTCode("C005"));//收货方

@@ -251,7 +251,8 @@ namespace DataAccess
                     string plant = htKey;
                     string DXYM = ht[htKey].ToString().Substring(0, 6);
                     DateTime t2;
-                    DateTime.TryParseExact(DXYM + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                    //DateTime.TryParseExact(DXYM + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                    t2 = DateTime.Parse(DXYM + "01");
                     t2 = t2.AddMonths(-1);
                     string CLYM = t2.ToString("yyyyMM");
                     string tmp = " (vcDXYM = '" + DXYM + "' AND vcFZGC = '" + plant + "' AND vcCLYM = '" + CLYM + "') ";
@@ -508,8 +509,8 @@ namespace DataAccess
             {
                 DateTime t2;
 
-                DateTime.TryParseExact(DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " 10:00:00", "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out t2);
-
+                //DateTime.TryParseExact(DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " 10:00:00", "yyyy-MM-dd HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out t2);
+                t2 = DateTime.Parse(DateTime.Now.Year + "-" + DateTime.Now.Month + "-" + DateTime.Now.Day + " 10:00:00");
                 if (DateTime.Now <= t2)
                 {
                     StringBuilder sbr = new StringBuilder();

@@ -148,7 +148,7 @@ namespace DataAccess
                         string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
                         string TargetTmp = ObjToString(listInfoData[i]["vcTargetYM"]);
                         //DateTime Time = DateTime.ParseExact(TargetTmp.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime Time = DateTime.Parse(TargetTmp.Substring(0, 6)+"01");
+                        DateTime Time = DateTime.Parse(TargetTmp.Substring(0, 6) + "01");
                         DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                         #region 月度校验
@@ -599,7 +599,8 @@ namespace DataAccess
                         {
                             string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 8);
                             DateTime DXR;
-                            DateTime.TryParseExact(OrderTargetYM, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DXR);
+                            //DateTime.TryParseExact(OrderTargetYM, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DXR);
+                            DXR = DateTime.Parse(OrderTargetYM);
 
                             DataTable dt = fs0403_dataAccess.getCalendar(DXR);
                             int count = fs0403_dataAccess.getCountDay();
@@ -645,7 +646,7 @@ namespace DataAccess
                                 string dateTime = detail.Date.Trim();
 
                                 //DateTime Time = DateTime.ParseExact(timeYM, "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                                DateTime Time = DateTime.Parse(timeYM+"01");
+                                DateTime Time = DateTime.Parse(timeYM + "01");
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                                 //新增订单
@@ -942,7 +943,8 @@ namespace DataAccess
                 foreach (string s in TargetYM)
                 {
                     DateTime t2;
-                    DateTime.TryParseExact(s + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                    //DateTime.TryParseExact(s + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                    t2 = DateTime.Parse(s + "01");
                     string CLYM = t2.AddMonths(-1).ToString("yyyyMM");
                     if (sql.Length > 0)
                     {

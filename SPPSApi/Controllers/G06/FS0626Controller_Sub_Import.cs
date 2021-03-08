@@ -53,8 +53,6 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray fileNameList = dataForm.fileNameList;
-            string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
-            string varFZGC = dataForm.varFZGC.value == null ? "" : dataForm.varFZGC.value;
             string hashCode = dataForm.hashCode;
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             try
@@ -123,7 +121,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0626_Logic.importSave(importDt, loginInfo.UserId);
+                fs0626_Logic.importSave(importDt,"","", loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

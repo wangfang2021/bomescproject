@@ -13,26 +13,33 @@ namespace DataAccess
         public DataTable searchHistory(string filename, string TimeFrom, string TimeTo)
         {
 
-            StringBuilder sbr = new StringBuilder();
-            sbr.Append(" SELECT vcFileName,vcOperatorID,dOperatorTime FROM TSPIHistory \r\n");
-            sbr.Append(" WHERE vcType = '0'  \r\n");
-            if (!string.IsNullOrWhiteSpace(filename))
-                sbr.Append(" and isnull(vcFileName,'') LIKE '" + filename.Trim() + "%' \r\n");
-            if (!string.IsNullOrWhiteSpace(TimeFrom))
+            try
             {
-                DateTime tf = DateTime.Parse(TimeFrom).AddSeconds(-1);
+                StringBuilder sbr = new StringBuilder();
+                sbr.Append(" SELECT vcFileName,vcOperatorID,dOperatorTime FROM TSPIHistory \r\n");
+                sbr.Append(" WHERE vcType = '0'  \r\n");
+                if (!string.IsNullOrWhiteSpace(filename))
+                    sbr.Append(" and isnull(vcFileName,'') LIKE '" + filename.Trim() + "%' \r\n");
+                if (!string.IsNullOrWhiteSpace(TimeFrom))
+                {
+                    DateTime tf = DateTime.Parse(TimeFrom).AddSeconds(-1);
 
-                sbr.Append(" and dOperatorTime> " + ComFunction.getSqlValue(tf, true) + "  \r\n");
+                    sbr.Append(" and dOperatorTime> " + ComFunction.getSqlValue(tf, true) + "  \r\n");
+                }
+
+                if (!string.IsNullOrWhiteSpace(TimeTo))
+                {
+                    DateTime tt = DateTime.Parse(TimeTo).AddDays(1);
+                    sbr.Append(" and dOperatorTime<" + ComFunction.getSqlValue(tt, true) + "  \r\n");
+
+                }
+                sbr.Append(" order by dOperatorTime desc \r\n");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
-
-            if (!string.IsNullOrWhiteSpace(TimeTo))
+            catch (Exception ex)
             {
-                DateTime tt = DateTime.Parse(TimeTo).AddDays(1);
-                sbr.Append(" and dOperatorTime<" + ComFunction.getSqlValue(tt, true) + "  \r\n");
-
+                throw ex;
             }
-            sbr.Append(" order by dOperatorTime desc \r\n");
-            return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
 
         }
 

@@ -143,7 +143,7 @@ namespace SPPSApi.Controllers.G99
 
             try
             {
-                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id);
+                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id,loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -189,7 +189,7 @@ namespace SPPSApi.Controllers.G99
 
             try
             {
-                DataTable dt = fs9905_Logic.Search();
+                DataTable dt = fs9905_Logic.Search(loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -201,6 +201,47 @@ namespace SPPSApi.Controllers.G99
                 dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0502", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 检索退回履历
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchTHListApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strGUID = dataForm.GUID;
+
+            try
+            {
+                DataTable dt = fs9905_Logic.SearchTHList(strGUID);
+                DtConverter dtConverter = new DtConverter();
+
+                dtConverter.addField("dTHTime", ConvertFieldType.DateType, null);
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, null);
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -339,7 +380,7 @@ namespace SPPSApi.Controllers.G99
             string strIsDYFX = dataform.vcIsDYFX;
             try
             {
-                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id);
+                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id,logininfo.UserId);
                 string[] fields = { "dSSDateMonth", "vcJD_Name", "vcPart_id", "vcSPINo",
                                     "vcChange_Name", "vcCarType_Name","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",

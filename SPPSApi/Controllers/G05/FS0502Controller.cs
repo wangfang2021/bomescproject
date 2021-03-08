@@ -42,7 +42,9 @@ namespace SPPSApi.Controllers.G05
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_C056 = ComFunction.convertAllToResult(fs0502_Logic.getTCode("C056"));//状态
+                List<Object> dataList_OrderNo = ComFunction.convertAllToResult(fs0502_Logic.getOrderNo(loginInfo.UserId));//订单号
                 res.Add("C056", dataList_C056);
+                res.Add("OrderNo", dataList_OrderNo);
                 res.Add("vcSupplier_id", loginInfo.UserId);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -119,12 +121,12 @@ namespace SPPSApi.Controllers.G05
             string vcStatus = dataForm.vcStatus == null ? "" : dataForm.vcStatus;
             string vcOrderNo = dataForm.vcOrderNo == null?"": dataForm.vcOrderNo;
             string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
-            string vcDelete= dataForm.vcDelete == null ? "" : dataForm.vcDelete;
+            //string vcDelete= dataForm.vcDelete == null ? "" : dataForm.vcDelete;
 
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, vcDelete);
+                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
                 int dhfNum = dt.Rows.Count;//待回复条数
                 string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 DataRow[] drs = dt.Select(" '"+now+"' > dReplyOverDate ");
@@ -217,11 +219,11 @@ namespace SPPSApi.Controllers.G05
             string vcStatus = dataForm.vcStatus == null ? "" : dataForm.vcStatus;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
-            string vcDelete = dataForm.vcDelete == null ? "" : dataForm.vcDelete;
+            //string vcDelete = dataForm.vcDelete == null ? "" : dataForm.vcDelete;
 
             try
             {
-                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id,vcDelete);
+                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
                 string[] heads = { "状态", "订单编号", "品番", "供应商代码","工区","回复截至日期","收容数(个)","订货总数(个)","可对应数量(个)","箱数","纳期"};
                 string[] fields = { "vcStatusName","vcOrderNo","vcPart_id","vcSupplier_id","vcGQ","dReplyOverDate","iPackingQty","iOrderQuantity",
                     "iDuiYingQuantity","decBoxes","dDeliveryDate"};

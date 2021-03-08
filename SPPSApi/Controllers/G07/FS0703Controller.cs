@@ -117,7 +117,7 @@ namespace SPPSApi.Controllers.G07
                     FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId);
                 }
 
-                DataTable dtcheck = FS0703_Logic.Search(PackSpot, PackFrom, SupplierCodeList);
+                DataTable dtcheck = FS0703_Logic.SearchCheck();
 
                 for (int i = 0; i < dtcheck.Rows.Count; i++)
                 {
@@ -189,14 +189,14 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] fields = { "vcYearMonth","vcPackSpot","vcSupplierCode","vcSupplierWork","vcSupplierName","vcSupplierPack","vcPackNo",
+                string[] fields = { "vcYearMonth","vcPackNo","vcPackSpot","vcSupplierCode","vcSupplierWork","vcSupplierName","vcSupplierPack",
                     "vcCycle","iRelease","iDayNNum","iDayN1Num","iDayN2Num",
                     "iDay1","iDay2","iDay3","iDay4","iDay5","iDay6","iDay7","iDay8","iDay9","iDay10",
                     "iDay11","iDay12","iDay13","iDay14","iDay15","iDay16","iDay17","iDay18","iDay19","iDay20",
                     "iDay21","iDay22","iDay23","iDay24","iDay25","iDay26","iDay27","iDay28","iDay29","iDay30",
                     "iDay31","dZYTime"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0703_Export.xlsx", 1, loginInfo.UserId, "包装材基础数据");
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0703_Export.xlsx", 1, loginInfo.UserId, "内示书计算导出");
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

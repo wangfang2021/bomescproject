@@ -408,7 +408,7 @@ namespace SPPSApi.Controllers.G06
                 if (strExpectTime != "" && Convert.ToDateTime(strExpectTime + " 23:59:59") < System.DateTime.Now)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "期望恢复期不能小于当前时间。";
+                    dataRow["vcMessage"] = "期望回复日期不能小于当前时间。";
                     dtMessage.Rows.Add(dataRow);
                 }
                 if (strEmailBody == "")

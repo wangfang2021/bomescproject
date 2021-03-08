@@ -62,7 +62,7 @@ namespace SPPSApi.Controllers.G03
                 List<string> dataList_C012 = convertTCodeToResult(getTCode("C012"));//OE=SP
                 List<string> dataList_C016 = convertTCodeToResult(getTCode("C016"));//包装事业体
                 List<string> dataList_C019 = convertTCodeToResult(getTCode("C019"));//生确
-                List<string> dataList_C028 = convertTCodeToResult(getTCode("C028"));//防錆
+                List<string> dataList_C028 = convertTCodeToResult(getTCode("C028"));//防锈
 
 
                 res.Add("C002", dataList_C002);
@@ -297,8 +297,8 @@ namespace SPPSApi.Controllers.G03
                  */
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番"           ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"旧型年限生产区分","实施年限(年限)","特记"  ,"防錆"    ,"防錆指示书号","旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年","执行标准No","收货方"         ,"所属原单位"          },
-                                                        {"dSyncTime"    ,"vcChange"     ,"vcSPINo","vcSQState_Name","vcDiff","vcPart_id"          ,"vcCarTypeDev","vcCarTypeDesign","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name"},
+                    string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番"           ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"旧型年限生产区分","实施年限(年限)","特记"  ,"防锈"    ,"防锈指示书号","旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年","执行标准No","收货方"         ,"所属原单位"          },
+                                                        {"dSyncTime"    ,"vcChange"     ,"vcSPINo","vcSQState_Name","vcDiff","vcPart_id"          ,"vcCarTypeDesign","vcCarTypeDev","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name"},
                                                         {FieldCheck.Date,""             ,""       ,""              ,""      ,""                   ,""            ,""               ,""             ,FieldCheck.Date,FieldCheck.Date,FieldCheck.Date,""        ,""             ,""            ,""            ,""        ,""        ,""                ,""             ,""               ,""         ,""         ,""              ,""          ,""           ,FieldCheck.Date,FieldCheck.Date,""         ,""           ,""             ,FieldCheck.Date,FieldCheck.Date,""         ,""                ,FieldCheck.Date ,""      ,""        ,""            ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""        ,""        ,""        ,""        ,""        ,""        ,""          ,""               ,""                    },
                                                         {"0"            ,"0"            ,"20"     ,"0"             ,"1"     ,"14"                 ,"4"           ,"4"              ,"10"           ,"0"            ,"0"            ,"0"            ,"4"       ,"14"           ,"100"         ,"100"         ,"50"      ,"50"      ,"0"               ,"4"            ,"100"            ,"20"       ,"20"       ,"0"             ,"100"       ,"100"        ,"0"            ,"0"            ,"0"        ,"14"         ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"100"        ,"0"              ,"0"                   },//最大长度设定,不校验最大长度用0
                                                         {"0"            ,"0"            ,"0"      ,"0"             ,"0"     ,"11"                 ,"0"           ,"0"              ,"0"            ,"0"            ,"0"            ,"0"            ,"0"       ,"0"            ,"0"           ,"0"           ,"0"       ,"0"       ,"0"               ,"0"            ,"0"              ,"0"        ,"0"        ,"0"             ,"0"         ,"0"          ,"0"            ,"0"            ,"0"        ,"0"          ,"0"            ,"0"            ,"0"            ,"0"        ,"0"               ,"0"             ,"0"     ,"0"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"1"              ,"1"                   },//最小长度设定,可以为空用0
@@ -318,7 +318,7 @@ namespace SPPSApi.Controllers.G03
                             "1", //1:该字段不能为空 0:该字段必须为空
                             "",
                             ""
-                        },{"防錆","vcFXDiff","R","R","防錆指示书号","vcFXNo","1","","" }
+                        },{"防锈","vcFXDiff","R","R","防锈指示书号","vcFXNo","1","","" }
                     };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0303");
@@ -342,7 +342,7 @@ namespace SPPSApi.Controllers.G03
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "OE=SP", strHeader = "vcOE", strCodeid = "C012", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "包装工厂", strHeader = "vcSYTCode", strCodeid = "C016", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "生确", strHeader = "vcSQState", strCodeid = "C019", isNull = false });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "防錆", strHeader = "vcFXDiff", strCodeid = "C028", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "防锈", strHeader = "vcFXDiff", strCodeid = "C028", isNull = false });
 
                     #endregion
 
@@ -442,12 +442,19 @@ namespace SPPSApi.Controllers.G03
             string strIsShowAll = dataForm.isShowAll;
             string strOriginCompany = dataForm.OriginCompany;
 
+
+            /*
+             *  导入导出都要更改顺序
+             *  导出日期带时分秒			
+                列旧型15年后面的列，放在它的前面	
+             */
+
             try
             {
                 /*2020-01-04*/
                 DataTable dt = fs0303_Logic.Search(strIsShowAll, strOriginCompany);
                 string[] fields = { "iAutoId","dSyncTime", "vcChange_Name", "vcSPINo", "vcSQState_Name", "vcDiff"
-                                    ,"vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName"
+                                    ,"vcPart_id","vcCarTypeDesign","vcCarTypeDev","vcCarTypeName"
                                     ,"dTimeFrom","dTimeTo","dTimeFromSJ","vcBJDiff","vcPartReplace"
                                     ,"vcPartNameEn","vcPartNameCn","vcHKGC","vcBJGC","vcInOutflag_Name"
                                     ,"vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace"
@@ -512,7 +519,7 @@ namespace SPPSApi.Controllers.G03
                  * 修改内容：生确单发行数据校验
                  */
                 string[,] strField = new string[,] {{"变更事项"     ,"生确"          ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"英文品名"    ,"供应商代码"   ,"OE=SP"    ,"防锈"    ,"防锈指示书号","收货方"         },
-                                                    {"vcChange_Name","vcSQState_Name","vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcPartNameEn","vcSupplier_id","vcOE_Name","vcFXDiff","vcFXNo"      ,"vcReceiver_Name"},
+                                                    {"vcChange_Name","vcSQState_Name","vcPart_id","vcCarTypeDesign","vcCarTypeDev","vcPartNameEn","vcSupplier_id","vcOE_Name","vcFXDiff","vcFXNo"      ,"vcReceiver_Name"},
                                                     {""             ,""              ,""         ,""            ,""               ,""            ,""             ,""         ,""        ,""            ,""               },
                                                     {"0"            ,"0"             ,"12"       ,"4"           ,"4"              ,"100"         ,"4"            ,"0"        ,"2"       ,"12"          ,"0"              },//最大长度设定,不校验最大长度用0
                                                     {"1"            ,"1"             ,"1"        ,"1"           ,"1"              ,"1"           ,"1"            ,"1"        ,"0"       ,"0"           ,"1"              },//最小长度设定,可以为空用0
@@ -659,6 +666,12 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
+
+                /*
+                 * for循环。校验所选数据是否已经同步了，如果有，返回这些品番信息
+                */
+                //增加数据同步时需要校验哪些条件
+
                 #region 判断主key是否都不为null
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -750,8 +763,8 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"旧型年限生产区分","实施年限(年限)","特记"  ,"防錆"    ,"防錆指示书号","旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年","执行标准No","收货方"         ,"所属原单位"          },
-                                                        {"dSyncTime"    ,"vcChange_Name","vcSPINo","vcSQState_Name","vcDiff","vcPart_id","vcCarTypeDev","vcCarTypeDesign","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name"},
+                    string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"旧型年限生产区分","实施年限(年限)","特记"  ,"防锈"    ,"防锈指示书号","旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年","执行标准No","收货方"         ,"所属原单位"          },
+                                                        {"dSyncTime"    ,"vcChange_Name","vcSPINo","vcSQState_Name","vcDiff","vcPart_id","vcCarTypeDesign","vcCarTypeDev","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name"},
                                                         {FieldCheck.Date,""             ,""       ,""              ,""      ,""         ,""            ,""               ,""             ,FieldCheck.Date,FieldCheck.Date,FieldCheck.Date,""        ,""             ,""            ,""            ,""        ,""        ,""                ,""             ,""               ,""         ,""         ,""              ,""          ,""           ,FieldCheck.Date,FieldCheck.Date,""         ,""           ,""             ,FieldCheck.Date,FieldCheck.Date,""         ,""                ,FieldCheck.Date ,""      ,""        ,""            ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""        ,""        ,""        ,""        ,""        ,""        ,""          ,""               ,""                    },
                                                         {"0"            ,"0"            ,"20"     ,"0"             ,"0"     ,"12"       ,"4"           ,"4"              ,"4"            ,"0"            ,"0"            ,"0"            ,"4"       ,"12"           ,"100"         ,"100"         ,"20"      ,"20"      ,"0"               ,"4"            ,"100"            ,"20"       ,"20"       ,"0"             ,"100"       ,"100"        ,"0"            ,"0"            ,"0"        ,"12"         ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"      ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"4"       ,"50"        ,"0"              ,"0"                   },//最大长度设定,不校验最大长度用0
                                                         {"0"            ,"1"            ,"1"      ,"1"             ,"1"     ,"1"        ,"1"           ,"1"              ,"0"            ,"1"            ,"1"            ,"0"            ,"1"       ,"0"            ,"1"           ,"0"           ,"0"       ,"0"       ,"1"               ,"1"            ,"0"              ,"0"        ,"0"        ,"1"             ,"0"         ,"0"          ,"0"            ,"0"            ,"1"        ,"0"          ,"1"            ,"1"            ,"1"            ,"0"        ,"0"               ,"0"             ,"0"     ,"1"       ,"0"           ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"         ,"1"              ,"1"                   },//最小长度设定,可以为空用0
@@ -771,7 +784,7 @@ namespace SPPSApi.Controllers.G03
                             "1", //1:该字段不能为空 0:该字段必须为空
                             "",
                             ""
-                        },{"防錆","vcFXDiff","R","R","防錆指示书号","vcFXNo","1","","" }
+                        },{"防锈","vcFXDiff","R","R","防锈指示书号","vcFXNo","1","","" }
                     };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0303");
@@ -795,7 +808,7 @@ namespace SPPSApi.Controllers.G03
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "OE=SP", strHeader = "vcOE", strCodeid = "C012", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "包装工厂", strHeader = "vcSYTCode", strCodeid = "C016", isNull = true });
                     lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "生确", strHeader = "vcSQState", strCodeid = "C019", isNull = false });
-                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "防錆", strHeader = "vcFXDiff", strCodeid = "C028", isNull = false });
+                    lists.Add(new FS0303_Logic.NameOrValue() { strTitle = "防锈", strHeader = "vcFXDiff", strCodeid = "C028", isNull = false });
 
                     #endregion
 

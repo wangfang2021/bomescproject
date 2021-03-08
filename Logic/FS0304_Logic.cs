@@ -40,9 +40,9 @@ namespace Logic
         #endregion
 
         #region 删除
-        public void del(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        public void del(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErr)
         {
-            fs0304_DataAccess.Del(listInfoData, strUserId);
+            fs0304_DataAccess.Del(listInfoData, strUserId,ref strErr);
         }
         #endregion
 
@@ -50,7 +50,7 @@ namespace Logic
         public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strTH, string strEmail,string strUserName, ref string strErr)
         {
             #region 更新生确进度表
-            fs0304_DataAccess.Back(listInfoData, strUserId,strTH);
+            fs0304_DataAccess.Back(listInfoData, strUserId,strTH,ref strErr);
             #endregion
 
             #region 给供应商发邮件
@@ -96,9 +96,9 @@ namespace Logic
         #endregion
 
         #region 织入原单位
-        public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
+        public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr,ref string strErrorPartId)
         {
-            fs0304_DataAccess.sendUnit(listInfoData, strUserId, ref strErr);
+            fs0304_DataAccess.sendUnit(listInfoData, strUserId, ref strErr,ref strErrorPartId);
         }
         #endregion
 

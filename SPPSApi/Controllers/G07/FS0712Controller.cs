@@ -60,7 +60,7 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0712_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
-                List<Object> dataList_ZuoYeQuFen = ComFunction.convertAllToResult(FS0712_Logic.SearchZuoYeQuFen());//作业区分
+                List<Object> dataList_ZuoYeQuFen = ComFunction.convertAllToResult(ComFunction.getTCode("C064"));//作业区分
                 res.Add("ZuoYeQuFen", dataList_ZuoYeQuFen);
 
 
@@ -98,28 +98,47 @@ namespace SPPSApi.Controllers.G07
             string PackSpot = dataForm.PackSpot;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string ZuoYeQuFen = dataForm.ZuoYeQuFen;
-            string PackSupplier = dataForm.PackSupplier;
+
+            List<Object> ZuoYeQuFen = new List<object>();
+
+            if (dataForm.ZuoYeQuFen.ToObject<List<Object>>() == null)
+            {
+                ZuoYeQuFen = new List<object>();
+            }
+            else
+            {
+                ZuoYeQuFen = dataForm.ZuoYeQuFen.ToObject<List<Object>>();
+            }
+
+            List<Object> PackSupplier = new List<object>();
+
+            if (dataForm.PackSupplier.ToObject<List<Object>>() == null)
+            {
+                PackSupplier = new List<object>();
+            }
+            else
+            {
+                PackSupplier = dataForm.PackSupplier.ToObject<List<Object>>();
+            }
             string dFrom = dataForm.dFrom;
             string dTo = dataForm.dTo;
 
             try
             {
                 DataTable dt = FS0712_Logic.Search(PackSpot, PackNo, PackGPSNo, ZuoYeQuFen, PackSupplier, dFrom, dTo);
+            
+
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dBuJiTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dZiCaiTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+               
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+
+
+
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -153,8 +172,27 @@ namespace SPPSApi.Controllers.G07
             string PackSpot = dataForm.PackSpot;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
-            string ZuoYeQuFen = dataForm.ZuoYeQuFen;
-            string PackSupplier = dataForm.PackSupplier;
+            List<Object> ZuoYeQuFen = new List<object>();
+
+            if (dataForm.ZuoYeQuFen.ToObject<List<Object>>() == null)
+            {
+                ZuoYeQuFen = new List<object>();
+            }
+            else
+            {
+                ZuoYeQuFen = dataForm.ZuoYeQuFen.ToObject<List<Object>>();
+            }
+
+            List<Object> PackSupplier = new List<object>();
+
+            if (dataForm.PackSupplier.ToObject<List<Object>>() == null)
+            {
+                PackSupplier = new List<object>();
+            }
+            else
+            {
+                PackSupplier = dataForm.PackSupplier.ToObject<List<Object>>();
+            }
             string dFrom = dataForm.dFrom;
             string dTo = dataForm.dTo;
 
@@ -164,7 +202,7 @@ namespace SPPSApi.Controllers.G07
                 string[] fields = { "vcZuoYeQuFen","vcOrderNo","vcPackNo","vcPackGPSNo","vcSupplierID","vcPackSpot","iNumber","dBuJiTime",
                     "dZiCaiTime","vcYanShouID"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0712_Export.xlsx", 1,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0712_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -189,7 +227,7 @@ namespace SPPSApi.Controllers.G07
         #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -225,9 +263,9 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-             
+
                 string strErrorPartId = "";
-                FS0712_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
+                FS0712_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -252,7 +290,7 @@ namespace SPPSApi.Controllers.G07
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -289,6 +327,6 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-       
+
     }
 }

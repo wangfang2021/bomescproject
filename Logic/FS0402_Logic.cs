@@ -31,7 +31,7 @@ namespace Logic
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strYearMonth, string strDyState, string strHyState, string strPart_id)
+        public DataSet Search(string strYearMonth, string strDyState, string strHyState, string strPart_id)
         {
             return fs0402_DataAccess.Search(strYearMonth, strDyState, strHyState, strPart_id);
         }

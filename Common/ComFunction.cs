@@ -1199,7 +1199,7 @@ namespace Common
                         }
                     }
                 }
-                ISheet sheet1 = hssfworkbook.GetSheetAt(0);
+                ISheet sheet1 = hssfworkbook.GetSheetAt(0);//刷新第一个sheet页的公式
                 sheet1.ForceFormulaRecalculation = true;
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除

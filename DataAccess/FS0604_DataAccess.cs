@@ -73,7 +73,12 @@ namespace DataAccess
                 strSql.AppendLine("      left join (  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]       ");
                 strSql.AppendLine("      FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1' ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId      ");
                 strSql.AppendLine("      and a.vcReceiver=c.vcReceiver and a.dFromTime = c.dFromTime and a.dToTime=c.dToTime       ");
-                strSql.AppendLine("      where b.vcPartNo is null      ");
+                strSql.AppendLine("     left join  (select vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime,    ");
+                strSql.AppendLine("     iPackingQty, vcBoxType, iLength, iWidth, iHeight, iVolume, vcOperatorType, vcOperatorID, dOperatorTime    ");
+                strSql.AppendLine("      from TSPMaster_Box  where vcOperatorType='1') d on a.vcPackingPlant=d.vcPackingPlant and a.vcPartId=d.vcPartId    ");
+                strSql.AppendLine("      and a.vcReceiver=d.vcReceiver and a.dFromTime = d.dFromTime and a.dToTime=d.dToTime   ");
+                strSql.AppendLine("        ");
+                strSql.AppendLine("      where b.vcPartNo is null and d.iPackingQty is null     ");
                 strSql.AppendLine("     union all      ");
                 strSql.AppendLine("       select * from (      ");
                 strSql.AppendLine("     	select [iAutoId], a.vcPackingPlant,a.vcReceiver, [dSynchronizationDate],  [vcState], [vcPartNo],      ");

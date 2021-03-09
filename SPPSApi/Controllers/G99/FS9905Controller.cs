@@ -315,10 +315,6 @@ namespace SPPSApi.Controllers.G99
                          { "执行标准区分"    ,"vcZXBZDiff","CCC"     ,"CCC","执行标准NO"         ,"vcZXBZNo"          ,"1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应","2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
                         ,{ "防锈对应可否    ","vcIsDYFX"  ,"不可对应","2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"生产地-市"          ,"vcSCPlace_City"    ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"生产地-省"          ,"vcSCPlace_Province","1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"出荷地-市"          ,"vcCHPlace_City"    ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"出荷地-省"          ,"vcCHPlace_Province","1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"供应商切替日期-补给","dSupplier_BJ"      ,"1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"供应商切替日期-号口","dSupplier_HK"      ,"1",                      "","" }
                         };
@@ -381,15 +377,15 @@ namespace SPPSApi.Controllers.G99
             try
             {
                 DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id,logininfo.UserId);
-                string[] fields = { "dSSDateMonth", "vcJD_Name", "vcPart_id", "vcSPINo",
-                                    "vcChange_Name", "vcCarType_Name","vcInOutflag_Name","vcPartName",
+                string[] fields = { "vcPart_id", "dSSDate", "vcJD_Name", "vcSPINo",
+                                    "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
-                                    "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
-                                    "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
-                                    "vcPackFactory_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
-                                    "dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
+                                    "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcNotDY",
+                                    "vcYQorNG","vcTH","vcSCPlace_City","vcSCPlace_Province",
+                                    "vcCHPlace_City","vcCHPlace_Province","vcSCSName","vcSCSPlace",
+                                    "dSupplier_BJ","dSupplier_HK","dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "fs9905_export.xlsx", 2, logininfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS9905_Export.xlsx", 2, logininfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiresult.code = ComConstant.ERROR_CODE;
@@ -436,7 +432,23 @@ namespace SPPSApi.Controllers.G99
                     apiResult.data = "未选择任何行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                /*
+                 * 生确回复时，如果变更事项为新设或旧型，需要需要填写生产地、出荷地
+                 */
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string strChange = listInfoData[i]["vcChange"]==null?"":listInfoData[i]["vcChnage"].ToString();
+                    string strSCPlace_City = listInfoData[i]["vcSCPlace_City"]==null?"":listInfoData[i]["vcSCPlace_City"].ToString();
+                    string strSCPlace_Province = listInfoData[i]["vcSCPlace_Province"] == null ? "" : listInfoData[i]["vcSCPlace_Province"].ToString();
+                    string strCHPlace_City = listInfoData[i]["vcCHPlace_City"] == null ? "" : listInfoData[i]["vcCHPlace_City"].ToString();
+                    string strCHPlace_Province = listInfoData[i]["vcCHPlace_Province"] == null ? "" : listInfoData[i]["vcCHPlace_Province"].ToString();
+                    if ((strChange=="1"||strChange=="2"||strChange=="3"||strChange=="4")&&(string.IsNullOrEmpty(strSCPlace_City)||string.IsNullOrEmpty(strCHPlace_City)))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "生确回复时，变更事项为新车新设、设变新设、打切旧型、设变旧型时，生产地与出荷地不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 #region 数据校验
                 string[,] strField = new string[,] {{"对应可否确认结果"    ,"防锈对应可否"},
                                                     {"vcIsDYJG"            ,"vcIsDYFX"    },
@@ -464,8 +476,7 @@ namespace SPPSApi.Controllers.G99
                 }
                 #endregion
 
-
-                    string strErr = "";
+                string strErr = "";
                 fs9905_Logic.Send(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {
@@ -551,7 +562,7 @@ namespace SPPSApi.Controllers.G99
         }
         #endregion
 
-        #region 下载PDF
+        #region 下载PDF文件
         [HttpPost]
         [EnableCors("any")]
         public string downloadPDFApi([FromBody] dynamic data)
@@ -565,14 +576,14 @@ namespace SPPSApi.Controllers.G99
             //以下开始业务处理
             ApiResult apiresult = new ApiResult();
             dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strFileName = dataform.fileName;
-            
             try
-            {
+            { 
+                string strFileName = dataform.fileName;
+                string fileSavePath = strFileName + ".pdf";
                 apiresult.code = ComConstant.SUCCESS_CODE;
-                apiresult.data = "";
+                apiresult.data = fileSavePath;
                 return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+                
             }
             catch (Exception ex)
             {

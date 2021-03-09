@@ -18,10 +18,18 @@ namespace Logic
         }
 
 
-        #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
+        #region 按检索条件检索,返回dt 
         public DataTable Search(string strChangeDateFrom, string strChangeDateTo, string strChangeNo, string strState, string strOrderNo)
         {
             return fs0624_DataAccess.Search(strChangeDateFrom, strChangeDateTo, strChangeNo, strState, strOrderNo);
+        }
+        #endregion
+
+
+        #region 按检索条件检索,返回dt 
+        public DataTable SearchDetial(string strChangeNo)
+        {
+            return fs0624_DataAccess.SearchDetial(strChangeNo);
         }
         #endregion
     }

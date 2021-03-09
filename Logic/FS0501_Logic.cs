@@ -21,6 +21,10 @@ namespace Logic
         {
             return fs0501_DataAccess.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea,ref num);
         }
+        public DataTable Search_heji(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, string strWorkArea, ref int num)
+        {
+            return fs0501_DataAccess.Search_heji(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea, ref num);
+        }
         #endregion
 
         #region 是否可操作-按检索条件

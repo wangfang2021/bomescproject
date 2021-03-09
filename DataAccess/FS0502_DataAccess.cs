@@ -162,7 +162,7 @@ namespace DataAccess
                             sql.Append("           ,[decBoxQuantity])    \n");
                             sql.Append("select vcOrderNo,vcPart_id,vcSupplier_id,nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",''),     \n");
                             sql.Append("nullif('" + listInfoData[i]["dDeliveryDate"] + "',''),'supplier','" + strUserId + "','" + strdate + "',     \n");
-                            sql.Append("cast(nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",'')/(t1.iPackingQty*1.0) as decimal(18,1))    \n");
+                            sql.Append("cast(nullif(" + listInfoData[i]["iDuiYingQuantity"] + ",'')/(iPackingQty*1.0) as decimal(18,1))    \n");
                             sql.Append("from TUrgentOrder where iAutoId=" + strautoid_main + "      \n");
                         }
                     }
@@ -335,7 +335,7 @@ namespace DataAccess
                             #region 将所有的数据都插入临时表
                             strSql.Append("      insert into #TUrgentOrder_temp_cr       \n");
                             strSql.Append("       (         \n");
-                            strSql.Append("       vcPart_id,vcStatus,iDuiYingQuantity,dDeliveryDate,vcDelete        \n");
+                            strSql.Append("       vcPart_id,vcStatus,iDuiYingQuantity,dDeliveryDate,vcShowFlag,vcSaveFlag        \n");
                             strSql.Append("       ) values         \n");
                             strSql.Append("      (      \n");
                             strSql.Append("       '" + listInfoData[i]["vcPart_id"].ToString() + "',     \n");
@@ -356,7 +356,7 @@ namespace DataAccess
                         #region 将所有的数据都插入临时表
                         strSql.Append("      insert into #TUrgentOrder_temp_cr       \n");
                         strSql.Append("       (         \n");
-                        strSql.Append("       vcPart_id,vcStatus,iDuiYingQuantity,dDeliveryDate,vcDelete        \n");
+                        strSql.Append("       vcPart_id,vcStatus,iDuiYingQuantity,dDeliveryDate,vcShowFlag,vcSaveFlag        \n");
                         strSql.Append("       ) values         \n");
                         strSql.Append("      (      \n");
                         strSql.Append("       '" + listInfoData[i]["vcPart_id"].ToString() + "',     \n");

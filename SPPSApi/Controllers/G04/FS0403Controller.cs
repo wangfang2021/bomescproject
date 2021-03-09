@@ -92,7 +92,8 @@ namespace SPPSApi.Controllers.G04
                 string changeNo = listInfoData[0]["vcChangeNo"].ToString();
 
                 DateTime t2;
-                DateTime.TryParseExact(changeNo, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                //DateTime.TryParseExact(changeNo, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
+                t2 = DateTime.Parse(changeNo);
 
                 DataTable dt = fs0403_Logic.getModify(t2);
                 string resMsg = "";

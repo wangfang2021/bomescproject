@@ -175,9 +175,15 @@ namespace SPPSApi.Controllers.G06
                 {
                     string strPlant = plantList[i];
                     bool find = fs0610_Logic.GetSoq(strPlant, strYearMonth, "dxym").Rows.Count > 0 ? true : false;
-                    bool find_2 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nsym").Rows.Count > 0 ? true : false;
-                    bool find_3 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nnsym").Rows.Count > 0 ? true : false;
+                    //bool find_2 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nsym").Rows.Count > 0 ? true : false;
+                    //bool find_3 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nnsym").Rows.Count > 0 ? true : false;
 
+                    if(find==false)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = string.Format("没找到{0}厂{1}月soq数据(内制)。", strPlant, strYearMonth);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
 
                     //取日历数据-三个月
                     DataTable dtCalendar = fs0610_Logic.GetCalendar(strPlant, strYearMonth);
@@ -188,14 +194,14 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     DataTable dtCalendar_2 = fs0610_Logic.GetCalendar(strPlant, strYearMonth_2);
-                    if (find_2 && dtCalendar_2.Rows.Count == 0)
+                    if (find && dtCalendar_2.Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("没找到{0}厂{1}月日历。", strPlant, strYearMonth_2);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     DataTable dtCalendar_3 = fs0610_Logic.GetCalendar(strPlant, strYearMonth_3);
-                    if (find_3 && dtCalendar_3.Rows.Count == 0)
+                    if (find && dtCalendar_3.Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("没找到{0}厂{1}月日历。", strPlant, strYearMonth_3);
@@ -212,13 +218,13 @@ namespace SPPSApi.Controllers.G06
                         apiResult.data = string.Format("没找到{0}厂{1}月soq数据(内制&已合意)。", strPlant, strYearMonth);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (find_2 && dtSoq_nsym.Rows.Count == 0)
+                    if (find && dtSoq_nsym.Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("没找到{0}厂{1}月soq数据(内制&已合意)。", strPlant, strYearMonth);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (find_3 && dtSoq_nnsym.Rows.Count == 0)
+                    if (find && dtSoq_nnsym.Rows.Count == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("没找到{0}厂{1}月soq数据(内制&已合意)。", strPlant, strYearMonth);
@@ -230,8 +236,8 @@ namespace SPPSApi.Controllers.G06
                 {
                     string strPlant = plantList[i];
                     bool find = fs0610_Logic.GetSoq(strPlant, strYearMonth, "dxym").Rows.Count > 0 ? true : false;
-                    bool find_2 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nsym").Rows.Count > 0 ? true : false;
-                    bool find_3 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nnsym").Rows.Count > 0 ? true : false;
+                    //bool find_2 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nsym").Rows.Count > 0 ? true : false;
+                    //bool find_3 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nnsym").Rows.Count > 0 ? true : false;
 
                     //取日历数据-三个月
                     DataTable dtCalendar = fs0610_Logic.GetCalendar(strPlant, strYearMonth);
@@ -250,11 +256,15 @@ namespace SPPSApi.Controllers.G06
                     ArrayList arrResult_NNSYM = new ArrayList();//dtCalendar,dtSoq_nnsym,null,null
 
                     if (find)
+                    {
                         arrResult_DXYM = soqCompute.getPinZhunList(dtSoq_dxym, dtCalendar, null, null);
-                    if (find_2)
                         arrResult_NSYM = soqCompute.getPinZhunList(dtSoq_nsym, dtCalendar_2, null, null);
-                    if (find_3)
                         arrResult_NNSYM = soqCompute.getPinZhunList(dtSoq_nnsym, dtCalendar_3, null, null);
+                    }
+                    //if (find_2)
+                    //    arrResult_NSYM = soqCompute.getPinZhunList(dtSoq_nsym, dtCalendar_2, null, null);
+                    //if (find_3)
+                    //    arrResult_NNSYM = soqCompute.getPinZhunList(dtSoq_nnsym, dtCalendar_3, null, null);
 
                     if (arrResult_DXYM.Count == 0 || arrResult_NSYM.Count == 0 || arrResult_NNSYM.Count == 0)
                     {

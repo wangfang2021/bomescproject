@@ -72,6 +72,50 @@ namespace DataAccess
                 throw ex;
             }
         }
+        public DataTable Search_heji(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, string strWorkArea, ref int num)
+        {
+            try
+            {
+                
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("select '' as vcYearMonth,'' as dExpectTime,'' as vcDyState_Name,    \n");
+                strSql.Append("'' as vcPart_id,'' as iQuantityPercontainer,sum(t1.iCbSOQN) as iCbSOQN,sum(t1.iCbSOQN1) as iCbSOQN1,sum(t1.iCbSOQN2) as iCbSOQN2,    \n");
+                strSql.Append("sum(t3.iTzhSOQN) as iTzhSOQN ,sum(t3.iTzhSOQN1) as iTzhSOQN1,sum(t3.iTzhSOQN2) as iTzhSOQN2,'' as dOpenTime,'' as dSReplyTime    \n");
+                strSql.Append("from(    \n");
+                strSql.Append("	select * from TSoq     \n");
+                strSql.Append("	where vcYearMonth='" + strYearMonth + "'     \n");
+                strSql.Append("	and vcSupplier_id='" + strSupplier_id + "'    \n");
+                if (strOperState == "0")//未提交
+                    strSql.Append("   and vcDyState='1' and dSReplyTime is null \n");
+                else if (strOperState == "1")//已提交
+                    strSql.Append("  and dSReplyTime is not null  \n");
+                if (!string.IsNullOrEmpty(strDyState))//对应状态
+                    strSql.Append(" and vcDyState='" + strDyState + "' ");
+                if (!string.IsNullOrEmpty(strPart_id))//品番
+                    strSql.Append(" and vcPart_id like '%" + strPart_id + "%'");
+                if (!string.IsNullOrEmpty(strWorkArea))//供应商工区
+                    strSql.Append("and vcSupplierPlant ='" + strWorkArea + "' ");
+                strSql.Append(")t1    \n");
+                strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C036')t2 on t1.vcDyState=t2.vcValue    \n");
+                strSql.Append("left join (    \n");
+                strSql.Append("	select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2     \n");
+                strSql.Append("	from (    \n");
+                strSql.Append("		select * from TSoq_OperHistory where vcInputType='supplier'    \n");
+                strSql.Append("	)a    \n");
+                strSql.Append("	inner join (    \n");
+                strSql.Append("		select vcYearMonth,vcPart_id,MAX(dOperatorTime) as dOperatorTime from TSoq_OperHistory     \n");
+                strSql.Append("		where vcInputType='supplier'    \n");
+                strSql.Append("		group by vcYearMonth,vcPart_id    \n");
+                strSql.Append("	)b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id and a.dOperatorTime=b.dOperatorTime       \n");
+                strSql.Append(")t3 on t1.vcYearMonth=t3.vcYearMonth and t1.vcPart_id=t3.vcPart_id    \n");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
         #region 检索导入履历

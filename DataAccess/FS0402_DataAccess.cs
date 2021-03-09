@@ -867,7 +867,8 @@ namespace DataAccess
                     sql.Append("('"+ strYearMonth + "',");
                     sql.Append("'0',");
                     sql.Append("'0',");
-                    sql.Append("'" + dt.Rows[i]["vcPart_id"] + "',");
+                    string strpartid = dt.Rows[i]["vcPart_id"].ToString().Length==10? dt.Rows[i]["vcPart_id"].ToString()+"00": dt.Rows[i]["vcPart_id"].ToString();
+                    sql.Append("'" + strpartid + "',");
                     sql.Append("'" + dt.Rows[i]["iCbSOQN"] + "',");
                     sql.Append("'" + dt.Rows[i]["iCbSOQN1"] + "',");
                     sql.Append("'" + dt.Rows[i]["iCbSOQN2"] + "',");

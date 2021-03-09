@@ -48,6 +48,32 @@ namespace Logic
                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDyInfo, strHyInfo);
             return dataTable;
         }
+
+        public DataTable getHeJiInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
+             string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant, string strDataState)
+        {
+            string strDyInfo = "";
+            string strHyInfo = "";
+            if (strDataState == "0")
+            {
+                strDyInfo = "'0','1','2','3'";//对应状态全部
+                strHyInfo = "'0','3'";//合意状态 -和退回
+            }
+            else
+            {
+                strDyInfo = "'0','1','2','3'";//对应状态全部
+                strHyInfo = "'1','2'";//合意状态 待确认和已合意
+            }
+            if (strDataState == "")
+            {
+                strDyInfo = "'0','1','2','3'";//对应状态全部
+                strHyInfo = "'0','1','2','3'";//合意状态 -和退回
+            }
+            DataTable dataTable = fs0602_DataAccess.getHeJiInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
+                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDyInfo, strHyInfo);
+            return dataTable;
+        }
+
         public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, string strYearMonth, string strYearMonth_2, string strYearMonth_3)
         {
             try

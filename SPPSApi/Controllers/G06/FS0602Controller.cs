@@ -25,7 +25,7 @@ namespace SPPSApi.Controllers.G06
     [Route("api/FS0602/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0602Controller : BaseController
+    public class FS0504Controller : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         FS0602_Logic fs0602_Logic = new FS0602_Logic();
@@ -33,7 +33,7 @@ namespace SPPSApi.Controllers.G06
         FS0402_Logic fs0402_Logic = new FS0402_Logic();
         FS0501_Logic fs0501_Logic = new FS0501_Logic();
         private readonly string FunctionID = "FS0602";
-        public FS0602Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0504Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -127,7 +127,9 @@ namespace SPPSApi.Controllers.G06
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
-                DtConverter dtConverter = new DtConverter();
+                DataTable dtHJ = fs0602_Logic.getHeJiInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
+                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
+                DtConverter dtConverter = new DtConverter(); 
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
@@ -137,6 +139,7 @@ namespace SPPSApi.Controllers.G06
                 res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
                 res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
                 res.Add("tempList", dataList);
+                res.Add("hejiList", dtHJ);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -128,8 +128,8 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0810_Logic.Search_PM(vcSmallPM, vcBigPM);
-                string[] heads = {"大品目", "小品目" };
-                string[] fields = { "vcBigPM", "vcSmallPM" };
+                string[] heads = {"大品目", "小品目","基准时间(秒)" };
+                string[] fields = { "vcBigPM", "vcSmallPM", "vcStandardTime" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -194,12 +194,12 @@ namespace SPPSApi.Controllers.G08
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"大品目","小品目"},
-                                                {"vcBigPM","vcSmallPM"},
-                                                {"",""},
-                                                {"25","25"},//最大长度设定,不校验最大长度用0
-                                                {"1","1"},//最小长度设定,可以为空用0
-                                                {"1","2"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"大品目","小品目","基准时间(秒)"},
+                                                {"vcBigPM","vcSmallPM","vcStandardTime"},
+                                                {"","",""},
+                                                {"25","25","25"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0810_Sub_PM");
                     if (checkRes != null)

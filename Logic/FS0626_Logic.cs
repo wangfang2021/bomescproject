@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcInjectionFactory, string vcTargetMonth, string vcSupplier_id, string vcWorkArea, string vcDock, string vcOrderNo, string vcPartNo, string vcReceiveFlag)
+        public DataTable Search(string vcPackPlant, string vcInjectionFactory, string vcTargetMonth, string vcSupplier_id, string vcWorkArea, string vcDock, string vcOrderNo, string vcPartNo, string vcReceiveFlag)
         {
-            return fs0626_DataAccess.Search(vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
+            return fs0626_DataAccess.Search(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
         }
 
         public bool isExistAddData(DataTable dtadd)
@@ -44,9 +44,14 @@ namespace Logic
             return fs0626_DataAccess.bindInjectionFactory();
         }
 
-        public DataTable bindplant()
+
+        /// <summary>
+        /// 包装工厂
+        /// </summary>
+        /// <returns></returns>
+        public DataTable getPackPlant()
         {
-            return fs0626_DataAccess.bindplant();
+            return fs0626_DataAccess.getPackPlant();
         }
 
         #region 删除
@@ -63,15 +68,15 @@ namespace Logic
         }
         #endregion
 
-        public void importSave(DataTable importDt, string vcPackPlant, string vcDate, string strUserId)
+        public void importSave(DataTable importDt, string vcDateFrom, string vcDateTo, string strUserId)
         {
-            fs0626_DataAccess.importSave(importDt, vcPackPlant, vcDate, strUserId);
+            fs0626_DataAccess.importSave(importDt, vcDateFrom, vcDateTo, strUserId);
         }
 
-        #region 校验导入文件是否当日
-        public string checkCurrentDate(string vcDate, DataTable dt)
+        #region 欠品状态更新
+        public bool updateData(string vcTargetMonth, string userId)
         {
-            return fs0626_DataAccess.checkCurrentDate(vcDate, dt);
+            return fs0626_DataAccess.updateData(vcTargetMonth, userId);
         }
         #endregion
     }

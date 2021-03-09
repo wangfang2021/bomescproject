@@ -31,6 +31,15 @@ namespace DataAccess
                 strSql.Append("     ,b9.vcName as 'vcOriginCompany_Name'    \n");
                 strSql.Append("     ,b10.vcName as 'vcFXDiff_Name'    \n");
                 strSql.Append("     ,'0' as selected,'0' as vcModFlag,'0' as vcAddFlag    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dSyncTime, 111) as dSyncTimeStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dTimeFrom, 111) as dTimeFromStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dTimeTo, 111) as dTimeToStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dTimeFromSJ, 111) as dTimeFromSJStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dGYSTimeFrom, 111) as dGYSTimeFromStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dGYSTimeTo, 111) as dGYSTimeToStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dJiuBegin, 111) as dJiuBeginStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dJiuEnd, 111) as dJiuEndStr    \n");
+                strSql.Append("     ,CONVERT(varchar(100),dSSDate, 111) as dSSDateStr    \n");
                 strSql.Append("     from     \n");
                 strSql.Append("     (     \n");
                 strSql.Append("         select * from TUnit \n");
@@ -403,7 +412,7 @@ namespace DataAccess
                     sql.Append("       ,vcHaoJiu,dJiuBegin,dJiuEnd,vcJiuYear,vcNXQF,dSSDate         \n");
                     sql.Append("       ,vcMeno,vcFXDiff,vcFXNo,vcNum1,vcNum2,vcNum3,vcNum4         \n");
                     sql.Append("       ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10         \n");
-                    sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcSumLater,vcZXBZNo         \n");
+                    sql.Append("       ,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo         \n");
                     sql.Append("       ,vcReceiver,vcOriginCompany,vcOperator,dOperatorTime,vcRemark         \n");
                     sql.Append("       ) values         \n");
                     sql.Append("                ");
@@ -412,7 +421,7 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dSyncTime"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcChange_Name"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"], false) + "      \n");
-                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcSQState_Name"], false) + "      \n");
+                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcSQState"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcDiff"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcCarTypeDesign"], false) + "       \n");
@@ -481,19 +490,6 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum13"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum14"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcNum15"], true) + "      \n");
-
-                    #region 计算旧型经年必要计算数
-                    if (dt.Rows[i]["vcNum1"]==null && dt.Rows[i]["vcNum2"] == null && dt.Rows[i]["vcNum3"] == null && dt.Rows[i]["vcNum4"] == null && dt.Rows[i]["vcNum5"] == null && dt.Rows[i]["vcNum6"] == null && dt.Rows[i]["vcNum7"] == null && dt.Rows[i]["vcNum8"] == null && dt.Rows[i]["vcNum9"] == null && dt.Rows[i]["vcNum10"] == null && dt.Rows[i]["vcNum11"] == null && dt.Rows[i]["vcNum12"] == null && dt.Rows[i]["vcNum13"] == null && dt.Rows[i]["vcNum14"] == null && dt.Rows[i]["vcNum15"] == null)
-                    {
-                        sql.Append("      ,null      \n");
-                    }
-                    else
-                    {
-                        int sumLater = (Convert.ToInt32(dt.Rows[i]["vcNum1"]) + Convert.ToInt32(dt.Rows[i]["vcNum2"]) + Convert.ToInt32(dt.Rows[i]["vcNum3"]) + Convert.ToInt32(dt.Rows[i]["vcNum4"]) + Convert.ToInt32(dt.Rows[i]["vcNum5"]) + Convert.ToInt32(dt.Rows[i]["vcNum6"]) + Convert.ToInt32(dt.Rows[i]["vcNum7"]) + Convert.ToInt32(dt.Rows[i]["vcNum8"]) + Convert.ToInt32(dt.Rows[i]["vcNum9"]) + Convert.ToInt32(dt.Rows[i]["vcNum10"]) + Convert.ToInt32(dt.Rows[i]["vcNum11"]) + Convert.ToInt32(dt.Rows[i]["vcNum12"]) + Convert.ToInt32(dt.Rows[i]["vcNum13"]) + Convert.ToInt32(dt.Rows[i]["vcNum14"]) + Convert.ToInt32(dt.Rows[i]["vcNum15"]));
-                        sql.Append("      ,'"+sumLater+"'      \n");
-                    }
-                    #endregion
-
                     sql.Append(@"      ," + ComFunction.getSqlValue(dt.Rows[i]["vcZXBZNo"], true) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcReceiver_Name"], true) + "     \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcOriginCompany_Name"], true) + "     \n");
@@ -569,7 +565,7 @@ namespace DataAccess
                 sql.Append("      from TUnit a      \n");
                 sql.Append("      inner join       \n");
                 sql.Append("      (      \n");
-                sql.Append("      	select iAutoId from #TUnit_temp      \n");
+                sql.Append("      	select * from #TUnit_temp      \n");
                 sql.Append("      ) b      \n");
                 sql.Append("      on a.iAutoId = b.iAutoId      \n");
 

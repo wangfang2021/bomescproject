@@ -383,7 +383,9 @@ namespace SPPSApi.Controllers.G99
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcNotDY",
                                     "vcYQorNG","vcTH","vcSCPlace_City","vcSCPlace_Province",
                                     "vcCHPlace_City","vcCHPlace_Province","vcSCSName","vcSCSPlace",
-                                    "dSupplier_BJ","dSupplier_HK","dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
+                                    "dSupplier_BJ","dSupplier_HK","dTFTM_BJ","vcZXBZDiff","vcZXBZNo","vcNum1",
+                                    "vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9",
+                                    "vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS9905_Export.xlsx", 2, logininfo.UserId, FunctionID);
                 if (filepath == "")
@@ -437,6 +439,13 @@ namespace SPPSApi.Controllers.G99
                  */
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    if (listInfoData[i]["vcJD"].ToString()=="3")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "已回复的生确单不可重复回复";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                     string strChange = listInfoData[i]["vcChange"]==null?"":listInfoData[i]["vcChnage"].ToString();
                     string strSCPlace_City = listInfoData[i]["vcSCPlace_City"]==null?"":listInfoData[i]["vcSCPlace_City"].ToString();
                     string strSCPlace_Province = listInfoData[i]["vcSCPlace_Province"] == null ? "" : listInfoData[i]["vcSCPlace_Province"].ToString();

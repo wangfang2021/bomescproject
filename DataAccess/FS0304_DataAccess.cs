@@ -28,6 +28,7 @@ namespace DataAccess
                 strSql.Append("     ,b7.vcName as 'vcFXDiff_Name'    \n");
                 strSql.Append("     ,b8.vcName as 'vcIsDYJG_Name'    \n");
                 strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
+                strSql.Append("     ,b10.iNum    \n");
                 strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     from TSQJD a    \n");
                 strSql.Append("     left join     \n");
@@ -66,6 +67,11 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
                 strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
+                strSql.Append("     left join    \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select COUNT(*) as iNum,GUID from TSQJD_THlist    \n");
+                strSql.Append("     	group by GUID    \n");
+                strSql.Append("     )b10 on a.GUID = b10.GUID    \n");
                 strSql.Append("   where 1=1  \n");
                 if (!string.IsNullOrEmpty(strSSDate))
                 {
@@ -131,6 +137,7 @@ namespace DataAccess
                 strSql.Append("     ,b7.vcName as 'vcFXDiff_Name'    \n");
                 strSql.Append("     ,b8.vcName as 'vcIsDYJG_Name'    \n");
                 strSql.Append("     ,b9.vcName as 'vcIsDYFX_Name'    \n");
+                strSql.Append("     ,b10.iNum    \n");
                 strSql.Append("     ,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     from TSQJD a    \n");
                 strSql.Append("     left join     \n");
@@ -169,6 +176,11 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
                 strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
+                strSql.Append("     left join    \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select COUNT(*) as iNum,GUID from TSQJD_THlist    \n");
+                strSql.Append("     	group by GUID    \n");
+                strSql.Append("     )b10 on a.GUID = b10.GUID    \n");
                 strSql.Append("   where 1=1  \n");
                 strSql.Append("   and vcJD <> 4  \n");
 
@@ -314,7 +326,7 @@ namespace DataAccess
                 sql.Append("           vcJD = '3'          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
-                sql.Append("          from TSQJD a          \n");
+                sql.Append("          from TSQJD_Supplier a          \n");
                 sql.Append("          inner join           \n");
                 sql.Append("          (          \n");
                 sql.Append("          select GUID from #TSQJD_temp          \n");
@@ -803,7 +815,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join        \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select avcPart_id from #TSQJD_temp       \n");
+                sql.Append("        	select vcPart_id from #TSQJD_temp       \n");
                 sql.Append("        	where vcIsDYJG = '2'       \n");
                 sql.Append("        ) b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");

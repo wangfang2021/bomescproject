@@ -244,7 +244,9 @@ namespace SPPSApi.Controllers.G03
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
                                     "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
                                     "vcSYTCode_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
-                                    "dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
+                                    "dTFTM_BJ","vcZXBZDiff","vcZXBZNo","vcNum1",
+                                    "vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9",
+                                    "vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "fs0304_export.xlsx", 2, logininfo.UserId, FunctionID);
                 if (filepath == "")
@@ -516,6 +518,14 @@ namespace SPPSApi.Controllers.G03
                 /*校验是否选择多条相同品番、供应商的数据*/
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    //校验已退回数据不能织入原单位
+                    if (listInfoData[i]["vcJD"].ToString()=="3")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "已退回数据不可织入";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                     string strPart_id = listInfoData[i]["vcPart_id"].ToString();
                     string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
                     string tmp = strPart_id + strSupplier_id;

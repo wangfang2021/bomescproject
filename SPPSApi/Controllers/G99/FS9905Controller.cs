@@ -437,7 +437,7 @@ namespace SPPSApi.Controllers.G99
                  */
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string strChange = listInfoData[i]["vcChange"]==null?"":listInfoData[i]["vcChange"].ToString();
+                    string strChange = listInfoData[i]["vcChange"]==null?"":listInfoData[i]["vcChnage"].ToString();
                     string strSCPlace_City = listInfoData[i]["vcSCPlace_City"]==null?"":listInfoData[i]["vcSCPlace_City"].ToString();
                     string strSCPlace_Province = listInfoData[i]["vcSCPlace_Province"] == null ? "" : listInfoData[i]["vcSCPlace_Province"].ToString();
                     string strCHPlace_City = listInfoData[i]["vcCHPlace_City"] == null ? "" : listInfoData[i]["vcCHPlace_City"].ToString();

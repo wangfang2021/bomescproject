@@ -502,13 +502,29 @@ namespace SPPSApi.Controllers.G03
                 /*
                  * 织入原单位时，必须是已回复的才可以织入原单位,已退回的也不能织入
                  */
-
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (listInfoData[i]["vcJD"].ToString()=="4")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "已织入数据不可重复织入！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                Hashtable hash = new Hashtable();
+                /*校验是否选择多条相同品番、供应商的数据*/
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                    string tmp = strPart_id + strSupplier_id;
+                    if (hash[tmp] == null)
+                        hash[tmp] = tmp;
+                    else//曾经添加过，肯定是选择重复了
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "不可选择重复的数据";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

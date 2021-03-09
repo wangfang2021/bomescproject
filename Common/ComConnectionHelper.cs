@@ -49,15 +49,15 @@ namespace Common
             switch (strUnitCode)
             {
                 case "TFTM":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
                 case "SFTM":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTM_TEST; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
                 case "SFTMCF":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_SFTMCF_TEST; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
                 case "TK":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TK_TEST; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb_TK; Data Source =172.23.180.115";
                 default:
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
             }
             //switch (strUnitCode)
             //{
@@ -78,7 +78,7 @@ namespace Common
         #region 获取数据库连接字符串 子获取主
         public static string GetConnectionString_UnitToMain(string strUnitCode)
         {
-            return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb_TEST; Data Source =172.23.180.116";
+            return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb; Data Source =172.23.180.116";
             //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =172.23.140.169";
             //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =.";
         }

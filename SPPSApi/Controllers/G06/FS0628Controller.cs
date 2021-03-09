@@ -372,7 +372,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
+                JArray checkedInfo = dataForm;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                 if (listInfoData.Count == 0)
                 {
@@ -382,10 +382,16 @@ namespace SPPSApi.Controllers.G06
                 }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcIsExportFlag"].ToString() != "0")
+                    if (listInfoData[i]["vcIsExportFlag"].ToString() != "未导入")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = listInfoData[i]["vcOrderNo"] + "的状态不正确,已经导入进度管理操作，不能进行重复操作！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (listInfoData[i]["vcInsideOutsideType"].ToString() != "外注")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcOrderNo"] + "的品番內制品,不能导入外采品！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

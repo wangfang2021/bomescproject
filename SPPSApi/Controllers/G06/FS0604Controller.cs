@@ -556,7 +556,7 @@ namespace SPPSApi.Controllers.G06
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                JArray listInfo = dataForm;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 if (listInfoData.Count == 0)
@@ -607,7 +607,7 @@ namespace SPPSApi.Controllers.G06
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                JArray listInfo = dataForm;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 if (listInfoData.Count == 0)
@@ -659,7 +659,7 @@ namespace SPPSApi.Controllers.G06
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                JArray listInfo = dataForm;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 if (listInfoData.Count == 0)
@@ -723,7 +723,7 @@ namespace SPPSApi.Controllers.G06
                 //以下开始业务处理
 
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                JArray listInfo = dataForm;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 if (listInfoData.Count == 0)

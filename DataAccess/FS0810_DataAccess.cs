@@ -518,7 +518,7 @@ namespace DataAccess
                 sql.Append("	from TPackageMaster      \n");
                 sql.Append(")t1    \n");
                 sql.Append("left join (    \n");
-                sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem where getdate() between dFrom and dTo    \n");
+                sql.Append("	select distinct vcPartsNo,vcPackNo from TPackItem --where getdate() between dFrom and dTo    \n");
                 sql.Append(") t2 on t1.vcPart_id=t2.vcPartsNo    \n");
                 sql.Append("left join (    \n");
                 sql.Append("	select * from TPMSmall     \n");

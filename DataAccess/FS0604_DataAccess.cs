@@ -461,7 +461,7 @@ namespace DataAccess
                     }
                     else
                     {
-                        strSqlZZ.AppendLine("   select @isExist=COUNT(*) from TSPMaster_Box where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartId='" + vcPartId + "' and vcSupplierId='" + vcSupplierId + "' and vcSupplierPlant='" + vcSupplierPlant + "'   ");
+                        strSqlZZ.AppendLine("   select * from TSPMaster_Box where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartId='" + vcPartId + "' and vcSupplierId='" + vcSupplierId + "' and vcSupplierPlant='" + vcSupplierPlant + "'   ");
                         DataTable dtZZ = excute.ExcuteSqlWithSelectToDT(strSqlZZ.ToString());
                         if (dtZZ.Rows.Count > 0)
                         {
@@ -469,7 +469,8 @@ namespace DataAccess
                             dataRow["vcMessage"] = "包装工程" + vcPackingPlant + " 收货方" + vcReceiver + " 供应商" + vcSupplierId + " 品番" + vcPartId + "字表数据表已经存在数据,无法织入，请手动织入";
                             dtMessage.Rows.Add(dataRow);
                             bReault = false;
-                        }
+                        }else
+                        { 
                         strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_Box]   ");
                         strSql.AppendLine("             ([vcPackingPlant],[vcPartId]  ,[vcReceiver],[vcSupplierId]   ");
                         strSql.AppendLine("             ,[vcSupplierPlant],[dFromTime] ,[dToTime] ,[iPackingQty],[vcBoxType],[iLength]  ,[iWidth]   ");
@@ -478,6 +479,11 @@ namespace DataAccess
                         strSql.AppendLine("  '" + vcSupplierPlant + "','" + dFromTime + "','" + dToTime + "','" + iPackingQty + "','" + vcBoxType + "','" + iLength + "','" + iWidth + "',   ");
                         strSql.AppendLine("   '" + iHeight + "','" + iVolume + "','1', '" + userId + "',getdate()); ");
                         strSql.AppendLine("    update [THeZiManage] set  vcState='5',dWeaveDate =GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId = " + iAutoId + "  ; ");
+                            if (strSql.Length > 0)
+                            {
+                                excute.ExcuteSqlWithStringOper(strSql.ToString());
+                            }
+                        }
                     }
 
                     //strSql.AppendLine("  declare @isExist int =0;   ");
@@ -505,14 +511,11 @@ namespace DataAccess
                     //strSql.AppendLine("   '" + iHeight + "','" + iVolume + "','1', '" + userId + "',getdate()); ");
                     //strSql.AppendLine("  end ;  ");
                     //strSql.AppendLine("    update [THeZiManage] set  vcState='5',dWeaveDate =GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId = "+ iAutoId + "  ; ");
-                    if (!bReault)
-                    {
-                        return;
-                    }
-                    if (strSql.Length>0)
-                    {
-                        excute.ExcuteSqlWithStringOper(strSql.ToString());
-                    }
+                    
+                }
+                if (!bReault)
+                {
+                    return;
                 }
             }
             catch (Exception ex)
@@ -814,7 +817,7 @@ namespace DataAccess
                     {
                         vcOEOrSP = "1";
                     }
-                    else if (vcOEOrSP == "⭕")
+                    else if (vcOEOrSP == "○")
                     {
                         vcOEOrSP = "0";
                     }

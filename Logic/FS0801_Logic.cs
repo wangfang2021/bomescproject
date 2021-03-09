@@ -32,13 +32,6 @@ namespace Logic
         }
         #endregion
 
-        #region 获取
-        public void Gain(string strUserId)
-        {
-            fs0801_DataAccess.Gain(strUserId);
-        }
-        #endregion
-
         #region 导入
         public void import(DataTable dt, string strUserId)
         {

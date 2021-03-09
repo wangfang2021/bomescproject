@@ -11,36 +11,36 @@ using Org.BouncyCastle.Crmf;
 
 namespace Logic
 {
-    public class FS0406_Logic
+    public class FS0408_Logic
     {
-        FS0406_DataAccess fs0406_dataAccess = new FS0406_DataAccess();
+        FS0408_DataAccess fs0408_dataAccess = new FS0408_DataAccess();
         #region 检索
 
         public DataTable searchApi(string vcReceiver, string vcType, string vcState, string start, string end)
         {
-            return fs0406_dataAccess.searchApi(vcReceiver, vcType, vcState, start, end);
+            return fs0408_dataAccess.searchApi(vcReceiver, vcType, vcState, start, end);
         }
         #endregion
 
         public void createInfo(string Receiver, bool inFlag, string inTime, bool outFlag, string outStart, string outEnd, string userId, ref string msg)
         {
-            fs0406_dataAccess.createInfo(Receiver, inFlag, inTime, outFlag, outStart, outEnd, userId, ref msg);
+            fs0408_dataAccess.createInfo(Receiver, inFlag, inTime, outFlag, outStart, outEnd, userId, ref msg);
         }
 
         public void delApi(List<Dictionary<string, Object>> listInfoData)
         {
-            fs0406_dataAccess.delApi(listInfoData);
+            fs0408_dataAccess.delApi(listInfoData);
         }
 
         public DataTable getData(string vcRelation, string vcFlag)
         {
             if (vcFlag.Equals("入库"))
             {
-                return fs0406_dataAccess.getIn(vcRelation);
+                return fs0408_dataAccess.getIn(vcRelation);
             }
             else if (vcFlag.Equals("出库"))
             {
-                return fs0406_dataAccess.getOut(vcRelation);
+                return fs0408_dataAccess.getOut(vcRelation);
             }
 
             return new DataTable();
@@ -51,8 +51,8 @@ namespace Logic
         {
             try
             {
-                fs0406_dataAccess.changeState(listInfoData[0]["iAuto_id"].ToString(), "1", strUserId, "0");
-                string total = fs0406_dataAccess.getTotal(listInfoData[0]["vcRelation"].ToString());
+                fs0408_dataAccess.changeState(listInfoData[0]["iAuto_id"].ToString(), "1", strUserId, "0");
+                string total = fs0408_dataAccess.getTotal(listInfoData[0]["vcRelation"].ToString());
                 string range = listInfoData[0]["vcRange"].ToString();
                 //TODO 发送邮件
                 string strSubject = "FTMS财务对账。";
@@ -61,7 +61,7 @@ namespace Logic
                 DataTable receiverDt = new DataTable();
                 receiverDt.Columns.Add("address");
                 receiverDt.Columns.Add("displayName");
-                DataTable dt = fs0406_dataAccess.getReceiverEmail();
+                DataTable dt = fs0408_dataAccess.getReceiverEmail();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow dr = receiverDt.NewRow();
@@ -99,7 +99,7 @@ namespace Logic
         {
             try
             {
-                fs0406_dataAccess.changeState(listInfoData[0]["iAuto_id"].ToString(), "2", strUserId, "1");
+                fs0408_dataAccess.changeState(listInfoData[0]["iAuto_id"].ToString(), "2", strUserId, "1");
                 //TODO 发送邮件
                 string strSubject = "FTMS结果反馈。";
                 DataTable cCDt = null;
@@ -107,7 +107,7 @@ namespace Logic
                 DataTable receiverDt = new DataTable();
                 receiverDt.Columns.Add("address");
                 receiverDt.Columns.Add("displayName");
-                DataTable dt = fs0406_dataAccess.getTFTMEmail();
+                DataTable dt = fs0408_dataAccess.getTFTMEmail();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow dr = receiverDt.NewRow();

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using BatchProcess;
 
 
 namespace SPPSApi.Controllers.G08
@@ -55,7 +55,11 @@ namespace SPPSApi.Controllers.G08
                 //    res.Add("caiWuBtnVisible", true);
 
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装厂
+                List<Object> dataList_C062 = ComFunction.convertAllToResult(ComFunction.getTCode("C062"));//包装区分
+                List<Object> dataList_C063 = ComFunction.convertAllToResult(ComFunction.getTCode("C063"));//入荷区分
                 res.Add("C023", dataList_C023);
+                res.Add("C062", dataList_C062);
+                res.Add("C063", dataList_C063);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -138,8 +142,8 @@ namespace SPPSApi.Controllers.G08
             try
             {
                 DataTable dt = fs0801_Logic.Search(vcBZPlant, vcPart_id, vcBigPM, vcSmallPM);
-                string[] heads = { "品番", "使用开始", "使用结束","包装厂","大品目","小品目","基准时间","包装区分","包装单位","入荷区分"};
-                string[] fields = { "vcPart_id","dTimeFrom","dTimeTo","vcBZPlant","vcBigPM","vcSmallPM","vcStandardTime","vcBZQF","vcBZUnit","vcRHQF"};
+                string[] heads = { "品番", "使用开始", "使用结束","收货方","供应商","包装厂","包装场","大品目","小品目","基准时间","包装区分","包装单位","入荷区分"};
+                string[] fields = { "vcPart_id","dTimeFrom","dTimeTo", "vcReceiver", "vcSupplierId", "vcPackingPlant", "vcBZPlant", "vcBigPM","vcSmallPM","vcStandardTime","vcBZQFName","vcBZUnit","vcRHQFName"};
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -207,7 +211,7 @@ namespace SPPSApi.Controllers.G08
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"包装厂","小品目","包装区分","包装单位","入荷区分"},//中文字段名
+                        {"包装场","小品目","包装区分","包装单位","入荷区分"},//中文字段名
                         {"vcBZPlant","vcSmallPM","vcBZQF","vcBZUnit","vcRHQF"},//英文字段名
                         {"","","","",""},//数据类型校验
                         {"25","25","25","25","25"},//最大长度设定,不校验最大长度用0
@@ -255,9 +259,9 @@ namespace SPPSApi.Controllers.G08
             ApiResult apiResult = new ApiResult();
             try
             {
-                //从采购品番基础数据表中获取数据：品番、开始、结束、受入
-                fs0801_Logic.Gain(loginInfo.UserId);
-
+                FP0011 fp = new FP0011();
+                fp.main(loginInfo.UserId, "TPackageMaster");
+                
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

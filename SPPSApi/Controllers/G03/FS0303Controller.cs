@@ -550,16 +550,10 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 #region 校验所选择的数据能否进行发行
-                int strSQStateSum = 0;      //记录生确状态不为未确认       确认中和已确认的不能再次发行
                 int strChangeSum = 0;       //记录变更事项
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string strSQState = listInfoData[i]["vcSQState"].ToString();
-                    if (strSQState!="0")
-                    {
-                        strSQStateSum++;
-                    }
                     string strChange = listInfoData[i]["vcChange"].ToString();
                     if (strChange != "1" &&
                         strChange != "2" &&
@@ -575,13 +569,6 @@ namespace SPPSApi.Controllers.G03
                     {
                         strChangeSum++;
                     }
-                }
-
-                if (strSQStateSum >=1)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "只可发行未确认的信息";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (strChangeSum>=1)
                 {

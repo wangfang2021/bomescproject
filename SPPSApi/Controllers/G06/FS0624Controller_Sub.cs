@@ -51,20 +51,14 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strChangeDateFrom = dataForm.ChangeDateFrom;
-            string strChangeDateTo = dataForm.ChangeDateTo;
             string strChangeNo = dataForm.ChangeNo;
-            string strState = dataForm.State;
-            string strOrderNo = dataForm.OrderNo;
 
             try
             {
-                DataTable dt = fs0624_Logic.Search(strChangeDateFrom, strChangeDateTo, strChangeNo, strState, strOrderNo);
+                DataTable dt = fs0624_Logic.SearchDetial(strChangeNo);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dFileUpload", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");
-
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -95,20 +89,14 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strChangeDateFrom = dataForm.ChangeDateFrom;
-            string strChangeDateTo = dataForm.ChangeDateTo;
             string strChangeNo = dataForm.ChangeNo;
-            string strState = dataForm.State;
-            string strOrderNo = dataForm.OrderNo;
 
             try
             {
-                DataTable dt = fs0624_Logic.Search(strChangeDateFrom, strChangeDateTo, strChangeNo, strState, strOrderNo);
-                string[] fields = { "vcChangeDate", "vcChangeNo" ,"vcChangeType","vcGroupName","iQuantityBefore","iQuantityNow","decChangePercent"
-                        ,"iQuantityBeforeTotal","iQuantityNowTotal","dFileUpload","dFileUpload","vcState","vcOrderNo"
+                DataTable dt = fs0624_Logic.SearchDetial(strChangeNo);
+                string[] fields = { "vcChangeDate", "vcChangeNo" ,"vcGroupName","vcPart_Id","iQuantityBefore","iQuantityNow","decChangePercent"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0624_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0624_Export_Sub.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -385,12 +385,12 @@ namespace SPPSApi.Controllers.G03
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"实施日期"     ,"进度","补给品番" ,"设变号" ,"变更事项","车种"     ,"内外区分"   ,"品名"      ,"OE=SP","供应商代码"   ,"防锈指示","防锈指示书","旧型今后必要预测数","对应可否确认结果","防锈对应可否","延期说明/NG理由","退回理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂" ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
-                                                        {"dSSDate"      ,"vcJD","vcPart_id","vcSPINo","vcChange","vcCarType","vcInOutflag","vcPartName","vcOE" ,"vcSupplier_id","vcFXDiff","vcFXNo"    ,"vcSumLater"        ,"vcIsDYJG"        ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcTH"    ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode","vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
-                                                        {FieldCheck.Date,""    ,""         ,""       ,""        ,""         ,""           ,""          ,""     ,""             ,""        ,""          ,""                  ,""                ,""            ,""               ,""        ,""              ,""                  ,""              ,""                  ,""         ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
-                                                        {"0"            ,"2"   ,"12"       ,"20"     ,"2"       ,"4"        ,"1"          ,"100"       ,"1"    ,"4"            ,"1"       ,"12"        ,"20"                ,"1"               ,"1"           ,"100"            ,"100"     ,"100"           ,"100"               ,"100"           ,"100"               ,"100"      ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
-                                                        {"0"            ,"1"   ,"0"        ,"0"      ,"0"       ,"0"        ,"0"          ,"0"         ,"0"    ,"0"            ,"0"       ,"0"         ,"0"                 ,"0"               ,"0"           ,"0"              ,"0"       ,"0"             ,"0"                 ,"0"             ,"0"                 ,"0"        ,"0"         ,"0"         ,"0"                  ,"0"                  ,"0"                ,"0"           ,"0"         },//最小长度设定,可以为空用0
-                                                        {"1"            ,"2"   ,"3"        ,"4"      ,"5"       ,"6"        ,"7"          ,"8"         ,"9"    ,"10"           ,"11"      ,"12"        ,"13"                ,"14"              ,"15"          ,"16"             ,"17"      ,"18"            ,"19"                ,"20"            ,"21"                ,"22"       ,"23"        ,"24"        ,"25"                 ,"26"                 ,"27"               ,"28"          ,"29"       }//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"补给品番" ,"实施日期"     ,"进度","设变号" ,"变更事项","车种"     ,"内外区分"   ,"品名"      ,"OE=SP","供应商代码"   ,"防锈指示","防锈指示书","旧型今后必要预测数","对应可否确认结果","防锈对应可否","延期说明/NG理由","退回理由","生产地-市"     ,"生产地-省"         ,"出荷地-市"     ,"出荷地-省"         ,"包装工厂" ,"生产商名称","生产商地址","供应商切替日期-补给","供应商切替日期-号口","TFTM调整日期-补给","执行标准区分","执行标准NO"},
+                                                        {"vcPart_id","dSSDate"      ,"vcJD","vcSPINo","vcChange","vcCarType","vcInOutflag","vcPartName","vcOE" ,"vcSupplier_id","vcFXDiff","vcFXNo"    ,"vcSumLater"        ,"vcIsDYJG"        ,"vcIsDYFX"    ,"vcYQorNG"       ,"vcTH"    ,"vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province","vcSYTCode","vcSCSName" ,"vcSCSPlace","dSupplier_BJ"       ,"dSupplier_HK"       ,"dTFTM_BJ"         ,"vcZXBZDiff"  ,"vcZXBZNo"  },
+                                                        {""         ,FieldCheck.Date,""    ,""       ,""        ,""         ,""           ,""          ,""     ,""             ,""        ,""          ,""                  ,""                ,""            ,""               ,""        ,""              ,""                  ,""              ,""                  ,""         ,""          ,""          ,FieldCheck.Date      ,FieldCheck.Date      ,FieldCheck.Date    ,""            ,""          },
+                                                        {"12"       ,"0"            ,"2"   ,"20"     ,"2"       ,"4"        ,"1"          ,"100"       ,"1"    ,"4"            ,"1"       ,"12"        ,"20"                ,"1"               ,"1"           ,"100"            ,"100"     ,"100"           ,"100"               ,"100"           ,"100"               ,"100"      ,"100"       ,"100"       ,"0"                  ,"0"                  ,"0"                ,"100"         ,"100"       },//最大长度设定,不校验最大长度用0
+                                                        {"0"        ,"0"            ,"1"   ,"0"      ,"0"       ,"0"        ,"0"          ,"0"         ,"0"    ,"0"            ,"0"       ,"0"         ,"0"                 ,"0"               ,"0"           ,"0"              ,"0"       ,"0"             ,"0"                 ,"0"             ,"0"                 ,"0"        ,"0"         ,"0"         ,"0"                  ,"0"                  ,"0"                ,"0"           ,"0"         },//最小长度设定,可以为空用0
+                                                        {"1"        ,"2"            ,"3"   ,"4"      ,"5"       ,"6"        ,"7"          ,"8"         ,"9"    ,"10"           ,"11"      ,"12"        ,"13"                ,"14"              ,"15"          ,"16"             ,"17"      ,"18"            ,"19"                ,"20"            ,"21"                ,"22"       ,"23"        ,"24"        ,"25"                 ,"26"                 ,"27"               ,"28"          ,"29"       }//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = null;
@@ -500,15 +500,31 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 /*
-                 * 织入原单位时，必须是已回复的才可以织入原单位
+                 * 织入原单位时，必须是已回复的才可以织入原单位,已退回的也不能织入
                  */
-
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (listInfoData[i]["vcJD"].ToString()=="4")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "已织入数据不可重复织入！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                Hashtable hash = new Hashtable();
+                /*校验是否选择多条相同品番、供应商的数据*/
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                    string tmp = strPart_id + strSupplier_id;
+                    if (hash[tmp] == null)
+                        hash[tmp] = tmp;
+                    else//曾经添加过，肯定是选择重复了
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "不可选择重复的数据";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

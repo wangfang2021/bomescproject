@@ -55,6 +55,7 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
                 List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
+                dataList_C002.Add("");
                 List<string> dataList_C003 = convertTCodeToResult(getTCode("C003"));//内外区分
                 List<string> dataList_C004 = convertTCodeToResult(getTCode("C004"));//号旧区分
                 List<string> dataList_C005 = convertTCodeToResult(getTCode("C005"));//收货方
@@ -366,7 +367,7 @@ namespace SPPSApi.Controllers.G03
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
+                    apiResult.data = "以下品番不满足品番、包装工厂、供应商、收货方唯一性校验<br/>" + strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -549,16 +550,10 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 #region 校验所选择的数据能否进行发行
-                int strSQStateSum = 0;      //记录生确状态不为未确认       确认中和已确认的不能再次发行
                 int strChangeSum = 0;       //记录变更事项
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string strSQState = listInfoData[i]["vcSQState"].ToString();
-                    if (strSQState!="0")
-                    {
-                        strSQStateSum++;
-                    }
                     string strChange = listInfoData[i]["vcChange"].ToString();
                     if (strChange != "1" &&
                         strChange != "2" &&
@@ -574,13 +569,6 @@ namespace SPPSApi.Controllers.G03
                     {
                         strChangeSum++;
                     }
-                }
-
-                if (strSQStateSum >=1)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "只可发行未确认的信息";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (strChangeSum>=1)
                 {
@@ -599,7 +587,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "生确单发行成功!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

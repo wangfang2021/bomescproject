@@ -54,6 +54,9 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
+            string vcDate = dataForm.vcDate == null ? "" : JsonConvert.SerializeObject(dataForm.vcDate);
+            string[] vcDates = vcDate.Replace("\"", "").Replace("[", "").Replace("]", "").Replace("-","").Split(",");
+
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             try
             {
@@ -67,12 +70,11 @@ namespace SPPSApi.Controllers.G06
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
                 string[,] headers = new string[,] {
-                                                {"包装工厂","发注工厂","对象月","供应商代码","工区","受入","订单号","品番","号旧区分","订单数量","未纳数量","未纳原因","预计挽回时间","实际挽回时间"},
-                                                {"vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
-                                                 "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason","vcExpectRedeemDate", "vcRealRedeemDate"},
-                                                {"","","",FieldCheck.Num,"","","","","",FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Date,FieldCheck.Date },
-                                                {"10","10","6","4","50","20","50","12","20","20","20","500","50","50"},//最大长度设定,不校验最大长度用0
-                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
+                                                {"供应商代码","工区","受入","订单号","品番","订单数量"},
+                                                {"vcSupplier_id", "vcWorkArea", "vcDock", "vcOrderNo", "vcPartNo", "vcOrderNumber"},
+                                                {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Num},
+                                                {"4","2","10","12","12","8"},//最大长度设定,不校验最大长度用0
+                                                {"4","1","1","10","10","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -121,7 +123,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0626_Logic.importSave(importDt,"","", loginInfo.UserId); 
+                fs0626_Logic.importSave(importDt, vcDates[0], vcDates[1], loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

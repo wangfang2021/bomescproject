@@ -24,9 +24,7 @@ namespace SPPSApi.Controllers.G06
     {
         FS0626_Logic fs0626_Logic = new FS0626_Logic();
         private readonly string FunctionID = "FS0626";
-
         private readonly IWebHostEnvironment _webHostEnvironment;
-
 
         public FS0626Controller(IWebHostEnvironment webHostEnvironment)
         {
@@ -48,9 +46,11 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             try
             {
-                Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(fs0626_Logic.bindplant());
-                res.Add("dataList_Plant", dataList_PlantSource);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                List<object> dataList_InjectionPlant = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
+                List<object> dataList_PackPlant = ComFunction.convertAllToResult(fs0626_Logic.getPackPlant());
+                res.Add("dataList_PackPlant", dataList_PackPlant);
+                res.Add("dataList_InjectionPlant", dataList_InjectionPlant);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -80,6 +80,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
             string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
@@ -90,11 +91,10 @@ namespace SPPSApi.Controllers.G06
             string vcReceiveFlag = dataForm.vcReceiveFlag == null ? "" : dataForm.vcReceiveFlag;
             try
             {
-                DataTable dt = fs0626_Logic.Search(vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
+                DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcExpectRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd");
-                dtConverter.addField("vcRealRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
@@ -126,6 +126,7 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
             string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
@@ -136,7 +137,7 @@ namespace SPPSApi.Controllers.G06
             string vcReceiveFlag = dataForm.vcReceiveFlag == null ? "" : dataForm.vcReceiveFlag;
             try
             {
-                DataTable dt = fs0626_Logic.Search(vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
+                DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
                 string[] fields = { "vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
                                     "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason",
                                     "vcExpectRedeemDate", "vcRealRedeemDate"

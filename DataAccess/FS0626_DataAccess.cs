@@ -43,12 +43,12 @@ namespace DataAccess
             }
         }
 
-        public DataTable Search(string vcPackPlant, string vcInjectionPlant, string vcTargetMonth, string vcSupplier_id, string vcWorkArea, string vcDock, string vcOrderNo, string vcPartNo, string vcReceiveFlag)
+        public DataTable Search(string vcPackPlant, string vcInjectionFactory, string vcTargetMonth, string vcSupplier_id, string vcWorkArea, string vcDock, string vcOrderNo, string vcPartNo, string vcReceiveFlag)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" select vcPackPlant, vcInjectionPlant, vcTargetMonth, vcSupplier_id, vcWorkArea, ");
+                strSql.AppendLine(" select vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, ");
                 strSql.AppendLine(" vcDock, vcOrderNo, vcPartNo, vcNewOldFlag, ");
                 strSql.AppendLine(" vcOrderNumber, vcNoReceiveNumber, ");
                 strSql.AppendLine(" vcNoReceiveReason, vcExpectRedeemDate, 1 as vcFlag, '0' as iflag,'0' as vcModFlag,'0' as vcAddFlag, iAutoId  ");
@@ -58,9 +58,9 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" and vcPackPlant= '" + vcPackPlant + "' ");
                 }
-                if (vcInjectionPlant.Length > 0)
+                if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine(" and vcInjectionPlant='" + vcInjectionPlant + "' ");
+                    strSql.AppendLine(" and vcInjectionFactory='" + vcInjectionFactory + "' ");
                 }
                 if (vcTargetMonth.Length > 0)
                 {
@@ -181,7 +181,7 @@ namespace DataAccess
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                         sql.Append("  update TOutsidePurchaseManage set   \r\n");
                         sql.Append("  vcPackPlant=" + ComFunction.getSqlValue(listInfoData[i]["vcPackPlant"], false) + "   \r\n");
-                        sql.Append("  ,vcInjectionPlant=" + ComFunction.getSqlValue(listInfoData[i]["vcInjectionPlant"], false) + "   \r\n");
+                        sql.Append("  ,vcInjectionFactory=" + ComFunction.getSqlValue(listInfoData[i]["vcInjectionFactory"], false) + "   \r\n");
                         sql.Append("  ,vcTargetMonth=" + ComFunction.getSqlValue(listInfoData[i]["vcTargetMonth"], true) + "   \r\n");
                         sql.Append("  ,vcSupplier_id=" + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], true) + "   \r\n");
                         sql.Append("  ,vcWorkArea=" + ComFunction.getSqlValue(listInfoData[i]["vcWorkArea"], true) + "   \r\n");
@@ -382,7 +382,7 @@ namespace DataAccess
                     SqlCommand cmdUpdate2 = new SqlCommand();
                     cmdUpdate2.Connection = conn;
                     cmdUpdate2.CommandText += "update TOutsidePurchaseManage ";
-                    cmdUpdate2.CommandText += "set TOutsidePurchaseManage.vcInjectionPlant=d.vcValue5 ";
+                    cmdUpdate2.CommandText += "set TOutsidePurchaseManage.vcInjectionFactory=d.vcValue5 ";
                     cmdUpdate2.CommandText += "from (select vcValue1,vcValue2,vcValue5 from TOutCode ";
                     cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE()) d ";
                     cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcSupplier_id=d.vcValue1 and TOutsidePurchaseManage.vcWorkArea=d.vcValue2 ";

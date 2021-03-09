@@ -81,7 +81,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
-            string vcInjectionPlant = dataForm.vcInjectionPlant == null ? "" : dataForm.vcInjectionPlant;
+            string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
             string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
@@ -91,7 +91,7 @@ namespace SPPSApi.Controllers.G06
             string vcReceiveFlag = dataForm.vcReceiveFlag == null ? "" : dataForm.vcReceiveFlag;
             try
             {
-                DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionPlant, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
+                DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcExpectRedeemDate", ConvertFieldType.DateType, "yyyy-MM-dd");
@@ -127,7 +127,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
-            string vcInjectionPlant = dataForm.vcInjectionPlant == null ? "" : dataForm.vcInjectionPlant;
+            string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
             string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
@@ -137,8 +137,8 @@ namespace SPPSApi.Controllers.G06
             string vcReceiveFlag = dataForm.vcReceiveFlag == null ? "" : dataForm.vcReceiveFlag;
             try
             {
-                DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionPlant, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
-                string[] fields = { "vcPackPlant", "vcInjectionPlant", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
+                DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
+                string[] fields = { "vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
                                     "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason",
                                     "vcExpectRedeemDate", "vcRealRedeemDate"
                 };
@@ -246,7 +246,7 @@ namespace SPPSApi.Controllers.G06
                 if (hasFind)
                 {
                     string[,] strField = new string[,] {{"包装工厂","发注工厂","对象月","供应商代码","工区","受入","订单号","品番","号旧区分","订单数量","未纳数量","未纳原因","预计挽回时间","实际挽回时间"},
-                                                {"vcPackPlant", "vcInjectionPlant", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
+                                                {"vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
                                                  "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason",
                                                  "vcExpectRedeemDate", "vcRealRedeemDate"},
                                                 {"","","","","","","","","","","","","","" },

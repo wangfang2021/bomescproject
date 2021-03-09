@@ -446,7 +446,7 @@ namespace SPPSApi.Controllers.G99
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 
-                    string strChange = listInfoData[i]["vcChange"]==null?"":listInfoData[i]["vcChnage"].ToString();
+                    string strChange = listInfoData[i]["vcChange"]==null?"":listInfoData[i]["vcChange"].ToString();
                     string strSCPlace_City = listInfoData[i]["vcSCPlace_City"]==null?"":listInfoData[i]["vcSCPlace_City"].ToString();
                     string strSCPlace_Province = listInfoData[i]["vcSCPlace_Province"] == null ? "" : listInfoData[i]["vcSCPlace_Province"].ToString();
                     string strCHPlace_City = listInfoData[i]["vcCHPlace_City"] == null ? "" : listInfoData[i]["vcCHPlace_City"].ToString();

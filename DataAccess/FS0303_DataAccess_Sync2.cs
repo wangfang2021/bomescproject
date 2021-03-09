@@ -725,7 +725,7 @@ namespace DataAccess
             strSql.Append("       	,a.vcPartNameEn,a.vcOE,a.vcHKPart_id,a.vcFXDiff,a.vcFXNo      \r\n");
             strSql.Append("       	,a.vcSumLater,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,a.vcNum11,a.vcNum12,a.vcNum13,a.vcNum14,a.vcNum15      \r\n");
             strSql.Append("         ,a.vcDownRecever,a.vcOriginCompany,GETDATE()        \r\n");
-            strSql.Append("         ,'"+strLastTimeFlag+ "'," + strOperatorID + ",GETDATE()       \r\n");
+            strSql.Append("         ,'"+strLastTimeFlag+ "','" + strOperatorID + "',GETDATE()       \r\n");
             strSql.Append("        from       \r\n");
             strSql.Append("       (      \r\n");
             strSql.Append("       	select a.*      \r\n");
@@ -1366,7 +1366,7 @@ namespace DataAccess
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
-            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,,vcPartNameCna.vcCarTypeDev       \r\n");
+            strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,vcPartNameCn,vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dTimeFrom,a.dTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");

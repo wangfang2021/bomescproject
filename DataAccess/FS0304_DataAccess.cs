@@ -591,7 +591,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('6')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -609,7 +609,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('6')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -625,7 +625,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp  a     \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('4','21')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -643,7 +643,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('4','21')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -659,7 +659,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('9')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -678,7 +678,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('9')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -696,7 +696,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('8')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -715,7 +715,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('8')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -731,11 +731,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
-                sql.Append("        	inner join       \n");
-                sql.Append("        	(       \n");
-                sql.Append("        		select [GUID] from TSQJD       \n");
-                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('11')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -754,11 +750,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
-                sql.Append("        	inner join       \n");
-                sql.Append("        	(       \n");
-                sql.Append("        		select [GUID] from TSQJD       \n");
-                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('11')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -775,11 +767,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp  a     \n");
-                sql.Append("        	inner join       \n");
-                sql.Append("        	(       \n");
-                sql.Append("        		select [GUID] from TSQJD       \n");
-                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('10')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -798,11 +786,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.* from #TSQJD_temp a      \n");
-                sql.Append("        	inner join       \n");
-                sql.Append("        	(       \n");
-                sql.Append("        		select [GUID] from TSQJD       \n");
-                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
+                sql.Append("        	select * from #TSQJD_temp       \n");
                 sql.Append("        	where vcChange in ('10')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -819,11 +803,7 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join        \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select a.vcPart_id from #TSQJD_temp a      \n");
-                sql.Append("        	inner join       \n");
-                sql.Append("        	(       \n");
-                sql.Append("        		select [GUID] from TSQJD       \n");
-                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
+                sql.Append("        	select avcPart_id from #TSQJD_temp       \n");
                 sql.Append("        	where vcIsDYJG = '2'       \n");
                 sql.Append("        ) b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");

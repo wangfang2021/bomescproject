@@ -421,6 +421,20 @@ namespace DataAccess
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    //H	号口
+                    //Q 旧型
+                    string vcNewOldFlag = listInfoData[i]["vcNewOldFlag"].ToString();
+                    if (vcNewOldFlag == "号口")
+                    {
+                        vcNewOldFlag = "H";
+                    }
+                    else if (vcNewOldFlag == "旧型")
+                    {
+                        vcNewOldFlag = "Q";
+                    }
+                    else
+                    { }
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     sql.AppendLine("   insert into TOutsidePurchaseManage    ");
                     sql.AppendLine("   ([vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea],    ");
                     sql.AppendLine("   [vcDock], [vcOrderNo], [vcPartNo], [vcNewOldFlag], [vcOrderNumber],  [vcReceiveFlag],    ");
@@ -428,17 +442,17 @@ namespace DataAccess
                     sql.AppendLine(" values (   ");
                     sql.AppendLine("  '"+ strUnitCode + "',  ");
                     sql.AppendLine(getSqlValue(listInfoData[i]["vcInjectionFactory"], false) +" ,    ");
-                    sql.AppendLine("   'convert(varchar(6), getdate(),112)',    ");
+                    sql.AppendLine("   convert(varchar(6), getdate(),112),    ");
                     sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcDock"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcOrderNo"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcPartNo"], false) + ",  \r\n");
-                    sql.Append(getSqlValue(listInfoData[i]["vcNewOldFlag"], false) + ",  \r\n");
+                    sql.Append(getSqlValue(vcNewOldFlag, true) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcOrderNum"], false) + ",  \r\n");
                     sql.Append("  '0', '" + userId + "', GETDATE() \r\n");
                     sql.Append(" );  \r\n");
-                    sql.AppendLine("   update TEmergentOrderManage set vcIsExportFlag='1' where vcOrderNo='"+listInfoData[i]["vcOrderNo"]+ "' and dOrderHandleDate='" + listInfoData[i]["dOrderHandleDate"] + "';   \r\n ");
+                    sql.AppendLine("   update TEmergentOrderManage set vcIsExportFlag='1' where iAutoId=" + iAutoId + ";   \r\n ");
                 }
 
                 if (sql.Length > 0)

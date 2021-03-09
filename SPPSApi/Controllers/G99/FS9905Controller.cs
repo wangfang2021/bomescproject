@@ -439,7 +439,7 @@ namespace SPPSApi.Controllers.G99
                  */
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcJD"].ToString()=="3")
+                    if (listInfoData[i]["vcJD"].ToString()=="2")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "已回复的生确单不可重复回复";

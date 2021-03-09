@@ -432,7 +432,23 @@ namespace SPPSApi.Controllers.G99
                     apiResult.data = "未选择任何行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                /*
+                 * 生确回复时，如果变更事项为新设或旧型，需要需要填写生产地、出荷地
+                 */
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string strChange = listInfoData[i]["vcChange"]==null?"":listInfoData[i]["vcChnage"].ToString();
+                    string strSCPlace_City = listInfoData[i]["vcSCPlace_City"]==null?"":listInfoData[i]["vcSCPlace_City"].ToString();
+                    string strSCPlace_Province = listInfoData[i]["vcSCPlace_Province"] == null ? "" : listInfoData[i]["vcSCPlace_Province"].ToString();
+                    string strCHPlace_City = listInfoData[i]["vcCHPlace_City"] == null ? "" : listInfoData[i]["vcCHPlace_City"].ToString();
+                    string strCHPlace_Province = listInfoData[i]["vcCHPlace_Province"] == null ? "" : listInfoData[i]["vcCHPlace_Province"].ToString();
+                    if ((strChange=="1"||strChange=="2"||strChange=="3"||strChange=="4")&&(string.IsNullOrEmpty(strSCPlace_City)||string.IsNullOrEmpty(strCHPlace_City)))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "生确回复时，变更事项为新车新设、设变新设、打切旧型、设变旧型时，生产地与出荷地不能为空！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 #region 数据校验
                 string[,] strField = new string[,] {{"对应可否确认结果"    ,"防锈对应可否"},
                                                     {"vcIsDYJG"            ,"vcIsDYFX"    },
@@ -460,8 +476,7 @@ namespace SPPSApi.Controllers.G99
                 }
                 #endregion
 
-
-                    string strErr = "";
+                string strErr = "";
                 fs9905_Logic.Send(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {

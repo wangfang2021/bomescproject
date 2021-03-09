@@ -324,7 +324,7 @@ namespace DataAccess
 
                 #region 在履历表中记录退回信息
                 sql.Append("      insert into TSQJD_THlist (GUID,vcPart_id,vcTHText,dTHTime,vcOperatorID,dOperatorTime)          \n");
-                sql.Append("      select GUID,vcPart_id,'"+ strTH + "',GETDATE(),'000000',GETDATE() from #TSQJD_temp          \n");
+                sql.Append("      select GUID,vcPart_id,'"+ strTH + "',GETDATE(),'"+strUserId+"',GETDATE() from #TSQJD_temp          \n");
                 #endregion
 
                 if (sql.Length>0)

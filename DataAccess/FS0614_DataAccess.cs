@@ -1272,7 +1272,7 @@ namespace DataAccess
                         {
                             res += ",";
                         }
-                        res += "'" + dt.Rows[i] + "'";
+                        res += "'" + dt.Rows[i]["vcValue"].ToString() + "'";
                     }
                 }
 

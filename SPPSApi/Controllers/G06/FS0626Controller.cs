@@ -140,7 +140,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
                 string[] fields = { "vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
                                     "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason",
-                                    "vcExpectRedeemDate", "vcRealRedeemDate"
+                                    "vcExpectRedeemDate"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0626.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -245,14 +245,12 @@ namespace SPPSApi.Controllers.G06
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"包装工厂","发注工厂","对象月","供应商代码","工区","受入","订单号","品番","号旧区分","订单数量","未纳数量","未纳原因","预计挽回时间","实际挽回时间"},
-                                                {"vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
-                                                 "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason",
-                                                 "vcExpectRedeemDate", "vcRealRedeemDate"},
-                                                {"","","","","","","","","","","","","","" },
-                                                {"10","10","6","4","50","20","50","50","50","20","20","500","50","50"},//最大长度设定,不校验最大长度用0
-                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7","8","9","10","11","12","13","14"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"未纳原因","预计挽回时间"},
+                                                { "vcNoReceiveReason", "vcExpectRedeemDate"},
+                                                {"","" },
+                                                {"250","10"},//最大长度设定,不校验最大长度用0
+                                                {"0","0"},//最小长度设定,可以为空用0
+                                                {"1","2"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0626");
                     if (checkRes != null)
@@ -282,6 +280,43 @@ namespace SPPSApi.Controllers.G06
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 欠品更新
+        public string updateDataApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
+            try
+            {
+                bool b = fs0626_Logic.updateData(vcTargetMonth, loginInfo.UserId);
+                if (!b)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "更新失败！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "更新成功！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2103", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "更新失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

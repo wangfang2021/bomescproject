@@ -32,6 +32,17 @@ namespace DataAccess
                 strSql.Append("       ,b8.vcName as 'vcPriceGS_Name'      \n");
                 strSql.Append("       ,b9.vcName as 'vcPriceChangeInfo_Name'        \n");
                 strSql.Append("       ,'0' as vcModFlag,'0' as vcAddFlag     \n");
+                strSql.Append("       ,CONVERT(varchar(100),dUseBegin, 111) as dUseBeginStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dUseEnd, 111) as dUseEndStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dProjectBegin, 111) as dProjectBeginStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dProjectEnd, 111) as dProjectEndStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dJiuBegin, 111) as dJiuBeginStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dJiuEnd, 111) as dJiuEndStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dJiuBeginSustain, 111) as dJiuBeginSustainStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dPriceStateDate, 111) as dPriceStateDateStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dPricebegin, 111) as dPricebeginStr      \n");
+                strSql.Append("       ,CONVERT(varchar(100),dPriceEnd, 111) as dPriceEndStr      \n");
+
                 strSql.Append("       from TPrice a     \n");
                 strSql.Append("       left join      \n");
                 strSql.Append("       (      \n");

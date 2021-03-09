@@ -73,5 +73,11 @@ namespace Logic
             fs0626_DataAccess.importSave(importDt, vcDateFrom, vcDateTo, strUserId);
         }
 
+        #region 欠品状态更新
+        public bool updateData(string vcTargetMonth, string userId)
+        {
+            return fs0626_DataAccess.updateData(vcTargetMonth, userId);
+        }
+        #endregion
     }
 }

@@ -90,7 +90,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" and vcNoReceiveNumber=0 ");
                 }
-                else if(vcReceiveFlag == "1")
+                else if (vcReceiveFlag == "1")
                 {
                     strSql.AppendLine(" and vcNoReceiveNumber<>0 ");
                 }
@@ -155,48 +155,15 @@ namespace DataAccess
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        sql.Append("insert into TOutsidePurchaseManage([vcDataName],[vcDataId],[vcData1],[vcData2],[vcData3],[vcData4],[vcData5],[vcData6],  \r\n");
-                        sql.Append("[vcData7],[vcData8],[vcData9],[vcData10],[dCreateTime],[vcCreateUserId])  \r\n");
-                        sql.Append(" values (  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcDataName"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcDataId"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData1"], true) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData2"], true) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData3"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData4"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData5"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData6"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData7"], true) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData8"], true) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData9"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcData10"], false) + ",  \r\n");
-                        sql.Append("getdate(),  \r\n");
-                        sql.Append("'" + strUserId + "'  \r\n");
-                        sql.Append(" );  \r\n");
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
+                    if (bAddFlag == false && bModFlag == true)
                     {//修改  
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                        sql.Append("  update TOutsidePurchaseManage set   \r\n");
-                        sql.Append("  vcPackPlant=" + ComFunction.getSqlValue(listInfoData[i]["vcPackPlant"], false) + "   \r\n");
-                        sql.Append("  ,vcInjectionFactory=" + ComFunction.getSqlValue(listInfoData[i]["vcInjectionFactory"], false) + "   \r\n");
-                        sql.Append("  ,vcTargetMonth=" + ComFunction.getSqlValue(listInfoData[i]["vcTargetMonth"], true) + "   \r\n");
-                        sql.Append("  ,vcSupplier_id=" + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], true) + "   \r\n");
-                        sql.Append("  ,vcWorkArea=" + ComFunction.getSqlValue(listInfoData[i]["vcWorkArea"], true) + "   \r\n");
-                        sql.Append("  ,vcDock=" + ComFunction.getSqlValue(listInfoData[i]["vcDock"], true) + "   \r\n");
-                        sql.Append("  ,vcOrderNo=" + ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], true) + "   \r\n");
-                        sql.Append("  ,vcPartNo=" + ComFunction.getSqlValue(listInfoData[i]["vcPartNo"], true) + "   \r\n");
-                        sql.Append("  ,vcNewOldFlag=" + ComFunction.getSqlValue(listInfoData[i]["vcNewOldFlag"], true) + "   \r\n");
-                        sql.Append("  ,vcOrderNumber=" + ComFunction.getSqlValue(listInfoData[i]["vcOrderNumber"], true) + "   \r\n");
-                        sql.Append("  ,vcNoReceiveNumber=" + ComFunction.getSqlValue(listInfoData[i]["vcNoReceiveNumber"], true) + "   \r\n");
-                        sql.Append("  ,vcNoReceiveReason=" + ComFunction.getSqlValue(listInfoData[i]["vcNoReceiveReason"], true) + "   \r\n");
-                        sql.Append("  ,vcExpectRedeemDate=" + ComFunction.getSqlValue(listInfoData[i]["vcExpectRedeemDate"], true) + "   \r\n");
-                        sql.Append("  ,vcRealRedeemDate=" + ComFunction.getSqlValue(listInfoData[i]["vcRealRedeemDate"], true) + "   \r\n");
-                        sql.Append("  ,vcOperatorID='" + strUserId + "'  \r\n");
-                        sql.Append("  ,dOperatorTime=getdate()   \r\n");
-                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                        sql.Append("  update TOutsidePurchaseManage set \r\n");
+                        sql.Append("  vcNoReceiveReason=" + ComFunction.getSqlValue(listInfoData[i]["vcNoReceiveReason"], true) + "  \r\n");
+                        sql.Append("  ,vcExpectRedeemDate=" + ComFunction.getSqlValue(listInfoData[i]["vcExpectRedeemDate"], true) + "  \r\n");
+                        sql.Append("  ,vcOperatorID='" + strUserId + "' \r\n");
+                        sql.Append("  ,dOperatorTime=getdate()  \r\n");
+                        sql.Append("  where iAutoId=" + iAutoId + " ; \r\n");
                     }
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
@@ -304,6 +271,7 @@ namespace DataAccess
             }
         }
 
+
         public DataTable getPackPlant()
         {
             string ssql = "select vcName, vcValue from TCode where vcCodeId='C017' ";
@@ -408,8 +376,68 @@ namespace DataAccess
         }
         #endregion
 
-        #region 匹配
+        #region 欠品状态更新
+        public bool updateData(string vcTargetMonth, string userId)
+        {
+            using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
+            {
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+                SqlTransaction trans = conn.BeginTransaction();
+                bool b = false;
+                try
+                {
+                    SqlCommand cmdUpdate = new SqlCommand();
+                    cmdUpdate.Connection = conn;
+                    cmdUpdate.CommandText += "update TOutsidePurchaseManage ";
+                    cmdUpdate.CommandText += "set TOutsidePurchaseManage.vcNoReceiveNumber=TOutsidePurchaseManage.vcOrderNumber-b.iQuantity ";
+                    cmdUpdate.CommandText += "from (select sum(iQuantity) as iQuantity,vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant ";
+                    cmdUpdate.CommandText += "      from TOperateSJ where vcZYType='S0' ";
+                    cmdUpdate.CommandText += "      group by vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant) b ";
+                    cmdUpdate.CommandText += "where TOutsidePurchaseManage.vcOrderNo=b.vcKBOrderNo and TOutsidePurchaseManage.vcPartNo=b.vcPart_id ";
+                    cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcDock=b.vcSR and TOutsidePurchaseManage.vcSupplier_id=b.vcSupplier_id ";
+                    cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcTargetMonth='" + vcTargetMonth + "'";
+                    cmdUpdate.Transaction = trans;
+                    cmdUpdate.ExecuteNonQuery();
 
+                    SqlCommand cmdUpdate1 = new SqlCommand();
+                    cmdUpdate1.Connection = conn;
+                    cmdUpdate1.CommandText += "update TOutsidePurchaseManage ";
+                    cmdUpdate1.CommandText += "set TOutsidePurchaseManage.vcPackPlant=c.vcPackingPlant, TOutsidePurchaseManage.vcNewOldFlag=c.vcHaoJiu ";
+                    cmdUpdate1.CommandText += "from (select vcPackingPlant,vcHaoJiu,vcPartId,vcSupplierId from TSPMaster ";
+                    cmdUpdate1.CommandText += "      where vcInOut='1' and dFromTime<=GETDATE() and dToTime>=GETDATE()) c ";
+                    cmdUpdate1.CommandText += "where TOutsidePurchaseManage.vcPartNo=c.vcPartId and TOutsidePurchaseManage.vcSupplier_id=c.vcSupplierId ";
+                    cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcTargetMonth='" + vcTargetMonth + "' ";
+                    cmdUpdate1.Transaction = trans;
+                    cmdUpdate1.ExecuteNonQuery();
+
+                    SqlCommand cmdUpdate2 = new SqlCommand();
+                    cmdUpdate2.Connection = conn;
+                    cmdUpdate2.CommandText += "update TOutsidePurchaseManage ";
+                    cmdUpdate2.CommandText += "set TOutsidePurchaseManage.vcInjectionFactory=d.vcValue5 ";
+                    cmdUpdate2.CommandText += "from (select vcValue1,vcValue2,vcValue5 from TOutCode ";
+                    cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE()) d ";
+                    cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcSupplier_id=d.vcValue1 and TOutsidePurchaseManage.vcWorkArea=d.vcValue2 ";
+                    cmdUpdate2.CommandText += "and TOutsidePurchaseManage.vcTargetMonth='" + vcTargetMonth + "' ";
+                    cmdUpdate2.Transaction = trans;
+                    cmdUpdate2.ExecuteNonQuery();
+
+                    trans.Commit();
+                    b = true;
+                }
+                catch (Exception ex)
+                {
+                    b = false;
+                    trans.Rollback();
+                    throw ex;
+                }
+                finally
+                {
+                    conn.Close();
+                }
+                return b;
+            }
+        }
         #endregion
     }
 }

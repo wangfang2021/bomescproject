@@ -11,16 +11,16 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G04
 {
-    [Route("api/FS0406/[action]")]
+    [Route("api/FS0408/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0406Controller : BaseController
+    public class FS0408Controller : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly string FunctionID = "FS0406";
-        FS0406_Logic fs0406_Logic = new FS0406_Logic();
+        private readonly string FunctionID = "FS0408";
+        FS0408_Logic fs0408_Logic = new FS0408_Logic();
 
-        public FS0406Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0408Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -81,15 +81,15 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string vcReceiver = dataForm.vcReceiver == null ? "" : dataForm.vcReceiver;
-            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcReceiver ="APC06";
+            string vcType = "1";
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string start = dataForm.start == null ? "" : dataForm.start;
             string end = dataForm.end == null ? "" : dataForm.end;
 
             try
             {
-                DataTable dt = fs0406_Logic.searchApi(vcReceiver, vcType, vcState, start, end);
+                DataTable dt = fs0408_Logic.searchApi(vcReceiver, vcType, vcState, start, end);
                 DtConverter dtConverter = new DtConverter();
 
 
@@ -138,7 +138,7 @@ namespace SPPSApi.Controllers.G04
                 }
 
 
-                fs0406_Logic.delApi(listInfoData);
+                fs0408_Logic.delApi(listInfoData);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -177,7 +177,7 @@ namespace SPPSApi.Controllers.G04
 
                 string relation = listInfoData[0]["vcRelation"].ToString();
                 string type = listInfoData[0]["vcType"].ToString();
-                DataTable dt = fs0406_Logic.getData(relation, type);
+                DataTable dt = fs0408_Logic.getData(relation, type);
                 string resMsg = "";
                 string filepath = "";
                 if (type.Equals("入库"))
@@ -251,7 +251,7 @@ namespace SPPSApi.Controllers.G04
 
 
                 string strMsg = "";
-                fs0406_Logic.commitMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName);
+                fs0408_Logic.commitMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName);
 
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {
@@ -312,7 +312,7 @@ namespace SPPSApi.Controllers.G04
 
 
                 string strMsg = "";
-                fs0406_Logic.sendMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName, loginInfo.UnitCode);
+                fs0408_Logic.sendMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName, loginInfo.UnitCode);
 
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {

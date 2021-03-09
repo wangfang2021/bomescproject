@@ -315,10 +315,6 @@ namespace SPPSApi.Controllers.G99
                          { "执行标准区分"    ,"vcZXBZDiff","CCC"     ,"CCC","执行标准NO"         ,"vcZXBZNo"          ,"1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应","2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
                         ,{ "防锈对应可否    ","vcIsDYFX"  ,"不可对应","2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"生产地-市"          ,"vcSCPlace_City"    ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"生产地-省"          ,"vcSCPlace_Province","1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"出荷地-市"          ,"vcCHPlace_City"    ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"出荷地-省"          ,"vcCHPlace_Province","1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"供应商切替日期-补给","dSupplier_BJ"      ,"1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"  ,"1"  ,"供应商切替日期-号口","dSupplier_HK"      ,"1",                      "","" }
                         };

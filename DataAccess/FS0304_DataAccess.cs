@@ -412,40 +412,91 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                getTempData(listInfoData, sql, strUserId,ref strErr);
-
-                #region 对临时表进行去重，取最新的数据
-                #region 获取临时表
-                sql.Append("        if object_id('tempdb..#TSQJD_temp_new') is not null  \n");
+                #region 创建临时表
+                sql.Append("        if object_id('tempdb..#TSQJD_temp') is not null  \n");
                 sql.Append("        Begin  \n");
-                sql.Append("        drop  table #TSQJD_temp_new  \n");
+                sql.Append("        drop  table #TSQJD_temp  \n");
                 sql.Append("        End  \n");
-                sql.Append("        select * into #TSQJD_temp_new from       \n");
+                sql.Append("        select * into #TSQJD_temp from       \n");
                 sql.Append("        (      \n");
                 sql.Append("      	  select * from TSQJD where 1=0      \n");
                 sql.Append("        ) a      ;\n");
+
                 #endregion
-                #region 从临时表中取不重复的数据，插入到新的临时表中
-                sql.Append("        if object_id('tempdb..#TSQJD_temp_new') is not null  \n");
-                sql.Append("        Begin  \n");
-                sql.Append("        drop  table #TSQJD_temp_new  \n");
-                sql.Append("        End  \n");
-                sql.Append("        select * into #TSQJD_temp_new from #TSQJD_temp_new      \n");
-                sql.Append("       insert into #TSQJD_temp_new from         \n");
-                sql.Append("       (         \n");
-                sql.Append("       	select a.* from 	         \n");
-                sql.Append("       	(	         \n");
-                sql.Append("       	select * from #TSQJD_temp	         \n");
-                sql.Append("       			         \n");
-                sql.Append("       	) a	         \n");
-                sql.Append("       	inner join 	         \n");
-                sql.Append("       	(	         \n");
-                sql.Append("       		select MAX(iAutoId) as 'iMaxAutoId',vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver from #TSQJD_temp	         \n");
-                sql.Append("       		group by vcPart_id,vcSYTCode,vcSupplier_id,vcReceiver	         \n");
-                sql.Append("       	)b on a.iAutoId = b.iMaxAutoId	         \n");
-                sql.Append("       ) a         \n");
-                #endregion
-                
+
+                #region 将要织入的数据存入临时表
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    sql.Append("        insert into #TSQJD_temp        \n");
+                    sql.Append("        (        \n");
+                    sql.Append("        dSSDate,vcJD        \n");
+                    sql.Append("        ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag        \n");
+                    sql.Append("        ,vcPartName,vcOE,vcSupplier_id,vcFXDiff,vcFXNo        \n");
+                    sql.Append("        ,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4        \n");
+                    sql.Append("        ,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9        \n");
+                    sql.Append("        ,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcTH        \n");
+                    sql.Append("        ,vcSCPlace_City,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode        \n");
+                    sql.Append("        ,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff        \n");
+                    sql.Append("        ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,GUID        \n");
+                    sql.Append("        )        \n");
+                    sql.Append("        values        \n");
+                    sql.Append("        (        \n");
+                    sql.Append("        " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "        \n");
+                    /*
+                     * 品番还原
+                     */
+                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    strPart_id = strPart_id.Insert(10, "-");
+                    strPart_id = strPart_id.Insert(5, "-");
+                    if (strPart_id.Substring(11, 3) == "-00")
+                    {
+                        strPart_id = strPart_id.Remove(11, 3);
+                    }
+                    sql.Append("        ,'"+strPart_id+"'        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcInOutflag"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPartName"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcOE"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSupplier_id"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXDiff"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcFXNo"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSumLater"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum3"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum4"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum5"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum6"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum7"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcIsDYJG"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcIsDYFX"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcYQorNG"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcTH"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_City"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCPlace_Province"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_City"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCHPlace_Province"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSYTCode"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCSName"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSCSPlace"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dSupplier_BJ"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dSupplier_HK"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dTFTM_BJ"], true) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZDiff"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcZXBZNo"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcReceiver"], false) + "        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["dNqDate"], true) + "        \n");
+                    sql.Append("        ,'" + strUserId + "'        \n");
+                    sql.Append("        ,GETDATE()        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["GUID"], false) + "        \n");
+                    sql.Append("        )        \n");
+                }
                 #endregion
 
                 #region 两表相同的数据进行更新操作（这里的状态加限定：对应可否确认结果为可对应）
@@ -457,7 +508,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('1','2')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -465,7 +520,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -475,7 +530,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('1','2')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -487,12 +546,16 @@ namespace DataAccess
 
                 #region 复活
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");                
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a       \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('16')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -506,7 +569,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('3','5')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -514,7 +581,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -524,7 +591,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('3','5')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -540,7 +611,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('6')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -548,7 +623,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -558,7 +633,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('6')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -574,7 +653,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp  a     \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('4','21')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -582,7 +665,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -592,7 +675,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('4','21')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -608,7 +695,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('9')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -617,7 +708,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -627,7 +718,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('9')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -646,7 +741,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('8')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -655,7 +754,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -665,7 +764,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('8')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -682,7 +785,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('11')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -691,7 +798,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -701,7 +808,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('11')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -719,7 +830,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp  a     \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('10')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -728,7 +843,7 @@ namespace DataAccess
                 #endregion
                 #region 根据品番和包装工厂织入生产地和出荷地
                 sql.Append("        update TUnit set        \n");
-                sql.Append("        ,vcSQState = '2'       \n");
+                sql.Append("         vcSQState = '2'       \n");
                 sql.Append("        ,vcSQContent = 'OK'       \n");
                 sql.Append("        ,vcSCSName = b.vcSCSName       \n");
                 sql.Append("        ,vcSCSAdress = b.vcSCSPlace       \n");
@@ -738,7 +853,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select * from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.* from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcChange in ('10')       \n");
                 sql.Append("        	and vcIsDYJG = 1       \n");
                 sql.Append("        )b       \n");
@@ -756,7 +875,11 @@ namespace DataAccess
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join        \n");
                 sql.Append("        (       \n");
-                sql.Append("        	select vcPart_id from #TSQJD_temp_new       \n");
+                sql.Append("        	select a.vcPart_id from #TSQJD_temp a      \n");
+                sql.Append("        	inner join       \n");
+                sql.Append("        	(       \n");
+                sql.Append("        		select [GUID] from TSQJD       \n");
+                sql.Append("        	)b on a.[GUID] = b.[GUID]       \n");
                 sql.Append("        	where vcIsDYJG = '2'       \n");
                 sql.Append("        ) b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
@@ -769,7 +892,7 @@ namespace DataAccess
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD a           \n");
-                sql.Append("          inner join #TSQJD_temp_new b          \n");
+                sql.Append("          inner join #TSQJD_temp b          \n");
                 sql.Append("          on a.[GUID] = b.[GUID]          \n");
                 #endregion
 

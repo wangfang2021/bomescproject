@@ -93,6 +93,7 @@ namespace SPPSApi.Controllers.G05
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 int num = 0;
                 DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea,ref num);
+                DataTable dt_heji = fs0501_Logic.Search_heji(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea, ref num);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dExpectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOpenTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
@@ -102,6 +103,7 @@ namespace SPPSApi.Controllers.G05
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 res.Add("dataList", dataList);
+                res.Add("hejiList", dt_heji);
                 res.Add("isShowError", num > 0 ? true : false);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

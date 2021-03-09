@@ -42,16 +42,16 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-
+                sbr.AppendLine("DELETE TPartList WHERE vcFileName = '"+ fileName + "'");
                 for (int i = 0; i < list.Count; i++)
                 {
-                    string vcCarType = list[i]["Model"].ToString();
-                    string vcUseLocation = list[i]["Location of Usage"].ToString();
+                    string vcCarType = ObjToString(list[i]["Model"]);
+                    string vcUseLocation = ObjToString(list[i]["Location of Usage"]);
                     int iLV = Convert.ToInt32(list[i]["LV"]);
-                    string vcPart_Id = list[i]["Part No."].ToString();
-                    string vcPart_Name = list[i]["Part Name"].ToString();
-                    string vcParent = list[i]["Parent RTG"].ToString();
-                    string vcFather = list[i]["FatherPart_Id"].ToString();
+                    string vcPart_Id = ObjToString(list[i]["Part No."]);
+                    string vcPart_Name = ObjToString(list[i]["Part Name"]);
+                    string vcParent = ObjToString(list[i]["Parent RTG"]);
+                    string vcFather = ObjToString(list[i]["FatherPart_Id"]);
                     sbr.Append(" INSERT INTO TPartList (vcCarType,vcUseLocation,iLV,vcPart_Id,vcPart_Id_Father,vcPart_Name,vcParent,vcFileName,dOperatorTime,vcOperatorID) VALUES \r\n");
                     sbr.Append(" ('" + vcCarType + "','" + vcUseLocation + "'," + iLV + ",'" + vcPart_Id.Trim() + "','" + vcFather.Trim() + "','" + vcPart_Name + "','" + vcParent + "','" + fileName + "',GETDATE(),'" + userId + "') \r\n");
 
@@ -313,6 +313,18 @@ namespace DataAccess
 
             }
 
+        }
+
+        public string ObjToString(Object obj)
+        {
+            try
+            {
+                return obj.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
         }
     }
 }

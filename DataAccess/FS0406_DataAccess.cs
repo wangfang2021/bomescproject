@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common;
 using System.Data;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using NPOI.Util;
 
 namespace DataAccess
 {
@@ -85,7 +87,7 @@ namespace DataAccess
                 if (inFlag)
                 {
                     inTime = inTime.Replace("-", "");
-                    bool flag = isHasData("0", inTime, inTime.Substring(0, 6), outStart, Receiver);
+                    bool flag = isHasData("0", inTime, "", "", Receiver);
                     if (flag)
                     {
                         string Relation = "IN" + DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -120,7 +122,7 @@ namespace DataAccess
 
                 if (outFlag)
                 {
-                    bool flag = isHasData("1", inTime, inTime.Substring(0, 6), outStart, Receiver);
+                    bool flag = isHasData("1", "", outStart, outEnd, Receiver);
 
                     if (flag)
                     {
@@ -135,8 +137,8 @@ namespace DataAccess
                         sbr.AppendLine("GETDATE(), ");
                         sbr.AppendLine("'" + Relation + "'");
                         sbr.AppendLine("    )");
-                        sbr.AppendLine("INSERT INTO TIF_Out(vcDiff, vcSellNo, vcSellShop, vcPart_id, vcPartName, dOutTime, iQuantity, decPrice, vcDepartment, vcOperatorId, dOperatorTime, vcRelation)");
-                        sbr.AppendLine("SELECT b.vcBillType, a.vcSellNo, a.vcSHF,a.vcPart_id,b.vcPartNameCn, a.dOperatorTime, a.iQuantity, a.decPriceWithTax,'' AS vcDepartment,'" + userId + "' AS vcOperatorId,GETDATE() AS dOperatorTime,'" + Relation + "' AS vcRelation FROM (");
+                        sbr.AppendLine("INSERT INTO TIF_Out(vcDiff, vcSellNo, vcSellShop, vcPart_id, vcPartName, dOutTime, iQuantity, decPrice, vcDepartment, vcOperatorId, dOperatorTime, vcRelation,vcOutType)");
+                        sbr.AppendLine("SELECT b.vcBillType, a.vcSellNo, a.vcSHF,a.vcPart_id,b.vcPartNameCn, a.dOperatorTime, a.iQuantity, a.decPriceWithTax,'' AS vcDepartment,'" + userId + "' AS vcOperatorId,GETDATE() AS dOperatorTime,'" + Relation + "' AS vcRelation,'1' as vcOutType FROM (");
                         sbr.AppendLine("SELECT vcPart_id,vcSellNo,vcSHF,dOperatorTime,iQuantity,decPriceWithTax,vcSupplier_id FROM TSell");
                         sbr.AppendLine("WHERE '" + outStart + "'<=CONVERT(VARCHAR(8),dOperatorTime,112) AND '" + outEnd + "'>=CONVERT(VARCHAR(8),dOperatorTime,112) AND vcSHF = '" + Receiver + "' ");
                         sbr.AppendLine(") a");
@@ -179,10 +181,10 @@ namespace DataAccess
                     sbr.AppendLine("SELECT * FROM TOperateSJ ");
                     sbr.AppendLine("WHERE vcZYType = 'S0' AND CONVERT(VARCHAR(6),dStart,112)  = '" + month + "' AND vcSHF = '" + receiver + "'");
                 }
-                else if (type == "0")
+                else if (type == "1")
                 {
                     sbr.AppendLine("SELECT * FROM TSell");
-                    sbr.AppendLine("WHERE '" + endTime + "'<=CONVERT(VARCHAR(8),dOperatorTime,112) AND '" + startTime + "'>CONVERT(VARCHAR(8),dOperatorTime,112) AND vcSHF = '" + receiver + "'");
+                    sbr.AppendLine("WHERE '" + endTime + "'>=CONVERT(VARCHAR(8),dOperatorTime,112) AND '" + startTime + "'<=CONVERT(VARCHAR(8),dOperatorTime,112) AND vcSHF = '" + receiver + "'");
                 }
 
 
@@ -206,6 +208,119 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("UPDATE TIF_Master SET dSendTime = GETDATE(),dOperatorTime = GETDATE(),vcOperatorId = '" + userId + "' WHERE iAuto_id =" + id + " ");
                 excute.ExcuteSqlWithStringOper(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 删除
+
+        public void delApi(List<Dictionary<string, Object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    sbr.AppendLine("DELETE TIF_Master WHERE iAuto_id = " + listInfoData[i]["iAuto_id"].ToString());
+                    sbr.AppendLine("DELETE TIF_IN WHERE vcRelation = '" + listInfoData[i]["vcRelation"].ToString() + "'");
+                    sbr.AppendLine("DELETE TIF_Out WHERE vcRelation = '" + listInfoData[i]["vcRelation"].ToString() + "'");
+                }
+
+                if (sbr.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+
+        public DataTable getIn(string relation)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT  vcDiff, vcNo, vcPart_id, vcPartName, dInTime, iQuantity FROM TIF_IN");
+                sbr.AppendLine("WHERE vcRelation = '" + relation + "'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getOut(string relation)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT  vcDiff, vcSellNo, vcSellShop, vcPart_id, vcPartName, dOutTime, iQuantity, decPrice, vcDepartment,vcOutType  FROM TIF_Out");
+                sbr.AppendLine("WHERE vcRelation = '" + relation + "'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string getTotal(string relation)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                string total = "";
+                sbr.AppendLine("SELECT SUM(iQuantity*decPrice) AS total FROM TIF_Out WHERE vcRelation = '" + relation + "'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    total = dt.Rows[0]["total"].ToString();
+                }
+
+                return total;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void changeState(string id, string type, string userId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("UPDATE TIF_Master SET vcState = '" + type + "',dOperatorTime = GETDATE(),vcOperatorId = '" + userId + "' WHERE iAuto_id = " + id + " ");
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #region 获取销售公司邮箱
+
+        public DataTable getReceiverEmail()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C021'AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {

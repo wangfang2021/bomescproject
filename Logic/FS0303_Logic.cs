@@ -81,7 +81,7 @@ namespace Logic
             try
             {
                 #region 先在dt中添加新列
-                foreach (var item in lists)
+                foreach (NameOrValue item in lists)
                 {
                     dt.Columns.Add(item.strHeader + "_Name");
                 }
@@ -89,7 +89,7 @@ namespace Logic
 
                 for (int i = 0; i < dt.Rows.Count; i++) //循环table的所有行
                 {
-                    foreach (var item in lists)     //遍历lists
+                    foreach (NameOrValue item in lists)     //遍历lists
                     {
 
                         try
@@ -113,20 +113,20 @@ namespace Logic
                                 dt.Rows[i][strNewColumnsName] = value;
                                 #endregion
                             }
-                            //如果Name值不合法，不获取value值，赋值null
+                            //如果Name值为空，赋值null
                             else
                             {
                                 if (item.isNull)
                                 {
-                                    strErr = "第" + (i + 2) + "行的" + item.strTitle + "不能为空";
+                                    dt.Rows[i][strNewColumnsName] = null;
                                 }
                             }
                         }
                         //value获取失败,表示并未找到与其对应的Value值
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             #region 提示第几行的数据不合法，提示消息赋值给strErr
-                            strErr = "第" + (i + 2) + "行的" + item.strTitle + "填写不合法";
+                            strErr += "第" + (i + 2) + "行出现错误"+ex.Message;
                             #endregion
                         }
                     }

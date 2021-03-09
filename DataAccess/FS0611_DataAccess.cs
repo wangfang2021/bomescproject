@@ -369,7 +369,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-
+                string strCLYM = System.DateTime.Now.ToString("yyyyMM");
                 strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], ");
                 strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS] ");
                 strSql.AppendLine(" FROM ");
@@ -416,20 +416,20 @@ namespace DataAccess
                 strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30,");
                 strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31,");
                 strSql.AppendLine("   iAutoId");
-                strSql.AppendLine("   FROM TSOQReply WHERE vcInOutFlag='1'  AND vcDXYM='" + strYearMonth + "'");//外注
+                strSql.AppendLine("   FROM TSOQReply WHERE vcCLYM='" + strCLYM + "' and  vcInOutFlag='1'  AND vcDXYM='" + strYearMonth + "'");//外注
                 strSql.AppendLine(" ) a ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
                 strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+1 O/L',isnull(iBoxes,0) as 'N+1 Units',isnull(iPartNums,0) as 'N+1 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_2 + "' ");//外注
+                strSql.AppendLine("   WHERE vcCLYM='" + strCLYM + "' and  vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_2 + "' ");//外注
                 strSql.AppendLine("  ) b ");
                 strSql.AppendLine(" ON a.PartsNo=b.vcPart_id ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
                 strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+2 O/L',isnull(iBoxes,0) as 'N+2 Units',isnull(iPartNums,0) as 'N+2 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_3 + "' ");//外注
+                strSql.AppendLine("   WHERE vcCLYM='" + strCLYM + "' and  vcInOutFlag='1'  AND vcDXYM='" + strYearMonth_3 + "' ");//外注
                 strSql.AppendLine("  ) c ");
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id ");
 

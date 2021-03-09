@@ -15,7 +15,7 @@ namespace FP0011_EXE
             try
             {
                 FP0011 pb = new FP0011();
-                if (!pb.main("system", ""))
+                if (!pb.main("000000", ""))
                     iRet = Common.ComConstant.NG_CODE;
                 return;
             }

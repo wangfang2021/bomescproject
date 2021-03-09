@@ -152,8 +152,7 @@ namespace BatchProcess
                 sql.Append(")t1    \n");
                 sql.Append("left join TPackageMaster t2 on t1.vcPackingPlant=t2.vcPackingPlant and t1.vcPart_id=t2.vcPart_id    \n");
                 sql.Append("and t1.vcReceiver=t2.vcReceiver and t1.vcSupplierId=t2.vcSupplierId    \n");
-                sql.Append("where t2.iAutoId is not null and t1.vcOperatorID='" + strUserId + "' and     \n");
-                sql.Append("(t1.dTimeFrom!=t2.dTimeFrom or t1.dTimeTo!=t2.dTimeTo or t1.vcSR!=t2.vcSR)    \n");
+                sql.Append("where t2.iAutoId is not null and t1.vcOperatorID='" + strUserId + "'      \n");
 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }

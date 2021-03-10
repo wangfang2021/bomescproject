@@ -426,5 +426,16 @@ namespace Logic
         }
         #endregion
 
+        #region 获取原单位用户维护权限
+        public string getPri(string strUserId)
+        {
+            DataTable dt= fs0303_DataAccess.getPri(strUserId);
+            if (dt == null || dt.Rows.Count == 0)
+                return "";
+            else
+                return dt.Rows[0]["vcValue2"].ToString();
+        }
+        #endregion
+
     }
 }

@@ -89,6 +89,9 @@ namespace SPPSApi.Controllers.G03
                 else
                     res.Add("ErrPart", "");
 
+
+                res.Add("OriginPri", fs0303_Logic.getPri(loginInfo.UserId));
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

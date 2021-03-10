@@ -1001,5 +1001,21 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 获取原单位用户维护权限
+        public DataTable getPri(string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      select vcValue2 from TOutCode where vcCodeId='C011' and  vcValue1='"+ strUserId + "'            \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

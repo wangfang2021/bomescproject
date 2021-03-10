@@ -49,6 +49,7 @@ namespace BatchProcess
                 }
                 else
                 {
+                    FailsendMail("buji@tftm.com.cn", "System", "邮件发送失败", FailEmailBody(flag));
                     ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
                     return false;
                 }
@@ -130,7 +131,7 @@ namespace BatchProcess
         public string FailEmailBody(int flag)
         {
             StringBuilder sbr = new StringBuilder();
-            string time = DateTime.Now.ToString("YYYY-MM-dd");
+            string time = DateTime.Now.ToString("yyyy-MM-dd");
 
             //中文品名
             if (flag == 1)
@@ -157,6 +158,28 @@ namespace BatchProcess
             receiverDt.Columns.Add("address");
             receiverDt.Columns.Add("displayName");
             DataTable dt = getReceiverEmail();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = receiverDt.NewRow();
+                dr["address"] = dt.Rows[i]["vcValue2"].ToString();
+                dr["displayName"] = dt.Rows[i]["vcValue1"].ToString();
+                receiverDt.Rows.Add(dr);
+            }
+            string result = ComFunction.SendEmailInfo(Email, UserName, EmailBody, receiverDt, cCDt, strSubject, "", false);
+            if (result.Equals("Error"))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        public bool FailsendMail(string Email, string UserName, string strSubject, string EmailBody)
+        {
+            DataTable cCDt = null;
+            DataTable receiverDt = new DataTable();
+            receiverDt.Columns.Add("address");
+            receiverDt.Columns.Add("displayName");
+            DataTable dt = getFailEmail();
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 DataRow dr = receiverDt.NewRow();

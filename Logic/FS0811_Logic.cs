@@ -229,7 +229,7 @@ namespace Logic
                 decimal decWorkOverTime = 0;//计划人均加班小时数
                 if (decPlannedPerson_sum > decPeopleNum)
                 {
-                    decWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime) / 60) * 60) / decPeopleNum;
+                    decWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime)) * 60) / decPeopleNum;
                 }
                 strWorkOverTime = decWorkOverTime.ToString();
                 return dtImport;

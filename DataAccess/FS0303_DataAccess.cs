@@ -911,7 +911,28 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='" + strSupplierId + "'   \n");
+                strSql.Append("    select vcEmail1 as 'address',vcEmail1 as'displayName'from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
+                strSql.Append("    union   \n");
+                strSql.Append("    select vcEmail2 as 'address',vcEmail2 as'displayName'from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
+                strSql.Append("    union   \n");
+                strSql.Append("    select vcEmail3 as 'address',vcEmail3 as'displayName'from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
+                strSql.Append("       \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取供应商基础数据
+        public DataTable getSupplierInfo(string strSupplierId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("    select * from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)

@@ -50,7 +50,7 @@ namespace SPPSApi.Controllers.G13
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装厂
+                List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装厂
                 List<Object> RolerList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Role"));//角色Role
                 res.Add("PackingPlantList", PackingPlantList);
                 res.Add("RolerList", RolerList);

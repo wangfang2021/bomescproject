@@ -14,36 +14,40 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
-        public DataTable Search(string dBZDate)
+        public DataTable Search(string dBZDate,string vcBigPM)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from (    \n");
-                strSql.Append("select vcBigPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
+                strSql.Append("select vcBigPM,vcSmallPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
                 strSql.Append("iSSPlan_Day,iSSPlan_Night,iSSPlan_Heji,1 as id,'0' as bSelectFlag,iAutoId    \n");
-                strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='外注'    \n");
+                strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='外注'     \n");
+                if (vcBigPM != null && vcBigPM != "")
+                    strSql.Append("and vcBigPM = '" + vcBigPM + "'    \n");
                 strSql.Append("union all    \n");
-                strSql.Append("select '外注品合计' as vcBigPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
+                strSql.Append("select '外注品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
                 strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),2 as id,'1' as bSelectFlag,0 as iAutoId    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='外注'    \n");
                 strSql.Append("union all     \n");
-                strSql.Append("select vcBigPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
+                strSql.Append("select vcBigPM,vcSmallPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
                 strSql.Append("iSSPlan_Day,iSSPlan_Night,iSSPlan_Heji,3 as id,'0' as bSelectFlag,iAutoId    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='内制'    \n");
+                if (vcBigPM != null && vcBigPM != "")
+                    strSql.Append("and vcBigPM = '" + vcBigPM + "'    \n");
                 strSql.Append("union all    \n");
-                strSql.Append("select '内制品合计' as vcBigPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
+                strSql.Append("select '内制品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
                 strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),4 as id,'1' as bSelectFlag,0 as iAutoId    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='内制'    \n");
                 strSql.Append("union all    \n");
-                strSql.Append("select '全体合计' as vcBigPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
+                strSql.Append("select '全体合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
                 strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),5 as id,'1' as bSelectFlag,0 as iAutoId    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "'     \n");
                 strSql.Append(")a    \n");
-                strSql.Append("order by id,vcBigPM    \n");
+                strSql.Append("order by id,vcBigPM,vcSmallPM      \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -99,10 +103,6 @@ namespace DataAccess
                     bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
 
-                    string A = listInfoData[i]["iBZPlan_Day"].ToString() == "" ? "0" : listInfoData[i]["iBZPlan_Day"].ToString();
-                    string B = listInfoData[i]["iBZPlan_Night"].ToString() == "" ? "0" : listInfoData[i]["iBZPlan_Night"].ToString();
-                    string C = listInfoData[i]["iBZPlan_Heji"].ToString() == "" ? "0" : listInfoData[i]["iBZPlan_Heji"].ToString();
-                    string D = listInfoData[i]["iEmergencyOrder"].ToString() == "" ? "0" : listInfoData[i]["iEmergencyOrder"].ToString();
                     string E = listInfoData[i]["iLJBZRemain"].ToString() == "" ? "0" : listInfoData[i]["iLJBZRemain"].ToString();
                     string F = listInfoData[i]["iPlanTZ"].ToString() == "" ? "0" : listInfoData[i]["iPlanTZ"].ToString();
 
@@ -119,11 +119,25 @@ namespace DataAccess
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
                         sql.Append("update TPackingPlan_Summary set iPlanTZ=" + F + ",iLJBZRemain=" + E + ", \n");
-                        sql.Append("iSSPlan_Day=case when vcBigPM='OR' then " + A + "+(" + D + "+" + F + ")/2 else (" + C + "+" + D + "+" + F + ")/2 end, \n");
-                        sql.Append("iSSPlan_Night=case when vcBigPM='OR' then " + B + "+(" + D + "+" + F + ")/2 else (" + C + "+" + D + "+" + F + ")/2 end,    \n");
-                        sql.Append("iSSPlan_Heji=case when vcBigPM='OR' then (" + A + "+(" + D + "+" + F + ")/2)+(" + B + "+(" + D + "+" + F + ")/2) else ((" + C + "+" + D + "+" + F + ")/2)+((" + C + "+" + D + "+" + F + ")/2) end,    \n");
                         sql.Append("vcOperatorID='" + strUserId + "',dOperatorTime=getdate() where iAutoId=" + iAutoId + "    \n");
 
+                        sql.Append("update t1 set     \n");
+                        sql.Append("t1.iSSPlan_Day=case when vcBigPM='成型' then A+cast((D+F)/2.0 as decimal(18,1)) else cast((C+D+F)/2.0 as decimal(18,1)) end,    \n");
+                        sql.Append("t1.iSSPlan_Night=case when vcBigPM='成型' then B+ D+F-cast((D+F)/2.0 as decimal(18,1)) else C+D+F-cast((C+D+F)/2.0 as decimal(18,1)) end,    \n");
+                        sql.Append("t1.iSSPlan_Heji=case when vcBigPM='成型' then A+B+D+F else C+D+F end    \n");
+                        sql.Append("from (    \n");
+                        sql.Append("	select * from TPackingPlan_Summary where iAutoId="+ iAutoId + "    \n");
+                        sql.Append(")t1    \n");
+                        sql.Append("left join (    \n");
+                        sql.Append("	select iAutoId,     \n");
+                        sql.Append("	case when iBZPlan_Day is null or iBZPlan_Day='' then 0 else iBZPlan_Day end as A,    \n");
+                        sql.Append("	case when iBZPlan_Night is null or iBZPlan_Night='' then 0 else iBZPlan_Night end as B,    \n");
+                        sql.Append("	case when iBZPlan_Heji is null or iBZPlan_Heji='' then 0 else iBZPlan_Heji end as C,    \n");
+                        sql.Append("	case when iEmergencyOrder is null or iEmergencyOrder='' then 0 else iEmergencyOrder end as D,    \n");
+                        sql.Append("	case when iLJBZRemain is null or iLJBZRemain='' then 0 else iLJBZRemain end as E,    \n");
+                        sql.Append("	case when iPlanTZ is null or iPlanTZ='' then 0 else iPlanTZ end as F    \n");
+                        sql.Append("	from TPackingPlan_Summary where iAutoId="+ iAutoId + "    \n");
+                        sql.Append(")t2 on t1.iAutoId=t2.iAutoId    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -139,11 +153,16 @@ namespace DataAccess
         #endregion
 
         #region 导入后保存
-        public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId)
+        public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId,string strUnit)
         {
+            SqlConnection conn = ComConnectionHelper.CreateSqlConnection();
+            SqlCommand cmd = new SqlCommand();
+            SqlTransaction st = null;
+            ComConnectionHelper.OpenConection_SQL(ref conn);
+            st = conn.BeginTransaction();
+            StringBuilder sql = new StringBuilder();
             try
             {
-                StringBuilder sql = new StringBuilder();
                 sql.Append("DELETE FROM [TPackingPlan] where vcFZPlant='" + vcFZPlant + "' and vcPackDate='" + dBZDate + "' \n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -176,28 +195,72 @@ namespace DataAccess
                     sql.Append("           ,'" + strUserId + "'    \n");
                     sql.Append("           ,getdate())    \n");
                     #endregion
+
+                    if (i % 1000 == 0)
+                    {
+                        cmd = new SqlCommand(sql.ToString(), conn, st);
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandTimeout = 0;
+                        cmd.ExecuteNonQuery();
+                        sql.Length = 0;
+                    }
                 }
                 //统一更新
-                sql.Append("update t1 set t1.vcPackBZ=t3.vcValue1,t1.vcPlant=t4.vcBZPlant     \n");
+                sql.Append("update t1 set t1.vcPlant=t2.vcBZPlant     \n");
                 sql.Append("from (    \n");
                 sql.Append("	select * from TPackingPlan where vcFZPlant='" + vcFZPlant + "' and vcPackDate='" + dBZDate + "'    \n");
                 sql.Append(")t1    \n");
-                sql.Append("left join  TNRBJSKBianCi t2 on t1.vcSupplier_id=t2.vcSupplier_id and t1.vcGQ=t2.vcGQ    \n");
-                sql.Append("and t1.vcSR=t2.vcSR and t1.vcOrderNo=t2.vcOrderNo    \n");
-                sql.Append("left join (select * from TOutCode where vcCodeId='C002' and vcIsColum='0')t3     \n");
-                sql.Append("on t2.vcNRBJSK between t3.vcValue2 and t3.vcValue3    \n");
-                sql.Append("left join (select * from TPackageMaster where vcReceiver='APC06')t4 on t1.vcPartId=t4.vcPart_id and t1.vcPlant=t4.vcPackingPlant    \n");
-                sql.Append("and t1.vcSupplier_id=t2.vcSupplierId    \n");
-                //关联不出来的都是夜班
-                sql.Append("update TPackingPlan set vcPackBZ='夜' where ISNULL(vcPackBZ,'')=''    \n");
+                sql.Append("left join (select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='"+strUnit+"')t2 on t1.vcPartId=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    \n");
 
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
+                cmd = new SqlCommand(sql.ToString(), conn, st);
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = 0;
+                cmd.ExecuteNonQuery();
+                sql.Length = 0;
+
+                //关联班值
+                sql.Append("update t1 set t1.vcPackBZ=case when t3.vcCodeId is not null then t3.vcValue1 else t4.vcValue1 end    \n");
+                sql.Append("from    \n");
+                sql.Append("(select * from TPackingPlan where vcFZPlant='" + vcFZPlant + "' and vcPackDate='" + dBZDate + "'    \n");
+                sql.Append(")t1    \n");
+                sql.Append("left join  TNRBJSKBianCi t2 on t1.vcSupplier_id=t2.vcSupplier_id and t1.vcGQ=t2.vcGQ        \n");
+                sql.Append("and t1.vcSR=t2.vcSR and t1.vcOrderNo=t2.vcOrderNo        \n");
+                sql.Append("left join    \n");
+                sql.Append("(    \n");
+                sql.Append("	select vcCodeId,vcCodeName,vcValue1,    \n");
+                sql.Append("	  case when vcValue1='白' then cast('2001-01-01 '+vcValue2 as datetime)     \n");
+                sql.Append("			when vcValue1='夜' then cast('2001-01-01 '+vcValue2 as datetime)    \n");
+                sql.Append("	   end as vcValue2 ,    \n");
+                sql.Append("       case when vcValue1='白' then cast('2001-01-01 '+vcValue3 as datetime)     \n");
+                sql.Append("	        when vcValue1='夜' then cast('2001-01-02 '+vcValue3 as datetime)    \n");
+                sql.Append("	   end as vcValue3     \n");
+                sql.Append("	from TOutCode where vcCodeId='C002' and vcIsColum='0'    \n");
+                sql.Append(")t3 on cast('2001-01-01 '+t2.vcNRBJSK as datetime) between cast(t3.vcValue2 as datetime) and cast(t3.vcValue3 as datetime)    \n");
+                sql.Append("left join    \n");
+                sql.Append("(    \n");
+                sql.Append("	select vcCodeId,vcCodeName,vcValue1,    \n");
+                sql.Append("	  case when vcValue1='白' then cast('2001-01-01 '+vcValue2 as datetime)     \n");
+                sql.Append("			when vcValue1='夜' then cast('2001-01-01 '+vcValue2 as datetime)    \n");
+                sql.Append("	   end as vcValue2 ,    \n");
+                sql.Append("       case when vcValue1='白' then cast('2001-01-01 '+vcValue3 as datetime)     \n");
+                sql.Append("	        when vcValue1='夜' then cast('2001-01-02 '+vcValue3 as datetime)    \n");
+                sql.Append("	   end as vcValue3     \n");
+                sql.Append("	from TOutCode where vcCodeId='C002' and vcIsColum='0'    \n");
+                sql.Append(")t4 on cast('2001-01-02 '+t2.vcNRBJSK as datetime) between cast(t4.vcValue2 as datetime) and cast(t4.vcValue3 as datetime)    \n");
+
+                cmd = new SqlCommand(sql.ToString(), conn, st);
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = 0;
+                cmd.ExecuteNonQuery();
+                sql.Length = 0;
+
+                st.Commit();
+                ComConnectionHelper.CloseConnection_SQL(ref conn);
             }
             catch (Exception ex)
             {
+                st.Rollback();
+                ComConnectionHelper.CloseConnection_SQL(ref conn);
                 throw ex;
             }
         }

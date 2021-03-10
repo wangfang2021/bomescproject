@@ -95,8 +95,28 @@ namespace DataAccess
             }
         }
 
-     
+
         #endregion
+
+        #region 按检索条件检索,返回dt
+        public DataTable Search_1()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("    select * from TPackBase   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        #endregion
+
+
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)

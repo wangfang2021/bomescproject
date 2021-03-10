@@ -120,7 +120,7 @@ namespace DataAccess
                 string strdate = DateTime.Now.ToString();
                 for (int i = 0; i < dtPlant.Rows.Count; i++)
                 {
-                    string strPlant = dtPlant.Rows[i]["vcValue"].ToString();
+                    string strPlant = dtPlant.Rows[i]["vcFZGC"].ToString();
                     string strMaxTimes = GetMaxTimes(strPlant, vcCLYM);
                     sql.Append("insert into TNQCStatus_HS_FORECAST (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime) values     \n");
                     sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",getdate(),'" + strUserId + "','"+ strdate + "')    \n");
@@ -216,5 +216,19 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public DataTable getPlant(string strDXYM)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select distinct vcFZGC from TSoq where vcYearMonth='"+strDXYM+"'    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

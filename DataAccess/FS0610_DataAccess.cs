@@ -171,6 +171,15 @@ namespace DataAccess
                 sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
+                sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id     \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply where vcCLYM='" + strCLYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0'   \n");
+                sql.Append(")t1    \n");
+                sql.Append("left join (    \n");
+                sql.Append("	select * from TSoq    \n");
+                sql.Append("	where vcYearMonth='"+ strDXYM + "' and vcFZGC='" + strPlant + "'' and vcInOutFlag='0'   \n");
+                sql.Append(") t2 on t1.vcPart_id=t2.vcPart_id     \n");
+
                 cmd.Connection = conn;
                 cmd.Transaction = st;
                 cmd.CommandText = sql.ToString();

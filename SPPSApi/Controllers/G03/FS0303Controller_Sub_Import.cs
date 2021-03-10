@@ -113,60 +113,6 @@ namespace SPPSApi.Controllers.G03
 
                     #endregion
 
-                    #region 根据输入的生确描述来判断生确状态
-                    //1、添加生确状态列
-                    dt.Columns.Add("vcSQState");
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        //2、获取生确描述
-                        var varSQContent = dt.Rows[i]["vcSQState"];
-                        //3、对生确描述进行判断
-                        if (varSQContent == null)           
-                        {   //3.1、如果为null，生确状态也设置位null
-                            dt.Rows[i]["vcSQState"] = null;
-                        }
-                        else if (string.IsNullOrEmpty(varSQContent.ToString()))
-                        {
-                            //3.2、如果为空，生确状态设置为null
-                            dt.Rows[i]["vcSQState"] = null;
-                        }
-                        else if (varSQContent.ToString().Contains("未确认"))
-                        {
-                            //文本包含未确认，生确状态设为为0
-                            dt.Rows[i]["vcSQState"] = "0";
-                        }
-                        else if (varSQContent.ToString().Contains("确认中"))
-                        {
-                            //文本包含确认中，生确状态设为为1
-                            dt.Rows[i]["vcSQState"] = "1";
-                        }
-                        else if (varSQContent.ToString().Contains("OK"))
-                        {
-                            //同上
-                            dt.Rows[i]["vcSQState"] = "2";
-                        }
-                        else if (varSQContent.ToString().Contains("NG"))
-                        {
-                            //同上
-                            dt.Rows[i]["vcSQState"] = "3";
-                        }
-                        else
-                        {
-                            //如果没有匹配到以上所有结果，消息提示
-                            strErr += "第"+(i+2)+"行生确无法解析，请检查生确填写是否正确\n";
-                        }
-                    }
-
-                    if (strErr!="")
-                    {
-                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strErr;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-
-                    #endregion
-
                     if (dt == null)
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传

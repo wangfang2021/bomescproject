@@ -109,12 +109,13 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "处理年月不能为空。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtPlant = ComFunction.getTCode("C000");
+                //DataTable dtPlant = ComFunction.getTCode("C000");
+                DataTable dtPlant = fs0612_Logic.getPlant(vcDXYM);
                 //判断内制结果是否已处理完
                 DataTable dtNQCResult = fs0612_Logic.dtNQCReceive(vcCLYM);
                 for (int i = 0; i < dtPlant.Rows.Count; i++)
                 {
-                    string strPlant = dtPlant.Rows[i]["vcValue"].ToString();
+                    string strPlant = dtPlant.Rows[i]["vcFZGC"].ToString();
                     DataRow[] drs_dxny = dtNQCResult.Select("Process_Factory='TFTM" + strPlant + "' and Start_date_for_daily_qty like '" + vcDXYM + "%'  ");
                     DataRow[] drs_nsny = dtNQCResult.Select("Process_Factory='TFTM" + strPlant + "' and Start_date_for_daily_qty like '" + vcNSYM + "%'  ");
                     DataRow[] drs_nnsny = dtNQCResult.Select("Process_Factory='TFTM" + strPlant + "' and Start_date_for_daily_qty like '" + vcNNSYM + "%'  ");
@@ -168,7 +169,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtMaxCLResult = fs0612_Logic.GetMaxCLResult(vcCLYM);
                 for (int i = 0; i < dtPlant.Rows.Count; i++)
                 {
-                    string strPlant = dtPlant.Rows[i]["vcValue"].ToString();
+                    string strPlant = dtPlant.Rows[i]["vcFZGC"].ToString();
                     DataRow[] drs_dxny = dtMaxCLResult.Select("vcPlant='" + strPlant + "' and vcStatus='已请求'  ");
                     if (drs_dxny.Length > 0)
                     {

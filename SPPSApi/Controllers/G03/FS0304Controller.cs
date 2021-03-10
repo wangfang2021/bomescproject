@@ -552,7 +552,7 @@ namespace SPPSApi.Controllers.G03
                 string[,] strSpecialCheck = {
                 { "对应可否确认结果",
                   "vcIsDYJG",//验证vcHaoJiu字段
-                  "对应可否确认结果", //填验证值对应的中文名
+                  "可对应", //填验证值对应的中文名
                   "1",//填验证值，当vcHaoJiu=Q时
                   "TFTM补给日期",
                   "dTFTM_BJ",//判断字段

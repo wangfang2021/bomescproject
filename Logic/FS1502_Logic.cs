@@ -130,9 +130,9 @@ namespace Logic
         #endregion
 
         #region 计算
-        public void Cal(string dBZDate, string strUserId)
+        public void Cal(string dBZDate, string strUserId,string strUnit)
         {
-            fs1502_DataAccess.Cal(dBZDate, strUserId);
+            fs1502_DataAccess.Cal(dBZDate, strUserId, strUnit);
         }
         #endregion
 

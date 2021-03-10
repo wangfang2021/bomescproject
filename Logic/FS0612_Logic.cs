@@ -60,6 +60,11 @@ namespace Logic
             return fs0612_DataAccess.GetMaxCLResult2(vcCLYM);
         }
         #endregion
+
+        public DataTable getPlant(string strDXYM)
+        {
+            return fs0612_DataAccess.getPlant(strDXYM);
+        }
     }
 
 }

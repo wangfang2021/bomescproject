@@ -24,9 +24,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string dBZDate)
+        public DataTable Search(string dBZDate,string vcBigPM)
         {
-            return fs1502_DataAccess.Search(dBZDate);
+            return fs1502_DataAccess.Search(dBZDate, vcBigPM);
         }
         #endregion
 
@@ -123,9 +123,9 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId)
+        public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId,string strUnit)
         {
-            fs1502_DataAccess.importSave_Sub(dt, vcFZPlant, dBZDate, strUserId);
+            fs1502_DataAccess.importSave_Sub(dt, vcFZPlant, dBZDate, strUserId,strUnit);
         }
         #endregion
 

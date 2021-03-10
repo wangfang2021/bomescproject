@@ -156,7 +156,7 @@ namespace SPPSApi.Controllers.G03
                                                 {"vcCPDCompany","vcCarTypeName","vcPartNameCN","vcZXBZNo","vcSCSName","vcSCSAdress","dTimeFrom","dTimeTo"},
                                                 {"","","","","","",FieldCheck.Date,FieldCheck.Date},
                                                 {"0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
+                                                {"1","1","1","0","1","1","1","1"},//最小长度设定,可以为空用0
                                                 {"1","3","4","5","6","7","8","9"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段

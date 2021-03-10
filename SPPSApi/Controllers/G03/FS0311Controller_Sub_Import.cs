@@ -69,9 +69,9 @@ namespace SPPSApi.Controllers.G03
                 string strMsg = "";
                 string[,] headers = new string[,] {{"补给品番","收货方","供应商编号","车名","中文品名","执行标准","生产商名称","地址","开始时间","结束时间"},
                                                 {"vcPart_Id","vcCPDCompany","vcSupplier_id","vcCarTypeName","vcPartNameCN","vcZXBZNo","vcSCSName","vcSCSAdress","dTimeFrom","dTimeTo"},
-                                                {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"","","","",FieldCheck.Date,FieldCheck.Date},
+                                                {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"","","","","",FieldCheck.Date,FieldCheck.Date},
                                                 {"12","0","0","0","0","0", "0", "0", "0", "0"},//最大长度设定,不校验最大长度用0
-                                                {"10","1","1","1","1","1", "1", "1", "1", "1"}};//最小长度设定,可以为空用0
+                                                {"10","1","1","1","1","0", "1", "1", "1", "1"}};//最小长度设定,可以为空用0
 
 
 

@@ -252,7 +252,8 @@ namespace DataAccess
                     string DXYM = ht[htKey].ToString().Substring(0, 6);
                     DateTime t2;
                     //DateTime.TryParseExact(DXYM + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
-                    t2 = DateTime.Parse(DXYM + "01");
+                    t2 =
+                        DateTime.Parse(DXYM.Substring(0, 4) + "-" + DXYM.Substring(4, 2) + "-01");
                     t2 = t2.AddMonths(-1);
                     string CLYM = t2.ToString("yyyyMM");
                     string tmp = " (vcDXYM = '" + DXYM + "' AND vcFZGC = '" + plant + "' AND vcCLYM = '" + CLYM + "') ";

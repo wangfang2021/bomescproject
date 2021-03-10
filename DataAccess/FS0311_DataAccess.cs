@@ -32,7 +32,7 @@ namespace DataAccess
                 //{
                 //    sbr.Append("  AND dTimeFrom<=GETDATE() AND dTimeTo>= GETDATE() \r\n");
                 //}
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TFTM");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {
@@ -66,7 +66,7 @@ namespace DataAccess
                         sbr.Append(" dOperatorTime = GETDATE() ");
                         sbr.Append(" WHERE iAuto_Id = '" + iAutoId + "' \r\n");
                     }
-                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
                 }
             }
             catch (Exception ex)
@@ -110,7 +110,7 @@ namespace DataAccess
 
                 if (sbr.Length > 0)
                 {
-                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                    excute.ExcuteSqlWithStringOper(sbr.ToString());
                 }
             }
             catch (Exception ex)

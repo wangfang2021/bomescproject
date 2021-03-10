@@ -260,7 +260,7 @@ namespace SPPSApi.Controllers.G15
                     apiResult.data = "请选择包装日期！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1502_Logic.Cal(dBZDate, loginInfo.UserId);
+                fs1502_Logic.Cal(dBZDate, loginInfo.UserId,loginInfo.UnitCode);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

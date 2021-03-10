@@ -240,8 +240,8 @@ namespace SPPSApi.Controllers.G99
                 DataTable dt = fs9905_Logic.SearchTHList(strGUID);
                 DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("dTHTime", ConvertFieldType.DateType, null);
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, null);
+                dtConverter.addField("dTHTime", ConvertFieldType.DateType,"yyyyMMdd");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType,"yyyyMMdd");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 

@@ -30,6 +30,7 @@ namespace DataAccess
                 strSql.Append("     ,b8.vcName as 'vcReceiver_Name'    \n");
                 strSql.Append("     ,b9.vcName as 'vcOriginCompany_Name'    \n");
                 strSql.Append("     ,b10.vcName as 'vcFXDiff_Name'    \n");
+                strSql.Append("     ,case when vcSQState='0' then '未确认' when vcSQState='2' then 'OK' when vcSQState='3' then 'NG' end as 'vcSQContent'    \n");
                 strSql.Append("     ,'0' as selected,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     ,CONVERT(varchar(100),dSyncTime, 111) as dSyncTimeStr    \n");
                 strSql.Append("     ,CONVERT(varchar(100),dTimeFrom, 111) as dTimeFromStr    \n");

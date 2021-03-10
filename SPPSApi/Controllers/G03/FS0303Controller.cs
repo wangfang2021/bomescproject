@@ -687,7 +687,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                #region 判断主key是否都不为null
+                #region 特殊校验
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     //有同步时间的不可再次同步
@@ -695,63 +695,6 @@ namespace SPPSApi.Controllers.G03
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "所选行第" + (i + 1) + "行不可再次同步，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-
-                    //变更事项不能为空
-                    if (listInfoData[i]["vcChange"] == null || string.IsNullOrEmpty(listInfoData[i]["vcChange"].ToString()))
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第" + (i + 1) + "行变更事项不能为空，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //补给品番不能为空
-                    if (listInfoData[i]["vcPart_id"] ==null|| string.IsNullOrEmpty(listInfoData[i]["vcPart_id"].ToString()))
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第"+(i+1)+ "行补给品番不能为空，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //车型(设计)不能为空
-                    if (listInfoData[i]["vcCarTypeDesign"]==null || listInfoData[i]["vcCarTypeDesign"].ToString()=="")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第" + (i + 1) + "行车型(设计)不能为空，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //车型(开发)不能为空
-                    if (listInfoData[i]["vcCarTypeDesign"] == null || listInfoData[i]["vcCarTypeDev"].ToString() == "")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第" + (i + 1) + "行车型(开发)不能为空，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //车名不能为空
-                    if (listInfoData[i]["vcCarTypeName"] == null || listInfoData[i]["vcCarTypeName"].ToString() == "")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第" + (i + 1) + "行车名不能为空，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //包装工厂不能为null
-                    if (listInfoData[i]["vcSYTCode"] ==null||string.IsNullOrEmpty(listInfoData[i]["vcSYTCode"].ToString()))
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第" + (i + 1) + "行的包装工厂不能为空，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //收货方时间不能为null
-                    if (listInfoData[i]["vcReceiver"] ==null||string.IsNullOrEmpty(listInfoData[i]["vcReceiver"].ToString()))
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第" + (i + 1) + "行的收货方不能为空，数据同步失败！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    //供应商代码不能为null
-                    if (listInfoData[i]["vcSupplier_id"] == null|| string.IsNullOrEmpty(listInfoData[i]["vcSupplier_id"].ToString()))
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选行第" + (i + 1) + "行的供应商代码不能为空，数据同步失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

@@ -139,7 +139,7 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C012'    \n");
                 strSql.Append("     )b4 on a.vcOE = b4.vcValue    \n");
-                strSql.Append("     inner join     \n");
+                strSql.Append("     left join     \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     	select vcValue,vcName from TCode where vcCodeId = 'C016'    \n");
                 strSql.Append("     )b5 on a.vcSYTCode = b5.vcValue    \n");

@@ -205,19 +205,8 @@ namespace DataAccess
 
                 #region 更新生确表中的数据
                 sql.Append("          update TSQJD set           \n");
-                sql.Append("           vcJD = b.vcJD          \n");
-                sql.Append("          ,dTFTM_BJ = b.dTFTM_BJ          \n");
-                sql.Append("          ,vcOperatorId = '" + strUserId+"'          \n");
-                sql.Append("          ,dOperatorTime = GETDATE()          \n");
-                sql.Append("          from TSQJD a           \n");
-                sql.Append("          inner join #TSQJD_temp b          \n");
-                sql.Append("          on a.[GUID] = b.[GUID]          \n");
-                #endregion
-
-                #region 更新供应商生确表中的数据,注意不更新进度(供应商的生确进度没有已织入)
-                sql.Append("          update TSQJD_Supplier set           \n");
                 sql.Append("           dTFTM_BJ = b.dTFTM_BJ          \n");
-                sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
+                sql.Append("          ,vcOperatorId = '" + strUserId+"'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD a           \n");
                 sql.Append("          inner join #TSQJD_temp b          \n");
@@ -350,36 +339,6 @@ namespace DataAccess
             {
                 strErr += ex.Message.ToString();
             }
-            
-
-
-            //#region 将进度变为已退回
-            //try
-            //{
-            //    StringBuilder sql = new StringBuilder();
-            //    for (int i = 0; i < listInfoData.Count; i++)
-            //    {
-            //        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-
-            //        sql.Append("      update TSQJD set vcJD =      \n");
-            //        sql.Append("      (      \n");
-            //        sql.Append("      select vcValue from TCode where vcCodeId = 'C026' and vcName = '已退回'      \n");
-            //        sql.Append("      )      \n");
-            //        sql.Append("      ,vcTH = '"+strTH+"'      \n");
-            //        sql.Append("      ,vcOperatorId = '" + strUserId + "'      \n");
-            //        sql.Append("      ,dOperatorTime = GETDATE()      \n");
-            //        sql.Append("      where iAutoId = '" + iAutoId + "'      \n");
-            //    }
-
-
-            //    excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw ex;
-            //}
-            //#endregion
-
         }
         #endregion
 
@@ -393,22 +352,16 @@ namespace DataAccess
 
                 #region 更新生确表中的数据
                 sql.Append("          update TSQJD set           \n");
-                sql.Append("          ,dTFTM_BJ = '"+dTFTM_BJ+"'          \n");
+                sql.Append("           dTFTM_BJ = '"+dTFTM_BJ+"'          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD a           \n");
-                sql.Append("          inner join #TSQJD_temp b          \n");
-                sql.Append("          on a.[GUID] = b.[GUID]          \n");
-                #endregion
-
-                #region 更新供应商生确表中的数据
-                sql.Append("          update TSQJD_Supplier set           \n");
-                sql.Append("          ,dTFTM_BJ = '"+dTFTM_BJ+"'          \n");
-                sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
-                sql.Append("          ,dOperatorTime = GETDATE()          \n");
-                sql.Append("          from TSQJD a           \n");
-                sql.Append("          inner join #TSQJD_temp b          \n");
-                sql.Append("          on a.[GUID] = b.[GUID]          \n");
+                sql.Append("          inner join         \n");
+                sql.Append("          (        \n");
+                sql.Append("          	select * from #TSQJD_temp        \n");
+                sql.Append("          	where vcJD = '2'        \n");
+                sql.Append("          ) b        \n");
+                sql.Append("          on a.[GUID] = b.[GUID]        \n");
                 #endregion
 
                 excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");

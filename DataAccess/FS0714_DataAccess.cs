@@ -31,7 +31,7 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string dFromB, string dToE)
+        public DataTable Search(List<Object> PackSpot, string PackNo, string PackGPSNo, string dFromB, string dToE)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dToE))
                 {
-                    dToE = "3000-01-01 0:00:00";
+                    dToE = "9999-12-31 0:00:00";
 
                 }
                 StringBuilder strSql = new StringBuilder();
@@ -56,8 +56,20 @@ namespace DataAccess
                 strSql.AppendLine("      	1 = 1");
                 if (!string.IsNullOrEmpty(PackNo))
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
-                if (!string.IsNullOrEmpty(PackSpot))
-                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+                if (PackSpot.Count != 0)
+                {
+                    strSql.AppendLine($"      AND vcPackSpot in( ");
+                    for (int i = 0; i < PackSpot.Count; i++)
+                    {
+                        if (PackSpot.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + PackSpot[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + PackSpot[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
                 if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
                 strSql.AppendLine($"      AND dBuJiTime BETWEEN '{dFromB}' and '{dToE}'");
@@ -187,7 +199,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    strSql.AppendLine("    delete TPackPanKui where vcPackSpot='"+ dt.Rows[i]["vcPackSpot"].ToString()+ "'and vcPackNo='" + dt.Rows[i]["vcPackNo"].ToString() + "'and vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'   \r\n");
+                    strSql.AppendLine("    delete TPackPanKui where vcPackSpot='" + dt.Rows[i]["vcPackSpot"].ToString() + "'and vcPackNo='" + dt.Rows[i]["vcPackNo"].ToString() + "'and vcPackGPSNo='" + dt.Rows[i]["vcPackGPSNo"].ToString() + "'   \r\n");
                 }
                 strSql.AppendLine("   insert into TPackPanKui   \r\n");
                 strSql.AppendLine("     ( vcPackSpot    \r\n");
@@ -212,7 +224,7 @@ namespace DataAccess
                     strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["iNumber"], false) + ", \r\n");
                     strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["dBuJiTime"], false) + ", \r\n");
                     strSql.Append(ComFunction.getSqlValue(dt.Rows[i]["vcXiuZhengNote"], false) + ", \r\n");
-                    strSql.AppendLine("    '"+ strUserId + "',  \r\n");
+                    strSql.AppendLine("    '" + strUserId + "',  \r\n");
                     strSql.AppendLine("     getdate()  \r\n");
                     strSql.AppendLine("      )\r\n");
                 }

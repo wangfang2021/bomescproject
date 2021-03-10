@@ -716,8 +716,8 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT vcValue1,vcValue2 FROM SPPSdb_TFTM.SPPSdb.dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                    "SELECT vcValue1,vcValue2 FROM TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {
@@ -898,7 +898,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT vcValue1 AS vcName,vcValue2 AS vcOriginCompany FROM SPPSdb_TFTM.SPPSdb.dbo.TOutCode WHERE vcCodeId = 'C011' AND vcIsColum = '0' AND vcValue1 = '" + userId + "'");
+                    "SELECT vcValue1 AS vcName,vcValue2 AS vcOriginCompany FROM TOutCode WHERE vcCodeId = 'C011' AND vcIsColum = '0' AND vcValue1 = '" + userId + "'");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 if (dt.Rows.Count > 0)
                 {

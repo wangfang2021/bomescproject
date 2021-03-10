@@ -130,7 +130,13 @@ namespace Common
                     {
                         string temp_start=strDateRegion[k, 0];//时间起字段
                         string temp_end = strDateRegion[k, 1];//时间止字段
-                        if(strField[1, j].ToString()== temp_start|| strField[1, j].ToString() == temp_end)//当前遍历的字段等于需要验证的时间字段
+                        string mes = "";
+                        if (strDateRegion.GetLength(1) > 2)
+                        {
+                            mes = strDateRegion[k, 2];
+                        }
+
+                        if (strField[1, j].ToString()== temp_start|| strField[1, j].ToString() == temp_end)//当前遍历的字段等于需要验证的时间字段
                         {
                             string strValue_start = listInfoData[i][temp_start] == null ? "" : listInfoData[i][temp_start].ToString();
                             string strValue_end = listInfoData[i][temp_end] == null ? "" : listInfoData[i][temp_end].ToString();
@@ -142,7 +148,10 @@ namespace Common
                                 {
                                     if (err_mes.Length > 0)
                                         err_mes.Append(",");
-                                    err_mes.Append("时间区间必须满足起<止");
+                                    if(mes=="")
+                                        err_mes.Append("时间区间必须满足起<止");
+                                    else
+                                        err_mes.Append(mes);
                                 }
                             }
                         }

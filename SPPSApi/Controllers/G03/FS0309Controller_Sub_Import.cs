@@ -58,6 +58,12 @@ namespace SPPSApi.Controllers.G03
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             try
             {
+                bool isWuBtnVisible = false;//true 价格所有列都可以维护 false 只能维护原价
+                if (loginInfo.Special == "财务用户")
+                    isWuBtnVisible = false;
+                else
+                    isWuBtnVisible = true;
+
                 if (!Directory.Exists(fileSavePath))
                 {
                     ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
@@ -67,7 +73,7 @@ namespace SPPSApi.Controllers.G03
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"ID","品番","使用开始","使用结束","变更履历", "公式选择", "原价","参考值","TNP含税","价格开始","价格结束"},
+                string[,] headers = new string[,] {{"ID","品番","使用开始","使用结束","变更履历", "公式", "原价","参考值","TNP含税","价格开始","价格结束"},
                                                 {"iAutoId","vcPart_id", "dUseBegin", "dUseEnd", "vcPriceChangeInfo","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"},
                                                 {"",FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Decimal,FieldCheck.Date,FieldCheck.Date},
                                                 {"0","12","0","0","50", "50", "0","0","0", "0", "0"},//最大长度设定,不校验最大长度用0
@@ -130,12 +136,12 @@ namespace SPPSApi.Controllers.G03
                 FS0309_Logic fS0309_Logic = new FS0309_Logic();
 
                 List<FS0309_Logic.NameOrValue> lists = new List<FS0309_Logic.NameOrValue>();
-                lists.Add(new FS0309_Logic.NameOrValue() { strTitle = "公式选择", strHeader = "vcPriceGS", strCodeid = "C038", isNull = true });
+                lists.Add(new FS0309_Logic.NameOrValue() { strTitle = "公式", strHeader = "vcPriceGS", strCodeid = "C038", isNull = true });
                 string strErr = "";         //记录错误信息
                 importDt = fS0309_Logic.ConverDT(importDt, lists, ref strErr);
 
                 string strErrorPartId = "";
-                fs0309_Logic.importSave(importDt, loginInfo.UserId, ref strErrorPartId);
+                fs0309_Logic.importSave(importDt, loginInfo.UserId, ref strErrorPartId, isWuBtnVisible);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

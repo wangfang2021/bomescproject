@@ -244,7 +244,9 @@ namespace SPPSApi.Controllers.G03
                                     "vcSumLater","vcIsDYJG_Name","vcIsDYFX_Name","vcYQorNG",
                                     "vcSCPlace_City","vcSCPlace_Province","vcCHPlace_City","vcCHPlace_Province",
                                     "vcSYTCode_Name","vcSCSPlace","dSupplier_BJ","dSupplier_HK",
-                                    "dTFTM_BJ","vcZXBZDiff","vcZXBZNo"
+                                    "dTFTM_BJ","vcZXBZDiff","vcZXBZNo","vcNum1",
+                                    "vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9",
+                                    "vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "fs0304_export.xlsx", 2, logininfo.UserId, FunctionID);
                 if (filepath == "")
@@ -516,6 +518,14 @@ namespace SPPSApi.Controllers.G03
                 /*校验是否选择多条相同品番、供应商的数据*/
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    //校验已退回数据不能织入原单位
+                    if (listInfoData[i]["vcJD"].ToString()=="3")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "已退回数据不可织入";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                     string strPart_id = listInfoData[i]["vcPart_id"].ToString();
                     string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
                     string tmp = strPart_id + strSupplier_id;
@@ -530,12 +540,12 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 //开始数据验证
-                string[,] strField = new string[,] {{"包装工厂" ,"TFTM调整日期-补给"},
-                                                    {"vcSYTCode","dTFTM_BJ"         },
-                                                    {""         ,FieldCheck.Date    },
-                                                    {"100"      ,"0"                },//最大长度设定,不校验最大长度用0
-                                                    {"0"        ,"0"                },//最小长度设定,可以为空用0
-                                                    {"22"       ,"27"               } //前台显示列号，从0开始计算,注意有选择框的是0
+                string[,] strField = new string[,] {{"对应可否确认结果", "包装工厂" ,"TFTM调整日期-补给"},
+                                                    {"vcIsDYJG","vcSYTCode","dTFTM_BJ"         },
+                                                    {"",         ""         ,FieldCheck.Date    },
+                                                    {"100",      "100"      ,"0"                },//最大长度设定,不校验最大长度用0
+                                                    {"1",        "0"        ,"0"                },//最小长度设定,可以为空用0
+                                                    {"14",       "22"       ,"27"               } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = null;

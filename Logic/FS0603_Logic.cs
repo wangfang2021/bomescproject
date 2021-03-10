@@ -2425,13 +2425,10 @@ namespace Logic
             if (strSpSub == "Query811")
             {
                 dataTable.Columns.Add("uuid", typeof(string));
-                dataTable.Columns.Add("vcPackingPlant", typeof(string));
-                dataTable.Columns.Add("dHosDate", typeof(string));
-                dataTable.Columns.Add("vcBanZhi", typeof(string));
-                dataTable.Columns.Add("LinId", typeof(string));
-                dataTable.Columns.Add("vcPartItem", typeof(string));
+                dataTable.Columns.Add("vcBigPM", typeof(string));
+                dataTable.Columns.Add("vcSmallPM", typeof(string));
                 dataTable.Columns.Add("vcStandard", typeof(string));
-                dataTable.Columns.Add("decPackTotalNum", typeof(string));
+                dataTable.Columns.Add("decPackNum", typeof(string));
                 dataTable.Columns.Add("decPlannedTime", typeof(string));
                 dataTable.Columns.Add("decPlannedPerson", typeof(string));
                 dataTable.Columns.Add("decInputPerson", typeof(string));
@@ -2439,7 +2436,6 @@ namespace Logic
                 dataTable.Columns.Add("decOverFlowTime", typeof(string));
                 dataTable.Columns.Add("decSysLander", typeof(string));
                 dataTable.Columns.Add("decDiffer", typeof(string));
-                dataTable.Columns.Add("bSelectFlag", typeof(string));
             }
             if (strSpSub == "Power1301")
             {

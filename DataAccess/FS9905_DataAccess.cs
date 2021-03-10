@@ -29,6 +29,7 @@ namespace DataAccess
                 strSql.Append("     	,b8.vcName as 'vcIsDYJG_Name'       \n");
                 strSql.Append("     	,b9.vcName as 'vcIsDYFX_Name'       \n");
                 strSql.Append("     	,case when (b10.vcValue2='是') then '1' else '0' end as 'vcSupplierEditFlag'       \n");
+                strSql.Append("     	,b11.iNum    \n");
                 strSql.Append("     	,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     	,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
                 strSql.Append("     from      \n");
@@ -38,7 +39,7 @@ namespace DataAccess
                 strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
                 strSql.Append("     				  ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
                 strSql.Append("     			      ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
-                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
                 strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
                 strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID from     \n");
                 strSql.Append("     				  (    \n");
@@ -84,7 +85,7 @@ namespace DataAccess
                 strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
                 strSql.Append("     			      ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
                 strSql.Append("     				  ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
-                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
                 strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
                 strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID     \n");
                 strSql.Append("     			from     \n");
@@ -162,7 +163,13 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C008' and vcIsColum = '0'    \n");
                 strSql.Append("     )b10 on a.vcSupplier_id = b10.vcValue1    \n");
-                strSql.Append("     order by vcPart_id    \n");
+                strSql.Append("     left join    \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select COUNT(*) as iNum,GUID from TSQJD_THlist    \n");
+                strSql.Append("     	group by GUID    \n");
+                strSql.Append("     )b11 on a.GUID = b11.GUID    \n");
+                strSql.Append("         \n");
+                strSql.Append("     order by vcPart_id,iAutoId asc    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
@@ -190,6 +197,7 @@ namespace DataAccess
                 strSql.Append("     	,b8.vcName as 'vcIsDYJG_Name'       \n");
                 strSql.Append("     	,b9.vcName as 'vcIsDYFX_Name'       \n");
                 strSql.Append("     	,case when (b10.vcValue2='是') then '1' else '0' end as 'vcSupplierEditFlag'       \n");
+                strSql.Append("     	,b11.iNum    \n");
                 strSql.Append("     	,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     	,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
                 strSql.Append("     from      \n");
@@ -199,7 +207,7 @@ namespace DataAccess
                 strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
                 strSql.Append("     				  ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
                 strSql.Append("     			      ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
-                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
                 strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
                 strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID from     \n");
                 strSql.Append("     				  (    \n");
@@ -220,7 +228,7 @@ namespace DataAccess
                 strSql.Append("     			select iAutoId,dSSDate,case when vcJD='1' then '1' when vcJD='2' then '2' when vcJD = '3' then '3' when vcJD='4'then '2' end as 'vcJD'    \n");
                 strSql.Append("     			      ,vcPart_id,vcSPINo,vcChange,vcCarType,vcInOutflag,vcPartName,vcOE    \n");
                 strSql.Append("     				  ,vcSupplier_id,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6    \n");
-                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
+                strSql.Append("     				  ,vcNum7,vcNum8,vcNum9,vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,vcIsDYJG,vcIsDYFX,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City    \n");
                 strSql.Append("     				  ,vcSCPlace_Province,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff    \n");
                 strSql.Append("     				  ,vcZXBZNo,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate,GUID     \n");
                 strSql.Append("     			from     \n");
@@ -271,7 +279,12 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C008' and vcIsColum = '0'    \n");
                 strSql.Append("     )b10 on a.vcSupplier_id = b10.vcValue1    \n");
-                strSql.Append("     order by vcPart_id    \n");
+                strSql.Append("     left join    \n");
+                strSql.Append("     (    \n");
+                strSql.Append("     	select COUNT(*) as iNum,GUID from TSQJD_THlist    \n");
+                strSql.Append("     	group by GUID    \n");
+                strSql.Append("     )b11 on a.GUID = b11.GUID    \n");
+                strSql.Append("     order by vcPart_id,iAutoId asc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)

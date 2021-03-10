@@ -21,6 +21,7 @@ namespace SPPSApi.Controllers.G13
     [ApiController]
     public class FS1309Controller : BaseController
     {
+        FS0603_Logic fs0603_Logic = new FS0603_Logic();
         FS1309_Logic fS1309_Logic = new FS1309_Logic();
         private readonly string FunctionID = "FS1309";
 
@@ -145,6 +146,7 @@ namespace SPPSApi.Controllers.G13
             string strGZTZhuangTaiFre = dataForm.GZTZhuangTaiFre == null ? "" : dataForm.GZTZhuangTaiFre;
             string strGZTQieHuanFre = dataForm.GZTQieHuanFre == null ? "" : dataForm.GZTQieHuanFre;
             string strGZTShowType = dataForm.GZTShowType == null ? "" : dataForm.GZTShowType;
+            string strObjective = dataForm.Objective == null ? "" : dataForm.Objective;
             string strBFromTime = dataForm.BFromTime == null ? "" : dataForm.BFromTime;
             string strBCross = dataForm.BCross == null ? "" : dataForm.BCross;
             string strBToTime = dataForm.BToTime == null ? "" : dataForm.BToTime;
@@ -152,8 +154,93 @@ namespace SPPSApi.Controllers.G13
             string strYCross = dataForm.YCross == null ? "" : dataForm.YCross;
             string strYToTime = dataForm.YToTime == null ? "" : dataForm.YToTime;
             try
-            {   //保存
-                fS1309_Logic.setDisplayInfo(strPackingPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType
+            {
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                if (strPackingPlant == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "包装工厂不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strGZTTongjiFre == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "工作台统计刷新不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                else
+                {
+                    if (Convert.ToInt32(strGZTTongjiFre) < 60)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "工作台统计刷新时间不能小于60s。";
+                        dtMessage.Rows.Add(dataRow);
+
+                    }
+                }
+                if (strBZLTongjiFre == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "包装量统计刷新不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                else
+                {
+                    if (Convert.ToInt32(strBZLTongjiFre) < 60)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "包装量统计刷新时间不能小于60s。";
+                        dtMessage.Rows.Add(dataRow);
+
+                    }
+                }
+                if (strGZTZhuangTaiFre == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "工作台状态刷新不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                else
+                {
+                    if (Convert.ToInt32(strGZTZhuangTaiFre) < 60)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "工作台状态刷新时间不能小于60s。";
+                        dtMessage.Rows.Add(dataRow);
+
+                    }
+                }
+                if (strGZTQieHuanFre == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "工作台状态切换不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                else
+                {
+                    if (Convert.ToInt32(strGZTQieHuanFre) < 60)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "工作台状态切换时间不能小于60s。";
+                        dtMessage.Rows.Add(dataRow);
+
+                    }
+                }
+                if (strObjective == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "现场个人效率目标不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fS1309_Logic.setDisplayInfo(strPackingPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType, strObjective
                     , strBFromTime, strBCross, strBToTime, strYFromTime, strYCross, strYToTime, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

@@ -684,7 +684,7 @@ namespace DataAccess
 
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(" SELECT vcPart_id,vcInOutFlag,vcDXYM,vcFZGC,vcCarType,vcMakingOrderType,iPartNums,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31 FROM TSOQReply");
-                sbr.AppendLine(" WHERE vcMakingOrderType = '0' AND ");
+                sbr.AppendLine(" WHERE 1=1 and isnull(iPartNums,0)<>0 AND ");
                 sbr.AppendLine(sql.ToString());
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
                 return dt;
@@ -1357,7 +1357,7 @@ namespace DataAccess
                         {
                             res += ",";
                         }
-                        res += "'" + dt.Rows[i] + "'";
+                        res += "'" + dt.Rows[i]["vcValue"] + "'";
                     }
                 }
 

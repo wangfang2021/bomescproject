@@ -62,7 +62,7 @@ namespace SPPSApi.Controllers.G08
                 //包装厂下拉
                 List<Object> PackingPlantList = ComFunction.convertAllToResult(dtPackingPlant);//包装厂
                 res.Add("PackingPlantList", PackingPlantList);
-                string strPackingPlant = dtPackingPlant.Rows[0][0].ToString();
+                string strPackingPlant = dtPackingPlant.Rows[0]["vcValue"].ToString();
                 int code = 0;
                 string type = "";
                 res = fS0811_Logic.setLoadPage(res, strPackingPlant, ref type, ref code);
@@ -186,13 +186,13 @@ namespace SPPSApi.Controllers.G08
                 string strPackingPlant = data_queryinfo.PackingPlant == null ? "" : data_queryinfo.PackingPlant.ToString();
                 string strPeopleNum = data_queryinfo.PeopleNum == null ? "" : data_queryinfo.PeopleNum.ToString();
                 string strCycleTime = data_queryinfo.CycleTime == null ? "" : data_queryinfo.CycleTime.ToString();
-                string strObjective = data_queryinfo.Objective == null ? "" : data_queryinfo.Objective.ToString();
+                //string strObjective = data_queryinfo.Objective == null ? "" : data_queryinfo.Objective.ToString();
                 string strWorkOverTime = data_queryinfo.WorkOverTime == null ? "" : data_queryinfo.WorkOverTime.ToString();
 
                 JArray listInfo = data_rowinfo;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                DataTable dtRowinfo = fS0603_Logic.createTable("Query811");
+
 
                 if (strbz == "" || strbz == "9999-12-31(白)")
                 {
@@ -207,56 +207,26 @@ namespace SPPSApi.Controllers.G08
                     dtMessage.Rows.Add(dataRow);
 
                 }
+                if (strPeopleNum == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "最大包装持有人数为空无法计算";
+                    dtMessage.Rows.Add(dataRow);
+
+                }
                 if (strCycleTime == "")
                 {
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "作业时时间为空无法计算";
                     dtMessage.Rows.Add(dataRow);
                 }
-                if (strObjective == "")
-                {
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "个人效率目标为空无法计算";
-                    dtMessage.Rows.Add(dataRow);
-                }
                 if (listInfoData.Count == 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "品目列表或包装计划为空无法计算";
+                    dataRow["vcMessage"] = "品目列表或实行计划为空无法计算";
                     dtMessage.Rows.Add(dataRow);
                 }
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    DataRow drRowinfo = dtRowinfo.NewRow();
-                    drRowinfo["uuid"] = listInfoData[i]["uuid"] == null ? "" : listInfoData[i]["uuid"].ToString();
-                    drRowinfo["vcPackingPlant"] = listInfoData[i]["vcPackingPlant"] == null ? "" : listInfoData[i]["vcPackingPlant"].ToString();
-                    drRowinfo["dHosDate"] = listInfoData[i]["dHosDate"] == null ? "" : listInfoData[i]["dHosDate"].ToString();
-                    drRowinfo["vcBanZhi"] = listInfoData[i]["vcBanZhi"] == null ? "" : listInfoData[i]["vcBanZhi"].ToString();
-                    drRowinfo["LinId"] = listInfoData[i]["LinId"] == null ? "" : listInfoData[i]["LinId"].ToString();
-                    drRowinfo["vcPartItem"] = listInfoData[i]["vcPartItem"] == null ? "" : listInfoData[i]["vcPartItem"].ToString();
-                    drRowinfo["vcStandard"] = listInfoData[i]["vcStandard"] == null ? "" : listInfoData[i]["vcStandard"].ToString();
-                    drRowinfo["decPackTotalNum"] = listInfoData[i]["decPackTotalNum"] == null ? "" : listInfoData[i]["decPackTotalNum"].ToString();
-                    drRowinfo["decPlannedTime"] = listInfoData[i]["decPlannedTime"] == null ? "" : listInfoData[i]["decPlannedTime"].ToString();
-                    drRowinfo["decPlannedPerson"] = listInfoData[i]["decPlannedPerson"] == null ? "" : listInfoData[i]["decPlannedPerson"].ToString();
-                    drRowinfo["decInputPerson"] = listInfoData[i]["decInputPerson"] == null ? "" : listInfoData[i]["decInputPerson"].ToString();
-                    drRowinfo["decInputTime"] = listInfoData[i]["decInputTime"] == null ? "" : listInfoData[i]["decInputTime"].ToString();
-                    drRowinfo["decOverFlowTime"] = listInfoData[i]["decOverFlowTime"] == null ? "" : listInfoData[i]["decOverFlowTime"].ToString();
-                    drRowinfo["decSysLander"] = listInfoData[i]["decSysLander"] == null ? "" : listInfoData[i]["decSysLander"].ToString();
-                    drRowinfo["decDiffer"] = listInfoData[i]["decDiffer"] == null ? "" : listInfoData[i]["decDiffer"].ToString();
-                    drRowinfo["bSelectFlag"] = "1";
-                    dtRowinfo.Rows.Add(drRowinfo);
-                }
-                for (int i = 0; i < dtRowinfo.Rows.Count; i++)
-                {
-                    string strPartItem = dtRowinfo.Rows[i]["vcPartItem"].ToString();
-                    string strInputPerson = dtRowinfo.Rows[i]["decInputPerson"].ToString();
-                    if (strInputPerson == "" || strInputPerson == "0")
-                    {
-                        DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = string.Format("品目{0}的人员投入数录入有误)", strPartItem);
-                        dtMessage.Rows.Add(dataRow);
-                    }
-                }
+                DataTable dtImport = fS0811_Logic.checkSaveData(listInfoData, strPeopleNum, strCycleTime, ref strWorkOverTime, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -264,45 +234,14 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                decimal decPeopleNum = 0;//最大包装持有人数C2
-                decimal decPlannedPerson = 0;//计划人数F22
-                for (int i = 0; i < dtRowinfo.Rows.Count; i++)
-                {
-                    dtRowinfo.Rows[i]["uuid"] = struuid;
-                    dtRowinfo.Rows[i]["vcPackingPlant"] = strPackingPlant;
-                    dtRowinfo.Rows[i]["dHosDate"] = strbz.Substring(0, 10);
-                    dtRowinfo.Rows[i]["vcBanZhi"] = strbz.Substring(11, 1);
-                    dtRowinfo.Rows[i]["LinId"] = dtRowinfo.Rows[i]["LinId"].ToString();
-
-                    decimal decInputPerson = Convert.ToDecimal(dtRowinfo.Rows[i]["decInputPerson"].ToString());
-                    decimal decInputTime = decInputPerson * (Convert.ToDecimal(strCycleTime) / 60);
-                    decimal decPlannedTime = Convert.ToDecimal(dtRowinfo.Rows[i]["decPlannedTime"].ToString());
-                    decimal decOverFlowTime = decInputTime - decPlannedTime;
-                    decPeopleNum = decPeopleNum + decInputPerson;
-                    decPlannedPerson = decPlannedPerson + Convert.ToDecimal(dtRowinfo.Rows[i]["decPlannedPerson"].ToString());
-                    //登录人员获取并计算最后两列decSysLander、decDiffer
-
-                    dtRowinfo.Rows[i]["decPlannedTime"] = decInputPerson;
-                    dtRowinfo.Rows[i]["decInputTime"] = decInputTime.ToString("#0.00");
-                    dtRowinfo.Rows[i]["decOverFlowTime"] = decOverFlowTime.ToString("#0.00");
-                    dtRowinfo.Rows[i]["decSysLander"] = "0.00";
-                    dtRowinfo.Rows[i]["decDiffer"] = decInputTime;
-                }
-                decimal decWorkOverTime = 0;//计划人均加班小时数
-                if (decPlannedPerson > decPeopleNum)
-                {
-                    decWorkOverTime = ((decPlannedPerson - decPeopleNum) * (Convert.ToDecimal(strCycleTime) / 60) * 60) / decPeopleNum;
-                }
-
+                fS0811_Logic.queryData(strPackingPlant, strbz.Substring(0, 10), strbz.Substring(11, 1), dtImport, strPeopleNum, strCycleTime, strWorkOverTime, loginInfo.UserId, ref dtMessage);
+                //获取计算后结果
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                res.Add("PeopleNumItem", decPeopleNum.ToString("#0"));
-                res.Add("CycleTimeItem", Convert.ToDecimal(strCycleTime).ToString("#0"));
-                res.Add("ObjectiveItem", strObjective);
-                res.Add("WorkOverTimeItem", decWorkOverTime.ToString("#0.00"));
-                res.Add("dataList", dtRowinfo);
-                res.Add("uuidItem", struuid);
-                res.Add("BZItem", strbz);
-                apiResult.code = ComConstant.SUCCESS_CODE;
+                int code = 0;
+                string type = "";
+                res = fS0811_Logic.setTempPage(res, strPackingPlant, strbz.Substring(0, 10), strbz.Substring(11, 1), ref type, ref code);
+                apiResult.code = code;
+                apiResult.type = type;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
@@ -343,13 +282,7 @@ namespace SPPSApi.Controllers.G08
                 string struuid = data_hidinfo.uuid == null ? "" : data_hidinfo.uuid.ToString();
 
                 string strPackingPlant = data_queryinfo.PackingPlant == null ? "" : data_queryinfo.PackingPlant.ToString();
-                string strPeopleNum = data_queryinfo.PeopleNum == null ? "" : data_queryinfo.PeopleNum.ToString();
-                string strCycleTime = data_queryinfo.CycleTime == null ? "" : data_queryinfo.CycleTime.ToString();
-                string strObjective = data_queryinfo.Objective == null ? "" : data_queryinfo.Objective.ToString();
-                string strWorkOverTime = data_queryinfo.WorkOverTime == null ? "" : data_queryinfo.WorkOverTime.ToString();
 
-                JArray listInfo = data_rowinfo;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
                 DataTable dtRowinfo = fS0603_Logic.createTable("Query811");
 
@@ -366,55 +299,20 @@ namespace SPPSApi.Controllers.G08
                     dtMessage.Rows.Add(dataRow);
 
                 }
-                if (strCycleTime == "")
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataSet dsSaveInfo = fS0811_Logic.getTempData(strPackingPlant, strbz.Substring(0, 10), strbz.Substring(11, 1));
+                if (dsSaveInfo == null)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "作业时时间为空无法计算";
+                    dataRow["vcMessage"] = "没有可供保存的数据，请先进行计算";
                     dtMessage.Rows.Add(dataRow);
-                }
-                if (strObjective == "")
-                {
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "个人效率目标为空无法计算";
-                    dtMessage.Rows.Add(dataRow);
-                }
-                if (listInfoData.Count == 0)
-                {
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "品目列表或包装计划为空无法计算";
-                    dtMessage.Rows.Add(dataRow);
-                }
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    DataRow drRowinfo = dtRowinfo.NewRow();
-                    drRowinfo["uuid"] = listInfoData[i]["uuid"] == null ? "" : listInfoData[i]["uuid"].ToString();
-                    drRowinfo["vcPackingPlant"] = listInfoData[i]["vcPackingPlant"] == null ? "" : listInfoData[i]["vcPackingPlant"].ToString();
-                    drRowinfo["dHosDate"] = listInfoData[i]["dHosDate"] == null ? "" : listInfoData[i]["dHosDate"].ToString();
-                    drRowinfo["vcBanZhi"] = listInfoData[i]["vcBanZhi"] == null ? "" : listInfoData[i]["vcBanZhi"].ToString();
-                    drRowinfo["LinId"] = listInfoData[i]["LinId"] == null ? "" : listInfoData[i]["LinId"].ToString();
-                    drRowinfo["vcPartItem"] = listInfoData[i]["vcPartItem"] == null ? "" : listInfoData[i]["vcPartItem"].ToString();
-                    drRowinfo["vcStandard"] = listInfoData[i]["vcStandard"] == null ? "" : listInfoData[i]["vcStandard"].ToString();
-                    drRowinfo["decPackTotalNum"] = listInfoData[i]["decPackTotalNum"] == null ? "" : listInfoData[i]["decPackTotalNum"].ToString();
-                    drRowinfo["decPlannedTime"] = listInfoData[i]["decPlannedTime"] == null ? "" : listInfoData[i]["decPlannedTime"].ToString();
-                    drRowinfo["decPlannedPerson"] = listInfoData[i]["decPlannedPerson"] == null ? "" : listInfoData[i]["decPlannedPerson"].ToString();
-                    drRowinfo["decInputPerson"] = listInfoData[i]["decInputPerson"] == null ? "" : listInfoData[i]["decInputPerson"].ToString();
-                    drRowinfo["decInputTime"] = listInfoData[i]["decInputTime"] == null ? "" : listInfoData[i]["decInputTime"].ToString();
-                    drRowinfo["decOverFlowTime"] = listInfoData[i]["decOverFlowTime"] == null ? "" : listInfoData[i]["decOverFlowTime"].ToString();
-                    drRowinfo["decSysLander"] = listInfoData[i]["decSysLander"] == null ? "" : listInfoData[i]["decSysLander"].ToString();
-                    drRowinfo["decDiffer"] = listInfoData[i]["decDiffer"] == null ? "" : listInfoData[i]["decDiffer"].ToString();
-                    drRowinfo["bSelectFlag"] = "1";
-                    dtRowinfo.Rows.Add(drRowinfo);
-                }
-                for (int i = 0; i < dtRowinfo.Rows.Count; i++)
-                {
-                    string strPartItem = dtRowinfo.Rows[i]["vcPartItem"].ToString();
-                    string strInputPerson = dtRowinfo.Rows[i]["decInputPerson"].ToString();
-                    if (strInputPerson == "" || strInputPerson == "0")
-                    {
-                        DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = string.Format("品目{0}的人员投入数录入有误)", strPartItem);
-                        dtMessage.Rows.Add(dataRow);
-                    }
+
                 }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
@@ -423,54 +321,13 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                decimal decPeopleNum = 0;//最大包装持有人数C2
-                decimal decPlannedPerson = 0;//计划人数F22
-                for (int i = 0; i < dtRowinfo.Rows.Count; i++)
-                {
-                    dtRowinfo.Rows[i]["uuid"] = struuid;
-                    dtRowinfo.Rows[i]["vcPackingPlant"] = strPackingPlant;
-                    dtRowinfo.Rows[i]["dHosDate"] = strbz.Substring(0, 10);
-                    dtRowinfo.Rows[i]["vcBanZhi"] = strbz.Substring(11, 1);
-                    dtRowinfo.Rows[i]["LinId"] = dtRowinfo.Rows[i]["LinId"].ToString();
-
-                    decimal decInputPerson = Convert.ToDecimal(dtRowinfo.Rows[i]["decInputPerson"].ToString());
-                    decimal decInputTime = decInputPerson * (Convert.ToDecimal(strCycleTime) / 60);
-                    decimal decPlannedTime = Convert.ToDecimal(dtRowinfo.Rows[i]["decPlannedTime"].ToString());
-                    decimal decOverFlowTime = decInputTime - decPlannedTime;
-                    decPeopleNum = decPeopleNum + decInputPerson;
-                    decPlannedPerson = decPlannedPerson + Convert.ToDecimal(dtRowinfo.Rows[i]["decPlannedPerson"].ToString());
-                    //登录人员获取并计算最后两列decSysLander、decDiffer
-
-                    dtRowinfo.Rows[i]["decPlannedTime"] = decInputPerson;
-                    dtRowinfo.Rows[i]["decInputTime"] = decInputTime.ToString("#0.00");
-                    dtRowinfo.Rows[i]["decOverFlowTime"] = decOverFlowTime.ToString("#0.00");
-                    dtRowinfo.Rows[i]["decSysLander"] = "0.00";
-                    dtRowinfo.Rows[i]["decDiffer"] = decInputTime;
-                }
-                decimal decWorkOverTime = 0;//计划人均加班小时数
-                if (decPlannedPerson > decPeopleNum)
-                {
-                    decWorkOverTime = ((decPlannedPerson - decPeopleNum) * (Convert.ToDecimal(strCycleTime) / 60) * 60) / decPeopleNum;
-                }
-                fS0811_Logic.setInPutIntoOverInfo(dtRowinfo,
-            struuid, decPeopleNum.ToString("#0"), Convert.ToDecimal(strCycleTime).ToString("#0"), strObjective, decWorkOverTime.ToString("#0.00"),
-            loginInfo.UserId, ref dtMessage);
-                if (dtMessage != null && dtMessage.Rows.Count != 0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "保存计算结果失败";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                fS0811_Logic.setInPutIntoOverInfo(strPackingPlant, strbz.Substring(0, 10), strbz.Substring(11, 1), ref dtMessage);
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                res.Add("PeopleNumItem", decPeopleNum.ToString("#0"));
-                res.Add("CycleTimeItem", Convert.ToDecimal(strCycleTime).ToString("#0"));
-                res.Add("ObjectiveItem", strObjective);
-                res.Add("WorkOverTimeItem", decWorkOverTime.ToString("#0.00"));
-                res.Add("dataList", dtRowinfo);
-                res.Add("uuidItem", struuid);
-                res.Add("BZItem", strbz);
-                apiResult.code = ComConstant.SUCCESS_CODE;
+                int code = 0;
+                string type = "";
+                res = fS0811_Logic.setLoadPage(res, strPackingPlant, ref type, ref code);
+                apiResult.code = code;
+                apiResult.type = type;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

@@ -655,15 +655,16 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-
-                /*
-                 * for循环。校验所选数据是否已经同步了，如果有，返回这些品番信息
-                */
-                //增加数据同步时需要校验哪些条件
-
                 #region 判断主key是否都不为null
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    //变更实行不能为空
+                    if (listInfoData[i]["vcChange"] == null || string.IsNullOrEmpty(listInfoData[i]["vcChange"].ToString()))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "所选行第" + (i + 1) + "行变更事项不能为空，数据同步失败！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     //品番不能为null
                     if (listInfoData[i]["vcPart_id"] ==null|| string.IsNullOrEmpty(listInfoData[i]["vcPart_id"].ToString()))
                     {

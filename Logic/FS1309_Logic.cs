@@ -35,6 +35,7 @@ namespace Logic
                 string strGZTZhuangTaiFre = "30";
                 string strGZTQieHuanFre = "60";
                 string strGZTShowType = "1";
+                string strObjective = "100.00";
                 if (dataSet.Tables[0].Rows.Count != 0)
                 {
                     strPageClientNum = dataSet.Tables[0].Rows[0]["vcPageClientNum"].ToString();
@@ -43,6 +44,7 @@ namespace Logic
                     strGZTZhuangTaiFre = dataSet.Tables[0].Rows[0]["iGZTZhuangTaiFre"].ToString();
                     strGZTQieHuanFre = dataSet.Tables[0].Rows[0]["iGZTQieHuanFre"].ToString();
                     strGZTShowType = dataSet.Tables[0].Rows[0]["iGZTShowType"].ToString();
+                    strObjective = dataSet.Tables[0].Rows[0]["decObjective"].ToString();
                 }
                 string strBFromTime = "08:30";
                 string strBCross = "0";
@@ -70,6 +72,7 @@ namespace Logic
                 res.Add("GZTZhuangTaiFreItem", strGZTZhuangTaiFre);
                 res.Add("GZTQieHuanFreItem", strGZTQieHuanFre);
                 res.Add("GZTShowTypeItem", strGZTShowType);
+                res.Add("ObjectiveItem", strObjective);
                 res.Add("BFromTimeItem", strBFromTime);
                 res.Add("BCrossItem", strBCross);
                 res.Add("BToTimeItem", strBToTime);
@@ -85,10 +88,10 @@ namespace Logic
                 throw ex;
             }
         }
-        public void setDisplayInfo(string strPackingPlant, string strPageClientNum, string strGZTTongjiFre, string strBZLTongjiFre, string strGZTZhuangTaiFre, string strGZTQieHuanFre, string strGZTShowType
+        public void setDisplayInfo(string strPackingPlant, string strPageClientNum, string strGZTTongjiFre, string strBZLTongjiFre, string strGZTZhuangTaiFre, string strGZTQieHuanFre, string strGZTShowType,string strObjective
                     , string strBFromTime, string strBCross, string strBToTime, string strYFromTime, string strYCross, string strYToTime, string strOperId)
         {
-            fs1309_DataAccess.setDisplayInfo(strPackingPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType
+            fs1309_DataAccess.setDisplayInfo(strPackingPlant, strPageClientNum, strGZTTongjiFre, strBZLTongjiFre, strGZTZhuangTaiFre, strGZTQieHuanFre, strGZTShowType, strObjective
                    , strBFromTime, strBCross, strBToTime, strYFromTime, strYCross, strYToTime, strOperId);
         }
     }

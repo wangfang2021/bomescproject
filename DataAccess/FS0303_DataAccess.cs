@@ -90,10 +90,12 @@ namespace DataAccess
                 strSql.Append("     1=1    \n");
                 if (string.IsNullOrEmpty(strIsShowAll) || strIsShowAll == "0")//如果没点击显示全部，则附加常规条件：变更事项不为空
                 {
-                    strSql.Append("     and vcChange<>''    \n");
+                    strSql.Append("     and (   \n");
+                    strSql.Append("     isnull(vcChange,'')<>''    \n");
                     strSql.Append("     or vcSQState not in('2','3')   \n");                //生确状态  0：未确认    1：确认中  2：OK    3：NG
                     strSql.Append("     or dSyncTime is null   \n");
                     strSql.Append("     or dSyncTime = ''   \n");
+                    strSql.Append("     )   \n");
                 }
                 strSql.Append("     order by vcPart_id asc   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
@@ -238,6 +240,8 @@ namespace DataAccess
                         sql.Append("      dSyncTime = " + ComFunction.getSqlValue(listInfoData[i]["dSyncTime"], true) + "      \r\n");
                         sql.Append("      ,vcChange = " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "      \r\n");
                         sql.Append("      ,vcSPINo = " + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "      \r\n");
+                        if(listInfoData[i]["vcSQState"]!=null)
+                            sql.Append("      ,vcSQState = " + ComFunction.getSqlValue(listInfoData[i]["vcSQState"], false) + "      \r\n");
                         sql.Append("      ,vcSQContent = " + ComFunction.getSqlValue(listInfoData[i]["vcSQContent"], false) + "      \r\n");
                         sql.Append("      ,vcDiff = " + ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + "      \r\n");
                         sql.Append("      ,vcCarTypeDesign = " + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + "      \r\n");
@@ -406,7 +410,7 @@ namespace DataAccess
                     sql.Append("            \n");
                     sql.Append("      insert into #TUnit_temp       \n");
                     sql.Append("       (         \n");
-                    sql.Append("       iAutoId,dSyncTime,vcChange,vcSPINo,vcSQContent,vcDiff,vcPart_id         \n");
+                    sql.Append("       iAutoId,dSyncTime,vcChange,vcSPINo,vcSQState,vcSQContent,vcDiff,vcPart_id         \n");
                     sql.Append("       ,vcCarTypeDesign,vcCarTypeDev,vcCarTypeName,dTimeFrom,dTimeTo,dTimeFromSJ         \n");
                     sql.Append("       ,vcBJDiff,vcPartReplace,vcPartNameEn,vcPartNameCn,vcHKGC,vcBJGC         \n");
                     sql.Append("       ,vcInOutflag,vcSupplier_id,vcSupplier_Name,vcSCPlace,vcCHPlace,vcSYTCode         \n");
@@ -423,6 +427,7 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dSyncTime"], true) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcChange_Name"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcSPINo"], false) + "      \n");
+                    sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcSQState"], true) + "      \n");//注意生确状态没内容应该是null
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcSQContent"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcDiff"], false) + "      \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + "      \n");
@@ -508,6 +513,7 @@ namespace DataAccess
                 sql.Append("       dSyncTime=b.dSyncTime          \n");
                 sql.Append("      ,vcChange=b.vcChange          \n");
                 sql.Append("      ,vcSPINo=b.vcSPINo          \n");
+                sql.Append("      ,vcSQState=isnull(b.vcSQState,a.vcSQState)          \n");//注意null的代表不需要修改生确状态，还等于自己
                 sql.Append("      ,vcSQContent=b.vcSQContent          \n");
                 sql.Append("      ,vcDiff=b.vcDiff          \n");
                 sql.Append("      ,vcCarTypeDesign=b.vcCarTypeDesign          \n");

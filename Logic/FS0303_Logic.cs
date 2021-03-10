@@ -437,5 +437,23 @@ namespace Logic
         }
         #endregion
 
+        #region 验证时间先后关系
+        public bool checkDataFromTo(DataRow row,string strFromField,string strToField)
+        {
+            if (row[strFromField] != System.DBNull.Value && row[strToField] != System.DBNull.Value
+                && row[strFromField].ToString().Trim() != "" && row[strToField].ToString().Trim() != ""
+                )
+            {
+                DateTime dFrom = DateTime.Parse(row[strFromField].ToString());
+                DateTime dTo = DateTime.Parse(row[strToField].ToString());
+                if (dFrom > dTo)
+                    return false;
+                else
+                    return true;
+            }
+            return true;
+        }
+        #endregion
+
     }
 }

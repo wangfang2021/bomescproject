@@ -108,6 +108,7 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcSupplier_id like '"+ strSupplier_id + "%'   ");
                 }
+                strSql.Append("     order by vcPart_id,iAutoId asc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
@@ -183,6 +184,7 @@ namespace DataAccess
                 strSql.Append("     )b10 on a.GUID = b10.GUID    \n");
                 strSql.Append("   where 1=1  \n");
                 strSql.Append("   and vcJD <> 4  \n");
+                strSql.Append("   order by vcPart_id,iAutoId asc    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }

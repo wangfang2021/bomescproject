@@ -169,7 +169,7 @@ namespace DataAccess
                 strSql.Append("     	group by GUID    \n");
                 strSql.Append("     )b11 on a.GUID = b11.GUID    \n");
                 strSql.Append("         \n");
-                strSql.Append("     order by vcPart_id    \n");
+                strSql.Append("     order by vcPart_id,iAutoId asc    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
@@ -284,7 +284,7 @@ namespace DataAccess
                 strSql.Append("     	select COUNT(*) as iNum,GUID from TSQJD_THlist    \n");
                 strSql.Append("     	group by GUID    \n");
                 strSql.Append("     )b11 on a.GUID = b11.GUID    \n");
-                strSql.Append("     order by vcPart_id    \n");
+                strSql.Append("     order by vcPart_id,iAutoId asc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)

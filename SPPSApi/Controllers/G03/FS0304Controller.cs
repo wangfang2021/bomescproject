@@ -540,12 +540,12 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 //开始数据验证
-                string[,] strField = new string[,] {{"包装工厂" ,"TFTM调整日期-补给"},
-                                                    {"vcSYTCode","dTFTM_BJ"         },
-                                                    {""         ,FieldCheck.Date    },
-                                                    {"100"      ,"0"                },//最大长度设定,不校验最大长度用0
-                                                    {"0"        ,"0"                },//最小长度设定,可以为空用0
-                                                    {"22"       ,"27"               } //前台显示列号，从0开始计算,注意有选择框的是0
+                string[,] strField = new string[,] {{"对应可否确认结果", "包装工厂" ,"TFTM调整日期-补给"},
+                                                    {"vcIsDYJG","vcSYTCode","dTFTM_BJ"         },
+                                                    {"",         ""         ,FieldCheck.Date    },
+                                                    {"100",      "100"      ,"0"                },//最大长度设定,不校验最大长度用0
+                                                    {"1",        "0"        ,"0"                },//最小长度设定,可以为空用0
+                                                    {"14",       "22"       ,"27"               } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = null;

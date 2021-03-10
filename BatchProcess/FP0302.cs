@@ -84,6 +84,18 @@ namespace BatchProcess
 
         #endregion
 
+        #region 获取接收失败信息担当邮箱
+
+        public DataTable getFailEmail()
+        {
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine(
+                "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+        }
+
+        #endregion
+
         #region 获取邮件体
 
         public string EmailBody(int flag)
@@ -110,6 +122,26 @@ namespace BatchProcess
                 sbr.Append("<p>附件为本次中文品名依赖，</p>");
                 sbr.Append("<p>拜托及时回复</p>");
                 sbr.Append("<p>谢谢</p>");
+                sbr.Append("<p>以上</p>");
+            }
+            return sbr.ToString();
+        }
+
+        public string FailEmailBody(int flag)
+        {
+            StringBuilder sbr = new StringBuilder();
+            string time = DateTime.Now.ToString("YYYY-MM-dd");
+
+            //中文品名
+            if (flag == 1)
+            {
+                sbr.Append("<p>" + time + "旧型十年年记提醒邮件发送失败</p>");
+                sbr.Append("<p>以上</p>");
+            }
+            //旧型
+            else if (flag == 0)
+            {
+                sbr.Append("<p>" + time + "中文品名提醒邮件发送失败</p>");
                 sbr.Append("<p>以上</p>");
             }
             return sbr.ToString();

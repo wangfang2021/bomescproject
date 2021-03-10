@@ -201,7 +201,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C011'");
+                strSql.AppendLine("select vcValue1 from TOutCode where vcIsColum=0 and vcCodeId='C013'");
                 DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 if(dataTable.Rows.Count!=0)
                 {

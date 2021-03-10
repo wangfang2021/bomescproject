@@ -74,7 +74,7 @@ namespace BatchProcess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
                     "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {

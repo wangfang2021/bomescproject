@@ -2439,7 +2439,10 @@ namespace Logic
             }
             if (strSpSub == "Power1301")
             {
-                dataTable.Columns.Add("vcInPut", typeof(string));
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcUserId", typeof(string));
+                dataTable.Columns.Add("vcPlant", typeof(string));
+                dataTable.Columns.Add("vcInPut", typeof(string));   
                 dataTable.Columns.Add("vcInPutUnLock", typeof(string));
                 dataTable.Columns.Add("vcCheck", typeof(string));
                 dataTable.Columns.Add("vcCheckUnLock", typeof(string));
@@ -2447,7 +2450,6 @@ namespace Logic
                 dataTable.Columns.Add("vcPackUnLock", typeof(string));
                 dataTable.Columns.Add("vcOutPut", typeof(string));
                 dataTable.Columns.Add("vcOutPutUnLock", typeof(string));
-                dataTable.Columns.Add("LinId", typeof(string));
             }
             if (strSpSub == "SOQ602")
             {

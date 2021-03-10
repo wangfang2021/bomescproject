@@ -919,7 +919,7 @@ namespace SPPSApi.Controllers.G06
                             apiResult.data = dtMessage;
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        string strVolume = ((Convert.ToInt32(listSubInfo[0]["iLength"].ToString()) * Convert.ToInt32(listSubInfo[0]["iWidth"].ToString()) * Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())) / 1000000000.0000).ToString("#.0000");
+                        string strVolume = (((Convert.ToInt32(listSubInfo[0]["iLength"].ToString())/1000.0) * (Convert.ToInt32(listSubInfo[0]["iWidth"].ToString())/1000.0) * (Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())/1000.0))).ToString("#.0000");
                         DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
                         if (Convert.ToInt32(strLinId) == -1)
                         {
@@ -1095,7 +1095,7 @@ namespace SPPSApi.Controllers.G06
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "保存情报失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -387,7 +387,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append(" select * from TUrgentOrder ");
-                strSql.Append(" WHERE (vcStatus!='1' or vcShowFlag!='1' or vcSaveFlag='1') ");//这几个状态(1)是可操作的状态
+                strSql.Append(" WHERE (vcStatus!='1' or vcShowFlag!='1' or isnull(vcSaveFlag,'')='1') ");//这几个状态(1)是可操作的状态
                 strSql.Append("	and vcSupplier_id='" + vcSupplier_id + "'      \n");
                 strSql.Append("	and vcStatus in ('1','2')--1:待回复   2:已回复    \n");
                 strSql.Append("	and vcStatus='" + vcStatus + "'    \n");
@@ -396,7 +396,7 @@ namespace DataAccess
 
                 strSql.Append("select * from (   \n");
                 strSql.Append("  select * from TUrgentOrder ");
-                strSql.Append("  WHERE (vcStatus='1' and vcShowFlag='1' and vcSaveFlag!='1') ");//这几个状态(1)是可操作的状态
+                strSql.Append("  WHERE (vcStatus='1' and vcShowFlag='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
                 strSql.Append(" 	and vcSupplier_id='" + vcSupplier_id + "'      \n");
                 strSql.Append(" 	and vcStatus in ('1','2')--1:待回复   2:已回复    \n");
                 strSql.Append(" 	and vcStatus='" + vcStatus + "'    \n");
@@ -481,7 +481,7 @@ namespace DataAccess
                 strSql.Append("      dSupReplyTime=getdate(), ");
                 strSql.Append("      vcOperatorID='" + strUserId + "', ");
                 strSql.Append("      dOperatorTime=getDate() ");
-                strSql.Append(" WHERE (vcStatus='1' and vcShowFlag='1' and vcSaveFlag!='1') ");//这几个状态(1)是可操作的状态
+                strSql.Append(" WHERE (isnull(vcStatus,'')='1' and isnull(vcShowFlag,'')='1' and isnull(vcSaveFlag,'')!='1') ");//这几个状态(1)是可操作的状态
                 strSql.Append("	and vcSupplier_id='" + vcSupplier_id + "'      \n");
                 strSql.Append("	and vcStatus in ('1','2')--1:待回复   2:已回复    \n");
                 strSql.Append("	and vcStatus='" + vcStatus + "'    \n");

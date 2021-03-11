@@ -152,6 +152,17 @@ namespace SPPSApi.Controllers.G06
                 //开始数据验证
                 if (hasFind)
                 {
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        if ("撤销".Equals(listInfoData[i]["vcOrderState"].ToString()))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.flag = 1;
+                            apiResult.data = "存在已撤销的订单不能进行生成操作";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+
                     bool flag = fs0614_logic.checkType(listInfoData, ref refMsg);
                     if (!flag)
                     {
@@ -196,7 +207,69 @@ namespace SPPSApi.Controllers.G06
 
         #endregion
 
+        #region 撤销订单
+        [HttpPost]
+        [EnableCors("any")]
+        public string cancelApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                if (listInfoData.Count > 0)
+                {
+                    hasFind = true;
+                }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选中一行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
+                string refMsg = "";
+                //开始数据验证
+                if (hasFind)
+                {
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        if ("已做成".Equals(listInfoData[i]["vcOrderState"].ToString()))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.flag = 1;
+                            apiResult.data = "存在已做成的订单不能进行撤销操作";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+
+                    fs0614_logic.cancelOrder(listInfoData, loginInfo.UserId);
+                }
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0705", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "撤销失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
+        #endregion
 
         #region 导出
 

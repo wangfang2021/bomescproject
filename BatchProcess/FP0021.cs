@@ -23,6 +23,7 @@ namespace BatchProcess
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "M00PI2100", null, strUserId);
                 bool flag = isExist();
+                getModify(DateTime.Now, strUserId);
                 if (!flag)
                 {
 
@@ -58,7 +59,7 @@ namespace BatchProcess
         #endregion
 
         #region 生成change数据
-        public void getModify(DateTime DXR)
+        public void getModify(DateTime DXR, string userId)
         {
             try
             {
@@ -87,9 +88,14 @@ namespace BatchProcess
                 if (sbr.Length > 0)
                 {
                     StringBuilder sql = new StringBuilder();
-                    sql.AppendLine("select DXR,'" + DateTime.Now.ToString("yyyymmdd") + "' as vcChangeNo,vcPart_id,vcDXYM,ISNULL(DayNum,0) AS DayNum  from (");
+                    sql.AppendLine("select DXR,'" + DateTime.Now.ToString("yyyymmdd") + "' as vcChangeNo,vcPart_id,ISNULL(DayNum,0) AS iQuantityBefore,ISNULL(DayNum,0) AS iQuantityNow,GETDATE() AS dFileUpload,'" + userId + "' AS vcOperatorID,GETDATE() AS dOperatorTime  from (");
                     sql.AppendLine(sbr.ToString());
                     sql.AppendLine(") a");
+
+                    StringBuilder res = new StringBuilder();
+                    res.AppendLine("INSERT INTO dbo.TSoqDayChange(vcDXDate, vcChangeNo, vcPart_Id, iQuantityBefore, iQuantityNow, dFileUpload, vcOperatorID, dOperatorTime)");
+                    res.AppendLine(sql.ToString());
+                    excute.ExcuteSqlWithStringOper(res.ToString());
                 }
 
             }

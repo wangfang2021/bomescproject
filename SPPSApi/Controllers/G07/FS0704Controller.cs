@@ -222,22 +222,24 @@ namespace SPPSApi.Controllers.G07
                     //判断对应逻辑下是否有重叠时间
                     #region 判断对应逻辑下是否有重叠时间
                     DataTable dtLJtime = FS0704_Logic.SearchLJTime(listInfoData[i]["vcFaZhu"].ToString(), listInfoData[i]["iAutoId"].ToString());
-                    DateTime dRuHeFromDay = DateTime.ParseExact(listInfoData[i]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dRuHeToDay = DateTime.ParseExact(listInfoData[i]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dFaZhuFromDay = DateTime.ParseExact(listInfoData[i]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dFaZhuToDay = DateTime.ParseExact(listInfoData[i]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dNaQiFromDay = DateTime.ParseExact(listInfoData[i]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                    DateTime dNaQiToDay = DateTime.ParseExact(listInfoData[i]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+
+
+                    DateTime dRuHeFromDay = DateTime.Parse(listInfoData[i]["dRuHeFromTime"].ToString());
+                    DateTime dRuHeToDay = DateTime.Parse(listInfoData[i]["druHeToTime"].ToString());
+                    DateTime dFaZhuFromDay = DateTime.Parse(listInfoData[i]["dFaZhuFromTime"].ToString());
+                    DateTime dFaZhuToDay = DateTime.Parse(listInfoData[i]["dFaZhuToTime"].ToString());
+                    DateTime dNaQiFromDay = DateTime.Parse(listInfoData[i]["dNaQiFromTime"].ToString());
+                    DateTime dNaQiToDay = DateTime.Parse(listInfoData[i]["dNaQiToTime"].ToString());
                    
                     for (int j = 0; j < dtLJtime.Rows.Count; j++)
                     {
                         
-                        DateTime dRuHeFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dRuHeFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dRuHeToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["druHeToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dFaZhuToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dFaZhuToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiFromDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiFromTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime dNaQiToDay1 = DateTime.ParseExact(dtLJtime.Rows[j]["dNaQiToTime"].ToString(), "HH:mm:ss", System.Globalization.CultureInfo.CurrentCulture);
+                        DateTime dRuHeFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dRuHeFromTime"].ToString());
+                        DateTime dRuHeToDay1 = DateTime.Parse(dtLJtime.Rows[j]["druHeToTime"].ToString());
+                        DateTime dFaZhuFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dFaZhuFromTime"].ToString());
+                        DateTime dFaZhuToDay1 = DateTime.Parse(dtLJtime.Rows[j]["dFaZhuToTime"].ToString());
+                        DateTime dNaQiFromDay1 = DateTime.Parse(dtLJtime.Rows[j]["dNaQiFromTime"].ToString());
+                        DateTime dNaQiToDay1 = DateTime.Parse(dtLJtime.Rows[j]["dNaQiToTime"].ToString());
                       
 
                         if (!(dRuHeFromDay < dRuHeFromDay1 && dRuHeToDay < dRuHeFromDay1) || !(dRuHeFromDay > dRuHeToDay1 && dRuHeToDay > dRuHeToDay1))

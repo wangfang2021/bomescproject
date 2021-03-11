@@ -426,5 +426,34 @@ namespace Logic
         }
         #endregion
 
+        #region 获取原单位用户维护权限
+        public string getPri(string strUserId)
+        {
+            DataTable dt= fs0303_DataAccess.getPri(strUserId);
+            if (dt == null || dt.Rows.Count == 0)
+                return "";
+            else
+                return dt.Rows[0]["vcValue2"].ToString();
+        }
+        #endregion
+
+        #region 验证时间先后关系
+        public bool checkDataFromTo(DataRow row,string strFromField,string strToField)
+        {
+            if (row[strFromField] != System.DBNull.Value && row[strToField] != System.DBNull.Value
+                && row[strFromField].ToString().Trim() != "" && row[strToField].ToString().Trim() != ""
+                )
+            {
+                DateTime dFrom = DateTime.Parse(row[strFromField].ToString());
+                DateTime dTo = DateTime.Parse(row[strToField].ToString());
+                if (dFrom > dTo)
+                    return false;
+                else
+                    return true;
+            }
+            return true;
+        }
+        #endregion
+
     }
 }

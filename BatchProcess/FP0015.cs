@@ -107,22 +107,22 @@ namespace BatchProcess
                 StringBuilder sql = new StringBuilder();
                 DataTable dt = new DataTable();
                 sql.Append(" select a.ORDER_NO,b.PART_NO,a.ORDER_QUANTITY,a.ORDER_DATE,a.RECEIVED_QUANTITY,a.RECEIVED_DATE,     \n");
-                sql.Append(" a.COST_GROUP,a.YanShouDate,a.Email_TIME,a.CREATE_TIME,b.CREATE_USER,b.STORE_CODE,a.SUPPLIER_CODE     \n");
+                sql.Append(" a.COST_GROUP,a.YanShouDate,a.Email_TIME,a.CREATE_TIME,b.CREATE_USER,b.STORE_CODE,a.SUPPLIER_CODE,a.UNIT     \n");
                 sql.Append(" from     \n");
                 sql.Append(" (     \n");
                 sql.Append(" --订单号，订单数，订单时间，验收数，验收时间,费用负担，验收时间，电送化时间，更新时间     \n");
                 sql.Append("   select c.ORDER_NO,c.ORDER_QUANTITY,c.ORDER_DATE,c.RECEIVED_QUANTITY,c.RECEIVED_DATE,c.COST_GROUP,c.YanShouDate,   \n");
-                sql.Append("   c.Email_TIME,c.CREATE_TIME,c.PART_ID,d.SUPPLIER_CODE     \n");
+                sql.Append("   c.Email_TIME,c.CREATE_TIME,c.PART_ID,d.SUPPLIER_CODE,c.UNIT     \n");
                 sql.Append("   from(   \n");
                 sql.Append("    select ORDER_NO,ORDER_QUANTITY,ORDER_DATE,RECEIVED_QUANTITY,RECEIVED_DATE,COST_GROUP,YanShouDate, \n");
-                sql.Append("    Email_TIME,CREATE_TIME,PART_ID  \n");
+                sql.Append("    Email_TIME,CREATE_TIME,PART_ID,UNIT  \n");
                 sql.Append("    from TB_B0030 where CREATE_TIME>='" + strDate + "' \n");
                 sql.Append("    and (ASCII(SUBSTRING(ORDER_NO,1,1))between 65 and 90) and (ASCII(SUBSTRING(ORDER_NO,2,1))between 65 and 90) \n");
                 if (dtOrder.Rows.Count > 0)
                 {
                     sql.Append("  union all  \n");
                     sql.Append("  select ORDER_NO,ORDER_QUANTITY,ORDER_DATE,RECEIVED_QUANTITY,RECEIVED_DATE,COST_GROUP,YanShouDate,  \n");
-                    sql.Append("  Email_TIME,CREATE_TIME,PART_ID  \n");
+                    sql.Append("  Email_TIME,CREATE_TIME,PART_ID,UNIT  \n");
                     sql.Append("  from TB_B0030 where ORDER_NO in (  \n");
                     for (int i = 0; i < dtOrder.Rows.Count; i++)
                     {
@@ -223,6 +223,7 @@ namespace BatchProcess
                     sql.Append("   ,[vcDGTime]            \n");
                     sql.Append("   ,[iSJNum]            \n");
                     sql.Append("   ,[vcSJTime]            \n");
+                    sql.Append("   ,[vcUnit]             \n");
                     sql.Append("   ,[vcCostID]             \n");
                     sql.Append("   ,[vcCodeID]          \n");
                     sql.Append("   ,[dYanshouTime]      \n");
@@ -242,6 +243,7 @@ namespace BatchProcess
                     sql.Append("  '" + dtNewItem.Rows[i]["ORDER_DATE"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["RECEIVED_QUANTITY"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["RECEIVED_DATE"].ToString() + "',  \n");
+                    sql.Append("  '" + dtNewItem.Rows[i]["UNIT"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["COST_GROUP"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["STORE_CODE"].ToString() + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["YanShouDate"].ToString() + "',  \n");

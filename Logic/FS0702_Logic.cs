@@ -30,6 +30,16 @@ namespace Logic
         }
         #endregion
 
+
+        #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
+        public DataTable Search_1()
+        {
+            return FS0702_DataAccess.Search_1();
+        }
+        #endregion
+
+
+
         #region 形成纵向导出
 
 

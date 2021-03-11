@@ -11,31 +11,50 @@ namespace Logic
 {
     public class FS0615_Logic
     {
-        FS0615_DataAccess fs0615_DataAccess;
+        FS0615_DataAccess da;
 
         public FS0615_Logic()
         {
-            fs0615_DataAccess = new FS0615_DataAccess();
+            da = new FS0615_DataAccess();
 
         }
-        public DataTable Search(string vcDock, string vcCarType)
+        #region 检索
+        /// <summary>
+        /// 检索
+        /// </summary>
+        /// <param name="vcOrderNo"></param>
+        /// <param name="vcOrderState"></param>
+        /// <returns></returns>
+        public DataTable Search(string vcOrderNo, string vcOrderState)
         {
-            return fs0615_DataAccess.Search(vcDock, vcCarType);
+            return da.Search(vcOrderNo, vcOrderState);
         }
+        #endregion
 
-        public DataTable CheckDistinctByTable(DataTable dtadd)
+        #region 纳期确认
+        /// <summary>
+        /// 纳期确认
+        /// </summary>
+        /// <param name="vcOrderNo"></param>
+        /// <param name="vcOrderState"></param>
+        /// <returns></returns>
+        public void dateMake(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            return fs0615_DataAccess.CheckDistinctByTable(dtadd);
+            da.dateMake(listInfoData, strUserId, ref strErrorPartId);
         }
+        #endregion
 
-        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
+        #region 订单做成
+        /// <summary>
+        /// 订单做成
+        /// </summary>
+        /// <returns></returns>
+        public void orderMake(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            fs0615_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
+            da.orderMake(listInfoData, strUserId, ref strErrorPartId);
         }
+        #endregion
 
-        public void Del(List<Dictionary<string, object>> listInfoData, string userId)
-        {
-            fs0615_DataAccess.Del(listInfoData, userId);
-        }
+
     }
 }

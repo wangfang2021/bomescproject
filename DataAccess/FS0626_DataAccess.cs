@@ -57,7 +57,7 @@ namespace DataAccess
                 if (vcPackPlant.Length > 0)
                 {
                     strSql.AppendLine(" and vcPackPlant= '" + vcPackPlant + "' ");
-                }
+                } 
                 if (vcInjectionFactory.Length > 0)
                 {
                     strSql.AppendLine(" and vcInjectionFactory='#" + vcInjectionFactory + "' ");

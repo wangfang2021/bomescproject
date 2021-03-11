@@ -160,7 +160,10 @@ namespace Logic
                         try
                         {
                             if (listData[i][item.strHeader + "_Name"] == null)
+                            {
+                                listData[i][item.strHeader] = null;
                                 continue;//前天没填写
+                            }
                             #region 获取正确的Name
                             string strName = listData[i][item.strHeader + "_Name"].ToString();
                             #endregion

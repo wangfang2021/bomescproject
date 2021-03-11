@@ -352,7 +352,7 @@ namespace DataAccess
                     cmdUpdate2.CommandText += "update TOutsidePurchaseManage ";
                     cmdUpdate2.CommandText += "set TOutsidePurchaseManage.vcInjectionFactory=d.vcValue5 ";
                     cmdUpdate2.CommandText += "from (select vcValue1,vcValue2,vcValue5 from TOutCode ";
-                    cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE()) d ";
+                    cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE() and vcIsColum='0') d ";
                     cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcSupplier_id=d.vcValue1 and TOutsidePurchaseManage.vcWorkArea=d.vcValue2 ";
                     cmdUpdate2.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
                     cmdUpdate2.Transaction = trans;
@@ -416,7 +416,7 @@ namespace DataAccess
                     cmdUpdate2.CommandText += "update TOutsidePurchaseManage ";
                     cmdUpdate2.CommandText += "set TOutsidePurchaseManage.vcInjectionFactory=d.vcValue5 ";
                     cmdUpdate2.CommandText += "from (select vcValue1,vcValue2,vcValue5 from TOutCode ";
-                    cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE()) d ";
+                    cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE() and vcIsColum='0') d ";
                     cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcSupplier_id=d.vcValue1 and TOutsidePurchaseManage.vcWorkArea=d.vcValue2 ";
                     cmdUpdate2.CommandText += "and TOutsidePurchaseManage.vcTargetMonth='" + vcTargetMonth + "' ";
                     cmdUpdate2.Transaction = trans;

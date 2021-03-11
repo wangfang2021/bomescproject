@@ -735,7 +735,7 @@ namespace DataAccess
                 sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
                 sbr.AppendLine("(");
                 //sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = @TargetYM  AND vcCLYM = @CLYM AND vcMakingOrderType = '0'");
-                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
+                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,ISNULL(iPartNums,0) AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
                 sbr.AppendLine(") A");
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(");

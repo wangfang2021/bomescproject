@@ -60,7 +60,7 @@ namespace DataAccess
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine(" and vcInjectionFactory='" + vcInjectionFactory + "' ");
+                    strSql.AppendLine(" and vcInjectionFactory='#" + vcInjectionFactory + "' ");
                 }
                 if (vcTargetMonth.Length > 0)
                 {
@@ -86,11 +86,11 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" and vcPartNo like '%" + vcPartNo + "%' ");
                 }
-                if (vcReceiveFlag == "0")
+                if (vcReceiveFlag == "1")
                 {
                     strSql.AppendLine(" and vcNoReceiveNumber=0 ");
                 }
-                else if (vcReceiveFlag == "1")
+                else if (vcReceiveFlag == "0")
                 {
                     strSql.AppendLine(" and vcNoReceiveNumber<>0 ");
                 }

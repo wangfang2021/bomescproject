@@ -243,7 +243,7 @@ namespace Logic
                     }
                     else
                     {
-                        dtImport.Rows[i]["decBoxQuantity"] = (Convert.ToInt32(strDuiYingQuantity) / (Convert.ToInt32(strPackingQty)*1.0)).ToString("#.0");
+                        dtImport.Rows[i]["decBoxQuantity"] = (Convert.ToInt32(strDuiYingQuantity) / (Convert.ToInt32(strPackingQty) * 1.0)).ToString("#.0");
                     }
                 }
                 #region //校验数据和值
@@ -346,13 +346,10 @@ namespace Logic
                         }
                     }
                     #endregion
+                }
 
-                    return dtCheck;
-                }
-                else
-                {
-                    return dtImport;
-                }
+                return dtImport;
+
             }
             catch (Exception ex)
             {

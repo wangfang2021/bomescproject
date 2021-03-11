@@ -303,7 +303,7 @@ namespace DataAccess
                 sqlCommand_modinfo.Transaction = sqlTransaction;
                 sqlCommand_modinfo.CommandType = CommandType.Text;
                 StringBuilder strSql_modinfo = new StringBuilder();
-                strSql_modinfo.AppendLine("UPDATE TUrgentOrder SET vcStatus='3',vcSaveFlag='1',vcSaveer='" + strOperId + "',dSaveTime='" + strNow + "',[vcReplyer]='" + strOperId + "',[dReplyTime]='"+ " + strNow + " + "' WHERE [vcOrderNo]=@vcOrderNo AND vcPart_id=@vcPart_id AND vcSupplier_id=@vcSupplier_id");
+                strSql_modinfo.AppendLine("UPDATE TUrgentOrder SET vcStatus='3',vcSaveFlag='1',vcSaveer='" + strOperId + "',dSaveTime='" + strNow + "',[vcReplyer]='" + strOperId + "',[dReplyTime]='" + strNow + "' WHERE [vcOrderNo]=@vcOrderNo AND vcPart_id=@vcPart_id AND vcSupplier_id=@vcSupplier_id");
                 strSql_modinfo.AppendLine("INSERT INTO [dbo].[TUrgentOrder_OperHistory]");
                 strSql_modinfo.AppendLine("           ([vcOrderNo]");
                 strSql_modinfo.AppendLine("           ,[vcPart_id]");

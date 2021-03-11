@@ -55,8 +55,8 @@ namespace Common
                 case "SFTMCF":
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
                 case "TK":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TK; Data Source =172.23.140.169";
-                //return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb_TK; Data Source =172.23.180.115";
+                    //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TK; Data Source =172.23.140.169";
+                    return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb_TK; Data Source =172.23.180.115";
                 default:
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
             }
@@ -88,7 +88,7 @@ namespace Common
         #region 获取数据库连接字符串 
         public static string GetConnectionString()
         {
-            return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb_0308; Data Source =172.23.180.116";
+            return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb; Data Source =172.23.180.116";
             //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb; Data Source =172.23.140.169";
             //return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = SPPSdb_TEST; Data Source =.";
             //return "Persist Security Info = False; User ID = sa; Password = Server2008; Initial Catalog = SPPSdb001; Data Source =TJQM-FY\\SQLEXPRESS";

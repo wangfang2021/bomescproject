@@ -91,7 +91,16 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;
+            List<Object> PackSpot = new List<object>();
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
             string dFromB = dataForm.dFrom;
@@ -144,7 +153,16 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;
+            List<Object> PackSpot = new List<object>();
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
             string dFromB = dataForm.dFrom;
@@ -156,7 +174,7 @@ namespace SPPSApi.Controllers.G07
                 DataTable dt = FS0714_Logic.Search(PackSpot, PackNo, PackGPSNo, dFromB, dToE); ;
                 string[] fields = { "vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierID","vcXiuZhengFlag","iNumber","dBuJiTime","vcXiuZhengNote"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0714_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0714_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -181,7 +199,7 @@ namespace SPPSApi.Controllers.G07
         #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -217,9 +235,9 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-             
+
                 string strErrorPartId = "";
-                FS0714_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
+                FS0714_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -244,7 +262,7 @@ namespace SPPSApi.Controllers.G07
         #region 删除
         [HttpPost]
         [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
+        public string delApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -281,6 +299,6 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-       
+
     }
 }

@@ -2442,7 +2442,7 @@ namespace Logic
                 dataTable.Columns.Add("LinId", typeof(string));
                 dataTable.Columns.Add("vcUserId", typeof(string));
                 dataTable.Columns.Add("vcPlant", typeof(string));
-                dataTable.Columns.Add("vcInPut", typeof(string));   
+                dataTable.Columns.Add("vcInPut", typeof(string));
                 dataTable.Columns.Add("vcInPutUnLock", typeof(string));
                 dataTable.Columns.Add("vcCheck", typeof(string));
                 dataTable.Columns.Add("vcCheckUnLock", typeof(string));
@@ -2605,11 +2605,128 @@ namespace Logic
                 dataTable.Columns.Add("decNNA_ns", typeof(string));
                 dataTable.Columns.Add("decNNA_nns", typeof(string));
             }
+            if (strSpSub == "KanBan1306")
+            {
+                dataTable.Columns.Add("vcProgect", typeof(string));
+                dataTable.Columns.Add("vcDeng", typeof(string));
+                dataTable.Columns.Add("vcZhongxw", typeof(string));
+                dataTable.Columns.Add("vcDaw", typeof(string));
+                dataTable.Columns.Add("vcBol", typeof(string));
+                dataTable.Columns.Add("vcBanj", typeof(string));
+                dataTable.Columns.Add("vcChengx", typeof(string));
+                dataTable.Columns.Add("vcHej", typeof(string));
+
+                DataRow dataRow1 = dataTable.NewRow();
+                dataRow1["vcProgect"] = "计划数量";
+                dataRow1["vcDeng"] = "0.00";
+                dataRow1["vcZhongxw"] = "0.00";
+                dataRow1["vcDaw"] = "0.00";
+                dataRow1["vcBol"] = "0.00";
+                dataRow1["vcBanj"] = "0.00";
+                dataRow1["vcChengx"] = "0.00";
+                dataRow1["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow1);
+
+                DataRow dataRow2 = dataTable.NewRow();
+                dataRow2["vcProgect"] = "计划投入人员";
+                dataRow2["vcDeng"] = "0.00";
+                dataRow2["vcZhongxw"] = "0.00";
+                dataRow2["vcDaw"] = "0.00";
+                dataRow2["vcBol"] = "0.00";
+                dataRow2["vcBanj"] = "0.00";
+                dataRow2["vcChengx"] = "0.00";
+                dataRow2["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow2);
+
+                DataRow dataRow3 = dataTable.NewRow();
+                dataRow3["vcProgect"] = "实绩投入人员";
+                dataRow3["vcDeng"] = "0.00";
+                dataRow3["vcZhongxw"] = "0.00";
+                dataRow3["vcDaw"] = "0.00";
+                dataRow3["vcBol"] = "0.00";
+                dataRow3["vcBanj"] = "0.00";
+                dataRow3["vcChengx"] = "0.00";
+                dataRow3["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow3);
+
+                DataRow dataRow4 = dataTable.NewRow();
+                dataRow4["vcProgect"] = "投入人员差";
+                dataRow4["vcDeng"] = "0.00";
+                dataRow4["vcZhongxw"] = "0.00";
+                dataRow4["vcDaw"] = "0.00";
+                dataRow4["vcBol"] = "0.00";
+                dataRow4["vcBanj"] = "0.00";
+                dataRow4["vcChengx"] = "0.00";
+                dataRow4["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow4);
+
+                DataRow dataRow5 = dataTable.NewRow();
+                dataRow5["vcProgect"] = "当日作业计划";
+                dataRow5["vcDeng"] = "0.00";
+                dataRow5["vcZhongxw"] = "0.00";
+                dataRow5["vcDaw"] = "0.00";
+                dataRow5["vcBol"] = "0.00";
+                dataRow5["vcBanj"] = "0.00";
+                dataRow5["vcChengx"] = "0.00";
+                dataRow5["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow5);
+
+                DataRow dataRow6 = dataTable.NewRow();
+                dataRow6["vcProgect"] = "现时点计划数量";
+                dataRow6["vcDeng"] = "0.00";
+                dataRow6["vcZhongxw"] = "0.00";
+                dataRow6["vcDaw"] = "0.00";
+                dataRow6["vcBol"] = "0.00";
+                dataRow6["vcBanj"] = "0.00";
+                dataRow6["vcChengx"] = "0.00";
+                dataRow6["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow6);
+
+                DataRow dataRow7 = dataTable.NewRow();
+                dataRow7["vcProgect"] = "实绩完成数量";
+                dataRow7["vcDeng"] = "0.00";
+                dataRow7["vcZhongxw"] = "0.00";
+                dataRow7["vcDaw"] = "0.00";
+                dataRow7["vcBol"] = "0.00";
+                dataRow7["vcBanj"] = "0.00";
+                dataRow7["vcChengx"] = "0.00";
+                dataRow7["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow7);
+
+                DataRow dataRow8 = dataTable.NewRow();
+                dataRow8["vcProgect"] = "现实点作业数量差";
+                dataRow8["vcDeng"] = "0.00";
+                dataRow8["vcZhongxw"] = "0.00";
+                dataRow8["vcDaw"] = "0.00";
+                dataRow8["vcBol"] = "0.00";
+                dataRow8["vcBanj"] = "0.00";
+                dataRow8["vcChengx"] = "0.00";
+                dataRow8["vcHej"] = "0.00";
+                dataTable.Rows.Add(dataRow8);
+
+                DataRow dataRow9 = dataTable.NewRow();
+                dataRow9["vcProgect"] = "现实点工时完成率";
+                dataRow9["vcDeng"] = "-";
+                dataRow9["vcZhongxw"] = "-";
+                dataRow9["vcDaw"] = "-";
+                dataRow9["vcBol"] = "-";
+                dataRow9["vcBanj"] = "-";
+                dataRow9["vcChengx"] = "-";
+                dataRow9["vcHej"] = "-";
+                dataTable.Rows.Add(dataRow9);
+
+                DataRow dataRow10 = dataTable.NewRow();
+                dataRow10["vcProgect"] = "总体工时完成率";
+                dataRow10["vcDeng"] = "-";
+                dataRow10["vcZhongxw"] = "-";
+                dataRow10["vcDaw"] = "-";
+                dataRow10["vcBol"] = "-";
+                dataRow10["vcBanj"] = "-";
+                dataRow10["vcChengx"] = "-";
+                dataRow10["vcHej"] = "-";
+                dataTable.Rows.Add(dataRow10);
+            }
             return dataTable;
-
-
-            //																			
-
         }
     }
 }

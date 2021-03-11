@@ -137,6 +137,16 @@ namespace Logic
         {
             try
             {
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(ObjToString(listInfoData[i]["vcPM"])))
+                    {
+                        refMsg = "选中数据存在品目区分为空,不能进行FTMS层别展开";
+                        return;
+                    }
+                }
+
                 fs0307_dataAccess.FTMSCB(listInfoData, strUserId);
 
                 //TODO 发送邮件
@@ -486,7 +496,6 @@ namespace Logic
             catch (Exception ex)
             {
                 return "";
-                throw;
             }
         }
 
@@ -507,5 +516,7 @@ namespace Logic
 
             return list;
         }
+
+
     }
 }

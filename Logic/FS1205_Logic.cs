@@ -619,7 +619,7 @@ namespace Logic
             int iWeekCount = 0;
             string vcYear = strMonth.Split('-')[0];
             string vcMonth = strMonth.Split('-')[1];
-            string ssql = " select TOP(1) vcWeekCount from WeekCalendarTbl where vcYear='" + vcYear + "' and vcMonth='" + vcMonth + "' and vcPlant='" + strPlant + "' order by vcWeekCount desc ";//添加厂区，并按照周数降序排序
+            string ssql = "select TOP(1) vcWeekCount from WeekCalendarTbl where vcYear='" + vcYear + "' and vcMonth='" + vcMonth + "' and vcPlant='" + strPlant + "' order by vcWeekCount desc ";//添加厂区，并按照周数降序排序
             dtResult = excute.ExcuteSqlWithSelectToDT(ssql);
             if (dtResult.Rows.Count > 0)
             {
@@ -2069,7 +2069,7 @@ namespace Logic
             StringBuilder strSQL1 = new StringBuilder();
             strSQL1.AppendLine(" select " +
                 "vcMonth, vcWeek, vcPlant, vcGC, vcZB, vcPartsno, vcQuantityPerContainer, vcD1b, vcD1y, vcD2b, vcD2y, vcD3b, vcD3y, vcD4b, vcD4y, vcD5b, vcD5y, vcD6b, vcD6y, vcD7b, vcD7y, vcD8b, vcD8y, vcD9b, vcD9y, vcD10b, vcD10y, vcD11b, vcD11y, vcD12b, vcD12y, vcD13b, vcD13y, vcD14b, vcD14y, vcD15b, vcD15y, vcD16b, vcD16y, vcD17b, vcD17y, vcD18b, vcD18y, vcD19b, vcD19y, vcD20b, vcD20y, vcD21b, vcD21y, vcD22b, vcD22y, vcD23b, vcD23y, vcD24b, vcD24y, vcD25b, vcD25y, vcD26b, vcD26y, vcD27b, vcD27y, vcD28b, vcD28y, vcD29b, vcD29y, vcD30b, vcD30y, vcD31b, vcD31y, vcWeekTotal, vcLevelD1b, vcLevelD1y, vcLevelD2b, vcLevelD2y, vcLevelD3b, vcLevelD3y, vcLevelD4b, vcLevelD4y, vcLevelD5b, vcLevelD5y, vcLevelD6b, vcLevelD6y, vcLevelD7b, vcLevelD7y, vcLevelD8b, vcLevelD8y, vcLevelD9b, vcLevelD9y, vcLevelD10b, vcLevelD10y, vcLevelD11b, vcLevelD11y, vcLevelD12b, vcLevelD12y, vcLevelD13b, vcLevelD13y, vcLevelD14b, vcLevelD14y, vcLevelD15b, vcLevelD15y, vcLevelD16b, vcLevelD16y, vcLevelD17b, vcLevelD17y, vcLevelD18b, vcLevelD18y, vcLevelD19b, vcLevelD19y, vcLevelD20b, vcLevelD20y, vcLevelD21b, vcLevelD21y, vcLevelD22b, vcLevelD22y, vcLevelD23b, vcLevelD23y, vcLevelD24b, vcLevelD24y, vcLevelD25b, vcLevelD25y, vcLevelD26b, vcLevelD26y, vcLevelD27b, vcLevelD27y, vcLevelD28b, vcLevelD28y, vcLevelD29b, vcLevelD29y, vcLevelD30b, vcLevelD30y, vcLevelD31b, vcLevelD31y, vcLevelWeekTotal " +
-                "from WeekLevelSchedule where vcMonth='" + strMonth + "' and vcWeek='" + strWeek + "' and vcPlant='" + strPlant + "' ");
+                ",'0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from WeekLevelSchedule where vcMonth='" + strMonth + "' and vcWeek='" + strWeek + "' and vcPlant='" + strPlant + "' ");
             dt = excute.ExcuteSqlWithSelectToDT(strSQL1.ToString());
             return dt;
         }
@@ -4910,6 +4910,14 @@ namespace Logic
             int i = 0;
             for (i = m < n ? m : n; m % i != 0 || n % i != 0; i--) ;
             return i = m * n / i;
+        }
+        #endregion
+
+
+        #region 日程别更新
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0610_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
     }

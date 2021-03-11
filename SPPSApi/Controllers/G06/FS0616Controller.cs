@@ -414,7 +414,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
-                DataTable dtImport = fS0616_logic.checkOutputInfo(listInfoData, dataTable, dOutPutDate, ref dtMessage);
+                DataTable dtImport = fS0616_logic.checkOutputInfo(listMultipleData, dataTable, dOutPutDate, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
                     dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");

@@ -160,7 +160,10 @@ namespace Logic
                         try
                         {
                             if (listData[i][item.strHeader + "_Name"] == null)
+                            {
+                                listData[i][item.strHeader] = null;
                                 continue;//前天没填写
+                            }
                             #region 获取正确的Name
                             string strName = listData[i][item.strHeader + "_Name"].ToString();
                             #endregion
@@ -434,6 +437,24 @@ namespace Logic
                 return "";
             else
                 return dt.Rows[0]["vcValue2"].ToString();
+        }
+        #endregion
+
+        #region 验证时间先后关系
+        public bool checkDataFromTo(DataRow row,string strFromField,string strToField)
+        {
+            if (row[strFromField] != System.DBNull.Value && row[strToField] != System.DBNull.Value
+                && row[strFromField].ToString().Trim() != "" && row[strToField].ToString().Trim() != ""
+                )
+            {
+                DateTime dFrom = DateTime.Parse(row[strFromField].ToString());
+                DateTime dTo = DateTime.Parse(row[strToField].ToString());
+                if (dFrom > dTo)
+                    return false;
+                else
+                    return true;
+            }
+            return true;
         }
         #endregion
 

@@ -268,7 +268,6 @@ namespace SPPSApi.Controllers.G12
                         {
                             string strPartsno = Line[i].Substring(26, 15).Trim();//品番
                             string vcPartsno = fS1205_Logic.TXTPartsNoFomatTo12(strPartsno);//格式化品番
-
                             string vcGC = string.Empty;//部署
                             string vcZB = string.Empty;//组别
                             string vcCSVItemNo = Line[i].Substring(22, 4).Trim();//CSV
@@ -417,9 +416,9 @@ namespace SPPSApi.Controllers.G12
                     };
                     fS1205_Logic.TXTUpdateTableDetermine(dtPartsWeekLevel, vcMonth, vcOrderNo, vcWeek, vcPlant);
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    throw ex;
                 }
                 //DataTable dt = new DataTable();
                 //DtConverter dtConverter = new DtConverter();

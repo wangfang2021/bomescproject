@@ -178,6 +178,77 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
+        #region 检索（分页缓存）
+        [HttpGet]
+        [EnableCors("any")]
+        public string searchApiGet()
+        {
+            string strToken = Request.Headers["X-Token"];
+            //if (!isLogin(strToken))
+            //{
+            //    return error_login();
+            //}
+            //LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+ 
+            string strIsShowAll = "1";
+            string strOriginCompany = "";
+
+
+            string strSearchKey = "123";
+            int iPage = 0;
+            int iPageSize = 10000;
+
+
+            try
+            {
+                DataTable dt = null;
+                int pageTotal = 0;//总页数
+                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                {
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
+                }
+                else
+                {
+                    DataTable dtAll = fs0303_Logic.Search(strIsShowAll, strOriginCompany);
+                    initSearchCash(strSearchKey, dtAll);
+                    dt = getSearchResultByCash(strSearchKey, iPage, iPageSize, ref pageTotal);
+                }
+
+                DtConverter dtConverter = new DtConverter();
+
+                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSyncTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTimeFrom", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTimeTo", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTimeFromSJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dGYSTimeFrom", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dGYSTimeTo", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                apiResult.field1 = pageTotal;//这块需要把总页数返回
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0301", ex, "123");
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索特记
         [HttpPost]
         [EnableCors("any")]
@@ -304,12 +375,12 @@ namespace SPPSApi.Controllers.G03
                     string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番"           ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"旧型年限生产区分","实施年限(年限)","特记"  ,"防锈"    ,"防锈指示书号","执行标准No","收货方"         ,"所属原单位"           ,"旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年"},
                                                         {"dSyncTime"    ,"vcChange"     ,"vcSPINo","vcSQState_Name","vcDiff","vcPart_id"          ,"vcCarTypeDesign","vcCarTypeDev","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name" ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" },
                                                         {FieldCheck.Date,""             ,""       ,""              ,""      ,""                   ,""            ,""               ,""             ,FieldCheck.Date,FieldCheck.Date,FieldCheck.Date,""        ,""             ,""            ,""            ,""        ,""        ,""                ,""             ,""               ,""         ,""         ,""              ,""          ,""           ,FieldCheck.Date,FieldCheck.Date,""         ,""           ,""             ,FieldCheck.Date,FieldCheck.Date,""         ,""                ,FieldCheck.Date ,""      ,""        ,""            ,""          ,""               ,""                     ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""        ,""        ,""        ,""        ,""        ,""        },
-                                                        {"0"            ,"0"            ,"20"     ,"0"             ,"1"     ,"14"                 ,"4"           ,"4"              ,"10"           ,"0"            ,"0"            ,"0"            ,"4"       ,"14"           ,"100"         ,"100"         ,"50"      ,"50"      ,"0"               ,"4"            ,"100"            ,"20"       ,"20"       ,"0"             ,"100"       ,"100"        ,"0"            ,"0"            ,"0"        ,"14"         ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"100"        ,"0"              ,"0"                   ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"       ,"10"       ,"10"       ,"10"       ,"10"       ,"10"       },//最大长度设定,不校验最大长度用0
+                                                        {"0"            ,"0"            ,"9"      ,"0"             ,"1"     ,"14"                 ,"4"           ,"4"              ,"25"           ,"0"            ,"0"            ,"0"            ,"2"       ,"100"          ,"50"          ,"50"          ,"50"      ,"50"      ,"0"               ,"4"            ,"50"             ,"10"       ,"10"       ,"0"             ,"50"        ,"100"        ,"0"            ,"0"            ,"0"        ,"100"        ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"1"       ,"12"          ,"100"       ,"0"              ,"0"                    ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      },//最大长度设定,不校验最大长度用0
                                                         {"0"            ,"0"            ,"0"      ,"0"             ,"0"     ,"11"                 ,"0"           ,"0"              ,"0"            ,"0"            ,"0"            ,"0"            ,"0"       ,"0"            ,"0"           ,"0"           ,"0"       ,"0"       ,"0"               ,"0"            ,"0"              ,"0"        ,"0"        ,"0"             ,"0"         ,"0"          ,"0"            ,"0"            ,"0"        ,"0"          ,"0"            ,"0"            ,"0"            ,"0"        ,"0"               ,"0"             ,"0"     ,"0"       ,"0"           ,"0"         ,"1"              ,"1"                    ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       },//最小长度设定,可以为空用0
                                                         {"1"            ,"2"            ,"3"      ,"4"             ,"5"     ,"6"                  ,"7"           ,"8"              ,"9"            ,"10"           ,"11"           ,"12"           ,"13"      ,"14"           ,"15"          ,"16"          ,"17"      ,"18"      ,"19"              ,"20"           ,"21"             ,"22"       ,"23"       ,"24"            ,"25"        ,"26"         ,"27"           ,"28"           ,"29"       ,"30"         ,"31"           ,"32"           ,"33"           ,"34"       ,"35"              ,"36"            ,"37"    ,"38"      ,"39"          ,"40"        ,"41"             ,"42"                   ,"43"     ,"44"     ,"45"     ,"46"     ,"47"     ,"48"     ,"49"     ,"50"     ,"51"     ,"52"      ,"53"      ,"54"      ,"55"      ,"56"      ,"57"      }
                     };
                     //需要判断时间区间先后关系的字段
-                    string[,] strDateRegion = { { "dTimeFrom", "dTimeTo" }, { "dGYSTimeFrom", "dGYSTimeTo" }, { "dJiuBegin", "dJiuEnd" } };
+                    string[,] strDateRegion = { { "dTimeFrom", "dTimeTo","" }, { "dGYSTimeFrom", "dGYSTimeTo","" }, { "dJiuBegin", "dJiuEnd","" },{ "dTimeFrom","dGYSTimeFrom", "供应商&包装工场的开始不得早于品番使用开始" } };
                     string[,] strSpecialCheck = {
                         //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
                         //vcChange=1时，vcHaoJiu如果为1，如果内容列不为空(H)，则内容必须为H，如果内容为空，则对具体内容不做判断
@@ -323,6 +394,8 @@ namespace SPPSApi.Controllers.G03
                             "",
                             ""
                         },{"防锈","vcFXDiff","R","R","防锈指示书号","vcFXNo","1","","" }
+                        ,{"区分","vcDiff","1","1","号旧","vcHaoJiu_Name","1","号口","号口" }
+                        ,{"区分","vcDiff","9","9","号旧","vcHaoJiu_Name","1","旧型","旧型" }
                     };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0303");
@@ -364,7 +437,25 @@ namespace SPPSApi.Controllers.G03
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-           
+                #region 生确状态根据用户输入生确信息做变更
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    var varSQContent = listInfoData[i]["vcSQContent"];
+                    if (varSQContent == null || varSQContent.ToString().Trim() == "")
+                    {   
+                        listInfoData[i]["vcSQState"] = null;//后续更新的时候，如果vcSQState为null，则不更新这个字段
+                    }
+                    else if (varSQContent.ToString().ToUpper().Contains("OK"))
+                    {
+                        listInfoData[i]["vcSQState"] = "2";
+                    }
+                    else if (varSQContent.ToString().ToUpper().Contains("NG"))
+                    {
+                        listInfoData[i]["vcSQState"] = "3";
+                    }
+                }
+                #endregion
+
                 string strErrorPartId = "";
                 fs0303_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
@@ -444,7 +535,7 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strIsShowAll = dataForm.isShowAll;
-            string strOriginCompany = dataForm.OriginCompany;
+            string strOriginCompanyName = dataForm.OriginCompanyName;
 
 
             /*
@@ -456,8 +547,8 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 /*2020-01-04*/
-                DataTable dt = fs0303_Logic.Search(strIsShowAll, strOriginCompany);
-                string[] fields = { "iAutoId","dSyncTimeStr", "vcChange_Name", "vcSPINo", "vcSQState_Name", "vcDiff"
+                DataTable dt = fs0303_Logic.Search(strIsShowAll, strOriginCompanyName);
+                string[] fields = { "iAutoId","dSyncTimeStr", "vcChange_Name", "vcSPINo", "vcSQContent", "vcDiff"
                                     ,"vcPart_id","vcCarTypeDesign","vcCarTypeDev","vcCarTypeName"
                                     ,"dTimeFromStr","dTimeToStr","dTimeFromSJStr","vcBJDiff","vcPartReplace"
                                     ,"vcPartNameEn","vcPartNameCn","vcHKGC","vcBJGC","vcInOutflag_Name"
@@ -526,7 +617,7 @@ namespace SPPSApi.Controllers.G03
                 string[,] strField = new string[,] {{"变更事项"     ,"生确"          ,"补给品番" ,"车型(设计)"  ,"车型(开发)"     ,"英文品名"    ,"供应商代码"   ,"OE=SP"    ,"防锈"    ,"防锈指示书号","收货方"         },
                                                     {"vcChange_Name","vcSQState_Name","vcPart_id","vcCarTypeDesign","vcCarTypeDev","vcPartNameEn","vcSupplier_id","vcOE_Name","vcFXDiff","vcFXNo"      ,"vcReceiver_Name"},
                                                     {""             ,""              ,""         ,""            ,""               ,""            ,""             ,""         ,""        ,""            ,""               },
-                                                    {"0"            ,"0"             ,"14"       ,"4"           ,"4"              ,"100"         ,"4"            ,"0"        ,"2"       ,"12"          ,"0"              },//最大长度设定,不校验最大长度用0
+                                                    {"0"            ,"0"             ,"14"       ,"4"           ,"4"              ,"50"          ,"4"            ,"0"        ,"1"       ,"12"          ,"0"              },//最大长度设定,不校验最大长度用0
                                                     {"1"            ,"1"             ,"1"        ,"1"           ,"1"              ,"1"           ,"1"            ,"1"        ,"0"       ,"0"           ,"1"              },//最小长度设定,可以为空用0
                                                     {"2"            ,"4"             ,"6"        ,"7"           ,"8"              ,"15"          ,"20"           ,"29"       ,"38"      ,"39"          ,"56"             }
                     };
@@ -661,12 +752,13 @@ namespace SPPSApi.Controllers.G03
                 string[,] strField = new string[,] {{"同步数据"     ,"变更事项"     ,"设变号" ,"生确"          ,"区分"  ,"补给品番"           ,"车型(设计)"  ,"车型(开发)"     ,"车名"         ,"使用开始"     ,"使用结束"     ,"切替实绩"     ,"SD"      ,"替代品番"     ,"英文品名"    ,"中文品名"    ,"号口工程","补给工程","内外"            ,"供应商代码"   ,"供应商名称"     ,"生产地"   ,"出荷地"   ,"包装工厂"      ,"生产商名称","地址"       ,"开始"         ,"结束"         ,"OE=SP"    ,"品番(参考)" ,"号旧"         ,"旧型开始"     ,"旧型结束"     ,"旧型经年" ,"旧型年限生产区分","实施年限(年限)","特记"  ,"防锈"    ,"防锈指示书号","执行标准No","收货方"         ,"所属原单位"           ,"旧型1年","旧型2年","旧型3年","旧型4年","旧型5年","旧型6年","旧型7年","旧型8年","旧型9年","旧型10年","旧型11年","旧型12年","旧型13年","旧型14年","旧型15年"},
                                                     {"dSyncTime"    ,"vcChange"     ,"vcSPINo","vcSQState_Name","vcDiff","vcPart_id"          ,"vcCarTypeDesign","vcCarTypeDev","vcCarTypeName","dTimeFrom"    ,"dTimeTo"      ,"dTimeFromSJ"  ,"vcBJDiff","vcPartReplace","vcPartNameEn","vcPartNameCn","vcHKGC"  ,"vcBJGC"  ,"vcInOutflag_Name","vcSupplier_id","vcSupplier_Name","vcSCPlace","vcCHPlace","vcSYTCode_Name","vcSCSName" ,"vcSCSAdress","dGYSTimeFrom" ,"dGYSTimeTo"   ,"vcOE_Name","vcHKPart_id","vcHaoJiu_Name","dJiuBegin"    ,"dJiuEnd"      ,"vcJiuYear","vcNXQF"          ,"dSSDate"       ,"vcMeno","vcFXDiff","vcFXNo"      ,"vcZXBZNo"  ,"vcReceiver_Name","vcOriginCompany_Name" ,"vcNum1" ,"vcNum2" ,"vcNum3" ,"vcNum4" ,"vcNum5" ,"vcNum6" ,"vcNum7" ,"vcNum8" ,"vcNum9" ,"vcNum10" ,"vcNum11" ,"vcNum12" ,"vcNum13" ,"vcNum14" ,"vcNum15" },
                                                     {FieldCheck.Date,""             ,""       ,""              ,""      ,""                   ,""            ,""               ,""             ,FieldCheck.Date,FieldCheck.Date,FieldCheck.Date,""        ,""             ,""            ,""            ,""        ,""        ,""                ,""             ,""               ,""         ,""         ,""              ,""          ,""           ,FieldCheck.Date,FieldCheck.Date,""         ,""           ,""             ,FieldCheck.Date,FieldCheck.Date,""         ,""                ,FieldCheck.Date ,""      ,""        ,""            ,""          ,""               ,""                     ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""       ,""        ,""        ,""        ,""        ,""        ,""        },
-                                                    {"0"            ,"0"            ,"20"     ,"0"             ,"1"     ,"14"                 ,"4"           ,"4"              ,"10"           ,"0"            ,"0"            ,"0"            ,"4"       ,"14"           ,"100"         ,"100"         ,"50"      ,"50"      ,"0"               ,"4"            ,"100"            ,"20"       ,"20"       ,"0"             ,"100"       ,"100"        ,"0"            ,"0"            ,"0"        ,"14"         ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"2"       ,"12"          ,"100"        ,"0"              ,"0"                   ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"       ,"10"       ,"10"       ,"10"       ,"10"       ,"10"       },//最大长度设定,不校验最大长度用0
+                                                    {"0"            ,"0"            ,"9"      ,"0"             ,"1"     ,"14"                 ,"4"           ,"4"              ,"25"           ,"0"            ,"0"            ,"0"            ,"2"       ,"100"          ,"50"          ,"50"          ,"50"      ,"50"      ,"0"               ,"4"            ,"50"             ,"10"       ,"10"       ,"0"             ,"50"        ,"100"        ,"0"            ,"0"            ,"0"        ,"100"        ,"0"            ,"0"            ,"0"            ,"4"        ,"20"              ,"0"             ,"200"   ,"1"       ,"12"          ,"100"       ,"0"              ,"0"                    ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"     ,"10"      ,"10"      ,"10"      ,"10"      ,"10"      ,"10"       },//最大长度设定,不校验最大长度用0
                                                     {"0"            ,"1"            ,"0"      ,"0"             ,"0"     ,"1"                  ,"1"           ,"1"              ,"1"            ,"1"            ,"1"            ,"0"            ,"0"       ,"0"            ,"1"           ,"1"           ,"0"       ,"0"       ,"1"               ,"1"            ,"1"              ,"0"        ,"0"        ,"1"             ,"1"         ,"1"          ,"1"            ,"1"            ,"1"        ,"0"          ,"1"            ,"0"            ,"0"            ,"0"        ,"0"               ,"0"             ,"0"     ,"1"       ,"0"           ,"0"         ,"1"              ,"1"                    ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"      ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       ,"0"       },//最小长度设定,可以为空用0
                                                     {"1"            ,"2"            ,"3"      ,"4"             ,"5"     ,"6"                  ,"7"           ,"8"              ,"9"            ,"10"           ,"11"           ,"12"           ,"13"      ,"14"           ,"15"          ,"16"          ,"17"      ,"18"      ,"19"              ,"20"           ,"21"             ,"22"       ,"23"       ,"24"            ,"25"        ,"26"         ,"27"           ,"28"           ,"29"       ,"30"         ,"31"           ,"32"           ,"33"           ,"34"       ,"35"              ,"36"            ,"37"    ,"38"      ,"39"          ,"40"        ,"41"             ,"42"                   ,"43"     ,"44"     ,"45"     ,"46"     ,"47"     ,"48"     ,"49"     ,"50"     ,"51"     ,"52"      ,"53"      ,"54"      ,"55"      ,"56"      ,"57"      }
                     };
                 //需要判断时间区间先后关系的字段
-                string[,] strDateRegion = { { "dTimeFrom", "dTimeTo" }, { "dGYSTimeFrom", "dGYSTimeTo" }, { "dJiuBegin", "dJiuEnd" } };
+                string[,] strDateRegion = { { "dTimeFrom", "dTimeTo", "" }, { "dGYSTimeFrom", "dGYSTimeTo", "" }, { "dJiuBegin", "dJiuEnd", "" }, { "dTimeFrom", "dGYSTimeFrom", "供应商&包装工场的开始不得早于品番使用开始" } };
+
                 string[,] strSpecialCheck = {
                         //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
                         //vcChange=1时，vcHaoJiu如果为1，如果内容列不为空(H)，则内容必须为H，如果内容为空，则对具体内容不做判断
@@ -680,6 +772,8 @@ namespace SPPSApi.Controllers.G03
                             "",
                             ""
                         },{"防锈","vcFXDiff","R","R","防锈指示书号","vcFXNo","1","","" }
+                        ,{"区分","vcDiff","1","1","号旧","vcHaoJiu_Name","1","号口","号口" }
+                        ,{"区分","vcDiff","9","9","号旧","vcHaoJiu_Name","1","旧型","旧型" }
                     };
 
                 List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0303");
@@ -694,7 +788,7 @@ namespace SPPSApi.Controllers.G03
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     //有同步时间的不可再次同步
-                    if (listInfoData[i]["dSyncTime"]!=null || listInfoData[i]["dSyncTime"].ToString()!="")
+                    if (listInfoData[i]["dSyncTime"]!=null && listInfoData[i]["dSyncTime"].ToString()!="")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "所选行第" + (i + 1) + "行不可再次同步，数据同步失败！";

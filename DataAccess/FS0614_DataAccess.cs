@@ -148,7 +148,7 @@ namespace DataAccess
                         string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
                         string TargetTmp = ObjToString(listInfoData[i]["vcTargetYM"]);
                         //DateTime Time = DateTime.ParseExact(TargetTmp.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime Time = DateTime.Parse(TargetTmp.Substring(0, 4) + "-" + TargetTmp.Substring(4, 2) + "01");
+                        DateTime Time = DateTime.Parse(TargetTmp.Substring(0, 4) + "-" + TargetTmp.Substring(4, 2) + "-01");
                         DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                         #region 月度校验
@@ -465,7 +465,7 @@ namespace DataAccess
                                 string TargetYMJJ = NQ.Substring(0, 6);
                                 string TargetD = Convert.ToInt32(NQ.Substring(6, 2)).ToString();
                                 //DateTime Time = DateTime.ParseExact(NQ.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                                DateTime Time = DateTime.Parse(NQ.Substring(0, 4) + "-" + NQ.Substring(4, 2) + "-" + "-01");
+                                DateTime Time = DateTime.Parse(NQ.Substring(0, 4) + "-" + NQ.Substring(4, 2)  + "-01");
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
 

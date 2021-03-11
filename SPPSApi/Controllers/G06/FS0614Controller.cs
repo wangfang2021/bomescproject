@@ -154,6 +154,14 @@ namespace SPPSApi.Controllers.G06
                 {
                     for (int i = 0; i < listInfoData.Count; i++)
                     {
+                        if ("周度订单".Equals(listInfoData[i]["vcOrderType"].ToString()))
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.flag = 1;
+                            apiResult.data = "周度订单不能进行生成";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
                         if ("撤销".Equals(listInfoData[i]["vcOrderState"].ToString()))
                         {
                             apiResult.code = ComConstant.ERROR_CODE;

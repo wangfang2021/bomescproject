@@ -219,5 +219,100 @@ namespace DataAccess
             return dt;
         }
         #endregion
+
+        #region 日程别更新
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("  update WeekLevelSchedule set  \r\n");
+                        sql.Append("  vcLevelD1b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD1b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD1y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD1y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD2b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD2b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD2y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD2y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD3b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD3b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD3y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD3y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD4b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD4b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD4y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD4y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD5b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD5b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD5y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD5y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD6b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD6b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD6y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD6y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD7b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD7b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD7y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD7y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD8b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD8b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD8y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD8y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD9b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD9b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD9y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD9y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD10b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD10b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD10y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD10y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD11b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD11b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD11y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD11y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD12b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD12b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD12y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD12y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD13b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD13b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD13y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD13y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD14b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD14b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD14y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD14y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD15b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD15b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD15y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD15y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD16b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD16b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD16y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD16y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD17b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD17b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD17y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD17y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD18b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD18b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD18y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD18y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD19b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD19b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD19y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD19y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD20b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD20b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD20y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD20y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD21b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD21b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD21y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD21y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD22b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD22b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD22y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD22y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD23b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD23b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD23y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD23y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD24b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD24b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD24y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD24y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD25b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD25b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD25y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD25y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD26b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD26b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD26y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD26y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD27b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD27b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD27y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD27y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD28b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD28b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD28y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD28y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD29b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD29b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD29y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD29y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD30b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD30b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD30y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD30y"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD31b=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD31b"], false) + "   \r\n");
+                        sql.Append("  ,vcLevelD31y=" + ComFunction.getSqlValue(listInfoData[i]["vcLevelD31y"], false) + "   \r\n");
+                        sql.Append("  where iAutoId=" + iAutoId + " ; \r\n");
+                    }
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
     }
 }

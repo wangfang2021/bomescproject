@@ -86,6 +86,8 @@ namespace SPPSApi.Controllers.G12
             {
                 DataTable dt = fS1205_Logic.TXTSearchWeekLevelSchedule(vcMonth, vcWeek, vcPlant);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -104,8 +106,9 @@ namespace SPPSApi.Controllers.G12
         #region 日程别更新
         [HttpPost]
         [EnableCors("any")]
-        public string TXTUpdateTableDetermine([FromBody] dynamic data)
+        public string saveApi([FromBody] dynamic data)
         {
+            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -114,59 +117,96 @@ namespace SPPSApi.Controllers.G12
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMonth = dataForm.vcMonth;
-            string vcWeek = dataForm.vcWeek;
-            string vcPlant = dataForm.vcPlant;
             try
             {
-                DataTable dt = fS1205_Logic.TXTSearchWeekLevelSchedule(vcMonth, vcWeek, vcPlant);
-                if (dt.Rows.Count > 0)
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string Month = dt.Rows[0]["vcMonth"].ToString();//获取数据源中的对象月
-                    string Week = dt.Rows[0]["vcWeek"].ToString();//获取数据源中的对象周
-                    string Plant = dt.Rows[0]["vcPlant"].ToString();//获取数据源中的工厂
-                    //检查数据正确性
-                    string msg = fS1205_Logic.TXTCheckDataSchedule(dt);
-                    if (msg.Length > 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = msg;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
                     }
-                    else
-                    {
-                        dt.PrimaryKey = new DataColumn[]
-                        {
-                            dt.Columns["vcMonth"],
-                            dt.Columns["vcWeek"],
-                            dt.Columns["vcPlant"],
-                            dt.Columns["vcGC"],
-                            dt.Columns["vcZB"],
-                            dt.Columns["vcPartsno"]
-                        };
-                        fS1205_Logic.TXTUpdateTableSchedule(dt, Month, Week, Plant);
-                        //最终提示信息
-                        //更新成功重新获取数据源
-                        apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = "更新成功";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        hasFind = true;
                     }
                 }
-                else
+                if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "无可更新的数据请先检索！";
+                    apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //开始数据验证
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{
+                                                         "1日白","1日夜","2日白","2日夜","3日白","3日夜", "4日白","4日夜","5日白","5日夜",
+                                                         "6日白","6日夜","7日白","7日夜","8日白","8日夜", "9日白","9日夜","10日白","10日夜",
+                                                         "11日白","11日夜","12日白","12日夜","13日白","13日夜", "14日白","14日夜","15日白","15日夜",
+                                                         "16日白","16日夜","17日白","17日夜","18日白","18日夜", "19日白","19日夜","20日白","20日夜",
+                                                         "21日白","21日夜","22日白","22日夜","23日白","23日夜", "24日白","24日夜","25日白","25日夜",
+                                                         "26日白","26日夜","27日白","27日夜","28日白","28日夜", "29日白","29日夜","30日白","30日夜","31日白","31日夜"
+                                                       },
+                                                {
+                                                 "vcLevelD1b","vcLevelD1y","vcLevelD2b","vcLevelD2y","vcLevelD3b","vcLevelD3y","vcLevelD4b","vcLevelD4y","vcLevelD5b","vcLevelD5y",
+                                                 "vcLevelD6b","vcLevelD6y","vcLevelD7b","vcLevelD7y","vcLevelD8b","vcLevelD8y","vcLevelD9b","vcLevelD9y","vcLevelD10b","vcLevelD10y",
+                                                 "vcLevelD11b","vcLevelD11y","vcLevelD12b","vcLevelD12y","vcLevelD13b","vcLevelD13y","vcLevelD14b","vcLevelD14y","vcLevelD15b","vcLevelD15y",
+                                                 "vcLevelD16b","vcLevelD16y","vcLevelD17b","vcLevelD17y","vcLevelD18b","vcLevelD18y","vcLevelD19b","vcLevelD19y","vcLevelD20b","vcLevelD20y",
+                                                 "vcLevelD21b","vcLevelD21y","vcLevelD22b","vcLevelD22y","vcLevelD23b","vcLevelD23y","vcLevelD24b","vcLevelD24y","vcLevelD25b","vcLevelD25y",
+                                                 "vcLevelD26b","vcLevelD26y","vcLevelD27b","vcLevelD27y","vcLevelD28b","vcLevelD28y","vcLevelD29b","vcLevelD29y","vcLevelD30b","vcLevelD30y","vcLevelD31b","vcLevelD31y"
+                                                },
+                                                {FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                                                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                                                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                                                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                                                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
+                                                {"8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8",
+                                                 "8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8","8"},//最大长度设定,不校验最大长度用0
+                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",
+                                                 "0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90",
+                                                 "91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110",
+                                                 "111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","130","131"
+                                                }//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1205");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                string strErrorPartId = "";
+                fS1205_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                if (strErrorPartId != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "更新失败：<br/>" + strErrorPartId;
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "更新失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
+
+
+
         }
         #endregion
 

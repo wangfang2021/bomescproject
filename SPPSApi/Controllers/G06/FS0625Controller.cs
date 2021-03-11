@@ -521,7 +521,7 @@ namespace SPPSApi.Controllers.G06
                     dt.Rows.Add(dr);
                 }
 
-                string[] columnArray = { "vcSupplier_id", "vcWorkArea" };
+                string[] columnArray = { "vcSupplier_id", "vcSupplier_name" };
                 DataView dtSelectView = dt.DefaultView;
                 DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt 
 
@@ -538,14 +538,16 @@ namespace SPPSApi.Controllers.G06
                 field = new string[] { "dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate",  "vcMemo" };
                 string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                 StringBuilder strErr = new StringBuilder();
+                DataTable dtMessage = fs0625_Logic.createTable("supplier");
+                bool bReault = true;
                 for (int i = 0; i < dtSelect.Rows.Count; i++)
                 {
                     //组织制定供应商和工区的数据
                     string[] strFilePathArray = new string[3];
                     string vcSupplier_id = dtSelect.Rows[i]["vcSupplier_id"].ToString();
                     string vcSupplier_name = dtSelect.Rows[i]["vcSupplier_name"].ToString();
-                    string vcWorkArea = dtSelect.Rows[i]["vcWorkArea"].ToString();
-                    DataRow[] drArray = dt.Select("vcSupplier_id='" + vcSupplier_id + "' and vcWorkArea='" + vcWorkArea + "' ");
+                    //string vcWorkArea = dtSelect.Rows[i]["vcWorkArea"].ToString();
+                    DataRow[] drArray = dt.Select("vcSupplier_id='" + vcSupplier_id + "'  ");//and vcWorkArea='" + vcWorkArea + "'
                     DataTable dtNewSupplierandWorkArea = drArray[0].Table.Clone(); // 复制DataRow的表结构
                     string msg = string.Empty;
                     foreach (DataRow dr in drArray)
@@ -553,35 +555,73 @@ namespace SPPSApi.Controllers.G06
                         dtNewSupplierandWorkArea.ImportRow(dr);
                     }
 
-                    logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "开始查找邮箱 \n";
                     writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                     //获取供应商 工区的邮箱
-                    DataTable dtEmail = fs0625_Logic.getEmail(vcSupplier_id, vcWorkArea);
+                    //DataTable dtEmail = fs0625_Logic.getEmail(vcSupplier_id, vcWorkArea);
+                    DataTable dtEmail = fs0625_Logic.getEmail(vcSupplier_id);
                     if (dtEmail.Rows.Count == 0)
                     {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "没有维护邮箱，不能发送邮件 \n";
-                        writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
-                        strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea + "缺少邮箱，不能发送!");
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier_id;
+                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "没有维护邮箱，不能发送邮件";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                         continue;
                     }
-                    if (dtEmail.Rows.Count > 1)
+                    DataTable receiverDt = new DataTable();
+                    receiverDt.Columns.Add("address");
+                    receiverDt.Columns.Add("displayName");
+                    
+                    for (int m = 0;m< dtEmail.Rows.Count;m++)
                     {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱维护冗余有误，不能发送邮件 \n";
-                        writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
-                        strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱冗余,不能发送!");
-                        continue;
+                        string strdisplayName1 = dtEmail.Rows[m]["vcLinkMan1"].ToString();
+                        if (string.IsNullOrEmpty(strdisplayName1))
+                        {
+                            strdisplayName1 = "";
+                        }
+                        string strdisplayName2 = dtEmail.Rows[m]["vcLinkMan2"].ToString();
+                        if (string.IsNullOrEmpty(strdisplayName2))
+                        {
+                            strdisplayName2 = "";
+                        }
+                        string strdisplayName3 = dtEmail.Rows[m]["vcLinkMan3"].ToString();
+                        if (string.IsNullOrEmpty(strdisplayName3))
+                        {
+                            strdisplayName3 = "";
+                        }
+                        string strEmail1 = dtEmail.Rows[0]["vcEmail1"].ToString();
+                        string strEmail2 = dtEmail.Rows[0]["vcEmail2"].ToString();
+                        string strEmail3 = dtEmail.Rows[0]["vcEmail3"].ToString();
+                        if (strEmail1.Length > 0)
+                        {
+                            DataRow dr = receiverDt.NewRow();
+                            dr["address"] = strEmail1.ToString();
+                            dr["displayName"] = strdisplayName1;
+                            receiverDt.Rows.Add(dr);
+                        }
+
+                        if (strEmail2.Length > 0)
+                        {
+                            DataRow dr = receiverDt.NewRow();
+                            dr["address"] = strEmail2.ToString();
+                            dr["displayName"] = strdisplayName2;
+                            receiverDt.Rows.Add(dr);
+                        }
+                        if (strEmail3.Length > 0)
+                        {
+                            DataRow dr = receiverDt.NewRow();
+                            dr["address"] = strEmail3.ToString();
+                            dr["displayName"] = strdisplayName3;
+                            receiverDt.Rows.Add(dr);
+                        }
                     }
-                    string strdisplayName = dtEmail.Rows[0]["vcLinkMan"].ToString();
-                    if (string.IsNullOrEmpty(strdisplayName))
+                    if (receiverDt.Rows.Count==0)
                     {
-                        strdisplayName = "";
-                    }
-                    string strEmail = dtEmail.Rows[0]["vcEmail"].ToString();
-                    if (strEmail == "" || string.IsNullOrEmpty(strEmail))
-                    {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空，不能发送邮件 \n";
-                        writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
-                        strErr.Append("供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空,不能发送!");
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier_id;
+                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "维护的邮箱为空,不能发送邮件!";
+                        dtMessage.Rows.Add(dataRow);
+                        bReault = false;
                         continue;
                     }
 
@@ -1283,7 +1323,7 @@ namespace SPPSApi.Controllers.G06
                     int lastRow = dtNewSupplierandWorkArea.Rows.Count * 10;
                     hssfworkbook.SetPrintArea(0, 0, 8, firstRow, lastRow);
                     string rootPath = _webHostEnvironment.ContentRootPath;
-                    string strFunctionName = "FS0625_号试看板标签_"+ vcSupplier_id+vcWorkArea;
+                    string strFunctionName = "FS0625_号试看板标签_"+ vcSupplier_id;
 
                     string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
                     string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
@@ -1299,8 +1339,6 @@ namespace SPPSApi.Controllers.G06
                         strFilePathArray[0] = filepathHaoShiKanBan;
                     }
                     else {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件号试看板标签没有生产成功，不能发送邮件 \n";
-                        writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append(logs);
                     }
                     #endregion
@@ -1790,7 +1828,7 @@ namespace SPPSApi.Controllers.G06
                     int firstRowhd = 0;
                     int lastRowhd = dtSelect2.Rows.Count * 19;
                    // hshdworkbook.SetPrintArea(0, 0, 8, firstRowhd, lastRowhd);
-                    string strHDFunctionName = "FS0625_号试货垛标签_" + vcSupplier_id + vcWorkArea;
+                    string strHDFunctionName = "FS0625_号试货垛标签_" + vcSupplier_id;
 
                     string strHDFileName = strHDFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
                     string filepathHaoDuoKanBan = fileSavePath + strHDFileName;
@@ -1806,8 +1844,6 @@ namespace SPPSApi.Controllers.G06
                     }
                     else
                     {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件号试看板标签没有生产成功，不能发送邮件 \n";
-                        writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                         strErr.Append(logs);
                     }
 
@@ -1819,20 +1855,47 @@ namespace SPPSApi.Controllers.G06
                     string[] columnArray3 = { "vcCarType" };
                     DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
                     DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray2);//去重后的dt 
-                    XSSFWorkbook hsorderworkbook = new XSSFWorkbook();
+                    ////XSSFWorkbook hsorderworkbook = null;
 
                     string XltHSOrderPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0625_HSOrder.xlsx";
-                    using (FileStream fs = System.IO.File.OpenRead(XltHSOrderPath))
-                    {
-                        hsorderworkbook = new XSSFWorkbook(fs);
-                        fs.Close();
-                    }
+                    //using (FileStream fs = System.IO.File.OpenRead(XltHSOrderPath))
+                    //{
+                    //    hsorderworkbook = new XSSFWorkbook(fs);
+                    //    fs.Close();
+                    //}
+                    string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id;
 
-                    ISheet sheetTemp = hsorderworkbook.GetSheet("templete");
+                    string strOrderFileName = strOrderFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
+                    string filepathHSOrderKanBan = fileSavePath + strOrderFileName;
+                    //string templetfilepath = @"files\" + modelfilename + ".xls";//模版Excel
+                    
+                    // string tpath = @"files\download\" + modelfilename + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xls";//中介Excel，以它为中介来导出，避免直接使用模块Excel而改变模块的格式
+                     FileInfo ff = new FileInfo(filepathHSOrderKanBan);
+                     if (ff.Exists)
+                     {
+                         ff.Delete();
+                     }
+                     //FileStream fs3 = System.IO.File.Create(filepathHSOrderKanBan);//创建中间excel
+                     //HSSFWorkbook x1 = new HSSFWorkbook();
+                     //x1.Write(fs3);
+                     //fs3.Close();
+                     FileStream fileRead = new FileStream(XltHSOrderPath, FileMode.Open, FileAccess.Read);
+                      XSSFWorkbook hsorderworkbook = new XSSFWorkbook(fileRead);
+                     FileStream fileSave2 = new FileStream(filepathHSOrderKanBan, FileMode.Open, FileAccess.Read);
+                     XSSFWorkbook book2 = new XSSFWorkbook(fileSave2);
+                    //HSSFWorkbook[] book = new HSSFWorkbook[2] { book2, hssfworkbook };
+                     //HSSFSheet CPS = hsorderworkbook.GetSheet("Sheet0") as HSSFSheet;//获得模板sheet
+                    //string rsbh = bjDt.Rows[0]["name"].ToString();
+                    //CPS.CopyTo(book2, rsbh, true, true);//将模板sheet复制到目标sheet
+
+
+                    ISheet sheetTemp = hsorderworkbook.GetSheet("template");
                     for (int m = 0; m < dtSelect3.Rows.Count; m++)
                     {
                         string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
-                        sheetTemp.CopyTo(hsorderworkbook, strCarType, true, true);
+                        //ISheet creatSheet= hsorderworkbook.CreateSheet(strCarType);
+                        sheetTemp.CopyTo(book2, strCarType, true, true);
+                        //sheetTemp.CopySheet("sssd", true);
                     }
                     int startRowIndex = 7;
 
@@ -1916,26 +1979,24 @@ namespace SPPSApi.Controllers.G06
                             row.GetCell(6).SetCellValue(ObjToString(dtNewCarType.Rows[p]["dOrderReceiveDate"]));
                         }
                     }
-                    string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id + vcWorkArea;
+                    //string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id;
 
-                    string strOrderFileName = strHDFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
-                    string filepathHSOrderKanBan = fileSavePath + strOrderFileName;
+                    //string strOrderFileName = strHDFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
+                    //string filepathHSOrderKanBan = fileSavePath + strOrderFileName;
 
-                    using (FileStream fs3 = System.IO.File.Create(filepathHSOrderKanBan))
-                    {
-                        hsorderworkbook.Write(fs3);//向打开的这个xls文件中写入数据  
-                        fs3.Close();
-                    }
-                    if (strOrderFileName != "")
-                    {
-                        strFilePathArray[2] = filepathHSOrderKanBan;
-                    }
-                    else
-                    {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件号试品订单没有生产成功，不能发送邮件 \n";
-                        writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
-                        strErr.Append(logs);
-                    }
+                    //using (FileStream fs3 = System.IO.File.Create(filepathHSOrderKanBan))
+                    //{
+                    //    hsorderworkbook.Write(fs3);//向打开的这个xls文件中写入数据  
+                    //    fs3.Close();
+                    //}
+                    //if (strOrderFileName != "")
+                    //{
+                    //    strFilePathArray[2] = filepathHSOrderKanBan;
+                    //}
+                    //else
+                    //{
+                    //    strErr.Append(logs);
+                    //}
                     #endregion
 
 
@@ -1950,21 +2011,7 @@ namespace SPPSApi.Controllers.G06
                     //}
                     //filepath = path + filepath;
                    
-                    string[] emailArray = strEmail.Split(';');
-                    //收件人dt
-                    DataTable receiverDt = new DataTable();
-                    receiverDt.Columns.Add("address");
-                    receiverDt.Columns.Add("displayName");
-                    for (int j = 0; j < emailArray.Length; j++)
-                    {
-                        if (emailArray[j].ToString().Length > 0)
-                        {
-                            DataRow dr = receiverDt.NewRow();
-                            dr["address"] = emailArray[j].ToString();
-                            dr["displayName"] = strdisplayName;
-                            receiverDt.Rows.Add(dr);
-                        }
-                    }
+                    
                     //抄送人dt 通过Tcode 自己定义cCDt
                     DataTable cCDt = null;
                     DataTable dtCCEmail = fs0625_Logic.getCCEmail("C054");
@@ -1973,22 +2020,22 @@ namespace SPPSApi.Controllers.G06
                         cCDt = dtCCEmail;
                     }
                     //邮件主题
-                    string strSubject = "供应商:" + vcSupplier_id + "工区:" + vcWorkArea + "_" + loginInfo.UnitCode + "号试订单信息";
+                    string strSubject = "供应商:" + vcSupplier_id  + "_" + loginInfo.UnitCode + "号试订单信息";
                     //邮件内容
                     string strEmailBody = "";
                     strEmailBody += "<div style='font-family:宋体;font-size:12'>" + "供应商" + vcSupplier_id + " <br /><br />";
-                    strEmailBody += "  您好 " + strdisplayName + "<br /><br />";
+                    strEmailBody += "  您好 "  + "<br /><br />";
                     strEmailBody += "  此次邮件内容为事业体" + loginInfo.UnitCode + "号试订单信息，具体内容请查看附！<br /><br />";
                     //strEmailBody += "  请在1个工作日内将是否可以供货的确认结果邮件回复，以下是各个仓库对应的邮箱：<br />";
                     string result = "Success";
                     //string result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UnitName, strEmailBody, receiverDt, cCDt, strSubject, filepath, false);
                     if (result == "Success")
                     {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送成功！\n";
+                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "邮箱发送成功！\n";
                     }
                     else
                     {
-                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送失败，邮件发送公共方法未知原因！\n";
+                        logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id  + "邮箱发送失败，邮件发送公共方法未知原因！\n";
                     }
                     writeLog(logs, logName, loginInfo.UnitCode, loginInfo.UserId);
                 }

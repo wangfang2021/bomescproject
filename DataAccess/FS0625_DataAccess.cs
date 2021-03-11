@@ -206,13 +206,24 @@ namespace DataAccess
                         else
                         { }
                         string vcIsNewRulesFlag = listInfoData[i]["vcIsNewRulesFlag"] == null ? "" : listInfoData[i]["vcIsNewRulesFlag"].ToString();
-                       
+
+                        if (vcIsNewRulesFlag == "是")
+                        {
+                            vcIsNewRulesFlag = "1";
+                        }
+                        else if (vcIsNewRulesFlag == "否")
+                        {
+                            vcIsNewRulesFlag = "0";
+                        }
+                        else
+                        { }
+
                         string vcOEOrSP = listInfoData[i]["vcOEOrSP"] == null ? "" : listInfoData[i]["vcOEOrSP"].ToString();
                         if (vcOEOrSP == "×")
                         {
                             vcOEOrSP = "1";
                         }
-                        else if (vcOEOrSP == "⭕")
+                        else if (vcOEOrSP == "⭕"|| vcOEOrSP == "○")
                         {
                             vcOEOrSP = "0";
                         }
@@ -520,7 +531,21 @@ namespace DataAccess
                 throw ex;
             }
         }
+        public DataTable getEmail(string vcSupplier_id)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select iAutoId, vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan1, vcPhone1, vcEmail1, vcLinkMan2, vcPhone2, vcEmail2, vcLinkMan3, vcPhone3, vcEmail3 from [dbo].[TSupplierInfo] where vcSupplier_id='" + vcSupplier_id + "'  ");
 
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable getHSHD(string vcCodeID)
         {
             try

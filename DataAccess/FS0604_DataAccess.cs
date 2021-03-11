@@ -98,7 +98,7 @@ namespace DataAccess
 
                 if (dSynchronizationDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) = '" + dSynchronizationDate.Replace("-","") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) = '" + dSynchronizationDate.Replace("-","").Replace("/", "") + "' ");
                 }
                 if (vcState.Length > 0)
                 {
@@ -123,7 +123,7 @@ namespace DataAccess
                 }
                 if (dExpectDeliveryDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
                 }
                 if (vcOEOrSP.Length > 0)
                 {

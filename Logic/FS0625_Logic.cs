@@ -49,7 +49,10 @@ namespace Logic
         {
             return fs0625_DataAccess.getEmail(vcSupplier_id, vcWorkArea);
         }
-
+        public DataTable getEmail(string vcSupplier_id)
+        {
+            return fs0625_DataAccess.getEmail(vcSupplier_id);
+        }
         public DataTable GetWorkArea()
         {
             return fs0625_DataAccess.GetWorkArea();
@@ -77,6 +80,17 @@ namespace Logic
         public DataTable GetWorkAreaBySupplier(string supplierCode)
         {
             return fs0625_DataAccess.GetWorkAreaBySupplier(supplierCode);
+        }
+
+        public DataTable createTable(string strSpSub)
+        {
+            DataTable dataTable = new DataTable();
+            if (strSpSub == "supplier")
+            {
+                dataTable.Columns.Add("vcSupplier");
+                dataTable.Columns.Add("vcMessage");
+            }
+            return dataTable;
         }
     }
 }

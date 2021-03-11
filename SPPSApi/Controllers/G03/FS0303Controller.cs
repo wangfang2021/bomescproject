@@ -535,7 +535,7 @@ namespace SPPSApi.Controllers.G03
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strIsShowAll = dataForm.isShowAll;
-            string strOriginCompany = dataForm.OriginCompany;
+            string strOriginCompanyName = dataForm.OriginCompanyName;
 
 
             /*
@@ -547,7 +547,7 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 /*2020-01-04*/
-                DataTable dt = fs0303_Logic.Search(strIsShowAll, strOriginCompany);
+                DataTable dt = fs0303_Logic.Search(strIsShowAll, strOriginCompanyName);
                 string[] fields = { "iAutoId","dSyncTimeStr", "vcChange_Name", "vcSPINo", "vcSQContent", "vcDiff"
                                     ,"vcPart_id","vcCarTypeDesign","vcCarTypeDev","vcCarTypeName"
                                     ,"dTimeFromStr","dTimeToStr","dTimeFromSJStr","vcBJDiff","vcPartReplace"

@@ -23,9 +23,9 @@ namespace BatchProcess
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "M00PI2100", null, strUserId);
                 bool flag = isExist();
-                getModify(DateTime.Now, strUserId);
                 if (!flag)
                 {
+                    getModify(DateTime.Now, strUserId);
 
                 }
 

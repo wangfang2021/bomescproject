@@ -3,9 +3,9 @@ using Common;
 using System;
 
 
-namespace FP0020_EXE
+namespace FP0021_EXE
 {
-    class FP0020_EXE
+    class FP0021_EXE
     {
         [STAThread]
         static void Main(string[] args)
@@ -22,7 +22,7 @@ namespace FP0020_EXE
             catch (Exception ex)
             {
                 iRet = Common.ComConstant.NG_CODE;
-                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE0200", ex, "system");
+                ComMessage.GetInstance().ProcessMessage(PageId, "M03PE2000", ex, "system");
             }
             finally
             {

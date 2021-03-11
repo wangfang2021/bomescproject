@@ -788,7 +788,7 @@ namespace SPPSApi.Controllers.G03
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     //有同步时间的不可再次同步
-                    if (listInfoData[i]["dSyncTime"]!=null || listInfoData[i]["dSyncTime"].ToString()!="")
+                    if (listInfoData[i]["dSyncTime"]!=null && listInfoData[i]["dSyncTime"].ToString()!="")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "所选行第" + (i + 1) + "行不可再次同步，数据同步失败！";

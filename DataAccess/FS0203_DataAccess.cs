@@ -42,7 +42,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("DELETE TPartList WHERE vcFileName = '"+ fileName + "'");
+                sbr.AppendLine("DELETE TPartList WHERE vcFileName = '" + fileName + "'");
                 for (int i = 0; i < list.Count; i++)
                 {
                     string vcCarType = ObjToString(list[i]["Model"]);
@@ -249,7 +249,7 @@ namespace DataAccess
                 {
                     if (!string.IsNullOrWhiteSpace(dt.Rows[i]["vcPlant"].ToString()))
                     {
-                        vcPlant = dt.Rows[i]["vcPlant"].ToString();
+                        vcPlant = dt.Rows[i]["vcPlant"].ToString().Substring(0, 2);
                     }
                     string FileNameTJ = vcPlant + "_" + "SPRL" + "_" + carType;
 

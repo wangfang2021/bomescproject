@@ -475,10 +475,11 @@ namespace DataAccess
 
 
                                 //新增订单
-                                sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily" + TargetD + ",vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
+                                //sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily" + TargetD + ",vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
+                                sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory,  vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily" + TargetD + ",vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
                                 sbr.Append(" VALUES( ");
                                 sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
-                                sbr.Append(ComFunction.getSqlValue(TargetYMJJ, false) + ",");
+                                //sbr.Append(ComFunction.getSqlValue("", false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcDock, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(CPD, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(Type, false) + ",");

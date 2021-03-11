@@ -32,7 +32,12 @@ namespace Logic
         }
         #endregion
 
-    
+        #region 按检索条件检索,返回dt
+        public DataTable Search_1()
+        {
+            return FS0701_DataAccess.Search_1();
+        }
+        #endregion
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId)

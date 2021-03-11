@@ -266,7 +266,7 @@ namespace DataAccess
                 sbr.Append(" FROM TOldYearManager a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C024') b ON a.vcFinish = b.vcValue \r\n");
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
-                sbr.Append(" LEFT JOIN (SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
+                sbr.Append(" LEFT JOIN (SELECT vcValue1 as vcValue,vcValue2 as vcName FROM SPPSdb_TFTM.SPPSdb.dbo.TOutCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C003') d ON a.vcInOutflag = d.vcValue \r\n");
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016') e ON a.vcSYTCode = e.vcValue \r\n");
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C005') f ON a.vcReceiver = f.vcValue \r\n");
@@ -320,7 +320,7 @@ namespace DataAccess
                 sbr.AppendLine(" a.vcNXQF,CONVERT(varchar(100),a.dSSDate, 111) as dSSDate, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 ");
                 sbr.AppendLine("FROM TOldYearManager a");
                 //sbr.AppendLine("     LEFT JOIN(SELECT vcName, vcValue FROM TCode WHERE vcCodeId='C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
-                sbr.AppendLine("     LEFT JOIN(SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
+                sbr.AppendLine("     LEFT JOIN(SELECT vcValue1 as vcValue,vcValue2 as vcName FROM SPPSdb_TFTM.SPPSdb.dbo.TOutCode WHERE vcCodeId = 'C099') b ON SUBSTRING(a.vcPart_id, 1, 5)=b.vcValue");
                 sbr.AppendLine("WHERE a.iAuto_id IN (" + idList + ");");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
@@ -716,8 +716,8 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                    "SELECT vcValue1,vcValue2 FROM TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {

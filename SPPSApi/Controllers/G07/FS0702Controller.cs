@@ -58,8 +58,8 @@ namespace SPPSApi.Controllers.G07
                 res.Add("C023", dataList_C023);
 
 
-                List<Object> dataList_C098 = ComFunction.convertAllToResult(ComFunction.getTCode("C098"));//车型
-                res.Add("C098", dataList_C098);
+                List<Object> dataList_C065 = ComFunction.convertAllToResult(ComFunction.getTCode("C065"));//车型
+                res.Add("C065", dataList_C065);
 
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 res.Add("C018", dataList_C018);
@@ -440,8 +440,8 @@ namespace SPPSApi.Controllers.G07
                 }
                 List<Object> strSupplierCode = new List<object>();
                 FS0701_Logic FS0701_Logic = new FS0701_Logic();
-                DataTable dt = FS0702_Logic.Search("","","","","","","","","","","");
-                DataTable dt1 = FS0701_Logic.Search("", "", "", strSupplierCode, "", "", "", "");
+                DataTable dt = FS0702_Logic.Search_1();
+                DataTable dt1 = FS0701_Logic.Search_1();
                 string strErrorPartId = "";
                 FS0702_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, dt, dt1);
                 if (strErrorPartId != "")

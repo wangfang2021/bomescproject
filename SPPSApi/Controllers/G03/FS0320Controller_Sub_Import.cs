@@ -70,7 +70,7 @@ namespace SPPSApi.Controllers.G03
                 string[,] headers = new string[,] {{"品番","英文品名","中文品名"},
                                                 {"vcPart_id", "vcPartNameEn", "vcPartNameCn"},
                                                 {"","",""},
-                                                {"12","0","50"},//最大长度设定,不校验最大长度用0
+                                                {"14","0","50"},//最大长度设定,不校验最大长度用0
                                                 {"10","0","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())

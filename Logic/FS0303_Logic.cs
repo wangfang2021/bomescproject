@@ -219,6 +219,31 @@ namespace Logic
         #region 生确单发行
         public void sqSend(List<Dictionary<string, Object>> listInfoData, string strSqDate, string strUserId, string strEmail, string strUserName, ref string strErr)
         {
+
+            #region 对供应商去重
+            List<string> listSupplier = new List<string>();
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                listSupplier.Add(strSupplier_id);
+            }
+            listSupplier = listSupplier.Distinct().ToList();
+            #endregion
+
+            #region 先校验供应商是否存在
+            for (int i = 0; i < listSupplier.Count; i++)
+            {
+                string strSupplier_id = listSupplier[i].ToString();
+                DataTable receiverDt = getSupplierInfo(strSupplier_id);
+                if (receiverDt == null || receiverDt.Rows.Count == 0)
+                {
+                    strErr += "未找到 '" + strSupplier_id + "' 供应商基础信息，操作终止!";
+                    return;
+                }
+            }
+            #endregion
+
+
             //1、更新原单位纳期 2、更新生确单
             fs0303_DataAccess.sqSend(listInfoData, strSqDate, strUserId);
 
@@ -242,16 +267,24 @@ namespace Logic
             }
             //再向供应商发邮件
             StringBuilder strEmailBody = new StringBuilder();
-            for (int i = 0; i < listInfoData.Count; i++)
+
+            StringBuilder sbr = new StringBuilder();
+            for (int i = 0; i < listSupplier.Count; i++)
             {
-                string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
+                string strSupplier_id = listSupplier[i].ToString();
                 DataTable receiverDt = getSupplierEmail(strSupplier_id);
-                if (receiverDt==null)
+                if (receiverDt==null|| receiverDt.Rows.Count==0)
                 {
-                    strErr += "未找到 '" + strSupplier_id + "' 供应商邮件信息";
-                    return;
+                    sbr.Append(strSupplier_id + ",");
                 }
-                ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
+                else
+                {
+                    ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
+                }
+            }
+            if (sbr.Length>0)
+            {
+                strErr += "生确单发送成功,但未找到 '" + sbr.ToString() + "' 供应商邮件信息，邮件未发送。";
             }
         }
         #endregion
@@ -375,6 +408,13 @@ namespace Logic
         }
         #endregion
 
+        #region 根据供应商基础信息
+        public DataTable getSupplierInfo(string strSupplierId)
+        {
+            return fs0303_DataAccess.getSupplierInfo(strSupplierId);
+        }
+        #endregion
+
         #region 获取发件人的邮件内容配置
         public DataTable getEmailSetting(string strUserId,string strChildID)
         {
@@ -383,6 +423,35 @@ namespace Logic
                 return null;
             else
                 return dt;
+        }
+        #endregion
+
+        #region 获取原单位用户维护权限
+        public string getPri(string strUserId)
+        {
+            DataTable dt= fs0303_DataAccess.getPri(strUserId);
+            if (dt == null || dt.Rows.Count == 0)
+                return "";
+            else
+                return dt.Rows[0]["vcValue2"].ToString();
+        }
+        #endregion
+
+        #region 验证时间先后关系
+        public bool checkDataFromTo(DataRow row,string strFromField,string strToField)
+        {
+            if (row[strFromField] != System.DBNull.Value && row[strToField] != System.DBNull.Value
+                && row[strFromField].ToString().Trim() != "" && row[strToField].ToString().Trim() != ""
+                )
+            {
+                DateTime dFrom = DateTime.Parse(row[strFromField].ToString());
+                DateTime dTo = DateTime.Parse(row[strToField].ToString());
+                if (dFrom > dTo)
+                    return false;
+                else
+                    return true;
+            }
+            return true;
         }
         #endregion
 

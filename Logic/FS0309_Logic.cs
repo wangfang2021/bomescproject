@@ -94,9 +94,9 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId)
+        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId,bool isWuBtnVisible)
         {
-            fs0309_DataAccess.importSave(dt, strUserId, ref strErrorPartId);
+            fs0309_DataAccess.importSave(dt, strUserId, ref strErrorPartId, isWuBtnVisible);
         }
         #endregion
 

@@ -47,7 +47,7 @@ namespace SPPSApi.Controllers.G12
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
                 List<Object> dataList_TypeSource = ComFunction.convertAllToResult(logic.getClass());
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.getPlant());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 res.Add("TypeSource", dataList_TypeSource);
                 res.Add("PlantSource", dataList_PlantSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;

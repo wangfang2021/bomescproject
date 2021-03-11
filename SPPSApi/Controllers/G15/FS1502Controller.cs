@@ -22,6 +22,7 @@ namespace SPPSApi.Controllers.G15
     public class FS1502Controller : BaseController
     {
         FS1502_Logic fs1502_Logic = new FS1502_Logic();
+        FS0810_Logic fs0810_Logic = new FS0810_Logic();
         private readonly string FunctionID = "FS1502";
 
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -30,6 +31,44 @@ namespace SPPSApi.Controllers.G15
         {
             _webHostEnvironment = webHostEnvironment;
         }
+
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //if (loginInfo.Special == "财务用户")
+                //    res.Add("caiWuBtnVisible", false);
+                //else
+                //    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_C003 = ComFunction.convertAllToResult(fs0810_Logic.getTCode("C003"));//大品目
+                res.Add("C003", dataList_C003);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
         #region 检索
         [HttpPost]
@@ -47,6 +86,7 @@ namespace SPPSApi.Controllers.G15
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string dBZDate = dataForm.dBZDate == null ? "" : dataForm.dBZDate;
+            string vcBigPM = dataForm.vcBigPM == null ? "" : dataForm.vcBigPM;
             try
             {
                 if(dBZDate=="")
@@ -55,7 +95,7 @@ namespace SPPSApi.Controllers.G15
                     apiResult.data = "请选择包装日期！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dt = fs1502_Logic.Search(dBZDate);
+                DataTable dt = fs1502_Logic.Search(dBZDate,vcBigPM);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -90,10 +130,11 @@ namespace SPPSApi.Controllers.G15
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string dBZDate = dataForm.dBZDate == null ? "" : dataForm.dBZDate;
+            string vcBigPM = dataForm.vcBigPM == null ? "" : dataForm.vcBigPM;
             try
             {
-                DataTable dt = fs1502_Logic.Search(dBZDate);
-                string[] fields = { "vcBigPM", "iBZPlan_Day", "iBZPlan_Night", "iBZPlan_Heji", "iEmergencyOrder", "iLJBZRemain"
+                DataTable dt = fs1502_Logic.Search(dBZDate, vcBigPM);
+                string[] fields = { "vcBigPM","vcSmallPM", "iBZPlan_Day", "iBZPlan_Night", "iBZPlan_Heji", "iEmergencyOrder", "iLJBZRemain"
                 ,"iPlanTZ","iSSPlan_Day","iSSPlan_Night","iSSPlan_Heji"
                 };
                 string filepath = fs1502_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1502_Export.xlsx", 2, loginInfo.UserId, FunctionID);
@@ -260,7 +301,7 @@ namespace SPPSApi.Controllers.G15
                     apiResult.data = "请选择包装日期！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1502_Logic.Cal(dBZDate, loginInfo.UserId);
+                fs1502_Logic.Cal(dBZDate, loginInfo.UserId,loginInfo.UnitCode);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -41,7 +41,7 @@ namespace Logic
                 dataRow["vcPlant"] = strPlant;
                 dataRow["vcReceiver"] = strReceiver;
                 //string strPath = imagefile_qr + strOperId + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + "_" + uuid.Replace("-", "") + ".png";
-                byte[] vcCodemage = fS0617_Logic.GenerateQRCode((100000000 + i).ToString().Substring(1, 8));//二维码信息
+                byte[] vcCodemage = fS0617_Logic.GenerateQRCode(strPlant + "*" + (100000000 + i).ToString().Substring(1, 8));//二维码信息
                 dataRow["vcCodemage"] = vcCodemage;
                 dtSub.Rows.Add(dataRow);
             }
@@ -64,7 +64,7 @@ namespace Logic
             dataRow["vcCaseNo2"] = (100000000 + iCaseNo).ToString().Substring(1, 4) + "-" + (100000000 + iCaseNo).ToString().Substring(5, 4);
             dataRow["vcPlant"] = strPlant;
             dataRow["vcReceiver"] = strReceiver;
-            byte[] vcCodemage = fS0617_Logic.GenerateQRCode((100000000 + iCaseNo).ToString().Substring(1, 8));//二维码信息
+            byte[] vcCodemage = fS0617_Logic.GenerateQRCode(strPlant + "*" + (100000000 + iCaseNo).ToString().Substring(1, 8));//二维码信息
             dataRow["vcCodemage"] = vcCodemage;
             dtSub.Rows.Add(dataRow);
             fs1104_DataAccess.setPrintTemp(dtSub, strOperId, ref dtMessage);

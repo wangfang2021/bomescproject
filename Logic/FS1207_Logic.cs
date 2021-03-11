@@ -1,16 +1,4 @@
-﻿/*******************************************************************
-* 	项目名称			:	TPCS								   	
-* 	模块名称			:	构成件必要数计算					
-* 	创建者			    :	GAOLEI								
-* 	创建日期			:	2020/08/31							
-* 	类名			    :	FS1207_Logic					    
-* 	修改者			    :						
-* 	修改时间			:						
-* 	修改内容			:											
-* 					
-* 	(C)2020-TJQM INFORMATION TECHNOLOGY CO.,LTD All Rights Reserved.
-*******************************************************************/
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -516,7 +504,7 @@ namespace Logic
                     {
                         dtSSP.ImportRow(row);
                     }
-                 }
+                }
                 else
                 {
                     return "无发注数据！";
@@ -763,6 +751,28 @@ namespace Logic
             return dt;
         }
 
+        #region 判断是否已发注
+        /// <summary>
+        /// 判断是否已发注
+        /// </summary>
+        /// <param name="mon"></param>
+        /// <returns></returns>
+        public string checkFZ(string mon)
+        {
+            return dataAccess.checkFZ(mon);
+        }
+        #endregion
+
+        #region 获取SOQReply数据
+        public DataTable getNQCReceiveInfo(string vcDXYM, string vcPlant)
+        {
+            return dataAccess.getNQCReceiveInfo(vcDXYM, vcPlant);
+        }
+        #endregion
+
+
+
+
         /// <summary>
         /// 导出
         /// </summary>
@@ -812,18 +822,13 @@ namespace Logic
         {
             return dataAccess.ddlSaleuser();
         }
-        public DataTable search(string Mon, string ddlType, string Partsno,string vcPlant)
+        public DataTable search(string Mon, string ddlType, string Partsno, string vcPlant)
         {
             return dataAccess.search(Mon, ddlType, Partsno, vcPlant);
         }
         public DataTable dtResultClone()
         {
             return dataAccess.dtResultClone();
-        }
-
-        public string checkFZ(string mon)
-        {
-            return dataAccess.checkFZ(mon);
         }
         public string UpdateTable(DataTable dt, string user, string mon, string plant)
         {

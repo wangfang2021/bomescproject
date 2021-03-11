@@ -61,5 +61,10 @@ namespace Logic
         {
             return fs0614_DataAccess.getType();
         }
+
+        public void cancelOrder(List<Dictionary<string, Object>> list, string userId)
+        {
+            fs0614_DataAccess.cancelOrder(list, userId);
+        }
     }
 }

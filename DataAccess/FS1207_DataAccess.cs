@@ -21,6 +21,43 @@ namespace DataAccess
 
         #endregion
 
+        #region 计算
+
+        #region 判断是否已发注
+        /// <summary>
+        /// 判断是否已发注
+        /// </summary>
+        /// <param name="mon"></param>
+        /// <returns></returns>
+        public string checkFZ(string mon)
+        {
+            try
+            {
+                string str = "select *  from  tSSP where iFZFlg='1' and vcMonth='" + mon + "'";
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(str);
+                if (dt.Rows.Count > 0)
+                {
+                    return "对象月:" + mon + ",已发注不可导入";
+                }
+                else
+                    return "";
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        #endregion
+
+        #region 获取NQCReceiveInfo数据
+        public DataTable getNQCReceiveInfo(string vcDXYM, string vcPlant)
+        {
+            string str = "select * from TNQCReceiveInfo where right(Process_Factory,1)='" + vcPlant + "' and Process_YYYYMM='" + vcDXYM.Replace("-","") + "'";
+            return excute.ExcuteSqlWithSelectToDT(str.ToString());
+        }
+        #endregion
+        #endregion
+
         public DataTable getSSPMaster(string partsno)
         {
             string str = "select vcPartsNo,iSRNum from tSSPMaster where vcPartsNo='" + partsno + "';";
@@ -98,23 +135,6 @@ namespace DataAccess
         /// <returns></returns>
         #endregion
 
-        public string checkFZ(string mon)
-        {
-            try
-            {
-                string str = "select *  from tSSP where iFZFlg='1' and vcMonth='" + mon + "'";
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(str.ToString());
-                if (dt.Rows.Count > 0)
-                    return "对象月:" + mon + ",已发注不可导入";
-                else
-                    return "";
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
         #region
         /// <summary>
         /// 获取tResult表结构
@@ -148,7 +168,7 @@ namespace DataAccess
             {
                 //导入先删除
                 deletetResult(cmd, mon, plant);
-                cmd.CommandText = "select  * from tResult ";
+                cmd.CommandText = "select * from tResult ";
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);
                 apt.Fill(dtupdate);
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -169,11 +189,11 @@ namespace DataAccess
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
             }
-            catch
+            catch(Exception ex)
             {
                 cmd.Transaction.Rollback();
                 cmd.Connection.Close();
-                return "导入失败";
+                throw ex;
             }
             return "";
         }
@@ -194,12 +214,12 @@ namespace DataAccess
         {
             StringBuilder sb = new StringBuilder();
             sb.Length = 0;
-            sb.AppendLine(" insert into tSSP ");
-            sb.AppendFormat(" 	 select  '{0}' as vcMonth,vcPartsNo,SUM(Total) AS Total , 0  as iXZNum,0 as iFZNum,0 as iCO,0 as iCONum ,'0' as iFZFlg,\r\n", mon);
-            sb.AppendFormat(" 	  '{0}' as Creater, GETDATE() as dCreateDate  from ( SELECT *  FROM \r\n", user);//201903插入者修改为导入者，之前写为admin了
-            sb.AppendFormat(" 	(select vcPartsNo,Total,vcSource,vcDock  from tResult where vcMonth='{0}')t1\r\n", mon);
-            sb.AppendLine("	 inner  join \r\n");
-            sb.AppendLine("	(select vcData1,vcData2  from  ConstMst  where vcDataId='vcDockPj'  and vcData6 ='0' and vcData3='SSP构成')t2\r\n");
+            sb.AppendLine(" insert into tSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate) ");
+            sb.AppendFormat(" 	 select '{0}' as vcMonth,vcPartsNo,SUM(Total) AS Total, 0 as iXZNum,0 as iFZNum,0 as iCO,0 as iCONum, '0' as iFZFlg,\r\n", mon);
+            sb.AppendFormat(" 	 '{0}' as Creater, GETDATE() as dCreateDate from (SELECT * FROM \r\n", user);//201903插入者修改为导入者，之前写为admin了
+            sb.AppendFormat(" 	(select vcPartsNo,Total,vcSource,vcDock from tResult where vcMonth='{0}')t1\r\n", mon);
+            sb.AppendLine("	 inner join \r\n");
+            sb.AppendLine("	(select vcData1,vcData2 from ConstMst where vcDataId='vcDockPj' and vcData6='0' and vcData3='SSP构成')t2\r\n");
             sb.AppendLine("	on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2\r\n");
             sb.AppendLine("	)A\r\n");
             sb.AppendLine("	group by vcPartsNo ");

@@ -26,7 +26,9 @@ namespace Logic
             DataTable dataTable = fS0603_Logic.createTable("Power1301");
             for (int i = 0; i < listInfoData.Count; i++)
             {
-                string strLinId = listInfoData[i]["LinId"].ToString();
+                string strLinId = listInfoData[i]["LinId"]==null?"": listInfoData[i]["LinId"].ToString();
+                string strPackingPlant = listInfoData[i]["vcPackingPlant"] == null ? "" : listInfoData[i]["vcPackingPlant"].ToString();
+                string strUserId = listInfoData[i]["vcUserId"] == null ? "" : listInfoData[i]["vcUserId"].ToString();
                 string strInPut = listInfoData[i]["bInPut"].ToString().ToLower() == "true" ? "1" : "0";
                 string strInPutUnLock = listInfoData[i]["bInPutUnLock"].ToString().ToLower() == "true" ? "1" : "0";
                 string strCheck = listInfoData[i]["bCheck"].ToString().ToLower() == "true" ? "1" : "0";
@@ -37,6 +39,8 @@ namespace Logic
                 string strOutPutUnLock = listInfoData[i]["bOutPutUnLock"].ToString().ToLower() == "true" ? "1" : "0";
                 DataRow dataRow = dataTable.NewRow();
                 dataRow["LinId"] = strLinId;
+                dataRow["vcUserId"] = strUserId;
+                dataRow["vcPlant"] = strPackingPlant;
                 dataRow["vcInPut"] = strInPut;
                 dataRow["vcInPutUnLock"] = strInPutUnLock;
                 dataRow["vcCheck"] = strCheck;

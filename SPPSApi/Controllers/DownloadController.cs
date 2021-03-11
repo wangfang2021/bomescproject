@@ -65,8 +65,6 @@ namespace SPPSApi.Controllers
                 var ext = fileInfo.Extension;
                 new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
                 byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
-                if (fileInfo.Exists)
-                    fileInfo.Delete();
                 return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
             }
             catch (Exception ex)

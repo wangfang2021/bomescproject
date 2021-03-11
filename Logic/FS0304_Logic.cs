@@ -68,8 +68,6 @@ namespace Logic
                 strContent = dtSetting.Rows[0]["vcContent"].ToString();
                 var dateTime = DateTime.Now.ToString("yyyy年MM月");
                 strContent = strContent.Replace("##yearmonth##", dateTime);
-                /*这里的年月要进行特殊处理，发邮件时年月的格式要变成‘YYYY年MM月‘格式*/
-                /*但是生确单发行时的格式是’YYYY-MM‘*/
             }
             //再向供应商发邮件
             StringBuilder strEmailBody = new StringBuilder();

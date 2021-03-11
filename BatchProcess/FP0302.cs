@@ -49,6 +49,7 @@ namespace BatchProcess
                 }
                 else
                 {
+                    FailsendMail("buji@tftm.com.cn", "System", "邮件发送失败", FailEmailBody(flag));
                     ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
                     return false;
                 }
@@ -74,12 +75,24 @@ namespace BatchProcess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
                     "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
-                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        #endregion
+
+        #region 获取接收失败信息担当邮箱
+
+        public DataTable getFailEmail()
+        {
+            StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine(
+                "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+            return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
         }
 
         #endregion
@@ -115,6 +128,26 @@ namespace BatchProcess
             return sbr.ToString();
         }
 
+        public string FailEmailBody(int flag)
+        {
+            StringBuilder sbr = new StringBuilder();
+            string time = DateTime.Now.ToString("yyyy-MM-dd");
+
+            //中文品名
+            if (flag == 1)
+            {
+                sbr.Append("<p>" + time + "旧型十年年记提醒邮件发送失败</p>");
+                sbr.Append("<p>以上</p>");
+            }
+            //旧型
+            else if (flag == 0)
+            {
+                sbr.Append("<p>" + time + "中文品名提醒邮件发送失败</p>");
+                sbr.Append("<p>以上</p>");
+            }
+            return sbr.ToString();
+        }
+
         #endregion
 
         #region 发送邮件
@@ -125,6 +158,28 @@ namespace BatchProcess
             receiverDt.Columns.Add("address");
             receiverDt.Columns.Add("displayName");
             DataTable dt = getReceiverEmail();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = receiverDt.NewRow();
+                dr["address"] = dt.Rows[i]["vcValue2"].ToString();
+                dr["displayName"] = dt.Rows[i]["vcValue1"].ToString();
+                receiverDt.Rows.Add(dr);
+            }
+            string result = ComFunction.SendEmailInfo(Email, UserName, EmailBody, receiverDt, cCDt, strSubject, "", false);
+            if (result.Equals("Error"))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        public bool FailsendMail(string Email, string UserName, string strSubject, string EmailBody)
+        {
+            DataTable cCDt = null;
+            DataTable receiverDt = new DataTable();
+            receiverDt.Columns.Add("address");
+            receiverDt.Columns.Add("displayName");
+            DataTable dt = getFailEmail();
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 DataRow dr = receiverDt.NewRow();

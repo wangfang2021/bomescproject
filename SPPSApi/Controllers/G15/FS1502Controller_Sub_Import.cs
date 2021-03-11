@@ -165,7 +165,7 @@ namespace SPPSApi.Controllers.G15
                 //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 //}
 
-                fs1502_Logic.importSave_Sub(importDt,vcFZPlant,dBZDate, loginInfo.UserId);
+                fs1502_Logic.importSave_Sub(importDt,vcFZPlant,dBZDate, loginInfo.UserId,loginInfo.UnitCode);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

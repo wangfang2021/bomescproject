@@ -19,7 +19,7 @@ namespace Logic
 
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(string  PackSpot, string PackNo, string PackGPSNo, string dFromB, string dToE)
+        public DataTable Search(List<Object> PackSpot, string PackNo, string PackGPSNo, string dFromB, string dToE)
         {
             return FS0714_DataAccess.Search(PackSpot, PackNo, PackGPSNo, dFromB, dToE);
         }

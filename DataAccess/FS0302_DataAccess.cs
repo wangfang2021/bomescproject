@@ -42,7 +42,8 @@ namespace DataAccess
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
                 //sbr.Append(" SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C009' \r\n");
-                sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
+                //sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
+                sbr.Append("   SELECT vcValue1 as vcValue,vcValue2 as vcName FROM SPPSdb_TFTM.SPPSdb.dbo.TOutCode WHERE vcCodeId = 'C009' AND vcIsColum = '0' \r\n");
                 sbr.Append(" ) c ON a.vcCarType = c.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
@@ -184,7 +185,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 //可选择的变更事项
-                List<string> changeList = new List<string>() { "1", "2","3", "4", "5", "6", "16" };
+                List<string> changeList = new List<string>() { "1", "2", "3", "4", "5", "6", "16" };
                 //品番check
                 List<string> partCheck = getPart();
                 List<string> partList = getPartList();

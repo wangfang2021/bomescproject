@@ -154,7 +154,7 @@ namespace DataAccess
                 strSql.AppendLine("SELECT '' as LinId,'合计' as vcYearMonth,'' as vcDyState,'' as vcDyState_Name,'' as vcHyState,'' as vcHyState_Name,'' as vcPart_id");
                 strSql.AppendLine("		,'' as vcCarfamilyCode,'' as vcHaoJiu,'' as vcOrderingMethod,'' as vcOrderPlant,'' as vcInOut");
                 strSql.AppendLine("		,'' as vcSupplierId,'' as vcSupplierPlant,'' as iPackingQty");
-                strSql.AppendLine("		,sum(isnull(tt.iCbSOQN,0)) as iCbSOQN,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN1,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN1");
+                strSql.AppendLine("		,sum(isnull(tt.iCbSOQN,0)) as iCbSOQN,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN1,sum(isnull(tt.iCbSOQN1,0)) as iCbSOQN2");
                 strSql.AppendLine("		,sum(isnull(tt.iTzhSOQN,0)) as iTzhSOQN,sum(isnull(tt.iTzhSOQN1,0)) as iTzhSOQN1,sum(isnull(tt.iTzhSOQN2,0)) as iTzhSOQN2");
                 strSql.AppendLine("		,sum(isnull(tt.iHySOQN,0)) as iHySOQN,sum(isnull(tt.iHySOQN1,0)) as iHySOQN1,sum(isnull(tt.iHySOQN2,0)) as iHySOQN2");
                 strSql.AppendLine("		,'' as dExpectTime,'' as dSReplyTime,'' as vcOverDue,'' as dHyTime,");

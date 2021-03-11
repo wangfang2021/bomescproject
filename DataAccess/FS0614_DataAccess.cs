@@ -27,10 +27,10 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT a.iAutoId,a.vcOrderNo,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcOrderDifferentiation as vcOrderType,b.vcName as vcOrderState,a.vcMemo,a.dUploadDate,a.dCreateDate,a.vcFilePath FROM ");
+                    "SELECT a.iAutoId,a.vcOrderNo,a.vcTargetYear+a.vcTargetMonth+a.vcTargetDay AS vcTargetYM,c.vcOrderDifferentiation as vcOrderType,b.vcName as vcOrderState,a.vcMemo,a.dUploadDate,a.dCreateDate,a.vcFilePath,a.vcTargetWeek FROM ");
                 sbr.AppendLine("(");
                 sbr.AppendLine(
-                    "SELECT iAutoId,vcOrderNo,vcTargetYear,vcTargetMonth,vcTargetDay,vcOrderType,vcOrderState,vcMemo,dUploadDate,dCreateDate,vcFilePath");
+                    "SELECT iAutoId,vcOrderNo,vcTargetYear,vcTargetMonth,vcTargetDay,vcOrderType,vcOrderState,vcMemo,dUploadDate,dCreateDate,vcFilePath,vcTargetWeek");
                 sbr.AppendLine("FROM TOrderUploadManage  WHERE vcOrderShowFlag='1' ");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("LEFT JOIN ");
@@ -148,7 +148,7 @@ namespace DataAccess
                         string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 6);
                         string TargetTmp = ObjToString(listInfoData[i]["vcTargetYM"]);
                         //DateTime Time = DateTime.ParseExact(TargetTmp.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                        DateTime Time = DateTime.Parse(TargetTmp.Substring(0, 6) + "01");
+                        DateTime Time = DateTime.Parse(TargetTmp.Substring(0, 4) + "-" + TargetTmp.Substring(4, 2) + "-01");
                         DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                         #region 月度校验
@@ -465,7 +465,7 @@ namespace DataAccess
                                 string TargetYMJJ = NQ.Substring(0, 6);
                                 string TargetD = Convert.ToInt32(NQ.Substring(6, 2)).ToString();
                                 //DateTime Time = DateTime.ParseExact(NQ.Substring(0, 6), "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                                DateTime Time = DateTime.Parse(NQ.Substring(0, 6));
+                                DateTime Time = DateTime.Parse(NQ.Substring(0, 4) + "-" + NQ.Substring(4, 2) + "-01");
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
 
@@ -600,7 +600,7 @@ namespace DataAccess
                             string OrderTargetYM = listInfoData[i]["vcTargetYM"].ToString().Substring(0, 8);
                             DateTime DXR;
                             //DateTime.TryParseExact(OrderTargetYM, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out DXR);
-                            DXR = DateTime.Parse(OrderTargetYM);
+                            DXR = DateTime.Parse(OrderTargetYM.Substring(0, 4) + "-" + OrderTargetYM.Substring(4, 2) + "-" + OrderTargetYM.Substring(6, 2));
 
                             DataTable dt = fs0403_dataAccess.getCalendar(DXR);
                             int count = fs0403_dataAccess.getCountDay();
@@ -646,7 +646,7 @@ namespace DataAccess
                                 string dateTime = detail.Date.Trim();
 
                                 //DateTime Time = DateTime.ParseExact(timeYM, "yyyyMM", System.Globalization.CultureInfo.CurrentCulture);
-                                DateTime Time = DateTime.Parse(timeYM + "01");
+                                DateTime Time = DateTime.Parse(timeYM.Substring(0, 4) + "-" + timeYM.Substring(4, 2) + "-01");
                                 DateTime LastTime = Time.AddMonths(1).AddDays(-1);
 
                                 //新增订单
@@ -944,7 +944,7 @@ namespace DataAccess
                 {
                     DateTime t2;
                     //DateTime.TryParseExact(s + "01", "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
-                    t2 = DateTime.Parse(s + "01");
+                    t2 = DateTime.Parse(s.Substring(0, 4) + "-" + s.Substring(4, 2) + "-" + "01");
                     string CLYM = t2.AddMonths(-1).ToString("yyyyMM");
                     if (sql.Length > 0)
                     {
@@ -1284,5 +1284,22 @@ namespace DataAccess
             }
         }
 
+
+        public void cancelOrder(List<Dictionary<string, Object>> list, string userId)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '2',vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId = " + list[i]["iAutoId"].ToString() + " AND vcOrderState <> 1");
+                }
+                excute.ExcuteSqlWithStringOper(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

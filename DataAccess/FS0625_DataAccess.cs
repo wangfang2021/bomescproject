@@ -46,7 +46,7 @@ namespace DataAccess
 
                 strSql.AppendLine("   select [iAutoId],convert(varchar(10), dExportDate,111) as [dExportDate], [vcCarType], [vcPartNo], [vcPartName],c.vcName as [vcInsideOutsideType],   ");
                 strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea],case when vcIsNewRulesFlag='1' then '是' else '否' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock], [vcNumber],e.vcName as [vcPurposes],   ");
-                strSql.AppendLine("   convert(varchar(10), dOrderPurposesDate,111) as [dOrderPurposesDate], convert(varchar(10), dOrderReceiveDate,111) as [dOrderReceiveDate], [vcReceiveTimes],[vcActualNum],convert(varchar(10), dActualReceiveDate,111) as [dActualReceiveDate], [vcAccountOrderNo],    ");
+                strSql.AppendLine("   convert(varchar(10), dOrderPurposesDate,111) as [dOrderPurposesDate], [dOrderReceiveDate], [vcReceiveTimes],[vcActualNum],convert(varchar(10), dActualReceiveDate,111) as [dActualReceiveDate], [vcAccountOrderNo],    ");
                 strSql.AppendLine("   convert(varchar(10), dAccountOrderReceiveDate,111) as [dAccountOrderReceiveDate], convert(varchar(10), dOrderSendDate,111) as [dOrderSendDate], [vcMemo],b.vcSupplier_name, [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("   from TOralTestManage a    ");
                 strSql.AppendLine("   left join (select vcSupplier_id,vcSupplier_name from Tsupplier) b on a.vcSupplier_id = b.vcSupplier_id   ");
@@ -403,7 +403,7 @@ namespace DataAccess
                     {
                         vcOEOrSP = "1";
                     }
-                    else if (vcOEOrSP == "⭕")
+                    else if (vcOEOrSP == "⭕" || vcOEOrSP == "○")
                     {
                         vcOEOrSP = "0";
                     }
@@ -442,7 +442,7 @@ namespace DataAccess
                     }
 
                     string dOrderPurposesDate = dt.Rows[i]["dOrderPurposesDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dOrderPurposesDate"].ToString()).ToString();
-                    string dOrderReceiveDate = dt.Rows[i]["dOrderReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dOrderReceiveDate"].ToString()).ToString();
+                    string dOrderReceiveDate = dt.Rows[i]["dOrderReceiveDate"] == System.DBNull.Value ? "null" : dt.Rows[i]["dOrderReceiveDate"].ToString();
                     string vcReceiveTimes = dt.Rows[i]["vcReceiveTimes"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiveTimes"].ToString();
                     string vcActualNum = dt.Rows[i]["vcActualNum"] == System.DBNull.Value ? "" : dt.Rows[i]["vcActualNum"].ToString();
                     string dActualReceiveDate = dt.Rows[i]["dActualReceiveDate"] == System.DBNull.Value ? "null" : Convert.ToDateTime(dt.Rows[i]["dActualReceiveDate"].ToString()).ToString();

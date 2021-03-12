@@ -79,6 +79,22 @@ namespace DataAccess
             }
         }
 
+        public DataTable checkTSoqDayChange(string dTargetDate)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine(" select * from [dbo].[TSoqDayChange] where vcChangeNo='" + dTargetDate + "' ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public DataTable getOrderCodeByName(string vcOrderTypeName)
         {
             try
@@ -251,11 +267,11 @@ namespace DataAccess
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
 
-                vcTargetYear = dTargetDate.Replace("-","").Substring(0, 4);
-                vcTargetMonth = dTargetDate.Replace("-", "").Substring(4, 2);
-                if (dTargetDate.Replace("-", "").Length == 8)
+                vcTargetYear = dTargetDate.Replace("-","").Replace("/", "").Substring(0, 4);
+                vcTargetMonth = dTargetDate.Replace("-", "").Replace("/", "").Substring(4, 2);
+                if (dTargetDate.Replace("-", "").Replace("/", "").Length == 8)
                 {
-                    vcTargetDay = dTargetDate.Replace("-", "").Substring(6, 2);
+                    vcTargetDay = dTargetDate.Replace("-", "").Replace("/", "").Substring(6, 2);
                 }
 
                 string fileName = string.Empty;
@@ -683,7 +699,7 @@ namespace DataAccess
 
                     if (vcOrderType == "D")
                     {
-                        strSql.AppendLine("   update [dbo].[TSoqDayChange] set vcOrderNo='"+ fileName + "' where vcChangeNo='"+ dTargetDate.Replace("-", "") + "'  ");
+                        strSql.AppendLine("   update [dbo].[TSoqDayChange] set vcOrderNo='"+ fileName + "' where vcChangeNo='"+ dTargetDate.Replace("-", "").Replace("/", "") + "'  ");
                     }
                 }
                 
@@ -1046,8 +1062,8 @@ namespace DataAccess
                         Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
                         if (hashtable.Keys.Count > 0)
                         {
-                            sbr.AppendLine("   SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSupplierPlant,a.vcPackingPlant,  ");
-                            sbr.AppendLine("   a.vcInOut,a.vcSupplierPlace,a.vcOrderingMethod,c.vcOrderPlant,a.vcOESP,a.vcHaoJiu,d.vcSufferIn,e.iPackingQty FROM     ");
+                            //sbr.AppendLine("   SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSupplierPlant,a.vcPackingPlant,  ");
+                            //sbr.AppendLine("   a.vcInOut,a.vcSupplierPlace,a.vcOrderingMethod,c.vcOrderPlant,a.vcOESP,a.vcHaoJiu,d.vcSufferIn,e.iPackingQty FROM     ");
                             vcInOut = hashtable["vcInOut"].ToString();
                             vcOrderPlant = hashtable["vcOrderPlant"].ToString();
                             vcHaoJiu = hashtable["vcHaoJiu"].ToString();

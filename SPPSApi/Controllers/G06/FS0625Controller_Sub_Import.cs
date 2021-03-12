@@ -73,9 +73,9 @@ namespace SPPSApi.Controllers.G06
 
                 string[,] headers = new string[,] {{ "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单预计发行日", "订单预计纳入日", "纳入便次","实际纳入数量", "实际纳入日", "结算订单号", "结算订单验收日期", "备注"},
                                                 {  "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes","vcActualNum", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "vcMemo"},
-                                                {"",FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,"","","","",FieldCheck.Num,"",FieldCheck.Date,FieldCheck.Date,FieldCheck.Num,FieldCheck.Num,FieldCheck.Date,"",FieldCheck.Date,""},
-                                                {"50","12","200","100","4","50","50","200","20","20","300","0","0","20","0","0","50","0","500"},//最大长度设定,不校验最大长度用0
-                                                {"0","1","0","0","4","0","0","0","0","1","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
+                                                {"",FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,"","","","",FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Date,"",FieldCheck.Date,""},
+                                                {"50","12","200","100","4","50","50","200","20","20","300","0","300","20","0","0","50","0","500"},//最大长度设定,不校验最大长度用0
+                                                {"0","12","0","0","4","0","0","0","0","1","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {

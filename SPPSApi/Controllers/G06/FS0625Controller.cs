@@ -287,7 +287,7 @@ namespace SPPSApi.Controllers.G06
                     string[,] strField = new string[,] {{"导入时间", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单预计发行日", "订单预计纳入日", "纳入便次", "实际纳入日", "结算订单号", "结算订单验收日期", "号试订单验收日期", "备注"},
                                                 {"dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "dOrderSendDate", "vcMemo"},
                                                 {"","","","","","","","","","","","","","","","" ,"","","",""},
-                                                {"0","50","12","200","100","4","50","50","200","20","20","300","0","0","20","0","50","0","0","500"},//最大长度设定,不校验最大长度用0
+                                                {"0","50","12","200","100","4","50","50","200","20","20","300","0","300","20","0","50","0","0","500"},//最大长度设定,不校验最大长度用0
                                                 {"0","0","1","1","0","1","1","0","1","0","1","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
@@ -1357,111 +1357,122 @@ namespace SPPSApi.Controllers.G06
                     }
                     ISheet mysheetHSHD = hshdworkbook.GetSheetAt(0);//获得sheet
 
-                    //XSSFDrawing patriarch = (XSSFDrawing)mysheetHSHD.CreateDrawingPatriarch();
-                    //XSSFClientAnchor regionr = null;
-                    //XSSFSimpleShape region1Shapevr = null;
-                    //regionr = new XSSFClientAnchor(0, 0, 1023, 0, 0, 0, 1, 0);
-                    //region1Shapevr = patriarch.CreateSimpleShape(regionr);
-                    ////object p = region1Shapevr.SetShapeType(HSSFSimpleShape.OBJECT_TYPE_OVAL);
-                    //region1Shapevr.ShapeType = (int)XSSFSimpleShape.EMU_PER_PIXEL; ;
+                    if (dtSelect2.Rows.Count > 1)
+                    {
+                        mysheetHSHD.ShiftRows(1, 3, dtSelect2.Rows.Count*17, true, false);
+                        //for (int k = 1; k < dtSelect2.Rows.Count * 17; k++)
+                        //{
+                        //    var rowInsert = mysheetHSHD.CreateRow(k);
+                        //    rowInsert.Height = 34 * 20;
 
-                    ////设置边框线宽,单位Point
-                    //region1Shapevr.LineWidth = 2;
-                    //region1Shapevr.SetFillColor(125, 125, 125);
-                    //region1Shapevr.LineWidth = 12700;
-                    //region1Shapevr.SetLineStyleColor(100, 0, 100)
-
+                        //    for (int col = 0; col < 9; col++)
+                        //    {
+                        //        var cellInsert = rowInsert.CreateCell(col);
+                        //        if (col == 0)
+                        //        {
+                        //            cellInsert.CellStyle = style3;
+                        //        }
+                        //        else if (col == 16)
+                        //        {
+                        //            cellInsert.CellStyle = style7;
+                        //        }
+                        //        else
+                        //        {
+                        //            cellInsert.CellStyle = style4;
+                        //        }
+                        //    }
+                        //}
+                    }
 
                     #region 第二个附件的样式
                     Dictionary<string, object> res = new Dictionary<string, object>();
                     #region 设置字体样式
-                    //ICellStyle hdstyle1 = hshdworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
-                    //ICellStyle hdstyle2 = hshdworkbook.CreateCellStyle();//9号字体加粗 没有背景色 车型上边
-                    //ICellStyle hdstyle3 = hshdworkbook.CreateCellStyle();//9号字体不加粗 车型右边
-                    //ICellStyle hdstyle4 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品
-                    
-                    //ICellStyle hdstyle5 = hshdworkbook.CreateCellStyle();//9号字体不加粗 受入
-                    //ICellStyle hdstyle6 = hshdworkbook.CreateCellStyle();//9号字体不加粗 蓝色打印
-                    //ICellStyle hdstyle7 = hshdworkbook.CreateCellStyle();//9号字体不加粗 *该部品纳入新1组立后，需转运至补给仓库
-                    //ICellStyle hdstyle8 = hshdworkbook.CreateCellStyle();//9底部左边
-                    //ICellStyle hdstyle8_1 = hshdworkbook.CreateCellStyle();//底部
-                    //ICellStyle hdstyle8_2 = hshdworkbook.CreateCellStyle();//底部you边
-                    //ICellStyle hdstyle9 = hshdworkbook.CreateCellStyle();//底部you边
-                    //ICellStyle hdstyle10 = hshdworkbook.CreateCellStyle();//底部you边
+                    ICellStyle hdstyle1 = hshdworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
+                    IFont hdfont1 = hshdworkbook.CreateFont();
+                    hdfont1.Color = IndexedColors.Red.Index;
+                    hdfont1.IsBold = true; ;
+                    hdfont1.FontHeightInPoints = 90;
+                    hdstyle1.SetFont(hdfont1);
+                    hdstyle1.Alignment = HorizontalAlignment.Center;
+                    hdstyle1.VerticalAlignment = VerticalAlignment.Center;
+                    hdstyle1.BorderLeft = BorderStyle.Medium;
+                    hdstyle1.BorderTop = BorderStyle.Medium;
 
-                    //IFont hdfont1 = hshdworkbook.CreateFont();
-                    //hdfont1.Color = IndexedColors.Red.Index;
-                    //hdfont1.IsBold = true; ;
-                    //hdfont1.FontHeightInPoints = 90;
-                    //hdstyle1.SetFont(hdfont1);
-                    //hdstyle1.Alignment = HorizontalAlignment.Center;
-                    //hdstyle1.VerticalAlignment = VerticalAlignment.Center;
-                    //hdstyle1.BorderLeft = BorderStyle.Medium;
-                    //hdstyle1.BorderRight = BorderStyle.Medium;
-                    //hdstyle1.BorderTop = BorderStyle.Medium;
-                    //res.Add("hdstyle1", hdstyle1);
-                    //hdstyle2.BorderTop = BorderStyle.Medium;
-                    //res.Add("hdstyle2", hdstyle2);
-                    //hdstyle3.BorderRight = BorderStyle.Medium;
-                    //hdstyle3.BorderTop = BorderStyle.Medium;
-                    //res.Add("hdstyle3", hdstyle3);
-                    //IFont hdfont4 = hshdworkbook.CreateFont();
-                    //hdfont4.Color = IndexedColors.Black.Index;
-                    //hdfont4.IsBold = false; ;
-                    //hdfont4.FontHeightInPoints = 90;
-                    //hdstyle4.SetFont(hdfont4);
-                    //hdstyle4.Alignment = HorizontalAlignment.Center;
-                    //hdstyle4.VerticalAlignment = VerticalAlignment.Center;
-                    //hdstyle4.BorderLeft = BorderStyle.Medium;
-                    //hdstyle4.BorderRight = BorderStyle.Medium;
-                    //res.Add("hdstyle4", hdstyle4);
+                    ICellStyle hdstyle2 = hshdworkbook.CreateCellStyle();//9号字体加粗 没有背景色 车型上边
+                    hdstyle2.BorderTop = BorderStyle.Medium;
+
+                    ICellStyle hdstyle3 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    hdstyle3.BorderTop = BorderStyle.Medium;
+                    hdstyle3.BorderRight = BorderStyle.Medium;
+
+
+                    ICellStyle hdstyle4 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品
+                    IFont hdfont4 = hshdworkbook.CreateFont();
+                    hdfont4.Color = IndexedColors.Black.Index;
+                    hdfont4.IsBold = false; ;
+                    hdfont4.FontHeightInPoints = 90;
+                    hdstyle4.SetFont(hdfont4);
+                    hdstyle4.Alignment = HorizontalAlignment.Center;
+                    hdstyle4.VerticalAlignment = VerticalAlignment.Center;
+                    hdstyle4.BorderLeft = BorderStyle.Medium;
+
+                    //ICellStyle hdstyle5 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    //hdstyle5.BorderRight = BorderStyle.Medium;
+
+                    ICellStyle hdstyle6 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    hdstyle6.BorderRight = BorderStyle.Medium;
+
+                    ICellStyle hdstyle7 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    hdstyle7.BorderLeft = BorderStyle.Medium;
+
+                    ICellStyle hdstyle8 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    IFont hdfont8 = hshdworkbook.CreateFont();
+                    hdfont8.Color = IndexedColors.Red.Index;
+                    hdfont8.IsBold = true; ;
+                    hdfont8.FontHeightInPoints = 120;
+                    hdstyle8.SetFont(hdfont8);
+                    hdstyle8.Alignment = HorizontalAlignment.Center;
+                    hdstyle8.VerticalAlignment = VerticalAlignment.Center;
+                    hdstyle8.BorderLeft = BorderStyle.Medium;
+
+                    ICellStyle hdstyle9 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    IFont hdfont9 = hshdworkbook.CreateFont();
+                    hdfont9.Color = IndexedColors.Red.Index;
+                    hdfont9.IsBold = false; ;
+                    hdfont9.FontHeightInPoints = 18;
+                    hdstyle9.SetFont(hdfont9);
+                    hdstyle9.VerticalAlignment = VerticalAlignment.Center;
+                    hdstyle9.Alignment = HorizontalAlignment.Center;
+                    hdstyle9.BorderLeft = BorderStyle.Medium;
+
+                    ICellStyle hdstyle10 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    IFont hdfont10 = hshdworkbook.CreateFont();
+                    hdfont10.Color = IndexedColors.Red.Index;
+                    hdfont10.IsBold = false; ;
+                    hdfont10.FontHeightInPoints = 12;
+                    hdstyle10.SetFont(hdfont10);
+                    hdstyle10.VerticalAlignment = VerticalAlignment.Center;
+                    hdstyle10.Alignment = HorizontalAlignment.Center;
+                    hdstyle10.BorderLeft = BorderStyle.Medium;
 
                    
-                    //IFont hdfont5 = hshdworkbook.CreateFont();
-                    //hdfont5.Color = IndexedColors.Red.Index;
-                    //hdfont5.IsBold = true; ;
-                    //hdfont5.FontHeightInPoints = 120;
-                    //hdstyle5.SetFont(hdfont5);
-                    //hdstyle5.Alignment = HorizontalAlignment.Center;
-                    //hdstyle5.VerticalAlignment = VerticalAlignment.Center;
-                    //hdstyle5.BorderLeft = BorderStyle.Medium;
-                    //res.Add("hdstyle5", hdstyle5);
-                    //IFont hdfont6 = hshdworkbook.CreateFont();
-                    //hdfont6.Color = IndexedColors.Red.Index;
-                    //hdfont6.IsBold = false; ;
-                    //hdfont6.FontHeightInPoints = 18;
-                    //hdstyle6.SetFont(hdfont6);
-                    //hdstyle6.Alignment = HorizontalAlignment.Center;
-                    //hdstyle6.VerticalAlignment = VerticalAlignment.Center;
-                    //hdstyle6.BorderLeft = BorderStyle.Medium;
-                    //res.Add("hdstyle6", hdstyle6);
-                    //IFont hdfont7 = hssfworkbook.CreateFont();
-                    //hdfont7.Color = IndexedColors.Red.Index;
-                    //hdfont7.IsBold = false; ;
-                    //hdfont7.FontHeightInPoints = 20;
-                    //hdstyle7.SetFont(hdfont7);
-                    //hdstyle7.Alignment = HorizontalAlignment.Center;
-                    //hdstyle7.VerticalAlignment = VerticalAlignment.Center;
-                    //hdstyle7.BorderLeft = BorderStyle.Medium;
-                    //res.Add("hdstyle7", hdstyle7);
 
+                    ICellStyle hdstyle11 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    hdstyle11.BorderBottom = BorderStyle.Medium;
+                    hdstyle11.BorderLeft = BorderStyle.Medium;
 
-                    //hdstyle8.BorderLeft = BorderStyle.Medium;
-                    //hdstyle8.BorderBottom = BorderStyle.Medium;
-                    //hdstyle8_1.BorderBottom = BorderStyle.Medium;
-                    //hdstyle8_2.BorderRight = BorderStyle.Medium;
-                    //hdstyle8_2.BorderBottom = BorderStyle.Medium;
-                    //res.Add("hdstyle8", hdstyle8);
-                    //res.Add("hdstyle8_1", hdstyle8_1);
-                    //res.Add("hdstyle8_2", hdstyle8_2);
-                    //hdstyle9.Alignment = HorizontalAlignment.Center;
-                    //hdstyle9.VerticalAlignment = VerticalAlignment.Center;
-                    //hdstyle9.BorderLeft = BorderStyle.Medium;
-                    //res.Add("hdstyle9", hdstyle9);
-                    //hdstyle10.Alignment = HorizontalAlignment.Center;
-                    //hdstyle10.VerticalAlignment = VerticalAlignment.Center;
-                    //hdstyle10.BorderRight = BorderStyle.Medium;
-                    //res.Add("hdstyle10", hdstyle10);
+                    ICellStyle hdstyle12 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    hdstyle12.BorderBottom = BorderStyle.Medium;
+
+                    ICellStyle hdstyle13 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    hdstyle13.BorderBottom = BorderStyle.Medium;
+                    hdstyle13.BorderRight = BorderStyle.Medium;
+
+                    //ICellStyle hdstyle14 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    //hdstyle14.BorderLeft = BorderStyle.Medium;
+
+                    //ICellStyle hdstyle15 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
+                    //hdstyle15.BorderRight = BorderStyle.Medium;
                     #endregion
                     #region 设置列的宽度
                     //mysheetHSSF.SetColumnWidth(0, 17 * 256); //设置第1列的列宽为17个字符
@@ -1479,7 +1490,7 @@ namespace SPPSApi.Controllers.G06
                     //mysheetHSSF.SetColumnWidth(12, 10 * 256); //设置第13列的列宽为10个字符
                     //mysheetHSSF.SetColumnWidth(13, 17 * 256); //设置第14列的列宽为17个字符
                     #endregion
-                   
+
                     int nextRow2 = 0; 
                     DataTable dsHHD = fs0625_Logic.getHSHD("C057");
                     string vcShowStr1 = string.Empty;
@@ -1499,21 +1510,11 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFCol2.Height = 145 * 20;
                         nextRowHSSFCol2.CreateCell(0).SetCellValue(vcCarType.ToString());
 
-                        ICellStyle hdstyle1 = hshdworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
-                        IFont hdfont1 = hshdworkbook.CreateFont();
-                        hdfont1.Color = IndexedColors.Red.Index;
-                        hdfont1.IsBold = true; ;
-                        hdfont1.FontHeightInPoints = 90;
-                        hdstyle1.SetFont(hdfont1);
-                        hdstyle1.Alignment = HorizontalAlignment.Center;
-                        hdstyle1.VerticalAlignment = VerticalAlignment.Center;
-                        hdstyle1.BorderLeft = BorderStyle.Medium;
-                        hdstyle1.BorderTop = BorderStyle.Medium;
+                        
                         mysheetHSHD.AddMergedRegion(new CellRangeAddress(nextRow2, nextRow2, 0, 8));
                         nextRowHSSFCol2.GetCell(0).CellStyle = hdstyle1;
                         nextRowHSSFCol2.CreateCell(1).SetCellValue("");
-                        ICellStyle hdstyle2 = hshdworkbook.CreateCellStyle();//9号字体加粗 没有背景色 车型上边
-                        hdstyle2.BorderTop = BorderStyle.Medium;
+                        
                         nextRowHSSFCol2.GetCell(1).CellStyle = hdstyle2;
                         nextRowHSSFCol2.CreateCell(2).SetCellValue("");
                         nextRowHSSFCol2.GetCell(2).CellStyle = hdstyle2;
@@ -1528,9 +1529,7 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFCol2.CreateCell(7).SetCellValue("");
                         nextRowHSSFCol2.GetCell(7).CellStyle = hdstyle2;
                         nextRowHSSFCol2.CreateCell(8).SetCellValue("");
-                        ICellStyle hdstyle3 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle3.BorderTop = BorderStyle.Medium;
-                        hdstyle3.BorderRight = BorderStyle.Medium;
+                       
                         nextRowHSSFCol2.GetCell(8).CellStyle = hdstyle3;
                         nextRow2++;
                         #endregion
@@ -1543,15 +1542,6 @@ namespace SPPSApi.Controllers.G06
                         cell2.SetCellValue("号试");
                        
 
-                        ICellStyle hdstyle4 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品
-                        IFont hdfont4 = hshdworkbook.CreateFont();
-                        hdfont4.Color = IndexedColors.Black.Index;
-                        hdfont4.IsBold = false; ;
-                        hdfont4.FontHeightInPoints = 90;
-                        hdstyle4.SetFont(hdfont4);
-                        hdstyle4.Alignment = HorizontalAlignment.Center;
-                        hdstyle4.VerticalAlignment = VerticalAlignment.Center;
-                        hdstyle4.BorderLeft = BorderStyle.Medium;
 
                         nextRowHSSFCol2s.GetCell(0).CellStyle = hdstyle4;
                         nextRowHSSFCol2s.CreateCell(1).SetCellValue("");
@@ -1562,9 +1552,8 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFCol2s.CreateCell(6).SetCellValue("");
                         nextRowHSSFCol2s.CreateCell(7).SetCellValue("");
                         nextRowHSSFCol2s.CreateCell(8).SetCellValue("");
-                        ICellStyle hdstyle5 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle5.BorderRight = BorderStyle.Medium;
-                        nextRowHSSFCol2s.GetCell(8).CellStyle = hdstyle5;
+                       
+                        nextRowHSSFCol2s.GetCell(8).CellStyle = hdstyle6;
                         nextRow2++;
 
                         IRow nextRowHSSFCol2b = mysheetHSHD.CreateRow(nextRow2); //设置第0行
@@ -1580,8 +1569,7 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFCol2b.CreateCell(6).SetCellValue("");
                         nextRowHSSFCol2b.CreateCell(7).SetCellValue("");
                         nextRowHSSFCol2b.CreateCell(8).SetCellValue("");
-                        ICellStyle hdstyle6 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle6.BorderRight = BorderStyle.Medium;
+                     
                         nextRowHSSFCol2b.GetCell(8).CellStyle = hdstyle6;
                         nextRow2++;
                         #endregion
@@ -1591,8 +1579,7 @@ namespace SPPSApi.Controllers.G06
                         mysheetHSHD.AddMergedRegion(new CellRangeAddress(nextRow2, nextRow2, 0, 8));
                         nextRowHSSFCol2_3.Height = 56 * 20;
                         nextRowHSSFCol2_3.CreateCell(0).SetCellValue("");
-                        ICellStyle hdstyle7 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle7.BorderLeft = BorderStyle.Medium;
+                        
                         nextRowHSSFCol2_3.GetCell(0).CellStyle = hdstyle7;
                         nextRowHSSFCol2_3.CreateCell(1).SetCellValue("");
                         nextRowHSSFCol2_3.CreateCell(2).SetCellValue("");
@@ -1610,15 +1597,7 @@ namespace SPPSApi.Controllers.G06
                         IRow nextRowHSSFCol2_4 = mysheetHSHD.CreateRow(nextRow2); //设置第0行
                         nextRowHSSFCol2_4.Height = 154 * 20;
                         nextRowHSSFCol2_4.CreateCell(0).SetCellValue(vcDock);
-                        ICellStyle hdstyle8 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        IFont hdfont8 = hshdworkbook.CreateFont();
-                        hdfont8.Color = IndexedColors.Red.Index;
-                        hdfont8.IsBold = true; ;
-                        hdfont8.FontHeightInPoints = 120;
-                        hdstyle8.SetFont(hdfont8);
-                        hdstyle8.Alignment = HorizontalAlignment.Center;
-                        hdstyle8.VerticalAlignment = VerticalAlignment.Center;
-                        hdstyle8.BorderLeft = BorderStyle.Medium;
+                        
                         nextRowHSSFCol2_4.GetCell(0).CellStyle = hdstyle8;
                         nextRowHSSFCol2_4.CreateCell(1).SetCellValue("");
                         nextRowHSSFCol2_4.CreateCell(2).SetCellValue("");
@@ -1637,15 +1616,7 @@ namespace SPPSApi.Controllers.G06
                         mysheetHSHD.AddMergedRegion(new CellRangeAddress(nextRow2, nextRow2, 0, 8));
                         nextRowHSSFCol2_5.Height = 20 * 20;
                         nextRowHSSFCol2_5.CreateCell(0).SetCellValue(vcShowStr1);
-                        ICellStyle hdstyle9 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        IFont hdfont9 = hshdworkbook.CreateFont();
-                        hdfont9.Color = IndexedColors.Red.Index;
-                        hdfont9.IsBold = false; ;
-                        hdfont9.FontHeightInPoints = 18;
-                        hdstyle9.SetFont(hdfont9);
-                        hdstyle9.VerticalAlignment = VerticalAlignment.Center;
-                        hdstyle9.Alignment = HorizontalAlignment.Center;
-                        hdstyle9.BorderLeft = BorderStyle.Medium;
+                      
                         nextRowHSSFCol2_5.GetCell(0).CellStyle = hdstyle9;
                         nextRowHSSFCol2_5.CreateCell(1).SetCellValue("");
                         nextRowHSSFCol2_5.CreateCell(2).SetCellValue("");
@@ -1714,15 +1685,7 @@ namespace SPPSApi.Controllers.G06
                         mysheetHSHD.AddMergedRegion(new CellRangeAddress(nextRow2, nextRow2, 0, 8));
                         nextRowHSSFCol2_9.Height = 25 * 20;
                         nextRowHSSFCol2_9.CreateCell(0).SetCellValue(vcShowStr2);
-                        ICellStyle hdstyle10 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        IFont hdfont10 = hshdworkbook.CreateFont();
-                        hdfont10.Color = IndexedColors.Red.Index;
-                        hdfont10.IsBold = false; ;
-                        hdfont10.FontHeightInPoints = 12;
-                        hdstyle10.SetFont(hdfont10);
-                        hdstyle10.VerticalAlignment = VerticalAlignment.Center;
-                        hdstyle10.Alignment = HorizontalAlignment.Center;
-                        hdstyle10.BorderLeft = BorderStyle.Medium;
+                       
                         nextRowHSSFCol2_9.GetCell(0).CellStyle = hdstyle10;
                         nextRowHSSFCol2_9.CreateCell(1).SetCellValue("");
                         nextRowHSSFCol2_9.CreateCell(2).SetCellValue("");
@@ -1755,9 +1718,8 @@ namespace SPPSApi.Controllers.G06
                         IRow nextRowHSSFCol2_11 = mysheetHSHD.CreateRow(nextRow2); //设置第0行
                         mysheetHSHD.AddMergedRegion(new CellRangeAddress(nextRow2, nextRow2, 0, 8));
                         nextRowHSSFCol2_11.CreateCell(0).SetCellValue(" ");
-                        ICellStyle hdstyle14 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle14.BorderLeft = BorderStyle.Medium;
-                        nextRowHSSFCol2_11.GetCell(0).CellStyle = hdstyle14;
+                       
+                        nextRowHSSFCol2_11.GetCell(0).CellStyle = hdstyle7;
                         nextRowHSSFCol2_11.CreateCell(1).SetCellValue("");
                         nextRowHSSFCol2_11.CreateCell(2).SetCellValue("");
                         nextRowHSSFCol2_11.CreateCell(3).SetCellValue("");
@@ -1766,22 +1728,18 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFCol2_11.CreateCell(6).SetCellValue("");
                         nextRowHSSFCol2_11.CreateCell(7).SetCellValue("");
                         nextRowHSSFCol2_11.CreateCell(8).SetCellValue(" ");
-                        ICellStyle hdstyle15 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle15.BorderRight = BorderStyle.Medium;
-                        nextRowHSSFCol2_11.GetCell(8).CellStyle = hdstyle15;
+                       
+                        nextRowHSSFCol2_11.GetCell(8).CellStyle = hdstyle6;
                         nextRow2++;
                         #endregion
                         #region 12
                         IRow nextRowHSSFCol2_12 = mysheetHSHD.CreateRow(nextRow2); //设置第0行
                         mysheetHSHD.AddMergedRegion(new CellRangeAddress(nextRow2, nextRow2, 0, 8));
                         nextRowHSSFCol2_12.CreateCell(0).SetCellValue("");
-                        ICellStyle hdstyle11 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle11.BorderBottom = BorderStyle.Medium;
-                        hdstyle11.BorderLeft = BorderStyle.Medium;
+                       
                         nextRowHSSFCol2_12.GetCell(0).CellStyle = hdstyle11;
                         nextRowHSSFCol2_12.CreateCell(1).SetCellValue("");
-                        ICellStyle hdstyle12 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle12.BorderBottom = BorderStyle.Medium;
+                      
                         nextRowHSSFCol2_12.GetCell(1).CellStyle = hdstyle12;
                         nextRowHSSFCol2_12.CreateCell(2).SetCellValue("");
                         nextRowHSSFCol2_12.GetCell(2).CellStyle = hdstyle12;
@@ -1797,9 +1755,7 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFCol2_12.GetCell(7).CellStyle = hdstyle12;
                         nextRowHSSFCol2_12.CreateCell(8).SetCellValue("");
                         #endregion
-                        ICellStyle hdstyle13 = hshdworkbook.CreateCellStyle();//9号字体不加粗 号试补给品右边
-                        hdstyle13.BorderBottom = BorderStyle.Medium;
-                        hdstyle13.BorderRight = BorderStyle.Medium;
+                       
                         nextRowHSSFCol2_12.GetCell(8).CellStyle = hdstyle13;
                         nextRow2++;
                         IRow nextRowHSSFCol2_13 = mysheetHSHD.CreateRow(nextRow2); //设置第0行
@@ -1826,8 +1782,8 @@ namespace SPPSApi.Controllers.G06
                     //hshdworkbook.SetPrintArea(sheetnum, int first row, int last row, int first col, int last col);
 
                     int firstRowhd = 0;
-                    int lastRowhd = dtSelect2.Rows.Count * 19;
-                   // hshdworkbook.SetPrintArea(0, 0, 8, firstRowhd, lastRowhd);
+                    int lastRowhd = dtSelect2.Rows.Count * 18;
+                    hshdworkbook.SetPrintArea(0, 0, 8, firstRowhd, lastRowhd);
                     string strHDFunctionName = "FS0625_号试货垛标签_" + vcSupplier_id;
 
                     string strHDFileName = strHDFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
@@ -1855,46 +1811,23 @@ namespace SPPSApi.Controllers.G06
                     string[] columnArray3 = { "vcCarType" };
                     DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
                     DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray2);//去重后的dt 
-                    ////XSSFWorkbook hsorderworkbook = null;
+                    XSSFWorkbook hsorderworkbook = null;
 
                     string XltHSOrderPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0625_HSOrder.xlsx";
-                    //using (FileStream fs = System.IO.File.OpenRead(XltHSOrderPath))
-                    //{
-                    //    hsorderworkbook = new XSSFWorkbook(fs);
-                    //    fs.Close();
-                    //}
-                    string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id;
-
-                    string strOrderFileName = strOrderFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
-                    string filepathHSOrderKanBan = fileSavePath + strOrderFileName;
-                    //string templetfilepath = @"files\" + modelfilename + ".xls";//模版Excel
-                    
-                    // string tpath = @"files\download\" + modelfilename + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".xls";//中介Excel，以它为中介来导出，避免直接使用模块Excel而改变模块的格式
-                     FileInfo ff = new FileInfo(filepathHSOrderKanBan);
-                     if (ff.Exists)
-                     {
-                         ff.Delete();
-                     }
-                     //FileStream fs3 = System.IO.File.Create(filepathHSOrderKanBan);//创建中间excel
-                     //HSSFWorkbook x1 = new HSSFWorkbook();
-                     //x1.Write(fs3);
-                     //fs3.Close();
-                     FileStream fileRead = new FileStream(XltHSOrderPath, FileMode.Open, FileAccess.Read);
-                      XSSFWorkbook hsorderworkbook = new XSSFWorkbook(fileRead);
-                     FileStream fileSave2 = new FileStream(filepathHSOrderKanBan, FileMode.Open, FileAccess.Read);
-                     XSSFWorkbook book2 = new XSSFWorkbook(fileSave2);
-                    //HSSFWorkbook[] book = new HSSFWorkbook[2] { book2, hssfworkbook };
-                     //HSSFSheet CPS = hsorderworkbook.GetSheet("Sheet0") as HSSFSheet;//获得模板sheet
-                    //string rsbh = bjDt.Rows[0]["name"].ToString();
-                    //CPS.CopyTo(book2, rsbh, true, true);//将模板sheet复制到目标sheet
-
+                    using (FileStream fs = System.IO.File.OpenRead(XltHSOrderPath))
+                    {
+                        hsorderworkbook = new XSSFWorkbook(fs);
+                        fs.Close();
+                    }
 
                     ISheet sheetTemp = hsorderworkbook.GetSheet("template");
+
+                    IWorkbook dest = hsorderworkbook;
                     for (int m = 0; m < dtSelect3.Rows.Count; m++)
                     {
                         string strCarType = dtSelect3.Rows[m]["vcCarType"].ToString();
                         //ISheet creatSheet= hsorderworkbook.CreateSheet(strCarType);
-                        sheetTemp.CopyTo(book2, strCarType, true, true);
+                        sheetTemp.CopyTo(dest, strCarType, true, true);
                         //sheetTemp.CopySheet("sssd", true);
                     }
                     int startRowIndex = 7;
@@ -1907,13 +1840,36 @@ namespace SPPSApi.Controllers.G06
                     hsOrderfont1.IsBold = false; ;
                     hsOrderfont1.FontHeightInPoints = 12;
                     hsOrderstyle1.SetFont(hsOrderfont1);
+                    hsOrderstyle1.BorderTop = BorderStyle.Thin;
+                    hsOrderstyle1.BorderLeft = BorderStyle.Thin;
+
+                    ICellStyle hsOrderstyle1R = hsorderworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
+                    IFont hsOrderfont1R = hsorderworkbook.CreateFont();
+                    hsOrderfont1R.Color = IndexedColors.Red.Index;
+                    hsOrderfont1R.IsBold = false; ;
+                    hsOrderfont1R.FontHeightInPoints = 12;
+                    hsOrderstyle1R.SetFont(hsOrderfont1R);
+                    hsOrderstyle1R.Alignment = HorizontalAlignment.Right;//两端自动对齐（自动换行）
+                    hsOrderstyle1R.VerticalAlignment = VerticalAlignment.Center;
 
                     ICellStyle hsOrderstyle2 = hsorderworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
                     hsOrderstyle2.BorderLeft = BorderStyle.Thin;
                     hsOrderstyle2.BorderBottom = BorderStyle.Thin;
+                    hsOrderstyle2.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                    hsOrderstyle2.VerticalAlignment = VerticalAlignment.Center;
                     ICellStyle hsOrderstyle3 = hsorderworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
                     hsOrderstyle3.BorderRight = BorderStyle.Thin;
+                    hsOrderstyle3.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                    hsOrderstyle3.VerticalAlignment = VerticalAlignment.Center;
 
+                    ICellStyle hsOrderstyle5 = hsorderworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
+                    IFont hsOrdersFont5 = hsorderworkbook.CreateFont();
+                    hsOrdersFont5.Color = IndexedColors.Black.Index;
+                    hsOrdersFont5.IsBold = false; ;
+                    hsOrdersFont5.FontHeightInPoints = 12;
+                    hsOrderstyle5.SetFont(hsOrdersFont5);
+
+                   
                     #endregion
                     for (int m=0;m<dtSelect3.Rows.Count;m++)
                     {
@@ -1925,16 +1881,17 @@ namespace SPPSApi.Controllers.G06
                             dtNewCarType.ImportRow(dr);
                         }
                         ISheet sheetOrder = hsorderworkbook.GetSheet(strCarType);
-                        sheetOrder.GetRow(1).GetCell(0).SetCellValue("厂家名称"+ vcSupplier_name);//厂家名称
-                        sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1; 
+                        sheetOrder.GetRow(1).GetCell(0).SetCellValue("厂家名称:"+ vcSupplier_name);//厂家名称vcSupplier_name
+                        sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1;
                         sheetOrder.GetRow(1).GetCell(3).SetCellValue("一汽丰田" + strCarType + "补给品号试订单");//一汽丰田84* B补给品号试订单
                         //sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1;
                         sheetOrder.GetRow(1).GetCell(8).SetCellValue(DateTime.Now.ToString("yyyy/MM/dd"));
-                        sheetOrder.GetRow(1).GetCell(8).CellStyle = hsOrderstyle1;
-                        sheetOrder.GetRow(1).GetCell(0).SetCellValue("厂家名称" + vcSupplier_id);//厂家代码
+                        sheetOrder.GetRow(1).GetCell(8).CellStyle = hsOrderstyle1R;
+                        sheetOrder.GetRow(1).GetCell(0).SetCellValue("厂家编码:" + vcSupplier_id);//厂家代码
                         sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1;
-                        //sheetOrder.GetRow(12).GetCell(0).SetCellValue("1）此订单采购的"+ strCarType + "号试用补给品，请单独托盘出荷，贴付补给品号试用货垛标签" );//厂家代码
-                        //sheetOrder.GetRow(1).GetCell(0).CellStyle = hsOrderstyle1;
+                        
+                        sheetOrder.GetRow(9+ dtNewCarType.Rows.Count).GetCell(0).SetCellValue("1）此订单采购的"+ strCarType + "号试用补给品，请单独托盘出荷，贴付补给品号试用货垛标签" );//厂家代码
+                        sheetOrder.GetRow(9 + dtNewCarType.Rows.Count).GetCell(0).CellStyle = hsOrderstyle5;
                         if (dtNewCarType.Rows.Count > 1)
                         {
                             sheetOrder.ShiftRows(startRowIndex, sheetOrder.LastRowNum, dtNewCarType.Rows.Count - 1, true, false);
@@ -1958,45 +1915,61 @@ namespace SPPSApi.Controllers.G06
                         }
                         //插入数据
                         for (int p=0;p<dtNewCarType.Rows.Count;p++) {
-                            //string strPartNo = dtNewCarType.Rows[0]["vcPartNo"].ToString();
-                            //string strPartNanem = dtNewCarType.Rows[0]["vcPartName"].ToString();
-                            //string strDock = dtNewCarType.Rows[0]["vcDock"].ToString();
-                            //string strNum = dtNewCarType.Rows[0]["vcNumber"].ToString();
-                            //string strNaruRi = dtNewCarType.Rows[0]["dOrderReceiveDate"].ToString();
-                            //string strChuHeRi = dtNewCarType.Rows[0]["dOrderReceiveDate"].ToString();
-                            IRow row = sheetOrder.CreateRow(i + startRowIndex);
+                            string strPartNo = dtNewCarType.Rows[p]["vcPartNo"].ToString();
+                            string strPartNanem = dtNewCarType.Rows[p]["vcPartName"].ToString();
+                            string strDock = dtNewCarType.Rows[p]["vcDock"].ToString();
+                            string strNum = dtNewCarType.Rows[p]["vcNumber"].ToString();
+                            string strNaruRi = dtNewCarType.Rows[p]["dOrderReceiveDate"].ToString();
+                            string strChuHeRi = dtNewCarType.Rows[p]["dOrderReceiveDate"].ToString();
+                            IRow row = sheetOrder.GetRow( p+ startRowIndex);
                             row.Height = 660;
                             //for (int j = 0; j < 28; j++)
                             //{
                             //    row.CreateCell(j).CellStyle = borderStyle;
                             //}
                             row.GetCell(0).SetCellValue(p + 1);
-                            row.GetCell(1).SetCellValue(ObjToString(dtNewCarType.Rows[p]["vcPartNo"]));
-                            row.GetCell(2).SetCellValue(ObjToString(dtNewCarType.Rows[p]["vcPartName"]));
-                            row.GetCell(3).SetCellValue(ObjToString(dtNewCarType.Rows[p]["vcDock"]));
-                            row.GetCell(4).SetCellValue(ObjToString(dtNewCarType.Rows[p]["vcNumber"]));
-                            row.GetCell(5).SetCellValue(ObjToString(dtNewCarType.Rows[p]["dOrderReceiveDate"]));
-                            row.GetCell(6).SetCellValue(ObjToString(dtNewCarType.Rows[p]["dOrderReceiveDate"]));
+                            row.GetCell(1).SetCellValue(strPartNo);
+                            row.GetCell(2).SetCellValue(strPartNanem);
+                            row.GetCell(3).SetCellValue(vcSupplier_name);
+                            row.GetCell(4).SetCellValue(vcSupplier_id);
+                            row.GetCell(5).SetCellValue(strDock);
+                            row.GetCell(6).SetCellValue(strNum);
+                            row.GetCell(7).SetCellValue(strNaruRi);
+                            row.GetCell(8).SetCellValue(strChuHeRi);
                         }
+                        IDrawing drawing = (XSSFDrawing)sheetOrder.CreateDrawingPatriarch();
+                        string pubiPath = "." + Path.DirectorySeparatorChar + "Images" + Path.DirectorySeparatorChar + "FS0625bujipin.png";
+                        byte[] buff = System.IO.File.ReadAllBytes(pubiPath);
+                        int pic = hsorderworkbook.AddPicture(buff, XSSFWorkbook.PICTURE_TYPE_PNG);
+                        XSSFClientAnchor anchor = new XSSFClientAnchor(1000000, 0, 0, 0, 8, 3, 9, 5);
+                        //anchor.AnchorType =  AnchorType.MoveAndResize;
+                        drawing.CreatePicture(anchor, pic);
+
+                        int firstRowHSOrderArea = 0;
+                        int lastRowHSorderArea = dtNewCarType.Rows.Count+14;
+                        int IndexSheet = hsorderworkbook.GetSheetIndex(strCarType);
+                        hssfworkbook.SetPrintArea(0, 0, 8, firstRowHSOrderArea, lastRowHSorderArea);
                     }
-                    //string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id;
+                    hsorderworkbook.RemoveSheetAt(0); 
 
-                    //string strOrderFileName = strHDFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
-                    //string filepathHSOrderKanBan = fileSavePath + strOrderFileName;
+                    string strOrderFunctionName = "FS0625_号试品订单_" + vcSupplier_id;
 
-                    //using (FileStream fs3 = System.IO.File.Create(filepathHSOrderKanBan))
-                    //{
-                    //    hsorderworkbook.Write(fs3);//向打开的这个xls文件中写入数据  
-                    //    fs3.Close();
-                    //}
-                    //if (strOrderFileName != "")
-                    //{
-                    //    strFilePathArray[2] = filepathHSOrderKanBan;
-                    //}
-                    //else
-                    //{
-                    //    strErr.Append(logs);
-                    //}
+                    string strOrderFileName = strOrderFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
+                    string filepathHSOrderKanBan = fileSavePath + strOrderFileName;
+
+                    using (FileStream fs3 = System.IO.File.Create(filepathHSOrderKanBan))
+                    {
+                        hsorderworkbook.Write(fs3);//向打开的这个xls文件中写入数据  
+                        fs3.Close();
+                    }
+                    if (strOrderFileName != "")
+                    {
+                        strFilePathArray[2] = filepathHSOrderKanBan;
+                    }
+                    else
+                    {
+                        strErr.Append(logs);
+                    }
                     #endregion
 
 
@@ -2010,8 +1983,8 @@ namespace SPPSApi.Controllers.G06
                     //    continue;
                     //}
                     //filepath = path + filepath;
-                   
-                    
+
+
                     //抄送人dt 通过Tcode 自己定义cCDt
                     DataTable cCDt = null;
                     DataTable dtCCEmail = fs0625_Logic.getCCEmail("C054");
@@ -2089,6 +2062,55 @@ namespace SPPSApi.Controllers.G06
             {
                 return "";
                 throw;
+            }
+        }
+
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                //DataTable dataTable = fs0603_Logic.createTable("MES");
+                //FS0404_Logic fs0404_Logic = new FS0404_Logic();
+                DataTable dataTable = fs0625_Logic.createTable("supplier");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow["vcSupplier"] = listInfoData[i]["vcSupplier"].ToString();
+                    dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
+                    dataTable.Rows.Add(dataRow);
+                }
+
+                string[] fields = { "vcSupplier", "vcMessage" };
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0620_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         /// <summary>
@@ -2332,6 +2354,8 @@ namespace SPPSApi.Controllers.G06
         }
 
         #endregion
+
+        
     }
 }
 

@@ -312,9 +312,10 @@ namespace DataAccess
                 sql.Append("          on a.GUID = b.GUID          \n");
                 #endregion
 
-                #region 更新供应商生确表进度为已退回，记录操作者，操作时间
+                #region 更新供应商生确表进度为已退回，将NG理由清空,记录操作者，操作时间
                 sql.Append("          update TSQJD_Supplier set           \n");
                 sql.Append("           vcJD = '3'          \n");
+                sql.Append("          ,vcNotDY = null          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD_Supplier a          \n");
@@ -327,7 +328,14 @@ namespace DataAccess
 
                 #region 在履历表中记录退回信息
                 sql.Append("      insert into TSQJD_THlist (GUID,vcPart_id,vcTHText,dTHTime,vcOperatorID,dOperatorTime)          \n");
-                sql.Append("      select GUID,vcPart_id,'"+ strTH + "',GETDATE(),'"+strUserId+"',GETDATE() from #TSQJD_temp          \n");
+                if (!string.IsNullOrEmpty(strTH))
+                {
+                    sql.Append("      select GUID,vcPart_id,'"+ strTH + "',GETDATE(),'"+strUserId+"',GETDATE() from #TSQJD_temp          \n");
+                }
+                else
+                {
+                    sql.Append("      select GUID,vcPart_id,'【无理由退回】',GETDATE(),'" + strUserId + "',GETDATE() from #TSQJD_temp          \n");
+                }
                 #endregion
 
                 if (sql.Length>0)

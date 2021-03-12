@@ -29,6 +29,11 @@ namespace Logic
             fs0306_dataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
         }
 
+        public void InsertSave(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0306_dataAccess.InsertSave(listInfoData, strUserId, ref strErrorPartId);
+        }
+
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)
         {

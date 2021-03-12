@@ -231,7 +231,7 @@ namespace Logic
                 {
                     decWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime)) * 60) / decPeopleNum;
                 }
-                strWorkOverTime = decWorkOverTime.ToString();
+                strWorkOverTime = decWorkOverTime < 0 ? "0" : decWorkOverTime.ToString();
                 return dtImport;
             }
             catch (Exception ex)

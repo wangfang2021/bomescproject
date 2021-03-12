@@ -455,8 +455,8 @@ namespace SPPSApi.Controllers.G06
                     {
                         strdisplayName3 = "";
                     }
-                    string strEmail1 = dtEmail.Rows[0]["vcEmail2"].ToString();
-                    string strEmail2 = dtEmail.Rows[0]["vcEmail3"].ToString();
+                    string strEmail1 = dtEmail.Rows[0]["vcEmail1"].ToString();
+                    string strEmail2 = dtEmail.Rows[0]["vcEmail2"].ToString();
                     string strEmail3 = dtEmail.Rows[0]["vcEmail3"].ToString();
                     if (string.IsNullOrEmpty(strEmail1)&& string.IsNullOrEmpty(strEmail2)&&string.IsNullOrEmpty(strEmail3))
                     {

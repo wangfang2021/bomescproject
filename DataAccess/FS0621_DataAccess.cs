@@ -64,7 +64,7 @@ namespace DataAccess
                 }
                 if (vcTargetMonth.Length > 0)
                 {
-                    strSql.AppendLine("  and  TARGETMONTH=  '" + vcTargetMonth.Replace("-","") + "' ");
+                    strSql.AppendLine("  and  TARGETMONTH=  '" + vcTargetMonth.Replace("-","").Replace("/", "") + "' ");
                 }
                 if (vcPartNo.Length > 0)
                 {

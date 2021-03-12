@@ -405,8 +405,8 @@ namespace SPPSApi.Controllers.G03
                 MultiExcute excute = new MultiExcute();
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select vcName from TCode where vcCodeId='" + strCodeId + "'     \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                strSql.Append("   select vcName from TCode where vcCodeId='" + strCodeId + "'  ORDER BY vcMeaning      \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
             {

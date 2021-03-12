@@ -59,7 +59,6 @@ namespace SPPSApi.Controllers.G03
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));      //内外                
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));      //OE                
                 List<Object> dataList_C015 = ComFunction.convertAllToResult(ComFunction.getTCode("C015"));      //省份                
-                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));      //包装厂               
                 List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));      //防锈指示
                 List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));      //对应可否确认结果
                 List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));      //防锈对应可否
@@ -96,7 +95,6 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C003", dataList_C003);
                 res.Add("C015", dataList_C015);
                 res.Add("C012", dataList_C012);
-                res.Add("C016", dataList_C016);
                 res.Add("C028", dataList_C028);
                 res.Add("C029", dataList_C029);
                 res.Add("C030", dataList_C030);

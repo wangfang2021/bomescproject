@@ -189,7 +189,7 @@ namespace Logic
                     strOverTime_now = Convert.ToDecimal(decHeJ_X / decPeopleNum).ToString("#.00");
             }
 
-            return dtDataInfo;
+            return dtList;
         }
 
     }

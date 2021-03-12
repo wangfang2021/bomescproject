@@ -59,7 +59,7 @@ namespace DataAccess
                 }
                 if (dTargetDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dUploadDate,112) = '" + dTargetDate.Replace("-", "") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  dUploadDate,112) = '" + dTargetDate.Replace("-", "").Replace("/", "") + "' ");
                 }
                 if (vcOrderType.Length > 0)
                 {
@@ -71,6 +71,22 @@ namespace DataAccess
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable checkTSoqDayChange(string dTargetDate)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine(" select * from [dbo].[TSoqDayChange] where vcChangeNo='" + dTargetDate + "' ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -251,16 +267,26 @@ namespace DataAccess
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
 
-                vcTargetYear = dTargetDate.Replace("-","").Substring(0, 4);
-                vcTargetMonth = dTargetDate.Replace("-", "").Substring(4, 2);
-                if (dTargetDate.Replace("-", "").Length == 8)
+                vcTargetYear = dTargetDate.Replace("-","").Replace("/", "").Substring(0, 4);
+                vcTargetMonth = dTargetDate.Replace("-", "").Replace("/", "").Substring(4, 2);
+                if (dTargetDate.Replace("-", "").Replace("/", "").Length == 8)
                 {
-                    vcTargetDay = dTargetDate.Replace("-", "").Substring(6, 2);
+                    vcTargetDay = dTargetDate.Replace("-", "").Replace("/", "").Substring(6, 2);
                 }
 
                 string fileName = string.Empty;
                 string filePath = string.Empty;
                 string fileOrderNo = string.Empty;
+                DataRow[] drArrayZD = null;
+                if (vcOrderType == "W")
+                {
+                    List<string> TargetYM = new List<string>();
+                    TargetYM.Add(dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6));
+                    //获取soq验收数量
+                    DataTable SoqDt = getSoqDt(TargetYM);
+                    string vcMakingOrderType = getTypeMethod(vcOrderType);
+                    drArrayZD = SoqDt.Select("vcMakingOrderType in (" + vcMakingOrderType + ") "); //
+                }
                 //验证品番与订货方式关系及其是否存在主数据表 非月度校验
                 #region
                 if (vcOrderType!="S")
@@ -277,6 +303,7 @@ namespace DataAccess
                             FS0403_DataAccess fs0403DataAccess = new FS0403_DataAccess();
                             dtRiDuCheck= fs0403DataAccess.getModify(Convert.ToDateTime(dTargetDate));
                         }
+                        
                         //读取文件
                         Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                         string vcPackingFactory = uionCode;
@@ -398,6 +425,31 @@ namespace DataAccess
                                     }
                                 }
                                 #endregion
+                                #region
+                                if (vcOrderType=="W") {
+                                    // 判定品番是否在临时品番里面
+                                    bool isExist = false;
+                                    for (int m = 0; m < drArrayZD.Length; m++)
+                                    {
+                                        if (drArrayZD[m]["vcPart_id"].ToString() == vcPart_id)
+                                        {
+                                            isExist = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!isExist)
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcOrder"] = fileName;
+                                        dataRow["vcPartNo"] = vcPart_id;
+                                        dataRow["vcMessage"] = fileName + "文件中的品番" + vcPart_id + "不属于Soq周度订单";
+                                        dtMessage.Rows.Add(dataRow);
+                                        bReault = false;
+                                    }
+
+                                }
+                                #endregion
+
 
                             }
                             else
@@ -424,7 +476,7 @@ namespace DataAccess
                 if (vcOrderType=="S")
                 {
                     List<string> TargetYM = new List<string>();
-                    TargetYM.Add(dTargetDate.Replace("-", ""));
+                    TargetYM.Add(dTargetDate.Replace("-", "").Replace("/", ""));
                     //获取soq验收数量
                     DataTable SoqDt = getSoqDt(TargetYM);
                     string vcMakingOrderType = getTypeMethod(vcOrderType);
@@ -647,7 +699,7 @@ namespace DataAccess
 
                     if (vcOrderType == "D")
                     {
-                        strSql.AppendLine("   update [dbo].[TSoqDayChange] set vcOrderNo='"+ fileName + "' where vcChangeNo='"+ dTargetDate.Replace("-", "") + "'  ");
+                        strSql.AppendLine("   update [dbo].[TSoqDayChange] set vcOrderNo='"+ fileName + "' where vcChangeNo='"+ dTargetDate.Replace("-", "").Replace("/", "") + "'  ");
                     }
                 }
                 
@@ -993,12 +1045,16 @@ namespace DataAccess
                         string CPD = detail.CPD.Trim();
                         string vcSeqno = detail.ItemNo.Trim();
                         string vcSupplierId = "";
-                        //string vcCarType = "";
-                        //string vcPartId_Replace = "";
-                        //string inout = "";
+
+                        string vcInOut = "";
                         string vcSupplierPlant = "";//工区
                         string vcSupplierPlace = "";//出荷场
                         string vcOrderNum = detail.QTY;
+                        string vcOrderPlant = "";
+                        string vcHaoJiu = "";
+                        string vcOESP = "";
+                        string vcSufferIn = "";
+                        string iPackingQty = "";
 
                         string dateTime = detail.Date.Trim();
                         string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
@@ -1006,16 +1062,21 @@ namespace DataAccess
                         Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
                         if (hashtable.Keys.Count > 0)
                         {
-                            //inout = hashtable["vcInOut"].ToString();
-                            //vcDock = hashtable["vcSufferIn"].ToString();
+                            //sbr.AppendLine("   SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSupplierPlant,a.vcPackingPlant,  ");
+                            //sbr.AppendLine("   a.vcInOut,a.vcSupplierPlace,a.vcOrderingMethod,c.vcOrderPlant,a.vcOESP,a.vcHaoJiu,d.vcSufferIn,e.iPackingQty FROM     ");
+                            vcInOut = hashtable["vcInOut"].ToString();
+                            vcOrderPlant = hashtable["vcOrderPlant"].ToString();
+                            vcHaoJiu = hashtable["vcHaoJiu"].ToString();
+                            vcOESP = hashtable["vcOESP"].ToString();
+                            vcSupplierPlace = hashtable["vcSupplierPlace"].ToString();
+                            vcSufferIn = hashtable["vcSufferIn"].ToString();
+                            iPackingQty = hashtable["iPackingQty"].ToString();
                             vcSupplierId = hashtable["vcSupplierId"].ToString();
                             vcSupplierPlant = hashtable["vcSupplierPlant"].ToString();
-                            vcSupplierPlace = hashtable["vcSupplierPlace"].ToString();
-                            //vcOrderingMethod = hashtable["vcOrderingMethod"].ToString();
                         }
                         
                         strSql.Append("  insert into  [dbo].[TUrgentOrder] (vcOrderNo,vcPart_id,vcSupplier_id,vcGQ,vcChuHePlant,  ");
-                        strSql.Append("  iOrderQuantity,vcStatus,vcDelete,vcOperatorID,dOperatorTime ) values (  ");
+                        strSql.Append("  iOrderQuantity,vcStatus,vcDelete,vcInOut,vcOrderPlant,vcHaoJiu,vcOESP,vcChuHePlant,vcSufferIn,iPackingQty,vcOperatorID,dOperatorTime ) values (  ");
                         strSql.Append("  '" + fileName + "',  ");
                         strSql.Append("  '"+ vcPart_id + "',  ");
                         strSql.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
@@ -1024,6 +1085,13 @@ namespace DataAccess
                         strSql.Append(ComFunction.getSqlValue(vcOrderNum, false) + ",");
                         strSql.Append("'0',");
                         strSql.Append("'0',");
+                        strSql.Append(ComFunction.getSqlValue(vcInOut, false) + ",");
+                        strSql.Append(ComFunction.getSqlValue(vcOrderPlant, false) + ",");
+                        strSql.Append(ComFunction.getSqlValue(vcHaoJiu, false) + ",");
+                        strSql.Append(ComFunction.getSqlValue(vcOESP, false) + ",");
+                        strSql.Append(ComFunction.getSqlValue(vcSupplierPlace, false) + ",");
+                        strSql.Append(ComFunction.getSqlValue(vcSufferIn, false) + ",");
+                        strSql.Append(ComFunction.getSqlValue(iPackingQty, false) + ",");
                         strSql.AppendLine("  '" + userId + "',GETDATE());   ");
                     }
                 }

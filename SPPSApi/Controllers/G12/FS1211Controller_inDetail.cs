@@ -108,16 +108,16 @@ namespace SPPSApi.Controllers.G12
                     vcPackdiv, vcPlanProductionDateFrom, vcPlanProductionBZFrom,
                     vcPlanPackDateFrom, vcPlantPackBZFrom, vcPlanProductionDateTo, vcPlanProductionBZTo,
                     vcPlanPackDateTo, vcPlantPackBZTo, vcPlanProductAB, vcPlanPackAB, ref msg);
-                DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcRealPrintTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
-                //dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 if (msg != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = msg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcRealPrintTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+                //dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

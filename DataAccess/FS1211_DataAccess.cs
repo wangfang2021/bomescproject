@@ -635,6 +635,7 @@ namespace DataAccess
                     if (Convert.ToInt32(count) > 60000)
                     {
                         msg = "检索数据过多，请缩小查询范围。";
+                        return tmp;
                     }
                 }
                 sbSQL = new StringBuilder();

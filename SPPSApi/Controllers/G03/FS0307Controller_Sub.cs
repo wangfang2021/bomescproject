@@ -169,6 +169,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
+
                 string strMsg = "";
                 fs0307_Logic.FTMS(listInfoData, EmailBody, loginInfo.UserId, ref strMsg, loginInfo.Email, loginInfo.UnitName);
 

@@ -20,13 +20,13 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TNRManagement where 1=1  \n");
-                if(vcIsDQ != "" && vcIsDQ != null)
+                if (vcIsDQ != "" && vcIsDQ != null)
                     strSql.Append("and isnull(vcIsDQ,'') like '%" + vcIsDQ + "%'  \n");
-                if(vcTicketNo != "" && vcTicketNo != null)
+                if (vcTicketNo != "" && vcTicketNo != null)
                     strSql.Append("and isnull(vcTicketNo,'') like '%" + vcTicketNo + "%'  \n");
-                if(vcLJNo != "" && vcLJNo != null)
+                if (vcLJNo != "" && vcLJNo != null)
                     strSql.Append("and isnull(vcLJNo,'') like '%" + vcLJNo + "%'  \n");
-                if(vcOldOrderNo != "" && vcOldOrderNo != null)
+                if (vcOldOrderNo != "" && vcOldOrderNo != null)
                     strSql.Append("and isnull(vcOldOrderNo,'') like '%" + vcOldOrderNo + "%'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -53,10 +53,10 @@ namespace DataAccess
                     //新增  bmodflag:true   baddflag:true
                     //修改  bmodflag:true   baddflag:false
 
-                   if (baddflag == false && bmodflag == true)
+                    if (baddflag == false && bmodflag == true)
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        string vcIsDQ= listInfoData[i]["vcIsDQ"].ToString()==""?"是": listInfoData[i]["vcIsDQ"].ToString();
+                        string vcIsDQ = listInfoData[i]["vcIsDQ"].ToString() == "" ? "是" : listInfoData[i]["vcIsDQ"].ToString();
                         sql.Append("UPDATE [TNRManagement]  \n");
                         sql.Append("   SET   \n");
                         sql.Append("       [iQuantity] = " + listInfoData[i]["iQuantity"].ToString() + "  \n");
@@ -102,45 +102,82 @@ namespace DataAccess
         #endregion
 
         #region 导入后保存
-        public void importSave_Sub(DataTable dt, string strUserId)
+        public void importSave_Sub(DataSet ds, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("DELETE FROM [TNRManagement_Temp] where vcOperatorID='" + strUserId + "' \n");
-                for (int i = 0; i < dt.Rows.Count; i++)
+                for (int i = 0; i < ds.Tables.Count; i++)
                 {
-                    string vcIsDQ = dt.Rows[i]["vcIsDQ"].ToString() == "" ? "是" : dt.Rows[i]["vcIsDQ"].ToString();
-                    sql.Append("INSERT INTO [TNRManagement_Temp]  \n");
-                    sql.Append("           ([vcTicketNo]  \n");
-                    sql.Append("           ,[vcLJNo]  \n");
-                    sql.Append("           ,[vcOldOrderNo]  \n");
-                    sql.Append("           ,[iQuantity]  \n");
-                    sql.Append("           ,[vcIsDQ]  \n");
-                    sql.Append("           ,[vcOperatorID]  \n");
-                    sql.Append("           ,[dOperatorTime])  \n");
-                    sql.Append("     VALUES  \n");
-                    sql.Append("           ('"+dt.Rows[i]["vcTicketNo"].ToString()+"'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcLJNo"].ToString() + "'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcOldOrderNo"].ToString() + "'  \n");
-                    sql.Append("           ," + dt.Rows[i]["iQuantity"].ToString() + "  \n");
-                    sql.Append("           ,'" + vcIsDQ + "'  \n");
-                    sql.Append("           ,'"+strUserId+"'  \n");
-                    sql.Append("           ,getdate())  \n");
+                    DataTable dt = ds.Tables[i];
+                    string strTickNo = dt.TableName;
+                    for (int j = 0; j < dt.Rows.Count; j++)
+                    {
+                        string vcIsDQ = dt.Rows[j]["vcIsDQ"].ToString() == "" ? "是" : dt.Rows[j]["vcIsDQ"].ToString();
+                        sql.Append("INSERT INTO [TNRManagement]    \n");
+                        sql.Append("           ([vcTicketNo]    \n");
+                        sql.Append("           ,[vcLJNo]    \n");
+                        sql.Append("           ,[vcLJName]    \n");
+                        sql.Append("           ,[vcCarType]    \n");
+                        sql.Append("           ,[vcOldOrderNo]    \n");
+                        sql.Append("           ,[vcUnit]    \n");
+                        sql.Append("           ,[iQuantity]    \n");
+                        sql.Append("           ,[decPrice]    \n");
+                        sql.Append("           ,[decMoney]    \n");
+                        sql.Append("           ,[vcIsDQ]    \n");
+                        sql.Append("           ,[vcOperatorID]    \n");
+                        sql.Append("           ,[dOperatorTime])    \n");
+                        sql.Append("     VALUES    \n");
+                        sql.Append("           ('" + strTickNo + "'    \n");
+                        sql.Append("           ,'" + dt.Rows[j]["vcLJNo"].ToString() + "'    \n");
+                        sql.Append("           ,'" + dt.Rows[j]["vcLJName"].ToString() + "'    \n");
+                        sql.Append("           ,'" + dt.Rows[j]["vcCarType"].ToString() + "'    \n");
+                        sql.Append("           ,'" + dt.Rows[j]["vcOldOrderNo"].ToString() + "'    \n");
+                        sql.Append("           ,'" + dt.Rows[j]["vcUnit"].ToString() + "'    \n");
+                        sql.Append("           ,nullif('" + dt.Rows[j]["iQuantity"].ToString() + "','')    \n");
+                        sql.Append("           ,nullif('" + dt.Rows[j]["decPrice"].ToString() + "','')    \n");
+                        sql.Append("           ,nullif('" + dt.Rows[j]["decMoney"].ToString() + "','')    \n");
+                        sql.Append("           ,'" + vcIsDQ + "'    \n");
+                        sql.Append("           ,'" + strUserId + "'    \n");
+                        sql.Append("           ,getdate())    \n");
+                    }
+
+                    #region not use
+                    //sql.Append("DELETE FROM [TNRManagement_Temp] where vcOperatorID='" + strUserId + "' \n");
+                    //for (int i = 0; i < dt.Rows.Count; i++)
+                    //{
+                    //    string vcIsDQ = dt.Rows[i]["vcIsDQ"].ToString() == "" ? "是" : dt.Rows[i]["vcIsDQ"].ToString();
+                    //    sql.Append("INSERT INTO [TNRManagement_Temp]  \n");
+                    //    sql.Append("           ([vcTicketNo]  \n");
+                    //    sql.Append("           ,[vcLJNo]  \n");
+                    //    sql.Append("           ,[vcOldOrderNo]  \n");
+                    //    sql.Append("           ,[iQuantity]  \n");
+                    //    sql.Append("           ,[vcIsDQ]  \n");
+                    //    sql.Append("           ,[vcOperatorID]  \n");
+                    //    sql.Append("           ,[dOperatorTime])  \n");
+                    //    sql.Append("     VALUES  \n");
+                    //    sql.Append("           ('" + dt.Rows[i]["vcTicketNo"].ToString() + "'  \n");
+                    //    sql.Append("           ,'" + dt.Rows[i]["vcLJNo"].ToString() + "'  \n");
+                    //    sql.Append("           ,'" + dt.Rows[i]["vcOldOrderNo"].ToString() + "'  \n");
+                    //    sql.Append("           ," + dt.Rows[i]["iQuantity"].ToString() + "  \n");
+                    //    sql.Append("           ,'" + vcIsDQ + "'  \n");
+                    //    sql.Append("           ,'" + strUserId + "'  \n");
+                    //    sql.Append("           ,getdate())  \n");
+                    //}
+                    //sql.Append("insert into TNRManagement (vcTicketNo,vcLJNo,vcOldOrderNo,iQuantity,vcIsDQ,vcOperatorID,dOperatorTime)  \n");
+                    //sql.Append("select t1.vcTicketNo,t1.vcLJNo,t1.vcOldOrderNo,t1.iQuantity,t1.vcIsDQ,t1.vcOperatorID,t1.dOperatorTime from TNRManagement_Temp t1  \n");
+                    //sql.Append("left join TNRManagement t2 on t1.vcTicketNo=t2.vcTicketNo and t1.vcLJNo=t2.vcLJNo and t1.vcOldOrderNo=t2.vcOldOrderNo \n");
+                    //sql.Append("where t2.iAutoId is null and t1.vcOperatorID='" + strUserId + "'  \n");
+
+                    //sql.Append("update t2 set t2.iQuantity=t1.iQuantity,t2.vcIsDQ=t1.vcIsDQ,  \n");
+                    //sql.Append("t2.vcOperatorID=t1.vcOperatorID,t2.dOperatorTime=t1.dOperatorTime  \n");
+                    //sql.Append("from  \n");
+                    //sql.Append("(select * from TNRManagement_Temp) t1  \n");
+                    //sql.Append("left join TNRManagement t2 on t1.vcTicketNo=t2.vcTicketNo and t1.vcLJNo=t2.vcLJNo and t1.vcOldOrderNo=t2.vcOldOrderNo \n");
+                    //sql.Append("where t2.iAutoId is not null and (t1.iQuantity!=t2.iQuantity or t1.vcIsDQ!=t2.vcIsDQ) \n");
+                    //sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
+                    #endregion
                 }
-                sql.Append("insert into TNRManagement (vcTicketNo,vcLJNo,vcOldOrderNo,iQuantity,vcIsDQ,vcOperatorID,dOperatorTime)  \n");
-                sql.Append("select t1.vcTicketNo,t1.vcLJNo,t1.vcOldOrderNo,t1.iQuantity,t1.vcIsDQ,t1.vcOperatorID,t1.dOperatorTime from TNRManagement_Temp t1  \n");
-                sql.Append("left join TNRManagement t2 on t1.vcTicketNo=t2.vcTicketNo and t1.vcLJNo=t2.vcLJNo and t1.vcOldOrderNo=t2.vcOldOrderNo \n");
-                sql.Append("where t2.iAutoId is null and t1.vcOperatorID='" + strUserId + "'  \n");
-
-                sql.Append("update t2 set t2.iQuantity=t1.iQuantity,t2.vcIsDQ=t1.vcIsDQ,  \n");
-                sql.Append("t2.vcOperatorID=t1.vcOperatorID,t2.dOperatorTime=t1.dOperatorTime  \n");
-                sql.Append("from  \n");
-                sql.Append("(select * from TNRManagement_Temp) t1  \n");
-                sql.Append("left join TNRManagement t2 on t1.vcTicketNo=t2.vcTicketNo and t1.vcLJNo=t2.vcLJNo and t1.vcOldOrderNo=t2.vcOldOrderNo \n");
-                sql.Append("where t2.iAutoId is not null and (t1.iQuantity!=t2.iQuantity or t1.vcIsDQ!=t2.vcIsDQ) \n");
-                sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
-
                 if (sql.Length > 0)
                 {
                     excute.ExcuteSqlWithStringOper(sql.ToString());
@@ -152,5 +189,20 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public int isImport(string strTickNo)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select count(1) as num from [TNRManagement] where vcTicketNo='" + strTickNo + "'    \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
     }
 }

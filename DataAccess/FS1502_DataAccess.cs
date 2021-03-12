@@ -424,6 +424,9 @@ namespace DataAccess
                 sql.Append("				select * from TPackageMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "'    \n");
                 sql.Append("			) t2 on t1.vcPartsno=t2.vcPart_id and t1.vcSupplier_id=t2.vcSupplierId    \n");
                 sql.Append("			left join TPMRelation t3 on t2.vcSmallPM=t3.vcSmallPM    \n");
+                sql.Append("            left join (select * from TSPMaster where vcReceiver='APC06' and vcPackingPlant='" + strUnit + "')t4          \n");
+                sql.Append("            on t1.vcPartsno=t4.vcPartId and t1.vcSupplier_id=t4.vcSupplierId          \n");
+                sql.Append("            where t4.vcOrderingMethod='0'          \n");//只找月度的
                 sql.Append("			group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM    \n");
                 sql.Append("			union all        \n");
                 sql.Append("			select t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM,sum(isnull(vcD" + iday + "b,0)) as 白,sum(isnull(vcD" + iday + "y,0)) as 夜,        \n");

@@ -78,6 +78,32 @@ namespace SPPSApi.Controllers
         }
         #endregion
 
+        #region 下载ZIP文件
+        [HttpGet]
+        [EnableCors("any")]
+        public IActionResult downloadTagZIPApi(string path)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "TagZIP" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                return File(bt, contenttype ?? "application/octet-stream", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                ContentResult result = new ContentResult();
+                result.Content = "<script>alert('导出失败,没有找到要导出的文件！')</script>";
+                result.ContentType = "text/html;charset=utf-8";
+                ComMessage.GetInstance().ProcessMessage("download", "M00UE0007", ex, "system");
+                return result;
+            }
+        }
+        #endregion
+
         #region 下载-Doc/Export,下载后会自动删除文件
         [HttpGet]
         [EnableCors("any")]

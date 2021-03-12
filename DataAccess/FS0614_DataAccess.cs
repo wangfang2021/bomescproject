@@ -475,10 +475,11 @@ namespace DataAccess
 
 
                                 //新增订单
-                                sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily" + TargetD + ",vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
+                                //sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily" + TargetD + ",vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
+                                sbr.Append(" INSERT INTO SP_M_ORD(vcPackingFactory,  vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno, dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id,vcPlantQtyDaily" + TargetD + ",vcTargetMonthFlag, vcTargetMonthLast, vcOperatorID, dOperatorTime,vcPlantQtyDailySum,vcWorkArea,vcInputQtyDailySum,vcResultQtyDailySum)");
                                 sbr.Append(" VALUES( ");
                                 sbr.Append(ComFunction.getSqlValue(vcPackingFactory, false) + ",");
-                                sbr.Append(ComFunction.getSqlValue(TargetYMJJ, false) + ",");
+                                //sbr.Append(ComFunction.getSqlValue("", false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcDock, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(CPD, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(Type, false) + ",");
@@ -604,7 +605,15 @@ namespace DataAccess
 
                             DataTable dt = fs0403_dataAccess.getCalendar(DXR);
                             int count = fs0403_dataAccess.getCountDay();
-                            Hashtable hs = fs0403_dataAccess.getDay(dt, DXR, count);
+
+                            DataRow[] rowIn = dt.Select("Flag = '0'");
+                            DataRow[] rowOut = dt.Select("Flag = '1'");
+
+                            DataTable dtIn = ToDataTable(rowIn);
+                            DataTable dtOut = ToDataTable(rowOut);
+
+                            Hashtable hsIN = fs0403_dataAccess.getDay(dtIn, DXR, count);
+                            Hashtable hsOut = fs0403_dataAccess.getDay(dtOut, DXR, count);
 
                             foreach (Detail detail in order.Details)
                             {
@@ -640,8 +649,19 @@ namespace DataAccess
                                     packingSpot = ObjToString(packingSpotRow[0]["vcBZPlant"]);
                                 }
 
-                                string timeYM = hs[vcOrderPlant].ToString().Substring(0, 6);
-                                string timeD = hs[vcOrderPlant].ToString().Substring(6, 2);
+                                string timeYM = "";
+                                string timeD = "";
+                                if (inout == "0")
+                                {
+                                    timeYM = hsIN[vcOrderPlant].ToString().Substring(0, 6);
+                                    timeD = hsIN[vcOrderPlant].ToString().Substring(6, 2);
+                                }
+                                else if (inout == "1")
+                                {
+                                    timeYM = hsOut[vcOrderPlant].ToString().Substring(0, 6);
+                                    timeD = hsOut[vcOrderPlant].ToString().Substring(6, 2);
+                                }
+
 
                                 string dateTime = detail.Date.Trim();
 
@@ -734,7 +754,7 @@ namespace DataAccess
                 sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
                 sbr.AppendLine("(");
                 //sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = @TargetYM  AND vcCLYM = @CLYM AND vcMakingOrderType = '0'");
-                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
+                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,ISNULL(iPartNums,0) AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
                 sbr.AppendLine(") A");
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(");
@@ -1300,6 +1320,18 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        public DataTable ToDataTable(DataRow[] rows)
+        {
+            if (rows == null || rows.Length == 0)
+                return null;
+            DataTable tmp = rows[0].Table.Clone();
+            foreach (DataRow dataRow in rows)
+            {
+                tmp.Rows.Add(dataRow.ItemArray);
+            }
+
+            return tmp;
         }
     }
 }

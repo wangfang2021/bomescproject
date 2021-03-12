@@ -429,7 +429,7 @@ namespace DataAccess
             }
         }
 
-        public void SaveApi(List<Dictionary<string, Object>> list, string strUserId)
+        public void SaveApi(List<Dictionary<string, Object>> list, string strUserId, ref string Msg)
         {
             try
             {
@@ -440,7 +440,7 @@ namespace DataAccess
                 //DataTable dtReceiver = getTCode("C005");
                 DataTable dtinOut = getTCode("C003");
                 DataTable dtFinish = getTCode("C024");
-
+                DataTable dtSame = getSamePartId();
                 for (int i = 0; i < list.Count; i++)
                 {
                     bool bModFlag = (bool)list[i]["vcModFlag"];//true可编辑,false不可编辑
@@ -448,61 +448,69 @@ namespace DataAccess
 
                     if (bAddFlag == true)
                     {
-                        string vcInOutflag = getValue(dtinOut, list[i]["vcInOutflag"].ToString());
-                        string vcFinish = getValue(dtFinish, list[i]["vcFinish"].ToString());
-                        string vcOld10 = list[i]["vcOld10"].ToString().Equals("●") ? "1" : "0";
-                        string vcOld9 = list[i]["vcOld9"].ToString().Equals("●") ? "1" : "0";
-                        string vcOld7 = list[i]["vcOld7"].ToString().Equals("●") ? "1" : "0";
 
-                        //string vcOriginCompany = getValue(dtOrigin, list[i]["vcOriginCompany"].ToString());
-                        //string vcReceiver = getValue(dtReceiver, list[i]["vcReceiver"].ToString());
-                        //string vcSYTCode = getValue(dtSYT, list[i]["vcSYTCode"].ToString());
+                        DataRow[] row = dtSame.Select("vcYear = '" + list[i]["vcYear"].ToString() + "' AND vcPart_id = '" + list[i]["vcPart_id"].ToString() + "'");
+                        if (row.Length > 0)
+                        {
+                            if (!string.IsNullOrWhiteSpace(Msg))
+                                Msg += ",\r\n";
+                            Msg += "品番" + list[i]["vcPart_id"].ToString() + "在" + list[i]["vcYear"].ToString() + "中已存在";
+                        }
+                        else
+                        {
+                            string vcInOutflag = getValue(dtinOut, list[i]["vcInOutflag"].ToString());
+                            string vcFinish = getValue(dtFinish, list[i]["vcFinish"].ToString());
+                            string vcOld10 = list[i]["vcOld10"].ToString().Equals("●") ? "1" : "0";
+                            string vcOld9 = list[i]["vcOld9"].ToString().Equals("●") ? "1" : "0";
+                            string vcOld7 = list[i]["vcOld7"].ToString().Equals("●") ? "1" : "0";
 
-                        string vcOriginCompany = list[i]["vcOriginCompany"].ToString();
-                        string vcSYTCode = list[i]["vcSYTCode"].ToString();
-                        string vcReceiver = list[i]["vcReceiver"].ToString();
+                            //string vcOriginCompany = getValue(dtOrigin, list[i]["vcOriginCompany"].ToString());
+                            //string vcReceiver = getValue(dtReceiver, list[i]["vcReceiver"].ToString());
+                            //string vcSYTCode = getValue(dtSYT, list[i]["vcSYTCode"].ToString());
+
+                            string vcOriginCompany = list[i]["vcOriginCompany"].ToString();
+                            string vcSYTCode = list[i]["vcSYTCode"].ToString();
+                            string vcReceiver = list[i]["vcReceiver"].ToString();
 
 
-
-
-
-                        sql.Append(" INSERT INTO dbo.TOldYearManager(vcYear, vcFinish, dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7, vcNum1, vcNum2, vcNum3, vcNXQF, dSSDate, vcDY, vcNum11, vcNum12, vcNum13, vcNum14, vcNum15, vcNum16, vcNum17, vcNum18, vcNum19, vcNum20, vcNum21, vcSYTCode, vcReceiver, vcOriginCompany, vcOperatorID, dOperatorTime) ");
-                        sql.Append(" VALUES(" + ComFunction.getSqlValue(list[i]["vcYear"], false) + ",");
-                        sql.Append(" " + ComFunction.getSqlValue(vcFinish, false) + "  ,");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["dFinishYMD"], true) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcSupplier_id"], false) + "  , ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcPart_id"], false) + "  , ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcPartNameEn"], false) + "  , ");
-                        sql.Append(" " + ComFunction.getSqlValue(vcInOutflag, false) + "  , ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcCarTypeDev"], false) + "  , ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["dJiuBegin"], true) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcRemark"], false) + "  , ");
-                        sql.Append(" " + ComFunction.getSqlValue(vcOld10, false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(vcOld9, false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(vcOld7, false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum1"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum2"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum3"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNXQF"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["dSSDate"], true) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcDY"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum11"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum12"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum13"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum14"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum15"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum16"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum17"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum18"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum19"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum20"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum21"], false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(vcSYTCode, false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(vcReceiver, false) + ", ");
-                        sql.Append(" " + ComFunction.getSqlValue(vcOriginCompany, false) + ", ");
-                        sql.Append(" '" + strUserId + "', ");
-                        sql.Append(" GETDATE()  ");
-                        sql.Append("     ) ");
+                            sql.Append(" INSERT INTO dbo.TOldYearManager(vcYear, vcFinish, dFinishYMD, vcSupplier_id, vcPart_id, vcPartNameEn, vcInOutflag, vcCarTypeDev, dJiuBegin, vcRemark, vcOld10, vcOld9, vcOld7, vcNum1, vcNum2, vcNum3, vcNXQF, dSSDate, vcDY, vcNum11, vcNum12, vcNum13, vcNum14, vcNum15, vcNum16, vcNum17, vcNum18, vcNum19, vcNum20, vcNum21, vcSYTCode, vcReceiver, vcOriginCompany, vcOperatorID, dOperatorTime) ");
+                            sql.Append(" VALUES(" + ComFunction.getSqlValue(list[i]["vcYear"], false) + ",");
+                            sql.Append(" " + ComFunction.getSqlValue(vcFinish, false) + "  ,");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["dFinishYMD"], true) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcSupplier_id"], false) + "  , ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcPart_id"], false) + "  , ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcPartNameEn"], false) + "  , ");
+                            sql.Append(" " + ComFunction.getSqlValue(vcInOutflag, false) + "  , ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcCarTypeDev"], false) + "  , ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["dJiuBegin"], true) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcRemark"], false) + "  , ");
+                            sql.Append(" " + ComFunction.getSqlValue(vcOld10, false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(vcOld9, false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(vcOld7, false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum1"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum2"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum3"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNXQF"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["dSSDate"], true) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcDY"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum11"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum12"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum13"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum14"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum15"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum16"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum17"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum18"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum19"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum20"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(list[i]["vcNum21"], false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(vcSYTCode, false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(vcReceiver, false) + ", ");
+                            sql.Append(" " + ComFunction.getSqlValue(vcOriginCompany, false) + ", ");
+                            sql.Append(" '" + strUserId + "', ");
+                            sql.Append(" GETDATE()  ");
+                            sql.Append("     ) ");
+                        }
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {
@@ -539,6 +547,11 @@ namespace DataAccess
                         sql.Append(" iAuto_Id = " + iAutoId + " \r\n");
                     }
 
+                }
+
+                if (!string.IsNullOrWhiteSpace(Msg))
+                {
+                    return;
                 }
                 if (sql.Length > 0)
                 {
@@ -635,8 +648,17 @@ namespace DataAccess
             try
             {
                 DataTable dt = getChange();
-
+                List<string> partListChange = getPartListChange();
                 StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (getFlag(partListChange, listInfoData[i]["vcPart_id"].ToString()))
+                    {
+                        if (!string.IsNullOrWhiteSpace(Msg))
+                            Msg += "；\r\n";
+                        Msg = "原单位中品番" + listInfoData[i]["vcPart_id"].ToString() + "存在未完成的变更事项，无法织入原单位";
+                    }
+                }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAuto_id"]);
@@ -680,8 +702,8 @@ namespace DataAccess
                     else
                     {
                         if (!string.IsNullOrWhiteSpace(Msg))
-                            Msg += ",";
-                        Msg += listInfoData[i]["vcPart_id"];
+                            Msg += "；\r\n";
+                        Msg += "品番" + listInfoData[i]["vcPart_id"] + "年限区分有误,无法织入原单位";
                     }
                 }
 
@@ -752,7 +774,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = '" + CodeId + "'");
+                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = '" + CodeId + "' ORDER BY vcMeaning");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
@@ -906,6 +928,50 @@ namespace DataAccess
                 }
 
                 return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<string> getPartListChange()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT distinct vcPart_id FROM TUnit WHERE ISNULL(vcChange,'') <> ''");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                List<string> partList = new List<string>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        partList.Add(dt.Rows[i]["vcPart_id"].ToString());
+                    }
+                }
+
+                return partList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool getFlag(List<string> list, string partId)
+        {
+            if (list.Contains(partId))
+                return true;
+            return false;
+        }
+
+        public DataTable getSamePartId()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcYear,vcPart_id FROM TOldYearManager");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)
             {

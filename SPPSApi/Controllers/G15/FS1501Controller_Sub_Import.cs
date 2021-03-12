@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G15
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"供应商代码","工区","受入","订单号","纳入便次","纳入补给时刻"},
+                string[,] headers = new string[,] {{"仕入先","工区","受入","Order.","便次","时刻"},
                                                 {"vcSupplier_id", "vcGQ", "vcSR", "vcOrderNo","vcNRBianCi","vcNRBJSK"},
                                                 {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"","",""},
                                                 {"4","1","2","25","25","25"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","0","0"}};//最小长度设定,可以为空用0
+                                                {"1","1","1","1","1","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {

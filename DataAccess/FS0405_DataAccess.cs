@@ -18,48 +18,54 @@ namespace DataAccess
             StringBuilder strSql = new StringBuilder();
             try
             {
-                strSql.Append("      select *,'0' as selection from (       \n");
-                strSql.Append("      select T1.vcDXYM,'1' as vcInOutFlag,vcZKState,T2.dZhanKaiTime from (       \n");
-                strSql.Append("      select distinct vcDXYM,case when dZhanKaiTime is not null then '可下载' else '待发送' end vcZKState from TSoqReply T1        \n");
-                strSql.Append("      where  vcInOutFlag ='1') T1       \n");
-                strSql.Append("      left join (       \n");
-                strSql.Append("      select distinct vcDXYM,max(dZhanKaiTime) as dZhanKaiTime from TSoqReply T1        \n");
-                strSql.Append("      where  vcInOutFlag ='1'       \n");
-                strSql.Append("      group by vcDXYM) T2 on T1.vcDXYM = T2.vcDXYM       \n");
+                strSql.Append("       select * from ( select vcCLYM,vcInOutFlag,case when Flag1='OK' and Flag = 'OK' then '可下载' else '待发送' end [State] ,dZhanKaiTime from(      \n");
                 strSql.Append("             \n");
-                strSql.Append("      union all       \n");
+                strSql.Append("       select distinct TT1.vcCLYM,TT1.vcInOutFlag,isnull(TT2.Flag1,'OK') as Flag1,isnull(TT3.Flag,'OK') Flag,TT4.dZhanKaiTime from TSoqReply TT1      \n");
+                strSql.Append("       left join      \n");
+                strSql.Append("       (      \n");
+                strSql.Append("       select vcCLYM,vcInOutFlag,Flag1 from (      \n");
+                strSql.Append("       select distinct vcCLYM,vcInOutFlag,case when dZhanKaiTime is not null then 'OK' else 'NG' end Flag1 from (      \n");
+                strSql.Append("       select distinct T1.vcCLYM,T1.vcDXYM,T1.vcFZGC,T1.vcInOutFlag,T2.dZhanKaiTime from TSoqReply T1      \n");
+                strSql.Append("       left join(      \n");
+                strSql.Append("       select distinct vcCLYM,vcDXYM,vcFZGC,vcInOutFlag,max(dZhanKaiTime) as dZhanKaiTime from TSoqReply       \n");
+                strSql.Append("       group by vcCLYM,vcDXYM,vcFZGC,vcInOutFlag )T2       \n");
+                strSql.Append("       on T1.vcCLYM = T2.vcCLYM and T1.vcDXYM = T2.vcDXYM and T1.vcFZGC = T2.vcFZGC and T1.vcInOutFlag = T2.vcInOutFlag      \n");
+                strSql.Append("       ) TT ) TALL      \n");
+                strSql.Append("        where Flag1 = 'NG'      \n");
+                strSql.Append("       ) TT2 on TT1.vcCLYM = TT2.vcCLYM and TT1.vcInOutFlag = TT2.vcInOutFlag      \n");
+                strSql.Append("       left join(      \n");
+                strSql.Append("       select distinct vcCLYM,TT.vcInOutFlag,Flag from (      \n");
+                strSql.Append("       --判断处理年月是否全部OK      \n");
+                strSql.Append("       select vcCLYM,TA.vcInOutFlag,case when TA.flag-TB.flag = 0 then 'OK' else 'NG' end Flag from (      \n");
+                strSql.Append("       --判断发注工厂是否全部SOQReply      \n");
+                strSql.Append("       select vcCLYM,vcDXYM,vcInOutFlag,count(vcFZGC) as flag from (      \n");
+                strSql.Append("       select distinct vcCLYM,vcDXYM,vcFZGC,vcInOutFlag from TSoqReply  ) T1      \n");
+                strSql.Append("       group by vcCLYM,vcDXYM,vcInOutFlag ) TA      \n");
+                strSql.Append("       left join(      \n");
+                strSql.Append("       select vcYearMonth,vcInOutFlag,count(vcFZGC) as flag from (      \n");
+                strSql.Append("       select distinct vcYearMonth,vcFZGC,vcInOutFlag from tsoq ) T2      \n");
+                strSql.Append("       group by vcYearMonth,vcInOutFlag ) TB on TA.vcDXYM = TB.vcYearMonth and TA.flag = TB.flag and TA.vcInOutFlag = TB.vcInOutFlag      \n");
                 strSql.Append("             \n");
-                strSql.Append("      select T1.vcDXYM,'0'as vcInOutFlag,case when T1.vcFZGC='可下载' and T2.vcZK='可下载' then '可下载' else '待发送' end vcZK,T2.dZhanKaiTime from (       \n");
-                strSql.Append("      select distinct vcDXYM,case when (       \n");
-                strSql.Append("      select count(*) as vcFZGC from TCode T1       \n");
-                strSql.Append("      left join (select distinct vcDXYM,vcInOutFlag,vcFZGC from TSoqReply T1 where  vcInOutFlag ='0')       \n");
-                strSql.Append("      T2 on T1.vcValue = T2.vcFZGC       \n");
-                strSql.Append("      where vcCodeId = 'C000' and vcFZGC is null) >=1 then '待发送' else '可下载' end vcFZGC  from  TSoqReply where  vcInOutFlag ='0'       \n");
-                strSql.Append("      ) T1        \n");
-                strSql.Append("      left join(       \n");
-                strSql.Append("      select T1.vcDXYM,vcZK,T2.dZhanKaiTime from (       \n");
-                strSql.Append("      select distinct vcDXYM,case when dZhanKaiTime is not null then '可下载' else '待发送' end vcZK from TSoqReply T1        \n");
-                strSql.Append("      where  vcInOutFlag ='0') T1       \n");
-                strSql.Append("      left join (       \n");
-                strSql.Append("      select distinct vcDXYM,max(dZhanKaiTime) as dZhanKaiTime from TSoqReply T1        \n");
-                strSql.Append("      where  vcInOutFlag ='0'       \n");
-                strSql.Append("      group by vcDXYM) T2 on T1.vcDXYM = T2.vcDXYM) T2 on T1.vcDXYM = T2.vcDXYM       \n");
-                strSql.Append("      ) TT       \n");
-                strSql.Append("      where 1=1       \n");
+                strSql.Append("       ) TT where Flag = 'NG'      \n");
+                strSql.Append("       ) TT3 on TT1.vcCLYM = TT3.vcCLYM and TT1.vcInOutFlag = TT3.vcInOutFlag       \n");
+                strSql.Append("       left join(      \n");
+                strSql.Append("       select vcCLYM,vcInOutFlag,max(dZhanKaiTime) as dZhanKaiTime from TSoqReply       \n");
+                strSql.Append("       group by vcCLYM,vcInOutFlag ) TT4 on TT1.vcCLYM = TT4.vcCLYM and TT1.vcInOutFlag = TT4.vcInOutFlag       \n");
+                strSql.Append("       ) TT5    ) TAB    \n");
+                strSql.Append("       where 1=1      \n");
                 if (!string.IsNullOrEmpty(strDXDateMonth))
                 {
-                    strSql.Append("      and vcDXYM = '" + strDXDateMonth + "'       \n");
+                    strSql.Append("    and vcCLYM = '" + strDXDateMonth.Replace("/", "") + "'         \n");
                 }
                 if (!string.IsNullOrEmpty(strInOutFlag))
                 {
-                    strSql.Append("      and vcInOutFlag = '" + strInOutFlag + "'       \n");
+                    strSql.Append("    and vcInOutFlag = '" + strInOutFlag+"'         \n");
                 }
                 if (!string.IsNullOrEmpty(strState))
                 {
-                    strSql.Append("      and vcZKState = '" + strState + "'       \n");
+                    strSql.Append("    and [State] = '" + strState + "'         \n");
                 }
-                strSql.Append("      order by TT.vcDXYM asc,vcInOutFlag desc        \n");
-                
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

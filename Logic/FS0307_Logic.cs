@@ -110,6 +110,16 @@ namespace Logic
                 sbr.AppendLine("<p>请在<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>前，向TFTM反馈结果。</p><p><br></p>");
                 sbr.AppendLine("<p>如有问题，请与我联络。</p><p><br></p>");
                 sbr.AppendLine("<p>以上。</p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">天津一汽丰田汽车有限公司</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">生产管理部&nbsp;补给资材企管课</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">罗雨鑫&nbsp;Luo Yu Xin</span></p>");
+                sbr.AppendLine("<p><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: blue;\">TEL:86-22-66230666-</a><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: red;\">3377</a></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">FAX:86-22-66233141</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">地址：天津经济技术开发区第九大街81号</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">邮编：300457</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">Email:yx_luo@tftm.com.cn</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
             }
             else if (flag == "1")
             {
@@ -124,6 +134,16 @@ namespace Logic
                 sbr.AppendLine("<p>另外：一括生产零件调达周期超过3个月（包含3个月）的，请进行标注并提示具体调达周期。</p><p><br></p>");
                 sbr.AppendLine("<p>如有问题，请随时与我联络。</p><p><br></p>");
                 sbr.AppendLine("<p>以上。</p><p><br></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">天津一汽丰田汽车有限公司</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">生产管理部&nbsp;补给资材企管课</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">罗雨鑫&nbsp;Luo Yu Xin</span></p>");
+                sbr.AppendLine("<p><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: blue;\">TEL:86-22-66230666-</a><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: red;\">3377</a></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">FAX:86-22-66233141</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">地址：天津经济技术开发区第九大街81号</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">邮编：300457</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">Email:yx_luo@tftm.com.cn</span></p>");
+                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
             }
 
             return sbr.ToString();
@@ -137,6 +157,16 @@ namespace Logic
         {
             try
             {
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(ObjToString(listInfoData[i]["vcPM"])))
+                    {
+                        refMsg = "选中数据存在品目区分为空,不能进行FTMS层别展开";
+                        return;
+                    }
+                }
+
                 fs0307_dataAccess.FTMSCB(listInfoData, strUserId);
 
                 //TODO 发送邮件
@@ -322,9 +352,9 @@ namespace Logic
 
         #region 保存
 
-        public void SaveApi(List<Dictionary<string, Object>> list, string strUserId)
+        public void SaveApi(List<Dictionary<string, Object>> list, string strUserId, ref string Msg)
         {
-            fs0307_dataAccess.SaveApi(list, strUserId);
+            fs0307_dataAccess.SaveApi(list, strUserId, ref Msg);
         }
 
         #endregion
@@ -486,7 +516,6 @@ namespace Logic
             catch (Exception ex)
             {
                 return "";
-                throw;
             }
         }
 
@@ -507,5 +536,7 @@ namespace Logic
 
             return list;
         }
+
+
     }
 }

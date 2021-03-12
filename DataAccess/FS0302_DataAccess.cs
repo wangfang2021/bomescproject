@@ -190,6 +190,8 @@ namespace DataAccess
                 List<string> partCheck = getPart();
                 List<string> partList = getPartList();
                 List<string> partchangeList = getPartListChange();
+                List<string> partListHaoKao = getHaoPart();
+                List<string> partListJiu = getJiuPart();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
@@ -259,9 +261,9 @@ namespace DataAccess
                                 }
 
                                 sbr.Append(" INSERT INTO TUnit  \r\n");
-                                sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDesign,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff) values\r\n");
+                                sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDesign,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff,vcSQContent) values\r\n");
                                 //sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
-                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(memo + ";", false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + listInfoData[i]["vcUnit"].ToString() + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
+                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(memo + ";", false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + listInfoData[i]["vcUnit"].ToString() + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + "," + ComFunction.getSqlValue("未确认", false) + ")  \r\n");
 
                                 sbr.Append(" UPDATE TSBManager \r\n");
                                 sbr.Append(" SET vcFinishState = '3', \r\n");
@@ -304,7 +306,7 @@ namespace DataAccess
                                     sbr.Append(" a.vcBJDiff = b.vcBJDiff, \r\n");
                                     sbr.Append(" a.vcPartReplace = b.vcPart_id_DT, \r\n");
                                     //sbr.Append(" a.dGYSTimeTo = b.vcStartYearMonth, ");
-                                    //
+                                    sbr.Append(" a.vcSQContent = '未确认',\r\n");
                                     sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
                                     sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
                                     sbr.Append(" FROM TUnit a \r\n");
@@ -319,75 +321,96 @@ namespace DataAccess
                                 }
                                 else if (change.Equals("5") || change.Equals("3"))//旧型
                                 {
-                                    sbr.Append(" UPDATE a SET \r\n");
-                                    sbr.Append(" a.vcChange = '" + change + "', \r\n");
-                                    sbr.Append(" a.dSyncTime = NULL, \r\n");
-                                    sbr.Append(" a.vcHaoJiu = 'Q', \r\n");
-                                    sbr.Append(" a.dJiuBegin = b.vcStartYearMonth,  \r\n");
-                                    //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
-                                    sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";' , \r\n");
-                                    sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
-                                    sbr.Append(" a.vcDiff = '9', \r\n");
-                                    sbr.Append(" a.vcSQState = '0', \r\n");
-                                    sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
-                                    sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
-                                    sbr.Append(" FROM TUnit a \r\n");
-                                    sbr.Append(" LEFT JOIN (SELECT iAutoId,vcPart_Id_old AS vcPart_Id,CONVERT(DATE,vcStartYearMonth+'01') AS vcStartYearMonth,vcSPINo FROM TSBManager) b \r\n");
-                                    sbr.Append(" ON a.vcPart_id = b.vcPart_Id \r\n");
-                                    sbr.Append(" WHERE b.iAutoId = " + iAutoId + " \r\n");
+                                    if (partListJiu.Contains(listInfoData[i]["vcPart_Id_old"].ToString()))
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(refMsg))
+                                        {
+                                            refMsg += ";";
+                                        }
+                                        refMsg += "原单位中品番" + vcPart_Id + "号旧已为旧型，无法织入原单位。";
+                                    }
+                                    else
+                                    {
+                                        sbr.Append(" UPDATE a SET \r\n");
+                                        sbr.Append(" a.vcChange = '" + change + "', \r\n");
+                                        sbr.Append(" a.dSyncTime = NULL, \r\n");
+                                        sbr.Append(" a.vcHaoJiu = 'Q', \r\n");
+                                        sbr.Append(" a.dJiuBegin = b.vcStartYearMonth,  \r\n");
+                                        //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                                        sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";' , \r\n");
+                                        sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
+                                        sbr.Append(" a.vcDiff = '9', \r\n");
+                                        sbr.Append(" a.vcSQState = '0', \r\n");
+                                        sbr.Append(" a.vcSQContent = '未确认',\r\n");
+                                        sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
+                                        sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
+                                        sbr.Append(" FROM TUnit a \r\n");
+                                        sbr.Append(" LEFT JOIN (SELECT iAutoId,vcPart_Id_old AS vcPart_Id,CONVERT(DATE,vcStartYearMonth+'01') AS vcStartYearMonth,vcSPINo FROM TSBManager) b \r\n");
+                                        sbr.Append(" ON a.vcPart_id = b.vcPart_Id \r\n");
+                                        sbr.Append(" WHERE b.iAutoId = " + iAutoId + " \r\n");
 
-                                    sbr.Append(" UPDATE TSBManager \r\n");
-                                    sbr.Append(" SET vcFinishState = '3', \r\n");
-                                    sbr.Append(" vcOperatorId = '" + strUserId + "', \r\n");
-                                    sbr.Append(" dOperatorTime = GETDATE() \r\n");
-                                    sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
+                                        sbr.Append(" UPDATE TSBManager \r\n");
+                                        sbr.Append(" SET vcFinishState = '3', \r\n");
+                                        sbr.Append(" vcOperatorId = '" + strUserId + "', \r\n");
+                                        sbr.Append(" dOperatorTime = GETDATE() \r\n");
+                                        sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
 
 
-                                    sbr.Append("INSERT INTO TJiuTenYear(vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcOperator,dOperatorTime,vcIsLock)");
-                                    sbr.Append("VALUES");
-                                    sbr.Append("(");
-                                    sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_old"], false) + ",");
-                                    sbr.Append("'3',");
-                                    sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + ",");
-                                    //sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ", ");
-                                    sbr.Append("CONVERT(DATE, '" + listInfoData[i]["vcStartYearMonth"].ToString() + "' + '01'), ");
-                                    sbr.Append("'" + strUserId + "',");
-                                    sbr.Append("GETDATE(),'0') \r\n");
-
+                                        sbr.Append("INSERT INTO TJiuTenYear(vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcOperator,dOperatorTime,vcIsLock)");
+                                        sbr.Append("VALUES");
+                                        sbr.Append("(");
+                                        sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_Id_old"], false) + ",");
+                                        sbr.Append("'3',");
+                                        sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + ",");
+                                        //sbr.Append(ComFunction.getSqlValue(listInfoData[i]["vcStartYearMonth"], false) + ", ");
+                                        sbr.Append("CONVERT(DATE, '" + listInfoData[i]["vcStartYearMonth"].ToString() + "' + '01'), ");
+                                        sbr.Append("'" + strUserId + "',");
+                                        sbr.Append("GETDATE(),'0') \r\n");
+                                    }
                                 }
                                 else if (change.Equals("6"))//旧型恢复现号
                                 {
-                                    sbr.Append(" UPDATE a SET \r\n");
-                                    sbr.Append(" a.vcChange = '4', \r\n");
-                                    sbr.Append(" a.dSyncTime = NULL, \r\n");
-                                    sbr.Append(" a.vcHaoJiu = 'H', \r\n");
-                                    sbr.Append(" a.dJiuEnd = b.vcStartYearMonth, \r\n");
-                                    //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
-                                    sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";' , \r\n");
-                                    sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
-                                    sbr.Append(" a.vcDiff = '1', \r\n");
-                                    sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");
-                                    sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
-                                    sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
-                                    sbr.Append(" FROM TUnit a \r\n");
-                                    sbr.Append("     LEFT JOIN(SELECT iAutoId, vcCarType, vcPart_Id_old AS vcPart_Id, CONVERT(DATE, vcStartYearMonth + '01') AS vcStartYearMonth, vcSPINo FROM TSBManager) b \r\n");
-                                    sbr.Append("     ON a.vcPart_id = b.vcPart_Id \r\n");
-                                    sbr.Append(" WHERE b.iAutoId = " + iAutoId + " \r\n");
-                                    sbr.Append("  \r\n");
-                                    sbr.Append(" UPDATE TSBManager \r\n");
-                                    sbr.Append(" SET vcFinishState = '3', \r\n");
-                                    sbr.Append("     vcOperatorId = '" + strUserId + "', \r\n");
-                                    sbr.Append("     dOperatorTime = GETDATE() \r\n");
-                                    sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
-
-
+                                    if (partListHaoKao.Contains(listInfoData[i]["vcPart_Id_old"].ToString()))
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(refMsg))
+                                        {
+                                            refMsg += ";";
+                                        }
+                                        refMsg += "原单位中品番" + vcPart_Id + "号旧已为号口，无法织入原单位。";
+                                    }
+                                    else
+                                    {
+                                        sbr.Append(" UPDATE a SET \r\n");
+                                        sbr.Append(" a.vcChange = '" + change + "',\r\n");
+                                        sbr.Append(" a.dSyncTime = NULL, \r\n");
+                                        sbr.Append(" a.vcHaoJiu = 'H', \r\n");
+                                        sbr.Append(" a.dJiuEnd = b.vcStartYearMonth, \r\n");
+                                        //sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + change + ";' , \r\n");
+                                        sbr.Append(" a.vcMeno = isnull(vcMeno,'')+'" + memo + ";' , \r\n");
+                                        sbr.Append(" a.vcSPINo = b.vcSPINo, \r\n");
+                                        sbr.Append(" a.vcDiff = '1', \r\n");
+                                        sbr.Append(" a.vcCarTypeDesign = b.vcCarType, \r\n");
+                                        sbr.Append(" a.vcOperator = '" + strUserId + "', \r\n");
+                                        sbr.Append(" a.dOperatorTime = GETDATE() \r\n");
+                                        sbr.Append(" FROM TUnit a \r\n");
+                                        sbr.Append("     LEFT JOIN(SELECT iAutoId, vcCarType, vcPart_Id_old AS vcPart_Id, CONVERT(DATE, vcStartYearMonth + '01') AS vcStartYearMonth, vcSPINo FROM TSBManager) b \r\n");
+                                        sbr.Append("     ON a.vcPart_id = b.vcPart_Id \r\n");
+                                        sbr.Append(" WHERE b.iAutoId = " + iAutoId + " \r\n");
+                                        sbr.Append("  \r\n");
+                                        sbr.Append(" UPDATE TSBManager \r\n");
+                                        sbr.Append(" SET vcFinishState = '3', \r\n");
+                                        sbr.Append("     vcOperatorId = '" + strUserId + "', \r\n");
+                                        sbr.Append("     dOperatorTime = GETDATE() \r\n");
+                                        sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
+                                    }
                                 }
                                 else if (change.Equals("16"))//复活
                                 {
                                     sbr.Append(" UPDATE a SET \r\n");
-                                    sbr.Append(" a.vcChange = '5', \r\n");
+                                    sbr.Append(" a.vcChange = '" + change + "', \r\n");
                                     sbr.Append(" a.dSyncTime = NULL, \r\n");
                                     sbr.Append(" a.vcSQState = '0', \r\n");
+                                    sbr.Append(" a.vcSQContent = '未确认',\r\n");
                                     sbr.Append(" a.dTimeFrom = b.vcStartYearMonth, \r\n");
                                     sbr.Append(" a.dTimeTo = CONVERT(DATE,'99991231'), \r\n");
                                     sbr.Append(" a.vcHaoJiu = 'H', \r\n");
@@ -429,6 +452,10 @@ namespace DataAccess
 
                 }
 
+                if (!string.IsNullOrWhiteSpace(refMsg))
+                {
+                    return;
+                }
 
                 if (sbr.Length > 0)
                 {
@@ -922,7 +949,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016'");
+                sbr.AppendLine("SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C016' ORDER BY vcMeaning");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
 
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -951,7 +978,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT distinct vcPart_id FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE()");
+                    "SELECT distinct vcPart_id FROM TUnit WHERE dTimeTo >= GETDATE()");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
                 List<string> res = new List<string>();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -983,7 +1010,7 @@ namespace DataAccess
                 //sbr.AppendLine("(");
                 //sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C006'");
                 //sbr.AppendLine(") b ON a.vcOriginCompany = b.vcValue");
-                sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcName FROM TUnit WHERE dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id");
+                sbr.AppendLine("SELECT DISTINCT vcPart_id,MAX(vcOriginCompany) AS vcName FROM TUnit GROUP BY vcPart_id");
 
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
@@ -1051,5 +1078,54 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取号旧品番
+
+        public List<string> getHaoPart()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT distinct vcPart_id FROM TUnit WHERE vcHaoJiu = 'H' AND dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                List<string> list = new List<string>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        list.Add(dt.Rows[i]["vcPart_id"].ToString());
+                    }
+                }
+
+                return list;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<string> getJiuPart()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT distinct vcPart_id FROM TUnit WHERE vcHaoJiu = 'Q' AND dTimeFrom <= GETDATE() AND dTimeTo >= GETDATE()");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+                List<string> list = new List<string>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        list.Add(dt.Rows[i]["vcPart_id"].ToString());
+                    }
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

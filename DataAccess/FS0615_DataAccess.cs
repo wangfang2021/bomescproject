@@ -27,7 +27,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("select vcOrderNo, b.vcName vcOrderState, dUploadDate, a.iAutoId from TOrderUploadManage a ");
                 strSql.AppendLine("left join (select * from TCode where vcCodeId='C044') b ");
-                strSql.AppendLine("on a.vcOrderState=b.vcValue where vcOrderType='S' ");
+                strSql.AppendLine("on a.vcOrderState=b.vcValue where vcOrderType='H' ");
                 if (vcOrderNo.Length > 0)
                 {
                     strSql.AppendLine(" and vcOrderNo like '%" + vcOrderNo + "%' ");

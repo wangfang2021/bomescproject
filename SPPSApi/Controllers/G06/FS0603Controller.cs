@@ -1276,7 +1276,7 @@ namespace SPPSApi.Controllers.G06
                 string strMsg = "";
                 #region  string[,] headers = new string[,] {}
                 string[,] headers = new string[,] {
-                    {"操作类型","同步时间","变更事项","包装工场","补给品番","英文品名","车种代码",//1
+                    {"操作类型","同步时间","变更事项","包装工场","补给品番","英文品名","车型",//1
                         "收货方","品番-使用开始","品番-使用结束","替代品番",//2
                         "内外",
                         "发注工场",//8

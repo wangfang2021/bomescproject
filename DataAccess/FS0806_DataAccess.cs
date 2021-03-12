@@ -26,8 +26,8 @@ namespace DataAccess
                 strSql.Append("t1.vcCheckStatus,t1.vcLabelStart,t1.vcLabelEnd,t1.vcUnlocker,t1.dUnlockTime,t1.vcSellNo,    \n");
                 strSql.Append("t1.vcOperatorID,t1.dOperatorTime,t1.vcHostIp,    \n");
                 strSql.Append("t3.vcName as vcBZPlantName,t2.vcName as vcZYTypeName, t4.vcUserName,'0' as vcModFlag,'0' as vcAddFlag,   \n");
-                strSql.Append("case when t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end as vcStatus,    \n");
-                strSql.Append("case when t5.vcPart_id is not null then 'NG过' else '' end as vcHaveNG    \n");
+                strSql.Append("case when t1.vcZYType='S1' and t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end as vcStatus,    \n");
+                strSql.Append("case when t1.vcZYType='S1' and t5.vcPart_id is not null then 'NG过' else '' end as vcHaveNG    \n");
                 strSql.Append("from TOperateSJ t1  \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C022') t2 on t1.vcZYType=t2.vcValue  \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C023') t3 on t1.vcBZPlant=t3.vcValue  \n");
@@ -60,7 +60,7 @@ namespace DataAccess
                 if (vcLabelNo != "" && vcLabelNo != null)
                     strSql.Append("and '"+vcLabelNo+"' between t1.vcLabelStart and t1.vcLabelEnd   \n");
                 if (vcStatus != "" && vcStatus != null)
-                    strSql.Append("and (case when t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end)='" + vcStatus+"'    \n");
+                    strSql.Append("and (case when t1.vcZYType='S1' and  t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end)='" + vcStatus+"'    \n");
                 strSql.Append("order by t1.vcZYType,t1.vcInputNo,t1.dStart    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

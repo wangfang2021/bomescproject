@@ -84,10 +84,11 @@ namespace DataAccess
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     string vcIsLock = listInfoData[i]["vcIsLock"].ToString();//true可编辑,false不可编辑
                     string vcPart_id = listInfoData[i]["vcPart_id"].ToString();
 
-                    if (bModFlag == true && vcIsLock.Equals("0"))
+                    if (bModFlag == true && vcIsLock.Equals("0") && bAddFlag == false)
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
@@ -101,21 +102,9 @@ namespace DataAccess
                         sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
                         sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
                         sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + ", \r\n");
-                        sbr.Append(" vcIsLock='1' \r\n");
+                        sbr.Append(" vcIsLock='2' \r\n");
                         sbr.Append(" WHERE iAutoId = " + iAutoId + " \r\n");
 
-
-                        sbr.Append(" UPDATE TUnit SET vcNum1= " + ComFunction.getSqlValue(listInfoData[i]["vcNum1"], false) + ", \r\n");
-                        sbr.Append(" vcNum2= " + ComFunction.getSqlValue(listInfoData[i]["vcNum2"], false) + ", \r\n");
-                        sbr.Append(" vcNum3= " + ComFunction.getSqlValue(listInfoData[i]["vcNum3"], false) + ", \r\n");
-                        sbr.Append(" vcNum4= " + ComFunction.getSqlValue(listInfoData[i]["vcNum4"], false) + ", \r\n");
-                        sbr.Append(" vcNum5= " + ComFunction.getSqlValue(listInfoData[i]["vcNum5"], false) + ", \r\n");
-                        sbr.Append(" vcNum6= " + ComFunction.getSqlValue(listInfoData[i]["vcNum6"], false) + ", \r\n");
-                        sbr.Append(" vcNum7= " + ComFunction.getSqlValue(listInfoData[i]["vcNum7"], false) + ", \r\n");
-                        sbr.Append(" vcNum8= " + ComFunction.getSqlValue(listInfoData[i]["vcNum8"], false) + ", \r\n");
-                        sbr.Append(" vcNum9= " + ComFunction.getSqlValue(listInfoData[i]["vcNum9"], false) + ", \r\n");
-                        sbr.Append(" vcNum10=" + ComFunction.getSqlValue(listInfoData[i]["vcNum10"], false) + " \r\n");
-                        sbr.Append(" WHERE vcPart_id = " + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + " \r\n");
                     }
                     else
                     {
@@ -124,12 +113,39 @@ namespace DataAccess
                             strErrorPartId += ",";
                         }
 
-                        strErrorPartId += vcPart_id;
+                        if (bAddFlag)
+                        {
+                            strErrorPartId += "品番" + vcPart_id + "不能在此保存。";
+                        }
+                        else
+                        {
+                            strErrorPartId += "品番" + vcPart_id + "已织入原单位无法修改。";
+
+                        }
                     }
-                    if (!string.IsNullOrWhiteSpace(sbr.ToString()))
-                    {
-                        excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
-                    }
+
+                }
+                if (!string.IsNullOrWhiteSpace(sbr.ToString()))
+                {
+                    sbr.Append("UPDATE TUnit SET ");
+                    sbr.Append("vcNum1  = b.vcNum1 ,");
+                    sbr.Append("vcNum2  = b.vcNum2 ,");
+                    sbr.Append("vcNum3  = b.vcNum3 ,");
+                    sbr.Append("vcNum4  = b.vcNum4 ,");
+                    sbr.Append("vcNum5  = b.vcNum5 ,");
+                    sbr.Append("vcNum6  = b.vcNum6 ,");
+                    sbr.Append("vcNum7  = b.vcNum7 ,");
+                    sbr.Append("vcNum8  = b.vcNum8 ,");
+                    sbr.Append("vcNum9  = b.vcNum9 ,");
+                    sbr.Append("vcNum10 = b.vcNum10 ");
+                    sbr.Append("FROM  ");
+                    sbr.Append("TUnit a ");
+                    sbr.Append("LEFT JOIN ");
+                    sbr.Append(" (SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock,dJiuBegin FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id  AND a.dJiuBegin = b.dJiuBegin");
+                    sbr.Append(" WHERE b.vcIsLock = '2' ");
+                    sbr.Append(" UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
+
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
             }
             catch (Exception ex)
@@ -189,9 +205,9 @@ namespace DataAccess
                     sbr.Append("FROM  ");
                     sbr.Append("TUnit a ");
                     sbr.Append("LEFT JOIN ");
-                    sbr.Append("(SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id ");
-                    sbr.Append("WHERE b.vcIsLock = '2' ");
-                    sbr.Append("UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
+                    sbr.Append(" (SELECT vcPart_id,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock,dJiuBegin FROM TJiuTenYear) b ON a.vcPart_id = b.vcPart_id  AND a.dJiuBegin = b.dJiuBegin");
+                    sbr.Append(" WHERE b.vcIsLock = '2' ");
+                    sbr.Append(" UPDATE TJiuTenYear SET vcIsLock = '1' WHERE vcIsLock = '2' \r\n");
 
                     excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
                 }
@@ -201,6 +217,95 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #endregion
+
+        #region 新增保存
+        public void InsertSave(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                DataTable check = checkExist();
+                StringBuilder sbr = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    string vcPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    string vcCarTypeDesign = listInfoData[i]["vcCarTypeDesign"].ToString();
+                    DateTime time = DateTime.Parse(listInfoData[i]["dJiuBegin"].ToString());
+                    if (bAddFlag)
+                    {//新增
+                        DataRow[] row = check.Select("vcPart_id = '" + vcPart_id + "' AND dJiuBegin = " + ComFunction.getSqlValue(time, true) + "");
+                        if (row.Length > 0)
+                        {
+                            if (!string.IsNullOrWhiteSpace(strErrorPartId))
+                            {
+                                strErrorPartId += ";";
+                            }
+                            strErrorPartId += "品番" + vcPart_id + "在旧型开始时间" + time.ToString("yyyy/MM/dd") + "已存在";
+                        }
+                        else
+                        {
+                            sbr.AppendLine("INSERT INTO TJiuTenYear(vcPart_id, vcChange, vcCarTypeDesign, dJiuBegin, vcIsLock, vcOperator, dOperatorTime)");
+                            sbr.AppendLine("VALUES('" + vcPart_id + "',");
+                            sbr.AppendLine("'3',");
+                            sbr.AppendLine("'" + vcCarTypeDesign + "',");
+                            sbr.AppendLine("" + ComFunction.getSqlValue(time, true) + ",");
+                            sbr.AppendLine("'0',");
+                            sbr.AppendLine("'" + strUserId + "',");
+                            sbr.AppendLine("GETDATE())");
+                        }
+
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(strErrorPartId))
+                        {
+                            strErrorPartId += ";";
+                        }
+                        strErrorPartId += "品番" + vcPart_id + "不能在此保存。";
+                    }
+
+                }
+
+                if (!string.IsNullOrWhiteSpace(strErrorPartId))
+                {
+                    return;
+                }
+                if (!string.IsNullOrWhiteSpace(sbr.ToString()))
+                {
+                    excute.ExcuteSqlWithStringOper(sbr.ToString(), "TK");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
+
+        #region 检索重复品番
+
+        public DataTable checkExist()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcPart_id,dJiuBegin FROM TJiuTenYear");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
     }
 }

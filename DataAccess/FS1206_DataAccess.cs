@@ -113,7 +113,7 @@ namespace DataAccess
 
                         sql.Append("  update TSSP  \r\n");
                         sql.Append("  set iCONum= " + listInfoData[i]["iCONum"] + "  \r\n");
-                        sql.Append("  where iAutoId=(select top 1 iAutoId from TSSP   \r\n");
+                        sql.Append("  where iAutoId=(select top 1 iAutoId from TSSP  \r\n");
                         sql.Append("  where vcPartsNo=" + ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false) + " order by vcMonth desc) \r\n");
                     }
                     excute.ExcuteSqlWithStringOper(sql.ToString());
@@ -174,6 +174,11 @@ namespace DataAccess
                         dr[0]["iSRNum"] = dt.Rows[i][5].ToString();
                         dr[0]["vcUpdateUser"] = user;
                         dr[0]["dUpdateTime"] = DateTime.Now.ToString();
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("update TSSP set iCONum=" + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()));
+                        sb.Append(" where iAutoId =(select top 1 iAutoId from TSSP where vcPartsNo='" + dt.Rows[i][0].ToString() + "' order by vcMonth desc) ");
+                        excute.ExecuteSQLNoQuery(sb.ToString());
                     }
                     else
                     {

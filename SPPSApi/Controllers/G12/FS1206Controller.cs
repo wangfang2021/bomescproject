@@ -212,7 +212,7 @@ namespace SPPSApi.Controllers.G12
                                                 {"vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum","iCONum"},
                                                 {"","","","",FieldCheck.NumCharL,FieldCheck.Num,FieldCheck.Num },
                                                 {"12","14","3","20","3","10","10"},//最大长度设定,不校验最大长度用0
-                                                {"12","1","1","0","0","1","0"},//最小长度设定,可以为空用0
+                                                {"12","1","1","0","0","1","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1206");

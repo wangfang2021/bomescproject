@@ -33,7 +33,6 @@ namespace Logic
         #endregion
 
         #region 织入原单位前校验品番在原单位表中是否存在
-        //getPartidExistsInUnit
         public DataTable getPartidExistsInUnit(List<Dictionary<string, Object>> listInfoData,string strUserId,ref string strErr)
         {
             return fs0304_DataAccess.getPartidExistsInUnit(listInfoData, strUserId, ref strErr);
@@ -104,6 +103,14 @@ namespace Logic
         #region 织入原单位
         public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
         {
+            #region 校验所选品番在原单位中是否存在，如果不存在，提示并报错
+            DataTable dt = getPartidExistsInUnit(listInfoData, strUserId, ref strErr);
+            if (dt!=null && dt.Rows.Count>0)    //如果
+            {
+
+            }
+            #endregion
+
             fs0304_DataAccess.sendUnit(listInfoData, strUserId, ref strErr);
         }
         #endregion

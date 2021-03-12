@@ -19,9 +19,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strSellNo, string strStartTime, string strEndTime,string strYinQuType)
+        public DataTable Search(string strSellNo, string strStartTime, string strEndTime,string strYinQuType,string strSHF,string strLabelID)
         {
-            return fs0813_DataAccess.Search(strSellNo, strStartTime, strEndTime, strYinQuType);
+            return fs0813_DataAccess.Search(strSellNo, strStartTime, strEndTime, strYinQuType, strSHF, strLabelID);
         }
         #endregion
 
@@ -30,7 +30,17 @@ namespace Logic
         {
             return fs0813_DataAccess.initSubApi(strSellNo);
         }
+        public DataTable initSubApi2(string strSellNo)
+        {
+            return fs0813_DataAccess.initSubApi2(strSellNo);
+        }
         #endregion
 
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0813_DataAccess.Save(listInfoData, strUserId);
+        }
+        #endregion
     }
 }

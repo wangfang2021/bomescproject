@@ -33,6 +33,7 @@ namespace DataAccess
                 {
                     ssql.AppendLine("where t1.vcPartsNo like '" + strPartsNo + "%'");
                 }
+                ssql.AppendLine("order by t1.vcPartsNo");
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());
             }
@@ -85,7 +86,6 @@ namespace DataAccess
                             strErrorPartId = "第" + (i + 1).ToString() + "行，品番已存在！";
                             return;
                         }
-
                         sql.Append("insert into tSSPMaster(vcPartsNo, vcPartsNoFZ, vcSource, vcFactory, vcBF, iSRNum, vcCreateUser, dCreateTime)  \r\n");
                         sql.Append(" values (  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false) + ",  \r\n");
@@ -110,6 +110,11 @@ namespace DataAccess
                         sql.Append("  ,vcUpdateUser='" + strUserId + "'  \r\n");
                         sql.Append("  ,dUpdateTime=getdate()   \r\n");
                         sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+
+                        sql.Append("  update TSSP  \r\n");
+                        sql.Append("  set iCONum= " + listInfoData[i]["iCONum"] + "  \r\n");
+                        sql.Append("  where iAutoId=(select top 1 iAutoId from TSSP   \r\n");
+                        sql.Append("  where vcPartsNo=" + ComFunction.getSqlValue(listInfoData[i]["vcPartsNo"], false) + " order by vcMonth desc) \r\n");
                     }
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }

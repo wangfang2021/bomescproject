@@ -41,6 +41,9 @@ namespace DataAccess
                 strSql.Append("     ,CONVERT(varchar(100),dJiuBegin, 111) as dJiuBeginStr    \n");
                 strSql.Append("     ,CONVERT(varchar(100),dJiuEnd, 111) as dJiuEndStr    \n");
                 strSql.Append("     ,CONVERT(varchar(100),dSSDate, 111) as dSSDateStr    \n");
+                strSql.Append("     ,case when dJiuBegin is not null and dJiuEnd is null and year(GETDATE())-year(dJiuBegin)>0    \n");
+                strSql.Append("     then cast(year(GETDATE())-year(dJiuBegin)  as varchar(10))     \n");
+                strSql.Append("     else '' end as vcJiuYearSearch    \n");
                 strSql.Append("     from     \n");
                 strSql.Append("     (     \n");
                 strSql.Append("         select * from TUnit \n");
@@ -186,16 +189,14 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], true) + ",   \r\n");
                         //旧型经年由旧型开始和结束时间计算得出
                         #region 计算旧型经年
-
                         if (
                                 (listInfoData[i]["dJiuBegin"] != null && listInfoData[i]["dJiuBegin"].ToString() != "")
                                  &&
-                                (listInfoData[i]["dJiuEnd"] != null && listInfoData[i]["dJiuEnd"].ToString() != "")
+                                (listInfoData[i]["dJiuEnd"] == null || listInfoData[i]["dJiuEnd"].ToString() == "")
                             )
                         {
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
-                            DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
-                            int iJiuYear = datetime2.Year - datetime1.Year;
+                            int iJiuYear = DateTime.Now.Year - datetime1.Year;
                             sql.Append("'" + iJiuYear + "',   \r\n");
                         }
                         else
@@ -277,12 +278,11 @@ namespace DataAccess
                         if (
                                 (listInfoData[i]["dJiuBegin"] != null && listInfoData[i]["dJiuBegin"].ToString() != "")
                                  &&
-                                (listInfoData[i]["dJiuEnd"] != null && listInfoData[i]["dJiuEnd"].ToString() != "")
+                                (listInfoData[i]["dJiuEnd"] == null || listInfoData[i]["dJiuEnd"].ToString() == "")
                             )
                         {
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
-                            DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
-                            int iJiuYear = datetime2.Year - datetime1.Year;
+                            int iJiuYear = DateTime.Now.Year - datetime1.Year;
                             sql.Append(",vcJiuYear = '" + iJiuYear + "'   \r\n");
                         }
                         else
@@ -459,17 +459,15 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dJiuBegin"], true) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dJiuEnd"], true) + "        \n");
 
-                    //旧型经年由旧型开始和结束时间计算得出
+                    //有旧型开始时间没有结束时间的，用当前时间-旧型开始时间=旧型经年
                     #region 计算旧型经年
                     if (
-                        (dt.Rows[i]["dJiuBegin"]!=null && dt.Rows[i]["dJiuBegin"].ToString() != "" ) 
-                        && 
-                        (dt.Rows[i]["dJiuEnd"] !=null && dt.Rows[i]["dJiuEnd"].ToString() != "")
+                        (dt.Rows[i]["dJiuBegin"] != null && dt.Rows[i]["dJiuBegin"].ToString() != "")
+                        && (dt.Rows[i]["dJiuEnd"] == null || dt.Rows[i]["dJiuEnd"].ToString() == "")
                         )
                     {
                         DateTime datetime1 = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]);
-                        DateTime datetime2 = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]);
-                        int iJiuYear = datetime2.Year - datetime1.Year;
+                        int iJiuYear = DateTime.Now.Year - datetime1.Year;
                         sql.Append(",'" + iJiuYear + "'   \r\n");
                     }
                     else

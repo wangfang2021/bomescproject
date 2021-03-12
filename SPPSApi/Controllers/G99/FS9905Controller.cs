@@ -141,15 +141,60 @@ namespace SPPSApi.Controllers.G99
 
             try
             {
+                #region 拿到统括库中的所有供应商生确单
                 DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id,loginInfo.UserId);
+                #endregion
+
+                if (dt!=null && dt.Rows.Count>0)
+                {
+                    #region 去现地库取出供应商可否编辑的数据
+                    List<string> SupplierLists = new List<string>();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (dt.Rows[i]["vcSupplier_id"] == null)
+                        {
+                            apiResult.code = ComConstant.SUCCESS_CODE;
+                            apiResult.data = "检索错误，出现品番无供应商情况";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        SupplierLists.Add(dt.Rows[i]["vcSupplier_id"].ToString());
+                    }
+                    DataTable SupplierDT = fs9905_Logic.SearchSupplierEditDT(SupplierLists.Distinct().ToList());
+                    #endregion
+
+                    #region 在DT中添加供应商可否编辑判断字段列，根据获取到的供应商可否编辑信息判断供应商可否编辑(可编辑：1  不可编辑：0)
+                    dt.Columns.Add("vcSupplierEditFlag");
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string supplier_id = dt.Rows[i]["vcSupplier_id"].ToString();
+                        DataRow[] dataRows = SupplierDT.Select("vcValue1='" + supplier_id + "'");
+                        if (dataRows.Count() > 0)
+                        {
+                            if (dataRows[0]["vcValue2"] != null && dataRows[0]["vcValue2"].ToString() == "是")
+                            {
+                                dt.Rows[i]["vcSupplierEditFlag"] = "1";
+                            }
+                            else
+                            {
+                                dt.Rows[i]["vcSupplierEditFlag"] = "0";
+                            }
+                        }
+                        else
+                        {
+                            dt.Rows[i]["vcSupplierEditFlag"] = "0";
+                        }
+                    }
+                    #endregion
+                
+                }
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSCSNameModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSCSPlaceModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -181,6 +226,7 @@ namespace SPPSApi.Controllers.G99
                 return error_login();
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
+            
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -188,6 +234,49 @@ namespace SPPSApi.Controllers.G99
             try
             {
                 DataTable dt = fs9905_Logic.Search(loginInfo.UserId);
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    #region 去现地库取出供应商可否编辑的数据
+                    List<string> SupplierLists = new List<string>();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (dt.Rows[i]["vcSupplier_id"] == null)
+                        {
+                            apiResult.code = ComConstant.SUCCESS_CODE;
+                            apiResult.data = "检索错误，出现品番无供应商情况";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        SupplierLists.Add(dt.Rows[i]["vcSupplier_id"].ToString());
+                    }
+                    DataTable SupplierDT = fs9905_Logic.SearchSupplierEditDT(SupplierLists.Distinct().ToList());
+                    #endregion
+
+                    #region 在DT中添加供应商可否编辑判断字段列，根据获取到的供应商可否编辑信息判断供应商可否编辑(可编辑：1  不可编辑：0)
+                    dt.Columns.Add("vcSupplierEditFlag");
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string supplier_id = dt.Rows[i]["vcSupplier_id"].ToString();
+                        DataRow[] dataRows = SupplierDT.Select("vcValue1='" + supplier_id + "'");
+                        if (dataRows.Count() > 0)
+                        {
+                            if (dataRows[0]["vcValue2"] != null && dataRows[0]["vcValue2"].ToString() == "是")
+                            {
+                                dt.Rows[i]["vcSupplierEditFlag"] = "1";
+                            }
+                            else
+                            {
+                                dt.Rows[i]["vcSupplierEditFlag"] = "0";
+                            }
+                        }
+                        else
+                        {
+                            dt.Rows[i]["vcSupplierEditFlag"] = "0";
+                        }
+                    }
+                    #endregion
+                }
+
                 DtConverter dtConverter = new DtConverter();
 
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
@@ -195,7 +284,9 @@ namespace SPPSApi.Controllers.G99
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcSCSNameModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcSCSPlaceModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dSSDateMonth", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -238,8 +329,8 @@ namespace SPPSApi.Controllers.G99
                 DataTable dt = fs9905_Logic.SearchTHList(strGUID);
                 DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("dTHTime", ConvertFieldType.DateType,"yyyyMMdd");
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType,"yyyyMMdd");
+                dtConverter.addField("dTHTime", ConvertFieldType.DateType,"yyyyMMddHHmm");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType,"yyyyMMddHHmm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -292,7 +383,22 @@ namespace SPPSApi.Controllers.G99
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcYQorNG"]!=null)
+                    {
+                        int byteLength = System.Text.Encoding.Default.GetBytes(listInfoData[i]["vcYQorNG"].ToString()).Length;
+                        //延期说明超过了600字节，提示错误
+                        if (byteLength > 600)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "保存失败，延期说明文本超长";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                }
+
                 string strErr = "";
                 fs9905_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
@@ -401,12 +507,12 @@ namespace SPPSApi.Controllers.G99
                 
                 #region 数据校验
                 //开始数据验证
-                string[,] strField = new string[,] {{"对应可否确认结果"},
-                                                    {"vcIsDYJG"        },
-                                                    {""                },
-                                                    {"1"               },//最大长度设定,不校验最大长度用0
-                                                    {"0"               },//最小长度设定,可以为空用0
-                                                    {"14"              }//前台显示列号，从0开始计算,注意有选择框的是0
+                string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否"},
+                                                    {"vcIsDYJG"        ,"vcIsDYFX"    },
+                                                    {""                ,""            },
+                                                    {"1"               ,"1"           },//最大长度设定,不校验最大长度用0
+                                                    {"1"               ,"1"           },//最小长度设定,可以为空用0
+                                                    {"14"              ,"15"          } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
                 //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = null;
@@ -417,62 +523,8 @@ namespace SPPSApi.Controllers.G99
                 /*                         验证vcChange字段     当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
                 string[,] strSpecialCheck = {
                          { "执行标准区分"    ,"vcZXBZDiff","CCC"       ,"CCC","执行标准NO"         ,"vcZXBZNo"          ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"    ,"1"  ,"供应商切替日期-补给","dSupplier_BJ"      ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"可对应"    ,"1"  ,"供应商切替日期-号口","dSupplier_HK"      ,"1",                      "","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应"  ,"2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
                         };
-
-                //#region 对新设进行特殊校验
-                //for (int i = 0; i < listInfoData.Count; i++)
-                //{
-                //    //判断是否填写对应可否（包括对应结果可否和防锈对应可否）
-                //    if ((listInfoData[i]["vcIsDYJG"] == null || listInfoData[i]["vcIsDYJG"].ToString() == "") && (listInfoData[i]["vcIsDYFX"] == null || listInfoData[i]["vcIsDYFX"].ToString() == ""))
-                //    {
-                //        //如果也没填写对应可否理由，提示报错
-                //        if (listInfoData[i]["vcNotDY"] == null || listInfoData[i]["vcNotDY"].ToString() == "")
-                //        {
-                //            apiResult.code = ComConstant.ERROR_CODE;
-                //            apiResult.data = "回复失败！请选择对应可否";
-                //            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        //如果填写了可对应
-                //        if (listInfoData[i]["vcIsDYJG"].ToString() == "1")
-                //        {
-                //            //如果变更事项为新设
-                //            if (listInfoData[i]["vcChange"].ToString() == "1" || listInfoData[i]["vcChange"].ToString() == "2")
-                //            {
-                //                //判断是否填写生产地
-                //                if ((listInfoData[i]["vcSCPlace_City"] == null || listInfoData[i]["vcSCPlace_City"].ToString() == "") || (listInfoData[i]["vcSCPlace_Province"] == null || listInfoData[i]["vcSCPlace_Province"].ToString() == ""))
-                //                {
-                //                    apiResult.code = ComConstant.ERROR_CODE;
-                //                    apiResult.data = "回复失败！请填写生产地信息";
-                //                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //                }
-                //                //判断是否填写出荷地
-                //                if ((listInfoData[i]["vcCHPlace_City"] == null || listInfoData[i]["vcCHPlace_City"].ToString() == "") || (listInfoData[i]["vcCHPlace_Province"] == null || listInfoData[i]["vcCHPlace_Province"].ToString() == ""))
-                //                {
-                //                    apiResult.code = ComConstant.ERROR_CODE;
-                //                    apiResult.data = "回复失败！请填写出荷地信息";
-                //                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //                }
-                //            }
-                //        }
-                //        else
-                //        {
-                //            //此时为不可对应,判断是否填写对应不可理由
-                //            if (listInfoData[i]["vcNotDY"] == null || listInfoData[i]["vcNotDY"].ToString() == "")
-                //            {
-                //                apiResult.code = ComConstant.ERROR_CODE;
-                //                apiResult.data = "回复失败！请填写对应不可理由";
-                //                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //            }
-                //        }
-                //    }
-                //}
-                //#endregion
 
                 List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
                 if (checkRes != null)
@@ -486,22 +538,60 @@ namespace SPPSApi.Controllers.G99
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcJD"].ToString() == "2")
+                    if (listInfoData[i]["vcIsDYJG"].ToString()=="1")
+                    {
+                        string strChange = listInfoData[i]["vcChange"].ToString();
+                        if (strChange=="1" || strChange =="2" || strChange =="10" || strChange =="8" || strChange =="12")
+                        {
+                            if (
+                                  listInfoData[i]["vcSCPlace_City"]==null || listInfoData[i]["vcSCPlace_City"].ToString()==""
+                                || listInfoData[i]["vcSCPlace_Province"] == null || listInfoData[i]["vcSCPlace_Province"].ToString() == ""
+                                || listInfoData[i]["vcCHPlace_City"] == null || listInfoData[i]["vcCHPlace_City"].ToString() == ""
+                                || listInfoData[i]["vcCHPlace_Province"] == null || listInfoData[i]["vcCHPlace_Province"].ToString() == ""
+                                || listInfoData[i]["dSupplier_BJ"] == null || listInfoData[i]["dSupplier_BJ"].ToString() == ""
+                                || listInfoData[i]["dSupplier_HK"] == null || listInfoData[i]["dSupplier_HK"].ToString() == ""
+                                )
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "生确回复失败！当对应可否确认结果为可对应、设变为新设时，生产地-市、生产地-省、出荷地-市、出荷地-省、补给日期、号口日期必须填写";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                        else
+                        {
+                            if (  
+                                  listInfoData[i]["dSupplier_BJ"] == null || listInfoData[i]["dSupplier_BJ"].ToString() == ""
+                                || listInfoData[i]["dSupplier_HK"] == null || listInfoData[i]["dSupplier_HK"].ToString() == ""
+                                )
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "生确回复失败！当对应可否确认结果为可对应时，补给日期、号口日期必须填写";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                    }
+                    else if(listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYJG"].ToString()=="2")
+                    {
+                        if (listInfoData[i]["vcNotDY"]==null || listInfoData[i]["vcNotDY"].ToString()=="")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "生确回复失败！当对应可否确认结果或者防锈对应可否为不可对应时，不可对应理由必须填写";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    if (listInfoData[i]["vcJD"].ToString()=="2")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "已回复的生确单不可重复回复";
+                        apiResult.data = "生确回复失败！已回复生确不可再次回复";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-
-                    string strChange = listInfoData[i]["vcChange"] == null ? "" : listInfoData[i]["vcChange"].ToString();
-                    string strSCPlace_City = listInfoData[i]["vcSCPlace_City"] == null ? "" : listInfoData[i]["vcSCPlace_City"].ToString();
-                    string strSCPlace_Province = listInfoData[i]["vcSCPlace_Province"] == null ? "" : listInfoData[i]["vcSCPlace_Province"].ToString();
-                    string strCHPlace_City = listInfoData[i]["vcCHPlace_City"] == null ? "" : listInfoData[i]["vcCHPlace_City"].ToString();
-                    string strCHPlace_Province = listInfoData[i]["vcCHPlace_Province"] == null ? "" : listInfoData[i]["vcCHPlace_Province"].ToString();
-                    if ((strChange == "1" || strChange == "2" || strChange == "3" || strChange == "4") && (string.IsNullOrEmpty(strSCPlace_City) || string.IsNullOrEmpty(strCHPlace_City)))
+                    if (
+                          listInfoData[i]["vcSCSName"]==null || listInfoData[i]["vcSCSName"].ToString()==""
+                        || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString() == ""
+                        )
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "生确回复时，变更事项为新车新设、设变新设、打切旧型、设变旧型时，生产地与出荷地不能为空！";
+                        apiResult.data = "生确回复失败！生产商名称和生产商地址必须填写";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

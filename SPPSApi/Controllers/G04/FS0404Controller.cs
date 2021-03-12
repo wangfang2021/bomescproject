@@ -538,6 +538,16 @@ namespace SPPSApi.Controllers.G04
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                if ( vcOrderType == "D") //验证王继伟那是否存在
+                {
+                    DataTable dtTSoqDayChange = fs0404_Logic.checkTSoqDayChange(dTargetDate.Replace("-","").Replace("/",""));
+                    if (dtTSoqDayChange.Rows.Count==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "还未上传日次需求数据,请稍后再上传!";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
 
                 string msg = string.Empty;
 

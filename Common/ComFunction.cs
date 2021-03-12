@@ -925,9 +925,34 @@ namespace Common
                             row = sheet.CreateRow(j + 1);
                             for (int l = 0; l < field.Length; l++)
                             {
+                                Type type = dt.Columns[field[l]].DataType;
                                 cell = row.CreateCell(l);//excel第二行开始写入数据 
                                 cell.CellStyle = styles[l];
-                                cell.SetCellValue(dt.Rows[j + i * size][field[l]].ToString());
+                                if (type == Type.GetType("System.Decimal"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToDouble(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int32"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt32(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int16"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt16(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int64"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt64(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else
+                                {
+                                    cell.SetCellValue(dt.Rows[j + i * size][field[l]].ToString());
+                                }
+                                //cell.SetCellValue(dt.Rows[j + i * size][field[l]].ToString());
                             }
                         }
                         using (fs = File.OpenWrite(path))
@@ -1338,7 +1363,11 @@ namespace Common
                 MultiExcute excute = new MultiExcute();
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'  ORDER BY iAutoId    \n");
+                strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
+                if(strCodeId == "C002"|| strCodeId == "C016")//变更事项有排序规定，还有类似的在这加or
+                    strSql.Append("     order by cast(vcMeaning as int) asc     \n");
+                else
+                    strSql.Append("     ORDER BY iAutoId    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

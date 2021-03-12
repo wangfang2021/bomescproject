@@ -774,7 +774,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = '" + CodeId + "'");
+                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = '" + CodeId + "' ORDER BY vcMeaning");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
             }
             catch (Exception ex)

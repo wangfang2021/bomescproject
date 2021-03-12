@@ -15,7 +15,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.Append(" SELECT iAutoId,'0' as vcModFlag,'0' as vcAddFlag,vcFileNameTJ,case vcState WHEN 0 THEN '未开封' WHEN 1 THEN '已开封' WHEN 2 THEN '已完成' END AS State ,vcRemark,dOperatorTime FROM TSBFile \r\n");
+                sbr.Append(" SELECT iAutoId,'0' as vcModFlag,'0' as vcAddFlag,vcFileNameTJ,case vcState WHEN 0 THEN '未开封' WHEN 1 THEN '已开封' WHEN 2 THEN '已完成' END AS State ,vcRemark,dUploadTime FROM TSBFile \r\n");
                 sbr.Append(" WHERE 1=1  \r\n");
                 if (!string.IsNullOrWhiteSpace(iState))
                 {

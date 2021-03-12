@@ -41,6 +41,9 @@ namespace DataAccess
                 strSql.Append("     ,CONVERT(varchar(100),dJiuBegin, 111) as dJiuBeginStr    \n");
                 strSql.Append("     ,CONVERT(varchar(100),dJiuEnd, 111) as dJiuEndStr    \n");
                 strSql.Append("     ,CONVERT(varchar(100),dSSDate, 111) as dSSDateStr    \n");
+                strSql.Append("     ,case when dJiuBegin is not null and dJiuEnd is null and year(GETDATE())-year(dJiuBegin)>0    \n");
+                strSql.Append("     then cast(year(GETDATE())-year(dJiuBegin)  as varchar(10))     \n");
+                strSql.Append("     else '' end as vcJiuYearSearch    \n");
                 strSql.Append("     from     \n");
                 strSql.Append("     (     \n");
                 strSql.Append("         select * from TUnit \n");
@@ -153,7 +156,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dSyncTime"], true) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + ",   \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcSQContent"], false) + ",   \r\n");
+                        sql.Append("'未确认',   \r\n");
                         sql.Append("'0',   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + ",   \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + ",   \r\n");
@@ -186,16 +189,14 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["dJiuEnd"], true) + ",   \r\n");
                         //旧型经年由旧型开始和结束时间计算得出
                         #region 计算旧型经年
-
                         if (
                                 (listInfoData[i]["dJiuBegin"] != null && listInfoData[i]["dJiuBegin"].ToString() != "")
                                  &&
-                                (listInfoData[i]["dJiuEnd"] != null && listInfoData[i]["dJiuEnd"].ToString() != "")
+                                (listInfoData[i]["dJiuEnd"] == null || listInfoData[i]["dJiuEnd"].ToString() == "")
                             )
                         {
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
-                            DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
-                            int iJiuYear = datetime2.Year - datetime1.Year;
+                            int iJiuYear = DateTime.Now.Year - datetime1.Year;
                             sql.Append("'" + iJiuYear + "',   \r\n");
                         }
                         else
@@ -277,12 +278,11 @@ namespace DataAccess
                         if (
                                 (listInfoData[i]["dJiuBegin"] != null && listInfoData[i]["dJiuBegin"].ToString() != "")
                                  &&
-                                (listInfoData[i]["dJiuEnd"] != null && listInfoData[i]["dJiuEnd"].ToString() != "")
+                                (listInfoData[i]["dJiuEnd"] == null || listInfoData[i]["dJiuEnd"].ToString() == "")
                             )
                         {
                             DateTime datetime1 = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]);
-                            DateTime datetime2 = Convert.ToDateTime(listInfoData[i]["dJiuEnd"]);
-                            int iJiuYear = datetime2.Year - datetime1.Year;
+                            int iJiuYear = DateTime.Now.Year - datetime1.Year;
                             sql.Append(",vcJiuYear = '" + iJiuYear + "'   \r\n");
                         }
                         else
@@ -459,17 +459,15 @@ namespace DataAccess
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dJiuBegin"], true) + "       \n");
                     sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["dJiuEnd"], true) + "        \n");
 
-                    //旧型经年由旧型开始和结束时间计算得出
+                    //有旧型开始时间没有结束时间的，用当前时间-旧型开始时间=旧型经年
                     #region 计算旧型经年
                     if (
-                        (dt.Rows[i]["dJiuBegin"]!=null && dt.Rows[i]["dJiuBegin"].ToString() != "" ) 
-                        && 
-                        (dt.Rows[i]["dJiuEnd"] !=null && dt.Rows[i]["dJiuEnd"].ToString() != "")
+                        (dt.Rows[i]["dJiuBegin"] != null && dt.Rows[i]["dJiuBegin"].ToString() != "")
+                        && (dt.Rows[i]["dJiuEnd"] == null || dt.Rows[i]["dJiuEnd"].ToString() == "")
                         )
                     {
                         DateTime datetime1 = Convert.ToDateTime(dt.Rows[i]["dJiuBegin"]);
-                        DateTime datetime2 = Convert.ToDateTime(dt.Rows[i]["dJiuEnd"]);
-                        int iJiuYear = datetime2.Year - datetime1.Year;
+                        int iJiuYear = DateTime.Now.Year - datetime1.Year;
                         sql.Append(",'" + iJiuYear + "'   \r\n");
                     }
                     else
@@ -588,7 +586,7 @@ namespace DataAccess
                 sql.Append("      ,vcNum12,vcNum13,vcNum14,vcNum15,vcZXBZNo,vcReceiver,vcOriginCompany,vcOperator      \n");
                 sql.Append("      ,dOperatorTime,vcRemark      \n");
                 sql.Append("      )       \n");
-                sql.Append("      select a.dSyncTime,a.vcChange,a.vcSPINo,a.vcSQContent,'0' as 'vcSQState',a.vcDiff,a.vcPart_id,a.vcCarTypeDesign,a.vcCarTypeDev      \n");
+                sql.Append("      select a.dSyncTime,a.vcChange,a.vcSPINo,'未确认' as vcSQContent,'0' as 'vcSQState',a.vcDiff,a.vcPart_id,a.vcCarTypeDesign,a.vcCarTypeDev      \n");
                 sql.Append("      ,a.vcCarTypeName,a.dTimeFrom,a.dTimeTo,a.dTimeFromSJ,a.vcBJDiff,a.vcPartReplace,a.vcPartNameEn      \n");
                 sql.Append("      ,a.vcPartNameCn,a.vcHKGC,a.vcBJGC,a.vcInOutflag,a.vcSupplier_id,a.vcSupplier_Name,a.vcSCPlace      \n");
                 sql.Append("      ,a.vcCHPlace,a.vcSYTCode,a.vcSCSName,a.vcSCSAdress,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcOE,a.vcHKPart_id      \n");

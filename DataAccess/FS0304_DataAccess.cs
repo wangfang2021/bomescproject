@@ -373,6 +373,31 @@ namespace DataAccess
         }
         #endregion
 
+        #region 验证品番在临时表中是否存在
+        public DataTable getPartidExistsInUnit(List<Dictionary<string, Object>> listInfoData,string strUserId,ref string strErr) 
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                getTempData(listInfoData, strSql, strUserId, ref strErr);
+                strSql.Append("       select * from       \n");
+                strSql.Append("       (      \n");
+                strSql.Append("       	select vcPart_id from #TSQJD_temp      \n");
+                strSql.Append("       ) a      \n");
+                strSql.Append("       left join       \n");
+                strSql.Append("       (      \n");
+                strSql.Append("       	select vcPart_id from TUnit      \n");
+                strSql.Append("       ) b on a.vcPart_id = b.vcPart_id      \n");
+                strSql.Append("       where b.vcPart_id is null      \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region 织入原单位
         public void sendUnit(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
         {

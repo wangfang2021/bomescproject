@@ -100,7 +100,7 @@ namespace DataAccess
                 }
                 if (dExpectDeliveryDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExpectDeliveryDate.Replace("-", "") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
                 }
 
                 strSql.AppendLine("  order by a.vcState asc, dSendDate desc ");

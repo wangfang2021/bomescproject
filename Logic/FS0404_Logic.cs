@@ -74,5 +74,10 @@ namespace Logic
         {
             return fs0404_DataAccess.getOrderCodeByName(vcOrderTypeName);
         }
+
+        public DataTable checkTSoqDayChange(string dTargetDate)
+        {
+            return fs0404_DataAccess.checkTSoqDayChange(dTargetDate);
+        }
     }
 }

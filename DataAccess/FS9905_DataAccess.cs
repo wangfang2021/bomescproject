@@ -28,8 +28,7 @@ namespace DataAccess
                 strSql.Append("     	,b7.vcName as 'vcFXDiff_Name'       \n");
                 strSql.Append("     	,b8.vcName as 'vcIsDYJG_Name'       \n");
                 strSql.Append("     	,b9.vcName as 'vcIsDYFX_Name'       \n");
-                strSql.Append("     	,case when (b10.vcValue2='是') then '1' else '0' end as 'vcSupplierEditFlag'       \n");
-                strSql.Append("     	,b11.iNum    \n");
+                strSql.Append("     	,b10.iNum    \n");
                 strSql.Append("     	,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     	,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
                 strSql.Append("     from      \n");
@@ -159,19 +158,38 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
                 strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C008' and vcIsColum = '0'    \n");
-                strSql.Append("     )b10 on a.vcSupplier_id = b10.vcValue1    \n");
                 strSql.Append("     left join    \n");
                 strSql.Append("     (    \n");
-                strSql.Append("     	select COUNT(*) as iNum,GUID from TSQJD_THlist    \n");
+                strSql.Append("     	select COUNT(*) as iNum,[GUID] from TSQJD_THlist    \n");
                 strSql.Append("     	group by GUID    \n");
-                strSql.Append("     )b11 on a.GUID = b11.GUID    \n");
+                strSql.Append("     )b10 on a.GUID = b10.[GUID]    \n");
                 strSql.Append("         \n");
                 strSql.Append("     order by vcPart_id,iAutoId asc    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 检索现地库中供应商可否编辑信息
+        public DataTable SearchSupplierEditDT(List<string> supplierLists)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("      select vcValue1,vcValue2 from TOutCode        \n");
+                strSql.Append("      where vcCodeId = 'C008' and vcIsColum = 0      \n");
+                strSql.Append("      and (       \n");
+                for (int i = 0; i < supplierLists.Count; i++)
+                {
+                    strSql.Append("      vcValue1='"+supplierLists[i]+"'      \n");
+                }
+                strSql.Append("           )       \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {
@@ -196,8 +214,7 @@ namespace DataAccess
                 strSql.Append("     	,b7.vcName as 'vcFXDiff_Name'       \n");
                 strSql.Append("     	,b8.vcName as 'vcIsDYJG_Name'       \n");
                 strSql.Append("     	,b9.vcName as 'vcIsDYFX_Name'       \n");
-                strSql.Append("     	,case when (b10.vcValue2='是') then '1' else '0' end as 'vcSupplierEditFlag'       \n");
-                strSql.Append("     	,b11.iNum    \n");
+                strSql.Append("     	,b10.iNum    \n");
                 strSql.Append("     	,'0' as vcModFlag,'0' as vcAddFlag    \n");
                 strSql.Append("     	,'0' as vcSCSNameModFlag,'0' as vcSCSPlaceModFlag    \n");
                 strSql.Append("     from      \n");
@@ -276,15 +293,11 @@ namespace DataAccess
                 strSql.Append("     (    \n");
                 strSql.Append("     select vcValue,vcName from TCode where vcCodeId = 'C030'    \n");
                 strSql.Append("     )b9 on a.vcIsDYFX = b9.vcValue    \n");
-                strSql.Append("     left join     \n");
-                strSql.Append("     (    \n");
-                strSql.Append("     select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C008' and vcIsColum = '0'    \n");
-                strSql.Append("     )b10 on a.vcSupplier_id = b10.vcValue1    \n");
                 strSql.Append("     left join    \n");
                 strSql.Append("     (    \n");
                 strSql.Append("     	select COUNT(*) as iNum,GUID from TSQJD_THlist    \n");
                 strSql.Append("     	group by GUID    \n");
-                strSql.Append("     )b11 on a.GUID = b11.GUID    \n");
+                strSql.Append("     )b10 on a.GUID = b10.GUID    \n");
                 strSql.Append("     order by vcPart_id,iAutoId asc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
@@ -295,13 +308,14 @@ namespace DataAccess
         }
         #endregion
 
-        #region 初始化检索
+        #region 检索退回履历
         public DataTable SearchTHList(string strGUID)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("     select * from TSQJD_THList where GUID = '"+strGUID+"'   \n");
+                strSql.Append("     order by dTHTime desc   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
@@ -767,7 +781,45 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
 
                 StringBuilder sbrSet = new StringBuilder();
+
+                #region 获取所有已选择的数据，放入临时表
                 getTempData(listInfoData, sql, strUserId,ref strErr);
+                #endregion
+
+                #region 判断所选数据再供应商生确表中是否存在，如果不存在，将数据插入到供应商表中
+                sql.Append("        insert into TSQJD_Supplier       \r\n");
+                sql.Append("        (       \r\n");
+                sql.Append("        	 dSSDate,vcJD,vcPart_id,vcSPINo,vcChange       \r\n");
+                sql.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcSupplier_id       \r\n");
+                sql.Append("        	,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2       \r\n");
+                sql.Append("        	,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7       \r\n");
+                sql.Append("        	,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX       \r\n");
+                sql.Append("        	,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City,vcSCPlace_Province       \r\n");
+                sql.Append("        	,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace       \r\n");
+                sql.Append("        	,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff,vcZXBZNo       \r\n");
+                sql.Append("        	,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate       \r\n");
+                sql.Append("        	,GUID       \r\n");
+                sql.Append("        )       \r\n");
+                sql.Append("        select        \r\n");
+                sql.Append("        	 dSSDate,vcJD,vcPart_id,vcSPINo,vcChange       \r\n");
+                sql.Append("        	,vcCarType,vcInOutflag,vcPartName,vcOE,vcSupplier_id       \r\n");
+                sql.Append("        	,vcFXDiff,vcFXNo,vcSumLater,vcNum1,vcNum2       \r\n");
+                sql.Append("        	,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7       \r\n");
+                sql.Append("        	,vcNum8,vcNum9,vcNum10,vcIsDYJG,vcIsDYFX       \r\n");
+                sql.Append("        	,vcYQorNG,vcNotDY,vcTH,vcSCPlace_City,vcSCPlace_Province       \r\n");
+                sql.Append("        	,vcCHPlace_City,vcCHPlace_Province,vcSYTCode,vcSCSName,vcSCSPlace       \r\n");
+                sql.Append("        	,dSupplier_BJ,dSupplier_HK,dTFTM_BJ,vcZXBZDiff,vcZXBZNo       \r\n");
+                sql.Append("        	,vcReceiver,dNqDate,vcOperatorId,dOperatorTime,dHFDate       \r\n");
+                sql.Append("        	,a.GUID       \r\n");
+                sql.Append("         from #TSQJD_temp a       \r\n");
+                sql.Append("         left join        \r\n");
+                sql.Append("         (       \r\n");
+                sql.Append("        	select GUID from TSQJD_Supplier       \r\n");
+                sql.Append("        	where vcJD <> '2'       \r\n");
+                sql.Append("         ) b       \r\n");
+                sql.Append("         on a.GUID = b.GUID       \r\n");
+                sql.Append("         where b.GUID is null       \r\n");
+                #endregion
 
                 if (!string.IsNullOrEmpty(strSupplier_BJ))
                 {
@@ -811,7 +863,6 @@ namespace DataAccess
             }
         }
         #endregion
-
 
         #region 获取临时表，并将所选数据插入临时表  临时表名称 #TSQJD_temp
         /// <summary>

@@ -30,12 +30,31 @@ namespace Logic
             try
             {
                 DataTable Calendar = fs0403_dataAccess.getCalendar(time);
+
+                DataRow[] rowIn = Calendar.Select("Flag = '0'");
+                DataRow[] rowOut = Calendar.Select("Flag = '1'");
+
+                DataTable CalendarIN = fs0403_dataAccess.ToDataTable(rowIn);
+                DataTable CalendarOUT = fs0403_dataAccess.ToDataTable(rowOut);
+
                 //各工厂的指定日
                 int count = fs0403_dataAccess.getCountDay();
-                Hashtable Day = fs0403_dataAccess.getDay(Calendar, time, count);
+                Hashtable DayIN = fs0403_dataAccess.getDay(CalendarIN, time, count);
+                Hashtable DayOUT = fs0403_dataAccess.getDay(CalendarOUT, time, count);
 
                 //品番的数量
-                Hashtable quantity = fs0403_dataAccess.getCount(Day);
+                Hashtable quantityIN = fs0403_dataAccess.getCount(DayIN);
+                Hashtable quantityOUT = fs0403_dataAccess.getCount(DayOUT);
+
+                Hashtable quantity = new Hashtable();
+                foreach (string key in quantityIN.Keys)
+                {
+                    quantity.Add(key, quantityIN[key].ToString());
+                }
+                foreach (string key in quantityOUT.Keys)
+                {
+                    quantity.Add(key, quantityOUT[key].ToString());
+                }
 
                 //获取波动率
                 Hashtable ht = fs0403_dataAccess.getFluctuate();

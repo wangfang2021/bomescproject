@@ -15,44 +15,72 @@ namespace DataAccess
 
         #region 检索
         public DataTable Search(string vcZYType, string vcBZPlant, string vcInputNo, string vcKBOrderNo , 
-            string vcKBLFNo, string vcSellNo, string vcPart_id, string vcBoxNo, string dStart, string dEnd)
+            string vcKBLFNo, string vcSellNo, string vcPart_id, string vcBoxNo, string dStart, string dEnd,string vcLabelNo,string vcStatus)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.*,t3.vcName as vcBZPlantName,t2.vcName as vcZYTypeName, t4.vcUserName, \n");
-                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag   \n");
+                strSql.Append("select t1.iAutoId,t1.vcZYType,t1.vcBZPlant,t1.vcInputNo,t1.vcKBOrderNo,t1.vcKBLFNo,t1.vcPart_id,t1.vcIOType, \n");
+                strSql.Append("t1.vcSupplier_id,t1.vcSupplierGQ,t1.dStart,t1.dEnd,cast(t1.iQuantity as int) as iQuantity,t1.vcBZUnit,    \n");
+                strSql.Append("t1.vcSHF,t1.vcSR,t1.vcBoxNo,t1.vcSheBeiNo,t1.vcCheckType,cast(t1.iCheckNum as int) as iCheckNum,    \n");
+                strSql.Append("t1.vcCheckStatus,t1.vcLabelStart,t1.vcLabelEnd,t1.vcUnlocker,t1.dUnlockTime,t1.vcSellNo,    \n");
+                strSql.Append("t1.vcOperatorID,t1.dOperatorTime,t1.vcHostIp,    \n");
+                strSql.Append("t3.vcName as vcBZPlantName,t2.vcName as vcZYTypeName, t4.vcUserName,'0' as vcModFlag,'0' as vcAddFlag,   \n");
+                strSql.Append("case when t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end as vcStatus,    \n");
+                strSql.Append("case when t5.vcPart_id is not null then 'NG过' else '' end as vcHaveNG    \n");
                 strSql.Append("from TOperateSJ t1  \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C022') t2 on t1.vcZYType=t2.vcValue  \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C023') t3 on t1.vcBZPlant=t3.vcValue  \n");
                 strSql.Append("left join SUser t4 on t1.vcOperatorID=t4.vcUserID  \n");
+                strSql.Append("left join (select distinct vcPart_id,vcKBOrderNo,vcKBLFNo,vcSR from TOperateSJ_NG)t5    \n");
+                strSql.Append("on t1.vcPart_id=t5.vcPart_id and t1.vcKBOrderNo=t5.vcKBOrderNo     \n");
+                strSql.Append("and t1.vcKBLFNo=t5.vcKBLFNo and t1.vcSR=t5.vcSR    \n");
                 strSql.Append("where 1=1  \n");
                 if (vcZYType != "" && vcZYType != null)
-                    strSql.Append("and isnull(t1.vcZYType,'') like '%" + vcZYType + "%'   \n");
+                    strSql.Append("and isnull(t1.vcZYType,'') = '" + vcZYType + "'   \n");
                 if(vcBZPlant != "" && vcBZPlant != null)
-                    strSql.Append("and isnull(t1.vcBZPlant,'') like '%" + vcBZPlant + "%'  \n");
+                    strSql.Append("and isnull(t1.vcBZPlant,'') = '" + vcBZPlant + "'  \n");
                 if(vcInputNo != "" && vcInputNo != null)
-                    strSql.Append("and isnull(t1.vcInputNo,'') like '%" + vcInputNo + "%'   \n");
+                    strSql.Append("and isnull(t1.vcInputNo,'') = '" + vcInputNo + "'   \n");
                 if (vcKBOrderNo != "" && vcKBOrderNo != null)
-                    strSql.Append("and isnull(t1.vcKBOrderNo,'') like '%" + vcKBOrderNo + "%'   \n");
+                    strSql.Append("and isnull(t1.vcKBOrderNo,'') = '" + vcKBOrderNo + "'   \n");
                 if (vcKBLFNo != "" && vcKBLFNo != null)
-                    strSql.Append("and isnull(t1.vcKBLFNo,'') like '%" + vcKBLFNo + "%'   \n");
+                    strSql.Append("and isnull(t1.vcKBLFNo,'') = '" + vcKBLFNo + "'   \n");
                 if (vcSellNo != "" && vcSellNo != null)
-                    strSql.Append("and isnull(t1.vcSellNo,'') like '%" + vcSellNo + "%'   \n");
+                    strSql.Append("and isnull(t1.vcSellNo,'') = '" + vcSellNo + "'   \n");
                 if (vcPart_id!="" && vcPart_id!=null)
-                    strSql.Append("and isnull(t1.vcPart_id,'') like '%" + vcPart_id + "%'  \n");
+                    strSql.Append("and isnull(t1.vcPart_id,'') = '" + vcPart_id + "'  \n");
                 if (vcBoxNo != "" && vcBoxNo != null)
-                    strSql.Append("and isnull(t1.vcBoxNo,'') like '%" + vcBoxNo + "%'  \n");
+                    strSql.Append("and isnull(t1.vcBoxNo,'') = '" + vcBoxNo + "'  \n");
                 if (dStart == "" || dStart == null)
                     dStart = "2001/01/01 00:01:00";
                 if (dEnd == "" || dEnd == null)
                     dEnd = "2099/12/31 23:59:59";
                 strSql.Append("and isnull(t1.dStart,'2001/01/01 00:01:00') >= '" + dStart + "' and isnull(t1.dEnd,'2099/12/31 23:59:59') <= '" + dEnd + "'  \n");
+                if (vcLabelNo != "" && vcLabelNo != null)
+                    strSql.Append("and '"+vcLabelNo+"' between t1.vcLabelStart and t1.vcLabelEnd   \n");
+                if (vcStatus != "" && vcStatus != null)
+                    strSql.Append("and (case when t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end)='" + vcStatus+"'    \n");
+                strSql.Append("order by t1.vcZYType,t1.vcInputNo,t1.dStart    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public DataTable initSubApi(string vcPart_id, string vcKBOrderNo, string vcKBLFNo, string vcSR)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select * from TOperateSJ_NG where vcPart_id='"+vcPart_id+"' and vcKBOrderNo='"+vcKBOrderNo+"'     \n");
+                sql.Append("and vcKBLFNo='"+vcKBLFNo+"' and vcSR='"+vcSR+"'    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex; 
             }
         }
         #endregion
@@ -120,5 +148,25 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 校验 数量<上一层数量
+        #endregion
+        public DataTable isQuantityOK(string vcPart_id,string vcKBOrderNo,string vcKBLFNo,string vcSR,string vcZYType)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("--取出上一层数量    \n");
+                sql.Append("select top(1) ISNULL(iQuantity,0) as iQuantity from TOperateSJ     \n");
+                sql.Append("where vcPart_id='"+vcPart_id+"' and vcKBOrderNo='"+ vcKBOrderNo + "'     \n");
+                sql.Append("and vcKBLFNo='"+vcKBLFNo+"' and vcSR='"+vcSR+"' and vcZYType<'"+vcZYType+"'    \n");
+                sql.Append("order by vcZYType desc    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

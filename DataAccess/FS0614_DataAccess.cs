@@ -605,7 +605,15 @@ namespace DataAccess
 
                             DataTable dt = fs0403_dataAccess.getCalendar(DXR);
                             int count = fs0403_dataAccess.getCountDay();
-                            Hashtable hs = fs0403_dataAccess.getDay(dt, DXR, count);
+
+                            DataRow[] rowIn = dt.Select("Flag = '0'");
+                            DataRow[] rowOut = dt.Select("Flag = '1'");
+
+                            DataTable dtIn = ToDataTable(rowIn);
+                            DataTable dtOut = ToDataTable(rowOut);
+
+                            Hashtable hsIN = fs0403_dataAccess.getDay(dtIn, DXR, count);
+                            Hashtable hsOut = fs0403_dataAccess.getDay(dtOut, DXR, count);
 
                             foreach (Detail detail in order.Details)
                             {
@@ -641,8 +649,19 @@ namespace DataAccess
                                     packingSpot = ObjToString(packingSpotRow[0]["vcBZPlant"]);
                                 }
 
-                                string timeYM = hs[vcOrderPlant].ToString().Substring(0, 6);
-                                string timeD = hs[vcOrderPlant].ToString().Substring(6, 2);
+                                string timeYM = "";
+                                string timeD = "";
+                                if (inout == "0")
+                                {
+                                    timeYM = hsIN[vcOrderPlant].ToString().Substring(0, 6);
+                                    timeD = hsIN[vcOrderPlant].ToString().Substring(6, 2);
+                                }
+                                else if (inout == "1")
+                                {
+                                    timeYM = hsOut[vcOrderPlant].ToString().Substring(0, 6);
+                                    timeD = hsOut[vcOrderPlant].ToString().Substring(6, 2);
+                                }
+
 
                                 string dateTime = detail.Date.Trim();
 
@@ -1301,6 +1320,18 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        public DataTable ToDataTable(DataRow[] rows)
+        {
+            if (rows == null || rows.Length == 0)
+                return null;
+            DataTable tmp = rows[0].Table.Clone();
+            foreach (DataRow dataRow in rows)
+            {
+                tmp.Rows.Add(dataRow.ItemArray);
+            }
+
+            return tmp;
         }
     }
 }

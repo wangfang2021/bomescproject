@@ -24,6 +24,13 @@ namespace Logic
         }
         #endregion
 
+        #region 检索现地库中供应商可否编辑信息
+        public DataTable SearchSupplierEditDT(List<string> supplierLists)
+        {
+            return fs9905_DataAccess.SearchSupplierEditDT(supplierLists);
+        }
+        #endregion
+
         #region 初始化检索
         public DataTable Search(string strUserID)
         {

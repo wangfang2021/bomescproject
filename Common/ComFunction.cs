@@ -925,9 +925,34 @@ namespace Common
                             row = sheet.CreateRow(j + 1);
                             for (int l = 0; l < field.Length; l++)
                             {
+                                Type type = dt.Columns[field[l]].DataType;
                                 cell = row.CreateCell(l);//excel第二行开始写入数据 
                                 cell.CellStyle = styles[l];
-                                cell.SetCellValue(dt.Rows[j + i * size][field[l]].ToString());
+                                if (type == Type.GetType("System.Decimal"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToDouble(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int32"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt32(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int16"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt16(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else if (type == Type.GetType("System.Int64"))
+                                {
+                                    if (dt.Rows[j][field[l]].ToString().Trim() != "")
+                                        cell.SetCellValue(Convert.ToInt64(dt.Rows[j + i * size][field[l]].ToString()));
+                                }
+                                else
+                                {
+                                    cell.SetCellValue(dt.Rows[j + i * size][field[l]].ToString());
+                                }
+                                //cell.SetCellValue(dt.Rows[j + i * size][field[l]].ToString());
                             }
                         }
                         using (fs = File.OpenWrite(path))

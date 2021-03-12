@@ -1251,35 +1251,6 @@ namespace DataAccess
             strSql.Append("          where a.dFromTime < a.dToTime          \r\n");
             strSql.Append("          and a.dToTime > GETDATE()          \r\n");
             #endregion
-            #region 采购品番基础数据发注工厂信息子表
-            strSql.Append("       update TSPMaster_OrderPlant set          \r\n");
-            strSql.Append("       dToTime = b.dTimeTo         \r\n");
-            strSql.Append("          from TSPMaster_OrderPlant a          \r\n");
-            strSql.Append("          inner join           \r\n");
-            strSql.Append("          (          \r\n");
-            strSql.Append("          	select a.*,b.vcDownRecever from           \r\n");
-            strSql.Append("          	(          \r\n");
-            strSql.Append("          		select * from " + tempTableName + "          \r\n");
-
-            #region 这里需改变更事项
-            strSql.Append("          		where vcChange = '4'          \r\n");
-            #endregion
-
-            strSql.Append("          	) a          \r\n");
-            strSql.Append("          	inner join           \r\n");
-            strSql.Append("          	(          \r\n");
-            strSql.Append("          		select vcValue1 as 'vcSYTCode',vcValue2 as 'vcRecever',vcValue3 as 'vcDownRecever' from TOutCode where vcCodeId = 'C004' and vcIsColum = 0          \r\n");
-            strSql.Append("          	) b          \r\n");
-            strSql.Append("          	on a.vcSYTCode = b.vcSYTCode                \r\n");
-            strSql.Append("          	and a.vcReceiver = b.vcRecever                \r\n");
-            strSql.Append("          ) b          \r\n");
-            strSql.Append("          on a.vcPartId = b.vcPart_id          \r\n");
-            strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
-            strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
-            strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            strSql.Append("          where a.dFromTime < a.dToTime          \r\n");
-            strSql.Append("          and a.dToTime > GETDATE()          \r\n");
-            #endregion
             #region 采购品番基础数据受入信息子表
             strSql.Append("       update TSPMaster_SufferIn set          \r\n");
             strSql.Append("       dToTime = b.dTimeTo         \r\n");

@@ -125,6 +125,10 @@ namespace SPPSApi.Controllers.G03
                         {    
                             dt.Rows[i]["vcSQState"] = null;//后续更新的时候，如果vcSQState为null，则不更新这个字段
                         }
+                        else if (varSQContent.ToString().ToUpper().Contains("未确认"))
+                        {
+                            dt.Rows[i]["vcSQState"] = "0";
+                        }
                         else if (varSQContent.ToString().ToUpper().Contains("OK"))
                         {
                             dt.Rows[i]["vcSQState"] = "2";

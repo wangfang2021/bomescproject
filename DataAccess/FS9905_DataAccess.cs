@@ -308,13 +308,14 @@ namespace DataAccess
         }
         #endregion
 
-        #region 初始化检索
+        #region 检索退回履历
         public DataTable SearchTHList(string strGUID)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("     select * from TSQJD_THList where GUID = '"+strGUID+"'   \n");
+                strSql.Append("     order by dTHTime desc   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)

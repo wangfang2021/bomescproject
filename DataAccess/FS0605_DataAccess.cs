@@ -60,7 +60,7 @@ namespace DataAccess
                     string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
                     string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
                     string vcIsSureFlag = dt.Rows[i]["vcIsSureFlag"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIsSureFlag"].ToString();
-                    if (vcIsSureFlag == "◯")
+                    if (vcIsSureFlag == "√")
                     {
                         vcIsSureFlag = "1";
                     } else
@@ -206,11 +206,12 @@ namespace DataAccess
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
                     {//新增
+                        string vcIsSureFlag = listInfoData[i]["vcIsSureFlag"] == null ? "0" : listInfoData[i]["vcIsSureFlag"].ToString();
                         sql.Append("insert into [TSupplierInfo] (vcSupplier_id, vcWorkArea, vcIsSureFlag, vcLinkMan1, vcPhone1, vcEmail1, vcLinkMan2, vcPhone2, vcEmail2,vcLinkMan3, vcPhone3, vcEmail3,vcOperatorID, dOperatorTime)  \n");
                         sql.Append(" values (  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcIsSureFlag"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(vcIsSureFlag, false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcLinkMan1"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcPhone1"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcEmail1"], false) + ",  \r\n");
@@ -226,9 +227,9 @@ namespace DataAccess
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-
+                        string vcIsSureFlag = listInfoData[i]["vcIsSureFlag"] == null ? "0" : listInfoData[i]["vcIsSureFlag"].ToString();
                         sql.Append("  update TSupplierInfo set    \r\n");
-                        sql.Append("  vcIsSureFlag=" + getSqlValue(listInfoData[i]["vcIsSureFlag"], false) + "   \r\n");
+                        sql.Append("  vcIsSureFlag=" + getSqlValue(vcIsSureFlag, false) + "   \r\n");
                         sql.Append("  ,vcLinkMan1=" + getSqlValue(listInfoData[i]["vcLinkMan1"], false) + "   \r\n");
                         sql.Append("  ,vcPhone1=" + getSqlValue(listInfoData[i]["vcPhone1"], false) + "   \r\n");
                         sql.Append("  ,vcEmail1=" + getSqlValue(listInfoData[i]["vcEmail1"], false) + "   \r\n");

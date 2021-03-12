@@ -16,9 +16,13 @@ namespace Logic
         {
             fS0504_DataAccess = new FS0504_DataAccess();
         }
-        public DataTable getDataInfo()
+        public DataTable getDataInfo(string strSupplierId)
         {
-            return fS0504_DataAccess.getDataInfo();
+            return fS0504_DataAccess.getDataInfo(strSupplierId);
+        }
+        public void setDataInfo(string strLinId, string strOperId, ref DataTable dtMessage)
+        {
+            fS0504_DataAccess.setDataInfo(strLinId, strOperId,ref dtMessage);
         }
     }
 }

@@ -67,18 +67,48 @@ namespace DataAccess
                 strSql.AppendLine("      '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],     ");
                 strSql.AppendLine("      '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],       ");
                 strSql.AppendLine("     null as [vcOperatorID], null as [dOperatorTime]   ");
-                strSql.AppendLine("      from (select * from [dbo].[TSPMaster] where vcInOut='1') a      ");
-                strSql.AppendLine("      left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b      ");
-                strSql.AppendLine("      on a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartNo and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplier_id      ");
-                strSql.AppendLine("      left join (  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]       ");
-                strSql.AppendLine("      FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1' ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId      ");
-                strSql.AppendLine("      and a.vcReceiver=c.vcReceiver and a.dFromTime = c.dFromTime and a.dToTime=c.dToTime       ");
-                strSql.AppendLine("     left join  (select vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime,    ");
-                strSql.AppendLine("     iPackingQty, vcBoxType, iLength, iWidth, iHeight, iVolume, vcOperatorType, vcOperatorID, dOperatorTime    ");
-                strSql.AppendLine("      from TSPMaster_Box  where vcOperatorType='1') d on a.vcPackingPlant=d.vcPackingPlant and a.vcPartId=d.vcPartId    ");
-                strSql.AppendLine("      and a.vcReceiver=d.vcReceiver and a.dFromTime = d.dFromTime and a.dToTime=d.dToTime   ");
-                strSql.AppendLine("        ");
-                strSql.AppendLine("      where b.vcPartNo is null and d.iPackingQty is null     ");
+                //strSql.AppendLine("      from (select * from [dbo].[TSPMaster] where vcInOut='1') a      ");
+                //strSql.AppendLine("      left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b      ");
+                //strSql.AppendLine("      on a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartNo and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplier_id      ");
+                //strSql.AppendLine("      left join (  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]       ");
+                //strSql.AppendLine("      FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1' ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId      ");
+                //strSql.AppendLine("      and a.vcReceiver=c.vcReceiver and a.dFromTime = c.dFromTime and a.dToTime=c.dToTime       ");
+                //strSql.AppendLine("     left join  (select vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime,    ");
+                //strSql.AppendLine("     iPackingQty, vcBoxType, iLength, iWidth, iHeight, iVolume, vcOperatorType, vcOperatorID, dOperatorTime    ");
+                //strSql.AppendLine("      from TSPMaster_Box  where vcOperatorType='1') d on a.vcPackingPlant=d.vcPackingPlant and a.vcPartId=d.vcPartId    ");
+                //strSql.AppendLine("      and a.vcReceiver=d.vcReceiver and a.dFromTime = d.dFromTime and a.dToTime=d.dToTime   ");
+                //strSql.AppendLine("        ");
+                //strSql.AppendLine("      where b.vcPartNo is null and d.iPackingQty is null     ");
+                strSql.AppendLine("        from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'    ");
+                strSql.AppendLine("        AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))     ");
+                strSql.AppendLine("         OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a    ");
+                strSql.AppendLine("        left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b        ");
+                strSql.AppendLine("        on a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartNo and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplier_id        ");
+                strSql.AppendLine("        left join (    ");
+                strSql.AppendLine("   	  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]         ");
+                strSql.AppendLine("        FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1'    ");
+                strSql.AppendLine("   	 AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))     ");
+                strSql.AppendLine("         OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))   ");
+                strSql.AppendLine("   	 ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId        ");
+                strSql.AppendLine("        and a.vcReceiver=c.vcReceiver and a.vcSupplierId = c.vcSupplierId         ");
+                strSql.AppendLine("     left join  (select vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime,          ");
+                strSql.AppendLine("     iPackingQty, vcBoxType, iLength, iWidth, iHeight, iVolume, vcOperatorType, vcOperatorID, dOperatorTime          ");
+                strSql.AppendLine("      from TSPMaster_Box  where vcOperatorType='1'   ");
+                strSql.AppendLine("      AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))     ");
+                strSql.AppendLine("      OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))   ");
+                strSql.AppendLine("      ) d on a.vcPackingPlant=d.vcPackingPlant and a.vcPartId=d.vcPartId       ");
+                strSql.AppendLine("      and a.vcReceiver=d.vcReceiver and  a.[vcSupplierId]=d.[vcSupplierId]     ");
+                strSql.AppendLine("      LEFT JOIN    ");
+                strSql.AppendLine("   	(SELECT *  FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1'     ");
+                strSql.AppendLine("   	AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))     ");
+                strSql.AppendLine("   	OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))))e   ");
+                strSql.AppendLine("   	ON a.[vcPackingPlant]=e.[vcPackingPlant] AND a.[vcPartId]=e.[vcPartId] AND a.[vcReceiver]=e.[vcReceiver] AND a.[vcSupplierId]=e.[vcSupplierId]    ");
+                strSql.AppendLine("   	LEFT JOIN    ");
+                strSql.AppendLine("   	(select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'    ");
+                strSql.AppendLine("   	and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))f    ");
+                strSql.AppendLine("   	ON a.[vcSupplierId]=f.[vcSupplierId] AND c.vcSupplierPlant=f.vcSupplierPlant    ");
+                strSql.AppendLine("        where b.vcPartNo is null    ");
+                strSql.AppendLine("   	 and (ISNULL(c.vcSupplierPlant,'')='' OR ISNULL(d.iPackingQty,0)=0 OR ISNULL(e.vcSufferIn,'')='' OR ISNULL(f.vcOrderPlant,'')='')          ");
                 strSql.AppendLine("     union all      ");
                 strSql.AppendLine("       select * from (      ");
                 strSql.AppendLine("     	select [iAutoId], a.vcPackingPlant,a.vcReceiver, [dSynchronizationDate],  [vcState], [vcPartNo],      ");
@@ -98,7 +128,7 @@ namespace DataAccess
 
                 if (dSynchronizationDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) = '" + dSynchronizationDate.Replace("-","") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) = '" + dSynchronizationDate.Replace("-","").Replace("/", "") + "' ");
                 }
                 if (vcState.Length > 0)
                 {
@@ -123,7 +153,7 @@ namespace DataAccess
                 }
                 if (dExpectDeliveryDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
                 }
                 if (vcOEOrSP.Length > 0)
                 {
@@ -593,8 +623,58 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-
-                strSql.AppendLine("  select * from (   ");
+                strSql.AppendLine("   select * from (     ");
+                strSql.AppendLine("       select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,       ");
+                strSql.AppendLine("       a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,       ");
+                strSql.AppendLine("       a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,       ");
+                strSql.AppendLine("       '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],       ");
+                strSql.AppendLine("       '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],       ");
+                strSql.AppendLine("       '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],        ");
+                strSql.AppendLine("      null as [vcOperatorID], null as [dOperatorTime]    ");
+                strSql.AppendLine("       from  (select * from [dbo].[TSPMaster] where vcInOut='1' and isnull(vcDelete, '') <> '1'   ");
+                strSql.AppendLine("       AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))    ");
+                strSql.AppendLine("        OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))) a   ");
+                strSql.AppendLine("       left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b       ");
+                strSql.AppendLine("       on a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartNo and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplier_id       ");
+                strSql.AppendLine("       left join (   ");
+                strSql.AppendLine("   	  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]        ");
+                strSql.AppendLine("       FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1'   ");
+                strSql.AppendLine("   	 AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))    ");
+                strSql.AppendLine("        OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))  ");
+                strSql.AppendLine("   	 ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId       ");
+                strSql.AppendLine("       and a.vcReceiver=c.vcReceiver and a.vcSupplierId = c.vcSupplierId        ");
+                strSql.AppendLine("    left join  (select vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime,         ");
+                strSql.AppendLine("    iPackingQty, vcBoxType, iLength, iWidth, iHeight, iVolume, vcOperatorType, vcOperatorID, dOperatorTime         ");
+                strSql.AppendLine("     from TSPMaster_Box  where vcOperatorType='1'  ");
+                strSql.AppendLine("     AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))    ");
+                strSql.AppendLine("     OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)))  ");
+                strSql.AppendLine("     ) d on a.vcPackingPlant=d.vcPackingPlant and a.vcPartId=d.vcPartId      ");
+                strSql.AppendLine("     and a.vcReceiver=d.vcReceiver and  a.[vcSupplierId]=d.[vcSupplierId]    ");
+                strSql.AppendLine("     LEFT JOIN   ");
+                strSql.AppendLine("   	(SELECT *  FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1'    ");
+                strSql.AppendLine("   	AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))    ");
+                strSql.AppendLine("   	OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))))e  ");
+                strSql.AppendLine("   	ON a.[vcPackingPlant]=e.[vcPackingPlant] AND a.[vcPartId]=e.[vcPartId] AND a.[vcReceiver]=e.[vcReceiver] AND a.[vcSupplierId]=e.[vcSupplierId]   ");
+                strSql.AppendLine("   	LEFT JOIN   ");
+                strSql.AppendLine("   	(select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'   ");
+                strSql.AppendLine("   	and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))f   ");
+                strSql.AppendLine("   	ON a.[vcSupplierId]=f.[vcSupplierId] AND c.vcSupplierPlant=f.vcSupplierPlant   ");
+                strSql.AppendLine("       where b.vcPartNo is null   ");
+                strSql.AppendLine("   	 and (ISNULL(c.vcSupplierPlant,'')='' OR ISNULL(d.iPackingQty,0)=0 OR ISNULL(e.vcSufferIn,'')='' OR ISNULL(f.vcOrderPlant,'')='')         ");
+                strSql.AppendLine("      union all       ");
+                strSql.AppendLine("        select * from (       ");
+                strSql.AppendLine("      	select [iAutoId], a.vcPackingPlant,a.vcReceiver, [dSynchronizationDate],  [vcState], [vcPartNo],       ");
+                strSql.AppendLine("      	[dUseStartDate],[dUserEndDate], [vcPartName],          ");
+                strSql.AppendLine("      	[vcCarType], [vcOEOrSP], [vcSupplier_id], [vcWorkArea], [dExpectDeliveryDate], [vcExpectIntake],         ");
+                strSql.AppendLine("      	[vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],          ");
+                strSql.AppendLine("      	[vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,          ");
+                strSql.AppendLine("      	[vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],         ");
+                strSql.AppendLine("      	[vcOperatorID], [dOperatorTime] as vcAddFlag from [dbo].[THeZiManage] a          ");
+                strSql.AppendLine("      	) m       ");
+                strSql.AppendLine("      	) n     ");
+                strSql.AppendLine("    	left join (select vcValue,vcName from TCode where vcCodeId='C033') o on n.vcState = o.vcValue     ");
+                strSql.AppendLine("    	where n.vcState='0'      ");
+                /*strSql.AppendLine("  select * from (   ");
                 strSql.AppendLine("     select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,     ");
                 strSql.AppendLine("     a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,     ");
                 strSql.AppendLine("     a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,     ");
@@ -602,13 +682,17 @@ namespace DataAccess
                 strSql.AppendLine("     '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],     ");
                 strSql.AppendLine("     '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],      ");
                 strSql.AppendLine("    null as [vcOperatorID], null as [dOperatorTime]  ");
-                strSql.AppendLine("     from [dbo].[TSPMaster] a     ");
+                strSql.AppendLine("     from  (select * from [dbo].[TSPMaster] where vcInOut='1') a     ");
                 strSql.AppendLine("     left join (select vcPackingPlant,vcPartNo,vcReceiver,vcSupplier_id,dUseStartDate,dUserEndDate from THeZiManage)b     ");
                 strSql.AppendLine("     on a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartNo and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplier_id     ");
                 strSql.AppendLine("     left join (  SELECT  [vcPackingPlant] ,[vcPartId],[vcReceiver],[vcSupplierId],[dFromTime] ,[dToTime] ,[vcSupplierPlant],[vcOperatorType]      ");
                 strSql.AppendLine("     FROM [SPPSdb].[dbo].[TSPMaster_SupplierPlant] where vcOperatorType='1' ) c on a.vcPackingPlant=c.vcPackingPlant and a.vcPartId=c.vcPartId     ");
                 strSql.AppendLine("     and a.vcReceiver=c.vcReceiver and a.dFromTime = c.dFromTime and a.dToTime=c.dToTime      ");
-                strSql.AppendLine("     where b.vcPartNo is null     ");
+                strSql.AppendLine("  left join  (select vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime,       ");
+                strSql.AppendLine("  iPackingQty, vcBoxType, iLength, iWidth, iHeight, iVolume, vcOperatorType, vcOperatorID, dOperatorTime       ");
+                strSql.AppendLine("   from TSPMaster_Box  where vcOperatorType='1') d on a.vcPackingPlant=d.vcPackingPlant and a.vcPartId=d.vcPartId    ");
+                strSql.AppendLine("   and a.vcReceiver=d.vcReceiver and a.dFromTime = d.dFromTime and a.dToTime=d.dToTime      ");
+                strSql.AppendLine("     where b.vcPartNo is null and d.iPackingQty is null       ");
                 strSql.AppendLine("    union all     ");
                 strSql.AppendLine("      select * from (     ");
                 strSql.AppendLine("    	select [iAutoId], a.vcPackingPlant,a.vcReceiver, [dSynchronizationDate],  [vcState], [vcPartNo],     ");
@@ -621,7 +705,7 @@ namespace DataAccess
                 strSql.AppendLine("    	) m     ");
                 strSql.AppendLine("    	) n   ");
                 strSql.AppendLine("  	left join (select vcValue,vcName from TCode where vcCodeId='C033') o on n.vcState = o.vcValue   ");
-                strSql.AppendLine("  	where n.vcState='0'    ");
+                strSql.AppendLine("  	where n.vcState='0'    ");*/
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

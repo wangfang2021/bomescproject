@@ -65,13 +65,20 @@ namespace BatchProcess
             {
                 DataTable dt = getCalendar(DXR);
                 int count = getCountDay();
-                Hashtable hs = getDay(dt, DXR, count);
+                DataRow[] rowIn = dt.Select("Flag = '0'");
+                DataRow[] rowOut = dt.Select("Flag = '1'");
+
+                DataTable dtIn = ToDataTable(rowIn);
+                DataTable dtOut = ToDataTable(rowOut);
+
+                Hashtable hsIn = getDay(dtIn, DXR, count);
+                Hashtable hsOut = getDay(dtOut, DXR, count);
                 StringBuilder sbr = new StringBuilder();
 
 
-                foreach (string key in hs.Keys)
+                foreach (string key in hsIn.Keys)
                 {
-                    string YMD = hs[key].ToString();
+                    string YMD = hsIn[key].ToString();
                     string ym = YMD.Substring(0, 6);
                     string day = YMD.Substring(6, 2);
                     if (day[0] == '0')
@@ -81,14 +88,30 @@ namespace BatchProcess
                         sbr.AppendLine("union all");
                     }
                     sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
-                    sbr.AppendLine("WHERE vcMakingOrderType in (" + getTypeMethod("D") + ")");
+                    sbr.AppendLine("WHERE vcInOutFlag = '0' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
+                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
+                }
+
+                foreach (string key in hsOut.Keys)
+                {
+                    string YMD = hsOut[key].ToString();
+                    string ym = YMD.Substring(0, 6);
+                    string day = YMD.Substring(6, 2);
+                    if (day[0] == '0')
+                        day = day[1].ToString();
+                    if (sbr.Length > 0)
+                    {
+                        sbr.AppendLine("union all");
+                    }
+                    sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
+                    sbr.AppendLine("WHERE vcInOutFlag = '1' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
                     sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
                 }
 
                 if (sbr.Length > 0)
                 {
                     StringBuilder sql = new StringBuilder();
-                    sql.AppendLine("select DXR,'" + DateTime.Now.ToString("yyyymmdd") + "' as vcChangeNo,vcPart_id,ISNULL(DayNum,0) AS iQuantityBefore,ISNULL(DayNum,0) AS iQuantityNow,GETDATE() AS dFileUpload,'" + userId + "' AS vcOperatorID,GETDATE() AS dOperatorTime  from (");
+                    sql.AppendLine("select DXR,'" + DateTime.Now.ToString("yyyyMMdd") + "' as vcChangeNo,vcPart_id,ISNULL(DayNum,0) AS iQuantityBefore,ISNULL(DayNum,0) AS iQuantityNow,GETDATE() AS dFileUpload,'" + userId + "' AS vcOperatorID,GETDATE() AS dOperatorTime  from (");
                     sql.AppendLine(sbr.ToString());
                     sql.AppendLine(") a");
 
@@ -116,7 +139,12 @@ namespace BatchProcess
                 sbr.AppendLine("SET @YM = CONVERT(VARCHAR(6),DATEADD(m,0,'" + DXR + "'),112)");
                 sbr.AppendLine("SET @YM1 = CONVERT(VARCHAR(6),DATEADD(m,1,'" + DXR + "'),112)");
                 sbr.AppendLine("SET @YM2 = CONVERT(VARCHAR(6),DATEADD(m,2,'" + DXR + "'),112)");
-                sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1,@YM2)");
+                //sbr.AppendLine("SELECT * FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1,@YM2)");
+                sbr.AppendLine("SELECT * FROM (");
+                sbr.AppendLine("SELECT *,'0' AS Flag FROM TCalendar_PingZhun_Nei WHERE TARGETMONTH IN (@YM,@YM1,@YM2)");
+                sbr.AppendLine("UNION all");
+                sbr.AppendLine("SELECT *,'1' AS Flag FROM TCalendar_PingZhun_Wai WHERE TARGETMONTH IN (@YM,@YM1,@YM2)");
+                sbr.AppendLine(") a");
                 sbr.AppendLine("ORDER BY vcFZGC,TARGETMONTH");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
@@ -322,5 +350,17 @@ namespace BatchProcess
             }
         }
         #endregion
+        public DataTable ToDataTable(DataRow[] rows)
+        {
+            if (rows == null || rows.Length == 0)
+                return null;
+            DataTable tmp = rows[0].Table.Clone();
+            foreach (DataRow dataRow in rows)
+            {
+                tmp.Rows.Add(dataRow.ItemArray);
+            }
+
+            return tmp;
+        }
     }
 }

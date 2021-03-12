@@ -71,7 +71,7 @@ namespace SPPSApi.Controllers.G03
                 string[,] headers = new string[,] {{"年度","进度","厂家编码","品番","车种","内外区分","1年", "2年", "3年","平均","年限区分","实施时间","对应可否","11年","12年","13年","14年","15年","16年","17年","18年","19年","20年","21年","事业体","收货方","所属原单位","备注"},
                                                 {"vcYear","vcFinish","vcSupplier_id","vcPart_id","vcCarTypeDev","vcInOutflag","vcNum1","vcNum2","vcNum3","vcNumAvg","vcNXQF","dSSDate","vcDY","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15","vcNum16","vcNum17","vcNum18","vcNum19","vcNum20","vcNum21","vcSYTCode","vcReceiver","vcOriginCompany","vcRemark"},
                                                 {"","","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Date,"",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"","","",""},
-                                                {"4","0","4","12","10","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"4","0","4","14","10","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
                                                 {"4","0","4","1","1","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","1","1","1","0"}
 
                 };//最小长度设定,可以为空用0

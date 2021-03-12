@@ -57,10 +57,10 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strSyncTime, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+        public DataTable getSearchInfo(string strSyncTime, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
                     string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck)
         {
-            DataTable dataTable = fs0603_DataAccess.getSearchInfo(strSyncTime, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+            DataTable dataTable = fs0603_DataAccess.getSearchInfo(strSyncTime, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
                     strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck);
 
             foreach (DataRow dataRow in dataTable.Rows)
@@ -92,7 +92,7 @@ namespace Logic
                     if (dataTable.Rows[i]["vcType"].ToString().Trim() == "")
                         dataTable.Rows.RemoveAt(i);
                 }
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 #region 检验数据重复性及数据格式
@@ -136,7 +136,7 @@ namespace Logic
                 DataTable dtInOutList = ComFunction.getTCode("C003");//内外区分
                 DataTable dtOESPList = ComFunction.getTCode("C012");//OE=SP
                 DataTable dtHaoJiuList = ComFunction.getTCode("C004");//号旧区分
-                DataTable dtOldProductionList = ComFunction.getTCode("C024");//旧型年限生产区分
+                //DataTable dtOldProductionList = ComFunction.getTCode("C024");//旧型年限生产区分
                 DataTable dtBillTypeList = ComFunction.getTCode("C007");//单据区分
                 DataTable dtOrderingMethodList = ComFunction.getTCode("C047");//订货方式
                 DataTable dtMandOrderList = ComFunction.getTCode("C048");//强制订货
@@ -310,18 +310,18 @@ namespace Logic
                         #endregion
                         #region 旧型年限生产区分
                         string strOldProduction_name = dataTable.Rows[i]["vcOldProduction_name"].ToString().Trim();
-                        if (strOldProduction_name != "")
-                        {
-                            DataRow[] drOldProductionList = dtOldProductionList.Select("vcName='" + strOldProduction_name + "'");
-                            if (drOldProductionList.Length == 0)
-                            {
-                                DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报号旧型年限生产区分维护基础数据", i + datarow);
-                                dtMessage.Rows.Add(dataRow);
-                            }
-                            else
-                                strOldProduction_name = drOldProductionList[0]["vcValue"].ToString();
-                        }
+                        //if (strOldProduction_name != "")
+                        //{
+                        //    DataRow[] drOldProductionList = dtOldProductionList.Select("vcName='" + strOldProduction_name + "'");
+                        //    if (drOldProductionList.Length == 0)
+                        //    {
+                        //        DataRow dataRow = dtMessage.NewRow();
+                        //        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报号旧型年限生产区分维护基础数据", i + datarow);
+                        //        dtMessage.Rows.Add(dataRow);
+                        //    }
+                        //    else
+                        //        strOldProduction_name = drOldProductionList[0]["vcValue"].ToString();
+                        //}
                         drImport["vcOldProduction"] = strOldProduction_name;
                         #endregion
                         #region 实施时间
@@ -506,7 +506,7 @@ namespace Logic
                         string strBoxVolume_ed = "";
                         if (ComFunction.CheckDecimal(strBoxLength_ed) && ComFunction.CheckDecimal(strBoxWidth_ed) && ComFunction.CheckDecimal(strBoxHeight_ed))
                         {
-                            strBoxVolume_ed = ((Convert.ToDecimal(strBoxLength_ed) * Convert.ToDecimal(strBoxWidth_ed) * Convert.ToDecimal(strBoxHeight_ed)) / (Convert.ToDecimal("1000000000.00"))).ToString("#.0000");
+                            strBoxVolume_ed = ((Convert.ToInt32(strBoxLength_ed) / 1000.0) * (Convert.ToInt32(strBoxWidth_ed) / 1000.0) * (Convert.ToInt32(strBoxHeight_ed) / 1000.0)).ToString("#.0000");
                         }
                         if (strBoxPackingQty_ed != "" && strBoxPackingQty_ed != "0")
                         {
@@ -770,7 +770,7 @@ namespace Logic
                 //处理List集合
                 listInfoData = setNullData(listInfoData);
                 bReault = true;
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -1027,7 +1027,7 @@ namespace Logic
         public void setSPInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
         {
             //用于检查变更情况
-            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
+            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
             //用于新增数据
             DataTable dtAddInfo = dtOperCheck.Clone();
             //用于修改数据--修改主数据表

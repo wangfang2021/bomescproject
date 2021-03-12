@@ -56,8 +56,10 @@ namespace DataAccess
                 strSql.AppendLine("		ISNULL(T6.vcName,'--') AS vcChanges_Name,");
                 strSql.AppendLine("		ISNULL(T1.vcPackingPlant,'--') AS vcPackingPlant_Value,");
                 strSql.AppendLine("		ISNULL(T7.vcName,'--') AS vcPackingPlant_Name,");
-                strSql.AppendLine("		ISNULL(T1.vcCarModel,'--') AS vcCarModel_Value,");
-                strSql.AppendLine("		ISNULL(T1.vcCarModel,'--') AS vcCarModel_Name,");
+                strSql.AppendLine("		ISNULL(T1.vcCarfamilyCode,'--') AS vcCarModel_Value,");
+                strSql.AppendLine("		ISNULL(T1.vcCarfamilyCode,'--') AS vcCarModel_Name,");
+                //strSql.AppendLine("		ISNULL(T1.vcCarModel,'--') AS vcCarModel_Value,");
+                //strSql.AppendLine("		ISNULL(T1.vcCarModel,'--') AS vcCarModel_Name,");
                 strSql.AppendLine("		ISNULL(T1.vcReceiver,'--') AS vcReceiver_Value,");
                 strSql.AppendLine("		ISNULL(T1.vcReceiver,'--') AS vcReceiver_Name,");
                 strSql.AppendLine("		ISNULL(T1.vcInOut,'--') AS vcInOut_Value,");
@@ -81,7 +83,7 @@ namespace DataAccess
                 strSql.AppendLine("		ISNULL(T1.vcSupplierPacking,'--') AS vcSupplierPacking_Value,");
                 strSql.AppendLine("		ISNULL(T11.vcName,'--') AS vcSupplierPacking_Name,");
                 strSql.AppendLine("		ISNULL(T1.vcOldProduction,'--') AS vcOldProduction_Value,");
-                strSql.AppendLine("		ISNULL(T12.vcName,'--') AS vcOldProduction_Name,");
+                strSql.AppendLine("		ISNULL(T1.vcOldProduction,'--') AS vcOldProduction_Name,");
                 strSql.AppendLine("		ISNULL(CONVERT(VARCHAR(7),T1.dDebugTime,111),'--') AS vcDebugTime_Value,");
                 strSql.AppendLine("		ISNULL(CONVERT(VARCHAR(7),T1.dDebugTime,111),'--') AS vcDebugTime_Name");
                 strSql.AppendLine("		FROM ");
@@ -122,9 +124,9 @@ namespace DataAccess
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')T11--供应商包装");
                 strSql.AppendLine("ON T1.vcSupplierPacking=T11.vcValue");
-                strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C024')T12--旧型年限生产区分");
-                strSql.AppendLine("ON T1.vcOldProduction=T12.vcValue");
+                //strSql.AppendLine("LEFT JOIN");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C024')T12--旧型年限生产区分");
+                //strSql.AppendLine("ON T1.vcOldProduction=T12.vcValue");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
 
             }
@@ -133,7 +135,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strSyncTime, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+        public DataTable getSearchInfo(string strSyncTime, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
                     string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck)
         {
             try
@@ -153,7 +155,8 @@ namespace DataAccess
                 strSql.AppendLine("		T1.vcInOut,T8.vcName as vcInOut_name,");
                 strSql.AppendLine("		T1.vcOESP,T9.vcName as vcOESP_name,");
                 strSql.AppendLine("		T1.vcHaoJiu,T10.vcName as vcHaoJiu_name,");
-                strSql.AppendLine("		T1.vcOldProduction,T11.vcName as vcOldProduction_name,");
+                strSql.AppendLine("		T1.vcOldProduction,T1.vcOldProduction as vcOldProduction_name,");
+                //strSql.AppendLine("		T1.vcOldProduction,T11.vcName as vcOldProduction_name,");
                 strSql.AppendLine("		CONVERT(VARCHAR(7),T1.dDebugTime,111) AS dDebugTime,");
                 strSql.AppendLine("		T1.vcSupplierId,");
                 strSql.AppendLine("		Convert(varchar(10),T1.dSupplierFromTime,111) as dSupplierFromTime,");
@@ -215,6 +218,17 @@ namespace DataAccess
                         strSql.AppendLine("    AND vcPackingPlant='" + strPackingPlant + "'");
                     }
                 }
+                if (strChanges != "")
+                {
+                    if (strPackingPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcChanges,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcChanges='" + strChanges + "'");
+                    }
+                }
                 if (strSyncTime != "")
                 {
                     strSql.AppendLine("    AND CONVERT(varchar(10),[dSyncTime],111)='" + strSyncTime + "'");
@@ -227,11 +241,11 @@ namespace DataAccess
                 {
                     if (strCarModel == "--")
                     {
-                        strSql.AppendLine("    AND isnull(vcCarModel,'')=''");
+                        strSql.AppendLine("    AND isnull(vcCarfamilyCode,'')=''");
                     }
                     else
                     {
-                        strSql.AppendLine("    AND [vcCarModel]='" + strCarModel + "'");
+                        strSql.AppendLine("    AND [vcCarfamilyCode]='" + strCarModel + "'");
                     }
 
                 }
@@ -363,9 +377,9 @@ namespace DataAccess
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T10--号旧区分");
                 strSql.AppendLine("ON T1.vcHaoJiu=T10.vcValue");
-                strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C024')T11--旧型年限生产区分");
-                strSql.AppendLine("ON T1.vcOldProduction=T11.vcValue");
+                //strSql.AppendLine("LEFT JOIN");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C024')T11--旧型年限生产区分");
+                //strSql.AppendLine("ON T1.vcOldProduction=T11.vcValue");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T12--发注工厂");
                 strSql.AppendLine("ON T5.vcOrderPlant=T12.vcValue");
@@ -1397,6 +1411,92 @@ namespace DataAccess
         public DataSet getSyncInfo()
         {
             StringBuilder strSql = new StringBuilder();
+            #region 初始化植入从临时表原单位到正式表
+            strSql.AppendLine("INSERT INTO [dbo].[TSPMaster]");
+            strSql.AppendLine("           ([dSyncTime]");
+            strSql.AppendLine("           ,[vcChanges]");
+            strSql.AppendLine("           ,[vcPackingPlant]");
+            strSql.AppendLine("           ,[vcPartId]");
+            strSql.AppendLine("           ,[vcPartENName]");
+            strSql.AppendLine("           ,[vcCarfamilyCode]");
+            strSql.AppendLine("           ,[vcCarModel]");
+            strSql.AppendLine("           ,[vcReceiver]");
+            strSql.AppendLine("           ,[dFromTime]");
+            strSql.AppendLine("           ,[dToTime]");
+            strSql.AppendLine("           ,[vcPartId_Replace]");
+            strSql.AppendLine("           ,[vcInOut]");
+            strSql.AppendLine("           ,[vcOESP]");
+            strSql.AppendLine("           ,[vcHaoJiu]");
+            strSql.AppendLine("           ,[vcOldProduction]");
+            strSql.AppendLine("           ,[dOldStartTime]");
+            strSql.AppendLine("           ,[dDebugTime]");
+            strSql.AppendLine("           ,[vcSupplierId]");
+            strSql.AppendLine("           ,[dSupplierFromTime]");
+            strSql.AppendLine("           ,[dSupplierToTime]");
+            strSql.AppendLine("           ,[vcSupplierName]");
+            strSql.AppendLine("           ,[vcSupplierPlace]");
+            strSql.AppendLine("           ,[vcInteriorProject]");
+            strSql.AppendLine("           ,[vcPassProject]");
+            strSql.AppendLine("           ,[vcFrontProject]");
+            strSql.AppendLine("           ,[dFrontProjectTime]");
+            strSql.AppendLine("           ,[dShipmentTime]");
+            strSql.AppendLine("           ,[vcBillType]");
+            strSql.AppendLine("           ,[vcOrderingMethod]");
+            strSql.AppendLine("           ,[vcMandOrder]");
+            strSql.AppendLine("           ,[vcPartImage]");
+            strSql.AppendLine("           ,[vcRemark1]");
+            strSql.AppendLine("           ,[vcRemark2]");
+            strSql.AppendLine("           ,[vcSupplierPacking]");
+            strSql.AppendLine("           ,[vcDelete]");
+            strSql.AppendLine("           ,[vcOperatorID]");
+            strSql.AppendLine("           ,[dOperatorTime]");
+            strSql.AppendLine("           ,[dSyncToSPTime]");
+            strSql.AppendLine("           ,[vcPartNameCn]");
+            strSql.AppendLine("		   ,[dInSPMasterTime])");
+            strSql.AppendLine("SELECT [dSyncTime]");
+            strSql.AppendLine("      ,[vcChanges]");
+            strSql.AppendLine("      ,[vcPackingPlant]");
+            strSql.AppendLine("      ,[vcPartId]");
+            strSql.AppendLine("      ,[vcPartENName]");
+            strSql.AppendLine("      ,[vcCarfamilyCode]");
+            strSql.AppendLine("      ,[vcCarModel]");
+            strSql.AppendLine("      ,[vcReceiver]");
+            strSql.AppendLine("      ,[dFromTime]");
+            strSql.AppendLine("      ,[dToTime]");
+            strSql.AppendLine("      ,[vcPartId_Replace]");
+            strSql.AppendLine("      ,[vcInOut]");
+            strSql.AppendLine("      ,[vcOESP]");
+            strSql.AppendLine("      ,[vcHaoJiu]");
+            strSql.AppendLine("      ,[vcOldProduction]");
+            strSql.AppendLine("      ,[dOldStartTime]");
+            strSql.AppendLine("      ,[dDebugTime]");
+            strSql.AppendLine("      ,[vcSupplierId]");
+            strSql.AppendLine("      ,[dSupplierFromTime]");
+            strSql.AppendLine("      ,[dSupplierToTime]");
+            strSql.AppendLine("      ,[vcSupplierName]");
+            strSql.AppendLine("      ,[vcSupplierPlace]");
+            strSql.AppendLine("      ,[vcInteriorProject]");
+            strSql.AppendLine("      ,[vcPassProject]");
+            strSql.AppendLine("      ,[vcFrontProject]");
+            strSql.AppendLine("      ,[dFrontProjectTime]");
+            strSql.AppendLine("      ,[dShipmentTime]");
+            strSql.AppendLine("      ,[vcBillType]");
+            strSql.AppendLine("      ,[vcOrderingMethod]");
+            strSql.AppendLine("      ,[vcMandOrder]");
+            strSql.AppendLine("      ,[vcPartImage]");
+            strSql.AppendLine("      ,[vcRemark1]");
+            strSql.AppendLine("      ,[vcRemark2]");
+            strSql.AppendLine("      ,[vcSupplierPacking]");
+            strSql.AppendLine("      ,[vcDelete]");
+            strSql.AppendLine("      ,[vcOperatorID]");
+            strSql.AppendLine("      ,[dOperatorTime]");
+            strSql.AppendLine("      ,[dSyncToSPTime]");
+            strSql.AppendLine("      ,[vcPartNameCn]");
+            strSql.AppendLine("	  ,GETDATE()");
+            strSql.AppendLine("  FROM [dbo].[TSPMaster_temp]");
+            strSql.AppendLine("DELETE  FROM [dbo].[TSPMaster_temp]");
+            #endregion
+
             strSql.AppendLine("select convert(varchar(10),dSyncTime,111) as dSyncTime,");
             strSql.AppendLine("		count(*) as iCount,");
             strSql.AppendLine("		'同步原单位情报'+cast(count(*) as varchar(10))+'条' as vcSyncMessage ,");

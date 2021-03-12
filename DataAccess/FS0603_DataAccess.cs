@@ -461,7 +461,7 @@ namespace DataAccess
                     string strSupplierId = listInfoData[i]["vcSupplierId"].ToString();
                     stringBuilder.AppendLine("UPDATE TSPMaster SET vcDelete='1' WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
                     stringBuilder.AppendLine("DELETE FROM TSPMaster_Box WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
-                    stringBuilder.AppendLine("DELETE FROM TSPMaster_OrderPlant WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
+                    //stringBuilder.AppendLine("DELETE FROM TSPMaster_OrderPlant WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
                     stringBuilder.AppendLine("DELETE FROM TSPMaster_SufferIn WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
                     stringBuilder.AppendLine("DELETE FROM TSPMaster_SupplierPlant WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
                     string strAction = "删除手配情报=>  包装厂:" + strPackingPlant + "；品番:" + strPartId + "；收货方:" + strReceiver + "；供应商:" + strSupplierId;

@@ -107,7 +107,7 @@ namespace DataAccess
                     strSql.Append("       and vcReceiver like '%" + strReceiver + "%'         \n");
                 if (strPriceState != null && strPriceState != "")
                     strSql.Append("       and vcPriceState='" + strPriceState + "'         \n");
-                strSql.Append("     order by  vcReceiver,vcSupplier_id,vcPart_id,dOperatorTime asc    \n");
+                strSql.Append("     order by  vcReceiver,vcSupplier_id,vcPart_id,iAutoId asc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -889,29 +889,29 @@ namespace DataAccess
 
                 strSql.Append("    --公式A	          \n");
                 strSql.Append("    --参考值	原价*系数，不做小数保留          \n");
-                strSql.Append("    --TNP含税	原价*系数*税率，保留1位          \n");
+                strSql.Append("    --TNP含税	原价*系数*税率，保留1位(向上取整)         \n");
 
                 strSql.Append("    if('" + strGSName + "'='1')          \n");//公式A
                 strSql.Append("    begin           \n");
                 strSql.Append("    set @priceAfter=@priceOrigin*@decXiShu            \n");
-                strSql.Append("    set @priceTNPWithTax=round(@priceOrigin*@decXiShu*@decTaxRate,1)            \n");
+                strSql.Append("    set @priceTNPWithTax=dbo.RoundUp(@priceOrigin*@decXiShu*@decTaxRate)            \n");
                 strSql.Append("    end          \n");
                 strSql.Append("              \n");
 
                 strSql.Append("    --公式B	          \n");
                 strSql.Append("    --参考值	上一状态的参考值-上一状态的原价+本状态的原价											          \n");
-                strSql.Append("    --TNP含税	(本状态参考值*税率-上一状态TNP含税)>0?本状态参考值*税率:上一状态TNP含税		          \n");
+                strSql.Append("    --TNP含税	(本状态参考值*税率-上一状态TNP含税)>0?本状态参考值*税率:上一状态TNP含税	，保留1位(向上取整)  	          \n");
 
                 strSql.Append("    if('" + strGSName + "'='2' )          \n");//公式B
                 strSql.Append("    begin          \n");
                 strSql.Append("    	set @priceAfter=@lastPriceAfter-@lastPriceOrigin+@priceOrigin          \n");
                 strSql.Append("    	if(@priceAfter*@decTaxRate-@lastPriceTNPWithTax)>0          \n");
                 strSql.Append("    	begin           \n");
-                strSql.Append("    	  set @priceTNPWithTax=@priceAfter*@decTaxRate          \n");
+                strSql.Append("    	  set @priceTNPWithTax=dbo.RoundUp(@priceAfter*@decTaxRate)          \n");
                 strSql.Append("    	end          \n");
                 strSql.Append("    	else          \n");
                 strSql.Append("    	begin           \n");
-                strSql.Append("    	  set @priceTNPWithTax=@lastPriceTNPWithTax          \n");
+                strSql.Append("    	  set @priceTNPWithTax=dbo.RoundUp(@lastPriceTNPWithTax)          \n");
                 strSql.Append("    	end          \n");
                 strSql.Append("    end          \n");
                 strSql.Append("              \n");

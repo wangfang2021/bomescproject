@@ -329,8 +329,8 @@ namespace SPPSApi.Controllers.G99
                 DataTable dt = fs9905_Logic.SearchTHList(strGUID);
                 DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("dTHTime", ConvertFieldType.DateType,"yyyyMMdd");
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType,"yyyyMMdd");
+                dtConverter.addField("dTHTime", ConvertFieldType.DateType,"yyyyMMddHHmm");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType,"yyyyMMddHHmm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -538,7 +538,7 @@ namespace SPPSApi.Controllers.G99
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcIsDYJG"].ToString()=="1")
+                    if (listInfoData[i]["vcIsDYJG"].ToString()=="1" && listInfoData[i]["vcIsDYFX"].ToString() == "1")
                     {
                         string strChange = listInfoData[i]["vcChange"].ToString();
                         if (strChange=="1" || strChange =="2" || strChange =="10" || strChange =="8" || strChange =="12")
@@ -570,7 +570,7 @@ namespace SPPSApi.Controllers.G99
                             }
                         }
                     }
-                    else if(listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYJG"].ToString()=="2")
+                    else if(listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYFX"].ToString()=="2")
                     {
                         if (listInfoData[i]["vcNotDY"]==null || listInfoData[i]["vcNotDY"].ToString()=="")
                         {
@@ -771,6 +771,7 @@ namespace SPPSApi.Controllers.G99
             try
             { 
                 string strFileName = dataform.fileName;
+                strFileName ="-"+strFileName.Substring(strFileName.Length - 5);
                 string fileSavePath = strFileName + ".pdf";
                 apiresult.code = ComConstant.SUCCESS_CODE;
                 apiresult.data = fileSavePath;

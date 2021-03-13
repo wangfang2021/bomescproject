@@ -59,7 +59,6 @@ namespace SPPSApi.Controllers.G03
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));      //内外                
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));      //OE                
                 List<Object> dataList_C015 = ComFunction.convertAllToResult(ComFunction.getTCode("C015"));      //省份                
-                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));      //包装厂               
                 List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));      //防锈指示
                 List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));      //对应可否确认结果
                 List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));      //防锈对应可否
@@ -96,7 +95,6 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C003", dataList_C003);
                 res.Add("C015", dataList_C015);
                 res.Add("C012", dataList_C012);
-                res.Add("C016", dataList_C016);
                 res.Add("C028", dataList_C028);
                 res.Add("C029", dataList_C029);
                 res.Add("C030", dataList_C030);
@@ -304,13 +302,24 @@ namespace SPPSApi.Controllers.G03
                 string strTH = dataForm.vcTH;
 
                 string strErrorPartId = "";
-                fs0304_Logic.Back(listInfoData, loginInfo.UserId,strTH,loginInfo.Email,loginInfo.UserName, ref strErrorPartId);
+                int returnFlag = 0;
+                fs0304_Logic.Back(listInfoData, loginInfo.UserId,strTH,loginInfo.Email,loginInfo.UserName, ref strErrorPartId,ref returnFlag);
                 if (strErrorPartId != "")
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    if (returnFlag==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErrorPartId;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    else if (returnFlag==1)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErrorPartId;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

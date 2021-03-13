@@ -1364,7 +1364,7 @@ namespace Common
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
-                if(strCodeId=="C002")//变更事项有排序规定，还有类似的在这加or
+                if(strCodeId == "C002"|| strCodeId == "C016")//变更事项有排序规定，还有类似的在这加or
                     strSql.Append("     order by cast(vcMeaning as int) asc     \n");
                 else
                     strSql.Append("     ORDER BY iAutoId    \n");

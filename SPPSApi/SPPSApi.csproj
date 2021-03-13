@@ -64,6 +64,7 @@
     <None Remove="Doc\Template\FS0309.xlsx" />
     <None Remove="Doc\Template\FS0309_DiaoDa.xlsx" />
     <None Remove="Doc\Template\FS0309_Export.xlsx" />
+    <None Remove="Doc\Template\FS0309_XiaoShou - 复制.xlsx" />
     <None Remove="Doc\Template\FS0312.xlsx" />
     <None Remove="Doc\Template\FS0312_Export.xlsx" />
     <None Remove="Doc\Template\FS0401.xlsx" />

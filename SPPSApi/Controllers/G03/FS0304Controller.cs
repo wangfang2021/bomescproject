@@ -302,13 +302,24 @@ namespace SPPSApi.Controllers.G03
                 string strTH = dataForm.vcTH;
 
                 string strErrorPartId = "";
-                fs0304_Logic.Back(listInfoData, loginInfo.UserId,strTH,loginInfo.Email,loginInfo.UserName, ref strErrorPartId);
+                int returnFlag = 0;
+                fs0304_Logic.Back(listInfoData, loginInfo.UserId,strTH,loginInfo.Email,loginInfo.UserName, ref strErrorPartId,ref returnFlag);
                 if (strErrorPartId != "")
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    if (returnFlag==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErrorPartId;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    else if (returnFlag==1)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = strErrorPartId;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

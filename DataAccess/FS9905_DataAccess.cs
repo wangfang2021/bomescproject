@@ -780,7 +780,11 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
 
-                StringBuilder sbrSet = new StringBuilder();
+                ///用于更新【新设类】
+                StringBuilder sbrSet1 = new StringBuilder();
+
+                //用于更新【非新设类】
+                StringBuilder sbrSet2 = new StringBuilder();
 
                 #region 获取所有已选择的数据，放入临时表
                 getTempData(listInfoData, sql, strUserId,ref strErr);
@@ -821,40 +825,59 @@ namespace DataAccess
                 sql.Append("         where b.GUID is null       \r\n");
                 #endregion
 
+                #region 拼接更新语句
                 if (!string.IsNullOrEmpty(strSupplier_BJ))
                 {
-                    sbrSet.Append(",dSupplier_BJ = '" + strSupplier_BJ+"'");
+                    sbrSet1.Append(",dSupplier_BJ = '" + strSupplier_BJ + "'");
+                    sbrSet2.Append(",dSupplier_BJ = '" + strSupplier_BJ + "'");
                 }
                 if (!string.IsNullOrEmpty(strSupplier_HK))
                 {
-                    sbrSet.Append(",dSupplier_HK ='" + strSupplier_HK + "'");
+                    sbrSet1.Append(",dSupplier_HK ='" + strSupplier_HK + "'");
+                    sbrSet2.Append(",dSupplier_HK ='" + strSupplier_HK + "'");
                 }
                 if (!string.IsNullOrEmpty(strSCPlace_City))
                 {
-                    sbrSet.Append(",vcSCPlace_City ='" + strSCPlace_City + "'");
+                    sbrSet1.Append(",vcSCPlace_City ='" + strSCPlace_City + "'");
                 }
                 if (!string.IsNullOrEmpty(strSCPlace_Province))
                 {
-                    sbrSet.Append(",vcSCPlace_Province ='" + strSCPlace_Province + "'");
+                    sbrSet1.Append(",vcSCPlace_Province ='" + strSCPlace_Province + "'");
                 }
                 if (!string.IsNullOrEmpty(strCHPlace_City))
                 {
-                    sbrSet.Append(",vcCHPlace_City = '" + strCHPlace_City + "'");
+                    sbrSet1.Append(",vcCHPlace_City = '" + strCHPlace_City + "'");
                 }
                 if (!string.IsNullOrEmpty(strCHPlace_Province))
                 {
-                    sbrSet.Append(",vcCHPlace_Province ='" + strCHPlace_Province + "'");
+                    sbrSet1.Append(",vcCHPlace_Province ='" + strCHPlace_Province + "'");
                 }
-                 
+                #endregion
+
+                #region 【新设类】一括付与
                 sql.AppendLine("      update TSQJD_Supplier set       \n");
-                sql.Append(sbrSet.ToString().Substring(1));
+                sql.Append(sbrSet1.ToString().Substring(1));
                 sql.AppendLine("        FROM TSQJD_Supplier a     \n");
                 sql.AppendLine("        inner join      \n");
                 sql.AppendLine("        (     \n");
                 sql.AppendLine("        	select [GUID] from #TSQJD_temp     \n");
                 sql.AppendLine("        	where vcJD <>'2'     \n");
+                sql.AppendLine("        	and ( vcChange='1' or vcChange='2' or vcChange='8' or vcChange='10' or vcChange='12')      \n");
                 sql.AppendLine("        )b on a.[GUID] = b.[GUID]     \n");
-                
+                #endregion
+
+                #region 【非新设】一括付与
+                sql.AppendLine("      update TSQJD_Supplier set       \n");
+                sql.Append(sbrSet2.ToString().Substring(1));
+                sql.AppendLine("        FROM TSQJD_Supplier a     \n");
+                sql.AppendLine("        inner join      \n");
+                sql.AppendLine("        (     \n");
+                sql.AppendLine("        	select [GUID] from #TSQJD_temp     \n");
+                sql.AppendLine("        	where vcJD <>'2'     \n");
+                sql.AppendLine("        	and ( vcChange<>'1' or vcChange<>'2' or vcChange<>'8' or vcChange<>'10' or vcChange<>'12')      \n");
+                sql.AppendLine("        )b on a.[GUID] = b.[GUID]     \n");
+                #endregion
+
                 excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");
             }
             catch (Exception ex)

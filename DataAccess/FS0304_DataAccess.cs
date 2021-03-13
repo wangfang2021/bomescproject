@@ -299,9 +299,10 @@ namespace DataAccess
                 getTempData(listInfoData, sql, strUserId,ref strErr);
                 #endregion
 
-                #region 更新生确进度表的进度为已退回,记录操作者，操作时间
+                #region 更新生确进度表的进度为已退回,清空NG理由,记录操作者，操作时间
                 sql.Append("          update TSQJD set           \n");
                 sql.Append("           vcJD = '3'          \n");
+                sql.Append("          ,vcNotDY = null          \n");
                 sql.Append("          ,vcOperatorId = '"+strUserId+"'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD a          \n");
@@ -832,13 +833,21 @@ namespace DataAccess
         }
         #endregion
 
-        #region 按检索条件返回dt
+        #region 获取供应商邮箱地址
         public DataTable getSupplierEmail(string strSupplierId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcEmail1,vcEmail2,vcEmail3 from TSupplier where vcSupplier_id='" + strSupplierId + "'   \n");
+                strSql.Append("    select address,displayName from   \n");
+                strSql.Append("    (   \n");
+                strSql.Append("    select vcEmail1 as 'address',vcEmail1 as 'displayName' from TSupplier where vcSupplier_id = '"+strSupplierId+"'   \n");
+                strSql.Append("    union all   \n");
+                strSql.Append("    select vcEmail2 as 'address',vcEmail2 as 'displayName' from TSupplier where vcSupplier_id = '"+strSupplierId+"'   \n");
+                strSql.Append("    union all   \n");
+                strSql.Append("    select vcEmail3 as 'address',vcEmail3 as 'displayName' from TSupplier where vcSupplier_id = '"+strSupplierId+"'   \n");
+                strSql.Append("    )a where (address is not null and address <>'') and (displayName is not null and displayName <> '')   \n");
+                strSql.Append("    group by address,displayName   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
@@ -848,7 +857,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 按检索条件返回dt
+        #region 获取当前登陆用户的邮件模板(邮件主题、邮件内容)
         public DataTable getEmailSetting(string strUserId)
         {
             try

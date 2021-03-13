@@ -54,19 +54,22 @@ namespace Logic
         #endregion
 
         #region 退回
-        public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strTH, string strEmail,string strUserName, ref string strErr)
+        public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strTH, string strEmail,string strUserName, ref string strErr,ref int returnFlag)
         {
             #region 更新生确进度表
             fs0304_DataAccess.Back(listInfoData, strUserId,strTH,ref strErr);
             #endregion
 
             #region 给供应商发邮件
+
+            #region 获取登陆人的邮件模板(邮件标题和邮件内容)，未找到：返回错误提示
             DataTable dtSetting = getEmailSetting(strUserId);
             string strTitle = "";//邮件标题
             string strContent = "";//邮件内容
             if (dtSetting == null || dtSetting.Rows.Count == 0)
             {
                 strErr = "退回成功，但用户" + strUserId + "邮件内容没配置，邮件发送终止！";
+                returnFlag = 1;
                 return;
             }
             else
@@ -76,6 +79,8 @@ namespace Logic
                 var dateTime = DateTime.Now.ToString("yyyy年MM月");
                 strContent = strContent.Replace("##yearmonth##", dateTime);
             }
+            #endregion
+
             //再向供应商发邮件
             StringBuilder strEmailBody = new StringBuilder();
             for (int i = 0; i < listInfoData.Count; i++)
@@ -85,10 +90,12 @@ namespace Logic
                 if (receiverDt == null)
                 {
                     strErr += "未找到 '" + strSupplier_id + "' 供应商邮件信息";
+                    returnFlag = 2;
                     return;
                 }
                 ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
             }
+            returnFlag = 0;
             #endregion
         }
         #endregion

@@ -62,6 +62,93 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable GetPackPlant()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select a.vcPackPlant as vcValue,a.vcPackPlant as vcName from ( select distinct vcPackPlant as vcPackPlant from TAnnualManagement ) a order by vcPackPlant asc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetPlant()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select vcInjectionFactory as vcValue,vcInjectionFactory as vcName from ( ");
+                strSql.AppendLine("  select distinct vcInjectionFactory  from TAnnualManagement  ");
+                strSql.AppendLine("  ) a order by vcInjectionFactory asc ");
+                strSql.AppendLine("   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkArea()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select vcWorkArea as vcValue,vcWorkArea as vcName from ( ");
+                strSql.AppendLine("  select distinct isnull(vcWorkArea,'无') as vcWorkArea  from TAnnualManagement  ");
+                strSql.AppendLine("  ) a order by vcWorkArea asc ");
+                strSql.AppendLine("   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetNeiWai()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select vcInsideOutsideType as vcValue,vcInsideOutsideType as vcName from ( ");
+                strSql.AppendLine("  select distinct  ");
+                strSql.AppendLine("  	case when  vcInsideOutsideType='0' then '内制' ");
+                strSql.AppendLine("  	     when   vcInsideOutsideType='1' then '外注' ");
+                strSql.AppendLine("  		 else vcInsideOutsideType end as vcInsideOutsideType ");
+                strSql.AppendLine("  	  from TAnnualManagement  ");
+                strSql.AppendLine("  ) a order by vcInsideOutsideType asc ");
+                strSql.AppendLine("   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetSupplier()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine(" select vcSupplier_id as vcValue,vcSupplier_id as vcName from (  ");
+                strSql.AppendLine(" select distinct vcSupplier_id  from TAnnualManagement   ");
+                strSql.AppendLine(" ) a order by vcSupplier_id asc  ");
+                strSql.AppendLine("   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 删除
         /// </summary>
@@ -81,6 +168,23 @@ namespace DataAccess
                 }
                 sql.Append("  )   \r\n ");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkAreaBySupplier(string vcSupplier_id)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("   select vcWorkArea as vcValue,vcWorkArea as vcName from (   ");
+                strSql.AppendLine("   select distinct isnull(vcWorkArea,'无') as vcWorkArea  from TAnnualManagement where vcSupplier_id='" + vcSupplier_id + "'   ");
+                strSql.AppendLine("   ) a order by vcWorkArea asc  ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {
@@ -130,14 +234,14 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string dOperatorTime,  string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
+        public DataTable Search(string dOperatorTime,  string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierId,string vcWorkArea, string vcType,string vcPackPlant,string vcReceiver)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select [iAutoId], d.vcName as vcType, a.vcReceiver,[vcPackPlant],cast([vcTargetYear] as int) as [vcTargetYear], [vcPartNo], [vcInjectionFactory],   ");
-                strSql.AppendLine("  c.vcName as [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], cast(isnull(a.vcAcceptNum,0) as int) [vcAcceptNum],  ");
+                strSql.AppendLine("  case when vcInsideOutsideType='0' then '内制' when vcInsideOutsideType='1' then '外注' else  vcInsideOutsideType end as [vcInsideOutsideType], [vcSupplier_id], [vcWorkArea], [vcCarType], cast(isnull(a.vcAcceptNum,0) as int) [vcAcceptNum],  ");
                 strSql.AppendLine("  cast(isnull(a.vcJanuary,0) as decimal(18,2)) as  [vcJanuary],cast(isnull(a.vcFebruary,0) as decimal(18,2)) as [vcFebruary],cast(isnull(a.vcMarch,0) as decimal(18,2)) as [vcMarch],cast(isnull(a.vcApril,0) as decimal(18,2)) as [vcApril],cast(isnull(a.vcMay,0) as decimal(18,2)) as [vcMay],cast(isnull(a.vcJune,0) as decimal(18,2)) as [vcJune],cast(isnull(a.vcJuly,0) as decimal(18,2)) as [vcJuly],   ");
                 strSql.AppendLine("  cast(isnull(a.vcAugust,0) as decimal(18,2)) as [vcAugust], cast(isnull(a.vcSeptember,0) as decimal(18,2)) as [vcSeptember],cast(isnull(a.vcOctober,0) as decimal(18,2)) as [vcOctober],cast(isnull(a.vcNovember,0) as decimal(18,2)) as [vcNovember],cast(isnull(a.vcDecember,0) as decimal(18,2)) as [vcDecember],   ");
 
@@ -158,6 +262,14 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  vcTargetYear = '" + vcTargetYear + "' ");
                 }
+                if (vcReceiver.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcReceiver = '" + vcReceiver + "' ");
+                }
+                if (vcPackPlant.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcPackPlant = '" + vcPackPlant + "' ");
+                }
                 if (vcPartNo.Length > 0)
                 {
                     strSql.AppendLine("  and  vcPartNo like '" + vcPartNo + "%' ");
@@ -168,29 +280,40 @@ namespace DataAccess
                 }
                 if (vcInsideOutsideType.Length > 0)
                 {
-                    strSql.AppendLine("  and  c.vcValue = '" + vcInsideOutsideType + "' ");
+                    if (vcInsideOutsideType == "内制")
+                    {
+                        strSql.AppendLine("  and  vcInsideOutsideType = '0' ");
+                    } else if (vcInsideOutsideType == "外注")
+                    {
+                        strSql.AppendLine("  and  vcInsideOutsideType = '1' ");
+                    } else
+                    {
+                        strSql.AppendLine("  and  vcInsideOutsideType = '" + vcInsideOutsideType + "' ");
+                    }
                 }
-                if (vcSupplierIdWorkArea.Length > 0)
+                if (vcSupplierId.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id = '" + vcSupplierIdWorkArea.Substring(0,4) + "' ");
+                    strSql.AppendLine("  and  vcSupplier_id = '" + vcSupplierId + "' ");
                 }
-                if (vcSupplierIdWorkArea.Length > 0)
+                if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea = '" + vcSupplierIdWorkArea.Substring(4, 1) + "' ");
+                    if (vcWorkArea == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(vcWorkArea,'') = '' ");
+                    }
+                    else {
+                        strSql.AppendLine("  and  vcWorkArea = '" + vcWorkArea + "' ");
+                    }
                 }
                 if (vcType.Length>0)
                 {
                     strSql.AppendLine("  and  vcType = '" + vcType + "' ");
                 }
-                if (vcCarType.Length > 0)
-                {
-                    strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
-                }
+                
                 if (dOperatorTime.Length>0)
                 {
                     strSql.AppendLine("  and  convert(varchar(10), dOperatorTime,112) = '" + dOperatorTime.Replace("-", "").Replace("/", "") + "' ");
                 }
-
                 strSql.AppendLine("  order by  dOperatorTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -312,7 +435,7 @@ namespace DataAccess
                 {
                     StringBuilder strSql = new StringBuilder();
                     
-                    string  vcType = dt.Rows[i]["vcPackPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackPlant"].ToString();
+                    string  vcType = dt.Rows[i]["vcType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcType"].ToString();
                     if (vcType == "当初年计") //'0','当初年计' '1','修正年计'
                     {
                         vcType = "0";
@@ -604,75 +727,8 @@ namespace DataAccess
                 strSql.AppendLine("   where  b.vcValue is  null and vcTargetYear='" + vcTargetYear + "' and vcType='" + vcType + "'  ");
                 strSql.AppendLine("   ) S group by vcInjectionFactory,vcSupplierId  ");
                 strSql.AppendLine("   ) T  ");
-                strSql.AppendLine("    ) W  ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
-                strSql.AppendLine("    ");
+                strSql.AppendLine("    ) W  order by vcInjectionFactory asc ");
+               
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

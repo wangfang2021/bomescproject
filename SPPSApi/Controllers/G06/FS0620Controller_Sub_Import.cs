@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"年计类型","收货方","包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "N+1年预测", "N+2年预测"},
+                string[,] headers = new string[,] {{"年计类型","收货方","包装工场", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "N+1年预测", "N+2年预测"},
                                                 { "vcType","vcReceiver","vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcNextOneYear", "vcNextTwoYear"},
                                                 {"","","",FieldCheck.Num,FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,"","",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
                                                 {"100","50","50","4","12","100","100","4","50","50","30","30","30","30","30","30","30","30","30","30","30","30","30","30","30"},//最大长度设定,不校验最大长度用0
@@ -99,36 +99,67 @@ namespace SPPSApi.Controllers.G06
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-                var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPackPlant"), r3 = r.Field<string>("vcTargetYear")
-                             , r4 = r.Field<string>("vcPartNo")
-                             , r5 = r.Field<string>("vcInjectionFactory")
-                             , r6 = r.Field<string>("vcInsideOutsideType")
-                             , r7 = r.Field<string>("vcSupplier_id")
-                             , r8 = r.Field<string>("vcWorkArea")
-                             , r9 = r.Field<string>("vcCarType")
-                             , r10 = r.Field<string>("vcType")
-                             , r11 = r.Field<string>("vcReceiver")
+                //var result = from r in importDt.AsEnumerable()
+                //             group r by new { r2 = r.Field<string>("vcPackPlant"), r3 = r.Field<string>("vcTargetYear")
+                //             , r4 = r.Field<string>("vcPartNo")
+                //             , r5 = r.Field<string>("vcInjectionFactory")
+                //             , r6 = r.Field<string>("vcInsideOutsideType")
+                //             , r7 = r.Field<string>("vcSupplier_id")
+                //             , r8 = r.Field<string>("vcWorkArea")
+                //             , r9 = r.Field<string>("vcCarType")
+                //             , r10 = r.Field<string>("vcType")
+                //             , r11 = r.Field<string>("vcReceiver")
 
-                             } into g
-                             where g.Count() > 1
-                             select g;
-                if (result.Count() > 0)
+                //             } into g
+                //             where g.Count() > 1
+                //             select g;
+                //if (result.Count() > 0)
+                //{
+                //    StringBuilder sbr = new StringBuilder();
+                //    sbr.Append("导入数据重复:<br/>");
+                //    foreach (var item in result)
+                //    {
+                //        sbr.Append("年计类型"+ item.Key.r10 + "收货方"+ item.Key.r11 + "包装工厂:" + item.Key.r2 + " 对象年月:" + item.Key.r3 +
+                //            " 品番:" + item.Key.r4 + " 发注工厂:" + item.Key.r5 +
+                //            " 内外:" + item.Key.r6 + " 供应商代码:" + item.Key.r7 +
+                //            " 工区:" + item.Key.r8 + " 车型:" + item.Key.r9 +"<br/>");
+                //    }
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = sbr.ToString();
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
+                DataTable dtReceiver = ComFunction.getTCode("C018");
+                ArrayList list = new ArrayList();
+                ArrayList listError = new ArrayList();
+                for (int i=0;i< dtReceiver.Rows.Count;i++)
+                {
+                    list.Add(dtReceiver.Rows[i]["vcValue"]);
+                }
+                for (int i = 0;i<importDt.Rows.Count;i++)
+                {
+                   
+                    if (!list.Contains(importDt.Rows[i]["vcReceiver"].ToString().Trim()))
+                    {
+                        if (!listError.Contains(importDt.Rows[i]["vcReceiver"].ToString().Trim()))
+                        {
+                            listError.Add(importDt.Rows[i]["vcReceiver"].ToString().Trim());
+                        }
+                    }
+                }
+                if (listError.Count>0)
                 {
                     StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
+                    sbr.Append("收货方:");
+                    for (int i=0;i<listError.Count;i++)
                     {
-                        sbr.Append("年计类型"+ item.Key.r10 + "收货方"+ item.Key.r11 + "包装工厂:" + item.Key.r2 + " 对象年月:" + item.Key.r3 +
-                            " 品番:" + item.Key.r4 + " 发注工厂:" + item.Key.r5 +
-                            " 内外:" + item.Key.r6 + " 供应商代码:" + item.Key.r7 +
-                            " 工区:" + item.Key.r8 + " 车型:" + item.Key.r9 +"<br/>");
+                        sbr.Append(listError[i]+"、");
                     }
+                    sbr.Remove(sbr.Length - 1, 1);
+                    sbr.Append("不存在于收货方数据字典里面,请先追加数据字典，再导入数据!");
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
                 fs0620_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
@@ -137,7 +168,7 @@ namespace SPPSApi.Controllers.G06
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0605", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0620", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

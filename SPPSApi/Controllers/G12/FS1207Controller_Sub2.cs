@@ -168,57 +168,6 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-
-        #region 导出
-        [HttpPost]
-        [EnableCors("any")]
-        public string exportApi([FromBody] dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            ApiResult apiResult = new ApiResult();
-            //以下开始业务处理
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMon = dataForm.vcMon;
-            string vcPartsNo = dataForm.vcPartsNo;
-            string vcYesOrNo = dataForm.vcYesOrNo;
-            vcMon = vcMon == null ? "" : vcMon;
-            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
-            vcYesOrNo = vcYesOrNo == null ? "" : vcYesOrNo;
-            if (!string.IsNullOrEmpty(vcPartsNo))
-            {
-                vcPartsNo = vcPartsNo.Replace("-", "").ToString();
-            }
-            try
-            {
-                string _msg;
-                DataTable dt = null;// logic.GetZJFzRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
-                string[] fields = { "vcMonth", "vcPartsNo", "iFZNum", "vcPartsNoFZ", "vcSource" };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub2.xlsx", 1, loginInfo.UserId, FunctionID);
-                if (filepath == "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
         #region 保存
         [HttpPost]
         [EnableCors("any")]
@@ -312,7 +261,6 @@ namespace SPPSApi.Controllers.G12
             string vcType = dataForm.vcType;
             string vcOrder = dataForm.vcOrder;
             string vcSaleUser = dataForm.vcSaleUser;
-
 
             JArray listInfo = dataForm.temp;
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();

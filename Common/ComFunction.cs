@@ -680,7 +680,7 @@ namespace Common
                             string cellValue = Header[0, j];
                             if (!string.IsNullOrEmpty(cellValue))
                             {
-                                if (Header[0, i] == cellValue)
+                                if (Header[0, i] == cellValue && i == j)
                                 {
                                     bFound = true;
                                     index.Add(j);

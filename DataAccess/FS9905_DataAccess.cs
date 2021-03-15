@@ -855,27 +855,33 @@ namespace DataAccess
                 #endregion
 
                 #region 【新设类】一括付与
-                sql.AppendLine("      update TSQJD_Supplier set       \n");
-                sql.Append(sbrSet1.ToString().Substring(1));
-                sql.AppendLine("        FROM TSQJD_Supplier a     \n");
-                sql.AppendLine("        inner join      \n");
-                sql.AppendLine("        (     \n");
-                sql.AppendLine("        	select [GUID] from #TSQJD_temp     \n");
-                sql.AppendLine("        	where vcJD <>'2'     \n");
-                sql.AppendLine("        	and ( vcChange='1' or vcChange='2' or vcChange='8' or vcChange='10' or vcChange='12')      \n");
-                sql.AppendLine("        )b on a.[GUID] = b.[GUID]     \n");
+                if (sbrSet1.Length>0)
+                {
+                    sql.AppendLine("      update TSQJD_Supplier set       \n");
+                    sql.Append(sbrSet1.ToString().Substring(1));
+                    sql.AppendLine("        FROM TSQJD_Supplier a     \n");
+                    sql.AppendLine("        inner join      \n");
+                    sql.AppendLine("        (     \n");
+                    sql.AppendLine("        	select [GUID] from #TSQJD_temp     \n");
+                    sql.AppendLine("        	where vcJD <>'2'     \n");
+                    sql.AppendLine("        	and ( vcChange='1' or vcChange='2' or vcChange='8' or vcChange='10' or vcChange='12')      \n");
+                    sql.AppendLine("        )b on a.[GUID] = b.[GUID]     \n");
+                }
                 #endregion
 
                 #region 【非新设】一括付与
-                sql.AppendLine("      update TSQJD_Supplier set       \n");
-                sql.Append(sbrSet2.ToString().Substring(1));
-                sql.AppendLine("        FROM TSQJD_Supplier a     \n");
-                sql.AppendLine("        inner join      \n");
-                sql.AppendLine("        (     \n");
-                sql.AppendLine("        	select [GUID] from #TSQJD_temp     \n");
-                sql.AppendLine("        	where vcJD <>'2'     \n");
-                sql.AppendLine("        	and ( vcChange<>'1' or vcChange<>'2' or vcChange<>'8' or vcChange<>'10' or vcChange<>'12')      \n");
-                sql.AppendLine("        )b on a.[GUID] = b.[GUID]     \n");
+                if (sbrSet2.Length>0)
+                {
+                    sql.AppendLine("      update TSQJD_Supplier set       \n");
+                    sql.Append(sbrSet2.ToString().Substring(1));
+                    sql.AppendLine("        FROM TSQJD_Supplier a     \n");
+                    sql.AppendLine("        inner join      \n");
+                    sql.AppendLine("        (     \n");
+                    sql.AppendLine("        	select [GUID] from #TSQJD_temp     \n");
+                    sql.AppendLine("        	where vcJD <>'2'     \n");
+                    sql.AppendLine("        	and ( vcChange<>'1' or vcChange<>'2' or vcChange<>'8' or vcChange<>'10' or vcChange<>'12')      \n");
+                    sql.AppendLine("        )b on a.[GUID] = b.[GUID]     \n");
+                }
                 #endregion
 
                 excute.ExcuteSqlWithStringOper(sql.ToString(), "TK");

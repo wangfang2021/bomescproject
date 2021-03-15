@@ -113,7 +113,20 @@ namespace DataAccess
 
                         sbr.AppendLine(" AND ( " + tmp + " )");
                     }
+                    if (Origin.Count > 0)
+                    {
+                        string tmp = "";
+                        foreach (string s in Origin)
+                        {
+                            if (tmp.Length > 0)
+                            {
+                                tmp += ",";
+                            }
+                            tmp += "'" + s + "'";
+                        }
 
+                        sbr.AppendLine("AND vcOriginCompany IN (" + tmp + ") ");
+                    }
                     sbr.AppendLine("AND dTimeFrom <= GETDATE()");
                     sbr.AppendLine("AND dTimeTo >= GETDATE()");
                     sbr.AppendLine("");

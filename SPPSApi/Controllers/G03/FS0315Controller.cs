@@ -43,7 +43,7 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> dataList_C049 = ComFunction.convertAllToResult(ComFunction.getTCode("C049"));//工程
+                List<Object> dataList_C049 = ComFunction.convertAllToResult(fs0315_logic.getProject());//工程
                 List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//工程
 
                 res.Add("C049", dataList_C049);
@@ -134,7 +134,7 @@ namespace SPPSApi.Controllers.G03
                 string strMsg = "";
                 if (flag == "0")
                 {
-                    string[] heads = { "年", "月", "日", "新设", "废止", "旧型","其他", "点数/回", "点数/月", };
+                    string[] heads = { "年", "月", "日", "新设", "废止", "旧型", "其他", "点数/回", "点数/月", };
                     string[] fields = { "Year", "Month", "Day", "iXS", "iFZ", "iJX", "iOther", "idaySUM", "imonthSUM" };
                     filepath = ComFunction.DataTableToExcel(heads, fields, list[0], _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
 

@@ -16,5 +16,10 @@ namespace Logic
         {
             return fs0316_dataAccess.searchApi(flag, Origin, supplierId, project);
         }
+
+        public DataTable getProject()
+        {
+            return fs0316_dataAccess.getProject();
+        }
     }
 }

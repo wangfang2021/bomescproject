@@ -42,7 +42,7 @@ namespace SPPSApi.Controllers.G03
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> dataList_C049 = ComFunction.convertAllToResult(ComFunction.getTCode("C049"));//工程
+                List<Object> dataList_C049 = ComFunction.convertAllToResult(fs0316_logic.getProject());//工程
                 List<Object> dataList_C006 = ComFunction.convertAllToResult(ComFunction.getTCode("C006"));//工程
                 res.Add("C049", dataList_C049);
                 res.Add("C006", dataList_C006);

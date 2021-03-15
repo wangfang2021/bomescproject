@@ -16,7 +16,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" SELECT iAuto_Id,vcPart_Id,vcSupplier_id,vcCPDCompany,vcCarTypeName,\r\n");
-                sbr.Append(" vcPartNameCN,vcZXBZNo,vcSCSName,vcSCSAdress,dTimeFrom,dTimeTo,'0' as vcModFlag,'0' as vcAddFlag\r\n");
+                sbr.Append(" vcPartNameCN,vcZXBZNo,vcSCSName,vcSCSAdress,dTimeFrom,Convert(varchar(10),dTimeFrom,111) as dTimeFrom1,dTimeTo,Convert(varchar(10),dTimeTo,111) as dTimeTo1,'0' as vcModFlag,'0' as vcAddFlag\r\n");
                 sbr.Append(" FROM TtagMaster \r\n");
                 sbr.Append(" Where 1=1 \r\n");
                 if (!string.IsNullOrWhiteSpace(strPartid))

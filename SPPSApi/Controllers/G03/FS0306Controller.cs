@@ -300,7 +300,7 @@ namespace SPPSApi.Controllers.G03
                 DataTable dt = fs0306_logic.searchApi(vcPart_Id, vcCarType, vcState, loginInfo.UnitCode);
                 string resMsg = "";
                 string[] head = { "品番", "车型", "旧型开始时间", "变更事项", "N+1", "N+2", "N+3", "N+4", "N+5", "N+6", "N+7", "N+8", "N+9", "N+10" };
-                string[] fields = { "vcPart_id", "vcCarTypeDesign", "dJiuBegin", "vcName", "vcNum1", "vcNum2", "vcNum3", "vcNum4", "vcNum5", "vcNum6", "vcNum7", "vcNum8", "vcNum9", "vcNum10" };
+                string[] fields = { "vcPart_id", "vcCarTypeDesign", "dJiuBegin1", "vcName", "vcNum1", "vcNum2", "vcNum3", "vcNum4", "vcNum5", "vcNum6", "vcNum7", "vcNum8", "vcNum9", "vcNum10" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using Logic;
 /// <summary>
 /// NQC内外合状态获取_EKANBAN
 /// </summary>
@@ -15,7 +16,7 @@ namespace BatchProcess
         private MultiExcute excute = new MultiExcute();
 
         #region 主方法
-        public bool main(string strUserId)
+        public bool main(string strUserId, string plant)
         {
             string PageId = "FP0021";
             try
@@ -30,7 +31,74 @@ namespace BatchProcess
                 }
 
                 //王方方法
+                {
 
+                    FS0612_Logic fs0612_Logic = new FS0612_Logic();
+                    FS0630_Logic fs0630_Logic = new FS0630_Logic();
+
+                    string vcCLYM = DateTime.Now.ToString("yyyyMM");
+                    string vcDXYM = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                    string vcNSYM = DateTime.Now.AddMonths(2).ToString("yyyyMM");
+                    string vcNNSYM = DateTime.Now.AddMonths(3).ToString("yyyyMM");
+
+                    DataTable dtNQCResult = fs0612_Logic.dtNQCReceive(vcCLYM);
+
+                    DataRow[] drs_dxny_a = dtNQCResult.Select("Process_Factory='TFTM" + plant + "' and Start_date_for_daily_qty like '" + vcDXYM + "%'  ");
+                    DataRow[] drs_nsny_a = dtNQCResult.Select("Process_Factory='TFTM" + plant + "' and Start_date_for_daily_qty like '" + vcNSYM + "%'  ");
+                    DataRow[] drs_nnsny_a = dtNQCResult.Select("Process_Factory='TFTM" + plant + "' and Start_date_for_daily_qty like '" + vcNNSYM + "%'  ");
+
+                    if (drs_dxny_a.Length == 0)
+                    {
+                        ComMessage.GetInstance().ProcessMessage(PageId, string.Format("工厂{0},对象年月{1}内制结果未处理。", plant, vcDXYM), null, strUserId);
+                        return true;
+                    }
+                    if (drs_nsny_a.Length == 0)
+                    {
+                        ComMessage.GetInstance().ProcessMessage(PageId, string.Format("工厂{0},对象年月{1}内制结果未处理。", plant, vcNSYM), null, strUserId);
+                        return true;
+                    }
+                    if (drs_nnsny_a.Length == 0)
+                    {
+                        ComMessage.GetInstance().ProcessMessage(PageId, string.Format("工厂{0},对象年月{1}内制结果未处理。", plant, vcNNSYM), null, strUserId);
+                        return true;
+                    }
+
+                    DataTable dtSOQReply = fs0630_Logic.GetSOQReply(vcCLYM, "1");
+                    DataRow[] drs_dxny_b = dtSOQReply.Select("vcFZGC='" + plant + "' and vcDXYM='" + vcDXYM + "'  ");
+                    DataRow[] drs_nsny_b = dtSOQReply.Select("vcFZGC='" + plant + "' and vcDXYM='" + vcNSYM + "'  ");
+                    DataRow[] drs_nnsny_b = dtSOQReply.Select("vcFZGC='" + plant + "' and vcDXYM='" + vcNNSYM + "'  ");
+                    if (drs_dxny_b.Length == 0)
+                    {
+                        ComMessage.GetInstance().ProcessMessage(PageId, string.Format("工厂{0},对象年月{1}外注平准化数据没有展开。", plant, vcDXYM), null, strUserId);
+                        return true;
+                    }
+                    if (drs_nsny_b.Length == 0)
+                    {
+                        ComMessage.GetInstance().ProcessMessage(PageId, string.Format("工厂{0},内示年月{1}外注平准化数据没有展开。", plant.ToString(), vcNSYM), null, strUserId);
+                        return true;
+                    }
+                    if (drs_nnsny_b.Length == 0)
+                    {
+                        ComMessage.GetInstance().ProcessMessage(PageId, string.Format("工厂{0},内示年月{1}外注平准化数据没有展开。", plant.ToString(), vcNNSYM), null, strUserId);
+                        return true;
+                    }
+
+                    //判断最大次数合算能不能再次请求，如果请求了但是没有回复则不能再次请求
+                    DataTable dtMaxCLResult = fs0612_Logic.GetMaxCLResult2(vcCLYM);
+
+                    DataRow[] drs_dxny_c = dtMaxCLResult.Select("vcPlant='" + plant + "' and vcStatus='已请求'  ");
+                    if (drs_dxny_c.Length > 0)
+                    {
+                        ComMessage.GetInstance().ProcessMessage(PageId, string.Format("工厂{0}不能再次请求。", plant), null, strUserId);
+                        return true;
+                    }
+
+                    List<string> plantList = null;
+
+                    plantList.Add(plant);
+
+                    fs0612_Logic.CreateView2(vcCLYM, plantList, strUserId);
+                }
 
 
                 //批处理结束
@@ -87,7 +155,7 @@ namespace BatchProcess
                     {
                         sbr.AppendLine("union all");
                     }
-                    sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
+                    sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + YMD + "' as DXR  FROM TSoqReply");
                     sbr.AppendLine("WHERE vcInOutFlag = '0' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
                     sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
                 }
@@ -103,7 +171,7 @@ namespace BatchProcess
                     {
                         sbr.AppendLine("union all");
                     }
-                    sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
+                    sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + YMD + "' as DXR  FROM TSoqReply");
                     sbr.AppendLine("WHERE vcInOutFlag = '1' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
                     sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
                 }

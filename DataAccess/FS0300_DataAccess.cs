@@ -160,8 +160,8 @@ namespace DataAccess
                 //sbr.AppendLine("    LEFT JOIN(SELECT vcValue, vcName FROM TCode WHERE vcCodeId='C004') g ON a.vcHaoJiu=g.vcValue");
                 //sbr.AppendLine(" WHERE a.vcPart_id LIKE '" + PartId + "%' AND a.vcSupplier_id LIKE '" + Supplier_id + "%';");
 
-                sbr.AppendLine("SELECT a.vcOriginCompany, a.vcPart_id, a.vcReceiver, a.vcPartNameEn, a.vcPartNameCn, a.vcCarTypeDesign, a.vcCarTypeDev, a.dTimeFrom, a.dTimeTo, ");
-                sbr.AppendLine("a.vcPartReplace, e.vcName AS vcInOutflag, f.vcName AS vcOE, a.vcHKPart_id, g.vcName AS vcHaoJiu, a.dJiuBegin, a.dJiuEnd, a.vcJiuYear, a.vcNXQF, a.dSSDate, a.vcSupplier_id,");
+                sbr.AppendLine("SELECT a.vcOriginCompany, a.vcPart_id, a.vcReceiver, a.vcPartNameEn, a.vcPartNameCn, a.vcCarTypeDesign, a.vcCarTypeDev, a.dTimeFrom, a.dTimeTo,Convert(varchar(10),a.dTimeFrom,111) as dTimeFrom1,Convert(varchar(10),a.dTimeTo,111) as dTimeTo1, ");
+                sbr.AppendLine("a.vcPartReplace, e.vcName AS vcInOutflag, f.vcName AS vcOE, a.vcHKPart_id, g.vcName AS vcHaoJiu, a.dJiuBegin, a.dJiuEnd,Convert(varchar(10),a.dJiuBegin,111) as dJiuBegin1,Convert(varchar(10),a.dJiuEnd,111) as dJiuEnd1, a.vcJiuYear, a.vcNXQF, a.dSSDate,Convert(varchar(10),a.dSSDate,111) as dSSDate1, a.vcSupplier_id,");
                 sbr.AppendLine("a.vcSCPlace, a.vcCHPlace, a.vcSYTCode, a.vcSCSName, a.vcSCSAdress, a.vcZXBZNo, a.vcCarTypeName, a.vcFXDiff, a.vcFXNo, a.decPriceOrigin, a.decPriceTNPWithTax,");
                 sbr.AppendLine("b.vcSupplierPlant, b.vcSufferIn, b.iPackingQty, b.vcBoxType, b.vcBZPlant, b.vcBZUnit, b.vcPackNo, a.vcSupplier_name");
                 sbr.AppendLine("FROM(SELECT a.*, b.decPriceOrigin, b.decPriceTNPWithTax, c.vcSupplier_name");

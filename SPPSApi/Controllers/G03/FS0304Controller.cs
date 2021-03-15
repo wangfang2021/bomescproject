@@ -287,6 +287,14 @@ namespace SPPSApi.Controllers.G03
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
+                //判断至少勾选了一条数据
+                if (listInfoData.Count <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未选中任何行";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 //只有已回复的才可以退回
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -301,13 +309,13 @@ namespace SPPSApi.Controllers.G03
 
                 string strTH = dataForm.vcTH;
 
-                string strErrorPartId = "";
-                fs0304_Logic.Back(listInfoData, loginInfo.UserId,strTH,loginInfo.Email,loginInfo.UserName, ref strErrorPartId);
-                if (strErrorPartId != "")
+                string strErr = "";
+                fs0304_Logic.Back(listInfoData, loginInfo.UserId,strTH,loginInfo.Email,loginInfo.UserName, ref strErr);
+                if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.data = strErr;
+                    apiResult.flag = 99;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -359,15 +367,19 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                string strErr = "";
-                fs0304_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
-                if (strErr != "")
+                //只有已回复的才可以保存
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strErr;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    string strJD = listInfoData[i]["vcJD"].ToString();
+                    if (strJD != "2")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "所选对象包含未回复品番";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
+
+                fs0304_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -409,8 +421,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                string strErr = "";
-                fs0304_Logic.del(listInfoData, loginInfo.UserId, ref strErr);
+                fs0304_Logic.del(listInfoData, loginInfo.UserId);
                 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -454,15 +465,34 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 /*
-                 * 织入原单位时，必须是已回复的才可以织入原单位,已退回的也不能织入
+                 * 织入原单位时，只有生确进度为已回复的才可以织入原单位
                  */
                 Hashtable hash = new Hashtable();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcJD"].ToString()!="2")
+                    if (listInfoData[i]["vcJD"].ToString()=="1")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "所选对象包含未回复品番";
+                        apiResult.data = "所选对象进度状态为已联络，不可织入！";
+                        apiResult.data = "已联络信息不可织入";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (listInfoData[i]["vcJD"].ToString()=="3")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "所选对象进度状态为已退回，不可织入！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (listInfoData[i]["vcJD"].ToString() == "4")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "不可重复织入";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (listInfoData[i]["vcIsDYJG"].ToString()=="1" && listInfoData[i]["vcIsDYFX"].ToString() == "1" && (listInfoData[i]["dTFTM_BJ"]==null || listInfoData[i]["dTFTM_BJ"].ToString()==""))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "TFTM调整日期必填";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 
@@ -479,26 +509,6 @@ namespace SPPSApi.Controllers.G03
                     }
                 }
 
-                //开始数据验证
-                string[,] strField = new string[,] {{"TFTM调整日期"},
-                                                    {"dTFTM_BJ"        },
-                                                    {""                },
-                                                    {"100"             },//最大长度设定,不校验最大长度用0
-                                                    {"1"               },//最小长度设定,可以为空用0
-                                                    {"26"              } //前台显示列号，从0开始计算,注意有选择框的是0
-                    };
-                //需要判断时间区间先后关系的字段
-                string[,] strDateRegion = null;
-                string[,] strSpecialCheck = null;
-
-                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0304");
-                if (checkRes != null)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = checkRes;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
                 string strErrorPartId = "";
                 string strErr = "";
                 fs0304_Logic.sendUnit(listInfoData, loginInfo.UserId, ref strErr);
@@ -566,16 +576,8 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = "未选择付与日期";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string strErrorPartId = "";
                 //只针对已回复数据进行一括付与
-                fs0304_Logic.DateKFY(listInfoData, loginInfo.UserId, ref strErrorPartId, dTFTM_BJ);
-                if (strErrorPartId != "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败，以下品番使用开始、结束区间存在重叠：<br/>" + strErrorPartId;
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                fs0304_Logic.DateKFY(listInfoData, loginInfo.UserId, dTFTM_BJ);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

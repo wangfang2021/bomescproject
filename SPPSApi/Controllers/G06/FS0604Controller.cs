@@ -139,7 +139,8 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            
+            string dSynchronizationDateFrom = dataForm.dSynchronizationDateFrom == null ? "" : dataForm.dSynchronizationDateFrom;
+            string dSynchronizationDateTo = dataForm.dSynchronizationDateTo == null ? "" : dataForm.dSynchronizationDateTo;
             string dSynchronizationDate = dataForm.dSynchronizationDate == null ? "" : dataForm.dSynchronizationDate;
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
@@ -152,7 +153,7 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                DataTable dt = fs0604_Logic.Search(dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
+                DataTable dt = fs0604_Logic.Search(dSynchronizationDateFrom, dSynchronizationDateTo,dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -195,7 +196,8 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
+            string dSynchronizationDateFrom = dataForm.dSynchronizationDateFrom == null ? "" : dataForm.dSynchronizationDateFrom;
+            string dSynchronizationDateTo = dataForm.dSynchronizationDateTo == null ? "" : dataForm.dSynchronizationDateTo;
             string dSynchronizationDate = dataForm.dSynchronizationDate == null ? "" : dataForm.dSynchronizationDate;
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
@@ -208,7 +210,7 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                DataTable dt = fs0604_Logic.Search(dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
+                DataTable dt = fs0604_Logic.Search(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]"使用结束时间", "dUserEndDate",

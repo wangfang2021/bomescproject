@@ -616,14 +616,19 @@ namespace SPPSApi.Controllers.G06
                 string strOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
                 string strPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
                 string strSupplierId = dataForm.vcSupplierId == null ? "" : dataForm.vcSupplierId;
-
+                string strStatus = "0";
                 DataTable dataTable = fS0616_logic.getSearchSubInfo(strOrderNo, strPart_id, strSupplierId);
+                if (dataTable != null && dataTable.Rows.Count != 0)
+                {
+                    strStatus = dataTable.Rows[0]["vcState"].ToString();
+                }
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                 res.Add("tempList", dataList);
+                res.Add("statusItem", strStatus);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -657,27 +662,27 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
-                List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
+                //JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
+                //List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
                 JArray listInfo = dataForm.alltemp.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool hasFind = false;//是否找到需要新增或者修改的数据
-                for (int i = 0; i < listMultipleData.Count; i++)
-                {
-                    bool bModFlag = (bool)listMultipleData[i]["bModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
-                        hasFind = true;//修改
-                }
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "最少有一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //bool hasFind = false;//是否找到需要新增或者修改的数据
+                //for (int i = 0; i < listMultipleData.Count; i++)
+                //{
+                //    bool bModFlag = (bool)listMultipleData[i]["bModFlag"];//true可编辑,false不可编辑
+                //    if (bModFlag == true)
+                //        hasFind = true;//修改
+                //}
+                //if (!hasFind)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.type = "info";
+                //    apiResult.data = "最少有一个编辑行！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
-                DataTable dtImport = fS0616_logic.checkSaveInfo(listInfoData, dtMultiple, ref dtMessage);
+                //DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
+                DataTable dtImport = fS0616_logic.checksubSaveInfo(listInfoData, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
                     dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
@@ -686,18 +691,42 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fS0616_logic.setSaveInfo(dtImport, loginInfo.UserId, ref dtMessage);
-                if (dtMessage.Rows.Count != 0)
+                //判断整箱收容数
+                bool bIsInteger = true;
+                for (int i = 0; i < dtImport.Rows.Count; i++)
                 {
-                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
+                    decimal decBoxQuantity = Convert.ToDecimal(dtImport.Rows[i]["decBoxQuantity"].ToString());
+                    if (!((decBoxQuantity % 1) == 0))
+                    {
+                        bIsInteger = false;
+                        break;
+                    }
+                }
+                if (bIsInteger)
+                {
+                    //直接保存
+                    fS0616_logic.setSaveInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                    if (dtMessage.Rows.Count != 0)
+                    {
+                        dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.type = "";
+                    apiResult.data = null;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                else
+                {
+                    //提示
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.type = "BoxInfo";
+                    apiResult.data = null;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
             }
             catch (Exception ex)
             {
@@ -729,27 +758,27 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
-                List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
+                //JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
+                //List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
                 JArray listInfo = dataForm.alltemp.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool hasFind = false;//是否找到需要新增或者修改的数据
-                for (int i = 0; i < listMultipleData.Count; i++)
-                {
-                    bool bModFlag = (bool)listMultipleData[i]["bModFlag"];//true可编辑,false不可编辑
-                    if (bModFlag == true)
-                        hasFind = true;//修改
-                }
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "最少有一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //bool hasFind = false;//是否找到需要新增或者修改的数据
+                //for (int i = 0; i < listMultipleData.Count; i++)
+                //{
+                //    bool bModFlag = (bool)listMultipleData[i]["bModFlag"];//true可编辑,false不可编辑
+                //    if (bModFlag == true)
+                //        hasFind = true;//修改
+                //}
+                //if (!hasFind)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.type = "info";
+                //    apiResult.data = "最少有一个编辑行！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
-                DataTable dtImport = fS0616_logic.checkSaveInfo(listInfoData, dtMultiple, ref dtMessage);
+                //DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
+                DataTable dtImport = fS0616_logic.checksubSaveInfo(listInfoData, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
                     dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");

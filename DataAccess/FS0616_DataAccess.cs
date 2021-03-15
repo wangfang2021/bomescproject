@@ -488,7 +488,9 @@ namespace DataAccess
                 strSql.AppendLine("		,CONVERT(VARCHAR(10),t1.dSupReplyTime,111) as dSupReplyTime ");
                 strSql.AppendLine("		,CASE WHEN t2.decBoxQuantity IS NULL THEN '0' ELSE CASE WHEN CAST(t2.decBoxQuantity AS INT)=t2.decBoxQuantity THEN '0' ELSE '1' END END AS vcBoxColor");
                 strSql.AppendLine("		,CASE WHEN t7.iDuiYingSum IS NULL THEN '0' ELSE CASE WHEN CAST(t7.iDuiYingSum AS INT)=CAST(t1.iOrderQuantity as int) THEN '0' ELSE '1' END END AS vcDuiYingColor");
-                strSql.AppendLine("		,'' as vcBgColor,'0' as bModFlag,'0' as bAddFlag");
+                strSql.AppendLine("		,'' as vcBgColor");
+                strSql.AppendLine("		,CASE WHEN t1.vcStatus='3' THEN '0' ELSE '1' END as bModFlag");
+                strSql.AppendLine("		,CASE WHEN t1.vcStatus='3' THEN '0' ELSE '1' END as bAddFlag");
                 strSql.AppendLine("		,CASE WHEN t1.vcStatus='3' THEN '0' ELSE '1' END as bSelectFlag");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("(select * from TUrgentOrder");

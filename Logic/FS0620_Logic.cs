@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string dOperatorTime,string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierIdWorkArea, string vcType, string vcCarType)
+        public DataTable Search(string dOperatorTime,string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierId,string vcWorkArea, string vcType,string vcPackPlant,string vcReceiver)
         {
-            return fs0620_DataAccess.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
+            return fs0620_DataAccess.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea, vcType, vcPackPlant, vcReceiver);
         }
 
         public bool isExistAddData(DataTable dtadd)
@@ -68,6 +68,31 @@ namespace Logic
             return fs0620_DataAccess.getHuiZongDt(vcTargetYear, vcType);
         }
 
+        public DataTable GetPackPlant()
+        {
+            return fs0620_DataAccess.GetPackPlant();
+        }
+
+        public DataTable GetPlant()
+        {
+            return fs0620_DataAccess.GetPlant();
+        }
+
+        public DataTable GetSupplier()
+        {
+            return fs0620_DataAccess.GetSupplier();
+        }
+
+        public DataTable GetNeiWai()
+        {
+            return fs0620_DataAccess.GetNeiWai();
+        }
+
+        public DataTable GetWorkArea()
+        {
+            return fs0620_DataAccess.GetWorkArea();
+        }
+
         public DataTable GetSupplierWorkArea()
         {
             return fs0620_DataAccess.GetSupplierWorkArea();
@@ -87,6 +112,11 @@ namespace Logic
                 dataTable.Columns.Add("vcMessage");
             }
             return dataTable;
+        }
+
+        public DataTable GetWorkAreaBySupplier(string vcSupplier_id)
+        {
+            return fs0620_DataAccess.GetWorkAreaBySupplier(vcSupplier_id);
         }
     }
 }

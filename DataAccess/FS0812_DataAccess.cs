@@ -14,14 +14,20 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
-        public DataTable Search(string vcBox_id)
+        public DataTable Search(string vcBox_id,string vcLabelId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster  \n");
-                if(vcBox_id!="" & vcBox_id!=null)
-                    strSql.Append("where isnull(vcBoxNo,'') like '%" + vcBox_id + "%' \n");
+                strSql.Append("select iAutoId,vcStatus,vcBoxNo,vcInstructionNo,vcPart_id,vcOrderNo,vcLianFanNo,  \n");
+                strSql.Append("isnull(iQuantity,0) as iQuantity,dBZID,dBZTime,dZXID,dZXTime,vcOperatorID,dOperatorTime,    \n");
+                strSql.Append("isnull(iRHQuantity,0) as iRHQuantity,vcLabelStart,vcLabelEnd,    \n");
+                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster    \n");
+                if (vcBox_id!="" & vcBox_id!=null)
+                    strSql.Append("where isnull(vcBoxNo,'') = '" + vcBox_id + "' \n");
+                if (vcLabelId != "" && vcLabelId != null)
+                    strSql.Append("and '"+vcLabelId+ "' between vcLabelStart and vcLabelEnd \n");
+                //strSql.Append("order by    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

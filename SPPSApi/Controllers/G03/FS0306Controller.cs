@@ -168,16 +168,15 @@ namespace SPPSApi.Controllers.G03
 
                 string strErrorPartId = "";
                 fs0306_logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
-                if (string.IsNullOrWhiteSpace(strErrorPartId))
+                if (!string.IsNullOrWhiteSpace(strErrorPartId))
                 {
-                    strErrorPartId = "保存成功";
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strErrorPartId;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                else
-                {
-                    strErrorPartId = "保存成功，但品番" + strErrorPartId + "已织入原单位，无法修改";
-                }
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = strErrorPartId;
+                apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -189,6 +188,94 @@ namespace SPPSApi.Controllers.G03
             }
         }
         #endregion
+
+
+        #region 新增保存
+        [HttpPost]
+        [EnableCors("any")]
+        public string InsertsaveApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少有一个编辑行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+
+                    string[,] strField = new string[,] {{"品番","车型","旧型开始时间"},
+                        {"vcPart_id","vcCarTypeDesign","dJiuBegin"},
+                        {FieldCheck.NumCharL,FieldCheck.NumChar,FieldCheck.Date},
+                        {"0","0","0"},//最大长度设定,不校验最大长度用0
+                        {"1","1","1"},//最小长度设定,可以为空用0
+                        {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+
+                    //需要判断时间区间先后关系的字段
+                    string[,] strDateRegion = { };
+                    string[,] strSpecialCheck = { };
+
+
+
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0306");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+                string strErrorPartId = "";
+                fs0306_logic.InsertSave(listInfoData, loginInfo.UserId, ref strErrorPartId);
+
+                if (!string.IsNullOrWhiteSpace(strErrorPartId))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strErrorPartId;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "保存成功";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0603", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
 
         #region 导出
         [HttpPost]

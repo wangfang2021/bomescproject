@@ -59,7 +59,7 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                String emailBody = fs0604_Logic.CreateEmailBody(date, flag, loginInfo.UnitCode, loginInfo.UnitName);
+                String emailBody = fs0604_Logic.CreateEmailBody(date, flag, loginInfo.UnitCode, loginInfo.UserName);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = emailBody;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -155,6 +155,18 @@ namespace SPPSApi.Controllers.G06
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 string EmailBody = dataForm.parentFormSelectItem.emailBody.ToString();
                 string dExpectDeliveryDate = dataForm.date == null ? "" : dataForm.date;
+                if (EmailBody.Length == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "邮件体内容不能为空！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (dExpectDeliveryDate.Length == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "回复纳期不能为空！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 bool hasFind = false;//是否找到需要新增或者修改的数据
 

@@ -767,17 +767,17 @@ namespace DataAccess
                 strSql.AppendLine("        ,vcSCPlace_City,vcCHPlace_City,vcSCSPlace,vcReceiver,dNqDate,GUID,vcZXBZDiff,vcZXBZNo         ");
                 strSql.AppendLine("        )         ");
                 strSql.AppendLine("        select          ");
-                strSql.AppendLine("         a.dNqDate,'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDev         ");
+                strSql.AppendLine("         GETDATE(),'1' as 'vcJD',a.vcPart_id,a.vcSPINo,a.vcChange,a.vcCarTypeDev         ");
                 strSql.AppendLine("        ,a.vcInOutflag,a.vcPartNameEn,a.vcOE,a.vcSupplier_id,a.vcFXDiff,a.vcFXNo         ");
                 strSql.AppendLine("        ,a.vcSumLater         ");
                 strSql.AppendLine("        ,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6         ");
                 strSql.AppendLine("        ,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10,vcNum11,vcNum12,vcNum13,vcNum14,vcNum15,a.vcSYTCode,a.vcProduct_name         ");
-                strSql.AppendLine("        ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,a.dNqDate,REPLACE( NEWID(),'-',''),vcZXBZDiff,vcZXBZNo         ");
+                strSql.AppendLine("        ,a.vcSCPlace,a.vcCHPlace,a.vcAddress,a.vcReceiver,'"+strSqDate+"',REPLACE( NEWID(),'-',''),vcZXBZDiff,vcZXBZNo         ");
                 strSql.AppendLine("         from          ");
                 strSql.AppendLine("        (         ");
                 strSql.AppendLine("        	select a.*         ");
-                strSql.AppendLine("        	, case when (vcNum1=null and vcNum2=null and vcNum3=null and vcNum4=null and vcNum5=null and vcNum6 =null and vcNum7 = null and vcNum8 = null and vcNum9 = null and vcNum10 = null and vcNum11 = null and vcNum12 = null and vcNum13 = null and vcNum14 = null and vcNum15 = null) then null         ");
-                strSql.AppendLine("        	  else (CONVERT(int,vcNum1)+ CONVERT(int,vcNum2)+ CONVERT(int,vcNum3)+ CONVERT(int,vcNum4)+ CONVERT(int,vcNum5)+ CONVERT(int,vcNum6)+ CONVERT(int,vcNum7)+ CONVERT(int,vcNum8)+ CONVERT(int,vcNum9)+ CONVERT(int,vcNum10)+ CONVERT(int,vcNum11)+ CONVERT(int,vcNum12)+ CONVERT(int,vcNum13)+ CONVERT(int,vcNum14)+ CONVERT(int,vcNum15))         ");
+                strSql.AppendLine("        	, case when (vcNum1 is null and vcNum2 is null and vcNum3 is null and vcNum4 is null and vcNum5 is null and vcNum6  is null and vcNum7  is null  and vcNum8  is null  and vcNum9  is  null and vcNum10  is  null and vcNum11  is null  and vcNum12  is null  and vcNum13  is null  and vcNum14  is  null and vcNum15  is  null) then null         ");
+                strSql.AppendLine("        	  else (CONVERT(int,ISNULL(vcNum1,'0'))+ CONVERT(int,ISNULL(vcNum2,'0'))+ CONVERT(int,ISNULL(vcNum3,'0'))+ CONVERT(int,ISNULL(vcNum4,'0'))+ CONVERT(int,ISNULL(vcNum5,'0'))+ CONVERT(int,ISNULL(vcNum6,'0'))+ CONVERT(int,ISNULL(vcNum7,'0'))+ CONVERT(int,ISNULL(vcNum8,'0'))+ CONVERT(int,ISNULL(vcNum9,'0'))+ CONVERT(int,ISNULL(vcNum10,'0'))+ CONVERT(int,ISNULL(vcNum11,'0'))+ CONVERT(int,ISNULL(vcNum12,'0'))+ CONVERT(int,ISNULL(vcNum13,'0'))+ CONVERT(int,ISNULL(vcNum14,'0'))+ CONVERT(int,ISNULL(vcNum15,'0')))          ");
                 strSql.AppendLine("        	  end as 'vcSumLater',b.vcProduct_name,b.vcAddress,c.vcValue2 as 'vcZXBZDiff' from #TUnit_temp a         ");
                 strSql.AppendLine("        	inner join          ");
                 strSql.AppendLine("        	(         ");
@@ -796,7 +796,7 @@ namespace DataAccess
                     string iAutoId = listInfoData[i]["iAutoId"].ToString();
                     strSql.AppendLine("        update TUnit set          ");
                     strSql.AppendLine("         vcSQState = '1'         ");
-                    strSql.AppendLine("        ,dNqDate = GETDATE()         ");
+                    strSql.AppendLine("        ,dNqDate = '"+strSqDate+"'         ");
                     string vcSQContent = "确认中" + DateTime.Now.ToString("yyyy-MM-dd");
                     strSql.AppendLine("        ,vcSQContent = '" + vcSQContent + "'         ");
                     strSql.AppendLine("        where iAutoId = '"+iAutoId+"'         ");
@@ -910,18 +910,21 @@ namespace DataAccess
         }
         #endregion
 
-        #region 按检索条件返回dt
+        #region 获取供应商邮箱地址
         public DataTable getSupplierEmail(string strSupplierId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcEmail1 as 'address',vcEmail1 as'displayName'from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
-                strSql.Append("    union   \n");
-                strSql.Append("    select vcEmail2 as 'address',vcEmail2 as'displayName'from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
-                strSql.Append("    union   \n");
-                strSql.Append("    select vcEmail3 as 'address',vcEmail3 as'displayName'from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
-                strSql.Append("       \n");
+                strSql.Append("    select address,displayName from   \n");
+                strSql.Append("    (   \n");
+                strSql.Append("    select vcEmail1 as 'address',vcEmail1 as 'displayName' from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
+                strSql.Append("    union all   \n");
+                strSql.Append("    select vcEmail2 as 'address',vcEmail2 as 'displayName' from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
+                strSql.Append("    union all   \n");
+                strSql.Append("    select vcEmail3 as 'address',vcEmail3 as 'displayName' from TSupplier where vcSupplier_id = '" + strSupplierId + "'   \n");
+                strSql.Append("    )a where (address is not null and address <>'') and (displayName is not null and displayName <> '')   \n");
+                strSql.Append("    group by address,displayName   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
             catch (Exception ex)
@@ -968,7 +971,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 按检索条件返回dt
+        #region 获取当前登陆用户的邮箱模板(邮件主题、邮件内容)
         public DataTable getEmailSetting(string strUserId)
         {
             try

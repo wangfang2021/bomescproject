@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType)
+        public DataTable Search(string dSynchronizationDateFrom,string  dSynchronizationDateTo, string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType)
         {
-            return fs0604_DataAccess.Search(dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
+            return fs0604_DataAccess.Search(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
         }
 
         public DataTable GetBoxType()
@@ -77,7 +77,7 @@ namespace Logic
                 sbr.AppendLine("<p>各位供应商 殿：大家好</p>");
                 sbr.AppendLine("<p>"+UnitCode+"补给"+UnitName+"</p>");
                 sbr.AppendLine("<p>感谢大家一直以来对" + UnitCode + "补给业务的协力！</p><p><br></p>");
-                sbr.AppendLine("<p>一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，</p>");
+                sbr.AppendLine("<p>【一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，</p>");
                 sbr.AppendLine("<p>请填写完整后，于<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>日前在系统上给予回复，谢谢!</p><br><br/></p>");
                 sbr.AppendLine("<p>拜托严守纳期，如有疑问及时联络</p><br>");
                 sbr.AppendLine("<p>以上。</p>");

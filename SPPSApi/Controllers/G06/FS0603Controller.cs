@@ -154,27 +154,35 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             Dictionary<string, object> res = new Dictionary<string, object>();
 
-            string strSyncTime = dataForm.SyncTime;
-            string strChanges = dataForm.Changes;
-            string strPartId = dataForm.PartId;
-            string strCarModel = dataForm.CarModel;
-            string strReceiver = dataForm.Receiver;
-            string strInOut = dataForm.InOut;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strOrderPlant = dataForm.OrderPlant;
-            string strFromTime = dataForm.FromTime;
-            string strToTime = dataForm.ToTime;
-            string strBoxType = dataForm.BoxType;
-            string strSufferIn = dataForm.SufferIn;
-            string strSupplierPacking = dataForm.SupplierPacking;
-            string strOldProduction = dataForm.OldProduction;
-            string strDebugTime = dataForm.DebugTime;
+            string strSyncTime_from = "";
+            string strSyncTime_to = "";
+            JArray listSyncTime = dataForm.SyncTime;
+            if (listSyncTime != null && listSyncTime.Count != 0)
+            {
+                strSyncTime_from = listSyncTime[0].ToString();
+                strSyncTime_to = listSyncTime[1].ToString();
+            }
+            string strChanges = dataForm.Changes == null ? "" : dataForm.Changes;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strFromTime = dataForm.FromTime == null ? "" : dataForm.FromTime;
+            string strToTime = dataForm.ToTime == null ? "" : dataForm.ToTime;
+            string strBoxType = dataForm.BoxType == null ? "" : dataForm.BoxType;
+            string strSufferIn = dataForm.SufferIn == null ? "" : dataForm.SufferIn;
+            string strSupplierPacking = dataForm.SupplierPacking == null ? "" : dataForm.SupplierPacking;
+            string strOldProduction = dataForm.OldProduction == null ? "" : dataForm.OldProduction;
+            string strDebugTime = dataForm.DebugTime == null ? "" : dataForm.DebugTime;
+            string strOrderby = dataForm.orderby == null ? "" : dataForm.orderby;//只有等于1的时候才会重新排序规则
             try
             {
-                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false);
+                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, strOrderby);
 
                 DataTable dttaskNum = fs0603_Logic.gettaskNum();
                 string taskoutNum = "0";
@@ -244,7 +252,14 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strSyncTime = dataForm.SyncTime;
+            string strSyncTime_from = "";
+            string strSyncTime_to = "";
+            JArray listSyncTime = dataForm.SyncTime;
+            if (listSyncTime != null && listSyncTime.Count != 0)
+            {
+                strSyncTime_from = listSyncTime[0].ToString();
+                strSyncTime_to = listSyncTime[1].ToString();
+            }
             string strChanges = dataForm.Changes;
             string strPartId = dataForm.PartId;
             string strCarModel = dataForm.CarModel;
@@ -264,8 +279,8 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                DataTable dtMainInfo = fs0603_Logic.getSearchInfo(strSyncTime, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false);
+                DataTable dtMainInfo = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "");
                 DataTable dtSPInfo = fs0603_Logic.getSubInfo("SupplierPlantEdit", "", strPartId, strReceiver, strSupplierId, "");
                 DataTable dtPQInfo = fs0603_Logic.getSubInfo("PackingQtyEdit", "", strPartId, strReceiver, strSupplierId, "");
                 DataTable dtSIInfo = fs0603_Logic.getSubInfo("SufferInEdit", "", strPartId, strReceiver, strSupplierId, "");
@@ -320,22 +335,32 @@ namespace SPPSApi.Controllers.G06
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            Dictionary<string, object> res = new Dictionary<string, object>();
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                JArray listInfo = (dataForm.multiple).multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool hasFind = false;//是否找到需要新增或者修改的数据
+                int icurrentPage = Convert.ToInt32(dataForm.currentPage == null ? "1" : dataForm.currentPage);
+                int iorderby = 0;
+                bool hasFind_add = false;//是否找到需要新增或者修改的数据
+                bool hasFind_mod = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["bModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["bAddFlag"];//true可编辑,false不可编辑
                     if (bAddFlag == true)
-                        hasFind = true;//新增
+                    {
+                        hasFind_add = true;//新增
+                        icurrentPage = 1;
+                        iorderby = 1;
+                    }
                     else if (bAddFlag == false && bModFlag == true)
-                        hasFind = true;//修改
+                    {
+                        hasFind_mod = true;//修改
+                    }
                 }
-                if (!hasFind)
+                if (!(hasFind_add || hasFind_mod))
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "info";
@@ -363,8 +388,11 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                res.Add("icurrentPage", icurrentPage);
+                res.Add("iorderby", iorderby);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -483,7 +511,7 @@ namespace SPPSApi.Controllers.G06
                 bool bAddFlag = (bool)dRowinfo.bAddFlag;//true可编辑,false不可编辑
                 if (bAddFlag == true)
                 {
-                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", "",strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant, true);
+                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", "", "", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant, true, "");
                     if (dtSPInfo.Rows.Count != 0)
                     {
                         DataRow dataRow = dtMessage.NewRow();
@@ -849,6 +877,12 @@ namespace SPPSApi.Controllers.G06
                         res.Add("SupplierPlantLinId_ed", strLinId);
                         res.Add("SupplierPlantFromTime_ed", dFromTime);
                         res.Add("SupplierPlantToTime_ed", dToTime);
+                        //校验新增工区范围内是否有有效的发注工厂信息
+                        if (!fs0603_Logic.getOrderPlantInfo(strSupplierId_fixed, strSupplierPlant, dToTime))
+                            res.Add("OrderPlantCheck", "所维护的工区在有效期内没有有效的发注工场情报，请尽快维护发注工场情报");
+                        else
+                            res.Add("OrderPlantCheck", "");
+
                         apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = res;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -924,7 +958,7 @@ namespace SPPSApi.Controllers.G06
                             apiResult.data = dtMessage;
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        string strVolume = (((Convert.ToInt32(listSubInfo[0]["iLength"].ToString())/1000.0) * (Convert.ToInt32(listSubInfo[0]["iWidth"].ToString())/1000.0) * (Convert.ToInt32(listSubInfo[0]["iHeight"].ToString())/1000.0))).ToString("#.0000");
+                        string strVolume = (((Convert.ToInt32(listSubInfo[0]["iLength"].ToString()) / 1000.0) * (Convert.ToInt32(listSubInfo[0]["iWidth"].ToString()) / 1000.0) * (Convert.ToInt32(listSubInfo[0]["iHeight"].ToString()) / 1000.0))).ToString("#.0000");
                         DataTable dtCheckTime = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant_fixed, strPartId_fixed, strReceiver_fixed, strSupplierId_fixed, "");
                         if (Convert.ToInt32(strLinId) == -1)
                         {
@@ -1188,7 +1222,14 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strSyncTime = dataForm.SyncTime;
+            string strSyncTime_from = "";
+            string strSyncTime_to = "";
+            JArray listSyncTime = dataForm.SyncTime;
+            if (listSyncTime != null && listSyncTime.Count != 0)
+            {
+                strSyncTime_from = listSyncTime[0].ToString();
+                strSyncTime_to = listSyncTime[1].ToString();
+            }
             string strChanges = dataForm.Changes;
             string strPartId = dataForm.PartId;
             string strCarModel = dataForm.CarModel;
@@ -1207,8 +1248,8 @@ namespace SPPSApi.Controllers.G06
             string strDebugTime = dataForm.DebugTime;
             try
             {
-                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false);
+                DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "");
                 dataTable.Columns.Add("vcType");
                 string[] fields = {"vcType",
                     "dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",
@@ -1276,7 +1317,7 @@ namespace SPPSApi.Controllers.G06
                 string strMsg = "";
                 #region  string[,] headers = new string[,] {}
                 string[,] headers = new string[,] {
-                    {"操作类型","同步时间","变更事项","包装工场","补给品番","英文品名","车种代码",//1
+                    {"操作类型","同步时间","变更事项","包装工场","补给品番","英文品名","车型",//1
                         "收货方","品番-使用开始","品番-使用结束","替代品番",//2
                         "内外",
                         "发注工场",//8

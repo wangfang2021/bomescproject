@@ -54,8 +54,10 @@ namespace SPPSApi.Controllers.G08
                 //else
                 //    res.Add("caiWuBtnVisible", true);
 
-                List<Object> dataList_C058 = ComFunction.convertAllToResult(ComFunction.getTCode("C058"));//收货方
+                List<Object> dataList_C058 = ComFunction.convertAllToResult(ComFunction.getTCode("C058"));//引取类别
+                List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
                 res.Add("C058", dataList_C058);
+                res.Add("C005", dataList_C005);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -90,12 +92,16 @@ namespace SPPSApi.Controllers.G08
             string strStartTime = dataForm.StartTime;
             string strEndTime= dataForm.EndTime;
             string strYinQuType = dataForm.vcYinQuType;
+            string strSHF = dataForm.vcSHF;
+            string strLabelID = dataForm.vcLabelID;
 
             try
             {
-                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime,strYinQuType);
+                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime,strYinQuType, strSHF,strLabelID);
 
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
@@ -131,12 +137,14 @@ namespace SPPSApi.Controllers.G08
             string strStartTime = dataForm.StartTime;
             string strEndTime = dataForm.EndTime;
             string strYinQuType = dataForm.vcYinQuType;
+            string strSHF = dataForm.vcSHF;
+            string strLabelID = dataForm.vcLabelID;
 
             try
             {
-                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime, strYinQuType);
-                string[] heads = { "引取类别","便次", "销售单号", "卡车号", "生成时间","传送人"};
-                string[] fields = { "vcYinQuTypeName","vcBianCi", "vcSellNo", "vcTruckNo", "dOperatorTime", "vcSender" };
+                DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime, strYinQuType,strSHF,strLabelID);
+                string[] heads = { "引取类别","便次", "销售单号","器具数量", "卡车号", "生成时间","传送人"};
+                string[] fields = { "vcYinQuTypeName","vcBianCi", "vcSellNo", "iQuantity", "vcTruckNo", "dOperatorTime", "vcSender" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
@@ -184,6 +192,119 @@ namespace SPPSApi.Controllers.G08
                 dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "子页面初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 保存
+        [HttpPost]
+        [EnableCors("any")]
+        public string saveApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        hasFind = true;
+                    }
+                }
+                if (!hasFind)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少有一个编辑行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                //开始数据验证
+                if (hasFind)
+                {
+                    #region 数据格式校验
+                    string[,] strField = new string[,]
+                    {
+                        {"便次","卡车号"},//中文字段名
+                        {"vcBianCi","vcTruckNo"},//英文字段名
+                        {"",""},//数据类型校验
+                        {"25","25"},//最大长度设定,不校验最大长度用0
+                        {"1","1"},//最小长度设定,可以为空用0
+                        {"2","5"},//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0813");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+                }
+                fs0813_Logic.Save(listInfoData, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0704", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 子画面初始化_器具数量
+        [HttpPost]
+        [EnableCors("any")]
+        public string initSubApi2([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcSellNo = dataForm.vcSellNo;
+
+            try
+            {
+                DataTable dt = fs0813_Logic.initSubApi2(vcSellNo);
+
+                List<Object> dataList = ComFunction.convertAllToResult(dt);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -385,68 +385,70 @@ namespace DataAccess
                 plants = plants.Substring(0, plants.Length - 1);
                 string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], ");
-                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS] ");
-                strSql.AppendLine(" FROM ");
-                strSql.AppendLine(" ( ");
+                strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], \n");
+                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货频度'  \n");
+                strSql.AppendLine(" FROM \n");
+                strSql.AppendLine(" ( \n");
                 strSql.AppendLine("   SELECT ");
-                strSql.AppendLine("   vcPart_id as 'PartsNo',");
+                strSql.AppendLine("   vcPart_id as 'PartsNo', \n");
                 //发注工厂
-                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂',");
+                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂', \n");
                 //订货频度
-                strSql.AppendLine("   cast(vcMakingOrderType as int) as '订货频度',");
-                strSql.AppendLine("   vcCarType as 'CFC',");
-                strSql.AppendLine("   isnull(iQuantityPercontainer,0) as 'OrdLot',");
-                strSql.AppendLine("   isnull(iBoxes,0) as 'N Units',");
-                strSql.AppendLine("   isnull(iPartNums,0) as 'N PCS',");
-                strSql.AppendLine("   isnull(iD1,0)*isnull(iQuantityPercontainer,0) as iD1,");
-                strSql.AppendLine("   isnull(iD2,0)*isnull(iQuantityPercontainer,0) as iD2,");
-                strSql.AppendLine("   isnull(iD3,0)*isnull(iQuantityPercontainer,0) as iD3,");
-                strSql.AppendLine("   isnull(iD4,0)*isnull(iQuantityPercontainer,0) as iD4,");
-                strSql.AppendLine("   isnull(iD5,0)*isnull(iQuantityPercontainer,0) as iD5,");
-                strSql.AppendLine("   isnull(iD6,0)*isnull(iQuantityPercontainer,0) as iD6,");
-                strSql.AppendLine("   isnull(iD7,0)*isnull(iQuantityPercontainer,0) as iD7,");
-                strSql.AppendLine("   isnull(iD8,0)*isnull(iQuantityPercontainer,0) as iD8,");
-                strSql.AppendLine("   isnull(iD9,0)*isnull(iQuantityPercontainer,0) as iD9,");
-                strSql.AppendLine("   isnull(iD10,0)*isnull(iQuantityPercontainer,0) as iD10,");
-                strSql.AppendLine("   isnull(iD11,0)*isnull(iQuantityPercontainer,0) as iD11,");
-                strSql.AppendLine("   isnull(iD12,0)*isnull(iQuantityPercontainer,0) as iD12,");
-                strSql.AppendLine("   isnull(iD13,0)*isnull(iQuantityPercontainer,0) as iD13,");
-                strSql.AppendLine("   isnull(iD14,0)*isnull(iQuantityPercontainer,0) as iD14,");
-                strSql.AppendLine("   isnull(iD15,0)*isnull(iQuantityPercontainer,0) as iD15,");
-                strSql.AppendLine("   isnull(iD16,0)*isnull(iQuantityPercontainer,0) as iD16,");
-                strSql.AppendLine("   isnull(iD17,0)*isnull(iQuantityPercontainer,0) as iD17,");
-                strSql.AppendLine("   isnull(iD18,0)*isnull(iQuantityPercontainer,0) as iD18,");
-                strSql.AppendLine("   isnull(iD19,0)*isnull(iQuantityPercontainer,0) as iD19,");
-                strSql.AppendLine("   isnull(iD20,0)*isnull(iQuantityPercontainer,0) as iD20,");
-                strSql.AppendLine("   isnull(iD21,0)*isnull(iQuantityPercontainer,0) as iD21,");
-                strSql.AppendLine("   isnull(iD22,0)*isnull(iQuantityPercontainer,0) as iD22,");
-                strSql.AppendLine("   isnull(iD23,0)*isnull(iQuantityPercontainer,0) as iD23,");
-                strSql.AppendLine("   isnull(iD24,0)*isnull(iQuantityPercontainer,0) as iD24,");
-                strSql.AppendLine("   isnull(iD25,0)*isnull(iQuantityPercontainer,0) as iD25,");
-                strSql.AppendLine("   isnull(iD26,0)*isnull(iQuantityPercontainer,0) as iD26,");
-                strSql.AppendLine("   isnull(iD27,0)*isnull(iQuantityPercontainer,0) as iD27,");
-                strSql.AppendLine("   isnull(iD28,0)*isnull(iQuantityPercontainer,0) as iD28,");
-                strSql.AppendLine("   isnull(iD29,0)*isnull(iQuantityPercontainer,0) as iD29,");
-                strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30,");
-                strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31,");
-                strSql.AppendLine("   iAutoId");
-                strSql.AppendLine("   FROM TSOQReply WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM in ('" + strYearMonth + "') and vcFZGC in ("+ plants + ") ");//内制
-                strSql.AppendLine(" ) a ");
+                strSql.AppendLine("   vcMakingOrderType, \n");
+                strSql.AppendLine("   vcCarType as 'CFC', \n");
+                strSql.AppendLine("   isnull(iQuantityPercontainer,0) as 'OrdLot', \n");
+                strSql.AppendLine("   isnull(iBoxes,0) as 'N Units', \n");
+                strSql.AppendLine("   isnull(iPartNums,0) as 'N PCS', \n");
+                strSql.AppendLine("   isnull(iD1,0)*isnull(iQuantityPercontainer,0) as iD1, \n");
+                strSql.AppendLine("   isnull(iD2,0)*isnull(iQuantityPercontainer,0) as iD2, \n");
+                strSql.AppendLine("   isnull(iD3,0)*isnull(iQuantityPercontainer,0) as iD3, \n");
+                strSql.AppendLine("   isnull(iD4,0)*isnull(iQuantityPercontainer,0) as iD4, \n");
+                strSql.AppendLine("   isnull(iD5,0)*isnull(iQuantityPercontainer,0) as iD5, \n");
+                strSql.AppendLine("   isnull(iD6,0)*isnull(iQuantityPercontainer,0) as iD6, \n");
+                strSql.AppendLine("   isnull(iD7,0)*isnull(iQuantityPercontainer,0) as iD7, \n");
+                strSql.AppendLine("   isnull(iD8,0)*isnull(iQuantityPercontainer,0) as iD8, \n");
+                strSql.AppendLine("   isnull(iD9,0)*isnull(iQuantityPercontainer,0) as iD9, \n");
+                strSql.AppendLine("   isnull(iD10,0)*isnull(iQuantityPercontainer,0) as iD10, \n");
+                strSql.AppendLine("   isnull(iD11,0)*isnull(iQuantityPercontainer,0) as iD11, \n");
+                strSql.AppendLine("   isnull(iD12,0)*isnull(iQuantityPercontainer,0) as iD12, \n");
+                strSql.AppendLine("   isnull(iD13,0)*isnull(iQuantityPercontainer,0) as iD13, \n");
+                strSql.AppendLine("   isnull(iD14,0)*isnull(iQuantityPercontainer,0) as iD14, \n");
+                strSql.AppendLine("   isnull(iD15,0)*isnull(iQuantityPercontainer,0) as iD15, \n");
+                strSql.AppendLine("   isnull(iD16,0)*isnull(iQuantityPercontainer,0) as iD16, \n");
+                strSql.AppendLine("   isnull(iD17,0)*isnull(iQuantityPercontainer,0) as iD17, \n");
+                strSql.AppendLine("   isnull(iD18,0)*isnull(iQuantityPercontainer,0) as iD18, \n");
+                strSql.AppendLine("   isnull(iD19,0)*isnull(iQuantityPercontainer,0) as iD19, \n");
+                strSql.AppendLine("   isnull(iD20,0)*isnull(iQuantityPercontainer,0) as iD20, \n");
+                strSql.AppendLine("   isnull(iD21,0)*isnull(iQuantityPercontainer,0) as iD21, \n");
+                strSql.AppendLine("   isnull(iD22,0)*isnull(iQuantityPercontainer,0) as iD22, \n");
+                strSql.AppendLine("   isnull(iD23,0)*isnull(iQuantityPercontainer,0) as iD23, \n");
+                strSql.AppendLine("   isnull(iD24,0)*isnull(iQuantityPercontainer,0) as iD24, \n");
+                strSql.AppendLine("   isnull(iD25,0)*isnull(iQuantityPercontainer,0) as iD25, \n");
+                strSql.AppendLine("   isnull(iD26,0)*isnull(iQuantityPercontainer,0) as iD26, \n");
+                strSql.AppendLine("   isnull(iD27,0)*isnull(iQuantityPercontainer,0) as iD27, \n");
+                strSql.AppendLine("   isnull(iD28,0)*isnull(iQuantityPercontainer,0) as iD28, \n");
+                strSql.AppendLine("   isnull(iD29,0)*isnull(iQuantityPercontainer,0) as iD29, \n");
+                strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30, \n");
+                strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31, \n");
+                strSql.AppendLine("   iAutoId \n");
+                strSql.AppendLine("   FROM TSOQReply WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM in ('" + strYearMonth + "') and vcFZGC in ("+ plants + ")  \n");//内制
+                strSql.AppendLine(" ) a  \n");
 
-                strSql.AppendLine(" LEFT JOIN (   ");
-                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+1 O/L',isnull(iBoxes,0) as 'N+1 Units',isnull(iPartNums,0) as 'N+1 PCS' ");
-                strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_2 + "'  and vcFZGC in (" + plants + ")  ");//内制
-                strSql.AppendLine("  ) b ");
-                strSql.AppendLine(" ON a.PartsNo=b.vcPart_id ");
+                strSql.AppendLine(" LEFT JOIN (   \n");
+                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+1 O/L',isnull(iBoxes,0) as 'N+1 Units',isnull(iPartNums,0) as 'N+1 PCS'  \n");
+                strSql.AppendLine("   FROM TSOQReply   \n");
+                strSql.AppendLine("   WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_2 + "'  and vcFZGC in (" + plants + ")  \n");//内制
+                strSql.AppendLine("  ) b  \n");
+                strSql.AppendLine(" ON a.PartsNo=b.vcPart_id  \n");
 
-                strSql.AppendLine(" LEFT JOIN (   ");
-                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+2 O/L',isnull(iBoxes,0) as 'N+2 Units',isnull(iPartNums,0) as 'N+2 PCS' ");
-                strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_3 + "'  and vcFZGC in (" + plants + ")  ");//内制
-                strSql.AppendLine("  ) c ");
-                strSql.AppendLine(" ON a.PartsNo=c.vcPart_id ");
+                strSql.AppendLine(" LEFT JOIN (   \n");
+                strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+2 O/L',isnull(iBoxes,0) as 'N+2 Units',isnull(iPartNums,0) as 'N+2 PCS'  \n");
+                strSql.AppendLine("   FROM TSOQReply   \n");
+                strSql.AppendLine("   WHERE vcCLYM='"+vcCLYM+"' and vcInOutFlag='0'  AND vcDXYM='" + strYearMonth_3 + "'  and vcFZGC in (" + plants + ")  \n");//内制
+                strSql.AppendLine("  ) c  \n");
+                strSql.AppendLine(" ON a.PartsNo=c.vcPart_id  \n");
+
+                strSql.AppendLine("left join (select * from TCode where vcCodeId='C047')d on a.vcMakingOrderType=d.vcValue    \n");
 
                 strSql.AppendLine(" order by a.iAutoId ");
 

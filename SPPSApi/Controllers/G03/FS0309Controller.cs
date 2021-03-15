@@ -62,7 +62,10 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> row = new Dictionary<string, object>();
                 row["vcName"] = "空";
                 row["vcValue"] = "空";
-                dataList_C002.Add(row);
+                Dictionary<string, object> row2 = new Dictionary<string, object>();
+                row2["vcName"] = "处理中";
+                row2["vcValue"] = "处理中";
+                dataList_C002.Add(row2);
 
                 List<Object> dataList_C004 = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
@@ -561,6 +564,10 @@ namespace SPPSApi.Controllers.G03
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     DataRow row = result.NewRow();
+                    string strProjectType= listInfoData[i]["vcProjectType"].ToString();
+                    if (strProjectType != "1")//非外注排除掉
+                        continue;
+
                     row["iNo"] = i + 1;
                     row["field1"] = "";
                     row["field2"] = "";
@@ -644,7 +651,14 @@ namespace SPPSApi.Controllers.G03
                     }
                     result.Rows.Add(row);
                 }
-                DataTable dt10Year=fs0309_Logic.getOld_10_Year(listInfoData);
+                if (result.Rows.Count == 0)//没有要导出的数据，直接返回
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                DataTable dt10Year=fs0309_Logic.getOld_10_Year(listInfoData,"1");
                 string[] fields10Year = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",
                         "vcSupplier_id","vcNum1","vcNum2","vcNum3","vcNum4","vcNum5","vcNum6"
                     ,"vcNum7","vcNum8","vcNum9","vcNum10"
@@ -739,6 +753,10 @@ namespace SPPSApi.Controllers.G03
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    string strProjectType = listInfoData[i]["vcProjectType"].ToString();
+                    if (strProjectType != "0")//非内制排除掉
+                        continue;
+
                     DataRow row = result.NewRow();
                     row["iNo"] = i + 1;
                     row["field1"] = "";
@@ -823,7 +841,20 @@ namespace SPPSApi.Controllers.G03
                     }
                     result.Rows.Add(row);
                 }
-                string filepath = fs0309_Logic.generateExcelWithXlt_Nei(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa_Nei.xlsx", loginInfo.UserId, FunctionID);
+                if (result.Rows.Count == 0)//没有要导出的数据，直接返回
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                DataTable dt10Year = fs0309_Logic.getOld_10_Year(listInfoData,"0");
+                string[] fields10Year = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",
+                        "vcSupplier_id","vcNum1","vcNum2","vcNum3","vcNum4","vcNum5","vcNum6"
+                    ,"vcNum7","vcNum8","vcNum9","vcNum10"
+                    };
+
+                string filepath = fs0309_Logic.generateExcelWithXlt_Nei(result, dt10Year, fields, fields10Year, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa_Nei.xlsx", loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

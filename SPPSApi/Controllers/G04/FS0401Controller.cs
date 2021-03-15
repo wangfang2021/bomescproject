@@ -103,7 +103,7 @@ namespace SPPSApi.Controllers.G04
                 if (dataList.Count > 10000)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "结果条数大于10000条,请添加条件检索，或导出。";
+                    apiResult.data = "结果条数大于10000条,请添加条件检索或导出。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 

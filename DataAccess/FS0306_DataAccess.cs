@@ -16,7 +16,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" SELECT a.*,b.vcName,'0' as vcModFlag,'0' as vcAddFlag FROM ( \r\n");
-                sbr.Append(" SELECT iAutoId,vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear  \r\n");
+                sbr.Append(" SELECT iAutoId,vcPart_id,vcChange,vcCarTypeDesign,dJiuBegin,Convert(varchar(10),dJiuBegin,111) as dJiuBegin1,vcNum1,vcNum2,vcNum3,vcNum4,vcNum5,vcNum6,vcNum7,vcNum8,vcNum9,vcNum10,vcIsLock FROM TJiuTenYear  \r\n");
                 sbr.Append(" WHERE 1=1 \r\n");
                 if (!string.IsNullOrWhiteSpace(vcPart_Id))
                 {

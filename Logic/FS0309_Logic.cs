@@ -79,9 +79,9 @@ namespace Logic
         #endregion
 
         #region 获取十年年计
-        public DataTable getOld_10_Year(List<Dictionary<string, object>> listInfoData)
+        public DataTable getOld_10_Year(List<Dictionary<string, object>> listInfoData, string strProjectType)
         {
-            return fs0309_DataAccess.getOld_10_Year(listInfoData);
+            return fs0309_DataAccess.getOld_10_Year(listInfoData, strProjectType);
         }
         #endregion
 
@@ -305,7 +305,7 @@ namespace Logic
 
 
         #region 导出带模板-内制
-        public string generateExcelWithXlt_Nei(DataTable dt, string[] field, string rootPath, string xltName, string strUserId, string strFunctionName)
+        public string generateExcelWithXlt_Nei(DataTable dt, DataTable dt10Year, string[] field, string[] fields10Year, string rootPath, string xltName, string strUserId, string strFunctionName)
         {
             try
             {
@@ -320,6 +320,7 @@ namespace Logic
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
+                ISheet sheet_10_Year = hssfworkbook.GetSheetAt(1);
 
                 ICellStyle style = hssfworkbook.CreateCellStyle();
                 style.BorderBottom = BorderStyle.Thin;
@@ -338,6 +339,47 @@ namespace Logic
                         cell.CellStyle = style;
                     }
                 }
+
+                for (int i = 0; i < dt10Year.Rows.Count; i++)
+                {
+                    IRow row = sheet_10_Year.CreateRow(2 + i);
+                    for (int j = 0; j < fields10Year.Length; j++)
+                    {
+                        Type type = dt10Year.Columns[fields10Year[j]].DataType;
+                        ICell cell = row.CreateCell(j + 1);
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt10Year.Rows[i][fields10Year[j]].ToString());
+                        }
+                        cell.CellStyle = style;
+                    }
+                }
+                if (dt10Year.Rows.Count == 0)
+                {
+                    hssfworkbook.RemoveSheetAt(1);
+                }
+
+
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_N_" + strUserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
                 string path = fileSavePath + strFileName;
@@ -395,8 +437,32 @@ namespace Logic
                     IRow row = sheet_10_Year.CreateRow(2 + i);
                     for (int j = 0; j < fields10Year.Length; j++)
                     {
+                        Type type = dt10Year.Columns[fields10Year[j]].DataType;
                         ICell cell = row.CreateCell(j+1);
-                        cell.SetCellValue(dt10Year.Rows[i][fields10Year[j]].ToString());
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt10Year.Rows[i][fields10Year[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt10Year.Rows[i][fields10Year[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt10Year.Rows[i][fields10Year[j]].ToString());
+                        }
                         cell.CellStyle = style;
                     }
                 }

@@ -26,8 +26,8 @@ namespace DataAccess
                 sbr.Append(" CASE WHEN (ISNULL(a.vcDTDiff,'') = '' and ISNULL(a.vcPart_id_DT,'')= '') THEN ''  \r\n");
                 sbr.Append(" WHEN (ISNULL(a.vcDTDiff,'') <> '' AND  ISNULL(a.vcPart_id_DT,'') <> '') THEN a.vcDTDiff+'/'+a.vcPart_id_DT  \r\n");
                 sbr.Append(" WHEN ISNULL(a.vcDTDiff,'') <> '' THEN a.vcDTDiff WHEN ISNULL(a.vcPart_id_DT,'') <> '' THEN a.vcPart_id_DT END AS vcDT, \r\n");
-                sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.vcOldProj,a.dOldProjTime,a.vcNewProj, \r\n");
-                sbr.Append(" a.dNewProjTime,a.vcCZYD,a.dHandleTime,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag,a.vcType,a.vcFileNameTJ  \r\n");
+                sbr.Append(" a.vcPartName,a.vcStartYearMonth,a.vcFXDiff,a.vcFXNo,a.vcOldProj,a.dOldProjTime,Convert(varchar(10),a.dOldProjTime,111) as dOldProjTime1,a.vcNewProj, \r\n");
+                sbr.Append(" a.dNewProjTime,Convert(varchar(10),a.dNewProjTime,111) as dNewProjTime1,a.vcCZYD,a.dHandleTime,Convert(varchar(10),a.dHandleTime,111) as dHandleTime1,a.vcSheetName,a.vcFileName,'0' as vcModFlag,'0' as vcAddFlag,a.vcType,a.vcFileNameTJ  \r\n");
                 sbr.Append(" FROM \r\n");
                 sbr.Append(" ( \r\n");
                 sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcFinishState,vcOriginCompany,vcDiff,vcCarType,vcTHChange, \r\n");

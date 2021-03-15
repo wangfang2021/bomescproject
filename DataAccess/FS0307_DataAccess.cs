@@ -255,14 +255,14 @@ namespace DataAccess
 
                 StringBuilder sbr = new StringBuilder();
 
-                sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,a.vcSYTCode AS vcSYTCode,a.vcReceiver AS vcReceiver,a.vcOriginCompany AS vcOriginCompany,   \r\n");
-                sbr.Append(" a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn,d.vcName AS vcInOutflag, a.vcCarTypeDev,a.dJiuBegin, a.vcRemark, \r\n");
+                sbr.Append(" SELECT a.iAuto_id,'0' AS selected,'0' as vcModFlag,'0' as vcAddFlag,a.vcYear,b.vcName AS vcFinish,a.dFinishYMD,Convert(varchar(10),dFinishYMD,111) as dFinishYMD1,a.vcSYTCode AS vcSYTCode,a.vcReceiver AS vcReceiver,a.vcOriginCompany AS vcOriginCompany,   \r\n");
+                sbr.Append(" a.vcSupplier_id, a.vcPart_id, a.vcPartNameEn,d.vcName AS vcInOutflag, a.vcCarTypeDev,a.dJiuBegin,Convert(varchar(10),a.dJiuBegin,111) as dJiuBegin1, a.vcRemark, \r\n");
                 sbr.Append("  case a.vcOld10 when '0' then '' when '1' then '●' else '' end as vcOld10, \r\n");
                 sbr.Append("  case a.vcOld9 when '0' then '' when '1' then '●' else '' end as vcOld9, \r\n");
                 sbr.Append("  case a.vcOld7 when '0' then '' when '1' then '●' else '' end as vcOld7, \r\n");
                 //sbr.Append("  c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3,  CAST((CAST((CASE isnull(A.vcNum1,'') WHEN '' THEN '0' ELSE A.vcNum1 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum2,'') WHEN '' THEN '0'  ELSE A.vcNum2 END ) as decimal(18,2))+CAST((CASE isnull(A.vcNum3,'') WHEN '' THEN '0'  ELSE A.vcNum3 END ) as decimal(18,2)))/3 AS decimal(18,2)) AS vcNumAvg, a.vcNXQF,  \r\n");
                 sbr.Append("  c.vcName AS vcPM, a.vcNum1, a.vcNum2, a.vcNum3,  a.vcNumAvg, a.vcNXQF,  \r\n");
-                sbr.Append(" a.dSSDate, a.vcDY, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 \r\n");
+                sbr.Append(" a.dSSDate,Convert(varchar(10),a.dSSDate,111) as dSSDate1, a.vcDY, a.vcNum11, a.vcNum12, a.vcNum13, a.vcNum14, a.vcNum15, a.vcNum16, a.vcNum17, a.vcNum18, a.vcNum19, a.vcNum20, a.vcNum21 \r\n");
                 sbr.Append(" FROM TOldYearManager a \r\n");
                 sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C024') b ON a.vcFinish = b.vcValue \r\n");
                 //sbr.Append(" LEFT JOIN (SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C099') c ON SUBSTRING(a.vcPart_id,1,5) = c.vcValue \r\n");

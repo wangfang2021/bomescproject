@@ -1180,7 +1180,7 @@ namespace DataAccess
                 strSql_updateinfo.AppendLine("update TSPMaster set vcOrderingMethod='0' where isnull(vcOrderingMethod,'')='' ");
                 sqlCommand_updateinfo.CommandText = strSql_updateinfo.ToString();
                 #endregion
-                sqlCommand_operhistory.ExecuteNonQuery();
+                sqlCommand_updateinfo.ExecuteNonQuery();
                 #endregion
                 //提交事务
                 sqlTransaction.Commit();

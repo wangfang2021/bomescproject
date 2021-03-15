@@ -152,7 +152,20 @@ namespace DataAccess
                 throw ex;
             }
         }
-
+        public DataTable getProject()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcValue1 AS vcValue,vcValue2 AS vcName FROM TOutCode WHERE vcCodeId = 'C049' AND vcIsColum = '0'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }

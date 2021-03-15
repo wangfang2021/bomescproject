@@ -128,7 +128,7 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
 
-                head = new string[] { "供应商代码", "工区", "生产能力&纳期确认", "联系人1", "电话1", "邮箱1", "联系人2", "电话2", "邮箱2", "联系人3", "电话3", "邮箱3" };
+                head = new string[] { "供应商代码", "工区", "能力确认", "联系人1", "电话1", "邮箱1", "联系人2", "电话2", "邮箱2", "联系人3", "电话3", "邮箱3" };
                 field = new string[] { "vcSupplier_id", "vcWorkArea", "vcIsSureFlag", "vcLinkMan1", "vcPhone1", "vcEmail1", "vcLinkMan2", "vcPhone2", "vcEmail2", "vcLinkMan3", "vcPhone3", "vcEmail3" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);

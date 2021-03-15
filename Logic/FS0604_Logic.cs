@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string dSynchronizationDateFrom,string  dSynchronizationDateTo, string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType)
+        public DataTable Search(string dSynchronizationDateFrom,string  dSynchronizationDateTo, string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType,string dSendDate)
         {
-            return fs0604_DataAccess.Search(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
+            return fs0604_DataAccess.Search(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType, dSendDate);
         }
 
         public DataTable GetBoxType()
@@ -58,6 +58,16 @@ namespace Logic
         public DataTable GetExpectDeliveryDate()
         {
             return fs0604_DataAccess.GetExpectDeliveryDate();
+        }
+
+        public DataTable GetTaskNum2()
+        {
+            return fs0604_DataAccess.GetTaskNum2();
+        }
+
+        public DataTable dSendDate()
+        {
+            return fs0604_DataAccess.dSendDate();
         }
 
         #region 创建邮件体

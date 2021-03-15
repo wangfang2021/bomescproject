@@ -264,7 +264,7 @@ namespace Logic
                 strTitle = dtSetting.Rows[0]["vcTitle"].ToString();
                 strContent = dtSetting.Rows[0]["vcContent"].ToString();
                 var dateTime = Convert.ToDateTime(strSqDate);
-                strSqDate = dateTime.ToString("yyyy年MM月");
+                strSqDate = dateTime.ToString("yyyy年MM月dd日");
                 strContent = strContent.Replace("##yearmonth##", strSqDate);
             }
             #endregion

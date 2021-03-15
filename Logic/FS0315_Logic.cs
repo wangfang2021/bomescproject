@@ -16,5 +16,9 @@ namespace Logic
         {
             return fs0315_dataAccess.searchApi(startTime, endTime, Type, vcOriginCompany);
         }
+        public DataTable getProject()
+        {
+            return fs0315_dataAccess.getProject();
+        }
     }
 }

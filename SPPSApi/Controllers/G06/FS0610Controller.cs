@@ -102,8 +102,8 @@ namespace SPPSApi.Controllers.G06
                         string plant = plantList[i].ToString();
                         if (fs0610_Logic.isHaveSORReplyData(plant, strCLYM))
                             iStep = 1;
-                        //if(fs0610_Logic.isSCPlan(plant,strCLYM))
-                        //    iStep = 2;
+                        if(fs0610_Logic.isSCPlan(plant,strCLYM))
+                            iStep = 2;
                         if (fs0610_Logic.isZhankai(plant, strCLYM))
                             iStep = 3;
                         res.Add("iStep_" + plant.ToString(), iStep);

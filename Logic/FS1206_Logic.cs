@@ -42,6 +42,52 @@ namespace Logic
         }
         #endregion
 
+        #region 校验数据格式
+        public string checkExcelData(DataTable dt)
+        {
+            string msg = "";
+            DataTable dt_chk = new DataTable();
+            for (int i = 1; i < dt.Rows.Count; i++)
+            {
+                string vcPartsNo = dt.Rows[i][0].ToString().Trim().ToUpper();
+                string vcPartsNoFZ = dt.Rows[i][1].ToString().Trim().ToUpper();
+                string vcSourse = dt.Rows[i][2].ToString().Trim().ToUpper();
+                string iSRNum = dt.Rows[i][5].ToString().Trim();
+                if (vcPartsNo.Length <= 0)
+                {
+                    msg = "第" + (i + 2) + "行，品番不能为空。";
+                    return msg;
+                }
+                if (vcPartsNo.Length != 10 && vcPartsNo.Length != 12)
+                {
+                    msg = "第" + (i + 2) + "行，品番格式不正确。";
+                    return msg;
+                }
+                if (vcPartsNoFZ.Length <= 0)
+                {
+                    msg = "第" + (i + 2) + "行，发注品番不能为空。";
+                    return msg;
+                }
+                if (vcPartsNoFZ.Length != 10 && vcPartsNoFZ.Length != 12)
+                {
+                    msg = "第" + (i + 2) + "行，发注品番格式不正确。";
+                    return msg;
+                }
+                if (vcSourse.Length <= 0)
+                {
+                    msg = "第" + (i + 2) + "行，SOURCE不能为空。";
+                    return msg;
+                }
+                if (iSRNum.Length <= 0)
+                {
+                    msg = "第" + (i + 2) + "行，收容数不能为空。";
+                    return msg;
+                }
+            }
+            return msg;
+        }
+        #endregion
+
         public string ExcelPos(int i)//取得列位置
         {
             string re = "error";
@@ -81,53 +127,5 @@ namespace Logic
         {
             return dataAccess.InUpdeOldData(dt, useid);
         }
-
-        /// <summary>
-        /// 导入文件
-        /// </summary>
-        /// <param name="file"></param>
-        /// <param name="userId"></param>
-        /// <returns>msg</returns>
-        //public string FileImport(HttpPostedFile file, string userId)
-        //{
-        //    //FileInfo file_im = new FileInfo(file.FileName);
-        //    //string msg;
-        //    //if (file_im.Extension != ".xls" && file_im.Extension != ".xlt" && file_im.Extension != ".xlsx")
-        //    //{
-        //    //    return "文件格式不正确！";
-        //    //}
-        //    //QMExcel oQMExcel = new QMExcel();
-        //    //string path;
-        //    //string tepath = HttpContext.Current.Server.MapPath("~/Templates/FS1206.xlt");
-        //    //if (file_im.Extension == ".xls" || file_im.Extension == ".xlt")
-        //    //{
-        //    //    path = HttpContext.Current.Server.MapPath("~/Temps/FS1206.xls");
-        //    //}
-        //    //else
-        //    //{
-        //    //    path = HttpContext.Current.Server.MapPath("~/Temps/FS1206.xlsx");
-        //    //}
-        //    //if (File.Exists(path))
-        //    //{
-        //    //    File.Delete(path);
-        //    //}
-        //    //file.SaveAs(path);
-        //    //DataTable dtTmplate = oQMExcel.GetExcelContentByOleDb(tepath);//导入Excel文件到DataTable
-        //    //DataTable dt = new DataTable();
-        //    //msg = checkExcel(path, ref dt, dtTmplate);//检验导入的数据
-        //    //if (msg.Length > 0)
-        //    //{
-        //    //    return msg;
-        //    //}
-        //    //msg = CheckRepeat_Excel(path);
-        //    //if (msg.Length > 0)
-        //    //{
-        //    //    return msg;
-        //    //}
-        //    //dataAccess.UpdateTable(dt, userId);//将导入的表格数据上传
-
-        //    return "";
-        //}
-
     }
 }

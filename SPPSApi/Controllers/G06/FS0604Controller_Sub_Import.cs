@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"状态","包装工厂","收货方","供应商代码","品番","要望纳期","要望收容数","收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)","备注"},
+                string[,] headers = new string[,] {{"状态","包装工场","收货方","供应商代码","品番","要望纳期","要望收容数","收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)","备注"},
                                                 {"vcOperWay","vcPackingPlant","vcReceiver","vcSupplier_id","vcPartNo","dExpectDeliveryDate", "vcExpectIntake","vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcMemo"},
                                                 {"","","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Num, FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,""},
                                                 {"20","20","10","4","12","0","0","20","20","20","50", "20", "20", "20", "20","500"},//最大长度设定,不校验最大长度用0

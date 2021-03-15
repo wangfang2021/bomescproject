@@ -46,7 +46,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(fS1205_Logic.bindplant());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 List<Object> dataList_TypeSource = ComFunction.convertAllToResult(fS1205_Logic.getPlantype());
                 res.Add("PlantSource", dataList_PlantSource);
                 res.Add("TypeSource", dataList_TypeSource);
@@ -123,17 +123,159 @@ namespace SPPSApi.Controllers.G12
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
+
+                #region 转换表
+                DataTable dt = fS1205_Logic.TXTSearchWeekLevelSchedule("", "", "");
+                dt.Columns.Remove("iFlag");
+                dt.Columns.Remove("vcModFlag");
+                dt.Columns.Remove("vcAddFlag");
+                dt.Columns.Remove("iAutoId");
+                #endregion
+
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        hasFind = true;
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
+                    if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
+                        #region 转DataTable
+                        DataRow r = dt.NewRow();
+                        r["vcMonth"] = listInfoData[i]["vcMonth"];
+                        r["vcWeek"] = listInfoData[i]["vcWeek"];
+                        r["vcPlant"] = listInfoData[i]["vcPlant"];
+                        r["vcGC"] = listInfoData[i]["vcGC"];
+                        r["vcZB"] = listInfoData[i]["vcZB"];
+                        r["vcPartsno"] = listInfoData[i]["vcPartsno"];
+                        r["vcQuantityPerContainer"] = listInfoData[i]["vcQuantityPerContainer"];
+                        r["vcD1b"] = listInfoData[i]["vcD1b"];
+                        r["vcD1y"] = listInfoData[i]["vcD1y"];
+                        r["vcD2b"] = listInfoData[i]["vcD2b"];
+                        r["vcD2y"] = listInfoData[i]["vcD2y"];
+                        r["vcD3b"] = listInfoData[i]["vcD3b"];
+                        r["vcD3y"] = listInfoData[i]["vcD3y"];
+                        r["vcD4b"] = listInfoData[i]["vcD4b"];
+                        r["vcD4y"] = listInfoData[i]["vcD4y"];
+                        r["vcD5b"] = listInfoData[i]["vcD5b"];
+                        r["vcD5y"] = listInfoData[i]["vcD5y"];
+                        r["vcD6b"] = listInfoData[i]["vcD6b"];
+                        r["vcD6y"] = listInfoData[i]["vcD6y"];
+                        r["vcD7b"] = listInfoData[i]["vcD7b"];
+                        r["vcD7y"] = listInfoData[i]["vcD7y"];
+                        r["vcD8b"] = listInfoData[i]["vcD8b"];
+                        r["vcD8y"] = listInfoData[i]["vcD8y"];
+                        r["vcD9b"] = listInfoData[i]["vcD9b"];
+                        r["vcD9y"] = listInfoData[i]["vcD9y"];
+                        r["vcD10b"] = listInfoData[i]["vcD10b"];
+                        r["vcD10y"] = listInfoData[i]["vcD10y"];
+                        r["vcD11b"] = listInfoData[i]["vcD11b"];
+                        r["vcD11y"] = listInfoData[i]["vcD11y"];
+                        r["vcD12b"] = listInfoData[i]["vcD12b"];
+                        r["vcD12y"] = listInfoData[i]["vcD12y"];
+                        r["vcD13b"] = listInfoData[i]["vcD13b"];
+                        r["vcD13y"] = listInfoData[i]["vcD13y"];
+                        r["vcD14b"] = listInfoData[i]["vcD14b"];
+                        r["vcD14y"] = listInfoData[i]["vcD14y"];
+                        r["vcD15b"] = listInfoData[i]["vcD15b"];
+                        r["vcD15y"] = listInfoData[i]["vcD15y"];
+                        r["vcD16b"] = listInfoData[i]["vcD16b"];
+                        r["vcD16y"] = listInfoData[i]["vcD16y"];
+                        r["vcD17b"] = listInfoData[i]["vcD17b"];
+                        r["vcD17y"] = listInfoData[i]["vcD17y"];
+                        r["vcD18b"] = listInfoData[i]["vcD18b"];
+                        r["vcD18y"] = listInfoData[i]["vcD18y"];
+                        r["vcD19b"] = listInfoData[i]["vcD19b"];
+                        r["vcD19y"] = listInfoData[i]["vcD19y"];
+                        r["vcD20b"] = listInfoData[i]["vcD20b"];
+                        r["vcD20y"] = listInfoData[i]["vcD20y"];
+                        r["vcD21b"] = listInfoData[i]["vcD21b"];
+                        r["vcD21y"] = listInfoData[i]["vcD21y"];
+                        r["vcD22b"] = listInfoData[i]["vcD22b"];
+                        r["vcD22y"] = listInfoData[i]["vcD22y"];
+                        r["vcD23b"] = listInfoData[i]["vcD23b"];
+                        r["vcD23y"] = listInfoData[i]["vcD23y"];
+                        r["vcD24b"] = listInfoData[i]["vcD24b"];
+                        r["vcD24y"] = listInfoData[i]["vcD24y"];
+                        r["vcD25b"] = listInfoData[i]["vcD25b"];
+                        r["vcD25y"] = listInfoData[i]["vcD25y"];
+                        r["vcD26b"] = listInfoData[i]["vcD26b"];
+                        r["vcD26y"] = listInfoData[i]["vcD26y"];
+                        r["vcD27b"] = listInfoData[i]["vcD27b"];
+                        r["vcD27y"] = listInfoData[i]["vcD27y"];
+                        r["vcD28b"] = listInfoData[i]["vcD28b"];
+                        r["vcD28y"] = listInfoData[i]["vcD28y"];
+                        r["vcD29b"] = listInfoData[i]["vcD29b"];
+                        r["vcD29y"] = listInfoData[i]["vcD29y"];
+                        r["vcD30b"] = listInfoData[i]["vcD30b"];
+                        r["vcD30y"] = listInfoData[i]["vcD30y"];
+                        r["vcD31b"] = listInfoData[i]["vcD31b"];
+                        r["vcD31y"] = listInfoData[i]["vcD31y"];
+                        r["vcWeekTotal"] = listInfoData[i]["vcWeekTotal"];
+                        r["vcLevelD1b"] = listInfoData[i]["vcLevelD1b"];
+                        r["vcLevelD1y"] = listInfoData[i]["vcLevelD1y"];
+                        r["vcLevelD2b"] = listInfoData[i]["vcLevelD2b"];
+                        r["vcLevelD2y"] = listInfoData[i]["vcLevelD2y"];
+                        r["vcLevelD3b"] = listInfoData[i]["vcLevelD3b"];
+                        r["vcLevelD3y"] = listInfoData[i]["vcLevelD3y"];
+                        r["vcLevelD4b"] = listInfoData[i]["vcLevelD4b"];
+                        r["vcLevelD4y"] = listInfoData[i]["vcLevelD4y"];
+                        r["vcLevelD5b"] = listInfoData[i]["vcLevelD5b"];
+                        r["vcLevelD5y"] = listInfoData[i]["vcLevelD5y"];
+                        r["vcLevelD6b"] = listInfoData[i]["vcLevelD6b"];
+                        r["vcLevelD6y"] = listInfoData[i]["vcLevelD6y"];
+                        r["vcLevelD7b"] = listInfoData[i]["vcLevelD7b"];
+                        r["vcLevelD7y"] = listInfoData[i]["vcLevelD7y"];
+                        r["vcLevelD8b"] = listInfoData[i]["vcLevelD8b"];
+                        r["vcLevelD8y"] = listInfoData[i]["vcLevelD8y"];
+                        r["vcLevelD9b"] = listInfoData[i]["vcLevelD9b"];
+                        r["vcLevelD9y"] = listInfoData[i]["vcLevelD9y"];
+                        r["vcLevelD10b"] = listInfoData[i]["vcLevelD10b"];
+                        r["vcLevelD10y"] = listInfoData[i]["vcLevelD10y"];
+                        r["vcLevelD11b"] = listInfoData[i]["vcLevelD11b"];
+                        r["vcLevelD11y"] = listInfoData[i]["vcLevelD11y"];
+                        r["vcLevelD12b"] = listInfoData[i]["vcLevelD12b"];
+                        r["vcLevelD12y"] = listInfoData[i]["vcLevelD12y"];
+                        r["vcLevelD13b"] = listInfoData[i]["vcLevelD13b"];
+                        r["vcLevelD13y"] = listInfoData[i]["vcLevelD13y"];
+                        r["vcLevelD14b"] = listInfoData[i]["vcLevelD14b"];
+                        r["vcLevelD14y"] = listInfoData[i]["vcLevelD14y"];
+                        r["vcLevelD15b"] = listInfoData[i]["vcLevelD15b"];
+                        r["vcLevelD15y"] = listInfoData[i]["vcLevelD15y"];
+                        r["vcLevelD16b"] = listInfoData[i]["vcLevelD16b"];
+                        r["vcLevelD16y"] = listInfoData[i]["vcLevelD16y"];
+                        r["vcLevelD17b"] = listInfoData[i]["vcLevelD17b"];
+                        r["vcLevelD17y"] = listInfoData[i]["vcLevelD17y"];
+                        r["vcLevelD18b"] = listInfoData[i]["vcLevelD18b"];
+                        r["vcLevelD18y"] = listInfoData[i]["vcLevelD18y"];
+                        r["vcLevelD19b"] = listInfoData[i]["vcLevelD19b"];
+                        r["vcLevelD19y"] = listInfoData[i]["vcLevelD19y"];
+                        r["vcLevelD20b"] = listInfoData[i]["vcLevelD20b"];
+                        r["vcLevelD20y"] = listInfoData[i]["vcLevelD20y"];
+                        r["vcLevelD21b"] = listInfoData[i]["vcLevelD21b"];
+                        r["vcLevelD21y"] = listInfoData[i]["vcLevelD21y"];
+                        r["vcLevelD22b"] = listInfoData[i]["vcLevelD22b"];
+                        r["vcLevelD22y"] = listInfoData[i]["vcLevelD22y"];
+                        r["vcLevelD23b"] = listInfoData[i]["vcLevelD23b"];
+                        r["vcLevelD23y"] = listInfoData[i]["vcLevelD23y"];
+                        r["vcLevelD24b"] = listInfoData[i]["vcLevelD24b"];
+                        r["vcLevelD24y"] = listInfoData[i]["vcLevelD24y"];
+                        r["vcLevelD25b"] = listInfoData[i]["vcLevelD25b"];
+                        r["vcLevelD25y"] = listInfoData[i]["vcLevelD25y"];
+                        r["vcLevelD26b"] = listInfoData[i]["vcLevelD26b"];
+                        r["vcLevelD26y"] = listInfoData[i]["vcLevelD26y"];
+                        r["vcLevelD27b"] = listInfoData[i]["vcLevelD27b"];
+                        r["vcLevelD27y"] = listInfoData[i]["vcLevelD27y"];
+                        r["vcLevelD28b"] = listInfoData[i]["vcLevelD28b"];
+                        r["vcLevelD28y"] = listInfoData[i]["vcLevelD28y"];
+                        r["vcLevelD29b"] = listInfoData[i]["vcLevelD29b"];
+                        r["vcLevelD29y"] = listInfoData[i]["vcLevelD29y"];
+                        r["vcLevelD30b"] = listInfoData[i]["vcLevelD30b"];
+                        r["vcLevelD30y"] = listInfoData[i]["vcLevelD30y"];
+                        r["vcLevelD31b"] = listInfoData[i]["vcLevelD31b"];
+                        r["vcLevelD31y"] = listInfoData[i]["vcLevelD31y"];
+                        r["vcLevelWeekTotal"] = listInfoData[i]["vcLevelWeekTotal"];
+                        dt.Rows.Add(r);
+                        #endregion
                     }
                 }
                 if (!hasFind)
@@ -184,18 +326,37 @@ namespace SPPSApi.Controllers.G12
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                string strErrorPartId = "";
-                fS1205_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
-                if (strErrorPartId != "")
+
+                string Month = listInfoData[0]["vcMonth"].ToString();//获取数据源中的对象月
+                string Week = listInfoData[0]["vcWeek"].ToString();//获取数据源中的对象周
+                string Plant = listInfoData[0]["vcPlant"].ToString();//获取数据源中的工厂
+
+                //检查数据正确性
+                string msg = fS1205_Logic.TXTCheckDataSchedule(dt);
+                if (msg.Length > 0)
                 {
+                    //大于0，意思是数据中有错误
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "更新失败：<br/>" + strErrorPartId;
+                    apiResult.data = msg;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                else
+                {
+                    dt.PrimaryKey = new DataColumn[]
+                    {
+                            dt.Columns["vcMonth"],
+                            dt.Columns["vcWeek"],
+                            dt.Columns["vcPlant"],
+                            dt.Columns["vcGC"],
+                            dt.Columns["vcZB"],
+                            dt.Columns["vcPartsno"]
+                    };
+                    fS1205_Logic.TXTUpdateTableSchedule(dt, Month, Week, Plant);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "更新成功！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
             }
             catch (Exception ex)
             {
@@ -288,7 +449,7 @@ namespace SPPSApi.Controllers.G12
                     }
                     else
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.code = ComConstant.SUCCESS_CODE;
                         apiResult.data = "生成计划成功！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
@@ -439,15 +600,15 @@ namespace SPPSApi.Controllers.G12
                 if (dtSource.Rows.Count > 0)
                 {
                     fS1205_Logic.PartsNoFomatTo10(ref dtSource);
-                    string name = "";
-                    switch (vcType)
-                    {
-                        case "0": name = "包装周度计划"; break;
-                        case "2": name = "看板打印周度计划"; break;
-                        case "1": name = "生产周度计划"; break;
-                        case "3": name = "涂装周度计划"; break;
-                        case "4": name = "工程3周度计划"; break;
-                    }
+                    //string name = "";
+                    //switch (vcType)
+                    //{
+                    //    case "0": name = "包装周度计划"; break;
+                    //    case "2": name = "看板打印周度计划"; break;
+                    //    case "1": name = "生产周度计划"; break;
+                    //    case "3": name = "涂装周度计划"; break;
+                    //    case "4": name = "工程3周度计划"; break;
+                    //}
                     string[] fields = { "vcMonth", "vcPlant", "vcPartsno", "vcDock", "vcCarType", "vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4"
                         ,"vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal"
                         ,"TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y"
@@ -467,7 +628,7 @@ namespace SPPSApi.Controllers.G12
                     if (filepath == "")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导出生成文件失败";
+                        apiResult.data = "导出计划失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     apiResult.code = ComConstant.SUCCESS_CODE;

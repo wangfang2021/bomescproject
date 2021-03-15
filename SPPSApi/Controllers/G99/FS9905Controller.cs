@@ -771,6 +771,7 @@ namespace SPPSApi.Controllers.G99
             try
             { 
                 string strFileName = dataform.fileName;
+                strFileName ="-"+strFileName.Substring(strFileName.Length - 5);
                 string fileSavePath = strFileName + ".pdf";
                 apiresult.code = ComConstant.SUCCESS_CODE;
                 apiresult.data = fileSavePath;

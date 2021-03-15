@@ -10,7 +10,7 @@ namespace BatchProcess
          * 时间：2020-02-08
          * 作者：董镇
          * 描述：此批处理用来做生确超期邮件提醒
-         *       原单位向供应商发生确后，有一个纳期时间，生确表中如果这条数据的纳期时间已经小于当前时间(纳期超期了)，
+         *       原单位向供应商发生确后，有一个纳期时间，生确表中如果这条数据的纳期时间已经小于当前时间(纳期超期了)，就会给供应商发送邮件
          *       并且生确进度还是未确认状态
          */
         private MultiExcute excute = new MultiExcute();
@@ -84,7 +84,7 @@ namespace BatchProcess
                 /*
                  * 有附件给地址，无给null
                  */
-                string strFilePath = null;
+                string strFilePath = "";
                 #endregion
 
                 #region 传入附件后，是否需要删除附件
@@ -128,7 +128,7 @@ namespace BatchProcess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("         select vcName from TCode where vcCodeId = 'C009'        ");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
@@ -153,7 +153,7 @@ namespace BatchProcess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("         select vcValue from TCode where vcCodeId = 'C009'        ");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
@@ -177,7 +177,7 @@ namespace BatchProcess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append(" select vcContent from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString(),"TK");
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
@@ -203,7 +203,7 @@ namespace BatchProcess
                 strSql.AppendLine("      select b.address,b.displayName from        ");
                 strSql.AppendLine("      (       ");
                 strSql.AppendLine("      	select vcSupplier_id from TSQJD       ");
-                strSql.AppendLine("      	where dNqDate<GETDATE() and vcYQorNG is null or vcYQorNG = ''       ");
+                strSql.AppendLine("      	where dNqDate<GETDATE() and ( vcYQorNG is null or vcYQorNG = '')       ");
                 strSql.AppendLine("      	group by vcSupplier_id       ");
                 strSql.AppendLine("      )  a       ");
                 strSql.AppendLine("      inner join        ");
@@ -214,8 +214,9 @@ namespace BatchProcess
                 strSql.AppendLine("      union all       ");
                 strSql.AppendLine("      select vcEmail3 as 'address',vcSupplier_id as 'displayName' from TSupplier where vcEmail2 is not null and vcEmail3 !=''       ");
                 strSql.AppendLine("      ) b on a.vcSupplier_id = b.displayName       ");
+                strSql.AppendLine("      group by address,displayName        ");
 
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
                 if (dt.Rows.Count>0)
                 {
                     return dt;
@@ -240,7 +241,7 @@ namespace BatchProcess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("        select vcValue2 as 'address',vcValue1 as 'displayName' from TOutCode where vcCodeId = 'C005' and vcIsColum = '0'         ");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TFTM");
                 if (dt.Rows.Count>0)
                 {
                     return dt;
@@ -265,7 +266,7 @@ namespace BatchProcess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append(" select vcTitle from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString(),"TK");
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();

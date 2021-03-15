@@ -49,13 +49,13 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < dtadd.Rows.Count; i++)
                 {
-                    if (strSql.Length > 0)
+                    if (strSql.Length > 0)/*vcOrderDifferentiation='" + dtadd.Rows[i]["vcOrderDifferentiation"] + "' or*/
                     {
-                        strSql.AppendLine("  union all SELECT * FROM [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='" + dtadd.Rows[i]["vcOrderDifferentiation"] + "'  ");
+                        strSql.AppendLine("  union all SELECT * FROM [dbo].[TOrderDifferentiation] where  vcOrderInitials='" + dtadd.Rows[i]["vcOrderInitials"] + "'  ");
                     }
                     else
                     {
-                        strSql.AppendLine("  SELECT * FROM [dbo].[TOrderDifferentiation] where vcOrderDifferentiation='" + dtadd.Rows[i]["vcOrderDifferentiation"] + "'  ");
+                        strSql.AppendLine("  SELECT * FROM [dbo].[TOrderDifferentiation] where  vcOrderInitials='" + dtadd.Rows[i]["vcOrderInitials"] + "'  ");
                     }
                 }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -112,7 +112,7 @@ namespace DataAccess
                         sql.Append("insert into [TOrderDifferentiation] ([vcOrderDifferentiation], [vcOrderInitials], [vcOperatorID], [dOperatorTime])  \n");
                         sql.Append(" values (  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcOrderDifferentiation"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcOrderInitials"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(listInfoData[i]["vcOrderInitials"].ToString().ToUpper(), false) + ",  \r\n");
                         sql.Append("   '" + userId + "', GETDATE() \r\n");
                         sql.Append(" );  \r\n");
                     }
@@ -121,7 +121,7 @@ namespace DataAccess
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
                         sql.Append("  update TOrderDifferentiation set    \r\n");
-                        sql.Append("  vcOrderInitials=" + getSqlValue(listInfoData[i]["vcOrderInitials"], false) + "   \r\n");
+                        sql.Append("  vcOrderInitials=" + getSqlValue(listInfoData[i]["vcOrderInitials"].ToString().ToUpper(), false) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() \r\n");
                         sql.Append(" where iAutoId=" + iAutoId + " ;  \n");
 

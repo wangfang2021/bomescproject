@@ -38,7 +38,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType)
+        public DataTable Search(string dSynchronizationDateFrom, string dSynchronizationDateTo, string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType)
         {
             try
             {
@@ -126,9 +126,17 @@ namespace DataAccess
                 strSql.AppendLine("   	where 1=1     ");
                 strSql.AppendLine("      ");
 
+                if (dSynchronizationDateFrom.Length > 0)
+                {
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) >= '" + dSynchronizationDateFrom.Replace("-","").Replace("/", "") + "' ");
+                }
+                if (dSynchronizationDateTo.Length > 0)
+                {
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) <= '" + dSynchronizationDateTo.Replace("-", "").Replace("/", "") + "' ");
+                }
                 if (dSynchronizationDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSynchronizationDate,112) = '" + dSynchronizationDate.Replace("-","").Replace("/", "") + "' ");
+                    strSql.AppendLine("  and  isnull(n.dSynchronizationDate,'') = '' ");
                 }
                 if (vcState.Length > 0)
                 {
@@ -763,7 +771,7 @@ namespace DataAccess
                     {
                         vcOEOrSP = "1";
                     }
-                    else if (vcOEOrSP == "⭕")
+                    else if (vcOEOrSP == "⭕" || vcOEOrSP == "○")
                     {
                         vcOEOrSP = "0";
                     }
@@ -901,7 +909,7 @@ namespace DataAccess
                     {
                         vcOEOrSP = "1";
                     }
-                    else if (vcOEOrSP == "○")
+                    else if (vcOEOrSP == "⭕" || vcOEOrSP == "○")
                     {
                         vcOEOrSP = "0";
                     }

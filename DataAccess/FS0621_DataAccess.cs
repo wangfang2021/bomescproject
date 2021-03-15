@@ -53,7 +53,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  SELECT  [iAutoId], b.vcName as [CPDCOMPANY], [dInputDate], [TARGETMONTH], [PARTSNO], [CARFAMCODE],c.vcName as [INOUTFLAG], [SUPPLIERCODE],   ");
+                strSql.AppendLine("  SELECT  [iAutoId], b.vcName as [CPDCOMPANY],convert(varchar(10), dInputDate,111) as [dInputDate], [TARGETMONTH], [PARTSNO], [CARFAMCODE],c.vcName as [INOUTFLAG], [SUPPLIERCODE],   ");
                 strSql.AppendLine("  [iSupplierPlant], [DOCK], [RESULTQTYTOTAL], [varInputUser] ,'0' as vcModFlag,'0' as vcAddFlagFROM from [TNeiShi] a   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C018') b on a.[CPDCOMPANY] = b.vcValue   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C003') c on a.[INOUTFLAG] = c.vcValue  where 1=1  ");
@@ -68,11 +68,11 @@ namespace DataAccess
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  PARTSNO like '%" + vcPartNo + "%' ");
+                    strSql.AppendLine("  and  PARTSNO like '" + vcPartNo + "%' ");
                 }
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  CARFAMCODE like '%" + vcCarType + "%' ");
+                    strSql.AppendLine("  and  CARFAMCODE like '" + vcCarType + "%' ");
                 }
                 if (vcInsideOutsideType.Length > 0)
                 {
@@ -80,7 +80,7 @@ namespace DataAccess
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  a.[SUPPLIERCODE]=  '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  a.[SUPPLIERCODE]=  '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {

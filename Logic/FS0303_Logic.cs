@@ -250,7 +250,8 @@ namespace Logic
             //1、更新原单位纳期 2、更新生确单
             fs0303_DataAccess.sqSend(listInfoData, strSqDate, strUserId);
 
-            DataTable dtSetting = getEmailSetting(strUserId,"FS0303");
+            #region 获取发件人邮件模板(邮件主题、邮件内容)，未找到：返回错误进行提示
+            DataTable dtSetting = getEmailSetting(strUserId, "FS0303");
             string strTitle = "";//邮件标题
             string strContent = "";//邮件内容
             if (dtSetting == null || dtSetting.Rows.Count == 0)
@@ -265,9 +266,9 @@ namespace Logic
                 var dateTime = Convert.ToDateTime(strSqDate);
                 strSqDate = dateTime.ToString("yyyy年MM月");
                 strContent = strContent.Replace("##yearmonth##", strSqDate);
-                /*这里的年月要尽心特殊处理，发邮件时年月的格式要变成‘YYYY年MM月‘格式*/
-                /*但是生确单发行时的格式是’YYYY-MM‘*/
             }
+            #endregion
+
             //再向供应商发邮件
             StringBuilder strEmailBody = new StringBuilder();
 

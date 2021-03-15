@@ -1483,7 +1483,7 @@ namespace DataAccess
                 sbr.AppendLine("   a.vcInOut,a.vcSupplierPlace,a.vcOrderingMethod,c.vcOrderPlant,a.vcOESP,a.vcHaoJiu,d.vcSufferIn,e.iPackingQty FROM     ");
                 sbr.AppendLine("   (    ");
                 sbr.AppendLine("   SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcSupplierPlace,vcOESP,vcHaoJiu FROM TSPMaster WHERE     ");
-                sbr.AppendLine("   dFromTime <= GETDATE() AND dToTime >= GETDATE()     ");
+                sbr.AppendLine("    isnull(vcDelete, '') <> '1' and  dFromTime <= GETDATE() AND dToTime >= GETDATE()     ");
                 sbr.AppendLine("   ) a    ");
                 sbr.AppendLine("   LEFT JOIN    ");
                 sbr.AppendLine("   (    ");
@@ -1491,8 +1491,12 @@ namespace DataAccess
                 sbr.AppendLine("   ) b ON a.vcPackingPlant = b.vcPackingPlant AND a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcSupplierId = b.vcSupplierId    ");
                 sbr.AppendLine("   left join  ");
                 sbr.AppendLine("   (  ");
-                sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcOrderPlant] FROM [TSPMaster_OrderPlant] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
-                sbr.AppendLine("   ) c ON a.vcPackingPlant = c.vcPackingPlant AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcSupplierId = c.vcSupplierId    ");
+                //sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcOrderPlant] FROM [TSPMaster_OrderPlant] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
+                //sbr.AppendLine("   ) c ON a.vcPackingPlant = c.vcPackingPlant AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcSupplierId = c.vcSupplierId    ");
+                sbr.AppendLine("  select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],  ");
+                sbr.AppendLine("  vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'   ");
+                sbr.AppendLine("  and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23)  ");
+                sbr.AppendLine("  ) c on a.[vcSupplierId]=c.[vcSupplierId] AND b.vcSupplierPlant=c.vcSupplierPlant    ");
                 sbr.AppendLine("   left join  ");
                 sbr.AppendLine("   (  ");
                 sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcSufferIn] FROM [dbo].[TSPMaster_SufferIn] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");

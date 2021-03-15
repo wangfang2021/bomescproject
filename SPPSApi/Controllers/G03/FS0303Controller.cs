@@ -586,7 +586,6 @@ namespace SPPSApi.Controllers.G03
         }
         #endregion
 
-
         #region 生确单发行
         [HttpPost]
         [EnableCors("any")]
@@ -649,10 +648,19 @@ namespace SPPSApi.Controllers.G03
                 }
 
                 #region 校验所选择的数据能否进行发行
-                int strChangeSum = 0;       //记录变更事项
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
+                    #region 只可发行未确认的数据
+                    if (listInfoData[i]["vcSQState"].ToString() != "0")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "生确但发行失败！只可发行未确认的数据！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+
+                    #region 只可发行变更事项为新设、废止、旧型、防锈、复活、工程变更、供应商变更的信息
                     string strChange = listInfoData[i]["vcChange"].ToString();
                     if (strChange != "1" &&
                         strChange != "2" &&
@@ -666,14 +674,34 @@ namespace SPPSApi.Controllers.G03
                         strChange != "16" &&
                         strChange != "17")
                     {
-                        strChangeSum++;
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "只可发行变更事项为新设、废止、旧型、防锈、复活、工程变更、供应商变更的信息";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                }
-                if (strChangeSum>=1)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "只可发行变更事项为新设、废止、旧型、防锈、复活、工程变更、供应商变更的信息";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    #endregion
+
+                    #region 变更事项为设变旧型和打切旧型时，旧型1-10年必填
+                    if (listInfoData[i]["vcChange"].ToString() == "3" || listInfoData[i]["vcChange"].ToString() == "5")
+                    {
+                        if (
+                                 listInfoData[i]["vcNum1"] == null || listInfoData[i]["vcNum1"].ToString() == ""
+                              || listInfoData[i]["vcNum2"] == null || listInfoData[i]["vcNum2"].ToString() == ""
+                              || listInfoData[i]["vcNum3"] == null || listInfoData[i]["vcNum3"].ToString() == ""
+                              || listInfoData[i]["vcNum4"] == null || listInfoData[i]["vcNum4"].ToString() == ""
+                              || listInfoData[i]["vcNum5"] == null || listInfoData[i]["vcNum5"].ToString() == ""
+                              || listInfoData[i]["vcNum6"] == null || listInfoData[i]["vcNum6"].ToString() == ""
+                              || listInfoData[i]["vcNum7"] == null || listInfoData[i]["vcNum7"].ToString() == ""
+                              || listInfoData[i]["vcNum8"] == null || listInfoData[i]["vcNum8"].ToString() == ""
+                              || listInfoData[i]["vcNum9"] == null || listInfoData[i]["vcNum9"].ToString() == ""
+                              || listInfoData[i]["vcNum10"] == null || listInfoData[i]["vcNum10"].ToString() == ""
+                            )
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "生确但发行失败！变更事项为设变旧型和打切旧型时，旧型1-10年必填。";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    #endregion
                 }
                 #endregion
 

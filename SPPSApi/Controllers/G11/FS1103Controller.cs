@@ -51,10 +51,10 @@ namespace SPPSApi.Controllers.G11
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
                 List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
-                List<Object> SupplierList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Supplier"));//供应商
+                List<Object> SupplierIdList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Supplier"));//供应商
 
                 res.Add("ReceiverList", ReceiverList);
-                res.Add("SupplierList", SupplierList);
+                res.Add("SupplierIdList", SupplierIdList);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -89,15 +89,20 @@ namespace SPPSApi.Controllers.G11
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
-            string strSupplier = dataForm.Supplier == null ? "" : dataForm.Supplier;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
             string strInPutOrderNo = dataForm.InPutOrderNo == null ? "" : dataForm.InPutOrderNo;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strLianFan = dataForm.LianFan == null ? "" : dataForm.LianFan;
             try
             {
-                DataTable dataTable = fS1103_Logic.getSearchInfo(strReceiver, strSupplier, strInPutOrderNo, strPartId, strLianFan);
+                if(strLianFan!="")
+                {
+                    strLianFan = Convert.ToInt32(strLianFan).ToString();
+                }
+                DataTable dataTable = fS1103_Logic.getSearchInfo(strReceiver, strSupplierId, strInPutOrderNo, strPartId, strLianFan);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bInPutOrder", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bTag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -120,6 +125,69 @@ namespace SPPSApi.Controllers.G11
         [HttpPost]
         [EnableCors("any")]
         public string printApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            JArray listInfo = dataForm.list;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            try
+            {
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                if (listInfoData.Count != 0)
+                {
+
+                    //获取待打印的数据
+                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
+                    //执行打印操作
+                    //===========================================
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "错误测试";
+                    dtMessage.Rows.Add(dataRow);
+
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+
+
+
+                    //===========================================
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "打印成功";
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未选择有效的打印数据";
+                }
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成印刷文件失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 印刷方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string secondprintApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];

@@ -58,16 +58,30 @@ namespace SPPSApi.Controllers.G06
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
-                List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//外注工厂
-                List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
+                //List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//外注工厂
+                //List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> dataList_C061 = ComFunction.convertAllToResult(ComFunction.getTCode("C061"));//内外区分
-                DataTable SupplierWorkArea = fs0620_Logic.GetSupplierWorkArea();
-                List<Object> dataList_SupplierWorkArea = ComFunction.convertToResult(SupplierWorkArea, new string[] { "vcValue", "vcName" });
+                //DataTable SupplierWorkArea = fs0620_Logic.GetSupplierWorkArea();
+                DataTable dtC000 = fs0620_Logic.GetPlant();
+                DataTable PackPlant = fs0620_Logic.GetPackPlant();
+                DataTable dtSupplier = fs0620_Logic.GetSupplier();
+                DataTable dtWorkArea = fs0620_Logic.GetWorkArea();
+                DataTable dtNeiWai = fs0620_Logic.GetNeiWai();
+                //List<Object> dataList_SupplierWorkArea = ComFunction.convertToResult(SupplierWorkArea, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_C000 = ComFunction.convertToResult(dtC000, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_PackPlant = ComFunction.convertToResult(PackPlant, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_NeiWai = ComFunction.convertToResult(dtNeiWai, new string[] { "vcValue", "vcName" });
                 res.Add("C000", dataList_C000);
-                res.Add("C003", dataList_C003);
+                //res.Add("C003", dataList_C003);
                 res.Add("C018", dataList_C018);
                 res.Add("C061", dataList_C061);
-                res.Add("SupplierWorkArea", dataList_SupplierWorkArea);
+                //res.Add("SupplierWorkArea", dataList_SupplierWorkArea);
+                res.Add("PackPlant", dataList_PackPlant);
+                res.Add("NeiWai", dataList_NeiWai);
+                res.Add("Supplier", dataList_Supplier);
+                res.Add("WorkArea", dataList_WorkArea);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -81,71 +95,40 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+        [HttpPost]
+        [EnableCors("any")]
+        public string changeSupplieridApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string supplierCode = dataForm.supplierCode == null ? "" : dataForm.supplierCode;
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtWorkAreaBySupplier = fs0620_Logic.GetWorkAreaBySupplier(supplierCode);
 
-        //#region 绑定 发注工厂
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string bindInjectionFactory()
-        //{
-        //    //验证是否登录
-        //    string strToken = Request.Headers["X-Token"];
-        //    if (!isLogin(strToken))
-        //    {
-        //        return error_login();
-        //    }
-        //    LoginInfo loginInfo = getLoginByToken(strToken);
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    try
-        //    {
-        //        DataTable dt = fs0620_Logic.BindInjectionFactory();
-        //        List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = dataList;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2001", ex, loginInfo.UserId);
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "绑定发注工厂列表失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
-        //#endregion
+                List<Object> dataList_WorkAreaBySupplier = ComFunction.convertToResult(dtWorkAreaBySupplier, new string[] { "vcValue", "vcName" });
 
-        //#region 绑定内外
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string bindInsideOutsideType()
-        //{
-        //    //验证是否登录
-        //    string strToken = Request.Headers["X-Token"];
-        //    if (!isLogin(strToken))
-        //    {
-        //        return error_login();
-        //    }
-        //    LoginInfo loginInfo = getLoginByToken(strToken);
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    try
-        //    {
-        //        DataTable dt = fs0620_Logic.BindInsideOutsideType();
-        //        List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = dataList;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2002", ex, loginInfo.UserId);
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "绑定内外列表失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
-        //#endregion
-
+                res.Add("WorkAreaBySupplier", dataList_WorkAreaBySupplier);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2010", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "选择供应商联动工区失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -166,12 +149,14 @@ namespace SPPSApi.Controllers.G06
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
+            string vcReceiver = dataForm.vcReceiver == null ? "" : dataForm.vcReceiver;
+            string vcSupplierId = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
-            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
             try
             {
-                DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+                DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea,  vcType, vcPackPlant, vcReceiver);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -209,16 +194,18 @@ namespace SPPSApi.Controllers.G06
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
-            string vcSupplierIdWorkArea = dataForm.vcSupplierIdWorkArea == null ? "" : dataForm.vcSupplierIdWorkArea;
+            string vcReceiver = dataForm.vcReceiver == null ? "" : dataForm.vcReceiver;
+            string vcSupplierId = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
+            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
-            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
+            string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
             try
             {
-                DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierIdWorkArea, vcType, vcCarType);
+                DataTable dt = fs0620_Logic.Search(dOperatorTime, vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea, vcType, vcPackPlant, vcReceiver);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "导入时间","年计类型","收货方", "包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
+                head = new string[] { "导入时间","年计类型","收货方", "包装工场", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
                 field = new string[] { "dOperatorTime","vcType", "vcReceiver", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType","vcSupplier_id", "vcWorkArea",  "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
                 string msg = string.Empty; 
                 string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0620_Data.xlsx", 1, loginInfo.UserId, FunctionID);
@@ -271,7 +258,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 fs0620_Logic.del(listInfoData);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "删除成功!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -302,8 +289,15 @@ namespace SPPSApi.Controllers.G06
 
                 //以下开始业务处理
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm;
+                string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
+                JArray listInfo = dataForm.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (vcTargetYear.Length==0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先选择对象年,再进行供应商别年计发送操作！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -311,7 +305,8 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dt = new DataTable();
-                dt.Columns.Add("dOperatorTime");
+                dt.Columns.Add("dOperatorTime"); 
+                dt.Columns.Add("vcType");
                 dt.Columns.Add("vcPackPlant");
                 dt.Columns.Add("vcTargetYear");
                 dt.Columns.Add("vcPartNo");
@@ -340,6 +335,7 @@ namespace SPPSApi.Controllers.G06
                 {
                     DataRow dr = dt.NewRow();
                     dr["dOperatorTime"] = listInfoData[i]["dOperatorTime"]==null?"": listInfoData[i]["dOperatorTime"].ToString();
+                    dr["vcType"] = listInfoData[i]["vcType"] == null ? "" : listInfoData[i]["vcType"].ToString();
                     dr["vcPackPlant"] = listInfoData[i]["vcPackPlant"] == null ? "" : listInfoData[i]["vcPackPlant"].ToString();
                     dr["vcTargetYear"] = listInfoData[i]["vcTargetYear"] == null ? "" : listInfoData[i]["vcTargetYear"].ToString();
                     dr["vcPartNo"] = listInfoData[i]["vcPartNo"] == null ? "" : listInfoData[i]["vcPartNo"].ToString();
@@ -375,8 +371,8 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "导入时间", "包装工厂", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "对象年合计", "N+1年预测", "N+2年预测" };
-                field = new string[] { "dOperatorTime", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
+                head = new string[] { "导入时间","年计类型","包装工场", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "对象年合计", "N+1年预测", "N+2年预测" };
+                field = new string[] { "dOperatorTime", "vcType", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
                 string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                 StringBuilder strErr = new StringBuilder();
                 bool bReault = true;
@@ -394,14 +390,14 @@ namespace SPPSApi.Controllers.G06
                     {
                         dtNewSupplierandWorkArea.ImportRow(dr);
                     }
-                    string strFileName = System.DateTime.Now.ToString("yyyyMMdd")+"_" + vcSupplier_id + "_" + vcWorkArea+"年计管理";
+                    string strFileName = vcTargetYear+"年补给年计_" + vcSupplier_id +  vcWorkArea;
                     string filepath = ComFunction.DataTableToExcel(head, field, dtNewSupplierandWorkArea, ".", loginInfo.UserId, strFileName, ref msg);
                     if (filepath == "")
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier_id"] = vcSupplier_id;
                         dataRow["vcWorkArea"] = vcWorkArea;
-                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件没有生产成功，不能发送邮件";
+                        dataRow["vcMessage"] = "附件没有生产成功，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                         logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "附件没有生产成功，不能发送邮件 \n";
@@ -422,7 +418,7 @@ namespace SPPSApi.Controllers.G06
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier_id"] = vcSupplier_id;
                         dataRow["vcWorkArea"] = vcWorkArea;
-                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "没有维护邮箱，不能发送邮件";
+                        dataRow["vcMessage"] = "没有维护邮箱，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                         continue;
@@ -435,7 +431,7 @@ namespace SPPSApi.Controllers.G06
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier_id"] = vcSupplier_id;
                         dataRow["vcWorkArea"] = vcWorkArea;
-                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱维护冗余有误，不能发送邮件";
+                        dataRow["vcMessage"] = "邮箱维护冗余有误，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                         continue;
@@ -466,7 +462,7 @@ namespace SPPSApi.Controllers.G06
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier_id"] = vcSupplier_id;
                         dataRow["vcWorkArea"] = vcWorkArea;
-                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱为空，不能发送邮件";
+                        dataRow["vcMessage"] = "邮箱为空，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                         continue;
@@ -516,7 +512,7 @@ namespace SPPSApi.Controllers.G06
                         cCDt = dtCCEmail;
                     }
                     //邮件主题
-                    string strSubject = "供应商:" + vcSupplier_id + "工区:" + vcWorkArea + "_" + loginInfo.UnitCode + "年计管理信息";
+                    string strSubject =loginInfo.UnitCode+"_" +vcTargetYear + "年_" + vcSupplier_id + vcWorkArea + "_" + "补给年计管理信息";
                     //邮件内容
                     string strEmailBody = "";
                     strEmailBody += "<div style='font-family:宋体;font-size:12'>" + "各位供应商 殿：大家好<br /><br />";
@@ -535,7 +531,7 @@ namespace SPPSApi.Controllers.G06
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier_id"] = vcSupplier_id;
                         dataRow["vcWorkArea"] = vcWorkArea;
-                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送失败，邮件发送公共方法未知原因！";
+                        dataRow["vcMessage"] = "邮箱发送失败，邮件发送公共方法未知原因！";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                         logs = System.DateTime.Now.ToString() + "供应商：" + vcSupplier_id + "工区" + vcWorkArea + "邮箱发送失败，邮件发送公共方法未知原因！\n";
@@ -702,6 +698,16 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
             string vcType= dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcTypeName = "";
+            //0	当初年计
+            //1   修正年计
+            if (vcType == "0")
+            {
+                vcTypeName = "当初年计";
+            } else
+            {
+                vcTypeName = "修正年计";
+            }
             if (vcTargetYear=="")
             {
                 apiResult.code = ComConstant.ERROR_CODE;
@@ -893,7 +899,7 @@ namespace SPPSApi.Controllers.G06
                 mysheetHSSF.AddMergedRegion(new CellRangeAddress(2, 2, 0, 16)); //合并单元格第二行从第1列到第2列
                 IRow ThreeHSSF = mysheetHSSF.CreateRow(2); //添加第二行
                 ThreeHSSF.Height = 34 * 20; //设置高度为50个点
-                ThreeHSSF.CreateCell(0).SetCellValue(DateTime.Now.ToString("yyyy") + "年" + loginInfo.UnitCode + "补给部品当初年计");
+                ThreeHSSF.CreateCell(0).SetCellValue(DateTime.Now.ToString("yyyy") + "年" + loginInfo.UnitCode + "补给部品"+ vcTypeName);
                 ThreeHSSF.GetCell(0).CellStyle = style1;//将CellStyle应用于具体单元格
                 #endregion
                 #region //设置第五行 内制开始
@@ -953,7 +959,11 @@ namespace SPPSApi.Controllers.G06
                         nextRow++;
                         int heBingStartRow = nextRow;
                         int hebingEndRow = nextRow + (dtNeiZhi.Rows.Count - 1) - 1;
-                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                        if (heBingStartRow!= hebingEndRow)
+                        {
+                            mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                        }
+                        
                         for (var j = 0; j < dtNeiZhi.Rows.Count - 1; j++)
                         {
                             IRow nextRowHSSFRow = mysheetHSSF.CreateRow(nextRow);
@@ -973,7 +983,7 @@ namespace SPPSApi.Controllers.G06
                             {
                                 if (k == 1)
                                 {
-                                    nextRowHSSFRow.CreateCell(colNum).SetCellValue(" ○" + dtNeiZhi.Rows[j][k].ToString());
+                                    nextRowHSSFRow.CreateCell(colNum).SetCellValue(dtNeiZhi.Rows[j][k].ToString());
                                     //nextRowHSSFRow.CreateCell(colNum).SetCellValue(Convert.ToDouble(dtNeiZhi.Rows[j][k].ToString()));
                                     nextRowHSSFRow.GetCell(colNum).CellStyle = style5;
                                     colNum++;
@@ -1010,7 +1020,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 #endregion
                 #region 设置外注
-                if (dtWaiZhu.Rows.Count > 0)
+                if (dtWaiZhu.Rows.Count > 1)
                 {
                     mysheetHSSF.AddMergedRegion(new CellRangeAddress(nextRow, nextRow, 0, 1));
                     IRow nextRowHSSFCol = mysheetHSSF.CreateRow(nextRow);
@@ -1058,8 +1068,12 @@ namespace SPPSApi.Controllers.G06
                     nextRowHSSFColWaiZhu.GetCell(16).CellStyle = style4;
                     nextRow++;
                     int heBingStartRow = nextRow;
-                    int hebingEndRow = nextRow + (dtWaiZhu.Rows.Count - 1) - 1;
-                    mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                    int hebingEndRow = nextRow + (dtWaiZhu.Rows.Count - 1)-1;
+                    if (heBingStartRow!= hebingEndRow)
+                    {
+                        mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                    }
+                    
                     for (var j = 0; j < dtWaiZhu.Rows.Count - 1; j++)
                     {
                         IRow nextRowHSSFRow = mysheetHSSF.CreateRow(nextRow);

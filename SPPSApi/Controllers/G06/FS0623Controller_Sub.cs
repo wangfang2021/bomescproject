@@ -119,15 +119,17 @@ namespace SPPSApi.Controllers.G06
                 #region 判断新增的数据本身是否有重复的 和数据库内部关键字是否有重复的
                 //本身判重 "iAutoId", "vcSupplier_id", "vcWorkArea", "dBeginDate", "dEndDate", "vcOperatorID", "dOperatorTime"
                 DataTable dtadd = new DataTable();
-                dtadd.Columns.Add("vcOrderDifferentiation");
+                dtadd.Columns.Add("vcOrderDifferentiation"); 
+                dtadd.Columns.Add("vcOrderInitials");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcAddFlag"].ToString().ToLower() == "true")
-                    {
+                    //if (listInfoData[i]["vcAddFlag"].ToString().ToLower() == "true")
+                    //{
                         DataRow dr = dtadd.NewRow();
                         dr["vcOrderDifferentiation"] = listInfoData[i]["vcOrderDifferentiation"].ToString();
+                        dr["vcOrderInitials"] = listInfoData[i]["vcOrderInitials"].ToString().ToUpper();
                         dtadd.Rows.Add(dr);
-                    }
+                    //}
                 }
 
                 if (dtadd.Rows.Count > 0)
@@ -138,10 +140,10 @@ namespace SPPSApi.Controllers.G06
                         {
                             for (int j = i + 1; j < dtadd.Rows.Count; j++)
                             {
-                                if (dtadd.Rows[i]["vcOrderDifferentiation"].ToString() == dtadd.Rows[j]["vcOrderDifferentiation"].ToString() )
+                                if (dtadd.Rows[i]["vcOrderInitials"].ToString() == dtadd.Rows[j]["vcOrderInitials"].ToString() )
                                 {
                                     apiResult.code = ComConstant.ERROR_CODE;
-                                    apiResult.data = "订单区分" + dtadd.Rows[i]["vcOrderDifferentiation"].ToString() + "存在重复项，请确认！";
+                                    apiResult.data = "订单首字母" + dtadd.Rows[i]["vcOrderInitials"].ToString() + "存在重复项，请确认！";
                                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                                 }
                             }
@@ -155,7 +157,7 @@ namespace SPPSApi.Controllers.G06
                         string errMsg = string.Empty;
                         for (int i = 0; i < dt.Rows.Count; i++)
                         {
-                            errMsg += "订单区分" + dt.Rows[i]["vcOrderDifferentiation"].ToString() + ",";
+                            errMsg += "订单首字母" + dt.Rows[i]["vcOrderInitials"].ToString() + ",";
                         }
                         errMsg.Substring(0, errMsg.LastIndexOf(","));
                         apiResult.code = ComConstant.ERROR_CODE;

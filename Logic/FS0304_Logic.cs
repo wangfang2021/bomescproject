@@ -40,16 +40,16 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs0304_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+            fs0304_DataAccess.Save(listInfoData, strUserId);
         }
         #endregion
 
         #region 删除
-        public void del(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErr)
+        public void del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs0304_DataAccess.Del(listInfoData, strUserId,ref strErr);
+            fs0304_DataAccess.Del(listInfoData, strUserId);
         }
         #endregion
 
@@ -57,10 +57,12 @@ namespace Logic
         public void Back(List<Dictionary<string, Object>> listInfoData, string strUserId,string strTH, string strEmail,string strUserName, ref string strErr)
         {
             #region 更新生确进度表
-            fs0304_DataAccess.Back(listInfoData, strUserId,strTH,ref strErr);
+            fs0304_DataAccess.Back(listInfoData, strUserId,strTH);
             #endregion
 
             #region 给供应商发邮件
+
+            #region 获取登陆人的邮件模板(邮件标题和邮件内容)，未找到：返回错误提示
             DataTable dtSetting = getEmailSetting(strUserId);
             string strTitle = "";//邮件标题
             string strContent = "";//邮件内容
@@ -76,6 +78,8 @@ namespace Logic
                 var dateTime = DateTime.Now.ToString("yyyy年MM月");
                 strContent = strContent.Replace("##yearmonth##", dateTime);
             }
+            #endregion
+
             //再向供应商发邮件
             StringBuilder strEmailBody = new StringBuilder();
             for (int i = 0; i < listInfoData.Count; i++)
@@ -84,7 +88,7 @@ namespace Logic
                 DataTable receiverDt = getSupplierEmail(strSupplier_id);
                 if (receiverDt == null)
                 {
-                    strErr += "未找到 '" + strSupplier_id + "' 供应商邮件信息";
+                    strErr += "退回成功，但未找到 '" + strSupplier_id + "' 供应商邮箱地址 ";
                     return;
                 }
                 ComFunction.SendEmailInfo(strEmail, strUserName, strContent, receiverDt, null, strTitle, "", false);
@@ -94,9 +98,9 @@ namespace Logic
         #endregion
 
         #region 付与日期一括付与
-        public void DateKFY(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string dTFTM_BJ)
+        public void DateKFY(List<Dictionary<string, Object>> listInfoData, string strUserId,string dTFTM_BJ)
         {
-            fs0304_DataAccess.DateKFY(listInfoData, strUserId, ref strErrorPartId, dTFTM_BJ);
+            fs0304_DataAccess.DateKFY(listInfoData, strUserId, dTFTM_BJ);
         }
         #endregion
 
@@ -105,12 +109,57 @@ namespace Logic
         {
             #region 校验所选品番在原单位中是否存在，如果不存在，提示并报错
             DataTable dt = getPartidExistsInUnit(listInfoData, strUserId, ref strErr);
-            if (dt!=null && dt.Rows.Count>0)    //如果
+            if (strErr!="")
             {
-
+                return;
+            }
+            if (dt!=null && dt.Rows.Count>0)
+            {
+                strErr = "织入失败！以下品番在原单位表中不存在：";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strErr += dt.Rows[i]["vcPart_id"].ToString()+" ";
+                }
+                return;
             }
             #endregion
+            else
+            {
+                #region 校验所选品番的TFTM调整时间是否大于等于原单位品番开始时间
+                dt = getCheckFromDate(listInfoData, strUserId, ref strErr);
+                if (strErr!="")
+                {
+                    return;
+                }
+                if (dt!=null && dt.Rows.Count>0)
+                {
+                    strErr = "织入失败！以下品番TFTM调整时间小于原单位品番开始时间：";
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        strErr += dt.Rows[i]["vcPart_id"].ToString() + " ";
+                    }
+                    return;
+                }
+                #endregion
 
+                #region 校验所选品番的TFTM调整时间大于品番开始时间并且TFTM调整时间大于等于原单位工程开始时间
+                dt = getCheckGYSFromDate(listInfoData, strUserId, ref strErr);
+                if (strErr!="")
+                {
+                    return;
+                }
+                if (dt!=null && dt.Rows.Count>0)
+                {
+                    strErr = "织入失败！以下品番TFTM调整时间小于原单位品番开始时间或小于原单位供应商开始时间：";
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        strErr += dt.Rows[i]["vcPart_id"].ToString() + " ";
+                    }
+                    return;
+                }
+                #endregion
+            }
+            
             fs0304_DataAccess.sendUnit(listInfoData, strUserId, ref strErr);
         }
         #endregion
@@ -134,6 +183,20 @@ namespace Logic
                 return null;
             else
                 return dt;
+        }
+        #endregion
+
+        #region 变更事项为设变-废止、供应商变更-废止、工程变更-废止、包装工厂变更-废止的数据，验证生确TFTM调整时间是否大于等于原单位品番开始时间
+        public DataTable getCheckFromDate(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
+        {
+            return fs0304_DataAccess.getCheckFromDate(listInfoData, strUserId, ref strErr);
+        }
+        #endregion
+
+        #region 变更事项为设变-废止、供应商变更-废止、工程变更-废止、包装工厂变更-废止的数据，验证生确TFTM调整时间是否大于等于原单位品番开始时间
+        public DataTable getCheckGYSFromDate(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
+        {
+            return fs0304_DataAccess.getCheckGYSFromDate(listInfoData, strUserId, ref strErr);
         }
         #endregion
     }

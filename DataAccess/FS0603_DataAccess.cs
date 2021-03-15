@@ -135,8 +135,8 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strSyncTime, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck)
+        public DataTable getSearchInfo(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby)
         {
             try
             {
@@ -207,6 +207,10 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" and isnull(vcDelete, '') <> '1'");
                 }
+                if (strSyncTime_from != "" && strSyncTime_to != "")
+                {
+                    strSql.AppendLine("    AND (CONVERT(varchar(10),[dSyncTime],111)>='" + strSyncTime_from + "' AND CONVERT(varchar(10),[dSyncTime],111)<='" + strSyncTime_to + "')");
+                }
                 if (strPackingPlant != "")
                 {
                     if (strPackingPlant == "--")
@@ -228,10 +232,6 @@ namespace DataAccess
                     {
                         strSql.AppendLine("    AND vcChanges='" + strChanges + "'");
                     }
-                }
-                if (strSyncTime != "")
-                {
-                    strSql.AppendLine("    AND CONVERT(varchar(10),[dSyncTime],111)='" + strSyncTime + "'");
                 }
                 if (strPartId != "")
                 {
@@ -440,7 +440,16 @@ namespace DataAccess
                         strSql.AppendLine("AND T3.vcBoxType like '" + strBoxType + "%'");
                     }
                 }
-                strSql.AppendLine("ORDER BY T5.vcOrderPlant,T1.vcReceiver,T1.vcPartId, T1.dFromTime, T1.vcPackingPlant");
+                //strSql.AppendLine("ORDER BY T5.vcOrderPlant,T1.vcReceiver,T1.vcPartId, T1.dFromTime, T1.vcPackingPlant");
+                if (strOrderby == "1")
+                {
+                    strSql.AppendLine("ORDER BY T1.iOrderBy desc,T1.LinId");
+                    strSql.AppendLine("update TSPMaster set iOrderBy=null");
+                }
+                else
+                {
+                    strSql.AppendLine("ORDER BY T1.LinId");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -543,7 +552,8 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("           ,[vcDelete]");
                 strSql_addinfo.AppendLine("           ,[vcOperatorID]");
                 strSql_addinfo.AppendLine("           ,[dOperatorTime]");
-                strSql_addinfo.AppendLine("           ,[dSyncToSPTime])");
+                strSql_addinfo.AppendLine("           ,[dSyncToSPTime]");
+                strSql_addinfo.AppendLine("           ,[iOrderBy])");
                 strSql_addinfo.AppendLine("     VALUES");
                 strSql_addinfo.AppendLine("           (case when @dSyncTime='' then null else @dSyncTime end");
                 strSql_addinfo.AppendLine("           ,case when @vcChanges='' then null else @vcChanges end");
@@ -581,7 +591,8 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("           ,'0'");
                 strSql_addinfo.AppendLine("           ,'" + strOperId + "'");
                 strSql_addinfo.AppendLine("           ,GETDATE()");
-                strSql_addinfo.AppendLine("           ,null)");
+                strSql_addinfo.AppendLine("           ,null");
+                strSql_addinfo.AppendLine("           ,1)");
                 sqlCommand_addinfo.CommandText = strSql_addinfo.ToString();
                 sqlCommand_addinfo.Parameters.AddWithValue("@dSyncTime", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcChanges", "");
@@ -665,8 +676,7 @@ namespace DataAccess
 
                 #region SQL and Parameters
                 strSql_modinfo.AppendLine("UPDATE [dbo].[TSPMaster]");
-                strSql_modinfo.AppendLine("   SET [dSyncTime] = case when @dSyncTime='' then null else @dSyncTime end");
-                strSql_modinfo.AppendLine("      ,[vcChanges] = case when @vcChanges='' then null else @vcChanges end");
+                strSql_modinfo.AppendLine("   SET [vcChanges] = case when @vcChanges='' then null else @vcChanges end");
                 strSql_modinfo.AppendLine("      ,[vcPartENName] = case when @vcPartENName='' then null else @vcPartENName end");
                 strSql_modinfo.AppendLine("      ,[vcCarfamilyCode] = case when @vcCarfamilyCode='' then null else @vcCarfamilyCode end");
                 strSql_modinfo.AppendLine("      ,[vcCarModel] = case when @vcCarfamilyCode='' then null else @vcCarfamilyCode end");
@@ -701,7 +711,6 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("      AND [vcReceiver] = @vcReceiver");
                 strSql_modinfo.AppendLine("      AND [vcSupplierId] = @vcSupplierId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
-                sqlCommand_modinfo.Parameters.AddWithValue("@dSyncTime", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcChanges", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPartId", "");
@@ -738,7 +747,6 @@ namespace DataAccess
                 foreach (DataRow item in dtModInfo.Rows)
                 {
                     #region Value
-                    sqlCommand_modinfo.Parameters["@dSyncTime"].Value = item["dSyncTime"].ToString();
                     sqlCommand_modinfo.Parameters["@vcChanges"].Value = item["vcChanges"].ToString();
                     sqlCommand_modinfo.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
                     sqlCommand_modinfo.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
@@ -1164,7 +1172,7 @@ namespace DataAccess
         public DataTable searchOperHistory(string strFromTime, string strToFrom, string strOperId)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine(" select * from TSPMaster_OperHistory where Convert(varchar(10),dOperatorTime,111)>='" + strFromTime + "' and Convert(varchar(10),dOperatorTime,111)<'" + strToFrom + "' and vcOperatorID='" + strOperId + "' order by dOperatorTime");
+            strSql.AppendLine(" select * from TSPMaster_OperHistory where Convert(varchar(10),dOperatorTime,111)>='" + strFromTime + "' and Convert(varchar(10),dOperatorTime,111)<='" + strToFrom + "' and vcOperatorID='" + strOperId + "' order by dOperatorTime");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         public DataTable getEditLoadInfo(string strEditType, string strPackingPlant, string strPartId, string strReceiver, string strSupplierId, string strSupplierPlant)
@@ -1361,6 +1369,16 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable getOrderPlantInfo(string strSupplierId, string strSupplierPlant, string strToTime)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+            strSql.AppendLine("and vcValue1='" + strSupplierId + "' and vcValue2='" + strSupplierPlant + "' and vcValue3<=CONVERT(VARCHAR(10),'" + strToTime + "',23) AND vcValue4>=CONVERT(VARCHAR(10),'" + strToTime + "',23)");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+
+
         public string setNullValue(Object obj, string strModle, string strDefault)
         {
             if (obj == null)

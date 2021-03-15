@@ -38,7 +38,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState, string vcPartNo, string vcCarType, string dExpectDeliveryDate, string strUserId)
+        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState, string vcPartNo, string vcCarType, string dExpectDeliveryDate, string strUserId, string dSendDate, string dReplyDate)
         {
             try
             {
@@ -102,8 +102,59 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
                 }
+                if (dSendDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  dSendDate,112) = '" + dSendDate.Replace("-", "").Replace("/", "") + "' ");
+                }
+                if (dReplyDate.Length > 0)
+                {
+                    if (dReplyDate == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(dReplyDate,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  CONVERT(varchar(10),  dReplyDate,112) = '" + dReplyDate.Replace("-", "").Replace("/", "") + "' ");
+                    }
+                }
 
                 strSql.AppendLine("  order by a.vcState asc, dSendDate desc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetSendDate(string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select dSendDate as vcValue,dSendDate as vcName from(    ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dSendDate,120) as dSendDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("  ) t order by vcValue desc  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetReplyDate(string userId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select isnull(dReplyDate,'无') as vcValue,isnull(dReplyDate,'无') as vcName from(    ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dReplyDate,120) as dReplyDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("  ) t order by vcValue desc  ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

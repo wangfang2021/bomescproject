@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState,  string vcPartNo, string vcCarType, string dExpectDeliveryDate,string UserId)
+        public DataTable Search(string vcSupplier_id, string vcWorkArea, string vcState,  string vcPartNo, string vcCarType, string dExpectDeliveryDate,string UserId,string  dSendDate,string dReplyDate)
         {
-            return fs0503_DataAccess.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate, UserId);
+            return fs0503_DataAccess.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate, UserId, dSendDate, dReplyDate);
         }
 
         public DataTable GetBoxType()
@@ -68,6 +68,16 @@ namespace Logic
         public DataTable GetExpectDeliveryDate(string userId)
         {
             return fs0503_DataAccess.GetExpectDeliveryDate(userId);
+        }
+
+        public DataTable GetReplyDate(string userId)
+        {
+            return fs0503_DataAccess.GetReplyDate(userId);
+        }
+
+        public DataTable GetSendDate(string userId)
+        {
+            return fs0503_DataAccess.GetSendDate(userId);
         }
 
         public DataTable GetWorkArea( string supplierId)

@@ -136,7 +136,7 @@ namespace SPPSApi.Controllers.G12
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                    DataTable dt = ComFunction.ImportExcel(info.FullName, "sheet1", headers, ref strMsg);
                     if (strMsg != "")
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
@@ -157,52 +157,30 @@ namespace SPPSApi.Controllers.G12
                     {
                         importDt.ImportRow(row);
                     }
-
-                    string msg = fs1205_Logic.TXTCheckDataSchedule(dt);
+                    string msg = fs1205_Logic.TXTCheckDataSchedule(importDt);
                     if (msg.Length > 0)
                     {
-                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = msg;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     else
                     {
-                        string Month = dt.Rows[0]["vcMonth"].ToString();//获取数据源中的对象月
-                        string Week = dt.Rows[0]["vcWeek"].ToString();//获取数据源中的对象周
-                        string Plant = dt.Rows[0]["vcPlant"].ToString();//获取数据源中的工厂
-
-                        dt.PrimaryKey = new DataColumn[]
+                        string Month = importDt.Rows[0]["vcMonth"].ToString();//获取数据源中的对象月
+                        string Week = importDt.Rows[0]["vcWeek"].ToString();  //获取数据源中的对象周
+                        string Plant = importDt.Rows[0]["vcPlant"].ToString();//获取数据源中的工厂
+                        importDt.PrimaryKey = new DataColumn[]
                         {
-                        dt.Columns["vcMonth"],
-                        dt.Columns["vcWeek"],
-                        dt.Columns["vcPlant"],
-                        dt.Columns["vcGC"],
-                        dt.Columns["vcZB"],
-                        dt.Columns["vcPartsno"]
+                            importDt.Columns["vcMonth"],
+                            importDt.Columns["vcWeek"],
+                            importDt.Columns["vcPlant"],
+                            importDt.Columns["vcGC"],
+                            importDt.Columns["vcZB"],
+                            importDt.Columns["vcPartsno"]
                         };
-                        fs1205_Logic.TXTUpdateTableSchedule(dt, Month, Week, Plant);
+                        fs1205_Logic.TXTUpdateTableSchedule(importDt, Month, Week, Plant);
                     }
                 }
-                ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
-                //var result = from r in importDt.AsEnumerable()
-                //             group r by new { r2 = r.Field<string>("vcPart_id"), r3 = r.Field<string>("dUseBegin"), r4 = r.Field<string>("dUseEnd") } into g
-                //             where g.Count() > 1
-                //             select g;
-                //if (result.Count() > 0)
-                //{
-                //    StringBuilder sbr = new StringBuilder();
-                //    sbr.Append("导入数据重复:<br/>");
-                //    foreach (var item in result)
-                //    {
-                //        sbr.Append("品番:" + item.Key.r2 + " 使用开始:" + item.Key.r3 + " 使用结束:" + item.Key.r4 + "<br/>");
-                //    }
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = sbr.ToString();
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //}
-
-                //fs1204_Logic.UpdateTable(importDt, vcMon);//将导入的表格数据上传
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

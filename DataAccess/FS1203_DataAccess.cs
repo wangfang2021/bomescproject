@@ -2884,17 +2884,20 @@ namespace DataAccess
         }
         public string getABClass(string date, string dayNight, string vcPlant, string vcCalendar)
         {
-            string vcGC = vcCalendar.Split('-')[0];
-            string vcZB = vcCalendar.Split('-')[1];
-            DataTable dt = excute.ExcuteSqlWithSelectToDT(getClassSql(date, dayNight, vcPlant, vcGC, vcZB));
-            object content = dt.Rows[0][0];
-            if (dt.Rows.Count > 1)
+            if (vcCalendar.Length > 0)
             {
-                throw new Exception("Date:" + date + ";vcPlant:" + vcPlant + ";vcGC:" + vcGC + ";vcZB:" + vcZB + "; 对应的稼动日不止一条");
-            }
-            else if (content != null && content.ToString().Length > 0)
-            {
-                return content.ToString().Substring(1);//若为MA\MB\NA\NB则返回值为A\B或空
+                string vcGC = vcCalendar.Split('-')[0];
+                string vcZB = vcCalendar.Split('-')[1];
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(getClassSql(date, dayNight, vcPlant, vcGC, vcZB));
+                object content = dt.Rows[0][0];
+                if (dt.Rows.Count > 1)
+                {
+                    throw new Exception("Date:" + date + ";vcPlant:" + vcPlant + ";vcGC:" + vcGC + ";vcZB:" + vcZB + "; 对应的稼动日不止一条");
+                }
+                else if (content != null && content.ToString().Length > 0)
+                {
+                    return content.ToString().Substring(1);//若为MA\MB\NA\NB则返回值为A\B或空
+                }
             }
             return string.Empty;
         }

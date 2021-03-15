@@ -46,7 +46,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(fS1205_Logic.bindplant());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 res.Add("PlantSource", dataList_PlantSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -423,8 +423,8 @@ namespace SPPSApi.Controllers.G12
                 //DataTable dt = new DataTable();
                 //DtConverter dtConverter = new DtConverter();
                 //List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-                //apiResult.code = ComConstant.SUCCESS_CODE;
-                //apiResult.data = dataList;
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

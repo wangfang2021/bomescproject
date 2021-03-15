@@ -1555,8 +1555,10 @@ namespace Logic
         /// <param name="strPlant">厂区</param>
         public void TXTUpdateTableDetermine(DataTable dt, string strMonth, string strOrderNo, string strWeek, string strPlant)
         {
-            dt.Columns.Remove("vcModFlag");
-            dt.Columns.Remove("vcAddFlag");
+            if (dt.Columns.Contains("vcModFlag"))
+                dt.Columns.Remove("vcModFlag");
+            if (dt.Columns.Contains("vcAddFlag"))
+                dt.Columns.Remove("vcAddFlag");
 
             string strSQLSearch = " select * from WeekLevelPercentage ";
             StringBuilder strSQL = new StringBuilder();

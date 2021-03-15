@@ -163,7 +163,7 @@ namespace SPPSApi.Controllers.G12
                 vcZB = "#" + vcPlant;
             }
             try
-            {
+            { 
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> calendarData1 = ComFunction.convertAllToResult(logic.getRenders(vcYear, "1", vcPorType, vcZB, vcPlant, "#5DAD64"));
                 res.Add("calendarData1", calendarData1);

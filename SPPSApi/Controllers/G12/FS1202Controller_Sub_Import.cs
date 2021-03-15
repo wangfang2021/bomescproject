@@ -78,7 +78,7 @@ namespace SPPSApi.Controllers.G12
                 };
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
-                {
+                { 
                     DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, 3, ref strMsg);
                     if (strMsg != "")
                     {

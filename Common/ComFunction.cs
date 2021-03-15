@@ -742,7 +742,7 @@ namespace Common
                 #region 校验格式
 
                 for (int i = 0; i < data.Rows.Count; i++)
-                {
+                { 
                     DataRow dr = data.Rows[i];
                     for (int j = 0; j < Header.GetLength(1); j++)
                     {

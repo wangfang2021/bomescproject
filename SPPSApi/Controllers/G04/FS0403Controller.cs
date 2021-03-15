@@ -93,7 +93,7 @@ namespace SPPSApi.Controllers.G04
 
                 DateTime t2;
                 //DateTime.TryParseExact(changeNo, "yyyyMMdd", null, System.Globalization.DateTimeStyles.None, out t2);
-                t2 = DateTime.Parse(changeNo);
+                t2 = DateTime.Parse(changeNo.Substring(0, 4) + "-" + changeNo.Substring(4, 2) + "-" + changeNo.Substring(6, 2));
 
                 DataTable dt = fs0403_Logic.getModify(t2);
                 string resMsg = "";

@@ -62,6 +62,7 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> row = new Dictionary<string, object>();
                 row["vcName"] = "空";
                 row["vcValue"] = "空";
+                dataList_C002.Add(row);
                 Dictionary<string, object> row2 = new Dictionary<string, object>();
                 row2["vcName"] = "处理中";
                 row2["vcValue"] = "处理中";

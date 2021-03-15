@@ -507,25 +507,18 @@ namespace SPPSApi.Controllers.G99
                 
                 #region 数据校验
                 //开始数据验证
-                string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否"},
-                                                    {"vcIsDYJG"        ,"vcIsDYFX"    },
-                                                    {""                ,""            },
-                                                    {"1"               ,"1"           },//最大长度设定,不校验最大长度用0
-                                                    {"1"               ,"1"           },//最小长度设定,可以为空用0
-                                                    {"14"              ,"15"          } //前台显示列号，从0开始计算,注意有选择框的是0
+                string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否","执行标准区分"},
+                                                    {"vcIsDYJG"        ,"vcIsDYFX"    ,"vcZXBZDiff"  },
+                                                    {""                ,""            ,""            },
+                                                    {"1"               ,"1"           ,"0"           },//最大长度设定,不校验最大长度用0
+                                                    {"1"               ,"1"           ,"0"           },//最小长度设定,可以为空用0
+                                                    {"14"              ,"15"          ,"26"          } //前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                //需要判断时间区间先后关系的字段
                 string[,] strDateRegion = null;
-
-                /*
-                 * 执行标准区分为CCC时，执行标准No必填
-                 */
-                /*                         验证vcChange字段     当vcChange = 1时     判断字段    1:该字段不能为空 0:该字段必须为空      该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行    */
                 string[,] strSpecialCheck = {
-                         { "执行标准区分"    ,"vcZXBZDiff","CCC"       ,"CCC","执行标准NO"         ,"vcZXBZNo"          ,"1",                      "","" }
-                        ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应"  ,"2"  ,"对应不可理由"       ,"vcNotDY"           ,"1",                      "","" }
+                         { "执行标准区分"    ,"vcZXBZDiff","CCC"     ,"CCC","执行标准NO"  ,"vcZXBZNo","1","","" }
+                        ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应","2"  ,"对应不可理由","vcNotDY" ,"1","","" }
                         };
-
                 List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
                 if (checkRes != null)
                 {
@@ -538,7 +531,13 @@ namespace SPPSApi.Controllers.G99
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcIsDYJG"].ToString()=="1" && listInfoData[i]["vcIsDYFX"].ToString() == "1")
+                    if (listInfoData[i]["vcJD"].ToString() == "2")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "生确回复失败！已回复生确不可再次回复";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (listInfoData[i]["vcIsDYJG"].ToString()=="1")
                     {
                         string strChange = listInfoData[i]["vcChange"].ToString();
                         if (strChange=="1" || strChange =="2" || strChange =="10" || strChange =="8" || strChange =="12")
@@ -578,12 +577,6 @@ namespace SPPSApi.Controllers.G99
                             apiResult.data = "生确回复失败！当对应可否确认结果或者防锈对应可否为不可对应时，不可对应理由必须填写";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                    }
-                    if (listInfoData[i]["vcJD"].ToString()=="2")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "生确回复失败！已回复生确不可再次回复";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (
                           listInfoData[i]["vcSCSName"]==null || listInfoData[i]["vcSCSName"].ToString()==""

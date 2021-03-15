@@ -57,11 +57,11 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strSyncTime, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck)
+        public DataTable getSearchInfo(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck,string strOrderby)
         {
-            DataTable dataTable = fs0603_DataAccess.getSearchInfo(strSyncTime, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck);
+            DataTable dataTable = fs0603_DataAccess.getSearchInfo(strSyncTime_from, strSyncTime_to,strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck, strOrderby);
 
             foreach (DataRow dataRow in dataTable.Rows)
             {
@@ -73,8 +73,8 @@ namespace Logic
                     dataRow["vcSufferIn"] = "待维护";
                 if (dataRow["vcOrderPlant"].ToString() == string.Empty)
                     dataRow["vcOrderPlant"] = "待维护";
-                if (dataRow["vcPartImage"].ToString() == string.Empty)
-                    dataRow["vcPartImage"] = "暂无图像.jpg";
+                //if (dataRow["vcPartImage"].ToString() == string.Empty)
+                //    dataRow["vcPartImage"] = "暂无图像.jpg";
             }
             return dataTable;
         }
@@ -92,7 +92,7 @@ namespace Logic
                     if (dataTable.Rows[i]["vcType"].ToString().Trim() == "")
                         dataTable.Rows.RemoveAt(i);
                 }
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "");
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 #region 检验数据重复性及数据格式
@@ -770,7 +770,7 @@ namespace Logic
                 //处理List集合
                 listInfoData = setNullData(listInfoData);
                 bReault = true;
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "");
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -1027,7 +1027,7 @@ namespace Logic
         public void setSPInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
         {
             //用于检查变更情况
-            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true);
+            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "");
             //用于新增数据
             DataTable dtAddInfo = dtOperCheck.Clone();
             //用于修改数据--修改主数据表
@@ -1835,6 +1835,14 @@ namespace Logic
             {
                 throw ex;
             }
+        }
+        public bool getOrderPlantInfo(string strSupplierId, string strSupplierPlant, string strToTime)
+        {
+            DataTable data= fs0603_DataAccess.getOrderPlantInfo(strSupplierId, strSupplierPlant, strToTime);
+            if (data != null && data.Rows.Count != 0)
+                return true;
+            else
+                return false;
         }
         public DataTable gettaskNum()
         {
@@ -2725,6 +2733,16 @@ namespace Logic
                 dataRow10["vcChengx"] = "-";
                 dataRow10["vcHej"] = "-";
                 dataTable.Rows.Add(dataRow10);
+            }
+            if (strSpSub == "Print1103")
+            {
+                dataTable.Columns.Add("vcReceiver", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("vcInPutOrderNo", typeof(string));
+                dataTable.Columns.Add("bInPutOrder", typeof(string));
+                dataTable.Columns.Add("bTag", typeof(string));
+                dataTable.Columns.Add("vcTagLianFFrom", typeof(string));
+                dataTable.Columns.Add("vcTagLianFTo", typeof(string));
             }
             return dataTable;
         }

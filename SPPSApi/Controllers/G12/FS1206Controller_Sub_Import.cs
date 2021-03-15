@@ -65,12 +65,12 @@ namespace SPPSApi.Controllers.G12
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"品番", "发注品番", "SOURCE", "供应商", "背番", "收容数" },
-                        { "vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum" },
-                        { "", "", "", "", "", "" },
-                        { "12","14","3","20","3","10" },//最大长度设定,不校验最大长度用0
-                        { "12","1","1","0","0","1" },//最小长度设定,可以为空用0
-                        { "1","2","3","4","5","6" }//前台显示列号，从0开始计算,注意有选择框的是0
+                string[,] headers = new string[,] {{"品番", "发注品番", "SOURCE", "供应商", "背番", "收容数","CO数量" },
+                        { "vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum","iCONum" },
+                        { "","","","",FieldCheck.NumCharL,FieldCheck.Num,FieldCheck.Num },
+                        { "12","14","3","20","3","10","10" },//最大长度设定,不校验最大长度用0
+                        { "12","1","1","0","0","1","1" },//最小长度设定,可以为空用0
+                        { "1","2","3","4","5","6","7" }//前台显示列号，从0开始计算,注意有选择框的是0
                 };
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -113,6 +113,13 @@ namespace SPPSApi.Controllers.G12
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string msg = fs1206_Logic.checkExcelData(importDt);//检验导入的数据
+                if (msg.Length > 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 

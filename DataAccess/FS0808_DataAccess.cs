@@ -29,24 +29,25 @@ namespace DataAccess
                 strSql.Append("where 1=1  \n");
                 
                 if(vcBZPlant != "" && vcBZPlant != null)
-                    strSql.Append("and isnull(t1.vcBZPlant,'') like '%" + vcBZPlant + "%'  \n");
+                    strSql.Append("and isnull(t1.vcBZPlant,'') = '" + vcBZPlant + "'  \n");
                 if (vcSHF != "" && vcSHF != null)
-                    strSql.Append("and isnull(t1.vcSHF,'') like '%" + vcSHF + "%'   \n");
+                    strSql.Append("and isnull(t1.vcSHF,'') = '" + vcSHF + "'   \n");
                 if (vcInputNo != "" && vcInputNo != null)
-                    strSql.Append("and isnull(t1.vcInputNo,'') like '%" + vcInputNo + "%'   \n");
+                    strSql.Append("and isnull(t1.vcInputNo,'') = '" + vcInputNo + "'   \n");
                 if (vcPart_id != "" && vcPart_id != null)
-                    strSql.Append("and isnull(t1.vcPart_id,'') like '%" + vcPart_id + "%'  \n");
+                    strSql.Append("and isnull(t1.vcPart_id,'') = '" + vcPart_id + "'  \n");
                 if (vcKBOrderNo != "" && vcKBOrderNo != null)
-                    strSql.Append("and isnull(t1.vcKBOrderNo,'') like '%" + vcKBOrderNo + "%'   \n");
+                    strSql.Append("and isnull(t1.vcKBOrderNo,'') = '" + vcKBOrderNo + "'   \n");
                 if (vcKBLFNo != "" && vcKBLFNo != null)
-                    strSql.Append("and isnull(t1.vcKBLFNo,'') like '%" + vcKBLFNo + "%'   \n");
+                    strSql.Append("and isnull(t1.vcKBLFNo,'') = '" + vcKBLFNo + "'   \n");
                 if (dStart == "" || dStart == null)
                     dStart = "2001/01/01 00:01:00";
                 if (dEnd == "" || dEnd == null)
                     dEnd = "2099/12/31 23:59:59";
                 strSql.Append("and isnull(t1.dInDate,'2001/01/01 00:01:00') >= '" + dStart + "' and isnull(t1.dInDate,'2001/01/01 00:01:00') <= '" + dEnd + "'  \n");
                 if (vcBPStatus == "1")
-                    strSql.Append("and (isnull(iDBZ,0)!=0 or isnull(iDZX,0)!=0)    \n");
+                    strSql.Append("and (isnull(iDBZ,0)!=0 or isnull(iDZX,0)!=0 or isnull(iDCH,0)!=0 )    \n");
+                //strSql.Append("order by    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

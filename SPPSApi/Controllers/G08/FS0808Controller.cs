@@ -238,6 +238,19 @@ namespace SPPSApi.Controllers.G08
                     }
                     #endregion
                 }
+                for(int i=0;i<listInfoData.Count;i++)
+                {
+                    int iQuantity = Convert.ToInt32(listInfo[i]["iQuantity"].ToString());
+                    int iDBZ= Convert.ToInt32(listInfo[i]["iDBZ"].ToString());
+                    int iDZX = Convert.ToInt32(listInfo[i]["iDZX"].ToString());
+                    int iDCH = Convert.ToInt32(listInfo[i]["iDCH"].ToString());
+                    if(iDBZ+iDZX+iDCH>iQuantity)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "数量加总不能超过入库数量！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 fs0808_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

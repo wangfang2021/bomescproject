@@ -621,8 +621,8 @@ namespace DataAccess
         }
         #endregion
 
-        #region 销售展开
-        public void sendMail(List<Dictionary<string,object>> listInfoData, ref string strErr)
+        #region 销售展开更新价格表
+        public void updateXiaoShouZhanKaiState(List<Dictionary<string,object>> listInfoData)
         {
             try
             {
@@ -637,6 +637,8 @@ namespace DataAccess
                 strSql.Append("        (        \r\n");
                 strSql.Append("        select * from TPrice where 1=0        \r\n");
                 strSql.Append("        ) a ;       \r\n");
+                strSql.Append("        ALTER TABLE #TPrice_temp drop column iAutoId  ;\n");
+                strSql.Append("        ALTER TABLE #TPrice_temp ADD  iAutoId int     ;\n");
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -732,14 +734,10 @@ namespace DataAccess
                 strSql.AppendLine("        on a.iAutoId = b.iAutoId        \r\n");
                 #endregion
 
-                if (strSql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(strSql.ToString());
-                }
+                excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)
             {
-                strErr += "操作失败:" + ex.Message;
                 throw ex;
             }
         }
@@ -1010,6 +1008,147 @@ namespace DataAccess
 
         }
         #endregion
- 
+
+        #region 获取销售展开数据
+        public DataTable getXiaoShouZhanKai(List<Dictionary<string, object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                #region 创建临时表，将所选数据插入临时表
+                strSql.Append("        if object_id('tempdb..#TPriceZhanKai_temp') is not null        \r\n");
+                strSql.Append("        begin         \r\n");
+                strSql.Append("        drop table #TPriceZhanKai_temp        \r\n");
+                strSql.Append("        end        \r\n");
+                strSql.Append("        select * into #TPriceZhanKai_temp from         \r\n");
+                strSql.Append("        (        \r\n");
+                strSql.Append("        select iAutoId,vcPart_id from TPrice where 1=0        \r\n");
+                strSql.Append("        ) a ;       \r\n");
+                strSql.Append("        ALTER TABLE #TPriceZhanKai_temp drop column iAutoId  ;\n");
+                strSql.Append("        ALTER TABLE #TPriceZhanKai_temp ADD  iAutoId int     ;\n");
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    strSql.Append("       insert into #TPriceZhanKai_temp        \r\n");
+                    strSql.Append("       (        \r\n");
+                    strSql.Append("        iAutoId,vcPart_id  \r\n");
+                    strSql.Append("       )        \r\n");
+                    strSql.Append("       values        \r\n");
+                    strSql.Append("       (        \r\n");
+                    strSql.Append("       	  " + ComFunction.getSqlValue(listInfoData[i]["iAutoId"], true) + "              \r\n");
+                    strSql.Append("       	  ,''              \r\n");//品番后面不用，给个空就行，必须最少两列
+                    strSql.Append("       );       \r\n");
+                }
+
+                #endregion
+
+
+                strSql.Append("      select   cast(ROW_NUMBER() over (order by a.vcPart_id) as int) as iNum      \n");
+                strSql.Append("      ,a.vcPart_id        \n");
+                strSql.Append("      ,b.vcFaZhuPlant        \n");
+                strSql.Append("      ,case when a.vcPriceChangeInfo='4' then CONVERT(varchar(100),a.dPriceEnd, 111)         \n");
+                strSql.Append("      else CONVERT(varchar(100),a.dPricebegin, 111)  end as dQieTi        \n");
+                strSql.Append("      ,a.vcPart_Name        \n");
+                strSql.Append("      ,c.vcName as 'vcChange_Name'        \n");
+                strSql.Append("      ,b.vcPartId_Replace        \n");
+                strSql.Append("      ,a.decPriceTNPWithTax        \n");
+                strSql.Append("      ,b.iPackingQty        \n");
+                strSql.Append("      ,a.vcCarTypeDesign        \n");
+                strSql.Append("      from        \n");
+                strSql.Append("      (        \n");
+                strSql.Append("          select * from TPrice         \n");
+                strSql.Append("      )a        \n");
+                strSql.Append("      inner join        \n");
+                strSql.Append("      (        \n");
+                strSql.Append("          select * from #TPriceZhanKai_temp        \n");
+                strSql.Append("      )a1   on a.iAutoId=a1.iAutoId      \n");
+                strSql.Append("      left join        \n");
+                strSql.Append("      (        \n");
+                strSql.Append("      	SELECT a.vcPartId,a.vcSupplierId,a.vcReceiver,a.vcPartId_Replace,c.iPackingQty,e.vcName as 'vcFaZhuPlant'        \n");
+                strSql.Append("      	FROM         \n");
+                strSql.Append("      	(        \n");
+                strSql.Append("      		SELECT vcPackingPlant,vcPartId,vcReceiver,dFromTime,dToTime,vcSupplierId,vcCarModel,vcInOut,vcHaoJiu        \n");
+                strSql.Append("      		,vcOrderingMethod,vcOldProduction,dDebugTime,vcPartId_Replace         \n");
+                strSql.Append("      		FROM TSPMaster         \n");
+                strSql.Append("      		WHERE isnull(vcDelete, '') <> '1'        \n");
+                strSql.Append("      	) a        \n");
+                strSql.Append("      	LEFT JOIN        \n");
+                strSql.Append("      	(        \n");
+                strSql.Append("      		SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,vcSupplierPlant FROM TSPMaster_SupplierPlant        \n");
+                strSql.Append("      		WHERE  vcOperatorType = '1' and [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23)        \n");
+                strSql.Append("      		and [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)        \n");
+                strSql.Append("      	) b ON a.vcPackingPlant = b.vcPackingPlant and a.vcPartId = b.vcPartId and a.vcReceiver = b.vcReceiver        \n");
+                strSql.Append("      	and a.vcSupplierId = b.vcSupplierId        \n");
+                strSql.Append("      	LEFT JOIN         \n");
+                strSql.Append("      	(        \n");
+                strSql.Append("      		SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,iPackingQty,vcSupplierPlant,dFromTime,dToTime FROM dbo.TSPMaster_Box        \n");
+                strSql.Append("      		WHERE  vcOperatorType = '1' and [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) and [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)        \n");
+                strSql.Append("      	) c ON a.vcPackingPlant = c.vcPackingPlant and a.vcPartId = c.vcPartId and a.vcReceiver = c.vcReceiver        \n");
+                strSql.Append("      	and a.vcSupplierId = c.vcSupplierId and b.vcSupplierPlant = c.vcSupplierPlant        \n");
+                strSql.Append("      	left join         \n");
+                strSql.Append("      	(        \n");
+                strSql.Append("      		select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant        \n");
+                strSql.Append("      		,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant         \n");
+                strSql.Append("      		from TOutCode where vcCodeId='C010' and vcIsColum='0'        \n");
+                strSql.Append("      		and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) and vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23)        \n");
+                strSql.Append("      	)d        \n");
+                strSql.Append("      	left join        \n");
+                strSql.Append("      	(        \n");
+                strSql.Append("      	    SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000'        \n");
+                strSql.Append("      	)e on d.vcOrderPlant=e.vcValue        \n");
+                strSql.Append("      	ON a.[vcSupplierId]=d.[vcSupplierId] and b.vcSupplierPlant=d.vcSupplierPlant        \n");
+                strSql.Append("      )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId        \n");
+                strSql.Append("         and  a.vcReceiver=b.vcReceiver          \n");
+                strSql.Append("      left join        \n");
+                strSql.Append("      (        \n");
+                strSql.Append("         select vcValue,vcName from TCode where vcCodeId='C002'         \n");
+                strSql.Append("      )c on a.vcPriceChangeInfo=c.vcValue           \n");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 获取价格Master财务接收邮箱
+        public DataTable getCaiWuEmailAddRess()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C014'AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取价格Master财务通知邮件配置
+        public DataTable getCaiWuEmailSetting()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C015'AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
     }
 }

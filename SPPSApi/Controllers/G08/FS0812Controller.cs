@@ -47,10 +47,11 @@ namespace SPPSApi.Controllers.G08
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcBox_id = dataForm.vcBoxNo;
+            string vcLabelId = dataForm.vcLabelId;
 
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id);
+                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -88,10 +89,11 @@ namespace SPPSApi.Controllers.G08
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
+            string vcLabelId = dataForm.vcLabelId;
 
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id);
+                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId);
                 string[] heads = { "状态", "箱号", "入库指示书号", "品番", "订单号", "连番号", "数量",
                 "包装时间","包装者","装箱时间","装箱者"};
                 string[] fields = { "vcStatus", "vcBoxNo", "vcInstructionNo", "vcPart_id", "vcOrderNo", "vcLianFanNo", "iQuantity",
@@ -180,6 +182,24 @@ namespace SPPSApi.Controllers.G08
                     }
                     #endregion                    
                 }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    int iQty_input = Convert.ToInt32(listInfoData[i]["iQuantity"].ToString());
+                    int iQty_ruhe = Convert.ToInt32(listInfoData[i]["iRHQuantity"].ToString());
+                    if (iQty_input == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "数量不能为0！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (iQty_input > iQty_ruhe)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "录入数量不能大于入荷数量" + iQty_ruhe.ToString() + "！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
                 fs0812_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

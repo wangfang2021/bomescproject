@@ -425,35 +425,31 @@ namespace SPPSApi.Controllers.G03
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 Object multipleSelection=dataForm.multipleSelection;
-                if (multipleSelection == null)//如果没有选中数据，那么就是按检索条件发送
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                if (listInfoData == null || listInfoData.Count <= 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "至少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                else
+
+                DataTable dt = fs0309_Logic.getXiaoShouZhanKai(listInfoData);
+                string[] fields = {  "iNum","vcPart_id","vcFaZhuPlant","dQieTi","vcPart_Name","vcChange_Name",
+                        "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDesign"
+                    };
+
+                string filepath = fs0309_Logic.generateExcelWithXlt_XiaoShou(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_XiaoShou.xlsx", loginInfo.UserId, FunctionID);
+                if (filepath == "")
                 {
-                    JArray checkedInfo = dataForm.multipleSelection;
-                    List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-
-                    if (listInfoData==null || listInfoData.Count<=0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "至少选择一条数据！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-
-                    string strErr = "";
-                    fs0309_Logic.sendMail(listInfoData, ref strErr);
-                    if (strErr!="")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = strErr;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                fs0309_Logic.updateXiaoShouZhanKaiState(listInfoData);//变更事项变空，状态改为PIC
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -581,7 +577,7 @@ namespace SPPSApi.Controllers.G03
                     row["vcFXNO"] = listInfoData[i]["vcFXNO"];
                     row["vcChange"] = listInfoData[i]["vcChange"];
                     row["vcChange_Name"] = listInfoData[i]["vcChange_Name"];
-                    if (row["vcChange"].ToString() == "1")//新设：使用开始时间
+                    if (row["vcChange"].ToString() == "1"||row["vcChange"].ToString() == "2")//新车新设 设变新设：使用开始时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseBegin"]).ToString("yyyy/MM/dd");
                     }
@@ -637,6 +633,14 @@ namespace SPPSApi.Controllers.G03
                     else if (row["vcChange"].ToString() == "17")//防锈变更：=文本“即时切替”
                     {
                         row["dQieTiStr"] = "即时切替";
+                    }
+                    else if (row["vcChange"].ToString() == "3")//打切旧型：旧型开始时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]).ToString("yyyy/MM/dd");
+                    }
+                    else if (row["vcChange"].ToString() == "14")//生产打切：品番使用结束时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseEnd"]).ToString("yyyy/MM/dd");
                     }
                     result.Rows.Add(row);
                 }
@@ -752,7 +756,7 @@ namespace SPPSApi.Controllers.G03
                     row["vcFXNO"] = listInfoData[i]["vcFXNO"];
                     row["vcChange"] = listInfoData[i]["vcChange"];
                     row["vcChange_Name"] = listInfoData[i]["vcChange_Name"];
-                    if (row["vcChange"].ToString() == "1")//新设：使用开始时间
+                    if (row["vcChange"].ToString() == "1"|| row["vcChange"].ToString() == "2")//新车新设 设变新设：使用开始时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseBegin"]).ToString("yyyy/MM/dd");
                     }
@@ -809,6 +813,14 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = "即时切替";
                     }
+                    else if (row["vcChange"].ToString() == "3")//打切旧型：旧型开始时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]).ToString("yyyy/MM/dd");
+                    }
+                    else if (row["vcChange"].ToString() == "14")//生产打切：品番使用结束时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseEnd"]).ToString("yyyy/MM/dd");
+                    }
                     result.Rows.Add(row);
                 }
                 string filepath = fs0309_Logic.generateExcelWithXlt_Nei(result, fields, _webHostEnvironment.ContentRootPath, "FS0309_DiaoDa_Nei.xlsx", loginInfo.UserId, FunctionID);
@@ -819,6 +831,17 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string strErr = "";
+                #region 给财务发邮件
+                fs0309_Logic.sendEmailToCaiWu(loginInfo.Email, loginInfo.UnitName, ref strErr);
+                if (strErr != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strErr;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
+                #region 最后更改状态---理论上这一步不可能报错
                 fs0309_Logic.sendDiaoDaChangeState(listInfoData, ref strErr);
                 if (strErr != "")
                 {
@@ -826,6 +849,8 @@ namespace SPPSApi.Controllers.G03
                     apiResult.data = strErr;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                #endregion
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

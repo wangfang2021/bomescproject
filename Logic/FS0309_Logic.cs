@@ -142,178 +142,166 @@ namespace Logic
         }
         #endregion
 
-        #region 销售展开（根据所选）
-        public void sendMail(List<Dictionary<string, object>> listInfoData, ref string strErr)
+        #region 销售展开更新价格表
+        public void updateXiaoShouZhanKaiState(List<Dictionary<string, object>> listInfoData)
         {
-            try
-            {
+            #region 更新价格表
+            fs0309_DataAccess.updateXiaoShouZhanKaiState(listInfoData);
+            #endregion
 
-                #region 更新价格表
-                fs0309_DataAccess.sendMail(listInfoData, ref strErr);
-                #endregion
+            #region 发送邮件 （已舍弃）
 
-                #region 导出模板
+            //#region 邮件发送准备
 
-                #endregion
+            //#region 用户邮箱
+            //string UserEmail = strUserEmail;
+            //if (string.IsNullOrEmpty(strUserEmail))
+            //{
+            //    strErr += "获取用户邮箱失败!\n";
+            //    return;
+            //}
+            //#endregion
 
-                #region 发送邮件 （已舍弃）
+            //#region 用户名称
+            //string UserName = strUserName;
+            //if (string.IsNullOrEmpty(strUserEmail))
+            //{
+            //    strErr += "获取用户名称失败!\n";
+            //    return;
+            //}
+            //#endregion
 
-                //#region 邮件发送准备
+            //#region 邮件内容
+            //string strEmailBody = fs0309_DataAccess.getEmailBody(strUserId);
+            //if (string.IsNullOrEmpty(strEmailBody))
+            //{
+            //    strErr += "获取邮箱内容失败!\n";
+            //    return;
+            //}
+            ////这里做了年月的转换
+            //strEmailBody = strEmailBody.Replace("##yearmonth##", DateTime.Now.ToString("yyyy年MM月"));
+            //#endregion
 
-                //#region 用户邮箱
-                //string UserEmail = strUserEmail;
-                //if (string.IsNullOrEmpty(strUserEmail))
-                //{
-                //    strErr += "获取用户邮箱失败!\n";
-                //    return;
-                //}
-                //#endregion
+            //#region 收件人
+            ///*
+            // * 修改时间：2020-2-18
+            // * 修改人：董镇
+            // * 修改内同：获取收件人时需要返回哪些收件人(收件人就是收货方)维护了，哪些收件人未维护，对于未维护的收件人要进行提示
+            // * 功能描述：1、获取所有的维护了的收件人，从数据库获取
+            // *           2、获取所选择的收件人，判断所选择的收件人是否在所有已维护收件人中存在
+            // *           3、对于不存在的收件人进行提示，并停止继续销售展开
+            // *           4、如果都存在，获取收件人邮箱，继续执行销售展开操作
+            // */
+            //#region 获取所有维护的收件人信息
+            ////获取数据库中所有已经维护的收件人信息（收件人、邮箱）
+            //DataTable allreceiverDt = fs0309_DataAccess.getreceiverDt();
+            //if (allreceiverDt == null || allreceiverDt.Rows.Count <= 0)       //执行SQL查询，但未检索到任何数据，可能原因：未维护任何收件人邮箱信息
+            //{
+            //    strErr = "未维护任何收货方邮箱信息";
+            //    return;
+            //}
+            ////获取数据库中所有已经维护的收件人信息（收件人）
+            //List<string> allLists = new List<string>();
+            //for (int i = 0; i < allreceiverDt.Rows.Count; i++)
+            //{
+            //    allLists.Add(allreceiverDt.Rows[i]["displayName"].ToString());
+            //}
+            //allLists = allLists.Distinct().ToList();
+            //#endregion
 
-                //#region 用户名称
-                //string UserName = strUserName;
-                //if (string.IsNullOrEmpty(strUserEmail))
-                //{
-                //    strErr += "获取用户名称失败!\n";
-                //    return;
-                //}
-                //#endregion
+            //#region 获取所选择的收件人
+            ////界面中用户勾选的收件人
+            //List<string> lists = new List<string>();
+            //for (int i = 0; i < listInfoData.Count; i++)
+            //{
+            //    lists.Add(listInfoData[i]["vcReceiver"].ToString());
+            //}
+            //lists = lists.Distinct().ToList();
 
-                //#region 邮件内容
-                //string strEmailBody = fs0309_DataAccess.getEmailBody(strUserId);
-                //if (string.IsNullOrEmpty(strEmailBody))
-                //{
-                //    strErr += "获取邮箱内容失败!\n";
-                //    return;
-                //}
-                ////这里做了年月的转换
-                //strEmailBody = strEmailBody.Replace("##yearmonth##", DateTime.Now.ToString("yyyy年MM月"));
-                //#endregion
+            ////判断所选的收件人是否存在，并记录未维护的收件人邮箱
+            //for (int i = 0; i < lists.Count; i++)
+            //{
+            //    if (!allLists.Contains(lists[i]))
+            //    {
+            //        strErr += "收件人:" + lists[i].ToString() + "邮箱未维护！";
+            //    }
+            //}
+            //if (string.IsNullOrEmpty(strErr))
+            //{
+            //    return;
+            //}
+            //#endregion
 
-                //#region 收件人
-                ///*
-                // * 修改时间：2020-2-18
-                // * 修改人：董镇
-                // * 修改内同：获取收件人时需要返回哪些收件人(收件人就是收货方)维护了，哪些收件人未维护，对于未维护的收件人要进行提示
-                // * 功能描述：1、获取所有的维护了的收件人，从数据库获取
-                // *           2、获取所选择的收件人，判断所选择的收件人是否在所有已维护收件人中存在
-                // *           3、对于不存在的收件人进行提示，并停止继续销售展开
-                // *           4、如果都存在，获取收件人邮箱，继续执行销售展开操作
-                // */
-                //#region 获取所有维护的收件人信息
-                ////获取数据库中所有已经维护的收件人信息（收件人、邮箱）
-                //DataTable allreceiverDt = fs0309_DataAccess.getreceiverDt();
-                //if (allreceiverDt == null || allreceiverDt.Rows.Count <= 0)       //执行SQL查询，但未检索到任何数据，可能原因：未维护任何收件人邮箱信息
-                //{
-                //    strErr = "未维护任何收货方邮箱信息";
-                //    return;
-                //}
-                ////获取数据库中所有已经维护的收件人信息（收件人）
-                //List<string> allLists = new List<string>();
-                //for (int i = 0; i < allreceiverDt.Rows.Count; i++)
-                //{
-                //    allLists.Add(allreceiverDt.Rows[i]["displayName"].ToString());
-                //}
-                //allLists = allLists.Distinct().ToList();
-                //#endregion
+            //#region 获取用户勾选的收件人的邮箱
+            //DataTable receiverDt = new DataTable();
+            //receiverDt.Columns.Add("displayName");
+            //receiverDt.Columns.Add("address");
+            //for (int i = 0; i < lists.Count; i++)
+            //{
+            //    for (int j = 0; j < allreceiverDt.Rows.Count; j++)
+            //    {
+            //        if (lists[i] == allreceiverDt.Rows[j]["displayName"].ToString())
+            //        {
+            //            DataRow dr = receiverDt.NewRow();
+            //            dr["displayName"] = allreceiverDt.Rows[j]["displayName"];
+            //            dr["address"] = allreceiverDt.Rows[j]["address"];
+            //            receiverDt.Rows.Add(dr);
+            //        }
+            //    }
+            //}
 
-                //#region 获取所选择的收件人
-                ////界面中用户勾选的收件人
-                //List<string> lists = new List<string>();
-                //for (int i = 0; i < listInfoData.Count; i++)
-                //{
-                //    lists.Add(listInfoData[i]["vcReceiver"].ToString());
-                //}
-                //lists = lists.Distinct().ToList();
+            //if (receiverDt.Rows.Count <= 0)
+            //{
+            //    strErr += "所选择用户为配置任何邮箱！\n";
+            //}
 
-                ////判断所选的收件人是否存在，并记录未维护的收件人邮箱
-                //for (int i = 0; i < lists.Count; i++)
-                //{
-                //    if (!allLists.Contains(lists[i]))
-                //    {
-                //        strErr += "收件人:" + lists[i].ToString() + "邮箱未维护！";
-                //    }
-                //}
-                //if (string.IsNullOrEmpty(strErr))
-                //{
-                //    return;
-                //}
-                //#endregion
-
-                //#region 获取用户勾选的收件人的邮箱
-                //DataTable receiverDt = new DataTable();
-                //receiverDt.Columns.Add("displayName");
-                //receiverDt.Columns.Add("address");
-                //for (int i = 0; i < lists.Count; i++)
-                //{
-                //    for (int j = 0; j < allreceiverDt.Rows.Count; j++)
-                //    {
-                //        if (lists[i] == allreceiverDt.Rows[j]["displayName"].ToString())
-                //        {
-                //            DataRow dr = receiverDt.NewRow();
-                //            dr["displayName"] = allreceiverDt.Rows[j]["displayName"];
-                //            dr["address"] = allreceiverDt.Rows[j]["address"];
-                //            receiverDt.Rows.Add(dr);
-                //        }
-                //    }
-                //}
-
-                //if (receiverDt.Rows.Count <= 0)
-                //{
-                //    strErr += "所选择用户为配置任何邮箱！\n";
-                //}
-
-                //#endregion
+            //#endregion
 
 
-                //#endregion
+            //#endregion
 
-                //#region 抄送人
-                ///*
-                // * 注意：抄送人不需要判断是否拿到数据，如果没有拿到数据，说明没有添加抄送人，对于发送邮件无影响
-                // */
-                //DataTable cCDt = null;
-                //#endregion
+            //#region 抄送人
+            ///*
+            // * 注意：抄送人不需要判断是否拿到数据，如果没有拿到数据，说明没有添加抄送人，对于发送邮件无影响
+            // */
+            //DataTable cCDt = null;
+            //#endregion
 
-                //#region 邮件主题
-                //string strSubject = "";
-                //strSubject = fs0309_DataAccess.getEmailSubject(strUserId);
-                //if (string.IsNullOrEmpty(strSubject))
-                //{
-                //    strErr += "未设置邮件主题！\n";
-                //}
-                //#endregion
+            //#region 邮件主题
+            //string strSubject = "";
+            //strSubject = fs0309_DataAccess.getEmailSubject(strUserId);
+            //if (string.IsNullOrEmpty(strSubject))
+            //{
+            //    strErr += "未设置邮件主题！\n";
+            //}
+            //#endregion
 
-                //#region 附件
-                ///*
-                // * 有附件给地址，无给null
-                // */
-                //string strFilePath = null;
-                //#endregion
+            //#region 附件
+            ///*
+            // * 有附件给地址，无给null
+            // */
+            //string strFilePath = null;
+            //#endregion
 
-                //#region 传入附件后，是否需要删除附件
-                ///*
-                // * true:需要删除附件
-                // * false:需要删除附件/没有附件
-                // */
-                //bool delFileNameFlag = false;
-                //#endregion
+            //#region 传入附件后，是否需要删除附件
+            ///*
+            // * true:需要删除附件
+            // * false:需要删除附件/没有附件
+            // */
+            //bool delFileNameFlag = false;
+            //#endregion
 
-                //#endregion
+            //#endregion
 
-                //#region 开始发送邮件
-                ////记录错误信息
-                //ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDt, cCDt, strSubject, strFilePath, delFileNameFlag);
-                //#endregion
+            //#region 开始发送邮件
+            ////记录错误信息
+            //ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDt, cCDt, strSubject, strFilePath, delFileNameFlag);
+            //#endregion
 
-                #endregion
-            }
-            catch (Exception ex)
-            {
-                strErr += ex.Message;
-            }
+            #endregion
 
         }
-        #endregion
+#endregion
 
 
         #region 导出带模板-内制
@@ -462,6 +450,160 @@ namespace Logic
                 return false;
             else
                 return true;
+        }
+        #endregion
+
+
+        #region 获取销售展开数据
+        public DataTable getXiaoShouZhanKai(List<Dictionary<string, object>> listInfoData)
+        {
+            return fs0309_DataAccess.getXiaoShouZhanKai(listInfoData);
+        }
+        #endregion
+
+        #region 导出带模板-销售展开
+        public string generateExcelWithXlt_XiaoShou(DataTable dt, string[] field, string rootPath, string xltName, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+                int startRow = 23;
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.BorderBottom = BorderStyle.Thin;
+                style.BorderLeft = BorderStyle.Thin;
+                style.BorderRight = BorderStyle.Thin;
+                style.BorderTop = BorderStyle.Thin;
+
+                sheet.ShiftRows(23, sheet.LastRowNum, dt.Rows.Count, true, false);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                   
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        Type type = dt.Columns[field[j]].DataType;
+                        ICell cell = row.CreateCell(j);
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                        cell.CellStyle = style;
+
+
+                    }
+                }
+                
+
+
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_N_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
+        #region 给财务发提醒邮件
+        public void  sendEmailToCaiWu(string strUserEmail,string strUserName,ref string strErr)
+        {
+            if (string.IsNullOrEmpty(strUserEmail))
+            {
+                strErr += "当前登录用户的邮箱地址在用户管理中没有配置!\n";
+                return;
+            }
+            if (string.IsNullOrEmpty(strUserEmail))
+            {
+                strErr += "当前登录用户的用户名称在用户管理中没有配置!\n";
+                return;
+            }
+            DataTable dtSetting = getCaiWuEmailSetting();
+            if (dtSetting.Rows.Count == 0)
+            {
+                strErr += "给财务发送邮件标题、内容在常量中没有维护!\n";
+                return;
+            }
+            string strSubject = dtSetting.Rows[0]["vcValue1"] == System.DBNull.Value ? "" : dtSetting.Rows[0]["vcValue1"].ToString();
+            string strEmailBody = dtSetting.Rows[0]["vcValue2"] == System.DBNull.Value ? "" : dtSetting.Rows[0]["vcValue2"].ToString();
+            if (strSubject.Trim()=="")
+            {
+                strErr += "给财务发送邮件标题在常量中不能维护空!\n";
+                return;
+            }
+            if (strEmailBody.Trim() == "")
+            {
+                strErr += "给财务发送邮件内容在常量中不能维护空!\n";
+                return;
+            }
+
+            DataTable receiverDt = new DataTable();
+            receiverDt.Columns.Add("displayName");
+            receiverDt.Columns.Add("address");
+            DataTable dt = getCaiWuEmailAddRess();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = receiverDt.NewRow();
+                dr["address"] = dt.Rows[i]["vcValue2"].ToString();
+                dr["displayName"] = dt.Rows[i]["vcValue1"].ToString();
+                receiverDt.Rows.Add(dr);
+            }
+            if (receiverDt.Rows.Count <= 0)
+            {
+                strErr += "所选择用户为配置任何邮箱！\n";
+            }
+            ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDt, null, strSubject, "", false);
+        }
+        #endregion
+        #region 获取价格Master财务接收邮箱
+        public DataTable getCaiWuEmailAddRess()
+        {
+            return fs0309_DataAccess.getCaiWuEmailAddRess();
+        }
+        #endregion
+
+        #region 获取价格Master财务通知邮件配置
+        public DataTable getCaiWuEmailSetting()
+        {
+            return fs0309_DataAccess.getCaiWuEmailSetting();
         }
         #endregion
 

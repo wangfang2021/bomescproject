@@ -64,15 +64,22 @@ namespace SPPSApi.Controllers.G05
                 DataTable WorkArea = fs0503_Logic.GetWorkArea(loginInfo.UserId);
                 DataTable dtCarType = fs0503_Logic.GetCarType(loginInfo.UserId);
                 DataTable dtExpectDeliveryDate = fs0503_Logic.GetExpectDeliveryDate(loginInfo.UserId);
+                DataTable dtSendDate = fs0503_Logic.GetSendDate(loginInfo.UserId);
+                DataTable dtReplyDate = fs0503_Logic.GetReplyDate(loginInfo.UserId);
+
                 List<Object> dataList_C034 = ComFunction.convertAllToResult(ComFunction.getTCode("C034"));//荷姿状态
                 List<Object> dataList_WorkAreae = ComFunction.convertToResult(WorkArea, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_CarType = ComFunction.convertToResult(dtCarType, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_ExpectDeliveryDate = ComFunction.convertToResult(dtExpectDeliveryDate, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_SendDate = ComFunction.convertToResult(dtSendDate, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_ReplyDate = ComFunction.convertToResult(dtReplyDate, new string[] { "vcValue", "vcName" });
                 res.Add("C034", dataList_C034);
                 res.Add("taskNum", task.Rows.Count);
                 res.Add("taskNum1", task1.Rows.Count);
                 res.Add("WorkArea", dataList_WorkAreae);
                 res.Add("ExpectDeliveryDate", dataList_ExpectDeliveryDate);
+                res.Add("SendDate", dataList_SendDate);
+                res.Add("ReplyDate", dataList_ReplyDate);
                 res.Add("CarType", dataList_CarType);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -110,11 +117,13 @@ namespace SPPSApi.Controllers.G05
 
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             string dExpectDeliveryDate = dataForm.dExpectDeliveryDate == null ? "" : dataForm.dExpectDeliveryDate;
+            string dSendDate = dataForm.dSendDate == null ? "" : dataForm.dSendDate;
+            string dReplyDate = dataForm.dReplyDate == null ? "" : dataForm.dReplyDate;
 
             try
             {
 
-                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate,loginInfo.UserId);
+                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate,loginInfo.UserId, dSendDate, dReplyDate);
                 #region delete 
 
                 //if (dt.Rows.Count > 0)
@@ -189,15 +198,17 @@ namespace SPPSApi.Controllers.G05
 
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             string dExpectDeliveryDate = dataForm.dExpectDeliveryDate == null ? "" : dataForm.dExpectDeliveryDate;
-
+            string dSendDate = dataForm.dSendDate == null ? "" : dataForm.dSendDate;
+            string dReplyDate = dataForm.dReplyDate == null ? "" : dataForm.dReplyDate;
             try
             {
-                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate, loginInfo.UserId);
+                DataTable dt = fs0503_Logic.Search(vcSupplier_id, vcWorkArea, vcState, vcPartNo, vcCarType, dExpectDeliveryDate, loginInfo.UserId, dSendDate, dReplyDate);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
-                //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "状态","要望纳期","包装工厂","收货方" , "品番", "使用开始时间", "使用结束时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
-                field = new string[] { "vcState", "dExpectDeliveryDate", "vcPackingPlant", "vcReceiver", "vcPartNo", "dUseStartDate","dUserEndDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
+                //[vcPartNo], [dBeginDate], [dEndDate]"使用结束时间",
+                //表格列排序：状态 - 展开时间 - 要望纳期 - 包装工厂 - 品番 - 品名 - 车型 - 使用开始 - OE = SP - 供应商代码 - 工区 - 要望收容数 - 收容数 - 箱最大收容数 - 箱种 - 长宽高 - 空箱重量 - 单品净重 - 照片 - 备注
+                head = new string[] { "状态", "展开时间", "要望纳期", "包装工场", "收货方" , "品番",  "品名", "车型", "使用开始时间", "OE=SP", "供应商代码", "工区", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)",  "回复时间", "承认时间", "原单位织入时间", "备注" };
+                field = new string[] { "vcState", "dSendDate","dExpectDeliveryDate", "vcPackingPlant", "vcReceiver", "vcPartNo",  "vcPartName", "vcCarType","dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight",  "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);

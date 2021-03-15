@@ -59,11 +59,14 @@ namespace SPPSApi.Controllers.G06
                 DataTable dt = fs0604_Logic.GetBoxType();//箱种的
                 DataTable task = fs0604_Logic.GetTaskNum();//未发送的数据
                 DataTable task1 = fs0604_Logic.GetTaskNum1();//待回复 含退回
+                DataTable task2 = fs0604_Logic.GetTaskNum2();// 含退回
+                DataTable dSendDate = fs0604_Logic.dSendDate();
                 List<Object> dataList_BoxType = ComFunction.convertToResult(dt, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_CarType = ComFunction.convertToResult(dtCarType, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_ExpectDeliveryDate = ComFunction.convertToResult(dtExpectDeliveryDate, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_SendDate = ComFunction.convertToResult(dSendDate, new string[] { "vcValue", "vcName" });
 
                 List<Object> dataList_C033 = ComFunction.convertAllToResult(ComFunction.getTCode("C033"));//荷姿状态
 
@@ -72,9 +75,11 @@ namespace SPPSApi.Controllers.G06
                 res.Add("C033", dataList_C033);
                 res.Add("Supplier", dataList_Supplier);
                 res.Add("ExpectDeliveryDate", dataList_ExpectDeliveryDate);
+                res.Add("SendDate", dataList_SendDate);
                 res.Add("WorkArea", dataList_WorkArea);
                 res.Add("taskNum", task.Rows.Count);
                 res.Add("taskNum1", task1.Rows.Count);
+                res.Add("taskNum2", task2.Rows.Count);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -148,12 +153,13 @@ namespace SPPSApi.Controllers.G06
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             string dExpectDeliveryDate = dataForm.dExpectDeliveryDate == null ? "" : dataForm.dExpectDeliveryDate;
+            string dSendDate = dataForm.dSendDate == null ? "" : dataForm.dSendDate;
             string vcOEOrSP = dataForm.vcOEOrSP == null ? "" : dataForm.vcOEOrSP;
-            string vcBoxType = dataForm.vcBoxType == null ? "" : dataForm.vcBoxType;
+            string vcBoxType = dataForm.vcBoxType == null ? "" : dataForm.vcBoxType; 
 
             try
             {
-                DataTable dt = fs0604_Logic.Search(dSynchronizationDateFrom, dSynchronizationDateTo,dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
+                DataTable dt = fs0604_Logic.Search(dSynchronizationDateFrom, dSynchronizationDateTo,dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType, dSendDate);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -207,15 +213,19 @@ namespace SPPSApi.Controllers.G06
             string dExpectDeliveryDate = dataForm.dExpectDeliveryDate == null ? "" : dataForm.dExpectDeliveryDate;
             string vcOEOrSP = dataForm.vcOEOrSP == null ? "" : dataForm.vcOEOrSP;
             string vcBoxType = dataForm.vcBoxType == null ? "" : dataForm.vcBoxType;
+            string dSendDate = dataForm.dSendDate == null ? "" : dataForm.dSendDate;
 
             try
             {
-                DataTable dt = fs0604_Logic.Search(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType);
+                DataTable dt = fs0604_Logic.Search(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType, dSendDate);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]"使用结束时间", "dUserEndDate",
-                head = new string[] { "包装工场", "收货方", "同步时间", "状态", "品番", "使用开始时间",  "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)",  "发送时间", "回复时间", "承认时间", "原单位织入时间", "备注" };
-                field = new string[] { "vcPackingPlant", "vcReceiver", "dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight", "dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
+                //状态 - 展开时间 - 要望纳期 - 同步时间 - 包装工场 - 收货方 - 品番 - 品名 
+                //- 车型 - 使用开始时间 - OE = SP - 供应商代码 - 工区 - 要望收容数 - 收容数 
+                //- 箱最大收容数 - 箱种 - 长宽高 - 空箱重量 - 单品净重 - 照片 - 回复时间 - 承认时间 - 原单位织入时间 - 备注
+                head = new string[] { "状态","展开时间","要望纳期","同步时间", "包装工场", "收货方",   "品番", "品名", "车型", "使用开始时间",  "OE=SP", "供应商代码", "工区",  "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)",  "回复时间", "承认时间", "原单位织入时间", "备注" };
+                field = new string[] {  "vcState","dSendDate","dExpectDeliveryDate", "dSynchronizationDate","vcPackingPlant", "vcReceiver",  "vcPartNo", "vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight",  "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -278,17 +288,15 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                //const tHeader = ["导入时间", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单预计发行日", "订单预计纳入日", "纳入便次", "实际纳入日", "结算订单号", "结算订单验收日期", "号试订单验收日期", "备注"];
-                //const filterVal = ["dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "dOrderSendDate", "vcMemo"];
+                string msg = string.Empty;
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"同步时间", "状态", "品番", "使用开始时间", "品名", "车型", "OE=SP", "供应商代码", "工区", "要望纳期", "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "照片","发送时间","回复时间","承认时间","原单位织入时间","备注"},
-                                                {"dSynchronizationDate", "vcState", "vcPartNo", "dUseStartDate", "vcPartName", "vcCarType", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "dExpectDeliveryDate", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcImageRoutes","dSendDate", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo"},
+                    string[,] strField = new string[,] {{"状态","展开时间","要望纳期","同步时间",  "品番","品名", "车型", "使用开始时间",  "OE=SP", "供应商代码", "工区",  "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "照片","回复时间","承认时间","原单位织入时间","备注"},
+                                                {"vcState","dSendDate", "dExpectDeliveryDate", "dSynchronizationDate",  "vcPartNo","vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea",  "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcImageRoutes", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo"},
                                                 {"","","","","","","","","",FieldCheck.Date,FieldCheck.Num,"","",FieldCheck.NumChar,"", "","","","","","","","","",""},
-                                                {"0","5","12","0","200","50","200","4","50","0","20","20","20","50","20","20","20","20","20","0","0","0","0","0","500"},//最大长度设定,不校验最大长度用0
-                                                {"0","1","1","0","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"5","0","0","0","12","200","50","0","0","4","50","20","20","20","50","20","20","20","20","20","0","0","0","0","500"},//最大长度设定,不校验最大长度用0
+                                                {"1","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段

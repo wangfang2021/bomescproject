@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G05
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"包装工厂","收货方","工区", "品番", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)"},
+                string[,] headers = new string[,] {{"包装工场","收货方","工区", "品番", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)"},
                                                 {"vcPackingPlant","vcReceiver","vcWorkArea","vcPartNo", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight"},
                                                 {"","","",FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
                                                 {"20","10","50","12","20","20","50", "20", "20", "20", "20", "20"},//最大长度设定,不校验最大长度用0

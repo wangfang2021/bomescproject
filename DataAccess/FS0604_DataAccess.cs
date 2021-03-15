@@ -38,7 +38,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string dSynchronizationDateFrom, string dSynchronizationDateTo, string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType)
+        public DataTable Search(string dSynchronizationDateFrom, string dSynchronizationDateTo, string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType,string dSendDate)
         {
             try
             {
@@ -163,6 +163,17 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  CONVERT(varchar(10),  n.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
                 }
+                if (dSendDate.Length > 0)
+                {
+                    if (dSendDate == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(n.dSendDate,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  CONVERT(varchar(10),  n.dSendDate,112) = '" + dSendDate.Replace("-", "").Replace("/", "") + "' ");
+                    }
+                }
                 if (vcOEOrSP.Length > 0)
                 {
                     strSql.AppendLine("  and  n.vcOEOrSP = '" + vcOEOrSP + "' ");
@@ -180,6 +191,40 @@ namespace DataAccess
                 }
 
                 strSql.AppendLine("  order by  n.[vcState] asc,  n.[dOperatorTime] desc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable dSendDate()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select isnull(dSendDate,'无') as vcValue,isnull(dSendDate,'无') as vcName from(     ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dSendDate,120) as dSendDate from [THeZiManage] where vcState<>5   ");
+                strSql.AppendLine("  ) t order by vcValue desc  ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetTaskNum2()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("  select * from [THeZiManage] where vcState in ('3')  ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -732,7 +777,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select * from [THeZiManage] where vcState in ('1','3')  ");
+                strSql.AppendLine("  select * from [THeZiManage] where vcState in ('1')  ");
                
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

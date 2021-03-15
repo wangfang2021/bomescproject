@@ -68,10 +68,10 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-        #region 检索
+        #region 未发注检索
         [HttpPost]
         [EnableCors("any")]
-        public string searchApi([FromBody] dynamic data)
+        public string searchAddFZApi([FromBody] dynamic data)
         {
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
@@ -87,21 +87,25 @@ namespace SPPSApi.Controllers.G12
             string vcYesOrNo = dataForm.vcYesOrNo;
             vcMon = vcMon == null ? "" : vcMon;
             vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
-            vcYesOrNo = vcYesOrNo == null ? "" : vcYesOrNo;
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
                 vcPartsNo = vcPartsNo.Replace("-", "").ToString();
             }
             try
             {
-                string _msg;
-                DataTable dt = logic.GetZJFzRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
-                DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                DataTable dt = logic.searchAddFZ(vcMon, vcPartsNo);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    DtConverter dtConverter = new DtConverter();
+                    dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                    dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = dataList;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索不到数据";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -113,6 +117,57 @@ namespace SPPSApi.Controllers.G12
             }
         }
         #endregion
+
+        #region 已发注检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchAddFinshZApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMon = dataForm.vcMon;
+            string vcPartsNo = dataForm.vcPartsNo;
+            string vcYesOrNo = dataForm.vcYesOrNo;
+            vcMon = vcMon == null ? "" : vcMon;
+            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
+            if (!string.IsNullOrEmpty(vcPartsNo))
+            {
+                vcPartsNo = vcPartsNo.Replace("-", "").ToString();
+            }
+            try
+            {
+                DataTable dt = logic.searchAddFinsh(vcMon, vcPartsNo);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    DtConverter dtConverter = new DtConverter();
+                    dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                    dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = dataList;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索不到数据";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
 
         #region 导出
         [HttpPost]
@@ -141,7 +196,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 string _msg;
-                DataTable dt = logic.GetZJFzRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
+                DataTable dt = null;// logic.GetZJFzRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
                 string[] fields = { "vcMonth", "vcPartsNo", "iFZNum", "vcPartsNoFZ", "vcSource" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub2.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

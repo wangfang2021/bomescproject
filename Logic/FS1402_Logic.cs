@@ -176,5 +176,80 @@ namespace Logic
                 throw ex;
             }
         }
+        public DataTable getSearchSubInfo()
+        {
+            return fs1402_DataAccess.getSearchSubInfo();
+        }
+        public DataTable checksubSaveInfo(List<Dictionary<string, Object>> listInfoData, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtInfo = fS0603_Logic.createTable("SpotQty1402");
+                DataTable dtCheck = fS0603_Logic.createTable("SpotQty1402");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string strPackingQty = listInfoData[i]["iPackingQty"] == null ? "" : listInfoData[i]["iPackingQty"].ToString();
+                    string strSpotQty = listInfoData[i]["iSpotQty"] == null ? "" : listInfoData[i]["iSpotQty"].ToString();
+                    if (strPackingQty != "0")
+                    {
+                        DataRow drInfo = dtInfo.NewRow();
+                        drInfo["iPackingQty"] = strPackingQty;
+                        drInfo["iSpotQty"] = strSpotQty;
+                        dtInfo.Rows.Add(drInfo);
+                    }
+                }
+                if (dtInfo.Rows.Count == 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请维护抽检数对应关系";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                var check = from t in dtInfo.AsEnumerable()
+                            group t by new
+                            {
+                                t1 = t.Field<string>("iPackingQty")
+                            } into m
+                            select new
+                            {
+                                PackingQty = m.Key.t1,
+                                rowCount = m.Count()
+                            };
+                if (check.ToList().Count > 0)
+                {
+                    check.ToList().ForEach(q =>
+                    {
+                        DataRow drCheck = dtCheck.NewRow();
+                        drCheck["iPackingQty"] = q.PackingQty;
+                        drCheck["iSpotQty"] = q.rowCount;
+                        dtCheck.Rows.Add(drCheck);
+                    });
+                }
+                for (int i = 0; i < dtCheck.Rows.Count; i++)
+                {
+                    if(dtCheck.Rows[i]["iSpotQty"].ToString()!="1")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = dtCheck.Rows[i]["iPackingQty"].ToString()+ "收容数对应多个抽检数，请检查修改";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                }
+                return dtInfo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setSavesubInfo(DataTable dtInfo, string strOperId, ref DataTable dtMessage)
+        {
+            try
+            {
+                fs1402_DataAccess.setSavesubInfo(dtInfo, strOperId, ref dtMessage);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

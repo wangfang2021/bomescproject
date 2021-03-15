@@ -172,5 +172,81 @@ namespace DataAccess
                 }
             }
         }
+
+        public DataTable getSearchSubInfo()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT [iPackingQty],[iSpotQty],'0' as vcBgColor,'1' as bModFlag,'1' as bAddFlag,'1'as bSelectFlag  FROM [dbo].[tCheckSpot] order by iPackingQty,iSpotQty");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setSavesubInfo(DataTable dtInfo, string strOperId, ref DataTable dtMessage)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            string uuid = System.Guid.NewGuid().ToString();
+            try
+            {
+                #region sqlCommand_delinfo
+                SqlCommand sqlCommand_delinfo = sqlConnection.CreateCommand();
+                sqlCommand_delinfo.Transaction = sqlTransaction;
+                sqlCommand_delinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_delinfo = new StringBuilder();
+                strSql_delinfo.AppendLine("DELETE FROM [tCheckSpot]");
+                sqlCommand_delinfo.CommandText = strSql_delinfo.ToString();
+                sqlCommand_delinfo.ExecuteNonQuery();
+                #endregion
+
+                #region sqlCommand_modinfo
+                SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
+                sqlCommand_modinfo.Transaction = sqlTransaction;
+                sqlCommand_modinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_modinfo = new StringBuilder();
+                strSql_modinfo.AppendLine("INSERT INTO [dbo].[tCheckSpot]");
+                strSql_modinfo.AppendLine("           ([iPackingQty]");
+                strSql_modinfo.AppendLine("           ,[iSpotQty]");
+                strSql_modinfo.AppendLine("           ,[vcOperatorID]");
+                strSql_modinfo.AppendLine("           ,[dOperatorTime])");
+                strSql_modinfo.AppendLine("     VALUES");
+                strSql_modinfo.AppendLine("           (@iPackingQty");
+                strSql_modinfo.AppendLine("           ,@iSpotQty");
+                strSql_modinfo.AppendLine("           ,'" + strOperId + "'");
+                strSql_modinfo.AppendLine("           ,GETDATE())");
+                sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
+                sqlCommand_modinfo.Parameters.AddWithValue("@iPackingQty", "");
+                sqlCommand_modinfo.Parameters.AddWithValue("@iSpotQty", "");
+                foreach (DataRow item in dtInfo.Rows)
+                {
+                    sqlCommand_modinfo.Parameters["@iPackingQty"].Value = item["iPackingQty"].ToString();
+                    sqlCommand_modinfo.Parameters["@iSpotQty"].Value = item["iSpotQty"].ToString();
+                    sqlCommand_modinfo.ExecuteNonQuery();
+                }
+                #endregion
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+
+            }
+            catch (Exception ex)
+            {
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据写入数据库失败！";
+                dtMessage.Rows.Add(dataRow);
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
+            }
+        }
     }
 }

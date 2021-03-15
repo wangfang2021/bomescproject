@@ -648,7 +648,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 #region 创建临时表
-                strSql.AppendLine("        if object_id('tempdb...#TUnit_temp') is not null        ");
+                strSql.AppendLine("        if object_id('tempdb..#TUnit_temp') is not null        ");
                 strSql.AppendLine("        begin         ");
                 strSql.AppendLine("        drop table #TUnit_temp        ");
                 strSql.AppendLine("        end        ");
@@ -659,14 +659,23 @@ namespace DataAccess
                 DataTable dt_CCCFlag = getCCCFlag();
 
                 #region 创建TOutCode临时表，用于插入生确表时关联CCC
-                strSql.AppendLine("        if object_id('tempdb...#TOutCode_temp') is not null        ");
+                strSql.AppendLine("        if object_id('tempdb..#TOutCode_temp') is not null        ");
                 strSql.AppendLine("        begin         ");
                 strSql.AppendLine("        drop table #TOutCode_temp        ");
                 strSql.AppendLine("        end        ");
-                strSql.AppendLine("        insert into #TOutCode_temp(vcCodeId,vcCodeName,vcIsColum,vcValue1,vcValue1) values ('C007','CCC品番认证','1','品番','CCC')       ");
+
+                strSql.AppendLine("        create table #TOutCode_temp        ");
+                strSql.AppendLine("        (        ");
+                strSql.AppendLine("        	vcCodeId varchar(50) null,        ");
+                strSql.AppendLine("        	vcCodeName varchar(300) null,        ");
+                strSql.AppendLine("        	vcIsColum varchar(1) null,        ");
+                strSql.AppendLine("        	vcValue1 varchar(500) null,        ");
+                strSql.AppendLine("        	vcValue2 varchar(500) null        ");
+                
+                strSql.AppendLine("        )insert into #TOutCode_temp(vcCodeId,vcCodeName,vcIsColum,vcValue1,vcValue2) values ('C007','CCC品番认证','1','品番','CCC')       ");
                 for (int i = 0; i < dt_CCCFlag.Rows.Count; i++)
                 {
-                    strSql.AppendLine("        insert into #TOutCode_temp(vcCodeId,vcCodeName,vcIsColum,vcValue1,vcValue1) values ('C007','CCC品番认证','0','"+dt_CCCFlag.Rows[i]["vcValue1"]+"','"+dt_CCCFlag.Rows[i]["vcValue2"]+"')       ");
+                    strSql.AppendLine("        insert into #TOutCode_temp(vcCodeId,vcCodeName,vcIsColum,vcValue1,vcValue2) values ('C007','CCC品番认证','0','"+dt_CCCFlag.Rows[i]["vcValue1"]+"','"+dt_CCCFlag.Rows[i]["vcValue2"]+"')       ");
                 }
                 #endregion
 

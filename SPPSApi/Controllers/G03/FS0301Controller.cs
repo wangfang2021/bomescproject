@@ -119,7 +119,7 @@ namespace SPPSApi.Controllers.G03
                 string resMsg = "";
                 DataTable dt = fs0301_logic.getList(status, pickDate);
                 string[] heads = { "上传时间", "文件名", "开封状态", "备注" };
-                string[] fields = { "dUploadTime", "vcFileNameTJ", "State", "vcRemark" };
+                string[] fields = { "dUploadTime1", "vcFileNameTJ", "State", "vcRemark" };
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")
                 {

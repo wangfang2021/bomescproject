@@ -99,6 +99,14 @@ namespace Logic
             else
                 return false;
         }
+        public bool isSCPlan(string strPlant, string strCLYM)
+        {
+            int num = fs0610_DataAccess.isSCPlan(strPlant, strCLYM);
+            if (num > 0)
+                return true;
+            else
+                return false;
+        }
         public bool isZhankai(string strPlant, string strCLYM)
         {
             int num = fs0610_DataAccess.isZhankai(strPlant, strCLYM);

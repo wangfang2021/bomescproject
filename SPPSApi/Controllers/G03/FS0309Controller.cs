@@ -577,7 +577,7 @@ namespace SPPSApi.Controllers.G03
                     row["vcFXNO"] = listInfoData[i]["vcFXNO"];
                     row["vcChange"] = listInfoData[i]["vcChange"];
                     row["vcChange_Name"] = listInfoData[i]["vcChange_Name"];
-                    if (row["vcChange"].ToString() == "1"||row["vcChange"].ToString() == "2")//新设：使用开始时间
+                    if (row["vcChange"].ToString() == "1"||row["vcChange"].ToString() == "2")//新车新设 设变新设：使用开始时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseBegin"]).ToString("yyyy/MM/dd");
                     }
@@ -633,6 +633,14 @@ namespace SPPSApi.Controllers.G03
                     else if (row["vcChange"].ToString() == "17")//防锈变更：=文本“即时切替”
                     {
                         row["dQieTiStr"] = "即时切替";
+                    }
+                    else if (row["vcChange"].ToString() == "3")//打切旧型：旧型开始时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]).ToString("yyyy/MM/dd");
+                    }
+                    else if (row["vcChange"].ToString() == "14")//生产打切：品番使用结束时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseEnd"]).ToString("yyyy/MM/dd");
                     }
                     result.Rows.Add(row);
                 }
@@ -748,7 +756,7 @@ namespace SPPSApi.Controllers.G03
                     row["vcFXNO"] = listInfoData[i]["vcFXNO"];
                     row["vcChange"] = listInfoData[i]["vcChange"];
                     row["vcChange_Name"] = listInfoData[i]["vcChange_Name"];
-                    if (row["vcChange"].ToString() == "1"|| row["vcChange"].ToString() == "2")//新设：使用开始时间
+                    if (row["vcChange"].ToString() == "1"|| row["vcChange"].ToString() == "2")//新车新设 设变新设：使用开始时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseBegin"]).ToString("yyyy/MM/dd");
                     }
@@ -804,6 +812,14 @@ namespace SPPSApi.Controllers.G03
                     else if (row["vcChange"].ToString() == "17")//防锈变更：=文本“即时切替”
                     {
                         row["dQieTiStr"] = "即时切替";
+                    }
+                    else if (row["vcChange"].ToString() == "3")//打切旧型：旧型开始时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dJiuBegin"]).ToString("yyyy/MM/dd");
+                    }
+                    else if (row["vcChange"].ToString() == "14")//生产打切：品番使用结束时间
+                    {
+                        row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dUseEnd"]).ToString("yyyy/MM/dd");
                     }
                     result.Rows.Add(row);
                 }

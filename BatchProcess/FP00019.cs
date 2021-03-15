@@ -61,7 +61,7 @@ namespace BatchProcess
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1904", null, strUserId);
                     return true;
-                }
+                } 
                 #endregion
 
                 #region 抄送人

@@ -223,7 +223,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 string _msg;
-                DataTable dt = logic.GetZJFzRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
+                DataTable dt = null;// logic.GetZJFzRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
                 List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcMonth", "vcPartsNo", "iFZNum", "vcPartsNoFZ", "vcSource", "iFlag" });
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

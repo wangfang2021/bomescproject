@@ -419,34 +419,6 @@ namespace Logic
         //    return "";
         //}
 
-        public DataTable GetZJFzRenders(string mon, string partsno, string yesorno, out string msg)
-        {
-            DataTable dt = null;
-            msg = "";
-            if (yesorno == "未发注")
-            {
-                if (mon == "")
-                {
-                    msg = "请选择计划对象月！";
-                    return null;
-                }
-                dt = dataAccess.searchAddFZ(mon, partsno);
-                if (dt.Rows.Count == 0)
-                {
-                    msg = "没有检索到数据，请重新检索";
-                }
-            }
-            else
-            {
-                dt = searchAddFinsh(mon, partsno);
-                if (dt.Rows.Count == 0)
-                {
-                    msg = "没有检索到数据，请重新检索";
-                }
-            }
-            return dt;
-        }
-
         public string UpdateFZJSEditFZ(DataTable dtSSPtmp, string type, string orderlb, string UserId, out string exlName)
         {
             string msg = "";

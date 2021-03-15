@@ -303,7 +303,7 @@ namespace SPPSApi.Controllers.G08
                                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                             }
                         }
-                    }
+                    }     
                     #endregion
                 }
                 fs0807_Logic.Save(listInfoData, loginInfo.UserId);

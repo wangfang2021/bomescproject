@@ -224,7 +224,7 @@ namespace DataAccess
                 }
                 if (strChanges != "")
                 {
-                    if (strPackingPlant == "--")
+                    if (strChanges == "--")
                     {
                         strSql.AppendLine("    AND isnull(vcChanges,'')=''");
                     }
@@ -349,19 +349,51 @@ namespace DataAccess
                     }
                 }
                 strSql.AppendLine("  )T1");
+                //strSql.AppendLine("LEFT JOIN");
+                //strSql.AppendLine("(SELECT *  FROM [TSPMaster_SupplierPlant] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T2");
+                //strSql.AppendLine("ON T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
+                //strSql.AppendLine("LEFT JOIN");
+                //strSql.AppendLine("(SELECT *  FROM [TSPMaster_Box] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T3");
+                //strSql.AppendLine("ON T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
+                //strSql.AppendLine("LEFT JOIN");
+                //strSql.AppendLine("(SELECT *  FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T4");
+                //strSql.AppendLine("ON T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
+                //strSql.AppendLine("LEFT JOIN");
+                //strSql.AppendLine("(select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                //strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                //strSql.AppendLine("ON T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT *  FROM [TSPMaster_SupplierPlant] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T2");
-                strSql.AppendLine("ON T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                strSql.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T2");
+                strSql.AppendLine("ON T2.rank='1' AND T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT *  FROM [TSPMaster_Box] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T3");
-                strSql.AppendLine("ON T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
+                strSql.AppendLine("FROM [TSPMaster_Box] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T3");
+                strSql.AppendLine("ON T3.rank='1' AND T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(SELECT *  FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T4");
-                strSql.AppendLine("ON T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn");
+                strSql.AppendLine("FROM [TSPMaster_SufferIn] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T4");
+                strSql.AppendLine("ON T4.rank='1' AND T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
                 strSql.AppendLine("LEFT JOIN");
-                strSql.AppendLine("(select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
-                strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
-                strSql.AppendLine("ON T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcSupplierId,vcSupplierPlant order by dFromTime) [rank],");
+                strSql.AppendLine("vcSupplierId,vcSupplierPlant,dFromTime,dToTime,vcOrderPlant");
+                strSql.AppendLine("FROM (select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))a ");
+                strSql.AppendLine("WHERE [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                strSql.AppendLine("ON t5.[rank]='1' AND T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C002')T6--变更事项");
                 strSql.AppendLine("ON T1.vcChanges=T6.vcValue");

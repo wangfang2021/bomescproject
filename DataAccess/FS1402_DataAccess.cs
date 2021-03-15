@@ -12,7 +12,7 @@ namespace DataAccess
     public class FS1402_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getSearchInfo(string strCheckType, string strPartId, string strSupplierId, string strSupplierPlant)
+        public DataTable getSearchInfo(string strCheckType, string strPartId, string strSupplierId)
         {
             try
             {
@@ -28,9 +28,9 @@ namespace DataAccess
                 strSql.AppendLine("		,a.vcChangeRea as vcChangeRea");
                 strSql.AppendLine("		,a.vcTJSX as vcTJSX");
                 strSql.AppendLine("		,b.vcUserName as vcOperator");
-                strSql.AppendLine("		,a.dOperatorTime as dOperatorTime");
+                strSql.AppendLine("		,convert(varchar(10),a.dOperatorTime,23)as dOperatorTime");
                 strSql.AppendLine("		,'0' as bModFlag,'0' as bAddFlag");
-                strSql.AppendLine("		,'0' as bSelectFlag,'' as vcBgColor ");
+                strSql.AppendLine("		,'1' as bSelectFlag,'' as vcBgColor ");
                 strSql.AppendLine("from (");
                 strSql.AppendLine("select [LinId] AS [LinId],vcPartId,vcTimeFrom,vcTimeTo,vcSupplierCode,vcSupplierPlant,vcCarfamilyCode,vcCheckP");
                 strSql.AppendLine(",vcChangeRea,vcTJSX,vcOperatorID,dOperatorTime from [tCheckQf]) a");
@@ -49,10 +49,6 @@ namespace DataAccess
                 if (strSupplierId != "")
                 {
                     strSql.AppendLine(" and a.vcSupplierCode='" + strSupplierId + "'");
-                }
-                if (strSupplierPlant != "")
-                {
-                    strSql.AppendLine(" and a.vcSupplierPlant='" + strSupplierPlant + "'");
                 }
                 strSql.AppendLine("order by a.vcPartId ,a.vcTimeFrom");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -82,9 +78,9 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("           ([vcPartId]");
                 strSql_addinfo.AppendLine("           ,[vcTimeFrom]");
                 strSql_addinfo.AppendLine("           ,[vcTimeTo]");
-                strSql_addinfo.AppendLine("           ,[vcCarfamilyCode]");
+                //strSql_addinfo.AppendLine("           ,[vcCarfamilyCode]");
                 strSql_addinfo.AppendLine("           ,[vcSupplierCode]");
-                strSql_addinfo.AppendLine("           ,[vcSupplierPlant]");
+                //strSql_addinfo.AppendLine("           ,[vcSupplierPlant]");
                 strSql_addinfo.AppendLine("           ,[vcCheckP]");
                 strSql_addinfo.AppendLine("           ,[vcChangeRea]");
                 strSql_addinfo.AppendLine("           ,[vcTJSX]");
@@ -94,9 +90,9 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("           (@vcPartId");
                 strSql_addinfo.AppendLine("           ,@vcTimeFrom");
                 strSql_addinfo.AppendLine("           ,@vcTimeTo");
-                strSql_addinfo.AppendLine("           ,@vcCarfamilyCode");
+                //strSql_addinfo.AppendLine("           ,@vcCarfamilyCode");
                 strSql_addinfo.AppendLine("           ,@vcSupplierCode");
-                strSql_addinfo.AppendLine("           ,@vcSupplierPlant");
+                //strSql_addinfo.AppendLine("           ,@vcSupplierPlant");
                 strSql_addinfo.AppendLine("           ,@vcCheckP");
                 strSql_addinfo.AppendLine("           ,@vcChangeRea");
                 strSql_addinfo.AppendLine("           ,@vcTJSX");
@@ -106,9 +102,9 @@ namespace DataAccess
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcPartId", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcTimeFrom", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcTimeTo", "");
-                sqlCommand_addinfo.Parameters.AddWithValue("@vcCarfamilyCode", "");
+                //sqlCommand_addinfo.Parameters.AddWithValue("@vcCarfamilyCode", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcSupplierCode", "");
-                sqlCommand_addinfo.Parameters.AddWithValue("@vcSupplierPlant", "");
+                //sqlCommand_addinfo.Parameters.AddWithValue("@vcSupplierPlant", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcCheckP", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcChangeRea", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcTJSX", "");
@@ -121,9 +117,9 @@ namespace DataAccess
                         sqlCommand_addinfo.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
                         sqlCommand_addinfo.Parameters["@vcTimeFrom"].Value = item["dFromTime"].ToString();
                         sqlCommand_addinfo.Parameters["@vcTimeTo"].Value = item["dToTime"].ToString();
-                        sqlCommand_addinfo.Parameters["@vcCarfamilyCode"].Value = item["vcCarfamilyCode"].ToString();
+                        //sqlCommand_addinfo.Parameters["@vcCarfamilyCode"].Value = item["vcCarfamilyCode"].ToString();
                         sqlCommand_addinfo.Parameters["@vcSupplierCode"].Value = item["vcSupplierId"].ToString();
-                        sqlCommand_addinfo.Parameters["@vcSupplierPlant"].Value = item["vcSupplierPlant"].ToString();
+                        //sqlCommand_addinfo.Parameters["@vcSupplierPlant"].Value = item["vcSupplierPlant"].ToString();
                         sqlCommand_addinfo.Parameters["@vcCheckP"].Value = item["vcCheckP"].ToString();
                         sqlCommand_addinfo.Parameters["@vcChangeRea"].Value = item["vcChangeRea"].ToString();
                         sqlCommand_addinfo.Parameters["@vcTJSX"].Value = item["vcTJSX"].ToString();

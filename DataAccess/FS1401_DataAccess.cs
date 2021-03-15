@@ -13,28 +13,31 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
-        public DataTable getSearchInfo(string strPartId, string strSupplierId, string strSupplierPlant, string strHaoJiu, string strInOut, string strPartArea, string strSPISStatus, string strCheckType, string strFrom, string strTo, string strCarModel, string strSPISType, List<Object> listTime)
+        public DataTable getSearchInfo(string strPartId, string strSupplierId, string strSupplierPlant, string strHaoJiu, string strInOut, string strOrderPlant, string strFrom, string strTo, string strCarModel, string strCheckType, string strSPISStatus, List<Object> listTime)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select t1.LinId as LinId");
-                strSql.AppendLine("		,t1.vcPartId as vcPartId");
-                strSql.AppendLine("		,t1.vcPartENName as vcPartENName");
-                strSql.AppendLine("		,convert(varchar(10),t1.dFromTime,111) as dFromTime");
-                strSql.AppendLine("		,convert(varchar(10),t1.dToTime,111) as dToTime");
-                strSql.AppendLine("		,t1.vcCarfamilyCode as vcCarfamilyCode");
-                strSql.AppendLine("		,t2.vcName as vcPartArea");
-                strSql.AppendLine("		,t1.vcSupplierId as vcSupplierId");
-                strSql.AppendLine("		,t1.vcSupplierPlant as vcSupplierPlant");
-                strSql.AppendLine("		,case when t7.vcPicUrl is null then '无' else '有' end as vcSPISType");
-                strSql.AppendLine("		,t6.vcCheckP as vcCheckType");
-                strSql.AppendLine("		,t3.vcName as vcInOut");
-                strSql.AppendLine("		,t4.vcName as vcHaoJiu");
-                strSql.AppendLine("		,t5.vcName as vcPackType");
-                strSql.AppendLine("		,t1.vcSPISStatus  as vcSPISStatus,'0' as bModFlag,'0' as bAddFlag,'0' as bSelectFlag");
-                strSql.AppendLine("from ");
-                strSql.AppendLine("(select * from [tCheckMethod_Master] where 1=1");
+                strSql.AppendLine("select T1.LinId AS LinId");
+                strSql.AppendLine("		,T1.vcPartId AS vcPartId");
+                strSql.AppendLine("		,T1.vcPartENName AS vcPartENName");
+                strSql.AppendLine("		,convert(varchar(10),t1.dFromTime,111) AS dFromTime");
+                strSql.AppendLine("		,convert(varchar(10),t1.dToTime,111) AS dToTime");
+                strSql.AppendLine("		,T1.vcCarfamilyCode AS vcCarfamilyCode");
+                strSql.AppendLine("		,T2.vcName AS vcOrderPlant");
+                strSql.AppendLine("		,T1.vcSupplierId AS vcSupplierId");
+                strSql.AppendLine("		,T1.vcSupplierPlant AS vcSupplierPlant");
+                strSql.AppendLine("		,T3.vcName AS vcInOut");
+                strSql.AppendLine("		,T4.vcName AS vcHaoJiu");
+                strSql.AppendLine("		,T5.vcName AS vcPackType");
+                strSql.AppendLine("		,T6.vcCheckP AS vcCheckType");
+                strSql.AppendLine("		,CASE WHEN T1.vcSPISStatus='2' THEN '承认完了'");
+                strSql.AppendLine("			  WHEN T1.vcSPISStatus='1' THEN '已提交'");
+                strSql.AppendLine("			  ELSE 'SPIS未作成' END AS vcSPISStatus	");
+                strSql.AppendLine("		,'0' as bModFlag,'0' as bAddFlag,'1' as bSelectFlag");
+                strSql.AppendLine("		from ");
+                strSql.AppendLine("(select * from tCheckMethod_Master");
+                strSql.AppendLine("WHERE 1=1");
                 if (strPartId != "")
                 {
                     strSql.AppendLine("AND vcPartId like '" + strPartId + "%'");
@@ -55,9 +58,9 @@ namespace DataAccess
                 {
                     strSql.AppendLine("AND vcInOut='" + strInOut + "'");
                 }
-                if (strPartArea != "")
+                if (strOrderPlant != "")
                 {
-                    strSql.AppendLine("AND vcPartArea='" + strPartArea + "'");
+                    strSql.AppendLine("AND vcPartArea='" + strOrderPlant + "'");
                 }
                 if (strSPISStatus != "")
                 {
@@ -102,38 +105,27 @@ namespace DataAccess
                     }
                     strSql.AppendLine(") ");
                 }
-                strSql.AppendLine(")t1");
+                strSql.AppendLine(")T1");
                 strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C063')t2");
-                strSql.AppendLine("on t1.vcPartArea=t2.vcValue");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T2");
+                strSql.AppendLine("ON T1.vcPartArea=T2.vcValue");
                 strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')t3");
-                strSql.AppendLine("on t1.[vcInOut]=t3.vcValue");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T3");
+                strSql.AppendLine("ON T1.vcInOut=T3.vcValue");
                 strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')t4");
-                strSql.AppendLine("on t1.[vcHaoJiu]=t4.vcValue");
-                strSql.AppendLine("left join");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')t5");
-                strSql.AppendLine("on t1.[vcPackType]=t5.vcValue");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT [vcPartId],[vcTimeFrom],[vcTimeTo],[vcCarfamilyCode],[vcSupplierCode],[vcSupplierPlant],[vcCheckP] FROM [tCheckQf]");
-                strSql.AppendLine("  where [vcTimeFrom]<=convert(varchar(10),GETDATE(),23) and [vcTimeTo]>=convert(varchar(10),GETDATE(),23))t6");
-                strSql.AppendLine("on t1.vcPartId=t6.vcPartId and t1.vcSupplierId=t6.vcSupplierCode and t1.vcSupplierPlant=t6.vcSupplierPlant");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT [vcPartId],[vcTimeFrom],[vcTimeTo],[vcCarfamilyCode],[vcSupplierCode],[vcSupplierPlant],[vcPicUrl] FROM [tSPISQf]");
-                strSql.AppendLine("  where [vcTimeFrom]<=convert(varchar(10),GETDATE(),23) and [vcTimeTo]>=convert(varchar(10),GETDATE(),23))t7");
-                strSql.AppendLine("on t1.vcPartId=t7.vcPartId and t1.vcSupplierId=t7.vcSupplierCode and t1.vcSupplierPlant=t7.vcSupplierPlant");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T4");
+                strSql.AppendLine("ON T1.vcHaoJiu=T4.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')T5");
+                strSql.AppendLine("on t1.vcPackType=t5.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT [vcPartId],[vcTimeFrom],[vcTimeTo],[vcCarfamilyCode],[vcSupplierCode],[vcSupplierPlant],[vcCheckP] ");
+                strSql.AppendLine("FROM [tCheckQf] where [vcTimeFrom]<=convert(varchar(10),GETDATE(),23) and [vcTimeTo]>=convert(varchar(10),GETDATE(),23))T6");
+                strSql.AppendLine("ON T1.vcPartId=T6.vcPartId AND T1.vcSupplierId=T6.[vcSupplierCode]");
                 strSql.AppendLine("where 1=1");
                 if (strCheckType != "")
                 {
                     strSql.AppendLine("and t6.vcCheckP='" + strCheckType + "'");
-                }
-                if (strSPISType != "")
-                {
-                    if (strSPISType == "有")
-                        strSql.AppendLine("and t7.vcPicUrl is not null");
-                    if (strSPISType == "无")
-                        strSql.AppendLine("and t7.vcPicUrl is null");
                 }
                 strSql.AppendLine("order by t1.vcPartId,t1.dFromTime");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -141,47 +133,6 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
-            }
-        }
-        public void setSaveInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
-        {
-            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
-
-            sqlConnection.Open();
-            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
-            try
-            {
-                string strNow = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff");
-                SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
-                sqlCommand_modinfo.Transaction = sqlTransaction;
-                sqlCommand_modinfo.CommandType = CommandType.Text;
-                StringBuilder strSql_modinfo = new StringBuilder();
-                strSql_modinfo.AppendLine("update [tCheckMethod_Master] set [vcSPISStatus]=@vcSPISStatus,[vcOperatorID]='" + strOperId + "',[dOperatorTime]=GETDATE() where LinId=@LinId");
-                sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
-                sqlCommand_modinfo.Parameters.AddWithValue("@vcSPISStatus", "");
-                sqlCommand_modinfo.Parameters.AddWithValue("@LinId", "");
-                foreach (DataRow item in dtImport.Rows)
-                {
-                    sqlCommand_modinfo.Parameters["@vcSPISStatus"].Value = item["vcSPISStatus"].ToString();
-                    sqlCommand_modinfo.Parameters["@LinId"].Value = item["LinId"].ToString();
-                    sqlCommand_modinfo.ExecuteNonQuery();
-                }
-                //提交事务
-                sqlTransaction.Commit();
-                sqlConnection.Close();
-
-            }
-            catch (Exception ex)
-            {
-                DataRow dataRow = dtMessage.NewRow();
-                dataRow["vcMessage"] = "数据写入数据库失败！";
-                dtMessage.Rows.Add(dataRow);
-                //回滚事务
-                if (sqlTransaction != null && sqlConnection != null)
-                {
-                    sqlTransaction.Rollback();
-                    sqlConnection.Close();
-                }
             }
         }
     }

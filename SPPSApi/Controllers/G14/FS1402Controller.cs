@@ -90,10 +90,9 @@ namespace SPPSApi.Controllers.G14
             string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
             try
             {
-                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId, strSupplierPlant);
+                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId);
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -130,11 +129,10 @@ namespace SPPSApi.Controllers.G14
             string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
             try
             {
-                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId, strSupplierPlant);
-                string[] fields = {"vcPartId", "dFromTime", "dToTime", "vcCarfamilyCode", "vcSupplierId", "vcSupplierPlant", "vcCheckP", "vcChangeRea", "vcTJSX", "vcOperator", "dOperatorTime" };
+                DataTable dataTable = fS1402_Logic.getSearchInfo(strCheckType, strPartId, strSupplierId);
+                string[] fields = { "vcPartId", "dFromTime", "dToTime", "vcSupplierId", "vcCheckP", "vcChangeRea", "vcTJSX", "vcOperator", "dOperatorTime" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1402_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -181,7 +179,6 @@ namespace SPPSApi.Controllers.G14
                 string strFromTime = listInfoData[0]["dFromTime"] == null ? "" : listInfoData[0]["dFromTime"].ToString();
                 string strToTime = listInfoData[0]["dToTime"] == null ? "" : listInfoData[0]["dToTime"].ToString();
                 string strSupplierId = listInfoData[0]["vcSupplierId"] == null ? "" : listInfoData[0]["vcSupplierId"].ToString();
-                string strSupplierPlant = listInfoData[0]["vcSupplierPlant"] == null ? "" : listInfoData[0]["vcSupplierPlant"].ToString();
                 string strCheckP = listInfoData[0]["vcCheckP"] == null ? "" : listInfoData[0]["vcCheckP"].ToString();
                 string strChangeRea = listInfoData[0]["vcChangeRea"] == null ? "" : listInfoData[0]["vcChangeRea"].ToString();
                 string strTJSX = listInfoData[0]["vcTJSX"] == null ? "" : listInfoData[0]["vcTJSX"].ToString();
@@ -189,9 +186,8 @@ namespace SPPSApi.Controllers.G14
                 res.Add("modelItem", "mod");
                 res.Add("PartIdItem", strPartId);
                 res.Add("SupplierIdItem", strSupplierId);
-                res.Add("SupplierPlantItem", strSupplierPlant);
-                res.Add("FromTimeItem", strFromTime);
-                res.Add("ToTimeItem", strToTime);
+                res.Add("FromTimeItem", strFromTime.Replace("-","/"));
+                res.Add("ToTimeItem", strToTime.Replace("-", "/"));
                 res.Add("CheckTypeItem", strCheckP);
                 res.Add("TeJiItem", strTJSX);
                 res.Add("ChangeReasonItem", strChangeRea);
@@ -231,7 +227,6 @@ namespace SPPSApi.Controllers.G14
                 string strModel = dataForm.model;
                 string strPartId = dataForm.PartId;
                 string strSupplierId = dataForm.SupplierId;
-                string strSupplierPlant = dataForm.SupplierPlant;
                 string strFromTime = dataForm.FromTime;
                 string strToTime = dataForm.ToTime;
                 string strCheckType = dataForm.CheckType;
@@ -246,7 +241,7 @@ namespace SPPSApi.Controllers.G14
                 drImport["dToTime"] = dataForm.ToTime != "" ? Convert.ToDateTime(dataForm.ToTime).ToString("yyyy-MM-dd") : "";
                 drImport["vcCarfamilyCode"] = "";
                 drImport["vcSupplierId"] = dataForm.SupplierId;
-                drImport["vcSupplierPlant"] = dataForm.SupplierPlant;
+                drImport["vcSupplierPlant"] = "";
                 drImport["vcCheckP"] = dataForm.CheckType;
                 drImport["vcChangeRea"] = dataForm.ChangeReason;
                 drImport["vcTJSX"] = dataForm.TeJi;
@@ -302,8 +297,8 @@ namespace SPPSApi.Controllers.G14
 
             try
             {
-                DataTable dataTable = fS1402_Logic.getSearchInfo("模板", "", "", "");
-                string[] fields = { "vcPartId", "dFromTime", "dToTime", "vcCarfamilyCode", "vcSupplierId", "vcSupplierPlant", "vcCheckP", "vcChangeRea", "vcTJSX", "vcOperator", "dOperatorTime" };
+                DataTable dataTable = fS1402_Logic.getSearchInfo("模板", "", "");
+                string[] fields = { "vcPartId", "dFromTime", "dToTime", "vcSupplierId", "vcCheckP", "vcChangeRea", "vcTJSX", "vcOperator", "dOperatorTime" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1402_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -330,7 +325,7 @@ namespace SPPSApi.Controllers.G14
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string importApi([FromBody]dynamic data)
+        public string importSaveApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -356,13 +351,13 @@ namespace SPPSApi.Controllers.G14
                 }
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-                string[,] headers = new string[,] {{"品番","使用开始","使用结束","供应商编码", "供应商工区", "车种代码","检查区分","变更理由","特记事项"},
-                                                {"vcPartId", "dFromTime", "dToTime", "vcSupplierId","vcSupplierPlant","vcCarfamilyCode","vcCheckP","vcChangeRea","vcTJSX"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","","","","",""},
-                                                {"12","10","10","5", "1", "0", "0", "0", "0"},//最大长度设定,不校验最大长度用0
-                                                {"12","10","10","0", "0", "0", "0", "0", "0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"品番","使用开始","使用结束","供应商代码",  "检查区分","变更原因","特记事项"},
+                                                {"vcPartId", "dFromTime", "dToTime", "vcSupplierId","vcCheckP","vcChangeRea","vcTJSX"},
+                                                {FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","","",""},
+                                                {"12","10","10","5", "0", "0", "0"},//最大长度设定,不校验最大长度用0
+                                                {"12","10","10","0", "0", "0", "0"}};//最小长度设定,可以为空用0
 
-                DataTable dtImport= fS1402_Logic.ImportFile(theFolder, fileSavePath, "sheet1", headers, true, loginInfo.UserId, ref dtMessage);
+                DataTable dtImport = fS1402_Logic.ImportFile(theFolder, fileSavePath, "sheet1", headers, true, loginInfo.UserId, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -1014,7 +1014,7 @@ namespace DataAccess
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
                 sql.Append("        	select * from #TSQJD_temp       \n");
-                sql.Append("        	where vcChange in ('11')       \n");
+                sql.Append("        	where vcChange = '11'       \n");
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
@@ -1033,7 +1033,7 @@ namespace DataAccess
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
                 sql.Append("        	select * from #TSQJD_temp       \n");
-                sql.Append("        	where vcChange in ('11')       \n");
+                sql.Append("        	where vcChange = '11'       \n");
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
@@ -1050,7 +1050,7 @@ namespace DataAccess
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
                 sql.Append("        	select * from #TSQJD_temp       \n");
-                sql.Append("        	where vcChange in ('10')       \n");
+                sql.Append("        	where vcChange = '10'       \n");
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
@@ -1069,7 +1069,7 @@ namespace DataAccess
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
                 sql.Append("        	select * from #TSQJD_temp       \n");
-                sql.Append("        	where vcChange in ('10')       \n");
+                sql.Append("        	where vcChange = '10'       \n");
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");
@@ -1085,7 +1085,7 @@ namespace DataAccess
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");
                 sql.Append("        	select * from #TSQJD_temp       \n");
-                sql.Append("        	where vcChange in ('10')       \n");
+                sql.Append("        	where vcChange = '17'       \n");
                 sql.Append("        	and vcIsDYJG = '1' and vcIsDYFX = '1'       \n");
                 sql.Append("        )b       \n");
                 sql.Append("        on a.vcPart_id = b.vcPart_id       \n");

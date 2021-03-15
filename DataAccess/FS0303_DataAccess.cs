@@ -648,12 +648,35 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 #region 创建临时表
-                strSql.AppendLine("        if object_id('tempdb...#TUnit_temp') is not null        ");
+                strSql.AppendLine("        if object_id('tempdb..#TUnit_temp') is not null        ");
                 strSql.AppendLine("        begin         ");
                 strSql.AppendLine("        drop table #TUnit_temp        ");
                 strSql.AppendLine("        end        ");
                 strSql.AppendLine("        select * into #TUnit_temp from TUnit       ");
                 strSql.AppendLine("        where 1=0        ");
+                #endregion
+
+                DataTable dt_CCCFlag = getCCCFlag();
+
+                #region 创建TOutCode临时表，用于插入生确表时关联CCC
+                strSql.AppendLine("        if object_id('tempdb..#TOutCode_temp') is not null        ");
+                strSql.AppendLine("        begin         ");
+                strSql.AppendLine("        drop table #TOutCode_temp        ");
+                strSql.AppendLine("        end        ");
+
+                strSql.AppendLine("        create table #TOutCode_temp        ");
+                strSql.AppendLine("        (        ");
+                strSql.AppendLine("        	vcCodeId varchar(50) null,        ");
+                strSql.AppendLine("        	vcCodeName varchar(300) null,        ");
+                strSql.AppendLine("        	vcIsColum varchar(1) null,        ");
+                strSql.AppendLine("        	vcValue1 varchar(500) null,        ");
+                strSql.AppendLine("        	vcValue2 varchar(500) null        ");
+                
+                strSql.AppendLine("        )insert into #TOutCode_temp(vcCodeId,vcCodeName,vcIsColum,vcValue1,vcValue2) values ('C007','CCC品番认证','1','品番','CCC')       ");
+                for (int i = 0; i < dt_CCCFlag.Rows.Count; i++)
+                {
+                    strSql.AppendLine("        insert into #TOutCode_temp(vcCodeId,vcCodeName,vcIsColum,vcValue1,vcValue2) values ('C007','CCC品番认证','0','"+dt_CCCFlag.Rows[i]["vcValue1"]+"','"+dt_CCCFlag.Rows[i]["vcValue2"]+"')       ");
+                }
                 #endregion
 
                 #region 向临时表中插入数据
@@ -785,7 +808,7 @@ namespace DataAccess
                 strSql.AppendLine("        	) b on a.vcSupplier_id = b.vcSupplier_id         ");
                 strSql.AppendLine("        	left join          ");
                 strSql.AppendLine("        	(         ");
-                strSql.AppendLine("        		select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C007' and vcIsColum = '0'         ");
+                strSql.AppendLine("        		select vcValue1,vcValue2 from #TOutCode_temp where vcCodeId = 'C007' and vcIsColum = '0'         ");
                 strSql.AppendLine("        	) c on SUBSTRING( a.vcPart_id,1,5) = c.vcValue1         ");
                 strSql.AppendLine("        ) a         ");
                 #endregion
@@ -810,6 +833,15 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        #endregion
+
+        #region 获取CCC标识
+        public DataTable getCCCFlag()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("      select vcValue1,vcValue2 from TOutCode where vcCodeId = 'C007' and vcIsColum = 0       \n");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
         #endregion
 

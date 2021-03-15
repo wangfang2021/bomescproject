@@ -61,7 +61,7 @@ namespace BatchProcess
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1904", null, strUserId);
                     return true;
-                }
+                } 
                 #endregion
 
                 #region 抄送人
@@ -203,7 +203,7 @@ namespace BatchProcess
                 strSql.AppendLine("      select b.address,b.displayName from        ");
                 strSql.AppendLine("      (       ");
                 strSql.AppendLine("      	select vcSupplier_id from TSQJD       ");
-                strSql.AppendLine("      	where dNqDate<GETDATE() and ( vcYQorNG is null or vcYQorNG = '')       ");
+                strSql.AppendLine("      	where vcJD='1' and dNqDate<GETDATE() and ( vcYQorNG is null or vcYQorNG = '')       ");
                 strSql.AppendLine("      	group by vcSupplier_id       ");
                 strSql.AppendLine("      )  a       ");
                 strSql.AppendLine("      inner join        ");

@@ -52,7 +52,7 @@ namespace BatchProcess
                     return true;
                 }
                 //这里做了年月的转换
-                strEmailBody = strEmailBody.Replace("##yearmonth##", DateTime.Now.ToString("yyyy年MM月"));
+                strEmailBody = strEmailBody.Replace("##yearmonth##", DateTime.Now.ToString("yyyy年MM月dd日"));
                 #endregion
 
                 #region 收件人

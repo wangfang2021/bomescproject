@@ -51,11 +51,11 @@ namespace DataAccess
                 //strSql.AppendLine("  [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a   ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C012') c on a.vcOEOrSP = c.vcValue    ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue  where 1=1 and a.vcState in (select vcValue from TCode where vcCodeId='C034')   ");
-                strSql.AppendLine("    select a.[iAutoId],a.[vcPackingPlant] ,a.[vcReceiver], a.[dSynchronizationDate], b.vcName as [vcState],    ");
-                strSql.AppendLine("     a.[vcPartNo], a.[dUseStartDate],a.[dUserEndDate], a.[vcPartName],       "); 
+                strSql.AppendLine("    select a.[iAutoId],a.[vcPackingPlant] ,a.[vcReceiver],convert(varchar(10), a.[dSynchronizationDate],111) as [dSynchronizationDate], b.vcName as [vcState],    ");
+                strSql.AppendLine("     a.[vcPartNo],convert(varchar(10), a.[dUseStartDate],111) as [dUseStartDate],convert(varchar(10), a.[dUserEndDate],111) as [dUserEndDate], a.[vcPartName],       "); 
                 strSql.AppendLine("     a.[vcCarType],c.vcName as [vcOEOrSP], a.[vcSupplier_id],     ");
                 strSql.AppendLine("     case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea else a.vcWorkArea end as [vcWorkArea],    ");
-                strSql.AppendLine("     a.[dExpectDeliveryDate], a.[vcExpectIntake],     ");
+                strSql.AppendLine("     convert(varchar(10), a.[dExpectDeliveryDate],111) as [dExpectDeliveryDate], a.[vcExpectIntake],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcIntake],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcBoxMaxIntake],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcBoxType else a.vcBoxType end as [vcBoxType],    ");
@@ -64,7 +64,7 @@ namespace DataAccess
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcHeight else a.vcHeight end as[vcHeight],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcEmptyWeight else a.vcEmptyWeight end as [vcEmptyWeight],       ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcEmptyWeight else a.vcEmptyWeight end as [vcUnitNetWeight],    ");
-                strSql.AppendLine("      a.[dSendDate], a.[dReplyDate], a.[dAdmitDate], a.[dWeaveDate], a.[vcMemo],     ");
+                strSql.AppendLine("      convert(varchar(10), a.[dSendDate],111) as [dSendDate],convert(varchar(10), a.[dReplyDate],111) as  [dReplyDate],convert(varchar(10), a.[dAdmitDate],111) as  [dAdmitDate],convert(varchar(10), a.[dWeaveDate],111) as  [dWeaveDate], a.[vcMemo],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcImageRoutes else a.vcImageRoutes end as vcImageRoutes,        ");
                 strSql.AppendLine("     a.[vcInserter], a.[vcInserterDate],a.[vcFactoryOperatorID], a.[dFactoryOperatorTime],       ");
                 strSql.AppendLine("     a.[vcOperatorID], a.[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a       ");
@@ -83,7 +83,14 @@ namespace DataAccess
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  and case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea   else a.vcWorkArea  like  '" + vcWorkArea + "%' ");
+                    if (vcWorkArea == "无")
+                    {
+                        strSql.AppendLine("  and  (case when isnull(a.vcIsEdit,'0')='1' then isnull(d.vcWorkArea,'')   else isnull(a.vcWorkArea,'') end) = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  (case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea   else a.vcWorkArea  end)  like  '" + vcWorkArea + "%' ");
+                    }
                 }
                 if (vcState.Length > 0)
                 {
@@ -96,29 +103,37 @@ namespace DataAccess
                 
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  a.vcCarType like '" + vcCarType + "%' ");
+                    if (vcCarType == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(a.vcCarType,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  a.vcCarType like '" + vcCarType + "%' ");
+                    }
+                    
                 }
                 if (dExpectDeliveryDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dExportDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  a.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
                 }
                 if (dSendDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  CONVERT(varchar(10),  dSendDate,112) = '" + dSendDate.Replace("-", "").Replace("/", "") + "' ");
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  a.dSendDate,112) = '" + dSendDate.Replace("-", "").Replace("/", "") + "' ");
                 }
                 if (dReplyDate.Length > 0)
                 {
                     if (dReplyDate == "无")
                     {
-                        strSql.AppendLine("  and  isnull(dReplyDate,'') = '' ");
+                        strSql.AppendLine("  and  isnull(a.dReplyDate,'') = '' ");
                     }
                     else
                     {
-                        strSql.AppendLine("  and  CONVERT(varchar(10),  dReplyDate,112) = '" + dReplyDate.Replace("-", "").Replace("/", "") + "' ");
+                        strSql.AppendLine("  and  CONVERT(varchar(10),  a.dReplyDate,112) = '" + dReplyDate.Replace("-", "").Replace("/", "") + "' ");
                     }
                 }
 
-                strSql.AppendLine("  order by a.vcState asc, dSendDate desc ");
+                strSql.AppendLine("  order by a.vcState asc, a.dSendDate desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -134,7 +149,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select dSendDate as vcValue,dSendDate as vcName from(    ");
-                strSql.AppendLine("    	select  distinct convert(varchar(10), dSendDate,120) as dSendDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dSendDate,111) as dSendDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -152,7 +167,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select isnull(dReplyDate,'无') as vcValue,isnull(dReplyDate,'无') as vcName from(    ");
-                strSql.AppendLine("    	select  distinct convert(varchar(10), dReplyDate,120) as dReplyDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dReplyDate,111) as dReplyDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -170,7 +185,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select vcCarType as vcValue,vcCarType as vcName from(    ");
-                strSql.AppendLine("    	select distinct isnull(vcCarType,'') as vcCarType from [THeZiManage] where vcSupplier_id='" + userId + "'   ");
+                strSql.AppendLine("    	select distinct isnull(vcCarType,'无') as vcCarType from [THeZiManage] where vcSupplier_id='" + userId + "'   ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -188,7 +203,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select dExpectDeliveryDate as vcValue,dExpectDeliveryDate as vcName from(    ");
-                strSql.AppendLine("    	select  distinct convert(varchar(10), dExpectDeliveryDate,120) as dExpectDeliveryDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dExpectDeliveryDate,111) as dExpectDeliveryDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -226,7 +241,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("   select a.vcWorkArea  as vcValue,a.vcWorkArea as vcName from (   ");
-                strSql.AppendLine("   select distinct vcWorkArea from [THeZiManage] where vcSupplier_id='"+ supplierId + "' and vcWorkArea is not null   ");
+                strSql.AppendLine("   select distinct isnull(vcWorkArea,'无') as vcWorkArea from [THeZiManage] where vcSupplier_id='" + supplierId + "'   ");
                 strSql.AppendLine("   ) a   ");
                 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

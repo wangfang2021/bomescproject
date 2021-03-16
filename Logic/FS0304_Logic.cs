@@ -75,7 +75,7 @@ namespace Logic
             {
                 strTitle = dtSetting.Rows[0]["vcTitle"].ToString();
                 strContent = dtSetting.Rows[0]["vcContent"].ToString();
-                var dateTime = DateTime.Now.ToString("yyyy年MM月");
+                var dateTime = DateTime.Now.ToString("yyyy年MM月dd日");
                 strContent = strContent.Replace("##yearmonth##", dateTime);
             }
             #endregion

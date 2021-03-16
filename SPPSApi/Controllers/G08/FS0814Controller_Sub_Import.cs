@@ -80,7 +80,7 @@ namespace SPPSApi.Controllers.G08
                     {"6","1","1","1","1","1","1","1","1","1","1","1"
                     ,"1","1","1","1","1","1","1","1","1","1"
                     ,"1","1","1","1","1","1","1","1","1","1","1"},//最大长度设定,不校验最大长度用0
-                    {"1","1","0","0","0","0","0","0","0","0","0","0"
+                    {"6","1","0","0","0","0","0","0","0","0","0","0"
                     ,"0","0","0","0","0","0","0","0","0","0"
                     ,"0","0","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
@@ -120,222 +120,15 @@ namespace SPPSApi.Controllers.G08
                         apiResult.data = "[白夜]列只能填写白/夜";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    string vcD1 = importDt.Rows[i]["vcD1"].ToString();
-                    if (vcD1!="" && Array.IndexOf(new string[] { "A","B"},vcD1)==-1)
+                    for (int j = 1; j <= 31; j++)
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D1]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD2 = importDt.Rows[i]["vcD2"].ToString();
-                    if (vcD2 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD2) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D2]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD3 = importDt.Rows[i]["vcD3"].ToString();
-                    if (vcD3 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD3) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D3]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD4 = importDt.Rows[i]["vcD4"].ToString();
-                    if (vcD4 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD4) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D4]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD5 = importDt.Rows[i]["vcD5"].ToString();
-                    if (vcD5 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD5) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D5]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD6 = importDt.Rows[i]["vcD6"].ToString();
-                    if (vcD6 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD6) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D6]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD7 = importDt.Rows[i]["vcD7"].ToString();
-                    if (vcD7 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD7) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D7]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD8 = importDt.Rows[i]["vcD8"].ToString();
-                    if (vcD8 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD8) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D8]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD9 = importDt.Rows[i]["vcD9"].ToString();
-                    if (vcD9 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD9) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D9]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD10 = importDt.Rows[i]["vcD10"].ToString();
-                    if (vcD10 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD10) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D10]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD11 = importDt.Rows[i]["vcD11"].ToString();
-                    if (vcD11 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD11) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D11]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD12 = importDt.Rows[i]["vcD12"].ToString();
-                    if (vcD12 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD12) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D12]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD13 = importDt.Rows[i]["vcD13"].ToString();
-                    if (vcD13 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD13) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D13]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD14 = importDt.Rows[i]["vcD14"].ToString();
-                    if (vcD14 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD14) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D14]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD15 = importDt.Rows[i]["vcD15"].ToString();
-                    if (vcD15 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD15) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D15]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD16 = importDt.Rows[i]["vcD16"].ToString();
-                    if (vcD16 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD16) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D16]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD17 = importDt.Rows[i]["vcD17"].ToString();
-                    if (vcD17 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD17) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D17]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD18 = importDt.Rows[i]["vcD18"].ToString();
-                    if (vcD18 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD18) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D18]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD19 = importDt.Rows[i]["vcD19"].ToString();
-                    if (vcD19 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD19) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D19]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD20 = importDt.Rows[i]["vcD20"].ToString();
-                    if (vcD20 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD20) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D20]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD21 = importDt.Rows[i]["vcD21"].ToString();
-                    if (vcD21 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD21) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D21]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD22 = importDt.Rows[i]["vcD22"].ToString();
-                    if (vcD22 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD22) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D22]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD23 = importDt.Rows[i]["vcD23"].ToString();
-                    if (vcD23 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD23) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D23]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD24 = importDt.Rows[i]["vcD24"].ToString();
-                    if (vcD24 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD24) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D24]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD25 = importDt.Rows[i]["vcD25"].ToString();
-                    if (vcD25 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD25) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D25]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD26 = importDt.Rows[i]["vcD26"].ToString();
-                    if (vcD26 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD26) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D26]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD27 = importDt.Rows[i]["vcD27"].ToString();
-                    if (vcD27 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD27) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D27]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD28 = importDt.Rows[i]["vcD28"].ToString();
-                    if (vcD28 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD28) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D28]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD29 = importDt.Rows[i]["vcD29"].ToString();
-                    if (vcD29 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD29) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D29]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD30 = importDt.Rows[i]["vcD30"].ToString();
-                    if (vcD30 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD30) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D30]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                    string vcD31 = importDt.Rows[i]["vcD31"].ToString();
-                    if (vcD31 != "" && Array.IndexOf(new string[] { "A", "B" }, vcD31) == -1)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "[D31]列只能填写A/B";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        string day = importDt.Rows[i]["vcD" + j + ""].ToString();
+                        if (day != "" && day != null && Array.IndexOf(new string[] { "A", "B" }, day) == -1)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "[D" + j + "]列只能填写A/B";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                     }
                 }
                 #endregion
@@ -356,8 +149,14 @@ namespace SPPSApi.Controllers.G08
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
-                fs0814_Logic.importSave_Sub(importDt, loginInfo.UserId);
+                string strErrorName = "";
+                fs0814_Logic.importSave_Sub(importDt, loginInfo.UserId,ref strErrorName);
+                if(strErrorName!="")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "以下年月白夜出现相同班值情况："+strErrorName;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

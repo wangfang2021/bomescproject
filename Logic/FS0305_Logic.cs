@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+using DataAccess;
+using System.Collections;
+
+namespace Logic
+{
+    public class FS0305_Logic
+    {
+        FS0305_DataAccess fs0305_DataAccess;
+
+        public FS0305_Logic()
+        {
+            fs0305_DataAccess = new FS0305_DataAccess();
+        }
+
+        #region 检索
+        public DataTable Search(string strJD, string strInOutFlag, string strSupplier_id, string strCarType, string strPart_id, string strUserID)
+        {
+            return fs0305_DataAccess.Search(strJD, strInOutFlag, strSupplier_id, strCarType, strPart_id, strUserID);
+        }
+        #endregion
+
+        #region 检索现地库中供应商可否编辑信息
+        public DataTable SearchSupplierEditDT(List<string> supplierLists)
+        {
+            return fs0305_DataAccess.SearchSupplierEditDT(supplierLists);
+        }
+        #endregion
+
+        #region 初始化检索
+        public DataTable Search(string strUserID)
+        {
+            return fs0305_DataAccess.Search(strUserID);
+        }
+        #endregion
+
+        #region 检索退回履历
+        public DataTable SearchTHList(string strGUID)
+        {
+            return fs0305_DataAccess.SearchTHList(strGUID);
+        }
+        #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErr)
+        {
+            fs0305_DataAccess.Save(listInfoData, strUserId, ref strErr);
+        }
+        #endregion
+
+        #region 生确回复
+        public void Send(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0305_DataAccess.Send(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+        #region 延期说明
+        public void SendYQ(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            fs0305_DataAccess.SendYQ(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+        #region 对应可否一括付与
+        public void SetFY(List<Dictionary<string, Object>> listInfoData, string strSupplier_BJ, string strSupplier_HK, string strSCPlace_City, string strSCPlace_Province, string strCHPlace_City, string strCHPlace_Province, string strUserId, ref string strErrorPartId)
+        {
+            fs0305_DataAccess.SetFY(listInfoData, strSupplier_BJ, strSupplier_HK, strSCPlace_City, strSCPlace_Province, strCHPlace_City, strCHPlace_Province, strUserId, ref strErrorPartId);
+        }
+        #endregion
+    }
+}

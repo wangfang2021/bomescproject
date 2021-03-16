@@ -22,17 +22,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G99
 {
-    [Route("api/FS9905/[action]")]
+    [Route("api/FS0305/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS9905Controller : BaseController
+    public class FS0305Controller : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS9905_Logic fs9905_Logic = new FS9905_Logic();
-        private readonly string FunctionID = "FS9905";
+        FS0305_Logic fs0305_Logic = new FS0305_Logic();
+        private readonly string FunctionID = "FS0305";
 
-        public FS9905Controller(IWebHostEnvironment webHostEnvironment)
+        public FS0305Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -86,7 +86,7 @@ namespace SPPSApi.Controllers.G99
                         string colName = dt.Columns[j].ColumnName;
                         row[colName] = dt.Rows[i][colName];
                     }
-                    row["iAPILineNo"] = dataList_C040.Count-1;
+                    row["iAPILineNo"] = dataList_C040.Count - 1;
                     dataList_C040_all.Add(row);
                 }
                 #endregion
@@ -142,10 +142,10 @@ namespace SPPSApi.Controllers.G99
             try
             {
                 #region 拿到统括库中的所有供应商生确单
-                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id,loginInfo.UserId);
+                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id, loginInfo.UserId);
                 #endregion
 
-                if (dt!=null && dt.Rows.Count>0)
+                if (dt != null && dt.Rows.Count > 0)
                 {
                     #region 去现地库取出供应商可否编辑的数据
                     List<string> SupplierLists = new List<string>();
@@ -159,7 +159,7 @@ namespace SPPSApi.Controllers.G99
                         }
                         SupplierLists.Add(dt.Rows[i]["vcSupplier_id"].ToString());
                     }
-                    DataTable SupplierDT = fs9905_Logic.SearchSupplierEditDT(SupplierLists.Distinct().ToList());
+                    DataTable SupplierDT = fs0305_Logic.SearchSupplierEditDT(SupplierLists.Distinct().ToList());
                     #endregion
 
                     #region 在DT中添加供应商可否编辑判断字段列，根据获取到的供应商可否编辑信息判断供应商可否编辑(可编辑：1  不可编辑：0)
@@ -185,7 +185,7 @@ namespace SPPSApi.Controllers.G99
                         }
                     }
                     #endregion
-                
+
                 }
                 DtConverter dtConverter = new DtConverter();
 
@@ -226,14 +226,14 @@ namespace SPPSApi.Controllers.G99
                 return error_login();
             }
             LoginInfo loginInfo = getLoginByToken(strToken);
-            
+
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             try
             {
-                DataTable dt = fs9905_Logic.Search(loginInfo.UserId);
+                DataTable dt = fs0305_Logic.Search(loginInfo.UserId);
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
@@ -249,7 +249,7 @@ namespace SPPSApi.Controllers.G99
                         }
                         SupplierLists.Add(dt.Rows[i]["vcSupplier_id"].ToString());
                     }
-                    DataTable SupplierDT = fs9905_Logic.SearchSupplierEditDT(SupplierLists.Distinct().ToList());
+                    DataTable SupplierDT = fs0305_Logic.SearchSupplierEditDT(SupplierLists.Distinct().ToList());
                     #endregion
 
                     #region 在DT中添加供应商可否编辑判断字段列，根据获取到的供应商可否编辑信息判断供应商可否编辑(可编辑：1  不可编辑：0)
@@ -326,11 +326,11 @@ namespace SPPSApi.Controllers.G99
 
             try
             {
-                DataTable dt = fs9905_Logic.SearchTHList(strGUID);
+                DataTable dt = fs0305_Logic.SearchTHList(strGUID);
                 DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("dTHTime", ConvertFieldType.DateType,"yyyyMMddHHmm");
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType,"yyyyMMddHHmm");
+                dtConverter.addField("dTHTime", ConvertFieldType.DateType, "yyyyMMddHHmm");
+                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyyMMddHHmm");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -377,7 +377,7 @@ namespace SPPSApi.Controllers.G99
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    
+
                     if (bModFlag == true)
                     {//修改
                         hasFind = true;
@@ -392,7 +392,7 @@ namespace SPPSApi.Controllers.G99
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcYQorNG"]!=null)
+                    if (listInfoData[i]["vcYQorNG"] != null)
                     {
                         int byteLength = System.Text.Encoding.Default.GetBytes(listInfoData[i]["vcYQorNG"].ToString()).Length;
                         //延期说明超过了600字节，提示错误
@@ -406,7 +406,7 @@ namespace SPPSApi.Controllers.G99
                 }
 
                 string strErr = "";
-                fs9905_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
+                fs0305_Logic.Save(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -452,7 +452,7 @@ namespace SPPSApi.Controllers.G99
             string strIsDYFX = dataform.vcIsDYFX;
             try
             {
-                DataTable dt = fs9905_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id,logininfo.UserId);
+                DataTable dt = fs0305_Logic.Search(strJD, strInOutflag, strSupplier_id, strCarType, strPart_id, logininfo.UserId);
                 string[] fields = { "vcPart_id", "dSSDate", "vcJD_Name", "vcSPINo",
                                     "vcChange_Name", "vcCarType","vcInOutflag_Name","vcPartName",
                                     "vcOE_Name","vcSupplier_id","vcFXDiff_Name","vcFXNo",
@@ -463,7 +463,7 @@ namespace SPPSApi.Controllers.G99
                                     "vcNum2","vcNum3","vcNum4","vcNum5","vcNum6","vcNum7","vcNum8","vcNum9",
                                     "vcNum10","vcNum11","vcNum12","vcNum13","vcNum14","vcNum15"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS9905_Export.xlsx", 2, logininfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0305_Export.xlsx", 2, logininfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiresult.code = ComConstant.ERROR_CODE;
@@ -504,13 +504,13 @@ namespace SPPSApi.Controllers.G99
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                if (listInfoData.Count<=0)
+                if (listInfoData.Count <= 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "未选择任何行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                
+
                 #region 数据校验
                 //开始数据验证
                 string[,] strField = new string[,] {{"对应可否确认结果","防锈对应可否","执行标准区分"},
@@ -525,7 +525,7 @@ namespace SPPSApi.Controllers.G99
                          { "执行标准区分"    ,"vcZXBZDiff","CCC"     ,"CCC","执行标准NO"  ,"vcZXBZNo","1","","" }
                         ,{ "对应可否确认结果","vcIsDYJG"  ,"不可对应","2"  ,"对应不可理由","vcNotDY" ,"1","","" }
                         };
-                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
+                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0305");
                 if (checkRes != null)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -543,13 +543,13 @@ namespace SPPSApi.Controllers.G99
                         apiResult.data = "生确回复失败！已回复生确不可再次回复";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (listInfoData[i]["vcIsDYJG"].ToString()=="1")
+                    if (listInfoData[i]["vcIsDYJG"].ToString() == "1")
                     {
                         string strChange = listInfoData[i]["vcChange"].ToString();
-                        if (strChange=="1" || strChange =="2" || strChange =="10" || strChange =="8" || strChange =="12")
+                        if (strChange == "1" || strChange == "2" || strChange == "10" || strChange == "8" || strChange == "12")
                         {
                             if (
-                                  listInfoData[i]["vcSCPlace_City"]==null || listInfoData[i]["vcSCPlace_City"].ToString()==""
+                                  listInfoData[i]["vcSCPlace_City"] == null || listInfoData[i]["vcSCPlace_City"].ToString() == ""
                                 || listInfoData[i]["vcSCPlace_Province"] == null || listInfoData[i]["vcSCPlace_Province"].ToString() == ""
                                 || listInfoData[i]["vcCHPlace_City"] == null || listInfoData[i]["vcCHPlace_City"].ToString() == ""
                                 || listInfoData[i]["vcCHPlace_Province"] == null || listInfoData[i]["vcCHPlace_Province"].ToString() == ""
@@ -564,7 +564,7 @@ namespace SPPSApi.Controllers.G99
                         }
                         else
                         {
-                            if (  
+                            if (
                                   listInfoData[i]["dSupplier_BJ"] == null || listInfoData[i]["dSupplier_BJ"].ToString() == ""
                                 || listInfoData[i]["dSupplier_HK"] == null || listInfoData[i]["dSupplier_HK"].ToString() == ""
                                 )
@@ -575,9 +575,9 @@ namespace SPPSApi.Controllers.G99
                             }
                         }
                     }
-                    else if(listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYFX"].ToString()=="2")
+                    else if (listInfoData[i]["vcIsDYJG"].ToString() == "2" || listInfoData[i]["vcIsDYFX"].ToString() == "2")
                     {
-                        if (listInfoData[i]["vcNotDY"]==null || listInfoData[i]["vcNotDY"].ToString()=="")
+                        if (listInfoData[i]["vcNotDY"] == null || listInfoData[i]["vcNotDY"].ToString() == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "生确回复失败！当对应可否确认结果或者防锈对应可否为不可对应时，不可对应理由必须填写";
@@ -585,7 +585,7 @@ namespace SPPSApi.Controllers.G99
                         }
                     }
                     if (
-                          listInfoData[i]["vcSCSName"]==null || listInfoData[i]["vcSCSName"].ToString()==""
+                          listInfoData[i]["vcSCSName"] == null || listInfoData[i]["vcSCSName"].ToString() == ""
                         || listInfoData[i]["vcSCSPlace"] == null || listInfoData[i]["vcSCSPlace"].ToString() == ""
                         )
                     {
@@ -596,11 +596,11 @@ namespace SPPSApi.Controllers.G99
                 }
 
                 string strErr = "";
-                fs9905_Logic.Send(listInfoData, loginInfo.UserId, ref strErr);
+                fs0305_Logic.Send(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data =  strErr;
+                    apiResult.data = strErr;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -656,7 +656,7 @@ namespace SPPSApi.Controllers.G99
                 string[,] strDateRegion = null;
                 string[,] strSpecialCheck = null;
 
-                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS9905");
+                List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0305");
                 if (checkRes != null)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -667,7 +667,7 @@ namespace SPPSApi.Controllers.G99
                 #endregion
 
                 string strErr = "";
-                fs9905_Logic.SendYQ(listInfoData, loginInfo.UserId, ref strErr);
+                fs0305_Logic.SendYQ(listInfoData, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -715,7 +715,7 @@ namespace SPPSApi.Controllers.G99
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 //判断至少勾选了一条数据
-                if (listInfoData.Count<=0)
+                if (listInfoData.Count <= 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "未选中任何行";
@@ -732,7 +732,7 @@ namespace SPPSApi.Controllers.G99
 
                 string strErr = "";
                 //已回复数据不进行一括付与，需要剔除
-                fs9905_Logic.SetFY(listInfoData, strSupplier_BJ, strSupplier_HK, strSCPlace_City, strSCPlace_Province, strCHPlace_City, strCHPlace_Province, loginInfo.UserId, ref strErr);
+                fs0305_Logic.SetFY(listInfoData, strSupplier_BJ, strSupplier_HK, strSCPlace_City, strSCPlace_Province, strCHPlace_City, strCHPlace_Province, loginInfo.UserId, ref strErr);
                 if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -768,9 +768,9 @@ namespace SPPSApi.Controllers.G99
             ApiResult apiresult = new ApiResult();
             dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
-            { 
+            {
                 string strFileName = dataform.fileName;
-                strFileName ="-"+strFileName.Substring(strFileName.Length - 5);
+                strFileName = "-" + strFileName.Substring(strFileName.Length - 5);
                 string fileSavePath = strFileName + ".pdf";
                 apiresult.code = ComConstant.SUCCESS_CODE;
                 apiresult.data = fileSavePath;

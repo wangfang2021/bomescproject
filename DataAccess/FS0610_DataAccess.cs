@@ -921,7 +921,7 @@ namespace DataAccess
             ssql += "  t3.vcProName3,t3.vcLT3, t3.vcCalendar3, ";
             ssql += "  t3.vcProName4,t3.vcLT4, t3.vcCalendar4  ";
             ssql += "  from TSoqReply t1 ";
-            ssql += "  left join (select * from tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE()) t2 ";
+            ssql += "  left join (select vcPartsNo, vcDock, vcCarFamilyCode, vcQJcontainer, iQuantityPerContainer,vcPorType, vcZB, vcQFflag,dTimeFrom,dTimeTo from tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE()) t2 ";
             ssql += "  on t1.vcPart_id = t2.vcPartsNo and t1.vcCarType = t2.vcCarFamilyCode ";
             ssql += "  left join ProRuleMst t3 ";
             ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB = t2.vcZB ";

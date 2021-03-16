@@ -51,7 +51,7 @@ namespace DataAccess
                 //strSql.AppendLine("  [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a   ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C012') c on a.vcOEOrSP = c.vcValue    ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue  where 1=1 and a.vcState in (select vcValue from TCode where vcCodeId='C034')   ");
-                strSql.AppendLine("    select a.[iAutoId],a.[vcPackingPlant] ,a.[vcReceiver],convert(varchar(10), a.[dSynchronizationDate],111) as [dSynchronizationDate], b.vcName as [vcState],    ");
+                strSql.AppendLine("    select a.[iAutoId],a.[vcPackingPlant] ,a.[vcReceiver],convert(varchar(10), a.[dSynchronizationDate],111) as [dSynchronizationDate], case when isnull(a.vcIsEdit,'0')='1' then e.vcName else b.vcName end  as [vcState],    ");
                 strSql.AppendLine("     a.[vcPartNo],convert(varchar(10), a.[dUseStartDate],111) as [dUseStartDate],convert(varchar(10), a.[dUserEndDate],111) as [dUserEndDate], a.[vcPartName],       "); 
                 strSql.AppendLine("     a.[vcCarType],c.vcName as [vcOEOrSP], a.[vcSupplier_id],     ");
                 strSql.AppendLine("     case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea else a.vcWorkArea end as [vcWorkArea],    ");
@@ -71,6 +71,7 @@ namespace DataAccess
                 strSql.AppendLine("     left join (select vcValue,vcName from TCode where vcCodeId='C012') c on a.vcOEOrSP = c.vcValue        ");
                 strSql.AppendLine("     left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue     ");
                 strSql.AppendLine("     left join (select * from [THeZiManageTmp] where vcDelFlag='0') d on a.iAutoId =d.iAutoId    ");
+                strSql.AppendLine("     left join (select vcValue,vcName from TCode where vcCodeId='C034') e on d.vcState = e.vcValue     ");
                 strSql.AppendLine("   where 1=1 and a.vcState in (select vcValue from TCode where vcCodeId='C034')     ");
                 strSql.AppendLine("       ");
                 strSql.AppendLine("       ");
@@ -662,11 +663,21 @@ namespace DataAccess
 
                 if (vcState == "1" || vcState == "3")
                 {
+                    int editSate = 0;
+                    if (vcState == "1")
+                    {
+                        editSate = 5;
+                    }
+                    else
+                    {
+                        editSate = 6;
+                    }
+
                     strSql.AppendLine(" delete from  THeZiManageTmp where iAutoId=" + iAutoId + ";   ");
                     strSql.AppendLine("   insert into [THeZiManageTmp] (iAutoId,vcState,vcSupplier_id,vcWorkArea,vcIntake,vcBoxMaxIntake,   ");
                     strSql.AppendLine("   vcBoxType,vcLength,vcWide   ");
                     strSql.AppendLine("   ,vcHeight,vcEmptyWeight,vcUnitNetWeight,vcImageRoutes,vcDelFlag,[vcOperatorID], [dOperatorTime]) values   ");
-                    strSql.AppendLine("    ( " + iAutoId + ",'" + vcState + "','" + vcSupplier_id + "','" + vcWorkArea + "','" + vcIntake + "','" + vcBoxMaxIntake + "',  ");
+                    strSql.AppendLine("    ( " + iAutoId + ",'" + editSate + "','" + vcSupplier_id + "','" + vcWorkArea + "','" + vcIntake + "','" + vcBoxMaxIntake + "',  ");
                     strSql.AppendLine("   '" + vcBoxType + "','" + vcLength + "','" + vcWide + "',   ");
                     strSql.AppendLine("   '" + vcHeight + "','" + vcEmptyWeight + "','" + vcUnitNetWeight + "','" + vcImageRoutes + "','0','" + userId + "',GETDATE()   ");
                     strSql.AppendLine("   );   ");

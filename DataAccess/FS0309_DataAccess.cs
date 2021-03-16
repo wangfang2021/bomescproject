@@ -655,7 +655,7 @@ namespace DataAccess
                 {
                     strSql.Append("       insert into #TPrice_temp        \r\n");
                     strSql.Append("       (        \r\n");
-                    strSql.Append("        vcChange,vcPart_id,dUseBegin,dUseEnd,vcProjectType,vcSupplier_id,vcSupplier_Name        \r\n");
+                    strSql.Append("        iAutoId,vcChange,vcPart_id,dUseBegin,dUseEnd,vcProjectType,vcSupplier_id,vcSupplier_Name        \r\n");
                     strSql.Append("       ,dProjectBegin,dProjectEnd,vcHaoJiu,dJiuBegin,dJiuEnd,dJiuBeginSustain,vcPriceChangeInfo        \r\n");
                     strSql.Append("       ,vcPriceState,dPriceStateDate,vcPriceGS,decPriceOrigin,decPriceAfter,decPriceTNPWithTax,dPricebegin        \r\n");
                     strSql.Append("       ,dPriceEnd,vcCarTypeDev,vcCarTypeDesign,vcPart_Name,vcOE,vcPart_id_HK,vcStateFX        \r\n");
@@ -666,7 +666,8 @@ namespace DataAccess
                     strSql.Append("       )        \r\n");
                     strSql.Append("       values        \r\n");
                     strSql.Append("       (        \r\n");
-                    strSql.Append("       	  " + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "              \r\n");
+                    strSql.Append("       	  " + ComFunction.getSqlValue(listInfoData[i]["iAutoId"], false) + "              \r\n");
+                    strSql.Append("       	 ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "              \r\n");
                     strSql.Append("       	 ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "             \r\n");
                     strSql.Append("       	 ," + ComFunction.getSqlValue(listInfoData[i]["dUseBegin"], false) + "             \r\n");
                     strSql.Append("       	 ," + ComFunction.getSqlValue(listInfoData[i]["dUseEnd"], false) + "               \r\n");

@@ -87,7 +87,7 @@ namespace Logic
 
                 try
                 {
-                    if (dt.Select("生产部署='" + dt.Rows[i]["生产部署"].ToString().ToUpper() + "' and 组别='" + dt.Rows[i]["组别"].ToString().ToUpper() + "'").Length > 1)
+                    if (dt.Select("vcPorType='" + dt.Rows[i]["vcPorType"].ToString().ToUpper() + "' and vcZB='" + dt.Rows[i]["vcZB"].ToString().ToUpper() + "'").Length > 1)
                     {
                         msg = " 第" + (i + 2) + "行,此生产部署和组别的导入数据不唯一，导入失败！";
                         break;

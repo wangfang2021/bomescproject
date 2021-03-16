@@ -67,7 +67,7 @@ namespace SPPSApi.Controllers.G12
                 string strMsg = "";
                 string[,] headers = new string[,] {{"对象月","品番","订购数量"},
                                                 {"vcMonth", "vcPartsNo", "iFZNum"},
-                                                {"","",FieldCheck.Num},
+                                                {FieldCheck.FNum, FieldCheck.NumChar, FieldCheck.Num},
                                                 {"7","12","10"},//最大长度设定,不校验最大长度用0
                                                 {"7","12","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0

@@ -242,5 +242,220 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable GetName(string kind)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                if (kind == "gq")
+                    sql.Append("select vcValue,vcName from TCode where vcCodeId='C017'");
+                else if (kind == "shf")
+                    sql.Append("select vcValue,vcMeaning as vcName  from TCode where vcCodeId='C018'");
+                else if (kind == "supplier")
+                    sql.Append("select vcSupplier_id as vcValue,vcSupplier_name as vcName from TSupplier");
+                else if(kind=="bzplant")
+                    sql.Append("select vcValue,vcMeaning as vcName from TCode where vcCodeId='C023'");
+
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId,ref string strErrorName)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM [TEDTZPartsNoMaster_Temp] where vcOperatorID='" + strUserId + "' \n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    #region 插入临时表
+                    sql.Append("INSERT INTO [TEDTZPartsNoMaster_Temp]    \n");
+                    sql.Append("           ([vcPart_id]    \n");
+                    sql.Append("           ,[dTimeFrom]    \n");
+                    sql.Append("           ,[dTimeTo]    \n");
+                    sql.Append("           ,[vcBZPlant]    \n");
+                    sql.Append("           ,[vcSHF]    \n");
+                    sql.Append("           ,[vcGQ]    \n");
+                    sql.Append("           ,[vcCarType]    \n");
+                    sql.Append("           ,[vcSupplier_id]    \n");
+                    sql.Append("           ,[vcSR]    \n");
+                    sql.Append("           ,[vcKanBanNo]    \n");
+                    sql.Append("           ,[iContainerQuantity]    \n");
+                    sql.Append("           ,[vcPartNameEn]    \n");
+                    sql.Append("           ,[vcPartNameCn]    \n");
+                    sql.Append("           ,[vcInProcess]    \n");
+                    sql.Append("           ,[vcTGProcess]    \n");
+                    sql.Append("           ,[vcPreProcess]    \n");
+                    sql.Append("           ,[vcPreProcessPassTime]    \n");
+                    sql.Append("           ,[vcInProcessSendTime]    \n");
+                    sql.Append("           ,[vcPhotoPath]    \n");
+                    sql.Append("           ,[vcRemark1]    \n");
+                    sql.Append("           ,[vcRemark2]    \n");
+                    sql.Append("           ,[vcOperatorID]    \n");
+                    sql.Append("           ,[dOperatorTime])    \n");
+                    sql.Append("     VALUES    \n");
+                    sql.Append("           ('"+dt.Rows[i]["vcPart_id"].ToString()+"'    \n");
+                    sql.Append("           ,nullif('" + dt.Rows[i]["dTimeFrom"].ToString() + "','')    \n");
+                    sql.Append("           ,nullif('" + dt.Rows[i]["dTimeTo"].ToString() + "','')    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcBZPlant"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSHF"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcGQ"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcCarType"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSupplier_id"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSR"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcKanBanNo"].ToString() + "'    \n");
+                    sql.Append("           ,nullif('" + dt.Rows[i]["iContainerQuantity"].ToString() + "','')    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcPartNameEn"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcPartNameCn"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcInProcess"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcTGProcess"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcPreProcess"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcPreProcessPassTime"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcInProcessSendTime"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcPhotoPath"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcRemark1"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcRemark2"].ToString() + "'    \n");
+                    sql.Append("           ,'"+strUserId+"'    \n");
+                    sql.Append("           ,getdate())    \n");
+                    #endregion
+                }
+                #region insert sql
+                sql.Append("INSERT INTO [TEDTZPartsNoMaster]    \n");
+                sql.Append("           ([vcPart_id]    \n");
+                sql.Append("           ,[dTimeFrom]    \n");
+                sql.Append("           ,[dTimeTo]    \n");
+                sql.Append("           ,[vcBZPlant]    \n");
+                sql.Append("           ,[vcSHF]    \n");
+                sql.Append("           ,[vcGQ]    \n");
+                sql.Append("           ,[vcCarType]    \n");
+                sql.Append("           ,[vcSupplier_id]    \n");
+                sql.Append("           ,[vcSR]    \n");
+                sql.Append("           ,[vcKanBanNo]    \n");
+                sql.Append("           ,[iContainerQuantity]    \n");
+                sql.Append("           ,[vcPartNameEn]    \n");
+                sql.Append("           ,[vcPartNameCn]    \n");
+                sql.Append("           ,[vcInProcess]    \n");
+                sql.Append("           ,[vcTGProcess]    \n");
+                sql.Append("           ,[vcPreProcess]    \n");
+                sql.Append("           ,[vcPreProcessPassTime]    \n");
+                sql.Append("           ,[vcInProcessSendTime]    \n");
+                sql.Append("           ,[vcPhotoPath]    \n");
+                sql.Append("           ,[vcRemark1]    \n");
+                sql.Append("           ,[vcRemark2]    \n");
+                sql.Append("           ,[vcOperatorID]    \n");
+                sql.Append("           ,[dOperatorTime])    \n");
+                sql.Append("SELECT t1.[vcPart_id]    \n");
+                sql.Append("      ,t1.[dTimeFrom]    \n");
+                sql.Append("      ,t1.[dTimeTo]    \n");
+                sql.Append("      ,t1.[vcBZPlant]    \n");
+                sql.Append("      ,t1.[vcSHF]    \n");
+                sql.Append("      ,t1.[vcGQ]    \n");
+                sql.Append("      ,t1.[vcCarType]    \n");
+                sql.Append("      ,t1.[vcSupplier_id]    \n");
+                sql.Append("      ,t1.[vcSR]    \n");
+                sql.Append("      ,t1.[vcKanBanNo]    \n");
+                sql.Append("      ,t1.[iContainerQuantity]    \n");
+                sql.Append("      ,t1.[vcPartNameEn]    \n");
+                sql.Append("      ,t1.[vcPartNameCn]    \n");
+                sql.Append("      ,t1.[vcInProcess]    \n");
+                sql.Append("      ,t1.[vcTGProcess]    \n");
+                sql.Append("      ,t1.[vcPreProcess]    \n");
+                sql.Append("      ,t1.[vcPreProcessPassTime]    \n");
+                sql.Append("      ,t1.[vcInProcessSendTime]    \n");
+                sql.Append("      ,t1.[vcPhotoPath]    \n");
+                sql.Append("      ,t1.[vcRemark1]    \n");
+                sql.Append("      ,t1.[vcRemark2]    \n");
+                sql.Append("      ,t1.[vcOperatorID]    \n");
+                sql.Append("      ,t1.[dOperatorTime]    \n");
+                sql.Append("  FROM [TEDTZPartsNoMaster_Temp] t1    \n");
+                sql.Append("  left join TEDTZPartsNoMaster t2     \n");
+                sql.Append("  on t1.vcPart_id=t2.vcPart_id and t1.vcSHF=t2.vcSHF and t1.dTimeFrom=t2.dTimeFrom    \n");
+                sql.Append("  where t2.iAutoId is null and t1.vcOperatorID='" + strUserId + "'    \n");
+                #endregion
+
+                #region update sql
+                sql.Append("UPDATE t2    \n");
+                sql.Append("   SET t2.[dTimeTo] = t1.[dTimeTo]    \n");
+                sql.Append("      ,t2.[vcBZPlant] = t1.[vcBZPlant]    \n");
+                sql.Append("      ,t2.[vcGQ] = t1.[vcGQ]    \n");
+                sql.Append("      ,t2.[vcCarType] = t1.[vcCarType]    \n");
+                sql.Append("      ,t2.[vcSupplier_id] = t1.[vcSupplier_id]    \n");
+                sql.Append("      ,t2.[vcSR] = t1.[vcSR]    \n");
+                sql.Append("      ,t2.[vcKanBanNo] = t1.[vcKanBanNo]    \n");
+                sql.Append("      ,t2.[iContainerQuantity] = t1.[iContainerQuantity]    \n");
+                sql.Append("      ,t2.[vcPartNameEn] = t1.[vcPartNameEn]    \n");
+                sql.Append("      ,t2.[vcPartNameCn] = t1.[vcPartNameCn]    \n");
+                sql.Append("      ,t2.[vcInProcess] = t1.[vcInProcess]    \n");
+                sql.Append("      ,t2.[vcTGProcess] = t1.[vcTGProcess]    \n");
+                sql.Append("      ,t2.[vcPreProcess] = t1.[vcPreProcess]    \n");
+                sql.Append("      ,t2.[vcPreProcessPassTime] = t1.[vcPreProcessPassTime]    \n");
+                sql.Append("      ,t2.[vcInProcessSendTime] = t1.[vcInProcessSendTime]    \n");
+                sql.Append("      ,t2.[vcPhotoPath] = t1.[vcPhotoPath]    \n");
+                sql.Append("      ,t2.[vcRemark1] = t1.[vcRemark1]    \n");
+                sql.Append("      ,t2.[vcRemark2] = t1.[vcRemark2]    \n");
+                sql.Append("      ,t2.[vcOperatorID] = t1.[vcOperatorID]    \n");
+                sql.Append("      ,t2.[dOperatorTime] = t1.[dOperatorTime]    \n");
+                sql.Append("from    \n");
+                sql.Append("(select * from [TEDTZPartsNoMaster_Temp])t1    \n");
+                sql.Append("inner join TEDTZPartsNoMaster t2     \n");
+                sql.Append("on t1.vcPart_id=t2.vcPart_id and t1.vcSHF=t2.vcSHF and t1.dTimeFrom=t2.dTimeFrom    \n");
+                sql.Append("where t1.vcOperatorID='" + strUserId + "'     \n");
+                #endregion
+
+                if (sql.Length > 0)
+                {
+                    //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
+                    sql.Append("  	  DECLARE @errorName varchar(50)      \r\n");
+                    sql.Append("  	  set @errorName=''      \r\n");
+                    sql.Append("  	  set @errorName=(      \r\n");
+                    sql.Append("  	  	select vcPart_id+'-'+vcSHF +';' from      \r\n");
+                    sql.Append("  	  	(      \r\n");
+                    sql.Append("  	  		select distinct a.vcPart_id,a.vcSHF from    \r\n");
+                    sql.Append("  			(   \r\n");
+                    sql.Append("  				select * from TEDTZPartsNoMaster a   \r\n");
+                    sql.Append("  			) a      \r\n");
+                    sql.Append("  	  		left join      \r\n");
+                    sql.Append("  	  		(      \r\n");
+                    sql.Append("  	  		   select * from TEDTZPartsNoMaster      \r\n");
+                    sql.Append("  	  		)b on a.vcPart_id=b.vcPart_id and a.vcSHF=b.vcSHF and a.iAutoId<>b.iAutoId      \r\n");
+                    sql.Append("  	  		   and       \r\n");
+                    sql.Append("  	  		   (      \r\n");
+                    sql.Append("  	  			   (a.dTimeFrom>=b.dTimeFrom and a.dTimeFrom<=b.dTimeTo)      \r\n");
+                    sql.Append("  	  			   or      \r\n");
+                    sql.Append("  	  			   (a.dTimeTo>=b.dTimeFrom and a.dTimeTo<=b.dTimeTo)      \r\n");
+                    sql.Append("  	  		   )      \r\n");
+                    sql.Append("  	  		where b.iAutoId is not null      \r\n");
+                    sql.Append("  	  	)a for xml path('')      \r\n");
+                    sql.Append("  	  )      \r\n");
+                    sql.Append("  	         \r\n");
+                    sql.Append("  	  if @errorName<>''      \r\n");
+                    sql.Append("  	  begin      \r\n");
+                    sql.Append("  	    select CONVERT(int,'-->'+@errorName+'<--')      \r\n");
+                    sql.Append("  	  end       \r\n");
+
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorName = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
     }
 }

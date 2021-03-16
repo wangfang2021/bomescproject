@@ -62,6 +62,7 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> row = new Dictionary<string, object>();
                 row["vcName"] = "空";
                 row["vcValue"] = "空";
+                dataList_C002.Add(row);
                 Dictionary<string, object> row2 = new Dictionary<string, object>();
                 row2["vcName"] = "处理中";
                 row2["vcValue"] = "处理中";
@@ -287,23 +288,6 @@ namespace SPPSApi.Controllers.G03
                     string[,] strSpecialCheck = {
                         //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
                         //vcChange=1时，vcHaoJiu如果为1，如果内容列不为空(H)，则内容必须为H，如果内容为空，则对具体内容不做判断
-                        { "变更事项",
-                            "vcChange",//验证vcChange字段
-                            "新设"
-                            ,"1",//当vcChange=1时   当该字段值为这个值时触发后续校验，如果值为空，那么表示只要有值就触发后续校验
-                            "号旧",
-                            "vcHaoJiu",//判断字段
-                            "1", //1:该字段不能为空 0:该字段必须为空
-                            "号口",
-                            "H" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
-                        },
-                        { "变更事项","vcChange", "打切旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
-                        { "变更事项","vcChange", "新车新设","1", "旧型开始","dJiuBegin","0", "空","" },
-                        { "变更事项","vcChange", "新车新设","1", "旧型结束","dJiuEnd","0", "空","" },
-                        { "变更事项","vcChange", "新车新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
-                        { "变更事项","vcChange", "打切旧型","3", "旧型开始","dJiuBegin","1", "","" },
-                        { "变更事项","vcChange", "打切旧型","3", "旧型结束","dJiuEnd","1", "","" },
-                        { "变更事项","vcChange", "打切旧型","3", "旧型持续开始","dJiuBeginSustain","1", "","" },
                         { "TNP含税","decPriceTNPWithTax", "有金额","", "价格开始","dPricebegin","1", "","" },
                         { "TNP含税","decPriceTNPWithTax", "有金额","", "价格结束","dPriceEnd","1", "","" }
                     };

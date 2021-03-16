@@ -33,7 +33,7 @@ namespace SPPSApi.Controllers.G12
         private readonly string FunctionID = "FS1212";
 
         public FS1212Controller(IWebHostEnvironment webHostEnvironment)
-        {
+        { 
             _webHostEnvironment = webHostEnvironment;
         }
 

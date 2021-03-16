@@ -80,14 +80,14 @@ namespace Logic
             DataTable dt_sz = dataAccess.getsz();
             DataTable dt_pt = dataAccess.getPartType();
 
-            for (int i = 2; i < dt.Rows.Count; i++)
+            for (int i = 0; i < dt.Rows.Count; i++)
             {
                 //if (dt.Rows[i][0].ToString() == "") break;
                 //string protype = dt.Rows[i][0].ToString() + "-" + dt.Rows[i][1].ToString();
 
                 try
                 {
-                    if (dt.Select("生产部署='" + dt.Rows[i]["生产部署"].ToString().ToUpper() + "' and 组别='" + dt.Rows[i]["组别"].ToString().ToUpper() + "'").Length > 1)
+                    if (dt.Select("vcPorType='" + dt.Rows[i]["vcPorType"].ToString().ToUpper() + "' and vcZB='" + dt.Rows[i]["vcZB"].ToString().ToUpper() + "'").Length > 1)
                     {
                         msg = " 第" + (i + 2) + "行,此生产部署和组别的导入数据不唯一，导入失败！";
                         break;

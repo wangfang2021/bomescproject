@@ -666,7 +666,7 @@ namespace Common
 
                 if (sheet != null)
                 {
-                    IRow firstRow = sheet.GetRow(startRow);
+                    IRow firstRow = sheet.GetRow(0);
                     int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
 
                     //对应索引
@@ -680,7 +680,7 @@ namespace Common
                             string cellValue = Header[0, j];
                             if (!string.IsNullOrEmpty(cellValue))
                             {
-                                if (Header[0, i] == cellValue)
+                                if (Header[0, i] == cellValue && i == j)
                                 {
                                     bFound = true;
                                     index.Add(j);
@@ -742,7 +742,7 @@ namespace Common
                 #region 校验格式
 
                 for (int i = 0; i < data.Rows.Count; i++)
-                {
+                { 
                     DataRow dr = data.Rows[i];
                     for (int j = 0; j < Header.GetLength(1); j++)
                     {

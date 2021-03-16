@@ -498,6 +498,14 @@ namespace SPPSApi.Controllers.G05
                         apiResult.data = listInfoData[i]["vcPartNo"] +"状态不正确,必须是待回复或退回，才能进行回复操作！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    string vcImageRoutes = listInfoData[i]["vcImageRoutes"] == null ? "" : listInfoData[i]["vcImageRoutes"].ToString();
+                    if (vcImageRoutes.Length==0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "尚未编辑上传图片,不能回复！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    
                 }
                 fs0503_Logic.reply(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

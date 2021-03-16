@@ -82,11 +82,8 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMon = dataForm.vcMon;
-            string vcPartsNo = dataForm.vcPartsNo;
-            string vcYesOrNo = dataForm.vcYesOrNo;
-            vcMon = vcMon == null ? "" : vcMon;
-            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
                 vcPartsNo = vcPartsNo.Replace("-", "").ToString();
@@ -104,8 +101,8 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = dataList;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索不到数据";
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -121,7 +118,7 @@ namespace SPPSApi.Controllers.G12
         #region 已发注检索
         [HttpPost]
         [EnableCors("any")]
-        public string searchAddFinshZApi([FromBody] dynamic data)
+        public string searchAddFinshApi([FromBody] dynamic data)
         {
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
@@ -132,11 +129,8 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMon = dataForm.vcMon;
-            string vcPartsNo = dataForm.vcPartsNo;
-            string vcYesOrNo = dataForm.vcYesOrNo;
-            vcMon = vcMon == null ? "" : vcMon;
-            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
                 vcPartsNo = vcPartsNo.Replace("-", "").ToString();
@@ -154,8 +148,8 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = dataList;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索不到数据";
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -163,57 +157,6 @@ namespace SPPSApi.Controllers.G12
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-
-        #region 导出
-        [HttpPost]
-        [EnableCors("any")]
-        public string exportApi([FromBody] dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            ApiResult apiResult = new ApiResult();
-            //以下开始业务处理
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMon = dataForm.vcMon;
-            string vcPartsNo = dataForm.vcPartsNo;
-            string vcYesOrNo = dataForm.vcYesOrNo;
-            vcMon = vcMon == null ? "" : vcMon;
-            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
-            vcYesOrNo = vcYesOrNo == null ? "" : vcYesOrNo;
-            if (!string.IsNullOrEmpty(vcPartsNo))
-            {
-                vcPartsNo = vcPartsNo.Replace("-", "").ToString();
-            }
-            try
-            {
-                string _msg;
-                DataTable dt = null;// logic.GetZJFzRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
-                string[] fields = { "vcMonth", "vcPartsNo", "iFZNum", "vcPartsNoFZ", "vcSource" };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub2.xlsx", 1, loginInfo.UserId, FunctionID);
-                if (filepath == "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -256,9 +199,9 @@ namespace SPPSApi.Controllers.G12
                 {
                     string[,] strField = new string[,] {{"对象月","品番","订购数量"},
                                                 {"vcMonth", "vcPartsNo", "iFZNum"},
-                                                {"","",FieldCheck.Num},
-                                                {"20","20","10"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1"},//最小长度设定,可以为空用0
+                                                {FieldCheck.FNum, FieldCheck.NumChar, FieldCheck.Num},
+                                                {"7","12","10"},//最大长度设定,不校验最大长度用0
+                                                {"7","12","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1207_Sub2");
@@ -313,7 +256,6 @@ namespace SPPSApi.Controllers.G12
             string vcOrder = dataForm.vcOrder;
             string vcSaleUser = dataForm.vcSaleUser;
 
-
             JArray listInfo = dataForm.temp;
             List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             DataTable dt = ListToDataTable(listInfoData);
@@ -328,7 +270,7 @@ namespace SPPSApi.Controllers.G12
                 if (msg == "")
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = "发注成功";
+                    apiResult.data = null;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.ERROR_CODE;

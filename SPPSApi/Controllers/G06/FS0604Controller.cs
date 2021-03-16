@@ -744,15 +744,15 @@ namespace SPPSApi.Controllers.G06
                 }
                 //织入操作的前提是已承认状态
                 //vcValue vcName 0   未发送1 待回复2   已回复3 已承认4   退回5 已织入
-                for (var i = 0; i < listInfoData.Count; i++)
-                {
-                    if (listInfoData[i]["vcState"].ToString() != "已承认")
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是已承认，才能进行织入操作！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
+                //for (var i = 0; i < listInfoData.Count; i++)
+                //{
+                //    if (listInfoData[i]["vcState"].ToString() != "已承认")
+                //    {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是已承认，才能进行织入操作！";
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //}
                 fs0604_Logic.sdweaveHandle(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

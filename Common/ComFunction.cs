@@ -666,7 +666,7 @@ namespace Common
 
                 if (sheet != null)
                 {
-                    IRow firstRow = sheet.GetRow(startRow);
+                    IRow firstRow = sheet.GetRow(0);
                     int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
 
                     //对应索引

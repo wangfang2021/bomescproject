@@ -324,7 +324,7 @@ namespace DataAccess
                         sql.Append("  update TPrice set    \r\n");
                         sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
                         sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
-                        sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+                        sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
 
 
                         //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
@@ -344,7 +344,7 @@ namespace DataAccess
                     else
                     {
                         sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+                        sql.Append("  decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                         sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
                         sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");

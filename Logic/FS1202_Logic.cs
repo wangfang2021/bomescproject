@@ -80,7 +80,7 @@ namespace Logic
             DataTable dt_sz = dataAccess.getsz();
             DataTable dt_pt = dataAccess.getPartType();
 
-            for (int i = 2; i < dt.Rows.Count; i++)
+            for (int i = 0; i < dt.Rows.Count; i++)
             {
                 //if (dt.Rows[i][0].ToString() == "") break;
                 //string protype = dt.Rows[i][0].ToString() + "-" + dt.Rows[i][1].ToString();

@@ -57,9 +57,9 @@ namespace DataAccess
                     //"vcSupplier_id", "vcWorkArea", "vcIsSureFlag", "vcLinkMan", "vcPhone", "vcEmail"
 
                     StringBuilder strSql = new StringBuilder();
-                    string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
-                    string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
-                    string vcIsSureFlag = dt.Rows[i]["vcIsSureFlag"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIsSureFlag"].ToString();
+                    string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString().Trim();
+                    string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString().Trim();
+                    string vcIsSureFlag = dt.Rows[i]["vcIsSureFlag"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIsSureFlag"].ToString().Trim();
                     if (vcIsSureFlag == "√")
                     {
                         vcIsSureFlag = "1";
@@ -67,17 +67,17 @@ namespace DataAccess
                     {
                         vcIsSureFlag = "0";
                     }
-                    string vcLinkMan1 = dt.Rows[i]["vcLinkMan1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan1"].ToString();
-                    string vcPhone1 = dt.Rows[i]["vcPhone1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone1"].ToString();
-                    string vcEmail1 = dt.Rows[i]["vcEmail1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail1"].ToString();
+                    string vcLinkMan1 = dt.Rows[i]["vcLinkMan1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan1"].ToString().Trim();
+                    string vcPhone1 = dt.Rows[i]["vcPhone1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone1"].ToString().Trim();
+                    string vcEmail1 = dt.Rows[i]["vcEmail1"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail1"].ToString().Trim();
 
-                    string vcLinkMan2 = dt.Rows[i]["vcLinkMan2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan2"].ToString();
-                    string vcPhone2 = dt.Rows[i]["vcPhone2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone2"].ToString();
-                    string vcEmail2 = dt.Rows[i]["vcEmail2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail2"].ToString();
+                    string vcLinkMan2 = dt.Rows[i]["vcLinkMan2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan2"].ToString().Trim();
+                    string vcPhone2 = dt.Rows[i]["vcPhone2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone2"].ToString().Trim();
+                    string vcEmail2 = dt.Rows[i]["vcEmail2"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail2"].ToString().Trim();
 
-                    string vcLinkMan3 = dt.Rows[i]["vcLinkMan3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan3"].ToString();
-                    string vcPhone3 = dt.Rows[i]["vcPhone3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone3"].ToString();
-                    string vcEmail3 = dt.Rows[i]["vcEmail3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail3"].ToString();
+                    string vcLinkMan3 = dt.Rows[i]["vcLinkMan3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLinkMan3"].ToString().Trim();
+                    string vcPhone3 = dt.Rows[i]["vcPhone3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPhone3"].ToString().Trim();
+                    string vcEmail3 = dt.Rows[i]["vcEmail3"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmail3"].ToString().Trim();
 
                     strSql.AppendLine("  declare @isExist int =0;   ");
                     strSql.AppendLine("  select @isExist=COUNT(*) from TSupplierInfo where vcSupplier_id='" + vcSupplier_id + "' and vcWorkArea='"+ vcWorkArea + "'   ");

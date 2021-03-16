@@ -125,7 +125,7 @@ namespace DataAccess
                 strSql.AppendLine("     	n.[vcInserter], n.[vcInserterDate],n.[vcFactoryOperatorID], n.[dFactoryOperatorTime],        ");
                 strSql.AppendLine("     	n.[vcOperatorID], n.[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("   from (      ");
-                strSql.AppendLine("      select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,      ");
+                strSql.AppendLine("      select a.LinId as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,      ");
                 strSql.AppendLine("      a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,      ");
                 strSql.AppendLine("      a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,      ");
                 strSql.AppendLine("      '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],      ");
@@ -269,7 +269,7 @@ namespace DataAccess
                     }
                 }
 
-                strSql.AppendLine("  order by  n.[vcState] asc,  n.[dOperatorTime] desc ");
+                strSql.AppendLine("  order by  n.[vcState] asc,  n.vcPartNo desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -1321,7 +1321,7 @@ namespace DataAccess
                 sql.Append("DELETE FROM [dbo].[THeZiManageImportTmp] where  vcOperatorID='" + strUserId + "' \n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    string vcType = dt.Rows[i]["vcType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcType"].ToString();
+                    string vcType = dt.Rows[i]["vcType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcType"].ToString().Trim();
                     if (vcType == "新增")
                     {
                         vcType = "1";
@@ -1335,10 +1335,10 @@ namespace DataAccess
                         vcType = "3";
                     }
 
-                    string vcPackingPlant = dt.Rows[i]["vcPackingPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackingPlant"].ToString();
-                    string vcReceiver = dt.Rows[i]["vcReceiver"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiver"].ToString();
-                    string dSynchronizationDate = dt.Rows[i]["dSynchronizationDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dSynchronizationDate"].ToString();
-                    string vcState = dt.Rows[i]["vcState"] == System.DBNull.Value ? "" : dt.Rows[i]["vcState"].ToString();
+                    string vcPackingPlant = dt.Rows[i]["vcPackingPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackingPlant"].ToString().Trim();
+                    string vcReceiver = dt.Rows[i]["vcReceiver"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiver"].ToString().Trim();
+                    string dSynchronizationDate = dt.Rows[i]["dSynchronizationDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dSynchronizationDate"].ToString().Trim();
+                    string vcState = dt.Rows[i]["vcState"] == System.DBNull.Value ? "" : dt.Rows[i]["vcState"].ToString().Trim();
                     #region
 
                     if (vcState == "未发送")
@@ -1370,12 +1370,12 @@ namespace DataAccess
                         vcState = "0";
                     }
                     #endregion
-                    string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
-                    string dUseStartDate = dt.Rows[i]["dUseStartDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseStartDate"].ToString();
+                    string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString().Trim();
+                    string dUseStartDate = dt.Rows[i]["dUseStartDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseStartDate"].ToString().Trim();
                     //string dUserEndDate = dt.Rows[i]["dUserEndDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dUserEndDate"].ToString();
-                    string vcPartName = dt.Rows[i]["vcPartName"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartName"].ToString();
-                    string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString();
-                    string vcOEOrSP = dt.Rows[i]["vcOEOrSP"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOEOrSP"].ToString();
+                    string vcPartName = dt.Rows[i]["vcPartName"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartName"].ToString().Trim();
+                    string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString().Trim();
+                    string vcOEOrSP = dt.Rows[i]["vcOEOrSP"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOEOrSP"].ToString().Trim();
                     if (vcOEOrSP == "×")
                     {
                         vcOEOrSP = "1";
@@ -1386,23 +1386,23 @@ namespace DataAccess
                     }
                     else
                     { }
-                    string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
+                    string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString().Trim();
                     string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
-                    string dExpectDeliveryDate = dt.Rows[i]["dExpectDeliveryDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dExpectDeliveryDate"].ToString();
-                    string vcExpectIntake = dt.Rows[i]["vcExpectIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcExpectIntake"].ToString();
-                    string vcIntake = dt.Rows[i]["vcIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIntake"].ToString();
-                    string vcBoxMaxIntake = dt.Rows[i]["vcBoxMaxIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxMaxIntake"].ToString();
-                    string vcBoxType = dt.Rows[i]["vcBoxType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxType"].ToString();
-                    string vcLength = dt.Rows[i]["vcLength"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLength"].ToString();
-                    string vcWide = dt.Rows[i]["vcWide"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWide"].ToString();
+                    string dExpectDeliveryDate = dt.Rows[i]["dExpectDeliveryDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dExpectDeliveryDate"].ToString().Trim();
+                    string vcExpectIntake = dt.Rows[i]["vcExpectIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcExpectIntake"].ToString().Trim();
+                    string vcIntake = dt.Rows[i]["vcIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIntake"].ToString().Trim();
+                    string vcBoxMaxIntake = dt.Rows[i]["vcBoxMaxIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxMaxIntake"].ToString().Trim();
+                    string vcBoxType = dt.Rows[i]["vcBoxType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxType"].ToString().Trim();
+                    string vcLength = dt.Rows[i]["vcLength"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLength"].ToString().Trim();
+                    string vcWide = dt.Rows[i]["vcWide"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWide"].ToString().Trim();
                     string vcHeight = dt.Rows[i]["vcHeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcHeight"].ToString();
-                    string vcEmptyWeight = dt.Rows[i]["vcEmptyWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmptyWeight"].ToString();
-                    string vcUnitNetWeight = dt.Rows[i]["vcUnitNetWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcUnitNetWeight"].ToString();
-                    string dSendDate = dt.Rows[i]["dSendDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dSendDate"].ToString();
-                    string dReplyDate = dt.Rows[i]["dReplyDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dReplyDate"].ToString();
-                    string dAdmitDate = dt.Rows[i]["dAdmitDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dAdmitDate"].ToString();
-                    string dWeaveDate = dt.Rows[i]["dWeaveDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dWeaveDate"].ToString();
-                    string vcMemo = dt.Rows[i]["vcMemo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMemo"].ToString();
+                    string vcEmptyWeight = dt.Rows[i]["vcEmptyWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmptyWeight"].ToString().Trim();
+                    string vcUnitNetWeight = dt.Rows[i]["vcUnitNetWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcUnitNetWeight"].ToString().Trim();
+                    string dSendDate = dt.Rows[i]["dSendDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dSendDate"].ToString().Trim();
+                    string dReplyDate = dt.Rows[i]["dReplyDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dReplyDate"].ToString().Trim();
+                    string dAdmitDate = dt.Rows[i]["dAdmitDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dAdmitDate"].ToString().Trim();
+                    string dWeaveDate = dt.Rows[i]["dWeaveDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dWeaveDate"].ToString().Trim();
+                    string vcMemo = dt.Rows[i]["vcMemo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMemo"].ToString().Trim();
                     string vcOperatorID = strUserId;
 
 

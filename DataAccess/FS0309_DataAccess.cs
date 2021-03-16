@@ -82,7 +82,7 @@ namespace DataAccess
                 strSql.Append("       )b9 on a.vcPriceChangeInfo=b9.vcValue           \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
-                if (strChange != null && strChange != "" && strChange != "空")
+                if (strChange != null && strChange != "" && strChange != "空" && strChange != "处理中")
                     strSql.Append("       and vcChange='" + strChange + "'         \n");
 
                 if (strChange != null && strChange != "" && strChange == "处理中")

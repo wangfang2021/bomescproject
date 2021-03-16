@@ -451,7 +451,7 @@ namespace SPPSApi.Controllers.G14
             {
                 return error_login();
             }
-            LoginInfo loginInfo = getLoginByToken(strToken);
+            LoginInfo loginInfo = getLoginByToken(strToken);  
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             try

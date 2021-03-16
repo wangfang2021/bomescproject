@@ -56,6 +56,12 @@ namespace SPPSApi.Controllers.G14
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
+
+                string zipFileName = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "TagZIP" + Path.DirectorySeparatorChar + "20210311098765432100.zip";
+                string filePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "TagTempFile";
+                fS1404_Logic.zip(zipFileName, filePath);
+
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

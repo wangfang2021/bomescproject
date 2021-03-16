@@ -82,12 +82,14 @@ namespace DataAccess
                 strSql.Append("       )b9 on a.vcPriceChangeInfo=b9.vcValue           \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
-                if(strChange!=null && strChange != "" && strChange != "空")
+                if (strChange != null && strChange != "" && strChange != "空")
                     strSql.Append("       and vcChange='" + strChange + "'         \n");
+
+                if (strChange != null && strChange != "" && strChange == "处理中")
+                    strSql.Append("       and isnull(vcChange,'')<>''         \n");
 
                 if (strChange != null && strChange == "空")
                     strSql.Append("       and vcChange=''         \n");
-
 
                 if (strPart_id != null && strPart_id != "")
                     strSql.Append("       and vcPart_id like '%" + strPart_id + "%'         \n");
@@ -557,7 +559,13 @@ namespace DataAccess
 
 
         #region 获取十年年计
-        public DataTable getOld_10_Year(List<Dictionary<string, object>> listInfoData)
+        /// <summary>
+        /// 获取十年年计
+        /// </summary>
+        /// <param name="listInfoData">前台勾选数据</param>
+        /// <param name="strProjectType">0内制 1外注</param>
+        /// <returns></returns>
+        public DataTable getOld_10_Year(List<Dictionary<string, object>> listInfoData,string strProjectType)
         {
             try
             {
@@ -575,6 +583,9 @@ namespace DataAccess
                     string strSupplier_id = listInfoData[i]["vcSupplier_id"].ToString();
                     string strReceiver = listInfoData[i]["vcReceiver"].ToString();
                     string strPart_id = listInfoData[i]["vcPart_id"].ToString();
+                    string strProjectType_temp = listInfoData[i]["vcProjectType"].ToString();
+                    if (strProjectType_temp!=strProjectType)//内制外注需要做排除
+                        continue;
 
                     strSql.Append("      insert into #TPrice10Year_temp       \n");
                     strSql.Append("       (         \n");
@@ -588,7 +599,7 @@ namespace DataAccess
                 }
                 strSql.Append("   select ROW_NUMBER() over(order by vcPart_id) as iNo,* from     \n");
                 strSql.Append("   (      \n");
-                strSql.Append("     select distinct a.vcPart_id,a.vcCarTypeDev,a.vcPart_Name,a.vcSupplier_Name,a.vcSupplier_id,a.vcNum1,a.vcNum2,a.vcNum3,a.vcNum4,a.vcNum5,a.vcNum6,a.vcNum7,a.vcNum8,a.vcNum9,a.vcNum10 from TPrice a          \n");
+                strSql.Append("     select distinct a.vcPart_id,a.vcCarTypeDev,a.vcPart_Name,a.vcSupplier_Name,a.vcSupplier_id,cast(a.vcNum1 as int) as vcNum1,cast(a.vcNum2 as int) as vcNum2,cast(a.vcNum3 as int) as vcNum3,cast(a.vcNum4 as int) as vcNum4,cast(a.vcNum5 as int) as vcNum5,cast(a.vcNum6 as int) as vcNum6,cast(a.vcNum7 as int) as vcNum7,cast(a.vcNum8 as int) as vcNum8,cast(a.vcNum9 as int) as vcNum9,cast(a.vcNum10 as int) as vcNum10 from TPrice a          \n");
                 strSql.Append("     inner join          \n");
                 strSql.Append("     (          \n");
                 strSql.Append("        select * from #TPrice10Year_temp          \n");

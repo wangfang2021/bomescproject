@@ -21,7 +21,7 @@ namespace DataAccess
                 sbr.Append(" SELECT iAutoId,vcSPINo,vcPart_Id_old,vcPart_Id_new,vcBJDiff, ");
                 sbr.Append(" vcDTDiff,vcPart_id_DT,vcPartName,CASE ISNULL(vcStartYearMonth,'') WHEN '' THEN '' ELSE SUBSTRING(RTRIM(LTRIM(vcStartYearMonth)),1,4)+'/'+SUBSTRING(RTRIM(LTRIM(vcStartYearMonth)),5,2) END AS vcStartYearMonth, ");
                 sbr.Append(" vcFXDiff,vcFXNo,vcChange,vcOldProj,vcOldProjTime,vcNewProj, ");
-                sbr.Append(" vcNewProjTime,vcCZYD,dHandleTime,vcSheetName, ");
+                sbr.Append(" vcNewProjTime,vcCZYD,dHandleTime,Convert(varchar(10),dHandleTime,111) as dHandleTime1,vcSheetName, ");
                 sbr.Append(" vcFileName,'0' as vcModFlag,'0' as vcAddFlag FROM TSPIList ");
                 sbr.Append("  WHERE 1=1  ");
                 if (!string.IsNullOrWhiteSpace(vcSPINO))
@@ -504,7 +504,7 @@ namespace DataAccess
                 if (sbr.Length > 0)
                 {
                     string sql = delSbr.ToString() + sbr.ToString();
-                    excute.ExcuteSqlWithStringOper(sql,"TK");
+                    excute.ExcuteSqlWithStringOper(sql, "TK");
                 }
 
             }

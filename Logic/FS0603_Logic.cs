@@ -2344,6 +2344,11 @@ namespace Logic
                 dataTable.Columns.Add("vcName");
                 dataTable.Columns.Add("vcValue");
             }
+            if (strSpSub == "SpotQty1402")
+            {
+                dataTable.Columns.Add("iPackingQty");
+                dataTable.Columns.Add("iSpotQty");
+            }
             if (strSpSub == "SP")
             {
                 dataTable.Columns.Add("LinId");

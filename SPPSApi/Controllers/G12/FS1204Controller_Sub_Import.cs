@@ -101,12 +101,12 @@ namespace SPPSApi.Controllers.G12
                           "0","0","0","0","0","0","0","0","0","0","0","0",
                           "0","0","0","0","0","0","0","0","0","0","0","0",
                           "0","0","0","0","0","0","0","0","0","0","0","0",
-                          "0","0"}//最小长度设定,可以为空用0
+                          "0","0"}//最小长度设定,可以为空用0  
                 };
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, 2, ref strMsg);
                     if (strMsg != "")
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传

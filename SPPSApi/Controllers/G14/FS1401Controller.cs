@@ -57,11 +57,13 @@ namespace SPPSApi.Controllers.G14
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> HaoJiuList = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
                 List<Object> InOutList = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-                List<Object> PartAreaList = ComFunction.convertAllToResult(ComFunction.getTCode("C063"));//品番归属地
+                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工场
+                List<Object> SPISStatusList = ComFunction.convertAllToResult(ComFunction.getTCode("C067"));//ＳＰＩＳ状态
 
                 res.Add("HaoJiuList", HaoJiuList);
                 res.Add("InOutList", InOutList);
-                res.Add("PartAreaList", PartAreaList);
+                res.Add("OrderPlantList", OrderPlantList);
+                res.Add("SPISStatusList", SPISStatusList);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -94,29 +96,26 @@ namespace SPPSApi.Controllers.G14
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strPartId = dataForm.PartId;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strInOut = dataForm.InOut;
-            string strPartArea = dataForm.PartArea;
-            string strSPISStatus = dataForm.SPISStatus;
-            string strCheckType = dataForm.CheckType;
-            string strFrom = dataForm.From;
-            string strTo = dataForm.To;
-            string strCarModel = dataForm.CarModel;
-            string strSPISType = dataForm.SPISType;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strFrom = dataForm.From == null ? "" : dataForm.From;
+            string strTo = dataForm.To == null ? "" : dataForm.To;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
+            string strSPISStatus = dataForm.SPISStatus == null ? "" : dataForm.SPISStatus;
             List<Object> listTime = dataForm.TimeList.ToObject<List<Object>>();
 
             try
             {
-                DataTable dataTable = fS1401_Logic.getSearchInfo(strPartId, strSupplierId, strSupplierPlant, strHaoJiu, strInOut, strPartArea, strSPISStatus, strCheckType, strFrom, strTo, strCarModel, strSPISType, listTime);
+                DataTable dataTable = fS1401_Logic.getSearchInfo(strPartId, strSupplierId, strSupplierPlant, strHaoJiu, strInOut, strOrderPlant, strFrom, strTo, strCarModel, strCheckType, strSPISStatus, listTime);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dFromTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dToTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -151,24 +150,23 @@ namespace SPPSApi.Controllers.G14
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strPartId = dataForm.PartId;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strInOut = dataForm.InOut;
-            string strPartArea = dataForm.PartArea;
-            string strSPISStatus = dataForm.SPISStatus;
-            string strCheckType = dataForm.CheckType;
-            string strFrom = dataForm.From;
-            string strTo = dataForm.To;
-            string strCarModel = dataForm.CarModel;
-            string strSPISType = dataForm.SPISType;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strFrom = dataForm.From == null ? "" : dataForm.From;
+            string strTo = dataForm.To == null ? "" : dataForm.To;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
+            string strSPISStatus = dataForm.SPISStatus == null ? "" : dataForm.SPISStatus;
             List<Object> listTime = dataForm.TimeList.ToObject<List<Object>>();
             try
             {
-                DataTable dataTable = fS1401_Logic.getSearchInfo(strPartId, strSupplierId, strSupplierPlant, strHaoJiu, strInOut, strPartArea, strSPISStatus, strCheckType, strFrom, strTo, strCarModel, strSPISType, listTime);
+                DataTable dataTable = fS1401_Logic.getSearchInfo(strPartId, strSupplierId, strSupplierPlant, strHaoJiu, strInOut, strOrderPlant, strFrom, strTo, strCarModel, strCheckType, strSPISStatus, listTime);
 
-                string[] fields = { "vcPartId", "vcPartENName", "dFromTime", "dToTime", "vcCarfamilyCode", "vcPartArea", "vcSupplierId", "vcSupplierPlant", "vcSPISType", "vcCheckType", "vcInOut", "vcHaoJiu", "vcPackType", "vcSPISStatus" };
+                string[] fields = { "vcPartId", "vcPartENName", "dFromTime", "dToTime", "vcCarfamilyCode", "vcOrderPlant", "vcSupplierId", "vcSupplierPlant", "vcInOut", "vcHaoJiu", "vcPackType", "vcCheckType", "vcSPISStatus" };
 
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1401_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -186,70 +184,6 @@ namespace SPPSApi.Controllers.G14
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        /// <summary>
-        /// 保存方法
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [EnableCors("any")]
-        public string saveApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
-                List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
-                string strModel = dataForm.selectmodel;
-                if (listMultipleData.Count==0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "info";
-                    apiResult.data = "最少有一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                DataTable dtMessage = fS0603_Logic.createTable("MES");
-                bool bReault = true;
-                DataTable dtImport = fS1401_Logic.checkSaveInfo(listMultipleData, strModel, ref bReault, ref dtMessage);
-                if (!bReault)
-                {
-                    //弹出错误dtMessage
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                fS1401_Logic.setSaveInfo(dtImport, loginInfo.UserId, ref dtMessage);
-                if (dtMessage.Rows.Count != 0)
-                {
-                    //弹出错误dtMessage
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.type = "info";
-                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

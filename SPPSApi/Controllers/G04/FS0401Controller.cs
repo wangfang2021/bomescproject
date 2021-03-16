@@ -99,6 +99,14 @@ namespace SPPSApi.Controllers.G04
                 dtConverter.addField("dDebugTime", ConvertFieldType.DateType, "yyyy/MM");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+
+                if (dataList.Count > 10000)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "结果条数大于10000条,请添加条件检索或导出。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -139,7 +147,7 @@ namespace SPPSApi.Controllers.G04
             {
 
                 DataTable dt = fs0401_Logic.searchApi(Part_id, TimeFrom, TimeTo, carType, InOut, DHFlag);
-                string[] fields = { "vcPackingPlant", "vcPartId", "dFromTime", "dToTime", "vcCarModel", "vcInOut", "vcHaoJiu", "vcOrderingMethod", "iPackingQty", "dFromTimeQty", "dToTimeQty", "vcOldProduction", "dDebugTime", "vcPartId_Replace" };
+                string[] fields = { "vcPackingPlant", "vcPartId", "dFromTime", "dToTime", "vcCarfamilyCode", "vcInOut_name", "vcHaoJiu_name", "vcOrderingMethod_name", "iPackingQty", "BoxFromTime_ed", "BoxToTime_ed", "vcOldProduction_name", "dDebugTime", "vcPartId_Replace" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0401.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

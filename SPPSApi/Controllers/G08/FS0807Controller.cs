@@ -56,8 +56,10 @@ namespace SPPSApi.Controllers.G08
 
                 List<Object> dataList_C017 = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//工区
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
                 res.Add("C017", dataList_C017);
                 res.Add("C018", dataList_C018);
+                res.Add("C023", dataList_C023);
 
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(fs0807_Logic.getAllSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
@@ -154,7 +156,7 @@ namespace SPPSApi.Controllers.G08
                     "收容数","品名(英文)","品名(中文)","自工程" ,"通过工程","前工程","前工程通过时间",
                     "自工程发货时间","照片","备注1","备注2"
                 };
-                string[] fields = { "vcGQ","vcPart_id","vcTimeFrom","vcTimeTo","vcCarType","vcSHF","vcSupplier_id","vcBZPlant","vcSR","vcKanBanNo",
+                string[] fields = { "vcGQ","vcPart_id","dTimeFrom","dTimeTo","vcCarType","vcSHF","vcSupplier_id","vcBZPlant","vcSR","vcKanBanNo",
                     "iContainerQuantity","vcPartNameEn","vcPartNameCn","vcInProcess","vcTGProcess","vcPreProcess","vcPreProcessPassTime",
                     "vcInProcessSendTime","vcPhotoPath","vcRemark1","vcRemark2"
                 };

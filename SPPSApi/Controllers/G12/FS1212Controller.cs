@@ -33,7 +33,7 @@ namespace SPPSApi.Controllers.G12
         private readonly string FunctionID = "FS1212";
 
         public FS1212Controller(IWebHostEnvironment webHostEnvironment)
-        {
+        { 
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -287,7 +287,7 @@ namespace SPPSApi.Controllers.G12
                     else if (dt.Rows[i]["vcQFflag"] != null && dt.Rows[i]["vcQFflag"].ToString() == "2")
                         dt.Rows[i]["vcQFflag"] = "×";
                 }
-                string[] fields = { "vcPartsNo","dFromTime","dToTime","vcDock","vcPartPlant","vcCarFamilyCode","vcPartENName",
+                string[] fields = { "vcPartsNo","dFromTime","dToTime","vcPartPlant","vcDock","vcCarFamilyCode","vcPartENName",
                                     "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcOrderingMethod","vcReceiver","vcSupplierId" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1212_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

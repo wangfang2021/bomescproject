@@ -641,29 +641,29 @@ namespace DataAccess
                 sbSQL = new StringBuilder();
                 //（作废）tKanbanPrintTbl增加了vcAB00、vcAB04列，对应参数vcPlanPrintAB、vcPlanProcAB - 刘刚
                 //tKanbanPrintTbl增加了vcAB01列，对应参数vcPlanProductionAB(Fron/To) - 20181007 李兴旺
-                sbSQL.AppendLine("SELECT t1.[vcPlanMonth] as vcMonth, ");//对象月
-                sbSQL.AppendLine("       t2.[vcPorType] as vcGC, ");//部署
-                sbSQL.AppendLine("       t2.[vcPartPlant] as vcPlant, ");//工厂
-                sbSQL.AppendLine("       t2.[iQuantityPerContainer] as vcQuantityPerContainer, ");//收容数
-                sbSQL.AppendLine("       t1.[iNo] as iNo, ");//ino
-                sbSQL.AppendLine("       t1.[vcPartsNo] as vcPartNo, ");//品番
-                sbSQL.AppendLine("       t1.[vcDock] as vcDock, ");//受入（有检索但没显示）
-                sbSQL.AppendLine("       t1.[vcKBorderno] as vcOrderNo, ");//订单号
-                sbSQL.AppendLine("       t1.[vcKBSerial] as vcSerial, ");//连番
-                sbSQL.AppendLine("       t1.[vcComDate00] as vcPlanPrintDate, ");//计划打印日期
-                //sbSQL.AppendLine("       t1.[vcBanZhi00] as vcPlanPrintBZ, ");//打印班值
-                sbSQL.AppendLine("       t1.[vcAB00] as vcPlanPrintAB, ");//打印班值(A/B) - 刘刚
-                sbSQL.AppendLine("       t1.[vcPrintTime] as vcRealPrintTime, ");//实际打印时间
-                sbSQL.AppendLine("       t1.[vcComDate01] as vcPlanProductionDate, ");//计划生产日期 - 李兴旺
-                sbSQL.AppendLine("       t1.[vcAB01] as vcPlanProductionAB, ");//生产班值(A/B) - 李兴旺
-                sbSQL.AppendLine("       t1.[vcComDate04] as vcPlanProcDate, ");//计划包装日期
-                //sbSQL.AppendLine("       t1.[vcBanZhi04] as vcPlanProcBZ, ");//包装班值
-                sbSQL.AppendLine("       t1.[vcAB04] as vcPlanProcAB, ");//包装班值(A/B) - 刘刚
+                sbSQL.AppendLine("SELECT t1.vcPlanMonth as vcMonth, ");//对象月
+                sbSQL.AppendLine("       t2.vcPorType as vcGC, ");//部署
+                sbSQL.AppendLine("       t2.vcPartPlant as vcPlant, ");//工厂
+                sbSQL.AppendLine("       t2.iQuantityPerContainer as vcQuantityPerContainer, ");//收容数
+                sbSQL.AppendLine("       t1.iNo as iNo, ");//ino
+                sbSQL.AppendLine("       t1.vcPartsNo as vcPartNo, ");//品番
+                sbSQL.AppendLine("       t1.vcDock as vcDock, ");//受入（有检索但没显示）
+                sbSQL.AppendLine("       t1.vcKBorderno as vcOrderNo, ");//订单号
+                sbSQL.AppendLine("       t1.vcKBSerial as vcSerial, ");//连番
+                sbSQL.AppendLine("       t1.vcComDate00 as vcPlanPrintDate, ");//计划打印日期
+                //sbSQL.AppendLine("       t1.vcBanZhi00 as vcPlanPrintBZ, ");//打印班值
+                sbSQL.AppendLine("       t1.vcAB00 as vcPlanPrintAB, ");//打印班值(A/B) - 刘刚
+                sbSQL.AppendLine("       t1.vcPrintTime as vcRealPrintTime, ");//实际打印时间
+                sbSQL.AppendLine("       t1.vcComDate01 as vcPlanProductionDate, ");//计划生产日期 - 李兴旺
+                sbSQL.AppendLine("       t1.vcAB01 as vcPlanProductionAB, ");//生产班值(A/B) - 李兴旺
+                sbSQL.AppendLine("       t1.vcComDate04 as vcPlanProcDate, ");//计划包装日期
+                //sbSQL.AppendLine("       t1.vcBanZhi04 as vcPlanProcBZ, ");//包装班值
+                sbSQL.AppendLine("       t1.vcAB04 as vcPlanProcAB, ");//包装班值(A/B) - 刘刚
                 sbSQL.AppendLine("       '' as vcRealProcTime ");//实际包装时间
-                sbSQL.AppendLine("  FROM [tKanbanPrintTbl] t1 ");
+                sbSQL.AppendLine("  FROM tKanbanPrintTbl t1 ");
                 sbSQL.AppendLine("  left join tPartInfoMaster t2  ");
-                sbSQL.AppendLine("    on t1.[vcPartsNo] = t2.[vcPartsNo] and t1.[vcDock] = t2.[vcDock] ");
-                sbSQL.AppendLine("   and t2.[dTimeFrom] <= t1.[vcPlanMonth] + '-01' and t2.dTimeTo >=  t1.[vcPlanMonth] + '-01' ");//01改为-01
+                sbSQL.AppendLine("   on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock = t2.vcDock ");
+                sbSQL.AppendLine("   and t2.dTimeFrom <= t1.vcPlanMonth + '-01' and t2.dTimeTo >=  t1.vcPlanMonth + '-01' ");//01改为-01
                 sbSQL.AppendLine(" where 1=1  ");
                 if (mon != null && mon.Trim() != "")
                 {
@@ -747,16 +747,16 @@ namespace DataAccess
                 sbSQL = new StringBuilder();
                 DataTable tmp2 = new DataTable();
                 sbSQL.AppendLine(" select distinct t.vcPart_id, t.vcSR, t.vcKBOrderNo, t.vcKBLFNo, t.dStart ");
-                sbSQL.AppendLine("   from TOperateSJ t ");//作业实绩表
-                sbSQL.AppendLine("   left join (");
-                sbSQL.AppendLine("              select a.vcPartId, a.vcReceiver, b.vcSufferIn, c.vcSupplierPlant from TSPMaster a "); //品番基础数据
+                sbSQL.AppendLine(" from TOperateSJ t ");//作业实绩表
+                sbSQL.AppendLine(" left join (");
+                sbSQL.AppendLine("              select a.vcPartId, a.vcReceiver, b.vcSufferIn from TSPMaster a "); //品番基础数据
                 sbSQL.AppendLine("              left join TSPMaster_SufferIn b ");
                 sbSQL.AppendLine("              on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId");
                 sbSQL.AppendLine("              left join TSPMaster_SupplierPlant c ");
                 sbSQL.AppendLine("              on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId");
                 sbSQL.AppendLine("              where a.vcInOut='0') t2 ");
-                sbSQL.AppendLine("   on t.vcPart_id=t2.vcPartId and t.vcSR=t2.vcSufferIn and t.vcSHF=t2.vcReceiver");
-                sbSQL.AppendLine("  where 1=1 and vcZYType='S0' ");
+                sbSQL.AppendLine(" on t.vcPart_id=t2.vcPartId and t.vcSR=t2.vcSufferIn and t.vcSHF=t2.vcReceiver");
+                sbSQL.AppendLine(" where 1=1 and vcZYType='S0' ");
                 if (mon != null && mon.Trim() != "")
                 {
                     string monfrom = Convert.ToDateTime(mon + "-01").AddMonths(-1).ToString("yyyyMM");
@@ -767,21 +767,21 @@ namespace DataAccess
                 {
                     sbSQL.AppendLine(" and t.vcPart_id like '" + partNo + "%' ");
                 }
-                if (plant != null && plant.Trim() != "")
-                {
-                    if (plant == "1")
-                    {
-                        sbSQL.AppendLine(" and t2.vcSupplierPlant='0' ");
-                    }
-                    else if (plant == "2")
-                    {
-                        sbSQL.AppendLine(" and t2.vcSupplierPlant='4' ");
-                    }
-                    else if (plant == "3")
-                    {
-                        sbSQL.AppendLine(" and t2.vcSupplierPlant='8' ");
-                    }
-                }
+                //if (plant != null && plant.Trim() != "")
+                //{
+                //    if (plant == "1")
+                //    {
+                //        sbSQL.AppendLine(" and t2.vcSupplierPlant='0' ");
+                //    }
+                //    else if (plant == "2")
+                //    {
+                //        sbSQL.AppendLine(" and t2.vcSupplierPlant='4' ");
+                //    }
+                //    else if (plant == "3")
+                //    {
+                //        sbSQL.AppendLine(" and t2.vcSupplierPlant='8' ");
+                //    }
+                //}
                 if (KbOrderId!=null&& KbOrderId.Trim() != "")
                 {
                     sbSQL.AppendLine(" and t.vcKBOrderNo like '" + KbOrderId + "%' ");

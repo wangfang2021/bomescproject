@@ -89,7 +89,7 @@ namespace SPPSApi.Controllers.G03
             {
                 string resMsg = "";
                 DataTable dt = fs0300_logic.searchApi(PartId, Supplier_id);
-                string[] fields = { "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcPartNameCn", "vcCarTypeDesign", "vcCarTypeDev", "dTimeFrom", "dTimeTo", "vcPartReplace", "vcInOutflag", "vcOE", "vcHKPart_id", "vcHaoJiu", "dJiuBegin", "dJiuEnd", "vcJiuYear", "vcNXQF", "dSSDate", "vcSupplier_id", "vcSupplierPlant", "vcSupplier_name", "vcSCPlace", "vcCHPlace", "vcSYTCode", "vcSCSName", "vcSCSAdress", "vcZXBZNo", "vcCarTypeName", "vcFXDiff", "vcFXNo", "vcSufferIn", "iPackingQty", "vcBoxType", "decPriceOrigin", "decPriceTNPWithTax", "vcPackNo", "vcBZPlant", "vcBZUnit" };
+                string[] fields = { "vcOriginCompany", "vcPart_id", "vcPartNameEn", "vcPartNameCn", "vcCarTypeDesign", "vcCarTypeDev", "dTimeFrom1", "dTimeTo1", "vcPartReplace", "vcInOutflag", "vcOE", "vcHKPart_id", "vcHaoJiu", "dJiuBegin1", "dJiuEnd1", "vcJiuYear", "vcNXQF", "dSSDate1", "vcSupplier_id", "vcSupplierPlant", "vcSupplier_name", "vcSCPlace", "vcCHPlace", "vcSYTCode", "vcSCSName", "vcSCSAdress", "vcZXBZNo", "vcCarTypeName", "vcFXDiff", "vcFXNo", "vcSufferIn", "iPackingQty", "vcBoxType", "decPriceOrigin", "decPriceTNPWithTax", "vcPackNo", "vcBZPlant", "vcBZUnit" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0300.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

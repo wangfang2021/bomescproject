@@ -1234,16 +1234,16 @@ namespace DataAccess
                 for (var i = 0; i < listInfoData.Count; i++)
                 {
                     StringBuilder strSql = new StringBuilder();
-                    string vcPackingPlant = listInfoData[i]["vcPackingPlant"].ToString()==null?null: listInfoData[i]["vcPackingPlant"].ToString();
-                    string vcReceiver = listInfoData[i]["vcReceiver"].ToString() == null ? null : listInfoData[i]["vcReceiver"].ToString();
-                    string dSynchronizationDate = listInfoData[i]["dSynchronizationDate"].ToString() == null ? null : listInfoData[i]["dSynchronizationDate"].ToString();
-                    string vcPartNo = listInfoData[i]["vcPartNo"].ToString() == null ? null : listInfoData[i]["vcPartNo"].ToString();
+                    string vcPackingPlant = listInfoData[i]["vcPackingPlant"]==null?null: listInfoData[i]["vcPackingPlant"].ToString();
+                    string vcReceiver = listInfoData[i]["vcReceiver"] == null ? null : listInfoData[i]["vcReceiver"].ToString();
+                    string dSynchronizationDate = listInfoData[i]["dSynchronizationDate"] == null ? null : listInfoData[i]["dSynchronizationDate"].ToString();
+                    string vcPartNo = listInfoData[i]["vcPartNo"] == null ? null : listInfoData[i]["vcPartNo"].ToString();
                     
-                    string dUseStartDate = listInfoData[i]["dUseStartDate"].ToString() == null ? null : listInfoData[i]["dUseStartDate"].ToString();
-                    string dUserEndDate = listInfoData[i]["dUserEndDate"].ToString() == null ? null : listInfoData[i]["dUserEndDate"].ToString();
-                    string vcPartName = listInfoData[i]["vcPartName"].ToString() == null ? null : listInfoData[i]["vcPartName"].ToString();
+                    string dUseStartDate = listInfoData[i]["dUseStartDate"] == null ? null : listInfoData[i]["dUseStartDate"].ToString();
+                    string dUserEndDate = listInfoData[i]["dUserEndDate"] == null ? null : listInfoData[i]["dUserEndDate"].ToString();
+                    string vcPartName = listInfoData[i]["vcPartName"] == null ? null : listInfoData[i]["vcPartName"].ToString();
                     //string vcCarType = listInfoData[i]["vcCarType"].ToString();
-                    string vcOEOrSP = listInfoData[i]["vcOEOrSP"].ToString() == null ? null : listInfoData[i]["vcOEOrSP"].ToString();
+                    string vcOEOrSP = listInfoData[i]["vcOEOrSP"] == null ? null : listInfoData[i]["vcOEOrSP"].ToString();
                     if (vcOEOrSP == "×")
                     {
                         vcOEOrSP = "1";
@@ -1254,7 +1254,7 @@ namespace DataAccess
                     }
                     else
                     { }
-                    string vcSupplier_id = listInfoData[i]["vcSupplier_id"].ToString() == null ? null : listInfoData[i]["vcSupplier_id"].ToString();
+                    string vcSupplier_id = listInfoData[i]["vcSupplier_id"] == null ? null : listInfoData[i]["vcSupplier_id"].ToString();
                     //string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();
 
                     strSql.AppendLine("  declare @isExist int =0;   ");

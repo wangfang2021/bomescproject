@@ -68,10 +68,10 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-        #region 检索
+        #region 未发注检索
         [HttpPost]
         [EnableCors("any")]
-        public string searchApi([FromBody] dynamic data)
+        public string searchFZJSApi([FromBody] dynamic data)
         {
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
@@ -82,30 +82,81 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMon = dataForm.vcMon;
-            string vcPartsNo = dataForm.vcPartsNo;
-            string vcYesOrNo = dataForm.vcYesOrNo;
-            vcMon = vcMon == null ? "" : vcMon;
-            vcPartsNo = vcPartsNo == null ? "" : vcPartsNo;
-            vcYesOrNo = vcYesOrNo == null ? "" : vcYesOrNo;
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
                 vcPartsNo = vcPartsNo.Replace("-", "").ToString();
             }
             try
             {
-                string _msg;
-                DataTable dt = logic.GetFzjsRenders(vcMon, vcPartsNo, vcYesOrNo, out _msg);
-                List<Object> dataList =new List<object>();
-                if (dt != null)
+                DataTable dtNoExict = logic.NoExict(vcMon);
+                if (dtNoExict.Rows.Count > 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "品番" + dtNoExict.Rows[0]["vcPartsNo"] + "未在基础数据中维护";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dt = logic.searchFZJS(vcMon, vcPartsNo);
+                if (dt != null && dt.Rows.Count > 0)
                 {
                     DtConverter dtConverter = new DtConverter();
                     dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                     dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                    dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = dataList;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 已发注检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string searchFZFinshApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
+            if (!string.IsNullOrEmpty(vcPartsNo))
+            {
+                vcPartsNo = vcPartsNo.Replace("-", "").ToString();
+            }
+            try
+            {
+                DataTable dt = logic.searchFZFinsh(vcMon, vcPartsNo);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    DtConverter dtConverter = new DtConverter();
+                    dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                    dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                    List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = dataList;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

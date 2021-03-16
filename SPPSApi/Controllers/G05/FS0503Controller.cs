@@ -492,10 +492,10 @@ namespace SPPSApi.Controllers.G05
                 }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "退回"&& listInfoData[i]["vcState"].ToString() != "待回复(已编辑)" && listInfoData[i]["vcState"].ToString() != "退回(已编辑)")
+                    if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "退回"&& listInfoData[i]["vcState"].ToString() != "待回复(已填写)" && listInfoData[i]["vcState"].ToString() != "退回(已填写)")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是待回复(已编辑)或退回(已编辑)，才能进行回复操作！";
+                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是待回复(已填写)或退回(已填写)，才能进行回复操作！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     string vcImageRoutes = listInfoData[i]["vcImageRoutes"] == null ? "" : listInfoData[i]["vcImageRoutes"].ToString();

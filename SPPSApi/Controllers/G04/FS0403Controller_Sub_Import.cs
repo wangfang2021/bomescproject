@@ -94,7 +94,7 @@ namespace SPPSApi.Controllers.G04
                                                 {"vcPart_Id", "iQuantity"},
                                                 {FieldCheck.NumCharLLL,FieldCheck.Num},
                                                 {"12","0"},//最大长度设定,不校验最大长度用0
-                                                {"10","1"}};//最小长度设定,可以为空用0
+                                                {"12","1"}};//最小长度设定,可以为空用0
 
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())

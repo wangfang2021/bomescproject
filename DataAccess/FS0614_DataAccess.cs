@@ -278,23 +278,23 @@ namespace DataAccess
 
                         if (bReault)
                         {
-                            //获取连番
-                            StringBuilder getSeqNo = new StringBuilder();
-                            getSeqNo.AppendLine("DECLARE @tmp INT");
-                            getSeqNo.AppendLine("SET @tmp = (SELECT COUNT(*) FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111))");
-                            getSeqNo.AppendLine("if @tmp = 0");
-                            getSeqNo.AppendLine("BEGIN");
-                            getSeqNo.AppendLine("INSERT INTO TSeqNo(FLAG,DDATE,SEQNO)");
-                            getSeqNo.AppendLine("VALUES('LBLH3',CONVERT(VARCHAR(10),GETDATE(),111),0)");
-                            getSeqNo.AppendLine("SELECT SEQNO FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111)");
-                            getSeqNo.AppendLine("END");
-                            getSeqNo.AppendLine("ELSE");
-                            getSeqNo.AppendLine("BEGIN");
-                            getSeqNo.AppendLine("SELECT SEQNO FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111)");
-                            getSeqNo.AppendLine("END");
-                            DataTable seqNodt = excute.ExcuteSqlWithSelectToDT(getSeqNo.ToString());
-                            int seqNo = Convert.ToInt32(seqNodt.Rows[0]["SEQNO"]);
-                            //
+                            ////获取连番
+                            //StringBuilder getSeqNo = new StringBuilder();
+                            //getSeqNo.AppendLine("DECLARE @tmp INT");
+                            //getSeqNo.AppendLine("SET @tmp = (SELECT COUNT(*) FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111))");
+                            //getSeqNo.AppendLine("if @tmp = 0");
+                            //getSeqNo.AppendLine("BEGIN");
+                            //getSeqNo.AppendLine("INSERT INTO TSeqNo(FLAG,DDATE,SEQNO)");
+                            //getSeqNo.AppendLine("VALUES('LBLH3',CONVERT(VARCHAR(10),GETDATE(),111),0)");
+                            //getSeqNo.AppendLine("SELECT SEQNO FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111)");
+                            //getSeqNo.AppendLine("END");
+                            //getSeqNo.AppendLine("ELSE");
+                            //getSeqNo.AppendLine("BEGIN");
+                            //getSeqNo.AppendLine("SELECT SEQNO FROM TSeqNo WHERE Flag = 'LBLH3' AND DDATE = CONVERT(VARCHAR(10),GETDATE(),111)");
+                            //getSeqNo.AppendLine("END");
+                            //DataTable seqNodt = excute.ExcuteSqlWithSelectToDT(getSeqNo.ToString());
+                            //int seqNo = Convert.ToInt32(seqNodt.Rows[0]["SEQNO"]);
+                            ////
                             foreach (Detail detail in order.Details)
                             {
                                 string tmp = "";
@@ -384,7 +384,7 @@ namespace DataAccess
                                 sbr.Append(ComFunction.getSqlValue(rows[0]["iD31"], true) + ",");
                                 sbr.Append(ComFunction.getSqlValue('0', false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(LastTime, true) + ",");
-                                sbr.Append("'" + vcSupplierId + "',");
+                                sbr.Append("'" + userId + "',");
                                 sbr.Append("GetDate(),");
                                 sbr.Append(ComFunction.getSqlValue(rows[0]["iPartNums"], true) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcSupplierPlant, true) + ",");
@@ -392,7 +392,9 @@ namespace DataAccess
 
                                 #region 插入标签打印
 
-                                sbr.Append("");
+                                //seqNo = seqNo + 1;
+
+                                //sbr.Append("");
 
                                 #endregion
                             }
@@ -524,7 +526,7 @@ namespace DataAccess
                                 sbr.Append(ComFunction.getSqlValue(QTY, true) + ",");
                                 sbr.Append(ComFunction.getSqlValue('0', false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(LastTime, true) + ",");
-                                sbr.Append("'" + vcSupplierId + "',");
+                                sbr.Append("'" + userId + "',");
                                 sbr.Append("GetDate(),");
                                 sbr.Append(ComFunction.getSqlValue(QTY, true) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcSupplierPlant, true) + ",");
@@ -718,7 +720,7 @@ namespace DataAccess
                                 sbr.Append(ComFunction.getSqlValue(QTY, true) + ",");
                                 sbr.Append(ComFunction.getSqlValue('0', false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(LastTime, true) + ",");
-                                sbr.Append("'" + vcSupplierId + "',");
+                                sbr.Append("'" + userId + "',");
                                 sbr.Append("GetDate(),");
                                 sbr.Append(ComFunction.getSqlValue(QTY, true) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcSupplierPlant, true) + ",");

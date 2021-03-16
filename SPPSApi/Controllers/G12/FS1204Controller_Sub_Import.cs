@@ -39,7 +39,7 @@ namespace SPPSApi.Controllers.G12
         #region 导入之后点保存
         [HttpPost]
         [EnableCors("any")]
-        public string importSaveApi([FromBody]dynamic data)
+        public string importSaveApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -82,31 +82,31 @@ namespace SPPSApi.Controllers.G12
                           "D25b", "D25y", "D26b", "D26y", "D27b", "D27y", "D28b", "D28y", "D29b", "D29y", "D30b", "D30y",
                           "D31b", "D31y"},
                         { "", "", "", "",
-                         "","","","","","","","","","","","",
-                         "","","","","","","","","","","","",
-                         "","","","","","","","","","","","",
-                         "","","","","","","","","","","","",
-                         "","","","","","","","","","","","",
-                         "","" },
-                        { "0","2","20","3", 
+                         FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                         FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                         FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                         FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                         FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
+                         FieldCheck.Num,FieldCheck.Num },
+                        { "0","2","20","3",
                           "2","2","2","2","2","2","2","2","2","2","2","2",
                           "2","2","2","2","2","2","2","2","2","2","2","2",
                           "2","2","2","2","2","2","2","2","2","2","2","2",
                           "2","2","2","2","2","2","2","2","2","2","2","2",
                           "2","2","2","2","2","2","2","2","2","2","2","2",
                           "2","2"},//最大长度设定,不校验最大长度用0
-                        { "1","0","0","0", 
+                        { "1","0","0","0",
                           "0","0","0","0","0","0","0","0","0","0","0","0",
                           "0","0","0","0","0","0","0","0","0","0","0","0",
                           "0","0","0","0","0","0","0","0","0","0","0","0",
                           "0","0","0","0","0","0","0","0","0","0","0","0",
                           "0","0","0","0","0","0","0","0","0","0","0","0",
-                          "0","0"}//最小长度设定,可以为空用0
+                          "0","0"}//最小长度设定,可以为空用0  
                 };
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, 2, ref strMsg);
                     if (strMsg != "")
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传

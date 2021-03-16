@@ -7,6 +7,7 @@ using DataAccess;
 using System.Collections;
 using System.IO;
 using Common;
+using System.IO.Compression;
 
 namespace Logic
 {
@@ -21,6 +22,7 @@ namespace Logic
         public DataTable getSearchInfo(string strPartId, string strSupplierId, string strSupplierPlant)
         {
             return fs1404_DataAccess.getSearchInfo(strPartId, strSupplierId, strSupplierPlant);
+
         }
         public DataTable checkSaveInfo(DataTable dtImport, ref DataTable dtMessage)
         {
@@ -173,5 +175,12 @@ namespace Logic
                 throw ex;
             }
         }
+
+        public void zip(string zipFileName,string filePath)
+        {
+            ZipFile.ExtractToDirectory(zipFileName, filePath,Encoding.GetEncoding("GBK"));
+
+        }
+
     }
 }

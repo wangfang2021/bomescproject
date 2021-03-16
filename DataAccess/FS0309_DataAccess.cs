@@ -1059,7 +1059,7 @@ namespace DataAccess
                 strSql.Append("      select   cast(ROW_NUMBER() over (order by a.vcPart_id) as int) as iNum      \n");
                 strSql.Append("      ,a.vcPart_id        \n");
                 strSql.Append("      ,b.vcFaZhuPlant        \n");
-                strSql.Append("      ,case when a.vcPriceChangeInfo='4' then CONVERT(varchar(100),a.dPriceEnd, 111)         \n");
+                strSql.Append("      ,case when a.vcPriceChangeInfo='4' then CONVERT(varchar(100),a.dUseEnd, 111)         \n");
                 strSql.Append("      else CONVERT(varchar(100),a.dPricebegin, 111)  end as dQieTi        \n");
                 strSql.Append("      ,a.vcPart_Name        \n");
                 strSql.Append("      ,c.vcName as 'vcChange_Name'        \n");

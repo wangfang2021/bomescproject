@@ -249,13 +249,13 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 if (kind == "gq")
-                    sql.Append("select vcName from TCode where vcCodeId='C017'");
+                    sql.Append("select vcValue,vcName from TCode where vcCodeId='C017'");
                 else if (kind == "shf")
-                    sql.Append("select vcMeaning as vcName  from TCode where vcCodeId='C018'");
+                    sql.Append("select vcValue,vcMeaning as vcName  from TCode where vcCodeId='C018'");
                 else if (kind == "supplier")
-                    sql.Append("select vcSupplier_name as vcName from TSupplier");
+                    sql.Append("select vcSupplier_id as vcValue,vcSupplier_name as vcName from TSupplier");
                 else if(kind=="bzplant")
-                    sql.Append("select vcMeaning as vcName from TCode where vcCodeId='C023'");
+                    sql.Append("select vcValue,vcMeaning as vcName from TCode where vcCodeId='C023'");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
 
@@ -416,7 +416,7 @@ namespace DataAccess
                     sql.Append("  	  DECLARE @errorName varchar(50)      \r\n");
                     sql.Append("  	  set @errorName=''      \r\n");
                     sql.Append("  	  set @errorName=(      \r\n");
-                    sql.Append("  	  	select vcName +';' from      \r\n");
+                    sql.Append("  	  	select vcPart_id+'-'+vcSHF +';' from      \r\n");
                     sql.Append("  	  	(      \r\n");
                     sql.Append("  	  		select distinct a.vcPart_id,a.vcSHF from    \r\n");
                     sql.Append("  			(   \r\n");
@@ -428,9 +428,9 @@ namespace DataAccess
                     sql.Append("  	  		)b on a.vcPart_id=b.vcPart_id and a.vcSHF=b.vcSHF and a.iAutoId<>b.iAutoId      \r\n");
                     sql.Append("  	  		   and       \r\n");
                     sql.Append("  	  		   (      \r\n");
-                    sql.Append("  	  			   (a.dTimeFrom>=b.dBegin and a.dTimeFrom<=b.dEnd)      \r\n");
+                    sql.Append("  	  			   (a.dTimeFrom>=b.dTimeFrom and a.dTimeFrom<=b.dTimeTo)      \r\n");
                     sql.Append("  	  			   or      \r\n");
-                    sql.Append("  	  			   (a.dTimeTo>=b.dBegin and a.dTimeTo<=b.dEnd)      \r\n");
+                    sql.Append("  	  			   (a.dTimeTo>=b.dTimeFrom and a.dTimeTo<=b.dTimeTo)      \r\n");
                     sql.Append("  	  		   )      \r\n");
                     sql.Append("  	  		where b.iAutoId is not null      \r\n");
                     sql.Append("  	  	)a for xml path('')      \r\n");

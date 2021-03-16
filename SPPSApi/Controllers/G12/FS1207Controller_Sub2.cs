@@ -270,7 +270,7 @@ namespace SPPSApi.Controllers.G12
                 if (msg == "")
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = "发注成功";
+                    apiResult.data = null;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.ERROR_CODE;

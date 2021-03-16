@@ -57,13 +57,13 @@ namespace DataAccess
                 strSql.AppendLine("     case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea else a.vcWorkArea end as [vcWorkArea],    ");
                 strSql.AppendLine("     convert(varchar(10), a.[dExpectDeliveryDate],111) as [dExpectDeliveryDate], a.[vcExpectIntake],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcIntake],    ");
-                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcBoxMaxIntake],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcBoxMaxIntake else a.vcBoxMaxIntake end as [vcBoxMaxIntake],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcBoxType else a.vcBoxType end as [vcBoxType],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcLength else a.vcLength end as [vcLength],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcWide else a.vcWide end as [vcWide],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcHeight else a.vcHeight end as[vcHeight],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcEmptyWeight else a.vcEmptyWeight end as [vcEmptyWeight],       ");
-                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcEmptyWeight else a.vcEmptyWeight end as [vcUnitNetWeight],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcUnitNetWeight else a.vcUnitNetWeight end as [vcUnitNetWeight],    ");
                 strSql.AppendLine("      convert(varchar(10), a.[dSendDate],111) as [dSendDate],convert(varchar(10), a.[dReplyDate],111) as  [dReplyDate],convert(varchar(10), a.[dAdmitDate],111) as  [dAdmitDate],convert(varchar(10), a.[dWeaveDate],111) as  [dWeaveDate], a.[vcMemo],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcImageRoutes else a.vcImageRoutes end as vcImageRoutes,        ");
                 strSql.AppendLine("     a.[vcInserter], a.[vcInserterDate],a.[vcFactoryOperatorID], a.[dFactoryOperatorTime],       ");

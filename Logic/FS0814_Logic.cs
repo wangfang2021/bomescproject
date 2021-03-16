@@ -26,11 +26,24 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave_Sub(DataTable dt, string strUserId)
+        public void importSave_Sub(DataTable dt, string strUserId,ref string strErrorName)
         {
-            fs0814_DataAccess.importSave_Sub(dt, strUserId);
+            fs0814_DataAccess.importSave_Sub(dt, strUserId,ref strErrorName);
         }
         #endregion
 
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorName)
+        {
+            fs0814_DataAccess.Save(listInfoData, strUserId,ref strErrorName);
+        }
+        #endregion
+
+        #region 删除
+        public void Del(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs0814_DataAccess.Del(checkedInfoData, strUserId);
+        }
+        #endregion
     }
 }

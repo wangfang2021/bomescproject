@@ -68,15 +68,15 @@ namespace SPPSApi.Controllers.G17
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
                 string[,] headers = new string[,] {
-                    {"纳入品番","出荷品番","背番", "品名", "收容数", "箱种", "厂家名称", "车型",
+                    {"出荷品番","纳入品番","背番", "品名", "收容数", "箱种", "厂家名称", "车型",
                          "工程", "工程所番地", "受入", "所番地", "看板打印方式"},
-                    {"vcNaRuPart_id","vcChuHePart_id","vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
+                    {"vcChuHePart_id","vcNaRuPart_id","vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
                          "vcProject","vcProjectPlace","vcSR","vcPlace","vcKBPrintWay"},
-                    {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,"",FieldCheck.Num,"","","",
+                    {FieldCheck.NumCharL,"","","",FieldCheck.Num,"","","",
                          "","","","",""},
                     {"25","25","25","25","0","25","25","25",
                          "25","25","25","25","25"},//最大长度设定,不校验最大长度用0
-                    {"1","1","1","1","1","0","0","0",
+                    {"1","0","0","0","0","0","0","0",
                          "0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -106,7 +106,7 @@ namespace SPPSApi.Controllers.G17
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcNaRuPart_id"), r3 = r.Field<string>("vcChuHePart_id") } into g
+                             group r by new { r1 = r.Field<string>("vcChuHePart_id") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -115,7 +115,7 @@ namespace SPPSApi.Controllers.G17
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("纳入品番:" + item.Key.r2 + " 出荷品番:" + item.Key.r3 + "<br/>");
+                        sbr.Append("出荷品番:" + item.Key.r1 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();

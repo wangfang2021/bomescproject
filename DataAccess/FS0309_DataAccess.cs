@@ -109,7 +109,7 @@ namespace DataAccess
                     strSql.Append("       and vcReceiver like '%" + strReceiver + "%'         \n");
                 if (strPriceState != null && strPriceState != "")
                     strSql.Append("       and vcPriceState='" + strPriceState + "'         \n");
-                strSql.Append("     order by  vcReceiver,vcSupplier_id,vcPart_id,iAutoId asc    \n");
+                strSql.Append("     order by  vcPart_id,vcReceiver,vcSupplier_id,iAutoId asc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

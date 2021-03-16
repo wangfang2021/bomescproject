@@ -2519,6 +2519,7 @@ namespace Logic
                 dataTable.Columns.Add("vcSupplierId", typeof(string));
                 dataTable.Columns.Add("vcSupplierPlant", typeof(string));
                 dataTable.Columns.Add("vcPicUrl", typeof(string));
+                dataTable.Columns.Add("vcPicUrlUUID", typeof(string));
                 dataTable.Columns.Add("vcChangeRea", typeof(string));
                 dataTable.Columns.Add("vcTJSX", typeof(string));
                 dataTable.Columns.Add("vcType", typeof(string));

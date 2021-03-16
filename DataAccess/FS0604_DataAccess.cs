@@ -826,7 +826,7 @@ namespace DataAccess
                     string iLength = listInfoData[i]["vcLength"].ToString();
                     string iWidth = listInfoData[i]["vcWide"].ToString();
                     string iHeight = listInfoData[i]["vcHeight"].ToString();
-                    string iVolume = (Convert.ToDecimal(iLength)* Convert.ToDecimal(iWidth) * Convert.ToDecimal(iHeight)).ToString();
+                    string iVolume = ((Convert.ToDecimal(iLength)/1000)* (Convert.ToDecimal(iWidth)/1000) * (Convert.ToDecimal(iHeight)/1000)).ToString();
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     strSqlZ.AppendLine("  select * from [dbo].[TSPMaster] where vcPackingPlant='"+ vcPackingPlant + "' and vcPartId='" + vcPartId + "' and vcReceiver='" + vcReceiver + "' and vcSupplierId='" + vcSupplierId + "'   ");
                     strSqlZ.AppendLine("   select * from TSPMaster_Box where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartId='" + vcPartId + "' and vcSupplierId='" + vcSupplierId + "'  ");

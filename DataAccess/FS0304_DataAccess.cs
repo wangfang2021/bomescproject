@@ -1159,8 +1159,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcTitle,vcContent from TMailMessageSetting where vcUserId='" + strUserId + "' and vcChildFunID = 'FS0304'  \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
+                strSql.Append("    select vcValue3 as 'vcTitle',vcValue4 as 'vcContent' from TOutCode where vcCodeId = 'C016' and vcIsColum = '0' and vcValue1 = 'FS0303' and vcValue2 = '"+strUserId+"'  \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
             {

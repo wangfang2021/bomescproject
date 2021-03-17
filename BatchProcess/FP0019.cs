@@ -4,7 +4,7 @@ using System.Text;
 using System.Data;
 namespace BatchProcess
 {
-    public class FP00019
+    public class FP0019
     {
         /*
          * 时间：2020-02-08
@@ -241,7 +241,7 @@ namespace BatchProcess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("        select vcValue2 as 'address',vcValue1 as 'displayName' from TOutCode where vcCodeId = 'C005' and vcIsColum = '0'         ");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TFTM");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 if (dt.Rows.Count>0)
                 {
                     return dt;

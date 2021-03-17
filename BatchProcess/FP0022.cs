@@ -53,7 +53,8 @@ namespace BatchProcess
                 strSQL.Append("set TPartInfoMaster.vcCarFamilyCode=t.vcCarFamilyCode,TPartInfoMaster.vcSupplierPlant=t.vcSupplierPlant, \n");
                 strSQL.Append("TPartInfoMaster.iQuantityPerContainer=t.iQuantityPerContainer, \n");
                 strSQL.Append("TPartInfoMaster.vcPartsNameEN=t.vcPartENName, \n");
-                strSQL.Append("TPartInfoMaster.vcPartFrequence=t.vcOrderingMethod \n");
+                strSQL.Append("TPartInfoMaster.vcPartFrequence=t.vcOrderingMethod, \n");
+                strSQL.Append("TPartInfoMaster.vcDock=t.vcDock, \n");
                 strSQL.Append("from (select a.vcPartId, \n");
                 strSQL.Append("convert(char(10),a.dFromTime,120) as dFromTime, convert(char(10),a.dToTime,120) as dToTime,  \n");
                 strSQL.Append("c.vcSufferIn as vcDock,a.vcCarFamilyCode,a.vcPartENName,  \n");

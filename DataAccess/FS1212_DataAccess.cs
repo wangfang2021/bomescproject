@@ -100,46 +100,37 @@ namespace DataAccess
         public DataTable SearchPartData(string vcPartsNo, string vcCarFamilyCode, string vcPorType, string vcZB, string vcPartPlant, string vcPartFrequence)
         {
             StringBuilder strSQL = new StringBuilder();
-            strSQL.Append("select substring(a.vcPartId,0, 6) + '-' + substring(a.vcPartId,6, 5) + '-' + substring(a.vcPartId,11, 2) as vcPartsNo,");
-            strSQL.Append("convert(char(10),a.dFromTime,120) as dFromTime, convert(char(10),a.dToTime,120) as dToTime,");
-            strSQL.Append("d.vcPartPlant, c.vcSufferIn as vcDock, a.vcCarFamilyCode,");
-            strSQL.Append("a.vcPartENName, d.vcQFflag, b.iPackingQty as iQuantityPerContainer, d.vcQJcontainer, d.vcPorType, d.vcZB, a.vcName as vcOrderingMethod, ");
-            strSQL.Append("a.vcReceiver, a.vcSupplierId, '0' as iFlag, '0' as vcModFlag, '0' as vcAddFlag, iAutoId ");
-            strSQL.Append("from ");
-            strSQL.Append("   (select TSPMaster.*, TCode.vcName, TCode.vcValue from TSPMaster ");
-            strSQL.Append("    left join TCode on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a ");
-            strSQL.Append("left join (select * from TSPMaster_Box where vcOperatorType='1') b ");
-            strSQL.Append("on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId ");
-            strSQL.Append("left join (select * from TSPMaster_SufferIn where vcOperatorType='1') c ");
-            strSQL.Append("on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId ");
-            strSQL.Append("left join TPartInfoMaster d ");
-            strSQL.Append("on a.vcPartId=d.vcPartsNo and a.vcReceiver=d.vcCpdCompany and a.vcSupplierId=d.vcSupplierCode and a.dFromTime=d.dTimeFrom and a.dToTime=d.dTimeTo ");
+            strSQL.Append("select substring(vcPartsNo,0, 6) + '-' + substring(vcPartsNo,6, 5) + '-' + substring(vcPartsNo,11, 2) as vcPartsNo,");
+            strSQL.Append("dTimeFrom, dTimeTo, vcPartPlant, vcDock, vcCarFamilyCode, vcPartsNameEN,");
+            strSQL.Append("vcQFflag, iQuantityPerContainer, vcQJcontainer, vcPorType, vcZB, vcPartFrequence, vcCpdCompany, vcSupplierCode,");
+            strSQL.Append("'0' as iFlag, '0' as vcModFlag, '0' as vcAddFlag, iAutoId ");
+            strSQL.Append("from TPartInfoMaster ");
             strSQL.Append("where 1=1 ");
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
-                strSQL.AppendLine(" and a.vcPartId like '%" + vcPartsNo + "%'");
+                strSQL.AppendLine(" and vcPartsNo like '%" + vcPartsNo + "%'");
             }
             if (!string.IsNullOrEmpty(vcCarFamilyCode))
             {
-                strSQL.AppendLine(" and a.vcCarFamilyCode like '%" + vcCarFamilyCode + "%'");
+                strSQL.AppendLine(" and vcCarFamilyCode like '%" + vcCarFamilyCode + "%'");
             }
             if (vcPorType != "")
             {
-                strSQL.AppendLine(" and d.vcPorType like '%" + vcPorType + "%'");
+                strSQL.AppendLine(" and vcPorType like '%" + vcPorType + "%'");
             }
             if (vcZB != "")
             {
-                strSQL.AppendLine(" and d.vcZB like '%" + vcZB + "%'");
+                strSQL.AppendLine(" and vcZB like '%" + vcZB + "%'");
             }
             if (vcPartPlant != "")
             {
-                strSQL.AppendLine(" and d.vcPartPlant like '%" + vcPartPlant + "%'");
+                strSQL.AppendLine(" and vcPartPlant like '%" + vcPartPlant + "%'");
             }
             if (vcPartFrequence != "")
             {
-                strSQL.AppendLine(" and a.vcValue='" + vcPartFrequence + "'");
+                strSQL.AppendLine(" and vcPartFrequence='" + vcPartFrequence + "'");
             }
-            strSQL.AppendLine("  order by vcPartsNo");
+            strSQL.AppendLine(" order by vcPartsNo");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
 

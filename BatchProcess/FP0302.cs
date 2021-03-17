@@ -47,7 +47,7 @@ namespace BatchProcess
                 }
                 //发送邮件
                 string[] email = getEmail(strUserId);
-                bool res = sendMail(email[0], email[1], list[0], list[1]);
+                bool res = sendMail(email[0], email[1], list[0], list[1], flag);
 
                 if (res)
                 {
@@ -75,13 +75,22 @@ namespace BatchProcess
         #region 获取销售公司邮箱
 
 
-        public DataTable getReceiverEmail()
+        public DataTable getReceiverEmail(int flag)
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine(
-                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+                string tmp = "";
+                if (flag == 0)
+                {
+                    tmp = "2";
+                }
+                else if (flag == 1)
+                {
+                    tmp = "1";
+                }
+                sbr.AppendLine("SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0'  AND vcValue4 = '" + tmp + "' ");
+
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -98,7 +107,7 @@ namespace BatchProcess
         {
             StringBuilder sbr = new StringBuilder();
             sbr.AppendLine(
-                "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+                "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C053'AND vcIsColum = '0' ");
             return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
         }
 
@@ -146,13 +155,13 @@ namespace BatchProcess
         #endregion
 
         #region 发送邮件
-        public bool sendMail(string Email, string UserName, string strSubject, string EmailBody)
+        public bool sendMail(string Email, string UserName, string strSubject, string EmailBody, int flag)
         {
             DataTable cCDt = null;
             DataTable receiverDt = new DataTable();
             receiverDt.Columns.Add("address");
             receiverDt.Columns.Add("displayName");
-            DataTable dt = getReceiverEmail();
+            DataTable dt = getReceiverEmail(flag);
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 DataRow dr = receiverDt.NewRow();

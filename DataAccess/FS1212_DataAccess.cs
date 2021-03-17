@@ -310,10 +310,10 @@ namespace DataAccess
                     if (bAddFlag == false && bModFlag == true)//修改
                     {
                         string vcPartsNo = getSqlValue(listInfoData[i]["vcPartsNo"], false).Replace("-", "");
-                        string vcCpdCompany = getSqlValue(listInfoData[i]["vcReceiver"], false);
-                        string vcTimeFrom = getSqlValue(listInfoData[i]["dFromTime"], false);
-                        string vcTimeTo = getSqlValue(listInfoData[i]["dToTime"], false);
-                        string vcSupplierCode = getSqlValue(listInfoData[i]["vcSupplierId"], false);
+                        string vcCpdCompany = getSqlValue(listInfoData[i]["vcCpdCompany"], false);
+                        string vcTimeFrom = getSqlValue(listInfoData[i]["dTimeFrom"], false);
+                        string vcTimeTo = getSqlValue(listInfoData[i]["dTimeTo"], false);
+                        string vcSupplierCode = getSqlValue(listInfoData[i]["vcSupplierCode"], false);
                         string vcPartPlant = getSqlValue(listInfoData[i]["vcPartPlant"], false);
                         string vcCarFamilyCode = getSqlValue(listInfoData[i]["vcCarFamilyCode"], false);
                         string vcQFflag = getSqlValue(listInfoData[i]["vcQFflag"], false);

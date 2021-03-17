@@ -59,10 +59,10 @@ namespace BatchProcess
                 strSQL.Append("convert(char(10),a.dFromTime,120) as dFromTime, convert(char(10),a.dToTime,120) as dToTime,  \n");
                 strSQL.Append("isnull(c.vcSufferIn,'') as vcDock,a.vcCarFamilyCode,a.vcPartENName,  \n");
                 strSQL.Append("b.iPackingQty as iQuantityPerContainer, \n");
-                strSQL.Append("a.vcName as vcOrderingMethod, a.vcReceiver, a.vcSupplierId,d.vcSupplierPlant \n");
+                strSQL.Append("a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId,d.vcSupplierPlant \n");
                 strSQL.Append("from    \n");
-                strSQL.Append(" (select TSPMaster.*, TCode.vcName, TCode.vcValue  \n");
-                strSQL.Append(" from TSPMaster     \n");
+                strSQL.Append(" (select TSPMaster.*, TCode.vcValue  \n");
+                strSQL.Append(" from TSPMaster  \n");
                 strSQL.Append("  left join TCode on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a  \n");
                 strSQL.Append("  left join (select * from TSPMaster_Box where vcOperatorType='1') b  \n");
                 strSQL.Append("  on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId  \n");
@@ -95,9 +95,9 @@ namespace BatchProcess
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select * from ( \n");
                 sql.Append(" select a.vcPartId, CONVERT(char(10),a.dFromTime,120) as dFromTime, CONVERT(char(10),a.dToTime,120) as dToTime, c.vcSufferIn as vcDock, a.vcCarFamilyCode, a.vcPartENName,  \n");
-                sql.Append(" b.iPackingQty as iQuantityPerContainer,a.vcName as vcOrderingMethod, a.vcReceiver, a.vcSupplierId, d.vcSupplierPlant, a.vcPartImage, a.dOperatorTime  \n");
+                sql.Append(" b.iPackingQty as iQuantityPerContainer,a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId, d.vcSupplierPlant, a.vcPartImage, a.dOperatorTime  \n");
                 sql.Append(" from (  \n");
-                sql.Append("    select TSPMaster.*, TCode.vcName, TCode.vcValue from TSPMaster  \n");
+                sql.Append("    select TSPMaster.*, TCode.vcValue from TSPMaster  \n");
                 sql.Append("    left join TCode  \n");
                 sql.Append("	on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a   \n");
                 sql.Append("	left join (select * from TSPMaster_Box where vcOperatorType='1') b   \n");

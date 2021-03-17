@@ -204,7 +204,7 @@ namespace SPPSApi.Controllers.G14
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.searchform.multipleSelection;
+                JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
                 DataTable dtImport = fS1405_Logic.checkadmitInfo(checkedInfoData, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);

@@ -23,24 +23,31 @@ namespace BatchProcess
                 //获取发邮件需求
                 bool isExist = false;
                 string subject = "";
+
                 if (flag == 0)
                 {
                     isExist = partNameFlag();
-                    subject = "中文品名";
                 }
                 else if (flag == 1)
                 {
                     isExist = tenYearOld();
-                    subject = "旧型十年年记";
                 }
                 if (!isExist)
                 {//没有要请求的数据
                     ComMessage.GetInstance().ProcessMessage(PageId, "没有要发送的数据", null, strUserId);
                     return true;
                 }
+
+                List<string> list = EmailBody(flag);
+                if (list.Count == 0)
+                {
+                    FailsendMail("buji@tftm.com.cn", "System", "邮件发送失败", "未找到邮件体，请进行邮件体常量维护");
+                    ComMessage.GetInstance().ProcessMessage(PageId, "批处理执行失败", null, strUserId);
+                    return false;
+                }
                 //发送邮件
                 string[] email = getEmail(strUserId);
-                bool res = sendMail(email[0], email[1], subject, EmailBody(flag));
+                bool res = sendMail(email[0], email[1], list[0], list[1]);
 
                 if (res)
                 {
@@ -99,33 +106,21 @@ namespace BatchProcess
 
         #region 获取邮件体
 
-        public string EmailBody(int flag)
+        public List<string> EmailBody(int flag)
         {
             StringBuilder sbr = new StringBuilder();
-            //中文品名
-            if (flag == 1)
+            sbr.AppendLine(
+                "SELECT vcValue3,vcValue4 FROM TOutCode WHERE vcCodeId = 'C024' AND vcIsColum = '0' AND vcValue2 = '" +
+                flag + "'");
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            List<string> res = new List<string>();
+            if (dt.Rows.Count > 0)
             {
-                sbr.Append("<p>FTMS 相关各位殿：</p>");
-                sbr.Append("<p>大家好</p><p><br></p>");
-                sbr.Append("<p>补给工作长期支持感谢！</p>");
-                sbr.Append("<p>标题事宜，拜托提示一下附件中品番的十年年计数量。</p>");
-                sbr.Append("<p>拜托及时回复</p>");
-                sbr.Append("<p>谢谢</p>");
-                sbr.Append("<p>以上</p>");
+                res.Add(dt.Rows[0]["vcValue3"].ToString());
+                res.Add(dt.Rows[0]["vcValue4"].ToString());
             }
-            //旧型
-            else if (flag == 0)
-            {
-                sbr.Append("<p>FTMS 相关各位殿：</p>");
-                sbr.Append("<p>你好！</p>");
-                sbr.Append("<p><br></p>");
-                sbr.Append("<p>补给工作长期支持感谢！</p>");
-                sbr.Append("<p>附件为本次中文品名依赖，</p>");
-                sbr.Append("<p>拜托及时回复</p>");
-                sbr.Append("<p>谢谢</p>");
-                sbr.Append("<p>以上</p>");
-            }
-            return sbr.ToString();
+
+            return res;
         }
 
         public string FailEmailBody(int flag)

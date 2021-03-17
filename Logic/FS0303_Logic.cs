@@ -202,7 +202,7 @@ namespace Logic
         public class NameOrValue
         {
             /// <summary>
-            /// 列说明
+            /// 列描述
             /// </summary>
             public string strTitle { get; set; }
             /// <summary>

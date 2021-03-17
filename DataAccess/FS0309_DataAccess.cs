@@ -214,7 +214,7 @@ namespace DataAccess
 
                         sql.Append("  update TPrice set    \r\n");
                         sql.Append("  vcChange=" + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "   \r\n");
-                        sql.Append("  ,vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                        //sql.Append("  ,vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
                         sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], true) + "   \r\n");
                         sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
 
@@ -325,8 +325,7 @@ namespace DataAccess
                     if (isWuBtnVisible)
                     {
                         sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
-                        sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
+                        sql.Append("  vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
                         sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
 
 
@@ -1063,8 +1062,24 @@ namespace DataAccess
                 strSql.Append("      select   cast(ROW_NUMBER() over (order by a.vcPart_id) as int) as iNum      \n");
                 strSql.Append("      ,a.vcPart_id        \n");
                 strSql.Append("      ,b.vcFaZhuPlant        \n");
-                strSql.Append("      ,case when a.vcPriceChangeInfo='4' then CONVERT(varchar(100),a.dUseEnd, 111)         \n");
-                strSql.Append("      else CONVERT(varchar(100),a.dPricebegin, 111)  end as dQieTi        \n");
+                strSql.Append("      ,case when a.vcPriceChangeInfo='2' then CONVERT(varchar(100),a.dPricebegin, 111)          \n");
+                strSql.Append("       when a.vcPriceChangeInfo='1' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='5' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='3' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='6' then null         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='4' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='8' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='9' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='10' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='11' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='12' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='13' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='16' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='7' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='15' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='17' then null         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='14' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       else null end as dQieTi          \n");
                 strSql.Append("      ,a.vcPart_Name        \n");
                 strSql.Append("      ,c.vcName as 'vcChange_Name'        \n");
                 strSql.Append("      ,b.vcPartId_Replace        \n");

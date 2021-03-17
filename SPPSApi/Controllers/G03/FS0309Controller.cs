@@ -515,21 +515,7 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 Object multipleSelection = dataForm.multipleSelection;
 
-                //切替预定日计算逻辑
-                //新设：使用开始时间
-                //旧型：旧型开始
-                //废止：使用结束时间
-                //恢复现号：旧型结束+1天
-                //复活：使用开始时间
-                //持续生产：旧型持续开始
-                //一括生产：使用结束时间
-                //工程变更新设：工程/供应商信息下的开始时间
-                //工程变更废止：工程/供应商信息下的结束时间
-                //供应商变更新设：工程/供应商信息下的开始时间
-                //供应商变更废止：工程/供应商信息下的开始时间
-                //包装工厂变更新设：工程/供应商信息下的开始时间
-                //包装工厂变更废止：工程/供应商信息下的开始时间
-                //防锈变更：=文本“即时切替”
+                 
 
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
@@ -706,22 +692,7 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 Object multipleSelection = dataForm.multipleSelection;
 
-                //切替预定日计算逻辑
-                //新设：使用开始时间
-                //旧型：旧型开始
-                //废止：使用结束时间
-                //恢复现号：旧型结束+1天
-                //复活：使用开始时间
-                //持续生产：旧型持续开始
-                //一括生产：使用结束时间
-                //工程变更新设：工程/供应商信息下的开始时间
-                //工程变更废止：工程/供应商信息下的结束时间
-                //供应商变更新设：工程/供应商信息下的开始时间
-                //供应商变更废止：工程/供应商信息下的结束时间
-                //包装工厂变更新设：工程/供应商信息下的开始时间
-                //包装工厂变更废止：工程/供应商信息下的结束时间
-                //防锈变更：=文本“即时切替”
-
+ 
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                 string[] fields = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",

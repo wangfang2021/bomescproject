@@ -173,6 +173,36 @@ namespace SPPSApi.Controllers
             }
         }
         #endregion
+
+        #region 从缓存中返回当前缓存对象
+        /// <summary>
+        /// 从缓存中获取检索结果
+        /// </summary>
+        /// <param name="key">检索key</param>
+        /// <returns></returns>
+        public DataTable getResultCashByKey(string key)
+        {
+            if (key == null || key.Trim() == "")
+                return null;
+            Object temp = null;
+            memoryCache_Search.TryGetValue(key, out temp);
+            if (temp != null && temp.ToString() != "")
+            {//缓存重置
+                memoryCache_Login.Remove(key);
+                using (var entry = memoryCache_Login.CreateEntry(key))
+                {
+                    entry.Value = temp;
+                    entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(ComConstant.TIME_OUT_MINUTES));
+                }
+                DataTable dt = (DataTable)temp;
+                return dt;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        #endregion
     }
 
     public enum ERROR_FLAG

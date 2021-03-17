@@ -809,6 +809,7 @@ namespace DataAccess
                     StringBuilder strSql = new StringBuilder();
                     StringBuilder strSqlZ = new StringBuilder();
                     StringBuilder strSqlZZ = new StringBuilder();
+                    StringBuilder strSqlZGQ = new StringBuilder();
                     //[LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [vcSupplierPlant],
                     //[dFromTime], [dToTime], [iPackingQty], [vcBoxType], [iLength], [iWidth], [iHeight], 
                     //[iVolume], [vcOperatorType], [vcOperatorID], [dOperatorTime]
@@ -825,10 +826,15 @@ namespace DataAccess
                     string iLength = listInfoData[i]["vcLength"].ToString();
                     string iWidth = listInfoData[i]["vcWide"].ToString();
                     string iHeight = listInfoData[i]["vcHeight"].ToString();
-                    string iVolume = (Convert.ToDecimal(iLength)* Convert.ToDecimal(iWidth) * Convert.ToDecimal(iHeight)).ToString();
+                    string iVolume = ((Convert.ToDecimal(iLength)/1000)* (Convert.ToDecimal(iWidth)/1000) * (Convert.ToDecimal(iHeight)/1000)).ToString();
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     strSqlZ.AppendLine("  select * from [dbo].[TSPMaster] where vcPackingPlant='"+ vcPackingPlant + "' and vcPartId='" + vcPartId + "' and vcReceiver='" + vcReceiver + "' and vcSupplierId='" + vcSupplierId + "'   ");
-                    DataTable dtZ=  excute.ExcuteSqlWithSelectToDT(strSqlZ.ToString());
+                    strSqlZ.AppendLine("   select * from TSPMaster_Box where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartId='" + vcPartId + "' and vcSupplierId='" + vcSupplierId + "'  ");
+                    strSqlZ.AppendLine("  select * from TSPMaster_SupplierPlant where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartId='" + vcPartId + "' and vcSupplierId='" + vcSupplierId + "'   ");
+                    DataSet ds =  excute.ExcuteSqlWithSelectToDS(strSqlZ.ToString());
+                    DataTable dtZ = ds.Tables[0];
+                    DataTable dtZZ = ds.Tables[1];
+                    DataTable dtZGQ = ds.Tables[2];
                     if (dtZ.Rows.Count == 0)
                     {
                         DataRow dataRow = dtMessage.NewRow();
@@ -838,9 +844,7 @@ namespace DataAccess
                     }
                     else
                     {
-                        strSqlZZ.AppendLine("   select * from TSPMaster_Box where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartId='" + vcPartId + "' and vcSupplierId='" + vcSupplierId + "' and vcSupplierPlant='" + vcSupplierPlant + "'   ");
-                        DataTable dtZZ = excute.ExcuteSqlWithSelectToDT(strSqlZZ.ToString());
-                        if (dtZZ.Rows.Count > 0)
+                        if (dtZZ.Rows.Count > 0|| dtZGQ.Rows.Count > 0)
                         {
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcMessage"] = "包装工程" + vcPackingPlant + " 收货方" + vcReceiver + " 供应商" + vcSupplierId + " 品番" + vcPartId + "字表数据表已经存在数据,无法织入，请手动织入";
@@ -848,18 +852,25 @@ namespace DataAccess
                             bReault = false;
                         }else
                         { 
-                        strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_Box]   ");
-                        strSql.AppendLine("             ([vcPackingPlant],[vcPartId]  ,[vcReceiver],[vcSupplierId]   ");
-                        strSql.AppendLine("             ,[vcSupplierPlant],[dFromTime] ,[dToTime] ,[iPackingQty],[vcBoxType],[iLength]  ,[iWidth]   ");
-                        strSql.AppendLine("            ,[iHeight]  ,[iVolume] ,[vcOperatorType] ,[vcOperatorID] ,[dOperatorTime]) values (  ");
-                        strSql.AppendLine("  '" + vcPackingPlant + "','" + vcPartId + "','" + vcReceiver + "','" + vcSupplierId + "',   ");
-                        strSql.AppendLine("  '" + vcSupplierPlant + "','" + dFromTime + "','" + dToTime + "','" + iPackingQty + "','" + vcBoxType + "','" + iLength + "','" + iWidth + "',   ");
-                        strSql.AppendLine("   '" + iHeight + "','" + iVolume + "','1', '" + userId + "',getdate()); ");
-                        strSql.AppendLine("    update [THeZiManage] set  vcState='5',dWeaveDate =GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId = " + iAutoId + "  ; ");
-                            if (strSql.Length > 0)
-                            {
-                                excute.ExcuteSqlWithStringOper(strSql.ToString());
-                            }
+                            strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_Box]   ");
+                            strSql.AppendLine("             ([vcPackingPlant],[vcPartId]  ,[vcReceiver],[vcSupplierId]   ");
+                            strSql.AppendLine("             ,[vcSupplierPlant],[dFromTime] ,[dToTime] ,[iPackingQty],[vcBoxType],[iLength]  ,[iWidth]   ");
+                            strSql.AppendLine("            ,[iHeight]  ,[iVolume] ,[vcOperatorType] ,[vcOperatorID] ,[dOperatorTime]) values (  ");
+                            strSql.AppendLine("  '" + vcPackingPlant + "','" + vcPartId + "','" + vcReceiver + "','" + vcSupplierId + "',   ");
+                            strSql.AppendLine("  '" + vcSupplierPlant + "','" + dFromTime + "','" + dToTime + "','" + iPackingQty + "','" + vcBoxType + "','" + iLength + "','" + iWidth + "',   ");
+                            strSql.AppendLine("   '" + iHeight + "','" + iVolume + "','1', '" + userId + "',getdate()); ");
+                            strSql.AppendLine("  INSERT INTO [dbo].[TSPMaster_SupplierPlant]   ");
+                            strSql.AppendLine("             ([vcPackingPlant],[vcPartId],[vcReceiver],[vcSupplierId]    ");
+                            strSql.AppendLine("             ,[dFromTime]  ,[dToTime],[vcSupplierPlant]     ");
+                            strSql.AppendLine("             ,[vcOperatorType] ,[vcOperatorID]  ,[dOperatorTime]) values (  ");
+                            strSql.AppendLine("  '" + vcPackingPlant + "','" + vcPartId + "','" + vcReceiver + "','" + vcSupplierId + "',   ");
+                            strSql.AppendLine("  '" + dFromTime + "','" + dToTime + "','" + vcSupplierPlant + "',   ");
+                            strSql.AppendLine("  '1', '" + userId + "',getdate()); ");
+                            strSql.AppendLine("    update [THeZiManage] set  vcState='5',dWeaveDate =GETDATE(), vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId = " + iAutoId + "  ; ");
+                        }
+                        if (strSql.Length > 0)
+                        {
+                            excute.ExcuteSqlWithStringOper(strSql.ToString());
                         }
                     }
 
@@ -1206,12 +1217,12 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  delete [TOralTestManage] where iAutoId in(   \r\n ");
+                sql.Append("  delete [THeZiManage] where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)
                         sql.Append(",");
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    int iAutoId = listInfoData[i]["iAutoId"] == null ? 0 : Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");

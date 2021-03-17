@@ -84,7 +84,7 @@ namespace SPPSApi.Controllers.G03
                 //设变履历是否下拉待确定
                 List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
 
-                DataTable task=fs0309_Logic.getAllTask();
+                int iTask = fs0309_Logic.getAllTask();
 
                 res.Add("C002", dataList_C002);
                 res.Add("C004", dataList_C004);
@@ -95,7 +95,7 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C006", dataList_C006);
                 res.Add("C028", dataList_C028);
                 res.Add("C038", dataList_C038);
-                res.Add("taskNum", task.Rows.Count);
+                res.Add("taskNum", iTask);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -139,10 +139,11 @@ namespace SPPSApi.Controllers.G03
             string strSupplier_id = dataForm.Supplier_id;
             string strReceiver = dataForm.Receiver;
             string strPriceState = dataForm.PriceState;
+            string strMaxNum = dataForm.iMaxNum;
 
             try
             {
-                DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+                DataTable dt = fs0309_Logic.Search(strMaxNum,strChange, strPart_id, strOriginCompany, strHaoJiu
                     , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                     , strReceiver, strPriceState
                     );
@@ -202,7 +203,7 @@ namespace SPPSApi.Controllers.G03
             string strPriceState = dataForm.PriceState;
             try
             {
-                DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+                DataTable dt = fs0309_Logic.Search("",strChange, strPart_id, strOriginCompany, strHaoJiu
                    , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                    , strReceiver, strPriceState
                    );
@@ -379,9 +380,9 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable task = fs0309_Logic.getAllTask();
+                int iTask = fs0309_Logic.getAllTask();
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = task.Rows.Count;
+                apiResult.data = iTask;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -609,7 +610,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -617,7 +618,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -706,9 +707,9 @@ namespace SPPSApi.Controllers.G03
                 //工程变更新设：工程/供应商信息下的开始时间
                 //工程变更废止：工程/供应商信息下的结束时间
                 //供应商变更新设：工程/供应商信息下的开始时间
-                //供应商变更废止：工程/供应商信息下的开始时间
+                //供应商变更废止：工程/供应商信息下的结束时间
                 //包装工厂变更新设：工程/供应商信息下的开始时间
-                //包装工厂变更废止：工程/供应商信息下的开始时间
+                //包装工厂变更废止：工程/供应商信息下的结束时间
                 //防锈变更：=文本“即时切替”
 
                 JArray checkedInfo = dataForm.multipleSelection;
@@ -799,7 +800,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -807,7 +808,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }

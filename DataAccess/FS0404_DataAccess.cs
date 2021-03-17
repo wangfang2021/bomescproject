@@ -296,7 +296,7 @@ namespace DataAccess
                         filePath = fileList[i]["filePath"].ToString();
                         fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                         fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                        DataTable dockTmp = getDockTable();
+                        DataTable dockTmp = getDockTable(dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6));
                         DataTable dtRiDuCheck = null;
                         if (vcOrderType == "D")
                         {
@@ -494,7 +494,7 @@ namespace DataAccess
                         filePath = fileList[i]["filePath"].ToString();
                         fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                         fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                        DataTable dockTmp = getDockTable();
+                        DataTable dockTmp = getDockTable(dTargetDate.Replace("-", "").Replace("/", ""));
                         int No = 1;
                         string strInOutflag = string.Empty;
                         Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
@@ -901,7 +901,7 @@ namespace DataAccess
                     filePath = fileList[i]["filePath"].ToString();
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                    DataTable dockTmp = getDockTable();
+                    DataTable dockTmp = getDockTable("202003");
                     Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                     //读取文件
 
@@ -1028,7 +1028,7 @@ namespace DataAccess
                     strSql.AppendLine("   ;  ");
 
                     //获取基础信息
-                    DataTable dockTmp = getDockTable();
+                    DataTable dockTmp = getDockTable("202003");
                     //读取文件
 
                     string vcPackingFactory = uionCode;
@@ -1170,7 +1170,7 @@ namespace DataAccess
                     filePath = fileList[i]["filePath"].ToString();
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                    DataTable dockTmp = getDockTable();
+                    DataTable dockTmp = getDockTable("202003");
                     Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                     //读取文件
 
@@ -1325,7 +1325,7 @@ namespace DataAccess
                     strSql.AppendLine("   insert into TUploadOrderRelation (vcLastOrderNo,vcNewOrderNo) values ('"+ chushiLastOrderNo + "','"+ fileName + "');   ");
                    
                     //获取基础信息
-                    DataTable dockTmp = getDockTable();
+                    DataTable dockTmp = getDockTable("202003");
                     //读取文件
 
                     string vcPackingFactory = uionCode;
@@ -1474,37 +1474,89 @@ namespace DataAccess
             }
         }
 
-        public DataTable getDockTable()
+        //public DataTable getDockTable()
+        //{
+        //    try
+        //    {
+        //        StringBuilder sbr = new StringBuilder();
+        //        sbr.AppendLine("   SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSupplierPlant,a.vcPackingPlant,  ");
+        //        sbr.AppendLine("   a.vcInOut,a.vcSupplierPlace,a.vcOrderingMethod,c.vcOrderPlant,a.vcOESP,a.vcHaoJiu,d.vcSufferIn,e.iPackingQty FROM     ");
+        //        sbr.AppendLine("   (    ");
+        //        sbr.AppendLine("   SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcSupplierPlace,vcOESP,vcHaoJiu FROM TSPMaster WHERE     ");
+        //        sbr.AppendLine("    isnull(vcDelete, '') <> '1' and  dFromTime <= GETDATE() AND dToTime >= GETDATE()     ");
+        //        sbr.AppendLine("   ) a    ");
+        //        sbr.AppendLine("   LEFT JOIN    ");
+        //        sbr.AppendLine("   (    ");
+        //        sbr.AppendLine("   SELECT [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcSupplierPlant] FROM [TSPMaster_SupplierPlant] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
+        //        sbr.AppendLine("   ) b ON a.vcPackingPlant = b.vcPackingPlant AND a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcSupplierId = b.vcSupplierId    ");
+        //        sbr.AppendLine("   left join  ");
+        //        sbr.AppendLine("   (  ");
+        //        //sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcOrderPlant] FROM [TSPMaster_OrderPlant] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
+        //        //sbr.AppendLine("   ) c ON a.vcPackingPlant = c.vcPackingPlant AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcSupplierId = c.vcSupplierId    ");
+        //        sbr.AppendLine("  select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],  ");
+        //        sbr.AppendLine("  vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'   ");
+        //        sbr.AppendLine("  and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23)  ");
+        //        sbr.AppendLine("  ) c on a.[vcSupplierId]=c.[vcSupplierId] AND b.vcSupplierPlant=c.vcSupplierPlant    ");
+        //        sbr.AppendLine("   left join  ");
+        //        sbr.AppendLine("   (  ");
+        //        sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcSufferIn] FROM [dbo].[TSPMaster_SufferIn] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
+        //        sbr.AppendLine("   ) d ON a.vcPackingPlant = d.vcPackingPlant AND a.vcPartId = d.vcPartId AND a.vcReceiver = d.vcReceiver AND a.vcSupplierId = d.vcSupplierId    ");
+        //        sbr.AppendLine("   left join  ");
+        //        sbr.AppendLine("   (  ");
+        //        sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [vcSupplierPlant], [dFromTime], [dToTime], [iPackingQty] FROM [TSPMaster_Box] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
+        //        sbr.AppendLine("   ) e ON a.vcPackingPlant = e.vcPackingPlant AND a.vcPartId = e.vcPartId AND a.vcReceiver = e.vcReceiver AND a.vcSupplierId = e.vcSupplierId    ");
+        //        return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        public DataTable getDockTable(string TargetYM)
         {
             try
             {
+                DateTime timeFrom = DateTime.Parse(TargetYM.Substring(0, 4) + "-" + TargetYM.Substring(4, 2) + "-01");
+                DateTime timeTo = timeFrom.AddMonths(1).AddMilliseconds(-1);
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("   SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSupplierPlant,a.vcPackingPlant,  ");
-                sbr.AppendLine("   a.vcInOut,a.vcSupplierPlace,a.vcOrderingMethod,c.vcOrderPlant,a.vcOESP,a.vcHaoJiu,d.vcSufferIn,e.iPackingQty FROM     ");
-                sbr.AppendLine("   (    ");
-                sbr.AppendLine("   SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcSupplierPlace,vcOESP,vcHaoJiu FROM TSPMaster WHERE     ");
-                sbr.AppendLine("    isnull(vcDelete, '') <> '1' and  dFromTime <= GETDATE() AND dToTime >= GETDATE()     ");
-                sbr.AppendLine("   ) a    ");
-                sbr.AppendLine("   LEFT JOIN    ");
-                sbr.AppendLine("   (    ");
-                sbr.AppendLine("   SELECT [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcSupplierPlant] FROM [TSPMaster_SupplierPlant] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
-                sbr.AppendLine("   ) b ON a.vcPackingPlant = b.vcPackingPlant AND a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcSupplierId = b.vcSupplierId    ");
-                sbr.AppendLine("   left join  ");
-                sbr.AppendLine("   (  ");
-                //sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcOrderPlant] FROM [TSPMaster_OrderPlant] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
-                //sbr.AppendLine("   ) c ON a.vcPackingPlant = c.vcPackingPlant AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcSupplierId = c.vcSupplierId    ");
-                sbr.AppendLine("  select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],  ");
-                sbr.AppendLine("  vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'   ");
-                sbr.AppendLine("  and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23)  ");
-                sbr.AppendLine("  ) c on a.[vcSupplierId]=c.[vcSupplierId] AND b.vcSupplierPlant=c.vcSupplierPlant    ");
-                sbr.AppendLine("   left join  ");
-                sbr.AppendLine("   (  ");
-                sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [dFromTime], [dToTime], [vcSufferIn] FROM [dbo].[TSPMaster_SufferIn] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
-                sbr.AppendLine("   ) d ON a.vcPackingPlant = d.vcPackingPlant AND a.vcPartId = d.vcPartId AND a.vcReceiver = d.vcReceiver AND a.vcSupplierId = d.vcSupplierId    ");
-                sbr.AppendLine("   left join  ");
-                sbr.AppendLine("   (  ");
-                sbr.AppendLine("   SELECT [LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [vcSupplierPlant], [dFromTime], [dToTime], [iPackingQty] FROM [TSPMaster_Box] WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1'     ");
-                sbr.AppendLine("   ) e ON a.vcPackingPlant = e.vcPackingPlant AND a.vcPartId = e.vcPartId AND a.vcReceiver = e.vcReceiver AND a.vcSupplierId = e.vcSupplierId    ");
+
+                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking FROM ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("	SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking FROM TSPMaster WHERE ");
+                sbr.AppendLine("	dFromTime <= '" + timeFrom + "' AND dToTime >='" + timeTo + "' ");
+                sbr.AppendLine(") a");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,vcSufferIn FROM TSPMaster_SufferIn WHERE dFromTime <= '" + timeFrom + "' AND dToTime >= '" + timeTo + "' AND vcOperatorType = '1' ");
+                sbr.AppendLine(") b ON a.vcPackingPlant = b.vcPackingPlant AND a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcSupplierId = b.vcSupplierId");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcSupplierPlant,vcSupplierId,vcPartId,vcReceiver,vcPackingPlant FROM TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= '" + timeFrom + "' AND dToTime >= '" + timeTo + "'");
+                sbr.AppendLine(") c ON a.vcSupplierId = b.vcSupplierId AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcPackingPlant = c.vcPackingPlant");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),'" + timeFrom + "',23) AND vcValue4>=CONVERT(VARCHAR(10),'" + timeTo + "',23)");
+                sbr.AppendLine(") d ON a.vcSupplierId = d.vcSupplierId AND c.vcSupplierPlant = d.vcSupplierPlant");
+
+                //sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking FROM ");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("	SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking FROM TSPMaster WHERE ");
+                //sbr.AppendLine("	dFromTime <= GETDATE() AND dToTime >= GETDATE() ");
+                //sbr.AppendLine(") a");
+                //sbr.AppendLine("LEFT JOIN");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,vcSufferIn FROM TSPMaster_SufferIn WHERE dFromTime <= GETDATE() AND dToTime >= GETDATE() AND vcOperatorType = '1' ");
+                //sbr.AppendLine(") b ON a.vcPackingPlant = b.vcPackingPlant AND a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcSupplierId = b.vcSupplierId");
+                //sbr.AppendLine("LEFT JOIN");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("SELECT vcSupplierPlant,vcSupplierId,vcPartId,vcReceiver,vcPackingPlant FROM TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= GETDATE() AND dToTime >= GETDATE()");
+                //sbr.AppendLine(") c ON a.vcSupplierId = b.vcSupplierId AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcPackingPlant = c.vcPackingPlant");
+                //sbr.AppendLine("LEFT JOIN");
+                //sbr.AppendLine("(");
+                //sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                //sbr.AppendLine(") d ON a.vcSupplierId = d.vcSupplierId AND c.vcSupplierPlant = d.vcSupplierPlant");
+
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -1512,7 +1564,6 @@ namespace DataAccess
                 throw ex;
             }
         }
-
         #endregion
 
         #region 读取txt

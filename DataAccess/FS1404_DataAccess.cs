@@ -12,13 +12,78 @@ namespace DataAccess
     public class FS1404_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
-        public DataTable getSearchInfo(string strPartId, string strSupplierId, string strSupplierPlant)
+        public DataTable getSearchInfo(string strPartId, string strSupplierId)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("");
-                strSql.AppendLine("");
+                strSql.AppendLine("select a.[LinId]");
+                strSql.AppendLine("		,a.vcPartId as vcPartId");
+                strSql.AppendLine("		,convert(varchar(10),a.vcTimeFrom,111) as dFromTime");
+                strSql.AppendLine("		,convert(varchar(10),a.vcTimeTo,111)  as dToTime");
+                strSql.AppendLine("		,a.vcSupplierCode as vcSupplierId");
+                strSql.AppendLine("		,a.vcSupplierPlant as vcSupplierPlant");
+                strSql.AppendLine("		,a.vcCarfamilyCode as vcCarfamilyCode");
+                strSql.AppendLine("		,a.vcPicUrl as vcPicUrl");
+                strSql.AppendLine("		,a.vcChangeRea as vcChangeRea");
+                strSql.AppendLine("		,b.vcUserName as vcOperator");
+                strSql.AppendLine("		,convert(varchar(10),a.dOperatorTime,23)as dOperatorTime");
+                strSql.AppendLine("		,'0' as bModFlag,'0' as bAddFlag");
+                strSql.AppendLine("		,'1' as bSelectFlag,'' as vcBgColor ");
+                strSql.AppendLine("from (");
+                strSql.AppendLine("select [LinId] AS [LinId],vcPartId,vcTimeFrom,vcTimeTo,vcSupplierCode,vcSupplierPlant,vcCarfamilyCode,vcPicUrl");
+                strSql.AppendLine(",vcChangeRea,vcOperatorID,dOperatorTime from tSPISQf) a");
+                strSql.AppendLine("left join ");
+                strSql.AppendLine("(select * from sUser) b");
+                strSql.AppendLine("on b.vcUserId=a.vcOperatorID");
+                strSql.AppendLine("where 1=1 ");
+                if (strPartId != "")
+                {
+                    strSql.AppendLine(" and a.vcPartId like '" + strPartId + "%'");
+}
+                if (strSupplierId != "")
+                {
+                    strSql.AppendLine(" and a.vcSupplierCode='" + strSupplierId + "'");
+                }
+                strSql.AppendLine("order by a.vcPartId ,a.vcTimeFrom");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getSearchsubInfo(string strSupplierId, List<Object> listTime)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select * from tSPISQf where vcSupplierCode='"+ strSupplierId + "'");
+                if (listTime.Count != 0)
+                {
+                    strSql.AppendLine("and ( ");
+                    for (int i = 0; i < listTime.Count; i++)
+                    {
+                        if (listTime[i].ToString() == "现在")
+                        {
+                            strSql.AppendLine("(vcTimeFrom<=Convert(varchar(10),getdate(),23) and vcTimeTo>=Convert(varchar(10),getdate(),23))");
+                        }
+                        if (listTime[i].ToString() == "将来")
+                        {
+                            strSql.AppendLine("(vcTimeFrom>Convert(varchar(10),getdate(),23))");
+                        }
+                        if (listTime[i].ToString() == "作废")
+                        {
+                            strSql.AppendLine("(vcTimeTo<Convert(varchar(10),getdate(),23))");
+                        }
+                        if (i < listTime.Count - 1)
+                        {
+                            strSql.AppendLine(" or ");
+                        }
+                    }
+                    strSql.AppendLine(") ");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -42,40 +107,31 @@ namespace DataAccess
                 StringBuilder strSql_addinfo = new StringBuilder();
 
                 #region SQL and Parameters
-                strSql_addinfo.AppendLine("INSERT INTO [dbo].[tCheckQf]");
+                strSql_addinfo.AppendLine("INSERT INTO [dbo].[tSPISQf]");
                 strSql_addinfo.AppendLine("           ([vcPartId]");
                 strSql_addinfo.AppendLine("           ,[vcTimeFrom]");
                 strSql_addinfo.AppendLine("           ,[vcTimeTo]");
-                strSql_addinfo.AppendLine("           ,[vcCarfamilyCode]");
                 strSql_addinfo.AppendLine("           ,[vcSupplierCode]");
-                strSql_addinfo.AppendLine("           ,[vcSupplierPlant]");
-                strSql_addinfo.AppendLine("           ,[vcCheckP]");
+                strSql_addinfo.AppendLine("           ,[vcPicUrl]");
                 strSql_addinfo.AppendLine("           ,[vcChangeRea]");
-                strSql_addinfo.AppendLine("           ,[vcTJSX]");
                 strSql_addinfo.AppendLine("           ,[vcOperatorID]");
                 strSql_addinfo.AppendLine("           ,[dOperatorTime])");
                 strSql_addinfo.AppendLine("     VALUES");
                 strSql_addinfo.AppendLine("           (@vcPartId");
                 strSql_addinfo.AppendLine("           ,@vcTimeFrom");
                 strSql_addinfo.AppendLine("           ,@vcTimeTo");
-                strSql_addinfo.AppendLine("           ,@vcCarfamilyCode");
                 strSql_addinfo.AppendLine("           ,@vcSupplierCode");
-                strSql_addinfo.AppendLine("           ,@vcSupplierPlant");
-                strSql_addinfo.AppendLine("           ,@vcCheckP");
+                strSql_addinfo.AppendLine("           ,@vcPicUrlUUID");
                 strSql_addinfo.AppendLine("           ,@vcChangeRea");
-                strSql_addinfo.AppendLine("           ,@vcTJSX");
                 strSql_addinfo.AppendLine("           ,'" + strOperId + "'");
                 strSql_addinfo.AppendLine("           ,GETDATE())");
                 sqlCommand_addinfo.CommandText = strSql_addinfo.ToString();
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcPartId", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcTimeFrom", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcTimeTo", "");
-                sqlCommand_addinfo.Parameters.AddWithValue("@vcCarfamilyCode", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcSupplierCode", "");
-                sqlCommand_addinfo.Parameters.AddWithValue("@vcSupplierPlant", "");
-                sqlCommand_addinfo.Parameters.AddWithValue("@vcCheckP", "");
+                sqlCommand_addinfo.Parameters.AddWithValue("@vcPicUrlUUID", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcChangeRea", "");
-                sqlCommand_addinfo.Parameters.AddWithValue("@vcTJSX", "");
                 #endregion
                 foreach (DataRow item in dtImport.Rows)
                 {
@@ -85,12 +141,9 @@ namespace DataAccess
                         sqlCommand_addinfo.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
                         sqlCommand_addinfo.Parameters["@vcTimeFrom"].Value = item["dFromTime"].ToString();
                         sqlCommand_addinfo.Parameters["@vcTimeTo"].Value = item["dToTime"].ToString();
-                        sqlCommand_addinfo.Parameters["@vcCarfamilyCode"].Value = item["vcCarfamilyCode"].ToString();
                         sqlCommand_addinfo.Parameters["@vcSupplierCode"].Value = item["vcSupplierId"].ToString();
-                        sqlCommand_addinfo.Parameters["@vcSupplierPlant"].Value = item["vcSupplierPlant"].ToString();
-                        sqlCommand_addinfo.Parameters["@vcCheckP"].Value = item["vcCheckP"].ToString();
+                        sqlCommand_addinfo.Parameters["@vcPicUrlUUID"].Value = item["vcPicUrlUUID"].ToString();
                         sqlCommand_addinfo.Parameters["@vcChangeRea"].Value = item["vcChangeRea"].ToString();
-                        sqlCommand_addinfo.Parameters["@vcTJSX"].Value = item["vcTJSX"].ToString();
                         #endregion
                         sqlCommand_addinfo.ExecuteNonQuery();
                     }
@@ -104,7 +157,7 @@ namespace DataAccess
                 StringBuilder strSql_modinfo = new StringBuilder();
 
                 #region SQL and Parameters
-                strSql_modinfo.AppendLine("UPDATE [tCheckQf] SET [vcTimeTo]=@vcTimeTo WHERE LinId=@LinId");
+                strSql_modinfo.AppendLine("UPDATE [tSPISQf] SET [vcTimeTo]=@vcTimeTo WHERE LinId=@LinId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcTimeTo", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@LinId", "");

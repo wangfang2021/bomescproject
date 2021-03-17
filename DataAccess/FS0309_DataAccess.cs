@@ -13,7 +13,7 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public DataTable Search(string strMaxNum,string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState
             )
@@ -21,7 +21,10 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("       select *         \n");
+                if(strMaxNum!="")
+                    strSql.Append("       select top "+ strMaxNum + " *         \n");
+                else
+                    strSql.Append("       select *         \n");
                 strSql.Append("       ,b.vcName as 'vcChange_Name'     \n");
                 strSql.Append("       ,b2.vcName as 'vcHaoJiu_Name'      \n");
                 strSql.Append("       ,b3.vcName as 'vcProjectType_Name'      \n");
@@ -324,7 +327,7 @@ namespace DataAccess
                         sql.Append("  update TPrice set    \r\n");
                         sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
                         sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
-                        sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+                        sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
 
 
                         //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
@@ -344,7 +347,7 @@ namespace DataAccess
                     else
                     {
                         sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+                        sql.Append("  decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                         sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
                         sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");
@@ -547,7 +550,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select  * from TPrice where vcPriceState='0'      \n");
+                strSql.Append("     select  count(*) as iNum from TPrice where vcPriceState='0'      \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

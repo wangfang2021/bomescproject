@@ -23,12 +23,12 @@ namespace Logic
 
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public DataTable Search(string strMaxNum,string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState
             )
         {
-            return convert(fs0309_DataAccess.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+            return convert(fs0309_DataAccess.Search(strMaxNum,strChange, strPart_id, strOriginCompany, strHaoJiu
             , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
             , strReceiver, strPriceState
             ));
@@ -129,9 +129,12 @@ namespace Logic
         #endregion
 
         #region 检索所有待处理的数据
-        public DataTable getAllTask()
+        public int getAllTask()
         {
-            return fs0309_DataAccess.getAllTask();
+            DataTable dt= fs0309_DataAccess.getAllTask();
+            if (dt == null || dt.Rows.Count == 0)
+                return 0;
+            return Convert.ToInt32(dt.Rows[0]["iNum"]);
         }
         #endregion
 

@@ -912,6 +912,7 @@ namespace DataAccess
         public DataTable getSoqInfo(string mon, string plant)
         {
             string mon1 = mon.Substring(0, 4) + "-" + mon.Substring(4, 2);
+            string moncl = Convert.ToDateTime(mon.Substring(0, 4) + "-" + mon.Substring(4, 2) + "-01").AddMonths(-1).ToString("yyyyMM");
             string ssql = "";
             ssql += "  select t1.vcFZGC, t1.vcPart_id, t2.vcDock, t2.vcCarFamilyCode, t2.vcQJcontainer as kbsrs, t2.iQuantityPerContainer as srs, ";
             ssql += "  t1.iBoxes*t2.iQuantityPerContainer as num, t2.vcPorType, t2.vcZB, t3.KBpartType, t2.vcQFflag, ";
@@ -926,7 +927,7 @@ namespace DataAccess
             ssql += "  left join ProRuleMst t3 ";
             ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB = t2.vcZB ";
             // 王立伟注释掉 //ssql += "  where t1.vcDXYM='" + mon + "' and updateFlag='0' and iPartNums <>'0' and vcFZGC='" + plant + "' and t2.dTimeFrom<='" + mon + "-01" + "' and t2.dTimeTo >= '" + mon + "-01" + "'";
-            ssql += "  where t1.vcDXYM='" + mon + "' and iPartNums <>'0' and vcFZGC='" + plant + "' and t2.dTimeFrom<='" + mon1 + "-01" + "' and t2.dTimeTo >= '" + mon1 + "-01" + "'";
+            ssql += "  where t1.vcDXYM='" + mon + "' and t1.vcCLYM='" + moncl + "' and iPartNums <>'0' and vcFZGC='" + plant + "' and t2.dTimeFrom<='" + mon1 + "-01" + "' and t2.dTimeTo >= '" + mon1 + "-01" + "'";
             ssql += "  order by vcFZGC, vcPorType, vcZB, KBpartType ";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }

@@ -35,24 +35,44 @@ namespace Logic
                         string strPartId = dtImport.Rows[i]["vcPartId"].ToString();
                         string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString();
                         string strFromTime = dtImport.Rows[i]["dFromTime"].ToString();
-                        DataTable dtCheckTime = getSearchInfo("", strPartId, strSupplierId);
-                        if (dtCheckTime.Rows.Count > 0)
+                        string strToTime = dtImport.Rows[i]["dToTime"].ToString();
+                        string strCheckP = dtImport.Rows[i]["vcCheckP"].ToString();
+                        if (strPartId == "" || strSupplierId == "" || strFromTime == "" || strToTime == "")
                         {
-                            string strLinid_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
-                            string strFromTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dFromTime"].ToString();
-                            string strToTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dToTime"].ToString();
-                            if (Convert.ToDateTime(strFromTime_before) >= Convert.ToDateTime(strFromTime))
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "缺少必填项请完善数据。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        else
+                        {
+                            if (strCheckP == "")
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = "品番" + strPartId + "【检查频度】维护有误(当前有效的开始使用时间小于维护的开始使用时间)";
+                                dataRow["vcMessage"] = strPartId + "品番检查频度为空请完善数据。";
                                 dtMessage.Rows.Add(dataRow);
                             }
-                            strToTime_before = Convert.ToDateTime(strFromTime).AddDays(-1).ToString("yyyy-MM-dd");
-                            DataRow drImport = dtImport.NewRow();
-                            drImport["LinId"] = strLinid_before;
-                            drImport["dToTime"] = strToTime_before;
-                            drImport["vcType"] = "mod";
-                            dtImport.Rows.Add(drImport);
+                            else
+                            {
+                                DataTable dtCheckTime = getSearchInfo("", strPartId, strSupplierId);
+                                if (dtCheckTime.Rows.Count > 0)
+                                {
+                                    string strLinid_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["LinId"].ToString();
+                                    string strFromTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dFromTime"].ToString();
+                                    string strToTime_before = dtCheckTime.Rows[dtCheckTime.Rows.Count - 1]["dToTime"].ToString();
+                                    if (Convert.ToDateTime(strFromTime_before) >= Convert.ToDateTime(strFromTime))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = "品番" + strPartId + "【检查频度】维护有误(当前有效的开始使用时间小于维护的开始使用时间)";
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    strToTime_before = Convert.ToDateTime(strFromTime).AddDays(-1).ToString("yyyy-MM-dd");
+                                    DataRow drImport = dtImport.NewRow();
+                                    drImport["LinId"] = strLinid_before;
+                                    drImport["dToTime"] = strToTime_before;
+                                    drImport["vcType"] = "mod";
+                                    dtImport.Rows.Add(drImport);
+                                }
+                            }
                         }
                     }
                 }

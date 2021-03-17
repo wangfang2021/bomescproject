@@ -177,7 +177,7 @@ namespace SPPSApi.Controllers.G03
                 {
                     string strDiff = importDt.Rows[i]["vcDiff"] == DBNull.Value ? "" : importDt.Rows[i]["vcDiff"].ToString();
                     string strHaoJiu_Name = importDt.Rows[i]["vcHaoJiu_Name"] == DBNull.Value ? "" : importDt.Rows[i]["vcHaoJiu_Name"].ToString();
-                    string strFXDiff = importDt.Rows[i]["vcFXDiff"] == DBNull.Value ? "" : importDt.Rows[i]["vcDiff"].ToString();
+                    string strFXDiff = importDt.Rows[i]["vcFXDiff"] == DBNull.Value ? "" : importDt.Rows[i]["vcFXDiff"].ToString();
                     string strFXNo = importDt.Rows[i]["vcFXNo"] == DBNull.Value ? "" : importDt.Rows[i]["vcFXNo"].ToString();
                     if (!fs0303_Logic.checkDataFromTo(importDt.Rows[i], "dTimeFrom", "dTimeTo"))
                     {

@@ -425,17 +425,27 @@ namespace SPPSApi.Controllers.G03
 
                 DataTable dt = fs0309_Logic.getXiaoShouZhanKai(listInfoData);
                 string[] fields = {  "iNum","vcPart_id","vcFaZhuPlant","dQieTi","vcPart_Name","vcChange_Name",
-                        "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDesign"
+                        "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDesign","vcNote"
                     };
 
-                string filepath = fs0309_Logic.generateExcelWithXlt_XiaoShou(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_XiaoShou.xlsx", loginInfo.UserId, FunctionID);
+                //获取单号，生成单号
+                int iDanhao=fs0309_Logic.getNewDanHao(loginInfo.UnitCode);
+                if(iDanhao>99)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "连番大于99，不可再生成！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strDanhao = "PIC-"+ loginInfo.UnitCode + "-"+DateTime.Now.ToString("yyMMdd")+"-"+ iDanhao.ToString("00");
+
+                string filepath = fs0309_Logic.generateExcelWithXlt_XiaoShou(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_XiaoShou.xlsx", loginInfo.UserId, FunctionID, strDanhao);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0309_Logic.updateXiaoShouZhanKaiState(listInfoData);//变更事项变空，状态改为PIC
+                fs0309_Logic.updateXiaoShouZhanKaiState(listInfoData, strDanhao);//变更事项变空，状态改为PIC
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

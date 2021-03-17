@@ -609,7 +609,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -617,7 +617,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -706,9 +706,9 @@ namespace SPPSApi.Controllers.G03
                 //工程变更新设：工程/供应商信息下的开始时间
                 //工程变更废止：工程/供应商信息下的结束时间
                 //供应商变更新设：工程/供应商信息下的开始时间
-                //供应商变更废止：工程/供应商信息下的开始时间
+                //供应商变更废止：工程/供应商信息下的结束时间
                 //包装工厂变更新设：工程/供应商信息下的开始时间
-                //包装工厂变更废止：工程/供应商信息下的开始时间
+                //包装工厂变更废止：工程/供应商信息下的结束时间
                 //防锈变更：=文本“即时切替”
 
                 JArray checkedInfo = dataForm.multipleSelection;
@@ -799,7 +799,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -807,7 +807,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }

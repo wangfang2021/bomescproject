@@ -274,8 +274,8 @@ namespace SPPSApi.Controllers.G12
                     else if (dt.Rows[i]["vcQFflag"] != null && dt.Rows[i]["vcQFflag"].ToString() == "2")
                         dt.Rows[i]["vcQFflag"] = "×";
                 }
-                string[] fields = { "vcPartsNo","dFromTime","dToTime","vcPartPlant","vcDock","vcCarFamilyCode","vcPartENName",
-                                    "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcOrderingMethod","vcReceiver","vcSupplierId" };
+                string[] fields = { "vcPartsNo","dTimeFrom","dTimeTo","vcPartPlant","vcDock","vcCarFamilyCode","vcPartsNameEN",
+                                    "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcPartFrequence","vcCpdCompany","vcSupplierCode" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1212_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

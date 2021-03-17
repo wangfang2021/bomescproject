@@ -103,6 +103,9 @@ namespace SPPSApi.Controllers.G14
             {
                 DataTable dataTable = fS1404_Logic.getSearchInfo(strPartId, strSupplierId);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

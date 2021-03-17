@@ -22,17 +22,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G14
 {
-    [Route("api/FS1401/[action]")]
+    [Route("api/FS1405/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS1401Controller : BaseController
+    public class FS1405Controller : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        FS1401_Logic fS1401_Logic = new FS1401_Logic();
+        FS1405_Logic fS1405_Logic = new FS1405_Logic();
         FS0603_Logic fS0603_Logic = new FS0603_Logic();
-        private readonly string FunctionID = "FS1401";
+        private readonly string FunctionID = "FS1405";
 
-        public FS1401Controller(IWebHostEnvironment webHostEnvironment)
+        public FS1405Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -98,20 +98,18 @@ namespace SPPSApi.Controllers.G14
 
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
             string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
             string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
             string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
             string strFrom = dataForm.From == null ? "" : dataForm.From;
             string strTo = dataForm.To == null ? "" : dataForm.To;
             string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
-            string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
             string strSPISStatus = dataForm.SPISStatus == null ? "" : dataForm.SPISStatus;
             List<Object> listTime = dataForm.TimeList.ToObject<List<Object>>();
 
             try
             {
-                DataTable dataTable = fS1401_Logic.getSearchInfo(strPartId, strSupplierId, strSupplierPlant, strHaoJiu, strInOut, strOrderPlant, strFrom, strTo, strCarModel, strCheckType, strSPISStatus, listTime);
+                DataTable dataTable = fS1405_Logic.getSearchInfo(strPartId, strSupplierId, strHaoJiu, strInOut, strOrderPlant, strFrom, strTo, strCarModel, strSPISStatus, listTime);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
@@ -130,16 +128,16 @@ namespace SPPSApi.Controllers.G14
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-
         /// <summary>
-        /// 导出方法
+        /// 作成依赖发送方法
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
         [EnableCors("any")]
-        public string exportApi([FromBody] dynamic data)
+        public string sendtoApi([FromBody]dynamic data)
         {
+            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -148,42 +146,150 @@ namespace SPPSApi.Controllers.G14
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
-            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
-            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
-            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
-            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
-            string strFrom = dataForm.From == null ? "" : dataForm.From;
-            string strTo = dataForm.To == null ? "" : dataForm.To;
-            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
-            string strCheckType = dataForm.CheckType == null ? "" : dataForm.CheckType;
-            string strSPISStatus = dataForm.SPISStatus == null ? "" : dataForm.SPISStatus;
-            List<Object> listTime = dataForm.TimeList.ToObject<List<Object>>();
             try
             {
-                DataTable dataTable = fS1401_Logic.getSearchInfo(strPartId, strSupplierId, strSupplierPlant, strHaoJiu, strInOut, strOrderPlant, strFrom, strTo, strCarModel, strCheckType, strSPISStatus, listTime);
-
-                string[] fields = { "vcPartId", "vcPartENName", "dFromTime", "dToTime", "vcCarfamilyCode", "vcOrderPlant", "vcSupplierId", "vcSupplierPlant", "vcInOut", "vcHaoJiu", "vcPackType", "vcCheckType", "vcSPISStatus" };
-
-                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1401_Export.xlsx", 1, loginInfo.UserId, FunctionID);
-                if (filepath == "")
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.searchform.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                DataTable dtImport = fS1405_Logic.checksendtoInfo(checkedInfoData, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
+                    //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fS1405_Logic.sendtoInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
+                apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
+                apiResult.data = "作成依赖发送失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 承认方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string admitApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.searchform.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                DataTable dtImport = fS1405_Logic.checkadmitInfo(checkedInfoData, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fS1405_Logic.admitInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "承认SPIS失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 驳回方法
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string rejectApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.searchform.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                DataTable dtImport = fS1405_Logic.checkrejectInfo(checkedInfoData, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fS1405_Logic.rejectInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "驳回SPIS失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

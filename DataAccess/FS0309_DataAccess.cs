@@ -13,7 +13,7 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public DataTable Search(string strMaxNum,string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState
             )
@@ -21,7 +21,10 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("       select *         \n");
+                if(strMaxNum!="")
+                    strSql.Append("       select top "+ strMaxNum + " *         \n");
+                else
+                    strSql.Append("       select *         \n");
                 strSql.Append("       ,b.vcName as 'vcChange_Name'     \n");
                 strSql.Append("       ,b2.vcName as 'vcHaoJiu_Name'      \n");
                 strSql.Append("       ,b3.vcName as 'vcProjectType_Name'      \n");
@@ -547,7 +550,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select  * from TPrice where vcPriceState='0'      \n");
+                strSql.Append("     select  count(*) as iNum from TPrice where vcPriceState='0'      \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

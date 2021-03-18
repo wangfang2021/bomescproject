@@ -410,7 +410,7 @@ namespace Common
                         switch (Header[2, j])
                         {
                             case "decimal":
-                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDecimal(dr[Header[1, j]].ToString()))
+                                if (dr[Header[1, j]] != null && dr[Header[1, j]].ToString() != "" && !CheckDecimal(dr[Header[1, j]].ToString()))
                                 {
                                     RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
                                     return null;
@@ -418,7 +418,7 @@ namespace Common
 
                                 break;
                             case "d":
-                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckDate(dr[Header[1, j]].ToString()))
+                                if (dr[Header[1, j]] != null && dr[Header[1, j]].ToString() != "" && !CheckDate(dr[Header[1, j]].ToString()))
                                 {
                                     RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
                                     return null;
@@ -426,7 +426,7 @@ namespace Common
 
                                 break;
                             case "ym":
-                                if (Convert.ToInt32(Header[4, j]) > 0 && !CheckYearMonth(dr[Header[1, j]].ToString()))
+                                if (dr[Header[1, j]] != null && dr[Header[1, j]].ToString() != "" && !CheckYearMonth(dr[Header[1, j]].ToString()))
                                 {
                                     RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
                                     return null;

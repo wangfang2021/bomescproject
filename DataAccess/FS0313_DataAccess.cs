@@ -189,5 +189,51 @@ namespace DataAccess
         }
         #endregion
 
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string strAutoId = dt.Rows[i]["iAutoId"] == System.DBNull.Value ? "" : dt.Rows[i]["iAutoId"].ToString();
+                    string vcPart_id = dt.Rows[i]["vcPart_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPart_id"].ToString();
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("  decPriceOrigin_CW=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin_CW"], true) + "   \r\n");
+                    sql.Append("  ,vcOperatorID_CW='" + strUserId + "'   \r\n");
+                    sql.Append("  ,dOperatorTime_CW=getDate()   \r\n");
+                    sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 验证品番是否都是已经送信
+        public DataTable checkState(string strAutoIds)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  select vcPart_id from tprice  where iAutoId in     \r\n");
+                sql.Append("  (     \r\n");
+                sql.Append("  "+ strAutoIds + "     \r\n");
+                sql.Append("  )     \r\n");
+                sql.Append("  and vcPriceState<>'1'     \r\n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
 }

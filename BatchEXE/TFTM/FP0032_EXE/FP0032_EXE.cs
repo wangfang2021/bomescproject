@@ -9,11 +9,11 @@ namespace FP0302_EXE
         [STAThread]
         static void Main(string[] args)
         {
-            string PageId = "FP0302";
+            string PageId = "FP0032";
             int iRet = Common.ComConstant.OK_CODE;
             try
             {
-                FP0302 pb = new FP0302();
+                FP0032 pb = new FP0032();
                 if (!pb.main("000000", 0))
                     iRet = Common.ComConstant.NG_CODE;
                 if (!pb.main("000000", 1))

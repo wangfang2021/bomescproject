@@ -7,7 +7,7 @@ using Common;
 
 namespace BatchProcess
 {
-    public class FP0302
+    public class FP0032
     {
         private MultiExcute excute = new MultiExcute();
 

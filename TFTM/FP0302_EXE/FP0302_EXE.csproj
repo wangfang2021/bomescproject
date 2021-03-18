@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\BatchProcess\BatchProcess.csproj" />
+    <ProjectReference Include="..\..\Common\Common.csproj" />
     <ProjectReference Include="..\BatchProcess\BatchProcess.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>

@@ -45,19 +45,18 @@ namespace SPPSApi.Controllers.G17
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcSmallPM = dataForm.vcSmallPM;
-            string vcBigPM = dataForm.vcBigPM;
+            string vcPart_id = dataForm.vcPart_id;
 
             try
             {
-                ////DataTable dt = fs1702_Logic.Search_PM(vcSmallPM, vcBigPM);
-                ////DtConverter dtConverter = new DtConverter();
-                ////dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                ////dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                DataTable dt = fs1702_Logic.Search_jinji(vcPart_id);
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
 
-                //List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-                //apiResult.code = ComConstant.SUCCESS_CODE;
-                //apiResult.data = dataList;
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -112,11 +111,11 @@ namespace SPPSApi.Controllers.G17
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"大品目","小品目","基准时间(秒)"},
-                                                {"vcBigPM","vcSmallPM","vcStandardTime"},
-                                                {"","",""},
-                                                {"25","25","25"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1"},//最小长度设定,可以为空用0
+                    string[,] strField = new string[,] {{"品番","数量","原因"},
+                                                {"vcPart_id","iQuantity","vcReason"},
+                                                {FieldCheck.NumCharL,FieldCheck.Num,""},
+                                                {"12","0","100"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1702_Sub_jinji");
@@ -128,7 +127,7 @@ namespace SPPSApi.Controllers.G17
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                //fs1702_Logic.Save_pm(listInfoData, loginInfo.UserId);
+                fs1702_Logic.Save_jinji(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

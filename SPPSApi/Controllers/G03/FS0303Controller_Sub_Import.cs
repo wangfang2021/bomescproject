@@ -177,6 +177,8 @@ namespace SPPSApi.Controllers.G03
                 {
                     string strDiff = importDt.Rows[i]["vcDiff"] == DBNull.Value ? "" : importDt.Rows[i]["vcDiff"].ToString();
                     string strHaoJiu_Name = importDt.Rows[i]["vcHaoJiu_Name"] == DBNull.Value ? "" : importDt.Rows[i]["vcHaoJiu_Name"].ToString();
+                    string strFXDiff = importDt.Rows[i]["vcFXDiff"] == DBNull.Value ? "" : importDt.Rows[i]["vcFXDiff"].ToString();
+                    string strFXNo = importDt.Rows[i]["vcFXNo"] == DBNull.Value ? "" : importDt.Rows[i]["vcFXNo"].ToString();
                     if (!fs0303_Logic.checkDataFromTo(importDt.Rows[i], "dTimeFrom", "dTimeTo"))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -207,6 +209,12 @@ namespace SPPSApi.Controllers.G03
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "第" + (i + 2) + "行区分是1时，号旧必须是号口";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (strFXDiff!=null && strFXDiff=="R" && strFXNo=="")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "第" + (i + 2) + "行防锈区分为R时，防锈指示书号不能为空";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (strDiff == "9" && strHaoJiu_Name != "Q")

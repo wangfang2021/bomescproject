@@ -738,7 +738,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT vcValue1,vcValue2 FROM TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0' ");
+                    "SELECT vcValue1,vcValue2 FROM TOutCode WHERE vcCodeId = 'C052'AND vcIsColum = '0'  AND vcValue4 = '0' ");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

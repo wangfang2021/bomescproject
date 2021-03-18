@@ -99,8 +99,8 @@ namespace SPPSApi.Controllers.G17
             try
             {
                 DataTable dt = fs1704_Logic.Search(vcNaRuPart_id, vcChuHePart_id, vcSupplierName, vcCarType, vcProject);
-                string[] heads = { "纳入品番", "出荷品番", "背番", "品名", "收容数", "箱种", "厂家名称", "车型", "工程", "工程所番地", "受入", "所番地", "看板打印方式" };
-                string[] fields = { "vcNaRuPart_id", "vcChuHePart_id", "vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
+                string[] heads = { "出荷品番", "纳入品番",  "背番", "品名", "收容数", "箱种", "厂家名称", "车型", "工程", "工程所番地", "受入", "所番地", "看板打印方式" };
+                string[] fields = { "vcChuHePart_id","vcNaRuPart_id",  "vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
                 "vcProject","vcProjectPlace","vcSR","vcPlace","vcKBPrintWay"};
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
@@ -169,18 +169,18 @@ namespace SPPSApi.Controllers.G17
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"背番", "品名", "收容数", "箱种", "厂家名称", "车型",
+                        {"纳入品番","背番", "品名", "收容数", "箱种", "厂家名称", "车型",
                          "工程", "工程所番地", "受入", "所番地", "看板打印方式"},//中文字段名
-                        {"vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
+                        {"vcNaRuPart_id","vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
                          "vcProject","vcProjectPlace","vcSR","vcPlace","vcKBPrintWay"},//英文字段名
-                        {FieldCheck.NumChar,"",FieldCheck.Num,"","","",
+                        {FieldCheck.NumCharL,"","",FieldCheck.Num,"","","",
                          "","","","",""},//数据类型校验
-                        {"25","25","0","25","25","25",
+                        {"25","25","25","0","25","25","25",
                          "25","25","25","25","25"},//最大长度设定,不校验最大长度用0
-                        {"1","1","1","0","0","0",
+                        {"0","0","0","0","0","0","0",
                          "0","0","0","0","0"},//最小长度设定,可以为空用0
                         {"1","2","3","4","5","6",
-                         "7","8","9","10","11"}//前台显示列号，从0开始计算,注意有选择框的是0
+                         "7","8","9","10","11","12"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1704");
                     if (checkRes != null)

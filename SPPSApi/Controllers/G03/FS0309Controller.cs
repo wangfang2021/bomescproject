@@ -53,10 +53,6 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                if (loginInfo.Special == "财务用户")
-                    res.Add("caiWuBtnVisible", false);
-                else
-                    res.Add("caiWuBtnVisible", true);
 
                 List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
                 Dictionary<string, object> row = new Dictionary<string, object>();
@@ -84,7 +80,7 @@ namespace SPPSApi.Controllers.G03
                 //设变履历是否下拉待确定
                 List<Object> dataList_C005 = ComFunction.convertAllToResult(ComFunction.getTCode("C005"));//收货方
 
-                DataTable task=fs0309_Logic.getAllTask();
+                int iTask = fs0309_Logic.getAllTask();
 
                 res.Add("C002", dataList_C002);
                 res.Add("C004", dataList_C004);
@@ -95,7 +91,7 @@ namespace SPPSApi.Controllers.G03
                 res.Add("C006", dataList_C006);
                 res.Add("C028", dataList_C028);
                 res.Add("C038", dataList_C038);
-                res.Add("taskNum", task.Rows.Count);
+                res.Add("taskNum", iTask);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -131,18 +127,17 @@ namespace SPPSApi.Controllers.G03
             string strOriginCompany = dataForm.OriginCompany;
             string strHaoJiu = dataForm.HaoJiu;
             string strProjectType = dataForm.ProjectType;
-            if (loginInfo.Special == "财务用户")
-                strProjectType = "0";
 
             string strPriceChangeInfo = dataForm.PriceChangeInfo;
             string strCarTypeDev = dataForm.CarTypeDev;
             string strSupplier_id = dataForm.Supplier_id;
             string strReceiver = dataForm.Receiver;
             string strPriceState = dataForm.PriceState;
+            string strMaxNum = dataForm.iMaxNum;
 
             try
             {
-                DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+                DataTable dt = fs0309_Logic.Search(strMaxNum,strChange, strPart_id, strOriginCompany, strHaoJiu
                     , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                     , strReceiver, strPriceState
                     );
@@ -202,7 +197,7 @@ namespace SPPSApi.Controllers.G03
             string strPriceState = dataForm.PriceState;
             try
             {
-                DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+                DataTable dt = fs0309_Logic.Search("",strChange, strPart_id, strOriginCompany, strHaoJiu
                    , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                    , strReceiver, strPriceState
                    );
@@ -379,9 +374,9 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             try
             {
-                DataTable task = fs0309_Logic.getAllTask();
+                int iTask = fs0309_Logic.getAllTask();
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = task.Rows.Count;
+                apiResult.data = iTask;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -424,17 +419,27 @@ namespace SPPSApi.Controllers.G03
 
                 DataTable dt = fs0309_Logic.getXiaoShouZhanKai(listInfoData);
                 string[] fields = {  "iNum","vcPart_id","vcFaZhuPlant","dQieTi","vcPart_Name","vcChange_Name",
-                        "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDesign"
+                        "vcPartId_Replace","decPriceTNPWithTax","iPackingQty","vcCarTypeDesign","vcNote"
                     };
 
-                string filepath = fs0309_Logic.generateExcelWithXlt_XiaoShou(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_XiaoShou.xlsx", loginInfo.UserId, FunctionID);
+                //获取单号，生成单号
+                int iDanhao=fs0309_Logic.getNewDanHao(loginInfo.UnitCode);
+                if(iDanhao>99)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "连番大于99，不可再生成！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strDanhao = "PIC-"+ loginInfo.UnitCode + "-"+DateTime.Now.ToString("yyMMdd")+"-"+ iDanhao.ToString("00");
+
+                string filepath = fs0309_Logic.generateExcelWithXlt_XiaoShou(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_XiaoShou.xlsx", loginInfo.UserId, FunctionID, strDanhao);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0309_Logic.updateXiaoShouZhanKaiState(listInfoData);//变更事项变空，状态改为PIC
+                fs0309_Logic.updateXiaoShouZhanKaiState(listInfoData, strDanhao);//变更事项变空，状态改为PIC
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -504,21 +509,7 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 Object multipleSelection = dataForm.multipleSelection;
 
-                //切替预定日计算逻辑
-                //新设：使用开始时间
-                //旧型：旧型开始
-                //废止：使用结束时间
-                //恢复现号：旧型结束+1天
-                //复活：使用开始时间
-                //持续生产：旧型持续开始
-                //一括生产：使用结束时间
-                //工程变更新设：工程/供应商信息下的开始时间
-                //工程变更废止：工程/供应商信息下的结束时间
-                //供应商变更新设：工程/供应商信息下的开始时间
-                //供应商变更废止：工程/供应商信息下的开始时间
-                //包装工厂变更新设：工程/供应商信息下的开始时间
-                //包装工厂变更废止：工程/供应商信息下的开始时间
-                //防锈变更：=文本“即时切替”
+                 
 
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
@@ -609,7 +600,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -617,7 +608,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -695,22 +686,7 @@ namespace SPPSApi.Controllers.G03
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 Object multipleSelection = dataForm.multipleSelection;
 
-                //切替预定日计算逻辑
-                //新设：使用开始时间
-                //旧型：旧型开始
-                //废止：使用结束时间
-                //恢复现号：旧型结束+1天
-                //复活：使用开始时间
-                //持续生产：旧型持续开始
-                //一括生产：使用结束时间
-                //工程变更新设：工程/供应商信息下的开始时间
-                //工程变更废止：工程/供应商信息下的结束时间
-                //供应商变更新设：工程/供应商信息下的开始时间
-                //供应商变更废止：工程/供应商信息下的开始时间
-                //包装工厂变更新设：工程/供应商信息下的开始时间
-                //包装工厂变更废止：工程/供应商信息下的开始时间
-                //防锈变更：=文本“即时切替”
-
+ 
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
                 string[] fields = {  "iNo","vcPart_id","vcCarTypeDev","vcPart_Name","vcSupplier_Name",
@@ -799,7 +775,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "11")//供应商变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }
@@ -807,7 +783,7 @@ namespace SPPSApi.Controllers.G03
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectBegin"]).ToString("yyyy/MM/dd");
                     }
-                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的开始时间
+                    else if (row["vcChange"].ToString() == "13")//包装工厂变更废止：工程/供应商信息下的结束时间
                     {
                         row["dQieTiStr"] = Convert.ToDateTime(listInfoData[i]["dProjectEnd"]).ToString("yyyy/MM/dd");
                     }

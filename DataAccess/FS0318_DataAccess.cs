@@ -25,14 +25,14 @@ namespace DataAccess
                 sbr.AppendLine(" ");
                 sbr.AppendLine("SELECT * INTO #temp FROM  ");
                 sbr.AppendLine("( ");
-                sbr.AppendLine("	SELECT REPLACE(vcPart_id,'-','') as vcPart_id,vcSupplier_id,vcOriginCompany,vcReceiver,vcCarTypeDev,vcInOutflag,vcSYTCode FROM Tunit  ");
+                sbr.AppendLine("	SELECT (CASE WHEN LEN(REPLACE(vcPart_id,'-','')) = 12 THEN REPLACE(vcPart_id,'-','') WHEN LEN(REPLACE(vcPart_id,'-','')) = 10 THEN REPLACE(vcPart_id,'-','')+'00' END) as vcPart_id,vcSupplier_id,vcOriginCompany,vcReceiver,vcCarTypeDev,vcInOutflag,vcSYTCode FROM Tunit  ");
                 sbr.AppendLine("	WHERE dTimeFrom <= @time AND dTimeTo >= @time AND dTimeTo <> dTimeFrom AND vcCarTypeDev = '" + vcCarType + "'  ");
                 sbr.AppendLine(") a ");
                 sbr.AppendLine("DECLARE @inSum INT ");
                 sbr.AppendLine("DECLARE @outSum INT ");
                 sbr.AppendLine(" ");
-                sbr.AppendLine("select  @outSum=COUNT(*) FROM #temp WHERE vcInOutflag = '0' ");
-                sbr.AppendLine("select  @inSum=COUNT(*) FROM #temp WHERE vcInOutflag = '1' ");
+                sbr.AppendLine("select  @inSum=COUNT(*) FROM #temp WHERE vcInOutflag = '0' ");
+                sbr.AppendLine("select  @outSum=COUNT(*) FROM #temp WHERE vcInOutflag = '1' ");
                 sbr.AppendLine(" ");
                 sbr.AppendLine("DECLARE @inSQ INT ");
                 sbr.AppendLine("DECLARE @outSQ INT ");

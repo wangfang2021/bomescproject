@@ -33,7 +33,7 @@ namespace SPPSApi.Controllers.G12
         private readonly string FunctionID = "FS1212";
 
         public FS1212Controller(IWebHostEnvironment webHostEnvironment)
-        { 
+        {
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -158,37 +158,24 @@ namespace SPPSApi.Controllers.G12
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //开始数据验证
-                //if (hasFind)
-                //{
-                //    string[,] strField = new string[,] {{"变更事项","品番","使用开始","使用结束","内外","供应商代码","供应商名称","开始","结束","号旧"},
-                //                                {"vcChange","vcPart_id","dUseBegin","dUseEnd","vcProjectType","vcSupplier_id","vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu"},
-                //                                {"",FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"","","",FieldCheck.Date,FieldCheck.Date,"" },
-                //                                {"25","12","0","0","0","4","50","0","0","0"},//最大长度设定,不校验最大长度用0
-                //                                {"1","10","1","1","1","1","1","1","1","1"},//最小长度设定,可以为空用0
-                //                                {"1","2","3","4","5","6","7","8","9","10"}//前台显示列号，从0开始计算,注意有选择框的是0
-                //    };
-                //    //需要判断时间区间先后关系的字段
-                //    string[,] strDateRegion = { { "dUseBegin", "dUseEnd" }, { "dProjectBegin", "dProjectEnd" }, { "dJiuBegin", "dJiuEnd" }, { "dPricebegin", "dPriceEnd" } };
-                //    string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
-                //        { "变更事项","vcChange", "新设","1", "号旧","vcHaoJiu","1", "号口", "H" },
-                //        { "变更事项","vcChange", "旧型","3", "号旧","vcHaoJiu","1", "旧型", "Q" },
-                //        { "变更事项","vcChange", "新设","1", "旧型开始","dJiuBegin","0", "空","" },
-                //        { "变更事项","vcChange", "新设","1", "旧型结束","dJiuEnd","0", "空","" },
-                //        { "变更事项","vcChange", "新设","1", "旧型持续开始","dJiuBeginSustain","0", "空","" },
-                //        { "变更事项","vcChange", "旧型","3", "旧型开始","dJiuBegin","1", "空","" },
-                //        { "变更事项","vcChange", "旧型","3", "旧型结束","dJiuEnd","1", "空","" },
-                //        { "变更事项","vcChange", "旧型","3", "旧型持续开始","dJiuBeginSustain","1", "空","" }
-                //    };
-
-                //    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0309");
-                //    if (checkRes != null)
-                //    {
-                //        apiResult.code = ComConstant.ERROR_CODE;
-                //        apiResult.data = checkRes;
-                //        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //    }
-                //}
+                if (hasFind)
+                {
+                    string[,] strField = new string[,] {{"器具收容数"},
+                                                {"vcQJcontainer"},
+                                                {FieldCheck.Num},
+                                                {"10"},//最大长度设定,不校验最大长度用0
+                                                {"0"},//最小长度设定,可以为空用0
+                                                {"10"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1212");
+                    if (checkRes != null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
                 string strErrorPartId = "";
                 int j = logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (j > 0)
@@ -287,8 +274,8 @@ namespace SPPSApi.Controllers.G12
                     else if (dt.Rows[i]["vcQFflag"] != null && dt.Rows[i]["vcQFflag"].ToString() == "2")
                         dt.Rows[i]["vcQFflag"] = "×";
                 }
-                string[] fields = { "vcPartsNo","dFromTime","dToTime","vcPartPlant","vcDock","vcCarFamilyCode","vcPartENName",
-                                    "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcOrderingMethod","vcReceiver","vcSupplierId" };
+                string[] fields = { "vcPartsNo","dTimeFrom","dTimeTo","vcPartPlant","vcDock","vcCarFamilyCode","vcPartsNameEN",
+                                    "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcPartFrequence","vcCpdCompany","vcSupplierCode" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1212_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

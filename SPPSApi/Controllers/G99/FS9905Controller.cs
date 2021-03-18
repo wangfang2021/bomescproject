@@ -62,7 +62,7 @@ namespace SPPSApi.Controllers.G99
                 List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));//防锈指示
                 List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));//对应可否确认结果
                 List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));//防锈对应可否
-
+                List<Object> datalist_ZXBZ = ComFunction.convertAllToResult(fs9905_Logic.getZXBZDT());    //执行标准
                 List<Object> dataList_C040_all = new List<object>();
 
                 foreach (var item in dataList_C040)
@@ -100,6 +100,7 @@ namespace SPPSApi.Controllers.G99
                 res.Add("C028", dataList_C028);
                 res.Add("C029", dataList_C029);
                 res.Add("C030", dataList_C030);
+                res.Add("ZXBZNo",datalist_ZXBZ);
                 res.Add("C040_all", dataList_C040_all);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -187,19 +188,21 @@ namespace SPPSApi.Controllers.G99
                     #endregion
                 
                 }
-                DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                 FS9905_Logic.DtConverter dtConverter = new FS9905_Logic.DtConverter();
+                dtConverter.addField("selected", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDate", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_BJ", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_HK", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTFTM_BJ", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("vcZXBZNo", FS9905_Logic.ConvertFieldType.string2list, null);
 
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<Object> dataList = fs9905_Logic.convertAllToResultByConverter(dt, dtConverter);
+                
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -367,7 +370,6 @@ namespace SPPSApi.Controllers.G99
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-
 
                 JArray factoryArray1 = dataForm.options;
                 JArray factoryArray2 = dataForm.select_ZXBZNo;

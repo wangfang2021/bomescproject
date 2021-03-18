@@ -52,11 +52,6 @@ namespace DataAccess
                     bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
 
-                    string strSR = listInfoData[i]["vcSR"].ToString();
-                    string strPartsNoBefore5 = listInfoData[i]["vcPartsNoBefore5"].ToString();
-                    string strBCPartsNo = listInfoData[i]["vcBCPartsNo"].ToString();
-                    string strSmallPM = listInfoData[i]["vcSmallPM"].ToString();
-
                     //标识说明
                     //默认  bmodflag:false  baddflag:false
                     //新增  bmodflag:true   baddflag:true
@@ -64,15 +59,15 @@ namespace DataAccess
 
                     if (baddflag == true)
                     {//新增
-                       
+
                     }
                     else if (baddflag == false && bmodflag == true)
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
                         sql.Append("UPDATE [TSSPManagement]    \n");
-                        sql.Append("   SET [vcNaRuPart_id] = '"+ listInfoData[i]["vcNaRuPart_id"].ToString() + "'    \n");
-                        sql.Append("      ,[vcChuHePart_id] = '" + listInfoData[i]["vcChuHePart_id"].ToString() + "'    \n");
-                        sql.Append("      ,[vcBackPart_id] = '" + listInfoData[i]["vcBackPart_id"].ToString() + "'    \n");
+                        sql.Append("   SET     \n");
+                        sql.Append("       [vcNaRuPart_id] = '" + listInfoData[i]["vcNaRuPart_id"].ToString() + "'      \n");
+                        sql.Append("      ,[vcBackPart_id] = '" + listInfoData[i]["vcBackPart_id"].ToString() + "'      \n");
                         sql.Append("      ,[vcPart_Name] = '" + listInfoData[i]["vcPart_Name"].ToString() + "'    \n");
                         sql.Append("      ,[iCapacity] = nullif('" + listInfoData[i]["iCapacity"].ToString() + "','')    \n");
                         sql.Append("      ,[vcBoxType] = '" + listInfoData[i]["vcBoxType"].ToString() + "'    \n");
@@ -83,9 +78,9 @@ namespace DataAccess
                         sql.Append("      ,[vcSR] = '" + listInfoData[i]["vcSR"].ToString() + "'    \n");
                         sql.Append("      ,[vcPlace] = '" + listInfoData[i]["vcPlace"].ToString() + "'    \n");
                         sql.Append("      ,[vcKBPrintWay] = '" + listInfoData[i]["vcKBPrintWay"].ToString() + "'    \n");
-                        sql.Append("      ,[vcOperatorID] = '"+strUserId+"'    \n");
+                        sql.Append("      ,[vcOperatorID] = '" + strUserId + "'    \n");
                         sql.Append("      ,[dOperatorTime] = getdate()    \n");
-                        sql.Append(" WHERE iAutoId="+iAutoId+"    \n");
+                        sql.Append(" WHERE iAutoId=" + iAutoId + "    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -129,39 +124,103 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("DELETE FROM [TPMSmall_Temp] where vcOperatorID='" + strUserId + "' \n");
+                sql.Append("DELETE FROM [TSSPManagement_Temp] where vcOperatorID='" + strUserId + "' \n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    sql.Append("INSERT INTO [TPMSmall_Temp]  \n");
-                    sql.Append("           ([vcPartsNoBefore5]  \n");
-                    sql.Append("           ,[vcSR]  \n");
-                    sql.Append("           ,[vcBCPartsNo]  \n");
-                    sql.Append("           ,[vcSmallPM]  \n");
-                    sql.Append("           ,[vcOperatorID]  \n");
-                    sql.Append("           ,[dOperatorTime])  \n");
-                    sql.Append("     VALUES  \n");
-                    sql.Append("           ('"+ dt.Rows[i]["vcPartsNoBefore5"].ToString() + "'   \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcSR"].ToString() + "'  \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcBCPartsNo"].ToString() + "' \n");
-                    sql.Append("           ,'" + dt.Rows[i]["vcSmallPM"].ToString() + "' \n"); 
-                    sql.Append("           ,'"+strUserId+"'  \n");
-                    sql.Append("           ,getdate())  \n");
-                   
+                    #region 插入临时表
+                    sql.Append("INSERT INTO [TSSPManagement_Temp]    \n");
+                    sql.Append("           ([vcChuHePart_id]    \n");
+                    sql.Append("           ,[vcNaRuPart_id]    \n");
+                    sql.Append("           ,[vcBackPart_id]    \n");
+                    sql.Append("           ,[vcPart_Name]    \n");
+                    sql.Append("           ,[iCapacity]    \n");
+                    sql.Append("           ,[vcBoxType]    \n");
+                    sql.Append("           ,[vcSupplierName]    \n");
+                    sql.Append("           ,[vcCarType]    \n");
+                    sql.Append("           ,[vcProject]    \n");
+                    sql.Append("           ,[vcProjectPlace]    \n");
+                    sql.Append("           ,[vcSR]    \n");
+                    sql.Append("           ,[vcPlace]    \n");
+                    sql.Append("           ,[vcKBPrintWay]    \n");
+                    sql.Append("           ,[vcOperatorID]    \n");
+                    sql.Append("           ,[dOperatorTime])    \n");
+                    sql.Append("     VALUES    \n");
+                    sql.Append("           ('" + dt.Rows[i]["vcChuHePart_id"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcNaRuPart_id"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcBackPart_id"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcPart_Name"].ToString() + "'    \n");
+                    sql.Append("           ,nullif('" + dt.Rows[i]["iCapacity"].ToString() + "','')    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcBoxType"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSupplierName"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcCarType"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcProject"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcProjectPlace"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcSR"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcPlace"].ToString() + "'    \n");
+                    sql.Append("           ,'" + dt.Rows[i]["vcKBPrintWay"].ToString() + "'    \n");
+                    sql.Append("           ,'"+strUserId+"'    \n");
+                    sql.Append("           ,getdate())    \n");
+                    #endregion
                 }
-                sql.Append("insert into TPMSmall (vcPartsNoBefore5,vcSR,vcBCPartsNo,vcSmallPM,vcOperatorID,dOperatorTime)  \n");
-                sql.Append("select t1.vcPartsNoBefore5,t1.vcSR,t1.vcBCPartsNo,t1.vcSmallPM,t1.vcOperatorID,t1.dOperatorTime from TPMSmall_Temp t1  \n");
-                sql.Append("left join TPMSmall t2 on isnull(t1.vcPartsNoBefore5,'')=isnull(t2.vcPartsNoBefore5,'') and isnull(t1.vcSR,'')=isnull(t2.vcSR,'') " +
-                    "and isnull(t1.vcBCPartsNo,'')=isnull(t2.vcBCPartsNo,'')  \n");
-                sql.Append("where t2.iAutoId is null and t1.vcOperatorID='" + strUserId + "'  \n");
+                #region insert
+                sql.Append("INSERT INTO [TSSPManagement]    \n");
+                sql.Append("           ([vcChuHePart_id]    \n");
+                sql.Append("           ,[vcNaRuPart_id]    \n");
+                sql.Append("           ,[vcBackPart_id]    \n");
+                sql.Append("           ,[vcPart_Name]    \n");
+                sql.Append("           ,[iCapacity]    \n");
+                sql.Append("           ,[vcBoxType]    \n");
+                sql.Append("           ,[vcSupplierName]    \n");
+                sql.Append("           ,[vcCarType]    \n");
+                sql.Append("           ,[vcProject]    \n");
+                sql.Append("           ,[vcProjectPlace]    \n");
+                sql.Append("           ,[vcSR]    \n");
+                sql.Append("           ,[vcPlace]    \n");
+                sql.Append("           ,[vcKBPrintWay]    \n");
+                sql.Append("           ,[vcOperatorID]    \n");
+                sql.Append("           ,[dOperatorTime])    \n");
+                sql.Append("SELECT t1.[vcChuHePart_id]    \n");
+                sql.Append("      ,t1.[vcNaRuPart_id]    \n");
+                sql.Append("      ,t1.[vcBackPart_id]    \n");
+                sql.Append("      ,t1.[vcPart_Name]    \n");
+                sql.Append("      ,t1.[iCapacity]    \n");
+                sql.Append("      ,t1.[vcBoxType]    \n");
+                sql.Append("      ,t1.[vcSupplierName]    \n");
+                sql.Append("      ,t1.[vcCarType]    \n");
+                sql.Append("      ,t1.[vcProject]    \n");
+                sql.Append("      ,t1.[vcProjectPlace]    \n");
+                sql.Append("      ,t1.[vcSR]    \n");
+                sql.Append("      ,t1.[vcPlace]    \n");
+                sql.Append("      ,t1.[vcKBPrintWay]    \n");
+                sql.Append("      ,t1.[vcOperatorID]    \n");
+                sql.Append("      ,t1.[dOperatorTime]    \n");
+                sql.Append("  FROM [TSSPManagement_Temp] t1    \n");
+                sql.Append("  left join TSSPManagement t2 on t1.vcChuHePart_id=t2.vcChuHePart_id    \n");
+                sql.Append("  where t2.iAutoId is null and t1.vcOperatorID='" + strUserId + "'    \n");
+                #endregion
 
-                sql.Append("update t2 set t2.vcSmallPM=t1.vcSmallPM,  \n");
-                sql.Append("t2.vcOperatorID=t1.vcOperatorID,t2.dOperatorTime=t1.dOperatorTime  \n");
-                sql.Append("from  \n");
-                sql.Append("(select * from TPMSmall_Temp) t1  \n");
-                sql.Append("left join TPMSmall t2 on isnull(t1.vcPartsNoBefore5,'')=isnull(t2.vcPartsNoBefore5,'') and isnull(t1.vcSR,'')=isnull(t2.vcSR,'') " +
-                    "and isnull(t1.vcBCPartsNo,'')=isnull(t2.vcBCPartsNo,'')  \n");
-                sql.Append("where t2.iAutoId is not null and t1.vcSmallPM!=t2.vcSmallPM  \n");
-                sql.Append("and t1.vcOperatorID='" + strUserId + "'  \n");
+                #region update
+                sql.Append("UPDATE t2     \n");
+                sql.Append("   SET t2.[vcChuHePart_id] = t1.[vcChuHePart_id]    \n");
+                sql.Append("      ,t2.[vcNaRuPart_id] = t1.[vcNaRuPart_id]    \n");
+                sql.Append("      ,t2.[vcBackPart_id] = t1.[vcBackPart_id]    \n");
+                sql.Append("      ,t2.[vcPart_Name] = t1.[vcPart_Name]    \n");
+                sql.Append("      ,t2.[iCapacity] = t1.[iCapacity]    \n");
+                sql.Append("      ,t2.[vcBoxType] = t1.[vcBoxType]    \n");
+                sql.Append("      ,t2.[vcSupplierName] = t1.[vcSupplierName]    \n");
+                sql.Append("      ,t2.[vcCarType] = t1.[vcCarType]    \n");
+                sql.Append("      ,t2.[vcProject] = t1.[vcProject]    \n");
+                sql.Append("      ,t2.[vcProjectPlace] = t1.[vcProjectPlace]    \n");
+                sql.Append("      ,t2.[vcSR] = t1.[vcSR]    \n");
+                sql.Append("      ,t2.[vcPlace] = t1.[vcPlace]    \n");
+                sql.Append("      ,t2.[vcKBPrintWay] = t1.[vcKBPrintWay]    \n");
+                sql.Append("      ,t2.[vcOperatorID] = t1.[vcOperatorID]    \n");
+                sql.Append("      ,t2.[dOperatorTime] = t1.[dOperatorTime]    \n");
+                sql.Append("from    \n");
+                sql.Append("(select * from TSSPManagement_Temp) t1      \n");
+                sql.Append("inner join TSSPManagement t2 on t1.vcChuHePart_id=t2.vcChuHePart_id    \n");
+                sql.Append("where t1.vcOperatorID='" + strUserId + "'    \n");
+                #endregion
 
                 if (sql.Length > 0)
                 {

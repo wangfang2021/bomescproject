@@ -434,7 +434,7 @@ namespace SPPSApi.Controllers.G06
             string msg = "";
             try
             {
-                string vcDxny = DateTime.Now.AddMonths(1).ToString("yyyyMM");
+                string vcDxny = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM + "/01").ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(','); ;
                 //生成生产计划  
@@ -463,7 +463,7 @@ namespace SPPSApi.Controllers.G06
         [HttpPost]
         [EnableCors("any")]
         public string downloadProPlan([FromBody] dynamic data)
-        {
+        { 
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -475,7 +475,7 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
-                string vcDxny = DateTime.Now.AddMonths(0).ToString("yyyyMM");
+                string vcDxny = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM + "/01").ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",
@@ -485,7 +485,8 @@ namespace SPPSApi.Controllers.G06
                     "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜",
                     "1日白 ","1日夜 ","2日白 ","2日夜 ","3日白 ","3日夜 ","4日白 ","4日夜 ","5日白 ","5日夜 ","6日白 ","6日夜 ","7日白 ","7日夜 ","8日白 ","8日夜 ","9日白 ","9日夜 ","10日白 ","10日夜 ",
                     "11日白 ","11日夜 ","12日白 ","12日夜 ","13日白 ","13日夜 ","14日白 ","14日夜 ","15日白 ","15日夜 ","16日白 ","16日夜 ","17日白 ","17日夜 ","18日白 ","18日夜 ","19日白 ","19日夜 ","20日白 ","20日夜 ",
-                    "21日白 ","21日夜 ","22日白 ","22日夜 ","23日白 ","23日夜 ","24日白 ","24日夜 ","25日白 ","25日夜 ","26日白 ","26日夜 ","27日白 ","27日夜 ","28日白 ","28日夜 ","29日白 ","29日夜 ","30日白 ","30日夜 ","31日白 ","31日夜 "
+                    "21日白 ","21日夜 ","22日白 ","22日夜 ","23日白 ","23日夜 ","24日白 ","24日夜 ","25日白 ","25日夜 ","26日白 ","26日夜 ","27日白 ","27日夜 ","28日白 ","28日夜 ","29日白 ","29日夜 ","30日白 ","30日夜 ","31日白 ","31日夜 ",
+                    "供应商编码"
                 };
                 string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
                     "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
@@ -494,7 +495,8 @@ namespace SPPSApi.Controllers.G06
                     "TD21b","TD21y","TD22b","TD22y","TD23b","TD23y","TD24b","TD24y","TD25b","TD25y","TD26b","TD26y","TD27b","TD27y","TD28b","TD28y","TD29b","TD29y","TD30b","TD30y","TD31b","TD31y",
                     "ED1b","ED1y","ED2b","ED2y","ED3b","ED3y","ED4b","ED4y","ED5b","ED5y","ED6b","ED6y","ED7b","ED7y","ED8b","ED8y","ED9b","ED9y","ED10b","ED10y",
                     "ED11b","ED11y","ED12b","ED12y","ED13b","ED13y","ED14b","ED14y","ED15b","ED15y","ED16b","ED16y","ED17b","ED17y","ED18b","ED18y","ED19b","ED19y","ED20b","ED20y",
-                    "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
+                    "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y",
+                    "vcSupplier_id"
                 };
                 string filepath = "";
                 string tbName = "";

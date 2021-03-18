@@ -58,12 +58,6 @@ namespace SPPSApi.Controllers.G03
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             try
             {
-                bool isWuBtnVisible = false;//true 价格所有列都可以维护 false 只能维护原价
-                if (loginInfo.Special == "财务用户")
-                    isWuBtnVisible = false;
-                else
-                    isWuBtnVisible = true;
-
                 if (!Directory.Exists(fileSavePath))
                 {
                     ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
@@ -141,7 +135,7 @@ namespace SPPSApi.Controllers.G03
                 importDt = fS0309_Logic.ConverDT(importDt, lists, ref strErr);
 
                 string strErrorPartId = "";
-                fs0309_Logic.importSave(importDt, loginInfo.UserId, ref strErrorPartId, isWuBtnVisible);
+                fs0309_Logic.importSave(importDt, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

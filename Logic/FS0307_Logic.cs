@@ -22,6 +22,7 @@ namespace Logic
     public class FS0307_Logic
     {
         FS0307_DataAccess fs0307_dataAccess = new FS0307_DataAccess();
+        private MultiExcute excute = new MultiExcute();
 
         #region 获取抽取状态
 
@@ -91,69 +92,31 @@ namespace Logic
 
         #region 创建邮件体
 
-        public string CreateEmailBody(string date, string flag)
+        public List<string> CreateEmailBody(string date, string flag)
         {
+
+
             StringBuilder sbr = new StringBuilder();
-            if (flag == "0")
+            sbr.AppendLine("SELECT vcValue3,vcValue4 FROM  TOutCode WHERE vcCodeId = 'C023' AND vcIsColum = '0' AND vcValue2 = '" + flag + "'");
+            List<string> res = new List<string>();
+            DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            if (dt.Rows.Count > 0)
             {
-                sbr.AppendLine("<p>FTMS 相关各位殿：</p>");
-                sbr.AppendLine("<p>大家好！</p>");
-                sbr.AppendLine("<p>感谢一直以来对TFTM补给业务的支持！</p><p><br></p>");
-                sbr.AppendLine("<p>关于标题一事，</p>");
-                sbr.AppendLine("<p>根据年限制度运用手册，抽出了本年度需要调整的对象品番。</p>");
-                sbr.AppendLine("<p>抽出对象：</p>");
-                sbr.AppendLine("<p>1）即将旧型满10年</p>");
-                sbr.AppendLine("<p>2）往年判断持续生产（旧型已超过10年）</p>");
-                sbr.AppendLine("<p>3）旧型满7年的内外装</p><p><br></p>");
-                sbr.AppendLine("<p>拜托开始进行受注实绩的把握（注：机能部品参考近三年平均受注，内外装部品参考近两年平均受注）</p>");
-                sbr.AppendLine("<p>持续、一括、打切的层别，以及必要数的预测</p><p><br></p>");
-                sbr.AppendLine("<p>请在<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>前，向TFTM反馈结果。</p><p><br></p>");
-                sbr.AppendLine("<p>如有问题，请与我联络。</p><p><br></p>");
-                sbr.AppendLine("<p>以上。</p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">天津一汽丰田汽车有限公司</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">生产管理部&nbsp;补给资材企管课</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">罗雨鑫&nbsp;Luo Yu Xin</span></p>");
-                sbr.AppendLine("<p><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: blue;\">TEL:86-22-66230666-</a><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: red;\">3377</a></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">FAX:86-22-66233141</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">地址：天津经济技术开发区第九大街81号</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">邮编：300457</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">Email:yx_luo@tftm.com.cn</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
-            }
-            else if (flag == "1")
-            {
-                sbr.AppendLine("<p>各位供应商殿&nbsp;（请转发给贵司社内相关人员）</p>");
-                sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
-                sbr.AppendLine("<p><br></p>");
-                sbr.AppendLine("<p>关于标题一事，</p>");
-                sbr.AppendLine("<p>本年度的年限调整工作开始展开。 </p>");
-                sbr.AppendLine("<p>附件为本年度贵司的旧型年限制度联络单，请查收。</p>");
-                sbr.AppendLine("<p>回复纳期：<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>下班前</p><p><br></p><p>回答时，请添付填写完毕的帐票电子版以及</p>");
-                sbr.AppendLine("<p>填写完毕并有贵司责任者签字承认的回答书扫描版（PDF）</p>");
-                sbr.AppendLine("<p>另外：一括生产零件调达周期超过3个月（包含3个月）的，请进行标注并提示具体调达周期。</p><p><br></p>");
-                sbr.AppendLine("<p>如有问题，请随时与我联络。</p><p><br></p>");
-                sbr.AppendLine("<p>以上。</p><p><br></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">天津一汽丰田汽车有限公司</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">生产管理部&nbsp;补给资材企管课</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">罗雨鑫&nbsp;Luo Yu Xin</span></p>");
-                sbr.AppendLine("<p><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: blue;\">TEL:86-22-66230666-</a><a href=\"tel:86-22-66230666-3368\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: red;\">3377</a></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">FAX:86-22-66233141</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">地址：天津经济技术开发区第九大街81号</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">邮编：300457</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">Email:yx_luo@tftm.com.cn</span></p>");
-                sbr.AppendLine("<p><span style=\"color: black;\">************************************</span></p>");
+                string subject = dt.Rows[0]["vcValue3"].ToString();
+                string emailBody = dt.Rows[0]["vcValue4"].ToString();
+                emailBody = emailBody.Replace("##yyyyMMdd##", date);
+                res.Add(subject);
+                res.Add(emailBody);
             }
 
-            return sbr.ToString();
+            return res;
         }
 
         #endregion
 
         #region FTMS
 
-        public void FTMS(List<Dictionary<string, Object>> listInfoData, string EmailBody, string strUserId, ref string refMsg, string Email, string unit)
+        public void FTMS(List<Dictionary<string, Object>> listInfoData, string EmailBody, string EmailSubject, string strUserId, ref string refMsg, string Email, string unit)
         {
             try
             {
@@ -170,7 +133,7 @@ namespace Logic
                 fs0307_dataAccess.FTMSCB(listInfoData, strUserId);
 
                 //TODO 发送邮件
-                string strSubject = "FTMS层别展开。";
+                string strSubject = EmailSubject;
                 DataTable cCDt = null;
 
                 DataTable receiverDt = new DataTable();
@@ -210,7 +173,7 @@ namespace Logic
 
 
 
-        public void ZKZP(List<Dictionary<string, Object>> listInfoData, string strUserId, string emailBody, string path, ref string refMsg, string Email, string unit, string Filepath)
+        public void ZKZP(List<Dictionary<string, Object>> listInfoData, string strUserId, string emailBody, string EmailSubject, string path, ref string refMsg, string Email, string unit, string Filepath)
         {
             try
             {
@@ -295,7 +258,7 @@ namespace Logic
 
                     DataTable cCDt = null;
 
-                    string strSubject = "旧型年限制度联络单。";
+                    string strSubject = EmailSubject;
 
                     string result = ComFunction.SendEmailInfo(Email, unit, emailBody, receiverDt, cCDt, strSubject, file, true);
 

@@ -13,7 +13,7 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public DataTable Search(string strMaxNum,string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState
             )
@@ -21,7 +21,10 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("       select *         \n");
+                if(strMaxNum!="")
+                    strSql.Append("       select top "+ strMaxNum + " *         \n");
+                else
+                    strSql.Append("       select *         \n");
                 strSql.Append("       ,b.vcName as 'vcChange_Name'     \n");
                 strSql.Append("       ,b2.vcName as 'vcHaoJiu_Name'      \n");
                 strSql.Append("       ,b3.vcName as 'vcProjectType_Name'      \n");
@@ -211,7 +214,7 @@ namespace DataAccess
 
                         sql.Append("  update TPrice set    \r\n");
                         sql.Append("  vcChange=" + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "   \r\n");
-                        sql.Append("  ,vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
+                        //sql.Append("  ,vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
                         sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], true) + "   \r\n");
                         sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
 
@@ -226,8 +229,8 @@ namespace DataAccess
                         sql.Append("  ,vcLastTimeFlag='" + strLastTimeFlag + "'   \r\n");
                         
                         sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcLastTimeFlag='" + strLastTimeFlag + "'  \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where isnull(vcChange,'')<>'' and decPriceOrigin is not null and decPriceTNPWithTax is null  and vcLastTimeFlag='" + strLastTimeFlag + "'    \r\n");
+                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcLastTimeFlag='" + strLastTimeFlag + "' and vcPriceState<>'4' \r\n");//PIC=4，PIC状态不再发生变化
+                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where isnull(vcChange,'')<>'' and decPriceOrigin is not null and decPriceTNPWithTax is null  and vcLastTimeFlag='" + strLastTimeFlag + "'  and vcPriceState<>'4'   \r\n");
                     }
                 }
  
@@ -305,7 +308,7 @@ namespace DataAccess
         
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId,bool isWuBtnVisible)
+        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId)
         {
             try
             {
@@ -319,37 +322,24 @@ namespace DataAccess
                     string dUseBegin = dt.Rows[i]["dUseBegin"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseBegin"].ToString();
                     string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
 
-                    if (isWuBtnVisible)
-                    {
-                        sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  vcPriceChangeInfo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceChangeInfo"], false) + "   \r\n");
-                        sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
-                        sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("  vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
+                    sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
 
 
-                        //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
-                        sql.Append("  ,decPriceAfter=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceAfter"], true) + "   \r\n");
-                        sql.Append("  ,decPriceTNPWithTax=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceTNPWithTax"], true) + "   \r\n");
+                    //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
+                    sql.Append("  ,decPriceAfter=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceAfter"], true) + "   \r\n");
+                    sql.Append("  ,decPriceTNPWithTax=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceTNPWithTax"], true) + "   \r\n");
 
 
-                        sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
-                        sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
-                        sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
-                        //sql.Append("  ,dOperatorTime=getdate()   \r\n");
-                        sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null   \r\n");
+                    sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
+                    sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
+                    sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
+                    //sql.Append("  ,dOperatorTime=getdate()   \r\n");
+                    sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
+                    sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where iAutoId=" + strAutoId + " and decPriceTNPWithTax is not null and decPriceOrigin is not null   and vcPriceState<>'4' \r\n");
+                    sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where iAutoId=" + strAutoId + " and decPriceTNPWithTax is null and decPriceOrigin is not null and vcPriceState<>'4'  \r\n");
 
-                    }
-                    else
-                    {
-                        sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], false) + "   \r\n");
-                        sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
-                        sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null   \r\n");
-                    }
                 }
                 if (sql.Length > 0)
                 {
@@ -547,7 +537,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("     select  * from TPrice where vcPriceState='0'      \n");
+                strSql.Append("     select  count(*) as iNum from TPrice where vcPriceState='0'      \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -633,7 +623,7 @@ namespace DataAccess
         #endregion
 
         #region 销售展开更新价格表
-        public void updateXiaoShouZhanKaiState(List<Dictionary<string,object>> listInfoData)
+        public void updateXiaoShouZhanKaiState(List<Dictionary<string,object>> listInfoData,string strDanhao)
         {
             try
             {
@@ -726,6 +716,7 @@ namespace DataAccess
                 #region 根据主键：品番、供应商代码、收货方，将变更事项改为null，再根据所选iAutoId将价格状态改为PIC（value值为4）
                 strSql.AppendLine("        update TPrice set        \r\n");
                 strSql.AppendLine("        vcChange = null        \r\n");
+                strSql.AppendLine("        ,vcDanHao = '" + strDanhao + "'        \r\n");
                 strSql.AppendLine("        from TPrice a        \r\n");
                 strSql.AppendLine("        inner join        \r\n");
                 strSql.AppendLine("        (        \r\n");
@@ -1059,14 +1050,31 @@ namespace DataAccess
                 strSql.Append("      select   cast(ROW_NUMBER() over (order by a.vcPart_id) as int) as iNum      \n");
                 strSql.Append("      ,a.vcPart_id        \n");
                 strSql.Append("      ,b.vcFaZhuPlant        \n");
-                strSql.Append("      ,case when a.vcPriceChangeInfo='4' then CONVERT(varchar(100),a.dUseEnd, 111)         \n");
-                strSql.Append("      else CONVERT(varchar(100),a.dPricebegin, 111)  end as dQieTi        \n");
+                strSql.Append("      ,case when a.vcPriceChangeInfo='2' then CONVERT(varchar(100),a.dPricebegin, 111)          \n");
+                strSql.Append("       when a.vcPriceChangeInfo='1' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='5' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='3' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='6' then null         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='4' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='8' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='9' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='10' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='11' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='12' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='13' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='16' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='7' then CONVERT(varchar(100),a.dPricebegin, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='15' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='17' then null         \n");
+                strSql.Append("       when a.vcPriceChangeInfo='14' then CONVERT(varchar(100),a.dProjectEnd, 111)         \n");
+                strSql.Append("       else null end as dQieTi          \n");
                 strSql.Append("      ,a.vcPart_Name        \n");
                 strSql.Append("      ,c.vcName as 'vcChange_Name'        \n");
                 strSql.Append("      ,b.vcPartId_Replace        \n");
                 strSql.Append("      ,a.decPriceTNPWithTax        \n");
                 strSql.Append("      ,b.iPackingQty        \n");
                 strSql.Append("      ,a.vcCarTypeDesign        \n");
+                strSql.Append("      ,'' as vcNote        \n");//备注
                 strSql.Append("      from        \n");
                 strSql.Append("      (        \n");
                 strSql.Append("          select * from TPrice         \n");
@@ -1161,6 +1169,69 @@ namespace DataAccess
         }
         #endregion
 
+        #region 取当天最新单号连番
+        public DataTable getNewDanHao(string strSYTCode)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("        select max(cast(right(vcDanHao,2) as int ))+1 as vcDanHao  from TPrice where vcDanHao like 'PIC-" + strSYTCode + "-"+ DateTime.Now.ToString("yyMMdd") + "%'        \r\n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 财务保存
+        public void SaveCaiWu(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("   decPriceOrigin_CW=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
+                    sql.Append("  ,vcOperatorID_CW='" + strUserId + "'   \r\n");
+                    sql.Append("  ,dOperatorTime_CW=getDate()   \r\n");
+                    sql.Append("  where iAutoId=" + iAutoId + " and vcPriceState='1'  ; \r\n");//有且只有已送信的才能修改
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 财务回复
+        public void OKCaiWu(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("  decPriceOrigin=decPriceOrigin_CW,vcPriceState='2'   \r\n");
+                    sql.Append("  where iAutoId=" + iAutoId + " and vcPriceState='1'  ; \r\n");//有且只有已送信的才能修改
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
     }
 }

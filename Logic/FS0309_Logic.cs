@@ -23,12 +23,12 @@ namespace Logic
 
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public DataTable Search(string strMaxNum,string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState
             )
         {
-            return convert(fs0309_DataAccess.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
+            return convert(fs0309_DataAccess.Search(strMaxNum,strChange, strPart_id, strOriginCompany, strHaoJiu
             , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
             , strReceiver, strPriceState
             ));
@@ -94,9 +94,9 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId,bool isWuBtnVisible)
+        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId)
         {
-            fs0309_DataAccess.importSave(dt, strUserId, ref strErrorPartId, isWuBtnVisible);
+            fs0309_DataAccess.importSave(dt, strUserId, ref strErrorPartId);
         }
         #endregion
 
@@ -129,9 +129,12 @@ namespace Logic
         #endregion
 
         #region 检索所有待处理的数据
-        public DataTable getAllTask()
+        public int getAllTask()
         {
-            return fs0309_DataAccess.getAllTask();
+            DataTable dt= fs0309_DataAccess.getAllTask();
+            if (dt == null || dt.Rows.Count == 0)
+                return 0;
+            return Convert.ToInt32(dt.Rows[0]["iNum"]);
         }
         #endregion
 
@@ -143,10 +146,10 @@ namespace Logic
         #endregion
 
         #region 销售展开更新价格表
-        public void updateXiaoShouZhanKaiState(List<Dictionary<string, object>> listInfoData)
+        public void updateXiaoShouZhanKaiState(List<Dictionary<string, object>> listInfoData, string strDanhao)
         {
             #region 更新价格表
-            fs0309_DataAccess.updateXiaoShouZhanKaiState(listInfoData);
+            fs0309_DataAccess.updateXiaoShouZhanKaiState(listInfoData, strDanhao);
             #endregion
 
             #region 发送邮件 （已舍弃）
@@ -528,7 +531,7 @@ namespace Logic
         #endregion
 
         #region 导出带模板-销售展开
-        public string generateExcelWithXlt_XiaoShou(DataTable dt, string[] field, string rootPath, string xltName, string strUserId, string strFunctionName)
+        public string generateExcelWithXlt_XiaoShou(DataTable dt, string[] field, string rootPath, string xltName, string strUserId, string strFunctionName,string strDanhao)
         {
             try
             {
@@ -550,12 +553,13 @@ namespace Logic
                 style.BorderRight = BorderStyle.Thin;
                 style.BorderTop = BorderStyle.Thin;
 
+                sheet.GetRow(2).GetCell(1).SetCellValue(strDanhao);
+
                 sheet.ShiftRows(23, sheet.LastRowNum, dt.Rows.Count, true, false);
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                   
-                    IRow row = sheet.CreateRow(startRow + i);
+                     IRow row = sheet.CreateRow(startRow + i);
                     for (int j = 0; j < field.Length; j++)
                     {
                         Type type = dt.Columns[field[j]].DataType;
@@ -670,6 +674,24 @@ namespace Logic
         public DataTable getCaiWuEmailSetting()
         {
             return fs0309_DataAccess.getCaiWuEmailSetting();
+        }
+        #endregion
+
+        #region 取当天最新单号连番
+        public int getNewDanHao(string strSYTCode)
+        {
+            DataTable dt = fs0309_DataAccess.getNewDanHao(strSYTCode);
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                return 1;
+            }
+            else
+            {
+                if (dt.Rows[0]["vcDanHao"] == DBNull.Value || dt.Rows[0]["vcDanHao"].ToString() == "")
+                    return 1;
+                else
+                    return Convert.ToInt32(dt.Rows[0]["vcDanHao"].ToString());
+            }
         }
         #endregion
 

@@ -995,6 +995,20 @@ namespace DataAccess
         }
         #endregion
 
-
+        #region 获取执行标准下拉框
+        public DataTable getZXBZDT() 
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("       select vcValue1 as 'vcName',vcValue1 as 'vcValue' from TOutCode where vcCodeId = 'C017' and vcIsColum = '0'      ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

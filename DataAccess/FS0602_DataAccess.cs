@@ -969,6 +969,54 @@ namespace DataAccess
                 //}
                 #endregion
                 #endregion
+                #region 验证11：特殊订货不能导入  
+                #region N月
+                strSql.Length = 0;//清空
+                strSql.AppendLine("select a.vcPart_id,b.vcPartId as vcPartId_1,c.vcPartId as vcPartId_2,d.vcPartId as vcPartId_3");
+                strSql.AppendLine("from (");
+                strSql.AppendLine("   select * from TSoq_temp where vcOperator='" + strOperId + "' and vcYearMonth='" + strYearMonth + "'");
+                strSql.AppendLine(")a");
+                strSql.AppendLine("left join  (");
+                strSql.AppendLine("   select * from TSPMaster where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "'   ");
+                strSql.AppendLine("   and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)");
+                strSql.AppendLine("   and dFromTime<>dToTime");
+                strSql.AppendLine("   and vcOrderingMethod='1'");//特殊订货
+                strSql.AppendLine(")b on a.vcPart_id=b.vcPartId");
+                strSql.AppendLine("left join        ");
+                strSql.AppendLine("(        ");
+                strSql.AppendLine("   select * from TSPMaster where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "' ");
+                strSql.AppendLine("   and '" + strYearMonth1 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    ");
+                strSql.AppendLine("   and dFromTime<>dToTime");
+                strSql.AppendLine("   and vcOrderingMethod='1'");
+                strSql.AppendLine(")c on a.vcPart_id=c.vcPartId");
+                strSql.AppendLine("left join        ");
+                strSql.AppendLine("(        ");
+                strSql.AppendLine("   select * from TSPMaster where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "' ");
+                strSql.AppendLine("   and '" + strYearMonth2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    ");
+                strSql.AppendLine("   and dFromTime<>dToTime");
+                strSql.AppendLine("   and vcOrderingMethod='1'");
+                strSql.AppendLine(")d on a.vcPart_id=d.vcPartId");
+                strSql.AppendLine("where b.vcPartId is not null or  c.vcPartId is not null or d.vcPartId is not null    ");
+                DataTable dt11 = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+                for (int i = 0; i < dt11.Rows.Count; i++)
+                {
+                    month_temp = "";
+                    string strPart_id = dt11.Rows[i]["vcPart_id"].ToString();
+                    string strPart1 = dt11.Rows[i]["vcPartId_1"].ToString();
+                    string strPart2 = dt11.Rows[i]["vcPartId_2"].ToString();
+                    string strPart3 = dt11.Rows[i]["vcPartId_3"].ToString();
+                    if (strPart1 != "")
+                        month_temp += strYearMonth + ",";
+                    if (strPart2 != "")
+                        month_temp += strYearMonth1 + ",";
+                    if (strPart3 != "")
+                        month_temp += strYearMonth2 + ",";
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = string.Format("{0}   特殊品番在{1}月不能订货", strPart_id, month_temp.Substring(0, month_temp.Length - 1));
+                    dtMessage.Rows.Add(dataRow);
+                }
+                #endregion
+                #endregion
             }
             catch (Exception ex)
             {

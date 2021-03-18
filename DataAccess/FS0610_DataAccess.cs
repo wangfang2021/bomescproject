@@ -676,7 +676,7 @@ namespace DataAccess
                     string month = dt.Rows[i]["vcMonth"].ToString();
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
                     string vcCarType = dt.Rows[i]["vcCarType"].ToString();
-                    cmd.CommandText = " select iQuantityPerContainer  from tPartInfoMaster where vcPartsno = '" + partsno + "' and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCarType + "'   and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
+                    cmd.CommandText = " select iQuantityPerContainer from tPartInfoMaster where vcPartsno = '" + partsno + "' and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCarType + "'   and dTimeFrom<= '" + month + "-01" + "' and dTimeTo >= '" + month + "-01" + "' ";
                     DataTable srsdt = new DataTable();
                     apt.Fill(srsdt);
                     cmd.CommandText = " select * from MonthProPlanTblTMP where montouch='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
@@ -773,7 +773,7 @@ namespace DataAccess
                         sb = new SqlCommandBuilder(apt);
                         apt.Update(dt_udt);
                     }
-                    cmd.CommandText = " select  *  from dbo.MonthProPlanTblTMP  where vcMonth='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
+                    cmd.CommandText = " select * from MonthProPlanTblTMP where vcMonth='" + month + "' and vcPartsno='" + partsno + "' and vcDock='" + vcDock + "' and vcCarType='" + vcCarType + "'";
                     dt_udt = new DataTable();
                     apt.Fill(dt_udt);
                     if (dt_udt.Rows.Count == 1)
@@ -875,7 +875,7 @@ namespace DataAccess
                 //deleteTMP(cmd, mon, plant);//删除临时计划
                 deleteTMPplan(cmd, mon, plant);//删除多余计划
 
-                UpdatePlanMST(cmd, mon, plant);//更新到计划品番数据表
+                //UpdatePlanMST(cmd, mon, plant);//更新到计划品番数据表
                 updateSOQEX(cmd, mon, apt, user, plant);//更新SOQREPLY导出表
                 #endregion
                 #region 生成打印数据
@@ -920,13 +920,14 @@ namespace DataAccess
             ssql += "  t3.vcProName1,t3.vcLT1, t3.vcCalendar1, ";
             ssql += "  t3.vcProName2,t3.vcLT2, t3.vcCalendar2, ";
             ssql += "  t3.vcProName3,t3.vcLT3, t3.vcCalendar3, ";
-            ssql += "  t3.vcProName4,t3.vcLT4, t3.vcCalendar4  ";
+            ssql += "  t3.vcProName4,t3.vcLT4, t3.vcCalendar4,  ";
+            ssql += "  t1.vcSupplier_id  ";
             ssql += "  from (select * from TSoqReply where vcInOutFlag='0' and vcDXYM='" + mon + "' and vcCLYM='" + moncl + "') t1 ";
             ssql += "  left join (select vcPartsNo, vcDock, vcCarFamilyCode, vcQJcontainer, iQuantityPerContainer,vcPorType, vcZB, vcQFflag,dTimeFrom,dTimeTo from tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE() and vcInOutFlag='0') t2 ";
-            ssql += "  on t1.vcPart_id = t2.vcPartsNo and t1.vcCarType = t2.vcCarFamilyCode ";
+            ssql += "  on t1.vcPart_id=t2.vcPartsNo and t1.vcCarType=t2.vcCarFamilyCode ";
             ssql += "  left join ProRuleMst t3 ";
-            ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB = t2.vcZB ";
-            ssql += "  where iPartNums <>'0' and vcFZGC='" + plant + "' and t2.dTimeFrom<='" + mon1 + "-01" + "' and t2.dTimeTo >= '" + mon1 + "-01" + "'";
+            ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB=t2.vcZB ";
+            ssql += "  where iPartNums<>'0' and vcFZGC='" + plant + "' and t2.dTimeFrom<='" + mon1 + "-01" + "' and t2.dTimeTo>='" + mon1 + "-01" + "'";
             ssql += "  order by vcFZGC, vcPorType, vcZB, KBpartType ";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
@@ -1141,7 +1142,7 @@ namespace DataAccess
                 cmd.CommandText = "select TOP(1) * from " + TableName;//20180929实测没用，是为了把变量apt引出 - 李兴旺
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);//20180929实测没用，是为了把变量apt引出 - 李兴旺
                 apt.Fill(dt2);//20180929实测没用，是为了把变量apt引出 - 李兴旺
-                cmd.CommandText = "delete from " + TableName + " where (vcMonth='" + lbltime + "' or montouch ='" + lbltime + "') and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = " + TableName + ".vcPartsno   and dTimeFrom<= '" + lbltime + "-01" + "' and dTimeTo >= '" + lbltime + "-01" + "' ) ";
+                cmd.CommandText = "delete from " + TableName + " where (vcMonth='" + lbltime + "' or montouch='" + lbltime + "') and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + plant + "' and vcPartsNo=" + TableName + ".vcPartsno and dTimeFrom<='" + lbltime + "-01" + "' and dTimeTo>='" + lbltime + "-01" + "') ";
                 cmd.ExecuteNonQuery();
                 for (int i = 0; i < partsInfo.Rows.Count; i++)
                 {
@@ -1150,12 +1151,14 @@ namespace DataAccess
                     string vcCarType = partsInfo.Rows[i]["vcCarFamilyCode"].ToString();
                     string vcProjectName = partsInfo.Rows[i]["vcProName1"].ToString();
                     string vcProject1 = partsInfo.Rows[i]["vcCalendar1"].ToString();
+                    string vcSupplier_id = partsInfo.Rows[i]["vcSupplier_id"].ToString();
+
                     //string total = (Convert.ToInt32(partsInfo.Rows[i]["num"])/(Convert.ToInt32(partsInfo.Rows[i]["srs"]))).ToString();
                     string total = partsInfo.Rows[i]["num"].ToString();
                     //20180929在从SOQReply数据生成包装计划时就已经把5个工程的计划都生成一遍了，所以要在这里，生成看板打印数据时，把周度品番筛走 - 李兴旺
                     //20180929查看该品番的品番频度 - 李兴旺
                     string vcPartFrequence = "";
-                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo = '" + vcPartsno + "' and vcDock = '" + vcDock + "' and vcCarFamilyCode = '" + vcCarType + "' and dTimeFrom<='" + lbltime + "-01' and dTimeTo>='" + lbltime + "-01' ";
+                    string sqlPartFrequence = "SELECT vcPartsNo, vcPartFrequence FROM tPartInfoMaster where vcPartsNo='" + vcPartsno + "' and vcDock='" + vcDock + "' and vcCarFamilyCode='" + vcCarType + "' and dTimeFrom<='" + lbltime + "-01' and dTimeTo>='" + lbltime + "-01' ";
                     cmd.CommandText = sqlPartFrequence;
                     DataTable dtPartFrequence = new DataTable();
                     apt.Fill(dtPartFrequence);
@@ -1175,7 +1178,7 @@ namespace DataAccess
                             string tmpY = dr["vcYear"].ToString();
                             string tmpM = dr["vcMonth"].ToString().Length == 1 ? "0" + dr["vcMonth"].ToString() : dr["vcMonth"].ToString();
                             string vcMonth = tmpY + "-" + tmpM;
-                            cmd.CommandText = "select top(1) * from " + TableName + " where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                            cmd.CommandText = "select top(1) * from " + TableName + " where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock='" + vcDock + "' ";
                             DataTable tmp = new DataTable();
                             apt.Fill(tmp);
                             if (tmp.Rows.Count > 0)
@@ -1183,32 +1186,32 @@ namespace DataAccess
                                 string upsql = "vc" + dr["days"].ToString() + "='" + dr["total"].ToString() + "'";
                                 if (lbltime != vcMonth)
                                 {
-                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "' ,montouch ='" + lbltime + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + ", DUPDTIME=getdate(),CUPDUSER='" + user + "',montouch='" + lbltime + "',vcSupplier_id='" + vcSupplier_id + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock='" + vcDock + "' ";
                                 }
                                 else
                                 {
-                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "'  where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + ", DUPDTIME=getdate(),CUPDUSER='" + user + "',vcSupplier_id='" + vcSupplier_id + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock='" + vcDock + "' ";
                                 }
                                 cmd.ExecuteNonQuery();
                             }
                             else
                             {
-                                cmd.CommandText = " INSERT INTO " + TableName + " ([vcMonth],[vcPartsno],[vcDock],[vcCarType],[vcProject1],[vcProjectName] ,[DADDTIME],[CUPDUSER])";
-                                cmd.CommandText += " values( '" + vcMonth + "' ,'" + vcPartsno + "','" + vcDock + "','" + vcCarType + "','" + vcProject1 + "','" + vcProjectName + "',getdate(),'" + user + "')  ";
+                                cmd.CommandText = " INSERT INTO " + TableName + " ([vcMonth],[vcPartsno],[vcDock],[vcCarType],[vcProject1],[vcProjectName],[DADDTIME],[CUPDUSER],vcSupplier_id)";
+                                cmd.CommandText += " values( '" + vcMonth + "' ,'" + vcPartsno + "','" + vcDock + "','" + vcCarType + "','" + vcProject1 + "','" + vcProjectName + "',getdate(),'" + user + "','" + vcSupplier_id + "')  ";
                                 cmd.ExecuteNonQuery();
                                 string upsql = "vc" + dr["days"].ToString() + "='" + dr["total"].ToString() + "'";
                                 if (lbltime != vcMonth)
                                 {
-                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "' ,montouch ='" + lbltime + "'  where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + ", DUPDTIME=getdate(),CUPDUSER='" + user + "',montouch='" + lbltime + "',vcSupplier_id='" + vcSupplier_id + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock='" + vcDock + "' ";
                                 }
                                 else
                                 {
-                                    cmd.CommandText = "update " + TableName + " set " + upsql + " , DUPDTIME=getdate(),CUPDUSER='" + user + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                                    cmd.CommandText = "update " + TableName + " set " + upsql + ", DUPDTIME=getdate(),CUPDUSER='" + user + "',vcSupplier_id='" + vcSupplier_id + "' where vcMonth='" + vcMonth + "' and vcPartsno='" + vcPartsno + "' and vcDock='" + vcDock + "' ";
                                 }
                                 cmd.ExecuteNonQuery();
                             }
                         }
-                        cmd.CommandText = "update " + TableName + " set vcMonTotal='" + total + "'  where vcMonth='" + lbltime + "' and vcPartsno='" + vcPartsno + "' and vcDock ='" + vcDock + "' ";
+                        cmd.CommandText = "update " + TableName + " set vcMonTotal='" + total + "'  where vcMonth='" + lbltime + "' and vcPartsno='" + vcPartsno + "' and vcDock='" + vcDock + "' ";
                         cmd.ExecuteNonQuery();
                         #endregion
                     }

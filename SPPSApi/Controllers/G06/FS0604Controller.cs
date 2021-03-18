@@ -289,14 +289,16 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string msg = string.Empty;
+                DataTable dataTable = fs0604_Logic.createTable("fs0604");
+                bool bReault = true;
                 //开始数据验证
                 if (hasFind)
                 {
                     string[,] strField = new string[,] {{"状态","展开时间","要望纳期","同步时间",  "品番","品名", "车型", "使用开始时间",  "OE=SP", "供应商代码", "工区",  "要望收容数", "收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)", "照片","回复时间","承认时间","原单位织入时间","备注"},
                                                 {"vcState","dSendDate", "dExpectDeliveryDate", "dSynchronizationDate",  "vcPartNo","vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea",  "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcImageRoutes", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo"},
-                                                {"","","","",FieldCheck.NumChar,"","","","",FieldCheck.NumChar,"","","","",FieldCheck.NumChar, "","","","","","","","","",""},
+                                                {"","","","",FieldCheck.NumChar,"","","","",FieldCheck.NumChar,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.NumChar, "","","","","","","","","",""},
                                                 {"5","0","0","0","12","200","50","0","0","4","50","20","20","20","50","20","20","20","20","20","0","0","0","0","500"},//最大长度设定,不校验最大长度用0
-                                                {"1","0","0","0","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","0","0","0","12","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段
@@ -306,13 +308,33 @@ namespace SPPSApi.Controllers.G06
                           };
 
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0604");
-                    if (checkRes != null)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = checkRes;
-                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                    if (checkRes != null) { 
+                        for (int i = 0; i < checkRes.Count; i++)
+                        {
+                            string[] elements = ((DriverRes)checkRes[i]).element.Split("_");
+                            string index =elements[1].Substring(elements[1].IndexOf('d') + 1);
+                            string vcPartNo = "";
+                            for (int m = 0; m < listInfoData.Count; m++) {
+                                if (listInfoData[m]["iAPILineNo"].ToString() == index) {
+                                    vcPartNo = listInfoData[m]["vcPartNo"] == null ? "" : listInfoData[m]["vcPartNo"].ToString();
+                                    break;
+                                }
+                            }
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcPartNo"] = vcPartNo;
+                            dataRow["vcMessage"] = ((DriverRes)checkRes[i]).popover.title+((DriverRes)checkRes[i]).popover.description;
+                            dataTable.Rows.Add(dataRow);
+                            bReault = false;
+                        }
                     }
+                    //if (checkRes != null)
+                    //{
+                    //    apiResult.code = ComConstant.ERROR_CODE;
+                    //    apiResult.data = checkRes;
+                    //    apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    //}
                 }
                 // 追加新增品番的是否存在基础信息
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -322,14 +344,27 @@ namespace SPPSApi.Controllers.G06
                     if (bAddFlag == true)
                     {//新增
                         string vcPartNo = listInfoData[i]["vcPartNo"].ToString();
-                        DataTable dtExist = fs0604_Logic.checkIsExistByPartNo(vcPartNo);
-                        if (dtExist.Rows.Count==0) {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "新增的品番" + vcPartNo+"原单位表不存在!";
-                            apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        if (vcPartNo.Length>0)
+                        {
+                            DataTable dtExist = fs0604_Logic.checkIsExistByPartNo(vcPartNo);
+                            if (dtExist.Rows.Count == 0)
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["vcPartNo"] = vcPartNo;
+                                dataRow["vcMessage"] = "新增的品番原单位表不存在!";
+                                dataTable.Rows.Add(dataRow);
+                                bReault = false;
+                             }
                         }
                     }
+                }
+                if (!bReault)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dataTable;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string strErrorPartId = "";
                 fs0604_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
@@ -689,8 +724,8 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                FS0603_Logic fs0603_Logic = new FS0603_Logic();
-                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                //FS0603_Logic fs0603_Logic = new FS0603_Logic();
+                DataTable dtMessage = fs0604_Logic.createTable("fs0604");
                 bool bReault = true;
                 fs0604_Logic.weaveHandle(listInfoData, loginInfo.UserId, ref bReault, ref dtMessage);
                 if (!bReault)
@@ -867,6 +902,59 @@ namespace SPPSApi.Controllers.G06
         }
         #endregion
 
+        /// <summary>
+        /// 导出消息信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                //DataTable dataTable = fs0603_Logic.createTable("MES");
+                //FS0404_Logic fs0404_Logic = new FS0404_Logic();
+                DataTable dataTable = fs0604_Logic.createTable("fs0604");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                    dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
+                    dataTable.Rows.Add(dataRow);
+                }
+
+                string[] fields = { "vcPartNo", "vcMessage" };
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0604_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
     }
 }
 

@@ -119,8 +119,8 @@ namespace DataAccess
                 strSql.AppendLine("   select    ");
                 strSql.AppendLine("   n.[iAutoId], n.vcPackingPlant,n.vcReceiver,convert(varchar(10), n.[dSynchronizationDate],111) as [dSynchronizationDate], o.vcName as [vcState], n.[vcPartNo],      ");
                 strSql.AppendLine("     	convert(varchar(10), n.[dUseStartDate],111) as [dUseStartDate],convert(varchar(10), n.[dUserEndDate],111) as [dUserEndDate], n.[vcPartName],         ");
-                strSql.AppendLine("     	n.[vcCarType],p.vcName as [vcOEOrSP], n.[vcSupplier_id], n.[vcWorkArea],convert(varchar(10), n.[dExpectDeliveryDate],111) as  [dExpectDeliveryDate], cast(isnull(n.[vcExpectIntake],'') as int) as [vcExpectIntake],        ");
-                strSql.AppendLine("     	cast(isnull(n.[vcIntake],'') as int) as [vcIntake], cast(isnull(n.[vcBoxMaxIntake],'') as int) as [vcBoxMaxIntake], n.[vcBoxType], n.[vcLength], n.[vcWide], n.[vcHeight], n.[vcEmptyWeight],         ");
+                strSql.AppendLine("     	n.[vcCarType],p.vcName as [vcOEOrSP], n.[vcSupplier_id], n.[vcWorkArea],convert(varchar(10), n.[dExpectDeliveryDate],111) as  [dExpectDeliveryDate], n.[vcExpectIntake] as [vcExpectIntake],        ");
+                strSql.AppendLine("     	n.[vcIntake] as [vcIntake], n.[vcBoxMaxIntake] as [vcBoxMaxIntake], n.[vcBoxType], n.[vcLength], n.[vcWide], n.[vcHeight], n.[vcEmptyWeight],         ");
                 strSql.AppendLine("     	n.[vcUnitNetWeight],convert(varchar(10), n.[dSendDate],111) as [dSendDate],convert(varchar(10), n.[dReplyDate],111) as [dReplyDate],convert(varchar(10), n.[dAdmitDate],111) as [dAdmitDate],convert(varchar(10), n.[dWeaveDate],111) as [dWeaveDate], n.[vcMemo], n.vcImageRoutes,         ");
                 strSql.AppendLine("     	n.[vcInserter], n.[vcInserterDate],n.[vcFactoryOperatorID], n.[dFactoryOperatorTime],        ");
                 strSql.AppendLine("     	n.[vcOperatorID], n.[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
@@ -128,7 +128,7 @@ namespace DataAccess
                 strSql.AppendLine("      select a.LinId as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,      ");
                 strSql.AppendLine("      a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,      ");
                 strSql.AppendLine("      a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,      ");
-                strSql.AppendLine("      '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],      ");
+                strSql.AppendLine("      null as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],      ");
                 strSql.AppendLine("      '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],     ");
                 strSql.AppendLine("      '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],       ");
                 strSql.AppendLine("     null as [vcOperatorID], null as [dOperatorTime]   ");
@@ -354,7 +354,7 @@ namespace DataAccess
                 strSql.AppendLine("                        select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,              ");
                 strSql.AppendLine("                        a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,              ");
                 strSql.AppendLine("                        a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,              ");
-                strSql.AppendLine("                        '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],              ");
+                strSql.AppendLine("                        null as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],              ");
                 strSql.AppendLine("                        '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],             ");
                 strSql.AppendLine("                        '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],               ");
                 strSql.AppendLine("                       null as [vcOperatorID], null as [dOperatorTime]           ");
@@ -515,7 +515,7 @@ namespace DataAccess
                 strSql.AppendLine("           select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,            ");
                 strSql.AppendLine("           a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,            ");
                 strSql.AppendLine("           a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,            ");
-                strSql.AppendLine("           '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],            ");
+                strSql.AppendLine("           null as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],            ");
                 strSql.AppendLine("           '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],           ");
                 strSql.AppendLine("           '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],             ");
                 strSql.AppendLine("          null as [vcOperatorID], null as [dOperatorTime]         ");
@@ -596,7 +596,7 @@ namespace DataAccess
                 strSql.AppendLine("          select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,             ");
                 strSql.AppendLine("          a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,             ");
                 strSql.AppendLine("          a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,             ");
-                strSql.AppendLine("          '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],             ");
+                strSql.AppendLine("          null as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],             ");
                 strSql.AppendLine("          '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],            ");
                 strSql.AppendLine("          '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],              ");
                 strSql.AppendLine("         null as [vcOperatorID], null as [dOperatorTime]          ");
@@ -675,7 +675,7 @@ namespace DataAccess
                 strSql.AppendLine("           select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,            ");
                 strSql.AppendLine("           a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,            ");
                 strSql.AppendLine("           a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,            ");
-                strSql.AppendLine("           '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],            ");
+                strSql.AppendLine("           null as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],            ");
                 strSql.AppendLine("           '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],           ");
                 strSql.AppendLine("           '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],             ");
                 strSql.AppendLine("          null as [vcOperatorID], null as [dOperatorTime]         ");
@@ -813,19 +813,19 @@ namespace DataAccess
                     //[LinId], [vcPackingPlant], [vcPartId], [vcReceiver], [vcSupplierId], [vcSupplierPlant],
                     //[dFromTime], [dToTime], [iPackingQty], [vcBoxType], [iLength], [iWidth], [iHeight], 
                     //[iVolume], [vcOperatorType], [vcOperatorID], [dOperatorTime]
-                    string vcPackingPlant = listInfoData[i]["vcPackingPlant"].ToString();
-                    string vcReceiver = listInfoData[i]["vcReceiver"].ToString();
-                    string vcPartId = listInfoData[i]["vcPartNo"].ToString();
-                    string vcSupplierId = listInfoData[i]["vcSupplier_id"].ToString();
-                    string vcSupplierPlant = listInfoData[i]["vcWorkArea"].ToString();
+                    string vcPackingPlant = listInfoData[i]["vcPackingPlant"]==null? null : listInfoData[i]["vcPackingPlant"].ToString();
+                    string vcReceiver = listInfoData[i]["vcReceiver"]==null?"":listInfoData[i]["vcReceiver"].ToString();
+                    string vcPartId = listInfoData[i]["vcPartNo"] == null ? "" : listInfoData[i]["vcPartNo"].ToString();
+                    string vcSupplierId = listInfoData[i]["vcSupplier_id"] == null ? null : listInfoData[i]["vcSupplier_id"].ToString();
+                    string vcSupplierPlant = listInfoData[i]["vcWorkArea"] == null ? null : listInfoData[i]["vcWorkArea"].ToString();
 
-                    string dFromTime = listInfoData[i]["dUseStartDate"].ToString();
-                    string dToTime = listInfoData[i]["dUserEndDate"].ToString();
-                    string iPackingQty = listInfoData[i]["vcIntake"].ToString();
-                    string vcBoxType = listInfoData[i]["vcBoxType"].ToString();
-                    string iLength = listInfoData[i]["vcLength"].ToString();
-                    string iWidth = listInfoData[i]["vcWide"].ToString();
-                    string iHeight = listInfoData[i]["vcHeight"].ToString();
+                    string dFromTime = listInfoData[i]["dUseStartDate"] == null ? null : listInfoData[i]["dUseStartDate"].ToString();
+                    string dToTime = listInfoData[i]["dUserEndDate"] == null ? null : listInfoData[i]["dUserEndDate"].ToString();
+                    string iPackingQty = listInfoData[i]["vcIntake"] == null ? null : listInfoData[i]["vcIntake"].ToString();
+                    string vcBoxType = listInfoData[i]["vcBoxType"] == null ? null : listInfoData[i]["vcBoxType"].ToString();
+                    string iLength = listInfoData[i]["vcLength"] == null ? "0" : listInfoData[i]["vcLength"].ToString();
+                    string iWidth = listInfoData[i]["vcWide"] == null ? "0" : listInfoData[i]["vcWide"].ToString();
+                    string iHeight = listInfoData[i]["vcHeight"] == null ? "0" : listInfoData[i]["vcHeight"].ToString();
                     string iVolume = ((Convert.ToDecimal(iLength)/1000)* (Convert.ToDecimal(iWidth)/1000) * (Convert.ToDecimal(iHeight)/1000)).ToString();
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     strSqlZ.AppendLine("  select * from [dbo].[TSPMaster] where vcPackingPlant='"+ vcPackingPlant + "' and vcPartId='" + vcPartId + "' and vcReceiver='" + vcReceiver + "' and vcSupplierId='" + vcSupplierId + "'   ");
@@ -837,8 +837,9 @@ namespace DataAccess
                     DataTable dtZGQ = ds.Tables[2];
                     if (dtZ.Rows.Count == 0)
                     {
-                        DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = "包装工程"+ vcPackingPlant +" 收货方"+vcReceiver+" 供应商"+vcSupplierId+" 品番"+vcPartId+ "主数据表不存在数据,无法织入";
+                        DataRow dataRow = dtMessage.NewRow(); 
+                        dataRow["vcPartNo"] = vcPartId;
+                        dataRow["vcMessage"] = "原单位表数据不存在,无法织入";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                     }
@@ -847,7 +848,8 @@ namespace DataAccess
                         if (dtZZ.Rows.Count > 0|| dtZGQ.Rows.Count > 0)
                         {
                             DataRow dataRow = dtMessage.NewRow();
-                            dataRow["vcMessage"] = "包装工程" + vcPackingPlant + " 收货方" + vcReceiver + " 供应商" + vcSupplierId + " 品番" + vcPartId + "字表数据表已经存在数据,无法织入，请手动织入";
+                            dataRow["vcPartNo"] = vcPartId;
+                            dataRow["vcMessage"] = "字表数据表已经存在数据,无法织入，请手动织入";
                             dtMessage.Rows.Add(dataRow);
                             bReault = false;
                         }else
@@ -985,7 +987,7 @@ namespace DataAccess
                 strSql.AppendLine("       select null as iAutoId,  a.vcPackingPlant,a.vcReceiver, a.dSyncTime as dSynchronizationDate, '0' as vcState,a.vcPartId as vcPartNo,       ");
                 strSql.AppendLine("       a.dFromTime as dUseStartDate,a.dToTime as dUserEndDate,a.vcPartENName as vcPartName,a.vcCarModel as vcCarType,       ");
                 strSql.AppendLine("       a.vcOESP as vcOEOrSP,a.vcSupplierId as vcSupplier_id,c.vcSupplierPlant as vcWorkArea,       ");
-                strSql.AppendLine("       '' as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],       ");
+                strSql.AppendLine("       null as dExpectDeliveryDate,'' as vcExpectIntake,'' as [vcIntake],'' as [vcBoxMaxIntake],'' as [vcBoxType],'' as [vcLength],'' as [vcWide],       ");
                 strSql.AppendLine("       '' as [vcHeight],'' as [vcEmptyWeight],'' as [vcUnitNetWeight],null as [dSendDate],null as [dReplyDate],null as [dAdmitDate],null as [dWeaveDate],       ");
                 strSql.AppendLine("       '' as [vcMemo],null as  [vcImageRoutes],'' as [vcInserter],null as [vcInserterDate],'' as [vcFactoryOperatorID],null as [dFactoryOperatorTime],        ");
                 strSql.AppendLine("      null as [vcOperatorID], null as [dOperatorTime]    ");

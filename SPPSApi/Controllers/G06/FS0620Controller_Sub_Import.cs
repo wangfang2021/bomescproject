@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G06
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"年计类型","收货方","包装工场", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "N+1年预测", "N+2年预测"},
+                string[,] headers = new string[,] {{"年计类型","收货方","包装工场", "对象年份", "品番", "发注工场", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "N+1年预测", "N+2年预测"},
                                                 { "vcType","vcReceiver","vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcNextOneYear", "vcNextTwoYear"},
-                                                {"","","",FieldCheck.Num,FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,"","",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
-                                                {"100","50","50","4","12","100","100","4","50","50","30","30","30","30","30","30","30","30","30","30","30","30","30","30","30"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","1","12","1","1","1","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
+                                                {"","","",FieldCheck.Num,FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
+                                                {"100","50","50","4","12","100","100","4","1","50","30","30","30","30","30","30","30","30","30","30","30","30","30","30","30"},//最大长度设定,不校验最大长度用0
+                                                {"1","1","1","4","12","1","1","1","1","4","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -129,12 +129,27 @@ namespace SPPSApi.Controllers.G06
                 //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 //}
                 DataTable dtReceiver = ComFunction.getTCode("C018");
+                DataTable dtpackPlant = fs0620_Logic.getTCode("C025");
+                DataTable dtfazhuPlant = fs0620_Logic.getTCode("C026");
                 ArrayList list = new ArrayList();
                 ArrayList listError = new ArrayList();
+                ArrayList packlistError = new ArrayList();
+                ArrayList fazhulistError = new ArrayList();
                 for (int i=0;i< dtReceiver.Rows.Count;i++)
                 {
                     list.Add(dtReceiver.Rows[i]["vcValue"]);
                 }
+                ArrayList packArrayLis = new ArrayList();
+                for (int i = 0; i < dtpackPlant.Rows.Count; i++)
+                {
+                    packArrayLis.Add(dtpackPlant.Rows[i]["vcName"]);
+                }
+                ArrayList fazhuArrayLis = new ArrayList();
+                for (int i = 0; i < dtfazhuPlant.Rows.Count; i++)
+                {
+                    fazhuArrayLis.Add(dtfazhuPlant.Rows[i]["vcName"]);
+                }
+
                 for (int i = 0;i<importDt.Rows.Count;i++)
                 {
                    
@@ -145,17 +160,54 @@ namespace SPPSApi.Controllers.G06
                             listError.Add(importDt.Rows[i]["vcReceiver"].ToString().Trim());
                         }
                     }
+                    if (!packArrayLis.Contains(importDt.Rows[i]["vcPackPlant"].ToString().Trim()))
+                    {
+                        if (!packlistError.Contains(importDt.Rows[i]["vcPackPlant"].ToString().Trim()))
+                        {
+                            packlistError.Add(importDt.Rows[i]["vcPackPlant"].ToString().Trim());
+                        }
+                    }
+                    if (!fazhuArrayLis.Contains(importDt.Rows[i]["vcInjectionFactory"].ToString().Trim()))
+                    {
+                        if (!fazhulistError.Contains(importDt.Rows[i]["vcInjectionFactory"].ToString().Trim()))
+                        {
+                            fazhulistError.Add(importDt.Rows[i]["vcInjectionFactory"].ToString().Trim());
+                        }
+                    }
                 }
+                StringBuilder sbr = new StringBuilder();
                 if (listError.Count>0)
                 {
-                    StringBuilder sbr = new StringBuilder();
                     sbr.Append("收货方:");
                     for (int i=0;i<listError.Count;i++)
                     {
                         sbr.Append(listError[i]+"、");
                     }
                     sbr.Remove(sbr.Length - 1, 1);
-                    sbr.Append("不存在于收货方数据字典里面,请先追加数据字典，再导入数据!");
+                    sbr.Append("不存在于数据字典收货方里面,请先追加再导入数据!<br/>");
+                }
+                if (packlistError.Count > 0)
+                {
+                    sbr.Append("包装工场:");
+                    for (int i = 0; i < packlistError.Count; i++)
+                    {
+                        sbr.Append(packlistError[i] + "、");
+                    }
+                    sbr.Remove(sbr.Length - 1, 1);
+                    sbr.Append("不存在于常量里面,请先追加再导入数据!<br/>");
+                }
+                if (fazhulistError.Count > 0)
+                {
+                    sbr.Append("发注工场:");
+                    for (int i = 0; i < fazhulistError.Count; i++)
+                    {
+                        sbr.Append(fazhulistError[i] + "、");
+                    }
+                    sbr.Remove(sbr.Length - 1, 1);
+                    sbr.Append("不存在于常量里面,请先追加再导入数据!<br/>");
+                }
+                if (sbr.Length>0)
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

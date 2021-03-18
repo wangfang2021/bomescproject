@@ -149,6 +149,43 @@ namespace DataAccess
             }
         }
 
+        public void updateEmailState(DataTable dtNewSupplierandWorkArea)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  update  [TAnnualManagement] set vcEmailFlag=1 where iAutoId in(   \r\n ");
+                for (int i = 0; i < dtNewSupplierandWorkArea.Rows.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(dtNewSupplierandWorkArea.Rows[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable getTCode(string codeId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine(" select vcValue2 as vcName from TOutCode where vcCodeId='" + codeId + "' and vcIsColum=0   ");
+               
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 删除
         /// </summary>
@@ -250,7 +287,7 @@ namespace DataAccess
                 strSql.AppendLine("  +cast(isnull(a.vcJuly,0) as decimal(18,6))+cast(isnull(a.vcAugust,0) as decimal(18,6))+cast(isnull(a.vcSeptember,0) as decimal(18,6))    ");
                 strSql.AppendLine("  +cast(isnull(a.vcOctober,0) as decimal(18,6))+cast(isnull(a.vcNovember,0) as decimal(18,6))+cast(isnull(a.vcDecember,0) as decimal(18,6))as vcSum,    ");
 
-                strSql.AppendLine("  cast(isnull(a.vcNextOneYear,0) as decimal(18,2)) as [vcNextOneYear],cast(isnull(a.vcNextTwoYear,0) as decimal(18,2)) as [vcNextTwoYear], [vcOperatorID],convert(varchar(10), dOperatorTime,111) as [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
+                strSql.AppendLine("  cast(isnull(a.vcNextOneYear,0) as decimal(18,2)) as [vcNextOneYear],cast(isnull(a.vcNextTwoYear,0) as decimal(18,2)) as [vcNextTwoYear],case when isnull(vcEmailFlag,'0')='0' then '待发送' else '已发送' end as vcEmailFlag, [vcOperatorID],convert(varchar(10), dOperatorTime,111) as [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("  from TAnnualManagement a  ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C000') b on a.vcInjectionFactory=b.vcValue  ");
                 strSql.AppendLine("  left join (select vcValue,vcName from [TCode] where vcCodeId='C003') c on a.vcInsideOutsideType=c.vcValue  ");

@@ -42,6 +42,58 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        public DataTable GetSupplier()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine(" select vcSupplier_id as vcValue,vcSupplier_id as vcName from (  ");
+                strSql.AppendLine(" select distinct vcSupplier_id  from TSupplierInfo   ");
+                strSql.AppendLine(" ) a order by vcSupplier_id asc  ");
+                strSql.AppendLine("   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkArea()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine(" select vcWorkArea as vcValue,vcWorkArea as vcName from (  ");
+                strSql.AppendLine(" select distinct isnull(vcWorkArea,'无') as vcWorkArea  from TSupplierInfo   ");
+                strSql.AppendLine(" ) a order by vcWorkArea asc  ");
+                strSql.AppendLine("   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine(" select vcWorkArea as vcValue,vcWorkArea as vcName from (  ");
+                strSql.AppendLine(" select distinct isnull(vcWorkArea,'无') as vcWorkArea  from TSupplierInfo where vcSupplier_id='"+ supplierCode + "'    ");
+                strSql.AppendLine(" ) a order by vcWorkArea asc  ");
+                strSql.AppendLine("   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// 导入 
         /// </summary>
@@ -145,11 +197,11 @@ namespace DataAccess
 
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  vcSupplier_id like '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcWorkArea like '%" + vcWorkArea + "%' ");
+                    strSql.AppendLine("  and  vcWorkArea like '" + vcWorkArea + "%' ");
                 }
                 if (vcIsSureFlag.Length > 0)
                 {

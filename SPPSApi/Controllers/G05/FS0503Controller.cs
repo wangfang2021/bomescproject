@@ -81,6 +81,7 @@ namespace SPPSApi.Controllers.G05
                 res.Add("SendDate", dataList_SendDate);
                 res.Add("ReplyDate", dataList_ReplyDate);
                 res.Add("CarType", dataList_CarType);
+                res.Add("userId", loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -316,31 +317,31 @@ namespace SPPSApi.Controllers.G05
                 if (fs0503_Logic.editOk(dataForm, loginInfo.UserId))
                 {
                     //有误需要删除的冗余图片
-                    string vcDelImageRoutes = dataForm.vcDelImageRoutes;
-                    if (vcDelImageRoutes.Length > 0)
-                    {
-                        if (vcDelImageRoutes.LastIndexOf(",") > 0)
-                        {
-                            string[] imsges = vcDelImageRoutes.Split(",");
-                            for (int i = 0; i < imsges.Length; i++)
-                            {
-                                String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
-                                if (System.IO.File.Exists(realPath + imsges[i]))
-                                {
-                                    System.IO.File.Delete(realPath + imsges[i]);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
-                            if (System.IO.File.Exists(realPath + vcDelImageRoutes))
-                            {
-                                System.IO.File.Delete(realPath + vcDelImageRoutes);
-                            }
-                        }
+                    //string vcDelImageRoutes = dataForm.vcDelImageRoutes;
+                    //if (vcDelImageRoutes.Length > 0)
+                    //{
+                    //    if (vcDelImageRoutes.LastIndexOf(",") > 0)
+                    //    {
+                    //        string[] imsges = vcDelImageRoutes.Split(",");
+                    //        for (int i = 0; i < imsges.Length; i++)
+                    //        {
+                    //            String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
+                    //            if (System.IO.File.Exists(realPath + imsges[i]))
+                    //            {
+                    //                System.IO.File.Delete(realPath + imsges[i]);
+                    //            }
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "HeZiImages";
+                    //        if (System.IO.File.Exists(realPath + vcDelImageRoutes))
+                    //        {
+                    //            System.IO.File.Delete(realPath + vcDelImageRoutes);
+                    //        }
+                    //    }
                         
-                    }
+                    //}
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功！";

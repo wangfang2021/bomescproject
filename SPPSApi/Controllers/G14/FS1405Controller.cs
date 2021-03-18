@@ -288,19 +288,12 @@ namespace SPPSApi.Controllers.G14
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.searchform.multipleSelection;
+                JArray checkedInfo = dataForm.selectmultiple.multipleSelection;
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                DataTable dtImport = fS1405_Logic.checkrejectInfo(checkedInfoData, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
-                if (dtMessage != null && dtMessage.Rows.Count != 0)
-                {
-                    //弹出错误dtMessage
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                fS1405_Logic.rejectInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                DataTable dtImport = fS0603_Logic.createTable("SPISApply");
+                fS1405_Logic.checkrejectInfo(checkedInfoData, ref dtImport, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -312,7 +305,6 @@ namespace SPPSApi.Controllers.G14
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
             }
             catch (Exception ex)
             {

@@ -422,7 +422,7 @@ namespace DataAccess
                 strSql.AppendLine("    select a.vcPart_id from");
                 strSql.AppendLine("       (select * from TSoq_temp where vcOperator='" + strOperId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN<>0)a");
                 strSql.AppendLine("    left join ");
-                strSql.AppendLine("       (select vcPart_id,vcSupplier_id from TPrice where  convert(varchar(6),dUseBegin,112)<='" + strYearMonth + "' and convert(varchar(6),dUseEnd,112)>='" + strYearMonth + "')b");
+                strSql.AppendLine("       (select vcPart_id,vcSupplier_id from TPrice where  convert(varchar(6),dPricebegin,112)<='" + strYearMonth + "' and convert(varchar(6),dPriceEnd,112)>='" + strYearMonth + "')b");
                 strSql.AppendLine("     on a.vcPart_id=b.vcPart_id  and a.vcSupplier_id=b.vcSupplier_id");
                 strSql.AppendLine("    left join");
                 strSql.AppendLine("    	(select vcPartId,vcMandOrder,vcSupplierId");

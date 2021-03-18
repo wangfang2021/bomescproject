@@ -29,6 +29,7 @@ namespace SPPSApi.Controllers.G14
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         FS1405_Logic fS1405_Logic = new FS1405_Logic();
+        FS0602_Logic fS0602_Logic = new FS0602_Logic();
         FS0603_Logic fS0603_Logic = new FS0603_Logic();
         private readonly string FunctionID = "FS1405";
 
@@ -111,6 +112,7 @@ namespace SPPSApi.Controllers.G14
             {
                 DataTable dataTable = fS1405_Logic.getSearchInfo(strPartId, strSupplierId, strHaoJiu, strInOut, strOrderPlant, strFrom, strTo, strCarModel, strSPISStatus, listTime);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bSPISupload", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
@@ -149,10 +151,30 @@ namespace SPPSApi.Controllers.G14
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.searchform.multipleSelection;
+                string strToTime_SPIS = dataForm.info;//品番SPIS生效
+                string strEmailBody = dataForm.mailboy;//邮件体
+                JArray checkedInfo = dataForm.selectmultiple.multipleSelection;
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                DataTable dtImport = fS1405_Logic.checksendtoInfo(checkedInfoData, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                if (strToTime_SPIS == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "品番SPIS生效日期不能为空。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strToTime_SPIS != "" && Convert.ToDateTime(strToTime_SPIS + " 23:59:59") < System.DateTime.Now)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "品番SPIS生效日期不能小于当前时间。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (strEmailBody == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "邮件体不能为空(请点击邮件预览按钮)。";
+                    dtMessage.Rows.Add(dataRow);
+                }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -161,10 +183,23 @@ namespace SPPSApi.Controllers.G14
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fS1405_Logic.sendtoInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                DataTable dtImport = fS0603_Logic.createTable("SPISApply");
+                fS1405_Logic.checksendtoInfo(checkedInfoData, strToTime_SPIS, ref dtImport, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
-                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strTheme = "品番检查SPIS作成依赖";
+                DataTable dtToList = fS0602_Logic.getToList(dtImport, ref dtMessage);
+                fS0602_Logic.sendEmailInfo(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, dtToList, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "依赖发送成功。";
+                    dtMessage.Rows.InsertAt(dataRow, 0);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "list";
                     apiResult.data = dtMessage;
@@ -204,19 +239,13 @@ namespace SPPSApi.Controllers.G14
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
+
+                JArray checkedInfo = dataForm.selectmultiple.multipleSelection;
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                DataTable dtImport = fS1405_Logic.checkadmitInfo(checkedInfoData, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
-                if (dtMessage != null && dtMessage.Rows.Count != 0)
-                {
-                    //弹出错误dtMessage
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                fS1405_Logic.admitInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                DataTable dtImport = fS0603_Logic.createTable("SPISApply");
+                fS1405_Logic.checkadmitInfo(checkedInfoData, ref dtImport, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -290,6 +319,42 @@ namespace SPPSApi.Controllers.G14
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "驳回SPIS失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
+        /// 邮件预览
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string emailBodyApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string strToTime = dataForm.ToTime_SPIS == null ? "" : dataForm.ToTime_SPIS;
+            string strFlag = dataForm.flag == null ? "" : dataForm.flag;
+            try
+            {
+                String emailBody = fS1405_Logic.setEmailBody(strToTime, strFlag);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = emailBody;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0708", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "邮件预览失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

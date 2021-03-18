@@ -42,7 +42,11 @@ namespace DataAccess
                 strSql.AppendLine("		T1.vcSupplierPlant AS vcSupplierPlant,");
                 strSql.AppendLine("		T1.iQuantityPercontainer AS iPackingQty,");
                 strSql.AppendLine("		T1.iCbSOQN AS iCbSOQN,");
-                strSql.AppendLine("		case when isnull( cast(T1.decCbBdl as varchar(10)),'')='' then '' else cast(T1.decCbBdl as varchar(10))+'%' end AS decCbBdl,");
+                strSql.AppendLine("		case when isnull( cast(T1.decCbBdl as varchar(10)),'')='' then ''");
+                strSql.AppendLine("			else case when T1.decCbBdl>999 then '>999%'");
+                strSql.AppendLine("					  when (T1.decCbBdl*(-1))>999 then '<-999%'");
+                strSql.AppendLine("					  else cast(T1.decCbBdl as varchar(10))+'%' end");
+                strSql.AppendLine("			 end AS decCbBdl,");
                 strSql.AppendLine("		T1.iCbSOQN1 AS iCbSOQN1,");
                 strSql.AppendLine("		T1.iCbSOQN2 AS iCbSOQN2,");
                 strSql.AppendLine("		CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,ISNULL(T1.iCbSOQN,0)) ELSE ISNULL(T1.iTzhSOQN,0) END AS iTzhSOQN,");
@@ -306,7 +310,7 @@ namespace DataAccess
                     strSql.AppendLine("           ('" + dtInfo.Rows[i]["vcYearMonth"].ToString() + "'");
                     strSql.AppendLine("           ,'" + dtInfo.Rows[i]["vcDyState"].ToString() + "'");
                     strSql.AppendLine("           ,'" + dtInfo.Rows[i]["vcHyState"].ToString() + "'");
-                    strSql.AppendLine("           ,'" + dtInfo.Rows[i]["vcPart_id"].ToString() + "'");
+                    strSql.AppendLine("           ,CASE WHEN LEN('" + dtInfo.Rows[i]["vcPart_id"].ToString() + "')=10 THEN '" + dtInfo.Rows[i]["vcPart_id"].ToString() + "00" + "' ELSE '" + dtInfo.Rows[i]["vcPart_id"].ToString() + "' END ");
                     strSql.AppendLine("           ,'" + dtInfo.Rows[i]["iCbSOQN"].ToString() + "'");
                     strSql.AppendLine("           ,'" + dtInfo.Rows[i]["iCbSOQN1"].ToString() + "'");
                     strSql.AppendLine("           ,'" + dtInfo.Rows[i]["iCbSOQN2"].ToString() + "'");
@@ -885,7 +889,7 @@ namespace DataAccess
                 strSql.AppendLine("	from TSPMaster         \n");
                 strSql.AppendLine("	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "'         \n");
                 strSql.AppendLine("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                strSql.AppendLine("    and '" + strYearMonth + "'>=convert(varchar(6),dDebugTime,112)    \n");
+                strSql.AppendLine("    and '" + strYearMonth + "'>=convert(varchar(6),dDebugTime,112) and vcOldProduction='一括生产'   \n");
                 strSql.AppendLine("    and dFromTime<>dToTime     \n");
                 strSql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId     \n");
                 strSql.AppendLine("left join (        \n");
@@ -893,7 +897,7 @@ namespace DataAccess
                 strSql.AppendLine("	from TSPMaster         \n");
                 strSql.AppendLine("	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "'         \n");
                 strSql.AppendLine("	and '" + strYearMonth1 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                strSql.AppendLine("    and '" + strYearMonth1 + "'>=convert(varchar(6),dDebugTime,112)    \n");
+                strSql.AppendLine("    and '" + strYearMonth1 + "'>=convert(varchar(6),dDebugTime,112) and vcOldProduction='一括生产'   \n");
                 strSql.AppendLine("    and dFromTime<>dToTime     \n");
                 strSql.AppendLine(")t3 on t1.vcPart_id=t3.vcPartId     \n");
                 strSql.AppendLine("left join (        \n");
@@ -901,7 +905,7 @@ namespace DataAccess
                 strSql.AppendLine("	from TSPMaster         \n");
                 strSql.AppendLine("	where vcPackingPlant='" + strPackingPlant + "' and vcReceiver='" + strReceiver + "'         \n");
                 strSql.AppendLine("	and '" + strYearMonth2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                strSql.AppendLine("    and '" + strYearMonth2 + "'>=convert(varchar(6),dDebugTime,112)    \n");
+                strSql.AppendLine("    and '" + strYearMonth2 + "'>=convert(varchar(6),dDebugTime,112)  and vcOldProduction='一括生产'  \n");
                 strSql.AppendLine("    and dFromTime<>dToTime     \n");
                 strSql.AppendLine(")t4 on t1.vcPart_id=t4.vcPartId     \n");
                 strSql.AppendLine("where t2.vcPartId is not null or t3.vcPartId is not null or t4.vcPartId is not null    \n");
@@ -910,14 +914,14 @@ namespace DataAccess
                 {
                     month_temp = "";
                     string strPart_id = dt10.Rows[i]["vcPart_id"].ToString();
-                    string dDebugTime1 = dt2.Rows[i]["dDebugTime_1"].ToString();
-                    string dDebugTime2 = dt2.Rows[i]["dDebugTime_2"].ToString();
-                    string dDebugTime3 = dt2.Rows[i]["dDebugTime_3"].ToString();
-                    if (dDebugTime1 == "")
+                    string dDebugTime1 = dt10.Rows[i]["dDebugTime_1"].ToString();
+                    string dDebugTime2 = dt10.Rows[i]["dDebugTime_2"].ToString();
+                    string dDebugTime3 = dt10.Rows[i]["dDebugTime_3"].ToString();
+                    if (dDebugTime1 != "")
                         month_temp += strYearMonth + ",";
-                    if (dDebugTime2 == "")
+                    if (dDebugTime2 != "")
                         month_temp += strYearMonth1 + ",";
-                    if (dDebugTime3 == "")
+                    if (dDebugTime3 != "")
                         month_temp += strYearMonth2 + ",";
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = string.Format("{0}   在{1}月以后不能订货", strPart_id, month_temp.Substring(0, month_temp.Length - 1));

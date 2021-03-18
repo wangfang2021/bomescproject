@@ -1787,7 +1787,7 @@ namespace DataAccess
                 DataTable dtPack = new DataTable();
                 apt.Fill(dtPack);
                 DataTable dt_Update = new DataTable();
-                cmd.CommandText = " select * from tSOQREPExport where NPCS<>'0' and  vcMonth='" + mon + "' and vcPlant='" + plant + "'  order by orderid ";
+                cmd.CommandText = " select * from tSOQREPExport where NPCS<>'0' and vcMonth='" + mon + "' and vcPlant='" + plant + "' order by orderid ";
                 apt.Fill(dt_Update);
                 for (int i = 0; i < dt_Update.Rows.Count; i++)
                 {
@@ -1800,11 +1800,10 @@ namespace DataAccess
                     string cartype = dt_Update.Rows[i]["CFC"].ToString();
 
                     sqlPartType = "";
-                    sqlPartType += "SELECT  [vcCalendar4]  ";
-                    sqlPartType += "FROM [ProRuleMst] t1, tPartInfoMaster  t2   ";
-                    sqlPartType += "where t2.[vcPorType] = t1.vcPorType and  t2.vcZB  = t1.vcZB    ";
-                    sqlPartType += "and t2.vcPartsNo  = '" + partsno + "' and t2.vcCarFamilyCode = '" + cartype + "'   ";
-                    sqlPartType += "and t2.dTimeFrom <= '" + mon + "-01" + "' and t2.dTimeTo >= '" + mon + "-01" + "'    ";
+                    sqlPartType += "SELECT vcCalendar4 FROM ProRuleMst t1, tPartInfoMaster t2 ";
+                    sqlPartType += "where t2.vcPorType=t1.vcPorType and t2.vcZB=t1.vcZB ";
+                    sqlPartType += "and t2.vcPartsNo='" + partsno + "' and t2.vcCarFamilyCode='" + cartype + "' ";
+                    sqlPartType += "and t2.dTimeFrom<='" + mon + "-01" + "' and t2.dTimeTo>='" + mon + "-01" + "' ";
                     DataTable dt_Calendar4 = excute.ExcuteSqlWithSelectToDT(sqlPartType);
                     //cmd.CommandText = sqlPartType;
                     //apt.Fill(dt_Calendar4);
@@ -1814,9 +1813,9 @@ namespace DataAccess
                         string Caledar4 = dt_Calendar4.Rows[0]["vcCalendar4"].ToString();
                         string[] Caleders = Caledar4.Split('-');
 
-                        sqlPartDate += "SELECT * FROM  " + sqlTblMonth + " where   ";
-                        sqlPartDate += "vcPlant = '" + plant + "' and vcYear = '" + montmp[0] + "' and vcMonth = '" + montmp[1] + "'    ";
-                        sqlPartDate += "and vcGC = '" + Caleders[0] + "' and vcZB = '" + Caleders[1] + "'   ";
+                        sqlPartDate += "SELECT * FROM " + sqlTblMonth + " where ";
+                        sqlPartDate += "vcPlant='" + plant + "' and vcYear='" + montmp[0] + "' and vcMonth='" + montmp[1] + "' ";
+                        sqlPartDate += "and vcGC='" + Caleders[0] + "' and vcZB='" + Caleders[1] + "' ";
                         DataTable dt_CalendarData = excute.ExcuteSqlWithSelectToDT(sqlPartDate);
                         //cmd.CommandText = sqlPartDate;
                         //apt.Fill(dt_CalendarData);
@@ -1953,7 +1952,7 @@ namespace DataAccess
                     {
                         throw new Exception("品番" + partsno + "工程4日历类型取得失败");
                     }
-                    DataRow[] dr = dtPack.Select("vcMonth='" + mon + "' and vcPartsno ='" + partsno + "' and vcCarType='" + cartype + "' ");
+                    DataRow[] dr = dtPack.Select("vcMonth='" + mon + "' and vcPartsno='" + partsno + "' and vcCarType='" + cartype + "' ");
                     dt_Update.Rows[i]["D1"] = Convert.ToInt32(dr[0]["vcD1b"].ToString().Length == 0 ? "0" : dr[0]["vcD1b"]) + Convert.ToInt32(dr[0]["vcD1y"].ToString().Length == 0 ? "0" : dr[0]["vcD1y"]);
                     dt_Update.Rows[i]["D2"] = Convert.ToInt32(dr[0]["vcD2b"].ToString().Length == 0 ? "0" : dr[0]["vcD2b"]) + Convert.ToInt32(dr[0]["vcD2y"].ToString().Length == 0 ? "0" : dr[0]["vcD2y"]);
                     dt_Update.Rows[i]["D3"] = Convert.ToInt32(dr[0]["vcD3b"].ToString().Length == 0 ? "0" : dr[0]["vcD3b"]) + Convert.ToInt32(dr[0]["vcD3y"].ToString().Length == 0 ? "0" : dr[0]["vcD3y"]);
@@ -2021,7 +2020,7 @@ namespace DataAccess
                 }
                 SqlCommandBuilder scb = new SqlCommandBuilder(apt);
                 apt.Update(dt_Update);
-                cmd.CommandText = "update tSOQREPExport set updateFlag='1' where  vcMonth='" + mon + "' and vcPlant ='" + plant + "'";
+                cmd.CommandText = "update tSOQREPExport set updateFlag='1' where vcMonth='" + mon + "' and vcPlant='" + plant + "'";
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -2210,18 +2209,18 @@ namespace DataAccess
                 else tmpT += "t1.vcD" + i + "b as TD" + i + "b,	t1.vcD" + i + "y as TD" + i + "y,";
             }
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("    select t2.vcMonth ,t5.vcData2 as vcPlant, t2.vcPartsno, t2.vcDock, t2.vcCarType, t4.vcCalendar1, t4.vcCalendar2, t4.vcCalendar3, t4.vcCalendar4,");
-            sb.AppendLine("   t3.vcPartsNameCHN, t4.vcProName1 as vcProject1, t3.vcPorType+'-'+t3.vcZB as vcProjectName, t3.vcCurrentPastCode, t2.vcMonTotal as vcMonTotal,");
+            sb.AppendLine(" select t2.vcMonth ,t5.vcData2 as vcPlant, t2.vcPartsno, t2.vcDock, t2.vcCarType, t4.vcCalendar1, t4.vcCalendar2, t4.vcCalendar3, t4.vcCalendar4,");
+            sb.AppendLine(" t3.vcPartsNameCHN, t4.vcProName1 as vcProject1, t3.vcPorType+'-'+t3.vcZB as vcProjectName, t3.vcCurrentPastCode, t2.vcMonTotal as vcMonTotal,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0},", tmpE);
-            sb.AppendLine("vcSupplier_id");
-            sb.AppendFormat("  from (select * from {0} where montouch is not null) t1", tablename);
-            sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
-            sb.AppendLine("  on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendLine("  left join (select * from tPartInfoMaster where dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01' ) t3");
-            sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarFamilyCode=t2.vcCarType");
-            sb.AppendLine("  left join ProRuleMst t4");
-            sb.AppendLine("  on t4.vcPorType=t3.vcPorType and t4.vcZB=t3.vcZB");
+            sb.AppendLine(" t2.vcSupplier_id");
+            sb.AppendFormat(" from (select * from {0} where montouch is not null) t1", tablename);
+            sb.AppendFormat(" full join (select * from {0} where montouch is null) t2", tablename);
+            sb.AppendLine(" on t1.montouch=t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
+            sb.AppendLine(" left join (select * from tPartInfoMaster where dTimeFrom<='" + mon + "-01' and dTimeTo>='" + mon + "-01' ) t3");
+            sb.AppendLine(" on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock=t2.vcDock and t3.vcCarFamilyCode=t2.vcCarType");
+            sb.AppendLine(" left join ProRuleMst t4");
+            sb.AppendLine(" on t4.vcPorType=t3.vcPorType and t4.vcZB=t3.vcZB");
             sb.AppendLine(" left join (select vcData1,vcData2 from ConstMst where vcDataId='kbplant') t5");
             sb.AppendLine(" on t3.vcPartPlant=t5.vcData1 ");
             sb.AppendFormat(" where t2.vcMonth='{0}' and t3.vcPartPlant='{1}'", mon, plant);

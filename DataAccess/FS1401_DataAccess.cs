@@ -31,9 +31,7 @@ namespace DataAccess
                 strSql.AppendLine("		,T4.vcName AS vcHaoJiu");
                 strSql.AppendLine("		,T5.vcName AS vcPackType");
                 strSql.AppendLine("		,T6.vcCheckP AS vcCheckType");
-                strSql.AppendLine("		,CASE WHEN T1.vcSPISStatus='2' THEN '承认完了'");
-                strSql.AppendLine("			  WHEN T1.vcSPISStatus='1' THEN '已提交'");
-                strSql.AppendLine("			  ELSE 'SPIS未作成' END AS vcSPISStatus	");
+                strSql.AppendLine("		,T7.vcName AS vcSPISStatus");
                 strSql.AppendLine("		,'0' as bModFlag,'0' as bAddFlag,'1' as bSelectFlag");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("(select * from tCheckMethod_Master");
@@ -118,6 +116,9 @@ namespace DataAccess
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')T5");
                 strSql.AppendLine("on t1.vcPackType=t5.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C067')T7");
+                strSql.AppendLine("on t1.vcSPISStatus=T7.vcValue");
                 strSql.AppendLine("LEFT JOIN");
                 strSql.AppendLine("(SELECT [vcPartId],[vcTimeFrom],[vcTimeTo],[vcCarfamilyCode],[vcSupplierCode],[vcSupplierPlant],[vcCheckP] ");
                 strSql.AppendLine("FROM [tCheckQf] where [vcTimeFrom]<=convert(varchar(10),GETDATE(),23) and [vcTimeTo]>=convert(varchar(10),GETDATE(),23))T6");

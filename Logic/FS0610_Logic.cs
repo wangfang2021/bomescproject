@@ -885,7 +885,7 @@ namespace Logic
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    DataRow[] dr = dt_Data.Select(" vcPartsno ='" + dt.Rows[i]["vcPartsno"].ToString() + "' and vcMonth ='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcDock ='" + dt.Rows[i]["vcDock"] + "' and vcCarType ='" + dt.Rows[i]["vcCarType"].ToString() + "'");
+                    DataRow[] dr = dt_Data.Select(" vcPartsno='" + dt.Rows[i]["vcPartsno"].ToString() + "' and vcMonth='" + dt.Rows[i]["vcMonth"].ToString() + "' and vcDock='" + dt.Rows[i]["vcDock"] + "' and vcCarType ='" + dt.Rows[i]["vcCarType"].ToString() + "'");
                     if (dr.Length == 0)
                     {
                         msg = "第" + (i + 1) + "行，初版生产计划无该条数据。";
@@ -900,7 +900,7 @@ namespace Logic
                         }
                     }
                     int Totalnum = Convert.ToInt32(dr[0][13].ToString().Trim());
-                    for (int j = 14; j < dt_Data.Columns.Count; j++)
+                    for (int j = 14; j < dt_Data.Columns.Count - 1; j++)
                     {
                         int k = 0;
                         if (dr[0][j].ToString().Trim().Length == 0 && dt.Rows[i][j].ToString().Trim().Length > 0)

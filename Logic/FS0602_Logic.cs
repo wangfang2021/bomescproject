@@ -377,7 +377,7 @@ namespace Logic
             }
         }
         public DataTable checkreplyplanInfo(List<Dictionary<string, Object>> listInfoData, DataTable dataTable, string dExpectTime,
-            string strOperId, string strPackingPlant, string strReceiver, ref bool bReault, ref DataTable dtMessage)
+            string strOperId, string strPackingPlant, string strReceiver, ref DataTable dtMessage)
         {
             try
             {
@@ -434,7 +434,6 @@ namespace Logic
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "没有可供内示回复的数据";
                     dtMessage.Rows.Add(dataRow);
-                    bReault = false;
                 }
 
                 string sYearMonth = "";
@@ -469,7 +468,7 @@ namespace Logic
             }
         }
         public string checkreturnplanInfo(List<Dictionary<string, Object>> listInfoData, DataTable dataTable, string dExpectTime,
-             ref bool bReault, ref DataTable dtMessage)
+              ref DataTable dtMessage)
         {
             try
             {
@@ -513,14 +512,12 @@ namespace Logic
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "没有可供回退的内示情报";
                     dtMessage.Rows.Add(dataRow);
-                    bReault = false;
                 }
                 if (dtImport.Rows.Count != dataTable.Rows.Count)
                 {
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "该对象月内示情报已经有待确认或已合意状态，不能整体退回";
                     dtMessage.Rows.Add(dataRow);
-                    bReault = false;
                 }
                 return dtImport.Rows[0]["vcYearMonth"].ToString();
             }

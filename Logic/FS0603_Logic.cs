@@ -2750,6 +2750,30 @@ namespace Logic
                 dataTable.Columns.Add("vcTagLianFFrom", typeof(string));
                 dataTable.Columns.Add("vcTagLianFTo", typeof(string));
             }
+            if (strSpSub == "SPISApply")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcApplyId", typeof(string));
+                dataTable.Columns.Add("dFromTime_SPIS", typeof(string));
+                dataTable.Columns.Add("dToTime_SPIS", typeof(string));
+                dataTable.Columns.Add("dSPISTime", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("vcCarfamilyCode", typeof(string));
+                dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("vcPartENName", typeof(string));
+                dataTable.Columns.Add("vcColourNo", typeof(string));
+                dataTable.Columns.Add("vcColourCode", typeof(string));
+                dataTable.Columns.Add("vcColourName", typeof(string));
+                dataTable.Columns.Add("vcModItem", typeof(string));
+                dataTable.Columns.Add("vcPicUrl", typeof(string));
+                dataTable.Columns.Add("vcPDFUrl", typeof(string));
+                dataTable.Columns.Add("vcSPISUrl", typeof(string));
+                dataTable.Columns.Add("vcSupplier_1", typeof(string));
+                dataTable.Columns.Add("vcSupplier_2", typeof(string));
+                dataTable.Columns.Add("vcOperName", typeof(string));
+                dataTable.Columns.Add("vcGM", typeof(string));
+                dataTable.Columns.Add("vcSPISStatus", typeof(string));
+            }
             return dataTable;
         }
     }

@@ -16,17 +16,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G17
 {
-    [Route("api/FS1702_Sub_jinji/[action]")]
+    [Route("api/FS1702_Sub_kb/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS1702Controller_Sub_jinji : BaseController
+    public class FS1702Controller_Sub_kb : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS1702_Logic fs1702_Logic = new FS1702_Logic();
         private readonly string FunctionID = "FS1702";
 
-        public FS1702Controller_Sub_jinji(IWebHostEnvironment webHostEnvironment)
+        public FS1702Controller_Sub_kb(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -64,48 +64,6 @@ namespace SPPSApi.Controllers.G17
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1005", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索品目关系失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
-        #region 导出
-        [HttpPost]
-        [EnableCors("any")]
-        public string exportApi([FromBody] dynamic data)
-        {
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcPart_id = dataForm.vcPart_id;
-            try
-            {
-                DataTable dt = fs1702_Logic.Search_jinji(vcPart_id);
-                string[] heads = { "品番", "数量", "原因" };
-                string[] fields = { "vcPart_id", "iQuantity", "iQuantity" };
-                string strMsg = "";
-                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
-                if (strMsg != "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strMsg;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1006", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出品目关系失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

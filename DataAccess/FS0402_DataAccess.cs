@@ -751,7 +751,7 @@ namespace DataAccess
                 sql.Append("	from TSPMaster         \n");
                 sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06'         \n");
                 sql.Append("	and '"+strYearMonth+"' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                sql.Append("    and '" + strYearMonth + "'>=convert(varchar(6),dDebugTime,112)    \n");
+                sql.Append("    and '" + strYearMonth + "'>=convert(varchar(6),dDebugTime,112) and vcOldProduction='一括生产'   \n");
                 sql.Append("    and dFromTime<>dToTime      \r\n ");
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId     \n");
                 sql.Append("left join (        \n");
@@ -759,7 +759,7 @@ namespace DataAccess
                 sql.Append("	from TSPMaster         \n");
                 sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'         \n");
                 sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                sql.Append("    and '" + strYearMonth_2 + "'>=convert(varchar(6),dDebugTime,112)    \n");
+                sql.Append("    and '" + strYearMonth_2 + "'>=convert(varchar(6),dDebugTime,112) and vcOldProduction='一括生产'    \n");
                 sql.Append("    and dFromTime<>dToTime      \r\n ");
                 sql.Append(")t3 on t1.vcPart_id=t3.vcPartId     \n");
                 sql.Append("left join (        \n");

@@ -37,6 +37,10 @@ namespace Logic
         {
             return fs1702_DataAccess.Search_jinji(vcPart_id);
         }
+        public DataTable Search_kb()
+        {
+            return fs1702_DataAccess.Search_kb();
+        }
         #endregion
 
         #region 按用户文件格式读取数据
@@ -322,6 +326,10 @@ namespace Logic
         public void Save_jinji(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             fs1702_DataAccess.Save_jinji(listInfoData, strUserId);
+        }
+        public void Save_kb(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs1702_DataAccess.Save_kb(listInfoData, strUserId);
         }
         #endregion
 

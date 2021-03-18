@@ -45,11 +45,10 @@ namespace SPPSApi.Controllers.G17
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcPart_id = dataForm.vcPart_id;
-
+          
             try
             {
-                DataTable dt = fs1702_Logic.Search_jinji(vcPart_id);
+                DataTable dt = fs1702_Logic.Search_kb();
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -111,14 +110,14 @@ namespace SPPSApi.Controllers.G17
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"品番","数量","原因"},
-                                                {"vcPart_id","iQuantity","vcReason"},
-                                                {FieldCheck.NumCharL,FieldCheck.Num,""},
-                                                {"12","0","100"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"品番","工程","数量","看板枚数"},
+                                                {"vcPart_id","vcProject","iQuantity","iKBQuantity"},
+                                                {FieldCheck.NumCharL,"",FieldCheck.Num,FieldCheck.Num},
+                                                {"12","10","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1702_Sub_jinji");
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1702_Sub_kb");
                     if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -127,7 +126,7 @@ namespace SPPSApi.Controllers.G17
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                fs1702_Logic.Save_jinji(listInfoData, loginInfo.UserId);
+                fs1702_Logic.Save_kb(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

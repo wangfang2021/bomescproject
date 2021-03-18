@@ -18,7 +18,7 @@ namespace BatchProcess
         #region 主方法
         public bool main(string strUserId)
         {
-            string PageId = "FP00019";
+            string PageId = "FP0019";
             try
             {
                 //批处理开始
@@ -45,7 +45,7 @@ namespace BatchProcess
                 #endregion
 
                 #region 邮件内容
-                string strEmailBody = getEmailBody(strUserId, "FP00019");
+                string strEmailBody = getEmailBody(strUserId, "FP0019");
                 if (string.IsNullOrEmpty(strEmailBody))
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1903", null, strUserId);
@@ -72,7 +72,7 @@ namespace BatchProcess
                 #endregion
 
                 #region 邮件主题
-                string strSubject = getSubject(strUserId,"FP00019");
+                string strSubject = getSubject(strUserId,"FP0019");
                 if (string.IsNullOrEmpty(strSubject))
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1905", null, strUserId);

@@ -463,7 +463,7 @@ namespace SPPSApi.Controllers.G06
         [HttpPost]
         [EnableCors("any")]
         public string downloadProPlan([FromBody] dynamic data)
-        {
+        { 
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {

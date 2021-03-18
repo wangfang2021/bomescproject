@@ -139,32 +139,16 @@ namespace Logic
                     DataConvertField convert = getConvertFieldByName(strFieldName);
                     if (convert == null)
                         return rowField;
-                    #region 这里对执行标准No做特殊转换
-                    if (strFieldName== "vcZXBZNo")
+                    if (convert.strFieldType == ConvertFieldType.BoolType)
                     {
-                        Dictionary<string, object> items = new Dictionary<string, object>();
-                        string[] item = rowField.ToString().Split(';');
-                        for (int i = 0; i < item.Count(); i++)
-                        {
-                            items.Add(item[i], item[i]);
-                        }
-
-                        return items;
+                        return rowField.ToString() == "1" ? true : false;
                     }
-                    #endregion
+                    else if (convert.strFieldType == ConvertFieldType.DateType)
+                    {
+                        return DateTime.Parse(rowField.ToString()).ToString(convert.strDateFormat, DateTimeFormatInfo.InvariantInfo);
+                    }
                     else
-                    {
-                        if (convert.strFieldType == ConvertFieldType.BoolType)
-                        {
-                            return rowField.ToString() == "1" ? true : false;
-                        }
-                        else if (convert.strFieldType == ConvertFieldType.DateType)
-                        {
-                            return DateTime.Parse(rowField.ToString()).ToString(convert.strDateFormat, DateTimeFormatInfo.InvariantInfo);
-                        }
-                        else
-                            return rowField;
-                    }
+                        return rowField;
                 }
                 else
                     return rowField;
@@ -181,7 +165,8 @@ namespace Logic
         public enum ConvertFieldType
         {
             BoolType,
-            DateType
+            DateType,
+            string2list
         }
         #endregion
 

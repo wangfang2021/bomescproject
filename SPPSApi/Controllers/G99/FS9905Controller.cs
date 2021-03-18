@@ -188,19 +188,21 @@ namespace SPPSApi.Controllers.G99
                     #endregion
                 
                 }
-                DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                 FS9905_Logic.DtConverter dtConverter = new FS9905_Logic.DtConverter();
+                dtConverter.addField("selected", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", FS9905_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDate", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_BJ", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_HK", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTFTM_BJ", FS9905_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("vcZXBZNo", FS9905_Logic.ConvertFieldType.string2list, null);
 
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<Object> dataList = fs9905_Logic.convertAllToResultByConverter(dt, dtConverter);
+                
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;

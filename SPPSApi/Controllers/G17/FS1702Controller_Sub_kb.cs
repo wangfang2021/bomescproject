@@ -166,7 +166,7 @@ namespace SPPSApi.Controllers.G17
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1702_Logic.Del_jinji(listInfoData, loginInfo.UserId);
+                fs1702_Logic.Del_kb(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

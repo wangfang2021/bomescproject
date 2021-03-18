@@ -35,13 +35,13 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select iAutoId,vcQueRenNo,dChuHeDate,iQuantity,    \n");
+                strSql.Append("select iAutoId,vcQueRenNo,vcProject,dChuHeDate,iQuantity,    \n");
                 strSql.Append("case when dQueRenPrintTime is not null then '√' else '' end as QueRenPrintFlag,    \n");
                 strSql.Append("case when vcQueRenNo like 'BJW%' then '━' when dKBPrintTime is not null then '√' else '' end as KBPrintFlag,    \n");
                 strSql.Append("case when dChuHeOKTime is not null then '√' else '' end as ChuHeOKFlag    \n");
                 strSql.Append("from TChuHe where 1=1   \n");
                 if (vcProject != "" && vcProject != null)
-                    strSql.Append("and vcQueRenNo like '" + vcProject + "%'    \n");
+                    strSql.Append("and vcProject = '" + vcProject + "'    \n");
                 if (dChuHeDateFrom == "" || dChuHeDateFrom == null)
                     dChuHeDateFrom = "2001/01/01";
                 if (dChuHeDateTo == "" || dChuHeDateTo == null)
@@ -126,6 +126,7 @@ namespace DataAccess
                 #region insert 主表 sql
                 sql.Append("INSERT INTO [TChuHe]    \n");
                 sql.Append("           ([vcQueRenNo]    \n");
+                sql.Append("           ,[vcProject]    \n");
                 sql.Append("           ,[dChuHeDate]    \n");
                 sql.Append("           ,[iQuantity]    \n");
                 sql.Append("           ,[dQueRenPrintTime]    \n");
@@ -133,14 +134,14 @@ namespace DataAccess
                 sql.Append("           ,[dChuHeOKTime]    \n");
                 sql.Append("           ,[vcOperatorID]    \n");
                 sql.Append("           ,[dOperatorTime])    \n");
-                sql.Append("select t1.vcQueRenNo,t1.dChuHeDate,t1.iQuantity,null,null,null,'"+strUserId+"',GETDATE()     \n");
+                sql.Append("select t1.vcQueRenNo,t1.vcProject,t1.dChuHeDate,t1.iQuantity,null,null,null,'" + strUserId+"',GETDATE()     \n");
                 sql.Append("from (    \n");
-                sql.Append("	select t1.vcQueRenNo,t1.dChuHeDate,sum(t1.iQuantity) as iQuantity     \n");
+                sql.Append("	select t1.vcQueRenNo,t1.vcProject,t1.dChuHeDate,sum(t1.iQuantity) as iQuantity     \n");
                 sql.Append("	from (    \n");
-                sql.Append("		select vcProject+replace(CONVERT(varchar(10),dChuHeDate,120),'-','') as vcQueRenNo,iQuantity,dChuHeDate     \n");
+                sql.Append("		select vcProject+replace(CONVERT(varchar(10),dChuHeDate,120),'-','') as vcQueRenNo,iQuantity,dChuHeDate,vcProject     \n");
                 sql.Append("		from TChuHe_Detail    \n");
                 sql.Append("	)t1    \n");
-                sql.Append("	group by t1.vcQueRenNo,t1.dChuHeDate    \n");
+                sql.Append("	group by t1.vcQueRenNo,t1.dChuHeDate,t1.vcProject    \n");
                 sql.Append(")t1    \n");
                 sql.Append("left join TChuHe t2 on t1.vcQueRenNo=t2.vcQueRenNo    \n");
                 sql.Append("where t2.iAutoId is null and t1.iQuantity!=0    \n");
@@ -240,9 +241,32 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select ROW_NUMBER() over(order by t1.vcPart_id) as id,t1.vcPart_id,t1.iQuantity,t2.vcBackPart_id,'' as vcRemark from (    \n");
-                sql.Append("	select * from TChuHe_Detail where vcProject='"+vcProject+"' and dChuHeDate='"+dChuHeDate+"'    \n");
+                sql.Append("	select * from TChuHe_Detail where vcProject='"+vcProject+"' and dChuHeDate='"+dChuHeDate+ "' and iQuantity>0    \n");
                 sql.Append(")t1    \n");
                 sql.Append("left join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id    \n");
+
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 取出看板信息
+        public DataTable getKBData(string vcProject, string dChuHeDate)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select '补给品中心' as vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
+                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t1.iCapacity,t1.vcBoxType    \n");
+                sql.Append("from TSSPManagement t1    \n");
+                sql.Append("inner join     \n");
+                sql.Append("(    \n");
+                sql.Append("	select * from TChuHe_Detail where vcProject='2W' and dChuHeDate='2021-01-29 00:00:00.000' and iQuantity>0    \n");
+                sql.Append(")t2 on t1.vcProject=t2.vcPart_id    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }

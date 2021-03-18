@@ -133,12 +133,14 @@ namespace SPPSApi.Controllers.G17
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //取出生成确认单的数据
                 string[] fields = { "id", "vcPart_id", "vcBackPart_id", "iQuantity", "vcRemark"};
                 string vcQueRenNo = checkedInfoData[0]["vcQueRenNo"].ToString();
-                string vcProject = vcQueRenNo.Substring(0, vcQueRenNo.Length - 8);
+                string vcProject = checkedInfoData[0]["vcProject"].ToString();
                 string dChuHeDate = checkedInfoData[0]["dChuHeDate"].ToString();
                 DataTable dt = fs1702_Logic.GetqrdInfo(vcProject, dChuHeDate);
                 string strMsg = "";
+                //生成excel
                 string filepath = fs1702_Logic.generateExcelWithXlt(vcQueRenNo,dt, fields, _webHostEnvironment.ContentRootPath, "FS1702.xlsx", 0, 3, loginInfo.UserId, FunctionID);
                 if (strMsg != "")
                 {
@@ -146,6 +148,9 @@ namespace SPPSApi.Controllers.G17
                     apiResult.data = strMsg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //调打印方法（没做呢）
+
+                //更新打印时间
                 fs1702_Logic.qrdPrint(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -186,16 +191,23 @@ namespace SPPSApi.Controllers.G17
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                string vcQueRenNo = checkedInfoData[0]["vcQueRenNo"].ToString();
+                string vcProject = checkedInfoData[0]["vcProject"].ToString();
+                string dChuHeDate = checkedInfoData[0]["dChuHeDate"].ToString();
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
-                    string vcQueRenNo = checkedInfoData[i]["vcQueRenNo"].ToString();
-                    if(vcQueRenNo.StartsWith("BJW"))
+                    if (vcQueRenNo.StartsWith("BJW"))
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "确认单号[" + vcQueRenNo + "]不能进行出荷看板打印！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                //取出生成看板数据
+                DataTable dt = fs1702_Logic.getKBData(vcProject,dChuHeDate);
+                //调用打印方法（还没做呢）
+
+                //更新打印时间
                 fs1702_Logic.kbPrint(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

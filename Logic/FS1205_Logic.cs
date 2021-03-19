@@ -786,7 +786,7 @@ namespace Logic
             {
                 //不论结果是否唯一，品番对应的频度都是一样的
                 PartFrequence = dt.Rows[0]["vcPartFrequence"].ToString();
-                if (PartFrequence == "周度")
+                if (PartFrequence == "2")
                 {
                     return true;
                 }

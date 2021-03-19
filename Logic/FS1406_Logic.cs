@@ -12,6 +12,7 @@ namespace Logic
     public class FS1406_Logic
     {
         FS1406_DataAccess fs1406_DataAccess;
+        FS0617_Logic fS0617_Logic = new FS0617_Logic();
 
         public FS1406_Logic()
         {
@@ -124,44 +125,46 @@ namespace Logic
         {
             try
             {
-                //for (int i = 0; i < dtImport.Rows.Count; i++)
-                //{
-                //    string strLinId = dtImport.Rows[i]["strLinId"].ToString();
-                //    string strApplyId = dtImport.Rows[i]["vcApplyId"].ToString();
-                //    string strFromTime_SPIS = dtImport.Rows[i]["dFromTime_SPIS"].ToString();
-                //    string strToTime_SPIS = dtImport.Rows[i]["dToTime_SPIS"].ToString();
-                //    string strPartId = dtImport.Rows[i]["vcPartId"].ToString();
-                //    string strCarfamilyCode = dtImport.Rows[i]["vcCarfamilyCode"].ToString();
-                //    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString();
-                //    string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
-                //    string strTempUrl = dtImport.Rows[i]["vcTempUrl"].ToString();//原图临时文件
-                //    string sources_temp = strPath_temp + strTempUrl;//原图临时文件地址
-                //    string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();//原图正式文件
-                //    string sources_pic = strPath_pic + strPicUrl;//原图正式文件地址
-                //    //移动到原图正式地址
-                //    if (System.IO.File.Exists(sources_temp))
-                //    {
-                //        File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
-                //        File.Delete(sources_temp);
-                //    }
-                    
+                for (int i = 0; i < dtImport.Rows.Count; i++)
+                {
+                    string strLinId = dtImport.Rows[i]["strLinId"].ToString();
+                    string strApplyId = dtImport.Rows[i]["vcApplyId"].ToString();
+                    string strFromTime_SPIS = dtImport.Rows[i]["dFromTime_SPIS"].ToString();
+                    string strToTime_SPIS = dtImport.Rows[i]["dToTime_SPIS"].ToString();
+                    string strPartId = dtImport.Rows[i]["vcPartId"].ToString();
+                    string strCarfamilyCode = dtImport.Rows[i]["vcCarfamilyCode"].ToString();
+                    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString();
+                    string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
+                    string strTempUrl = dtImport.Rows[i]["vcTempUrl"].ToString();//原图临时文件
+                    string sources_temp = strPath_temp + strTempUrl;//原图临时文件地址
+                    string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();//原图正式文件
+                    string sources_pic = strPath_pic + strPicUrl;//原图正式文件地址
+                    //移动到原图正式地址
+                    if (System.IO.File.Exists(sources_temp))
+                    {
+                        File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
+                        File.Delete(sources_temp);
+                    }
+                    //正式地址图片转成二进制流
+                    byte[] btPicUrl = fS0617_Logic.PhotoToArray(sources_pic);
 
-                //    string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();//PDF文件
-                //    string sources_pdf = strPath_pdf + strPDFUrl;//PDF文件地址
 
-                //    string strSPISUrl = dtImport.Rows[i]["vcSPISUrl"].ToString();//正式文件
-                //    string sources_spis = strPath_sips + strSPISUrl;//式文件地址
+                    string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();//PDF文件
+                    string sources_pdf = strPath_pdf + strPDFUrl;//PDF文件地址
 
-                //    //string sources = strPath + dtImport.Rows[i]["vcPicUrl"].ToString();
-                //    //string dest = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar + dtImport.Rows[i]["vcPicUrlUUID"].ToString();
-                //    //fS1404_Logic.CopyFile(sources, dest);
-                    
+                    string strSPISUrl = dtImport.Rows[i]["vcSPISUrl"].ToString();//正式文件
+                    string sources_spis = strPath_sips + strSPISUrl;//式文件地址
 
-                //    string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();
+                    //string sources = strPath + dtImport.Rows[i]["vcPicUrl"].ToString();
+                    //string dest = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar + dtImport.Rows[i]["vcPicUrlUUID"].ToString();
+                    //fS1404_Logic.CopyFile(sources, dest);
 
-                //    string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();
-                //    string strSPISUrl = "";
-                //}
+
+                    //string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();
+
+                    //string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();
+                    //string strSPISUrl = "";
+                }
                 return dtImport;
             }
             catch (Exception ex)

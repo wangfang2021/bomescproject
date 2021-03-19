@@ -181,5 +181,59 @@ namespace SPPSApi.Controllers.G17
         }
         #endregion
 
+        #region 出荷看板打印
+        [HttpPost]
+        [EnableCors("any")]
+        public string kbPrintApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray checkedInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                if (checkedInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "最少选择一行！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string vcPart_id = checkedInfoData[0]["vcPart_id"].ToString();
+                //判断品番在SSP基础数据中是否存在
+                if(fs1702_Logic.isExitInSSP(vcPart_id)==false)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "品番"+vcPart_id+"在SSP基础数据中不存在！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                //取出生成看板数据
+                DataTable dt = fs1702_Logic.getKBData(vcPart_id);
+                //调用打印方法（还没做呢） 
+
+                //更新打印时间 再发行时还更新打印时间吗？
+                //fs1702_Logic.kbPrint(checkedInfoData, loginInfo.UserId);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

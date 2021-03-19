@@ -56,6 +56,9 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtOptionsList = fs0603_Logic.getFormOptions("");
+                List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商编码选项
+                List<Object> SupplierPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierPlant_Name", "vcSupplierPlant_Value"));//工区
 
                 List<Object> DyStateList = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//对应状态
                 List<Object> HyStateList = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//合意状态
@@ -71,6 +74,8 @@ namespace SPPSApi.Controllers.G06
                 res.Add("OrderingMethodList", OrderingMethodList);
                 res.Add("OrderPlantList", OrderPlantList);
                 res.Add("HaoJiuList", HaoJiuList);
+                res.Add("SupplierIdForForm", SupplierIdForForm);
+                res.Add("SupplierPlantForForm", SupplierPlantForForm);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
 
                 DataTable dtTask = fs0602_Logic.getSearchInfo(dNow.ToString("yyyyMM"), "", "", "", "", "", "", "", "", "", "", "");

@@ -139,7 +139,15 @@ namespace Logic
         public void SaveCheck(List<Dictionary<string, Object>> listInfoData, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3,
             ref Dictionary<string,string> errMessageList, string strUnit)
         {
-            fs0501_DataAccess.SaveCheck(listInfoData, strUserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, strUnit);
+            DataTable dterrMessage = new DataTable();
+            dterrMessage.Columns.Add("vcPart_id");
+            dterrMessage.Columns.Add("vcMsg");
+            
+            fs0501_DataAccess.SaveCheck(listInfoData, strUserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref dterrMessage, strUnit);
+            for(int i=0;i<dterrMessage.Rows.Count;i++)
+            {
+                errMessageList.Add(dterrMessage.Rows[i]["vcPart_id"].ToString(), dterrMessage.Rows[i]["vcMsg"].ToString());
+            }
         }
         #endregion
 

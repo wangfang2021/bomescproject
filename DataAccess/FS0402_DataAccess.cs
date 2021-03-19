@@ -996,17 +996,18 @@ namespace DataAccess
                 //波动率计算
                 //sql.AppendLine("  update TSoq set decCbBdl=100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2)))/cast(b.iHySOQN as decimal(18,2))  from TSoq a    \r\n ");
                 sql.AppendLine("  update TSoq set decCbBdl=     \r\n ");
-                sql.AppendLine("     case when a.iCbSOQN=0 or b.iHySOQN=0 then  \r\n ");
-                sql.AppendLine("     	ABS(100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2))))  \r\n ");
+                sql.AppendLine("     case when b.iHySOQN is null then 1000     \r\n ");
+                sql.AppendLine("     when a.iCbSOQN=0 or b.iHySOQN=0 then  \r\n ");
+                sql.AppendLine("     	100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN1 as decimal(18,2)))  \r\n ");
                 sql.AppendLine("     else \r\n ");
-                sql.AppendLine("     	ABS(100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN as decimal(18,2))))/cast(b.iHySOQN as decimal(18,2)) \r\n ");
+                sql.AppendLine("     	100*(cast(a.iCbSOQN as decimal(18,2))-cast(b.iHySOQN1 as decimal(18,2)))/cast(b.iHySOQN1 as decimal(18,2)) \r\n ");
                 sql.AppendLine("     end    \r\n ");
                 sql.AppendLine("  from TSoq a    \r\n ");
                 sql.AppendLine("  left join    \r\n ");
                 sql.AppendLine("  (    \r\n ");
                 sql.AppendLine("    select * from TSoq where vcYearMonth='"+ strLastYearMonth + "'    \r\n ");
                 sql.AppendLine("  )b on a.vcPart_id=b.vcPart_id    \r\n ");
-                sql.AppendLine("  where a.vcYearMonth='" + strYearMonth + "' and b.iHySOQN is not null    \r\n ");
+                sql.AppendLine("  where a.vcYearMonth='" + strYearMonth + "' --and b.iHySOQN is not null    \r\n ");
 
                 //在SOQprocess表中插入状态
                 //sql.AppendLine("DELETE TSOQProcess WHERE vcYearMonth='"+ strYearMonth + "'; \r\n ");

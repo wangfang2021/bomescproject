@@ -189,6 +189,41 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string jjddloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                int counts1 = 0; //当前入手新订单数量
+                int counts2 = 0; //当前确认中订单数量
+                fs0615_Logic.getCounts(ref counts1, ref counts2);
+                res.Add("counts1", counts1);
+                res.Add("counts2", counts2);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }
 

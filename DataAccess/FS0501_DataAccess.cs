@@ -695,7 +695,7 @@ namespace DataAccess
                 sql.AppendLine("	where vcOperatorType='1'         ");
                 sql.AppendLine(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         ");
                 sql.AppendLine("and t1.vcYM between convert(varchar(6),t5.dFromTime,112) and convert(varchar(6),t5.dToTime,112)    ");
-                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t1.iCbSOQN%t5.iPackingQty<>0    ");
+                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t1.iTzhSOQN%t5.iPackingQty<>0    ");
                 DataTable dt9 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 ErrorMsg(ref dterrMessage, dtc, dt9, "订货数量不是收容数的整数倍", false);
                 #endregion

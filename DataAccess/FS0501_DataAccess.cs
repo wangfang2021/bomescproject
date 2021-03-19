@@ -687,7 +687,7 @@ namespace DataAccess
                 sql.AppendLine("left join    ");
                 sql.AppendLine("(--手配主表    ");
                 sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime     ");
-                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime      ");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime      ");
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)    ");
                 sql.AppendLine("left join(    --//收容数 N    ");
                 sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty,dFromTime,dToTime         ");
@@ -721,7 +721,7 @@ namespace DataAccess
                 sql.AppendLine("left join");
                 sql.AppendLine("(--手配主表");
                 sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
-                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime  and vcOldProduction='一括生产'");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime  and vcOldProduction='一括生产'");
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("and t1.vcYM>=convert(varchar(6),t2.dDebugTime,112)");
                 sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
@@ -750,7 +750,7 @@ namespace DataAccess
                 sql.AppendLine("left join");
                 sql.AppendLine("(--手配主表");
                 sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
-                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime  and vcOrderingMethod='1'");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime  and vcOrderingMethod='1'");
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
                 DataTable dt11 = excute.ExcuteSqlWithSelectToDT(sql.ToString());

@@ -223,7 +223,6 @@ namespace DataAccess
                 DataTable dtplant = dataSet.Tables[0];
                 SqlCommand cmd = new SqlCommand(" select * from WeekCalendarTbl", new SqlConnection(ComConnectionHelper.GetConnectionString()));
                 SqlDataAdapter ss = new SqlDataAdapter(cmd);
-
                 DataTable dt = new DataTable();
                 ss.Fill(dt);
                 DataTable dtupdate = dt.Clone();

@@ -870,8 +870,10 @@ namespace DataAccess
                 updateOtherPlan("MonthProPlanTblTMP", "MonthP3PlanTblTMP", cmd, apt, dt, user);//工程3
                 updateOtherPlan("MonthProPlanTblTMP", "MonthTZPlanTblTMP", cmd, apt, dt, user);//涂装
                 updateOtherPlan("MonthProPlanTblTMP", "MonthKanBanPlanTblTMP", cmd, apt, dt, user);//看板打印计划 20180928看板打印计划不包含周度品番 - 李兴旺
+
+                deletePlan(cmd, mon, plant);//删除计划
                 updatePlan(cmd, mon, plant);//更新确定版计划
-                deleteTMP(cmd, mon, plant);//删除临时计划
+                //deleteTMP(cmd, mon, plant);//删除临时计划
                 deleteTMPplan(cmd, mon, plant);//删除多余计划
 
                 //UpdatePlanMST(cmd, mon, plant);//更新到计划品番数据表
@@ -1649,6 +1651,15 @@ namespace DataAccess
             cmd.CommandText += "insert into MonthTZPlanTbl select * from MonthTZPlanTblTMP t where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = t.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
             cmd.ExecuteNonQuery();
         }
+        public void deletePlan(SqlCommand cmd, string mon, string plant)
+        {
+            cmd.CommandText = "delete from MonthKanBanPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthKanBanPlanTbl.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthP3PlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthP3PlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthPackPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthPackPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthProdPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthProdPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.CommandText += "delete from MonthTZPlanTbl where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthTZPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
+            cmd.ExecuteNonQuery();
+        }
         public void deleteTMP(SqlCommand cmd, string mon, string plant)
         {
             cmd.CommandText = "delete from MonthKanBanPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + plant + "' and vcPartsNo = MonthKanBanPlanTblTMP.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');";
@@ -1781,8 +1792,25 @@ namespace DataAccess
                 DataTable dtPack = new DataTable();
                 apt.Fill(dtPack);
                 DataTable dt_Update = new DataTable();
-                cmd.CommandText = " select * from TSoqReply where vcInOutFlag='0' and vcFZGC='" + plant + "' and vcDXYM='" + vcDXYM + "' and vcCLYM='" + vcCLYM + "' and iPartNums<>0 order by vcPart_id ";
+                StringBuilder sb = new StringBuilder();
+                sb.Append("select * from TSoqReply t1 ");
+                sb.Append("where exists(");
+                sb.Append("             select vcPartsNo, vcCarFamilyCode,dTimeFrom,dTimeTo from tPartInfoMaster t2 ");
+                sb.Append("             where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE() and vcInOutFlag='0'  ");
+                sb.Append("             and t1.vcPart_id=t2.vcPartsNo and t1.vcCarType=t2.vcCarFamilyCode and t2.dTimeFrom<='" + mon + "- 01' and t2.dTimeTo>='" + mon + "- 01') ");
+                sb.Append("and iPartNums<>'0' and vcFZGC='" + plant + "' and vcInOutFlag='0' and vcDXYM='" + vcDXYM + "' and vcCLYM='" + vcCLYM + "'");
+                sb.Append("order by vcPart_id");
+                cmd.CommandText = sb.ToString();
                 apt.Fill(dt_Update);
+
+                DataColumn[] PrimaryKeyColumns = new DataColumn[5];
+                PrimaryKeyColumns[0] = dt_Update.Columns["vcFZGC"];
+                PrimaryKeyColumns[1] = dt_Update.Columns["vcCLYM"];
+                PrimaryKeyColumns[2] = dt_Update.Columns["vcDXYM"];
+                PrimaryKeyColumns[3] = dt_Update.Columns["vcCarType"];
+                PrimaryKeyColumns[4] = dt_Update.Columns["vcPart_id"];
+                dt_Update.PrimaryKey = PrimaryKeyColumns;
+
                 for (int i = 0; i < dt_Update.Rows.Count; i++)
                 {
                     ////调试
@@ -2013,6 +2041,8 @@ namespace DataAccess
                     dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
                 }
                 SqlCommandBuilder scb = new SqlCommandBuilder(apt);
+
+
                 apt.Update(dt_Update);
                 //cmd.CommandText = "update TSoqReply set updateFlag='1' where vcMonth='" + mon + "' and vcPlant='" + plant + "'";
                 //cmd.ExecuteNonQuery();

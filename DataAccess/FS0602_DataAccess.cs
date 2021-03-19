@@ -1221,7 +1221,13 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcSupplier_id,vcLXR1,vcEmail1 FROM TSupplier ");
+                sbr.AppendLine("select * from ( ");
+                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcLinkMan1 as vcLXR1,vcEmail1 as vcEmail1 FROM TSupplierInfo ");
+                sbr.AppendLine("union  ");
+                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcLinkMan2 as vcLXR1,vcEmail2 as vcEmail1 FROM TSupplierInfo ");
+                sbr.AppendLine("union ");
+                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcLinkMan3 as vcLXR1,vcEmail3 as vcEmail1 FROM TSupplierInfo)a ");
+                sbr.AppendLine("where isnull(a.vcLXR1,'')<>'' and isnull(a.vcEmail1,'')<>'' ");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

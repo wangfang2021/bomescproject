@@ -235,6 +235,10 @@ namespace Logic
         {
             return fs1702_DataAccess.getKBData(vcProject, dChuHeDate);
         }
+        public DataTable getKBData(string vcpart_id)
+        {
+            return fs1702_DataAccess.getKBData(vcpart_id);
+        }
 
         public string generateExcelWithXlt(string vcQueRenNo, DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
         {
@@ -343,6 +347,15 @@ namespace Logic
             fs1702_DataAccess.Del_kb(checkedInfoData, strUserId);
         }
         #endregion
+
+        public bool isExitInSSP(string vcPart_id)
+        {
+            int count = fs1702_DataAccess.isExitInSSP(vcPart_id);
+            if (count > 0)
+                return true;
+            else
+                return false;
+        }
     }
 
 }

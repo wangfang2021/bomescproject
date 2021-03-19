@@ -306,6 +306,21 @@ namespace DataAccess
                 throw ex;
             }
         }
+        public DataTable getKBData(string vcPart_id)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select '补给品中心' as vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,    \n");
+                sql.Append("vcChuHePart_id,vcPart_Name,iCapacity,vcBoxType    \n");
+                sql.Append("from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'    \n");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
         #region 保存
@@ -449,5 +464,19 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public int isExitInSSP(string vcPart_id)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select count(1) from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'     \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

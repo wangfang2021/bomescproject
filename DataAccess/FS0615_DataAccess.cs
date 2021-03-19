@@ -123,5 +123,20 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 初始化订单下拉框
+        public DataTable getOrders()
+        {
+            try
+            {
+                string sql = "select distinct vcOrderNo as vcValue from TOrderUploadManage order by vcOrderNo";
+                return excute.ExcuteSqlWithSelectToDT(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

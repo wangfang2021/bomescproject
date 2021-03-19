@@ -147,7 +147,7 @@ namespace DataAccess
                     strSql.AppendLine("  and   CONVERT(varchar(10),  dOrderExportDate,112) =  '" + dOrderExportDate.Replace("-", "").Replace("/", "") + "' ");
                 }
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
+                strSql.AppendLine("  order by  a.vcWorkArea desc,a.vcTargetYearMonth desc,a.vcDock desc,a.vcOrderType desc,a.vcOrderNo desc,a.vcSeqno desc,a.vcPartNo desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -180,10 +180,15 @@ namespace DataAccess
                 //strSql.AppendLine("     select a.vcSupplier_id as vcValue,a.vcSupplier_id  as vcName from       ");
                 //strSql.AppendLine("     (select distinct vcSupplier_id+isnull(vcWorkArea,'') as vcSupplier_id from SP_M_ORD) a      ");
                 //strSql.AppendLine("     order by a.vcSupplier_id asc     ");
-                strSql.AppendLine("      select a.vcSupplier_id as vcValue, isnull(a.vcSupplier_id+':'+b.vcSupplier_name,a.vcSupplier_id)   as vcName from      ");
+                //strSql.AppendLine("      select a.vcSupplier_id as vcValue, isnull(a.vcSupplier_id+':'+b.vcSupplier_name,a.vcSupplier_id)   as vcName from      ");
+                //strSql.AppendLine("     (select distinct vcSupplier_id+isnull(vcWorkArea,'') as vcSupplier_id from SP_M_ORD) a      ");
+                //strSql.AppendLine("      left join (select vcSupplier_id,vcSupplier_name from TSupplier) b      ");
+                //strSql.AppendLine("     on left(a.vcSupplier_id,4) =b.vcSupplier_id order by a.vcSupplier_id asc     ");
+
+                strSql.AppendLine("      select a.vcSupplier_id as vcValue, a.vcSupplier_id   as vcName from          ");
                 strSql.AppendLine("     (select distinct vcSupplier_id+isnull(vcWorkArea,'') as vcSupplier_id from SP_M_ORD) a      ");
-                strSql.AppendLine("      left join (select vcSupplier_id,vcSupplier_name from TSupplier) b      ");
-                strSql.AppendLine("     on left(a.vcSupplier_id,4) =b.vcSupplier_id order by a.vcSupplier_id asc     ");
+                strSql.AppendLine("     order by a.vcSupplier_id asc        ");
+
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

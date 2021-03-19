@@ -145,6 +145,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string dOperatorTime = dataForm.dOperatorTime == null ? "" : dataForm.dOperatorTime;
+            string vcEmailFlag = dataForm.vcEmailFlag == null ? "" : dataForm.vcEmailFlag;
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
@@ -162,7 +163,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "请先选择年计类型和对象年再检索数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea,  vcType, vcPackPlant, vcReceiver);
+                DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea,  vcType, vcPackPlant, vcReceiver, vcEmailFlag);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -196,6 +197,7 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string dOperatorTime = dataForm.dOperatorTime == null ? "" : dataForm.dOperatorTime;
+            string vcEmailFlag = dataForm.vcEmailFlag == null ? "" : dataForm.vcEmailFlag;
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
@@ -207,7 +209,7 @@ namespace SPPSApi.Controllers.G06
             string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
             try
             {
-                DataTable dt = fs0620_Logic.Search(dOperatorTime, vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea, vcType, vcPackPlant, vcReceiver);
+                DataTable dt = fs0620_Logic.Search(dOperatorTime, vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea, vcType, vcPackPlant, vcReceiver, vcEmailFlag);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]

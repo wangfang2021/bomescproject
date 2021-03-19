@@ -407,9 +407,69 @@ namespace DataAccess
         }
         #endregion
 
+        //public Dictionary<string, string> ErrorMsg(Dictionary<string, string> errMessageDict, DataTable dtc, DataTable dt, string strMesInfo, bool isformat)
+        //{
+        //    for (int i = 0; i < dtc.Rows.Count; i++)
+        //    {
+        //        string strpf = dtc.Rows[i]["vcPart_id"].ToString();
+        //        DataRow[] dataRows = dt.Select("vcPart_id='" + strpf + "'");
+        //        if (dataRows.Length != 0)
+        //        {
+        //            string strYm = "";
+        //            for (int j = 0; j < dataRows.Length; j++)
+        //            {
+        //                strYm = strYm + dataRows[j]["vcYM"].ToString();
+        //                if (j != dataRows.Length - 1)
+        //                    strYm = strYm + ",";
+        //            }
+        //            if (isformat)
+        //                errMessageDict.Add(strpf, string.Format(strMesInfo, strYm));
+        //            else
+        //                errMessageDict.Add(strpf, strMesInfo);
+        //        }
+        //    }
+        //    return errMessageDict;
+        //}
+
+        public void ErrorMsg(ref DataTable dterrMessage, DataTable dtc, DataTable dt, string strMesInfo, bool isformat)
+        {
+            for (int i = 0; i < dtc.Rows.Count; i++)
+            {
+                string strpf = dtc.Rows[i]["vcPart_id"].ToString();
+                DataRow[] dataRows = dt.Select("vcPart_id='" + strpf + "'");
+                if (dataRows.Length != 0)
+                {
+                    string strYm = "";
+                    for (int j = 0; j < dataRows.Length; j++)
+                    {
+                        strYm = strYm + dataRows[j]["vcYM"].ToString();
+                        if (j != dataRows.Length - 1)
+                            strYm = strYm + ",";
+                    }
+                    if (isformat)
+                    {
+                        DataRow dr = dterrMessage.NewRow();
+                        dr["vcPart_id"] = strpf;
+                        dr["vcMsg"] = string.Format(strMesInfo, strYm);
+                        dterrMessage.Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dterrMessage.NewRow();
+                        dr["vcPart_id"] = strpf;
+                        dr["vcMsg"] = strMesInfo;
+                        dterrMessage.Rows.Add(dr);
+
+                    }
+                }
+            }
+        }
+
         #region 保存后校验
-        public void SaveCheck(List<Dictionary<string, Object>> listInfoData, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3,
-            ref Dictionary<string,string> errMessageDict, string strUnit)
+        #region 保存后校验
+        public void SaveCheck(DataTable dtMultiple, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3,
+            ref DataTable dterrMessage, string strUnit, string strReceiver)
         {
             try
             {
@@ -417,33 +477,30 @@ namespace DataAccess
                 sql.Append(" delete TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' ;  \r\n ");
 
                 #region 先插入临时表
-                for (int i = 0; i < listInfoData.Count; i++)
+                for (int i = 0; i < dtMultiple.Rows.Count; i++)
                 {
-                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (baddflag == true)
-                    {//新增
-                        //没有新增情况
-                    }
-                    if (baddflag == false && bmodflag == true)
-                    {//修改
-                        sql.Append("  INSERT INTO TSoq_temp(vcYearMonth,vcPart_id,vcSupplier_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcOperator,dOperatorTime,  ");
-                        sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2) values       \n");
-                        sql.Append("('" + strYearMonth + "',");
-                        sql.Append("'" + listInfoData[i]["vcPart_id"].ToString() + "',");
-                        sql.Append("'" + listInfoData[i]["vcSupplier_id"].ToString() + "',");
-                        sql.Append("'" + listInfoData[i]["iTzhSOQN"].ToString() + "',");
-                        sql.Append("'" + listInfoData[i]["iTzhSOQN1"].ToString() + "',");
-                        sql.Append("'" + listInfoData[i]["iTzhSOQN2"].ToString() + "',");
-                        sql.Append("'" + strUserId + "',");
-                        sql.Append("getDate(),");
-                        sql.Append("'" + listInfoData[i]["iCbSOQN"].ToString() + "',");
-                        sql.Append("'" + listInfoData[i]["iCbSOQN1"].ToString() + "',");
-                        sql.Append("'" + listInfoData[i]["iCbSOQN2"].ToString() + "'");
-                        sql.Append(")");
-                    }
+                    sql.Append("  INSERT INTO TSoq_temp(vcYearMonth,vcPart_id,vcSupplier_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcOperator,dOperatorTime,  ");
+                    sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2) values       \n");
+                    sql.Append("('" + dtMultiple.Rows[i]["vcYearMonth"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["vcPart_id"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["vcSupplierId"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["iTzhSOQN"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["iTzhSOQN1"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["iTzhSOQN2"].ToString() + "',");
+                    sql.Append("'" + strUserId + "',");
+                    sql.Append("getDate(),");
+                    sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN1"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN2"].ToString() + "'");
+                    sql.Append(")");
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());//先导入临时表，然后check
+                #endregion
+
+                #region 品番
+                sql.Length = 0;//清空
+                sql.Append("      select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'    \r\n ");
+                DataTable dtc = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 #endregion
 
                 #region 验证1：是否为TFTM品番（包装工厂）
@@ -454,508 +511,131 @@ namespace DataAccess
                 sql.Append("   )a    \r\n ");
                 sql.Append("   left join    \r\n ");
                 sql.Append("   (    \r\n ");
-                sql.Append("      select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'     \r\n ");
+                sql.Append("      select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "'     \r\n ");
                 sql.Append("   )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId    \r\n ");
                 sql.Append("   where b.vcPartId is  null    \r\n ");
                 DataTable dt1 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 for (int i = 0; i < dt1.Rows.Count; i++)
                 {
-                    string strPart_id = dt1.Rows[i]["vcPart_id"].ToString();
-                    errMessageDict.Add(strPart_id, "此品番不存在");
+                    DataRow dr = dterrMessage.NewRow();
+                    dr["vcPart_id"] = dt1.Rows[i]["vcPart_id"].ToString();
+                    dr["vcMsg"] = "此品番不存在";
+                    dterrMessage.Rows.Add(dr);
                 }
                 #endregion
 
                 #region 验证2：N 月品番有效性(N月得有数量),有数量才校验  
                 sql.Length = 0;//清空
-                sql.Append("    select a.vcPart_id,b.vcPartId as vcPartId_1,c.vcPartId as vcPartId_2,d.vcPartId as vcPartId_3 from   \r\n ");
-                sql.Append("    (    \r\n ");
-                sql.Append("       select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN<>0    \r\n ");
-                sql.Append("    )a    \r\n ");
-                sql.Append("    inner join      \r\n ");
-                sql.Append("    (      \r\n ");
-                sql.Append("       select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'    \r\n ");
-                sql.Append("       and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                sql.Append("       and dFromTime<>dToTime     \n");
-                sql.Append("    )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId       \r\n ");
-                sql.Append("    left join          \r\n");
-                sql.Append("    (          \r\n");
-                sql.Append("    	select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'           \r\n");
-                sql.Append("       and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)             \r\n");
-                sql.Append("       and dFromTime<>dToTime     \n");
-                sql.Append("    )c on a.vcPart_id=c.vcPartId          \r\n");
-                sql.Append("    left join          \r\n");
-                sql.Append("    (          \r\n");
-                sql.Append("    	select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'           \r\n");
-                sql.Append("       and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)           \r\n");
-                sql.Append("       and dFromTime<>dToTime     \n");
-                sql.Append("    )d on a.vcPart_id=d.vcPartId          \r\n");
-                sql.Append("    where b.vcPartId is null or c.vcPartId is null or d.vcPartId is null           \r\n");
+                sql.AppendLine("select * from ");
+                sql.AppendLine("(");
+                sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+                sql.AppendLine("	,case when item=1 then iCbSOQN");
+                sql.AppendLine("	  when item=2 then iCbSOQN1");
+                sql.AppendLine("	  when item=3 then iCbSOQN2");
+                sql.AppendLine("	  else 0  end as iCbSOQN");
+                sql.AppendLine("	,case when item=1 then iTzhSOQN");
+                sql.AppendLine("		  when item=2 then iTzhSOQN1");
+                sql.AppendLine("		  when item=3 then iTzhSOQN2");
+                sql.AppendLine("		  else 0  end as iTzhSOQN");
+                sql.AppendLine("	from");
+                sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+                sql.AppendLine("	left join");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+                sql.AppendLine(")t1");
+                sql.AppendLine("left join");
+                sql.AppendLine("(");
+                sql.AppendLine("	select vcPartId,vcSupplierId,dFromTime,dToTime from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime  ");
+                sql.AppendLine(")t2");
+                sql.AppendLine("on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId ");
+                sql.AppendLine("and t1.vcYM between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)");
+                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is null");
                 DataTable dt2 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                string month_temp = "";
-                for (int i = 0; i < dt2.Rows.Count; i++)
-                {
-                    month_temp = "";
-                    string strPart_id = dt2.Rows[i]["vcPart_id"].ToString();
-                    string strPart1 = dt2.Rows[i]["vcPartId_1"].ToString();
-                    string strPart2 = dt2.Rows[i]["vcPartId_2"].ToString();
-                    string strPart3 = dt2.Rows[i]["vcPartId_3"].ToString();
-                    if (strPart1 == "")
-                        month_temp += strYearMonth + ",";
-                    if (strPart2 == "")
-                        month_temp += strYearMonth_2 + ",";
-                    if (strPart3 == "")
-                        month_temp += strYearMonth_3 + ",";
-
-                    errMessageDict.Add(strPart_id, "不满足" + month_temp.Substring(0, month_temp.Length - 1) + "月有效性");
-                }
-                #endregion
-
-                #region not use 验证3：N+1 月品番有效性(N+1月得有数量)，有数量才校验
-                //sql.Length = 0;//清空
-                //sql.Append("    select a.vcPart_id from    \r\n ");
-                //sql.Append("    (    \r\n ");
-                //sql.Append("       select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN1<>0   \r\n ");
-                //sql.Append("    )a    \r\n ");
-                //sql.Append("    inner join      \r\n ");
-                //sql.Append("    (      \r\n ");
-                //sql.Append("       select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)  \r\n ");
-                //sql.Append("    )b on a.vcPart_id=b.vcPartId  and a.vcSupplier_id=b.vcSupplierId       \r\n ");
-                //sql.Append("    where b.vcPartId is  null      \r\n ");
-                //DataTable dt3 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //for (int i = 0; i < dt3.Rows.Count; i++)
-                //{
-                //    string strPart_id = dt3.Rows[i]["vcPart_id"].ToString();
-                //    errMessageList.Add("品番" + strPart_id + "在品番基础信息存在，但不满足" + strYearMonth_2 + "月有效性条件");
-                //}
-                #endregion
-
-                #region not use 验证4：N+2 月品番有效性(N+2月得有数量)，有数量才校验 
-                //sql.Length = 0;//清空
-                //sql.Append("    select a.vcPart_id from    \r\n ");
-                //sql.Append("    (    \r\n ");
-                //sql.Append("       select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN2<>0    \r\n ");
-                //sql.Append("    )a    \r\n ");
-                //sql.Append("    inner join      \r\n ");
-                //sql.Append("    (      \r\n ");
-                //sql.Append("       select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and '" + strYearMonth_3 + "'  between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)       \r\n ");
-                //sql.Append("    )b on a.vcPart_id=b.vcPartId  and a.vcSupplier_id=b.vcSupplierId       \r\n ");
-                //sql.Append("    where b.vcPartId is  null      \r\n ");
-                //DataTable dt4 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //for (int i = 0; i < dt4.Rows.Count; i++)
-                //{
-                //    string strPart_id = dt4.Rows[i]["vcPart_id"].ToString();
-                //    errMessageList.Add("品番" + strPart_id + "在品番基础信息存在，但不满足" + strYearMonth_3 + "月有效性条件");
-                //}
+                ErrorMsg(ref dterrMessage, dtc, dt2, "不满足{0}月有效性", true);
                 #endregion
 
                 #region 验证5：是否有价格，且在有效期内(只判断N月)，数量为0不校验；如果是强制订货，则没有价格也可以
-                sql.Length = 0;//清空
-                sql.Append("    select a.vcPart_id from     \r\n ");
-                sql.Append("    (     \r\n ");
-                sql.Append("       select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN<>0    \r\n ");
-                sql.Append("    )a     \r\n ");
-                sql.Append("    left join     \r\n ");
-                sql.Append("    (     \r\n ");
-                sql.Append("       select vcPart_id,vcSupplier_id from TPrice where  convert(varchar(6),dPricebegin,112)<='" + strYearMonth + "' and convert(varchar(6),dPriceEnd,112)>='" + strYearMonth + "'     \r\n ");
-                sql.Append("    )b on a.vcPart_id=b.vcPart_id  and a.vcSupplier_id=b.vcSupplier_id      \r\n ");
-                sql.Append("    left join       \n");
-                sql.Append("    (      \n");
-                sql.Append("    	select vcPartId,vcMandOrder,vcSupplierId      \n");
-                sql.Append("    	from TSPMaster           \n");
-                sql.Append("    	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'           \n");
-                sql.Append("    	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)       \n");
-                sql.Append("       and dFromTime<>dToTime     \n");
-                sql.Append("    )c on a.vcPart_id=c.vcPartId  and a.vcSupplier_id=c.vcSupplierId         \n");
-                sql.Append("    where b.vcPart_id is  null  and isnull(c.vcMandOrder,'')<>'1'      \r\n ");// --  vcMandOrder='1' 是强制订货 
+                sql.Length = 0;
+                sql.AppendLine("select * from ");
+                sql.AppendLine("(");
+                sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+                sql.AppendLine("	,case when item=1 then iCbSOQN");
+                sql.AppendLine("	  when item=2 then iCbSOQN1");
+                sql.AppendLine("	  when item=3 then iCbSOQN2");
+                sql.AppendLine("	  else 0  end as iCbSOQN");
+                sql.AppendLine("	,case when item=1 then iTzhSOQN");
+                sql.AppendLine("		  when item=2 then iTzhSOQN1");
+                sql.AppendLine("		  when item=3 then iTzhSOQN2");
+                sql.AppendLine("		  else 0  end as iTzhSOQN");
+                sql.AppendLine("	from");
+                sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+                sql.AppendLine("	left join");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+                sql.AppendLine(")t1");
+                sql.AppendLine("left join");
+                sql.AppendLine("(--手配主表");
+                sql.AppendLine("	select vcPartId,vcSupplierId,vcMandOrder,dFromTime,dToTime ");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime ");
+                sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
+                sql.AppendLine("left join     ");
+                sql.AppendLine("(--价格     ");
+                sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd from TPrice     ");
+                sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplierId and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
+                sql.AppendLine("where item=1 and cast(t1.iTzhSOQN as int) <>0 and t3.vcPart_id is null and isnull(t2.vcMandOrder,'')<>'1' --vcMandOrder='1' 是强制订货");
                 DataTable dt5 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                for (int i = 0; i < dt5.Rows.Count; i++)
-                {
-                    string strPart_id = dt5.Rows[i]["vcPart_id"].ToString();
-                    errMessageDict.Add(strPart_id, strYearMonth + "月没有价格");
-                }
+                ErrorMsg(ref dterrMessage, dtc, dt5, "{0}月没有价格", true);
                 #endregion
 
                 #region 验证6：手配中是否有受入、收容数、发注工厂（N、N+1、N+2都判断），数量为0不校验
-                #region N月的
                 sql.Length = 0;//清空
-                sql.Append("select t1.vcPart_id,fzgc.发注工厂,t5.iPackingQty,t6.vcSufferIn,    \n");
-                sql.Append("fzgc_2.发注工厂 as 发注工厂_2,t5_2.iPackingQty as iPackingQty_2,t6_2.vcSufferIn as vcSufferIn_2,    \n");
-                sql.Append("fzgc_3.发注工厂 as 发注工厂_3,t5_3.iPackingQty as iPackingQty_3,t6_3.vcSufferIn as vcSufferIn_3    \n");
-                sql.Append("from (    \n");
-                sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN<>0    \n");
-                sql.Append(")t1        \n");
-                sql.Append("left join (    \n");
-                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut    \n");
-                sql.Append("	from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'     \n");
-                sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append("    and dFromTime<>dToTime     \n");
-                sql.Append(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId     \n");
-                //sql.Append("left join (    \n");//发注工厂
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcOrderPlant     \n");
-                //sql.Append("	from TSPMaster_OrderPlant     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t3 on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId    \n");
-                sql.Append("left join (    \n");//供应商工区 N
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                sql.Append("	from TSPMaster_SupplierPlant     \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t4 on t2.vcPartId=t4.vcPartId and t2.vcPackingPlant=t4.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t4.vcReceiver and t2.vcSupplierId=t4.vcSupplierId    \n");
-                sql.Append("left join (    \n");//供应商工区 N+1
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                sql.Append("	from TSPMaster_SupplierPlant     \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t4_2 on t2.vcPartId=t4_2.vcPartId and t2.vcPackingPlant=t4_2.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t4_2.vcReceiver and t2.vcSupplierId=t4_2.vcSupplierId    \n");
-                sql.Append("left join (    \n");//供应商工区 N+2
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                sql.Append("	from TSPMaster_SupplierPlant     \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t4_3 on t2.vcPartId=t4_3.vcPartId and t2.vcPackingPlant=t4_3.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t4_3.vcReceiver and t2.vcSupplierId=t4_3.vcSupplierId    \n");
-                sql.Append("left join (    \n");//发注工厂 N
-                sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                sql.Append(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区     \n");
-                sql.Append("left join (    \n");//发注工厂 N+1
-                sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                sql.Append(")fzgc_2 on t2.vcSupplierId=fzgc_2.供应商编号 and t4_2.vcSupplierPlant=fzgc_2.工区     \n");
-                sql.Append("left join (    \n");//发注工厂 N+2
-                sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                sql.Append("	and '" + strYearMonth_3 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                sql.Append(")fzgc_3 on t2.vcSupplierId=fzgc_3.供应商编号 and t4_3.vcSupplierPlant=fzgc_3.工区     \n");
-                sql.Append("left join(    \n");//收容数 N
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                sql.Append("	from TSPMaster_Box     \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId     \n");
-                //sql.Append("and t4.vcSupplierPlant=t5.vcSupplierPlant    \n");
-                sql.Append("left join(    \n");//收容数 N+1
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                sql.Append("	from TSPMaster_Box     \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t5_2 on t2.vcPartId=t5_2.vcPartId and t2.vcPackingPlant=t5_2.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t5_2.vcReceiver and t2.vcSupplierId=t5_2.vcSupplierId     \n");
-                sql.Append("left join(    \n");//收容数 N+2
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                sql.Append("	from TSPMaster_Box     \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t5_3 on t2.vcPartId=t5_3.vcPartId and t2.vcPackingPlant=t5_3.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t5_3.vcReceiver and t2.vcSupplierId=t5_3.vcSupplierId     \n");
-                sql.Append("left join     \n");
-                sql.Append("(    \n");//受入 N
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t6 on t2.vcPartId=t6.vcPartId and t2.vcPackingPlant=t6.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t6.vcReceiver and t2.vcSupplierId=t6.vcSupplierId    \n");
-                sql.Append("left join     \n");
-                sql.Append("(    \n");//受入 N+1
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t6_2 on t2.vcPartId=t6_2.vcPartId and t2.vcPackingPlant=t6_2.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t6_2.vcReceiver and t2.vcSupplierId=t6_2.vcSupplierId    \n");
-                sql.Append("left join     \n");
-                sql.Append("(    \n");//受入 N+2
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append(")t6_3 on t2.vcPartId=t6_3.vcPartId and t2.vcPackingPlant=t6_3.vcPackingPlant     \n");
-                sql.Append("and t2.vcReceiver=t6_3.vcReceiver and t2.vcSupplierId=t6_3.vcSupplierId    \n");
-                sql.Append("where (fzgc.供应商编号 is null or t5.vcPartId is null or t6.vcPartId is null) or       \r\n ");
-                sql.Append(" (fzgc_2.供应商编号 is null or t5_2.vcPartId is null or t6_2.vcPartId is null) or       \r\n ");
-                sql.Append(" (fzgc_3.供应商编号 is null or t5_3.vcPartId is null or t6_3.vcPartId is null)       \r\n ");
-                DataTable dt6_1 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                month_temp = "";
-                for (int i = 0; i < dt6_1.Rows.Count; i++)
-                {
-                    month_temp = "";
-                    string strPart_id = dt6_1.Rows[i]["vcPart_id"].ToString();
-                    string vcOrderPlant = dt6_1.Rows[i]["发注工厂"].ToString();//发注工厂
-                    string iPackingQty = dt6_1.Rows[i]["iPackingQty"].ToString();//收容数
-                    string vcSufferIn = dt6_1.Rows[i]["vcSufferIn"].ToString();//受入
-                    string vcOrderPlant_2 = dt6_1.Rows[i]["发注工厂_2"].ToString();//发注工厂
-                    string iPackingQty_2 = dt6_1.Rows[i]["iPackingQty_2"].ToString();//收容数
-                    string vcSufferIn_2 = dt6_1.Rows[i]["vcSufferIn_2"].ToString();//受入
-
-                    string vcOrderPlant_3 = dt6_1.Rows[i]["发注工厂_3"].ToString();//发注工厂
-                    string iPackingQty_3 = dt6_1.Rows[i]["iPackingQty_3"].ToString();//收容数
-                    string vcSufferIn_3 = dt6_1.Rows[i]["vcSufferIn_3"].ToString();//受入
-
-                    if (vcSufferIn == "" || iPackingQty == "" || vcOrderPlant == "")
-                        month_temp += strYearMonth + ",";
-                    if (vcSufferIn_2 == "" || iPackingQty_2 == "" || vcOrderPlant_2 == "")
-                        month_temp += strYearMonth_2 + ",";
-                    if (vcSufferIn_3 == "" || iPackingQty_3 == "" || vcOrderPlant_3 == "")
-                        month_temp += strYearMonth_3 + ",";
-
-                    errMessageDict.Add(strPart_id, month_temp.Substring(0, month_temp.Length - 1) + "月无手配信息");//无手配信息
-                }
-                #endregion
-                #region not use N+1月的
-                //sql.Length = 0;//清空
-                //sql.Append("select t1.vcPart_id,fzgc.发注工厂,t5.iPackingQty,t6.vcSufferIn    \n");
-                //sql.Append("from (    \n");
-                //sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN1<>0    \n");
-                //sql.Append(")t1        \n");
-                //sql.Append("left join (    \n");
-                //sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut    \n");
-                //sql.Append("	from TSPMaster     \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'     \n");
-                //sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId    \n");
-                ////sql.Append("left join (    \n");//发注工厂
-                ////sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcOrderPlant     \n");
-                ////sql.Append("	from TSPMaster_OrderPlant     \n");
-                ////sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                ////sql.Append(")t3 on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant     \n");
-                ////sql.Append("and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//供应商工区
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                //sql.Append("	from TSPMaster_SupplierPlant     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t4 on t2.vcPartId=t4.vcPartId and t2.vcPackingPlant=t4.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t4.vcReceiver and t2.vcSupplierId=t4.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//发注工厂
-                //sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                //sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                //sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                //sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                //sql.Append(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区     \n");
-                //sql.Append("left join(    \n");//收容数
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                //sql.Append("	from TSPMaster_Box     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId     \n");
-                ////sql.Append("and t4.vcSupplierPlant=t5.vcSupplierPlant    \n");
-                //sql.Append("left join     \n");
-                //sql.Append("(    \n");//受入
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t6 on t2.vcPartId=t6.vcPartId and t2.vcPackingPlant=t6.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t6.vcReceiver and t2.vcSupplierId=t6.vcSupplierId    \n");
-                //sql.Append("where fzgc.供应商编号 is null or t5.vcPartId is null or t6.vcPartId is null       \r\n ");
-                //DataTable dt6_2 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //for (int i = 0; i < dt6_2.Rows.Count; i++)
-                //{
-                //    string strPart_id = dt6_2.Rows[i]["vcPart_id"].ToString();
-                //    string vcOrderPlant = dt6_2.Rows[i]["发注工厂"].ToString();//发注工厂
-                //    string iPackingQty = dt6_2.Rows[i]["iPackingQty"].ToString();//收容数
-                //    string vcSufferIn = dt6_2.Rows[i]["vcSufferIn"].ToString();//受入
-                //    if (vcSufferIn == "")
-                //        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_2 + "月没有维护受入");
-                //    if (iPackingQty == "")
-                //        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_2 + "月没有维护收容数");
-                //    if (vcOrderPlant == "")
-                //        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_2 + "月没有维护发注工厂");
-                //}
-                #endregion
-                #region not use N+2月的
-                //sql.Length = 0;//清空
-                //sql.Append("select t1.vcPart_id,fzgc.发注工厂,t5.iPackingQty,t6.vcSufferIn    \n");
-                //sql.Append("from (    \n");
-                //sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and iTzhSOQN2<>0    \n");
-                //sql.Append(")t1        \n");
-                //sql.Append("left join (    \n");
-                //sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut    \n");
-                //sql.Append("	from TSPMaster     \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'     \n");
-                //sql.Append("	and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId    \n");
-                ////sql.Append("left join (    \n");//发注工厂
-                ////sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcOrderPlant     \n");
-                ////sql.Append("	from TSPMaster_OrderPlant     \n");
-                ////sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                ////sql.Append(")t3 on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant     \n");
-                ////sql.Append("and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//供应商工区
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                //sql.Append("	from TSPMaster_SupplierPlant     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t4 on t2.vcPartId=t4.vcPartId and t2.vcPackingPlant=t4.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t4.vcReceiver and t2.vcSupplierId=t4.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//发注工厂
-                //sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                //sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                //sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                //sql.Append("	and '" + strYearMonth_3 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                //sql.Append(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区     \n");
-                //sql.Append("left join(    \n");//收容数
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                //sql.Append("	from TSPMaster_Box     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId     \n");
-                ////sql.Append("and t4.vcSupplierPlant=t5.vcSupplierPlant    \n");
-                //sql.Append("left join     \n");
-                //sql.Append("(    \n");//受入
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t6 on t2.vcPartId=t6.vcPartId and t2.vcPackingPlant=t6.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t6.vcReceiver and t2.vcSupplierId=t6.vcSupplierId    \n");
-                //sql.Append("where fzgc.供应商编号 is null or t5.vcPartId is null or t6.vcPartId is null       \r\n ");
-                //DataTable dt6_3 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //for (int i = 0; i < dt6_3.Rows.Count; i++)
-                //{
-                //    string strPart_id = dt6_3.Rows[i]["vcPart_id"].ToString();
-                //    string vcOrderPlant = dt6_3.Rows[i]["发注工厂"].ToString();//发注工厂
-                //    string iPackingQty = dt6_3.Rows[i]["iPackingQty"].ToString();//收容数
-                //    string vcSufferIn = dt6_3.Rows[i]["vcSufferIn"].ToString();//受入
-                //    if (vcSufferIn == "")
-                //        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_3 + "月没有维护受入");
-                //    if (iPackingQty == "")
-                //        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_3 + "月没有维护收容数");
-                //    if (vcOrderPlant == "")
-                //        errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_3 + "月没有维护发注工厂");
-                //}
-                #endregion
-                #endregion
-
-                #region not use 不验证   验证7：受入、收容数、发注工厂、供应商工区：3个月必须一样
-                //sql.Length = 0;//清空
-                //sql.Append("select t1.vcPart_id,fzgc.发注工厂,fzgc_1.发注工厂 as 发注工厂_1,fzgc_2.发注工厂 as 发注工厂_2,    \n");
-                //sql.Append("t5.iPackingQty,t5_1.iPackingQty as iPackingQty_1,t5_2.iPackingQty as iPackingQty_2,    \n");
-                //sql.Append("t6.vcSufferIn, t6_1.vcSufferIn as vcSufferIn_1,t6_2.vcSufferIn as vcSufferIn_2   \n");
-                //sql.Append("from (    \n");
-                //sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' and (iTzhSOQN<>0 or iTzhSOQN1<>0 or iTzhSOQN2<>0)    \n");
-                //sql.Append(")t1        \n");
-                //sql.Append("left join (    \n");
-                //sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut    \n");
-                //sql.Append("	from TSPMaster     \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'     \n");
-                //sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId   \n");
-                ////sql.Append("left join (    \n");//发注工厂 N月
-                ////sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcOrderPlant     \n");
-                ////sql.Append("	from TSPMaster_OrderPlant     \n");
-                ////sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                ////sql.Append(")t3 on t2.vcPartId=t3.vcPartId and t2.vcPackingPlant=t3.vcPackingPlant     \n");
-                ////sql.Append("and t2.vcReceiver=t3.vcReceiver and t2.vcSupplierId=t3.vcSupplierId    \n");
-                ////sql.Append("left join (    \n");//发注工厂 N+1月
-                ////sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcOrderPlant     \n");
-                ////sql.Append("	from TSPMaster_OrderPlant     \n");
-                ////sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                ////sql.Append(")t3_1 on t2.vcPartId=t3_1.vcPartId and t2.vcPackingPlant=t3_1.vcPackingPlant     \n");
-                ////sql.Append("and t2.vcReceiver=t3_1.vcReceiver and t2.vcSupplierId=t3_1.vcSupplierId    \n");
-                ////sql.Append("left join (    \n");//发注工厂 N+2月
-                ////sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcOrderPlant     \n");
-                ////sql.Append("	from TSPMaster_OrderPlant     \n");
-                ////sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                ////sql.Append(")t3_2 on t2.vcPartId=t3_2.vcPartId and t2.vcPackingPlant=t3_2.vcPackingPlant     \n");
-                ////sql.Append("and t2.vcReceiver=t3_2.vcReceiver and t2.vcSupplierId=t3_2.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//供应商工区 N月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                //sql.Append("	from TSPMaster_SupplierPlant     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t4 on t2.vcPartId=t4.vcPartId and t2.vcPackingPlant=t4.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t4.vcReceiver and t2.vcSupplierId=t4.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//供应商工区 N+1月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                //sql.Append("	from TSPMaster_SupplierPlant     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t4_1 on t2.vcPartId=t4_1.vcPartId and t2.vcPackingPlant=t4_1.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t4_1.vcReceiver and t2.vcSupplierId=t4_1.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//供应商工区 N+2月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant     \n");
-                //sql.Append("	from TSPMaster_SupplierPlant     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t4_2 on t2.vcPartId=t4_2.vcPartId and t2.vcPackingPlant=t4_2.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t4_2.vcReceiver and t2.vcSupplierId=t4_2.vcSupplierId    \n");
-                //sql.Append("left join (    \n");//发注工厂 N月
-                //sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                //sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                //sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                //sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                //sql.Append(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区     \n");
-                //sql.Append("left join (    \n");//发注工厂 N+1月
-                //sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                //sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                //sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                //sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                //sql.Append(")fzgc_1 on t2.vcSupplierId=fzgc_1.供应商编号 and t4.vcSupplierPlant=fzgc_1.工区     \n");
-                //sql.Append("left join (    \n");//发注工厂 N+2月
-                //sql.Append("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],    \n");
-                //sql.Append("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode     \n");
-                //sql.Append("	where vcCodeId='C010' and vcIsColum='0'    \n");
-                //sql.Append("	and '" + strYearMonth_3 + "' between convert(varchar(6),vcValue3,112) and convert(varchar(6),vcValue4,112)     \n");
-                //sql.Append(")fzgc_2 on t2.vcSupplierId=fzgc_2.供应商编号 and t4.vcSupplierPlant=fzgc_2.工区     \n");
-                //sql.Append("left join(    \n");//收容数 N月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                //sql.Append("	from TSPMaster_Box     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId     \n");
-                ////sql.Append("and t4.vcSupplierPlant=t5.vcSupplierPlant    \n");
-                //sql.Append("left join(    \n");//收容数 N+1月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                //sql.Append("	from TSPMaster_Box     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t5_1 on t2.vcPartId=t5_1.vcPartId and t2.vcPackingPlant=t5_1.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t5_1.vcReceiver and t2.vcSupplierId=t5_1.vcSupplierId     \n");
-                ////sql.Append("and t4_1.vcSupplierPlant=t5_1.vcSupplierPlant    \n");
-                //sql.Append("left join(    \n");//收容数 N+2月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty     \n");
-                //sql.Append("	from TSPMaster_Box     \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t5_2 on t2.vcPartId=t5_2.vcPartId and t2.vcPackingPlant=t5_2.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t5_2.vcReceiver and t2.vcSupplierId=t5_2.vcSupplierId     \n");
-                ////sql.Append("and t4_2.vcSupplierPlant=t5_2.vcSupplierPlant    \n");
-                //sql.Append("left join     \n");
-                //sql.Append("(    \n");//受入 N月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t6 on t2.vcPartId=t6.vcPartId and t2.vcPackingPlant=t6.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t6.vcReceiver and t2.vcSupplierId=t6.vcSupplierId    \n");
-                //sql.Append("left join     \n");
-                //sql.Append("(    \n");//受入 N+1月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t6_1 on t2.vcPartId=t6_1.vcPartId and t2.vcPackingPlant=t6_1.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t6_1.vcReceiver and t2.vcSupplierId=t6_1.vcSupplierId    \n");
-                //sql.Append("left join     \n");
-                //sql.Append("(    \n");//受入 N+2月
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn from TSPMaster_SufferIn    \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                //sql.Append(")t6_2 on t2.vcPartId=t6_2.vcPartId and t2.vcPackingPlant=t6_2.vcPackingPlant     \n");
-                //sql.Append("and t2.vcReceiver=t6_2.vcReceiver and t2.vcSupplierId=t6_2.vcSupplierId    \n");
-                //sql.Append("where (fzgc.发注工厂<>fzgc_1.发注工厂 or fzgc.发注工厂<>fzgc_2.发注工厂) or     \r\n ");//发注工厂
-                //sql.Append(" (t5.iPackingQty<>t5_1.iPackingQty or t5.iPackingQty<>t5_2.iPackingQty) or     \r\n ");//收容数
-                //sql.Append(" (t6.vcSufferIn<>t6_1.vcSufferIn or t6.vcSufferIn<>t6_2.vcSufferIn) or     \r\n ");//受入
-                //sql.Append(" (t4.vcSupplierPlant<>t4_1.vcSupplierPlant or t4.vcSupplierPlant<>t4_2.vcSupplierPlant)      \r\n ");//供应商工区
-                //DataTable dt7 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //for (int i = 0; i < dt7.Rows.Count; i++)
-                //{
-                //    string strPart_id = dt7.Rows[i]["vcPart_id"].ToString();
-                //    string vcOrderPlant = dt7.Rows[i]["发注工厂"].ToString();//发注工厂 N月
-                //    string vcOrderPlant_1 = dt7.Rows[i]["发注工厂_1"].ToString();//发注工厂 N+1月
-                //    string vcOrderPlant_2 = dt7.Rows[i]["发注工厂_2"].ToString();//发注工厂 N+2月
-                //    string iPackingQty = dt7.Rows[i]["iPackingQty"].ToString();//收容数 N月
-                //    string iPackingQty_1 = dt7.Rows[i]["iPackingQty_1"].ToString();//收容数 N+1月
-                //    string iPackingQty_2 = dt7.Rows[i]["iPackingQty_2"].ToString();//收容数 N+2月
-                //    string vcSufferIn = dt7.Rows[i]["vcSufferIn"].ToString();//受入 N月
-                //    string vcSufferIn_1 = dt7.Rows[i]["vcSufferIn_1"].ToString();//受入 N+1月
-                //    string vcSufferIn_2 = dt7.Rows[i]["vcSufferIn_2"].ToString();//受入 N+2月
-                //    string vcSupplierPlant = dt7.Rows[i]["vcSupplierPlant"].ToString();//供应商工区 N月
-                //    string vcSupplierPlant_1 = dt7.Rows[i]["vcSupplierPlant_1"].ToString();//供应商工区 N+1月
-                //    string vcSupplierPlant_2 = dt7.Rows[i]["vcSupplierPlant_2"].ToString();//供应商工区 N+2月
-                //    if (vcOrderPlant != vcOrderPlant_1 || vcOrderPlant != vcOrderPlant_2)
-                //        errMessageList.Add("品番" + strPart_id + "在3个月维护的发注工厂不一致");
-                //    if (iPackingQty != iPackingQty_1 || iPackingQty != iPackingQty_2)
-                //        errMessageList.Add("品番" + strPart_id + "在3个月维护的收容数不一致");
-                //    if (vcSufferIn != vcSufferIn_1 || vcSufferIn != vcSufferIn_2)
-                //        errMessageList.Add("品番" + strPart_id + "在3个月维护的受入不一致");
-                //    if (vcSupplierPlant != vcSupplierPlant_1 || vcSupplierPlant != vcSupplierPlant_2)
-                //        errMessageList.Add("品番" + strPart_id + "在3个月维护的供应商工区不一致");
-                //}
+                sql.AppendLine("select * from     ");
+                sql.AppendLine("(    ");
+                sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id    ");
+                sql.AppendLine("	,case when item=1 then iCbSOQN    ");
+                sql.AppendLine("	  when item=2 then iCbSOQN1    ");
+                sql.AppendLine("	  when item=3 then iCbSOQN2    ");
+                sql.AppendLine("	  else 0  end as iCbSOQN    ");
+                sql.AppendLine("	,case when item=1 then iTzhSOQN    ");
+                sql.AppendLine("		  when item=2 then iTzhSOQN1    ");
+                sql.AppendLine("		  when item=3 then iTzhSOQN2    ");
+                sql.AppendLine("		  else 0  end as iTzhSOQN    ");
+                sql.AppendLine("	from    ");
+                sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a    ");
+                sql.AppendLine("	left join    ");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1    ");
+                sql.AppendLine(")t1    ");
+                sql.AppendLine("left join    ");
+                sql.AppendLine("(--手配主表    ");
+                sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime     ");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime      ");
+                sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)    ");
+                sql.AppendLine("left join (    --//供应商工区 N    ");
+                sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,dFromTime,dToTime         ");
+                sql.AppendLine("	from TSPMaster_SupplierPlant         ");
+                sql.AppendLine("	where vcOperatorType='1'         ");
+                sql.AppendLine(")t4 on t2.vcPartId=t4.vcPartId and t2.vcPackingPlant=t4.vcPackingPlant and t2.vcReceiver=t4.vcReceiver and t2.vcSupplierId=t4.vcSupplierId       ");
+                sql.AppendLine("and t1.vcYM between convert(varchar(6),t4.dFromTime,112) and convert(varchar(6),t4.dToTime,112)    ");
+                sql.AppendLine("left join (    --//发注工厂 N    ");
+                sql.AppendLine("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],        ");
+                sql.AppendLine("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode         ");
+                sql.AppendLine("	where vcCodeId='C010' and vcIsColum='0'         ");
+                sql.AppendLine(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区      ");
+                sql.AppendLine("and t1.vcYM between convert(varchar(6),fzgc.[开始时间],112) and convert(varchar(6),fzgc.[结束时间],112)    ");
+                sql.AppendLine("left join(    --//收容数 N    ");
+                sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty,dFromTime,dToTime         ");
+                sql.AppendLine("	from TSPMaster_Box         ");
+                sql.AppendLine("	where vcOperatorType='1'         ");
+                sql.AppendLine(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         ");
+                sql.AppendLine("and t1.vcYM between convert(varchar(6),t5.dFromTime,112) and convert(varchar(6),t5.dToTime,112)    ");
+                sql.AppendLine("left join         ");
+                sql.AppendLine("(    --//受入 N    ");
+                sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn,dFromTime,dToTime    ");
+                sql.AppendLine("	from TSPMaster_SufferIn        ");
+                sql.AppendLine("	where vcOperatorType='1'        ");
+                sql.AppendLine(")t6 on t2.vcPartId=t6.vcPartId and t2.vcPackingPlant=t6.vcPackingPlant and t2.vcReceiver=t6.vcReceiver and t2.vcSupplierId=t6.vcSupplierId      ");
+                sql.AppendLine("and t1.vcYM between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)    ");
+                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and (fzgc.供应商编号 is null or t5.vcPartId is null or t6.vcPartId is null)    ");
+                DataTable dt6 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                ErrorMsg(ref dterrMessage, dtc, dt6, "{0}月无手配信息", true);
                 #endregion
 
                 #region 验证8：品番3个月数量不能全为0
@@ -965,8 +645,10 @@ namespace DataAccess
                 DataTable dt8 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 for (int i = 0; i < dt8.Rows.Count; i++)
                 {
-                    string strPart_id = dt8.Rows[i]["vcPart_id"].ToString();
-                    errMessageDict.Add(strPart_id, "3个月数量全为0");
+                    DataRow dr = dterrMessage.NewRow();
+                    dr["vcPart_id"] = dt8.Rows[i]["vcPart_id"].ToString();
+                    dr["vcMsg"] = "3个月数量全为0";
+                    dterrMessage.Rows.Add(dr);
                 }
                 #endregion
 
@@ -977,187 +659,102 @@ namespace DataAccess
                 DataTable dt8_1 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 for (int i = 0; i < dt8_1.Rows.Count; i++)
                 {
-                    string strPart_id = dt8_1.Rows[i]["vcPart_id"].ToString();
-                    errMessageDict.Add(strPart_id, "3个月调整数量总和与初版不一致");
+                    DataRow dr = dterrMessage.NewRow();
+                    dr["vcPart_id"] = dt8_1.Rows[i]["vcPart_id"].ToString();
+                    dr["vcMsg"] = "3个月调整数量总和与初版不一致";
+                    dterrMessage.Rows.Add(dr);
                 }
                 #endregion
 
                 #region 验证9：收容数整倍数
-                sql.Length = 0;//清空
-                sql.Append("select t1.vcPart_id,t1.iTzhSOQN%t5.iPackingQty as iTzhSOQN,t1.iTzhSOQN1%t5.iPackingQty as iTzhSOQN1,    \n");
-                sql.Append("t1.iTzhSOQN2%t5.iPackingQty as iTzhSOQN2    \n");
-                sql.Append("from (        \n");
-                sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'         \n");
-                sql.Append(")t1            \n");
-                sql.Append("left join (        \n");
-                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut        \n");
-                sql.Append("	from TSPMaster         \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'         \n");
-                sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)        \n");
-                sql.Append("    and dFromTime<>dToTime     \n");
-                sql.Append(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId       \n");
-                //sql.Append("left join (    --//供应商工区    \n");
-                //sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant         \n");
-                //sql.Append("	from TSPMaster_SupplierPlant         \n");
-                //sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)        \n");
-                //sql.Append(")t4 on t2.vcPartId=t4.vcPartId and t2.vcPackingPlant=t4.vcPackingPlant         \n");
-                //sql.Append("and t2.vcReceiver=t4.vcReceiver and t2.vcSupplierId=t4.vcSupplierId        \n");
-                sql.Append("left join(    --//收容数    \n");
-                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty         \n");
-                sql.Append("	from TSPMaster_Box         \n");
-                sql.Append("	where vcOperatorType='1' and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)        \n");
-                sql.Append(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant         \n");
-                sql.Append("and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         \n");
-                //sql.Append("and t4.vcSupplierPlant=t5.vcSupplierPlant        \n");
-                sql.Append("where t1.iTzhSOQN%t5.iPackingQty<>0 or t1.iTzhSOQN1%t5.iPackingQty<>0 or t1.iTzhSOQN2%t5.iPackingQty<>0       \n");
+                sql.Length = 0;
+                sql.AppendLine("select * from     ");
+                sql.AppendLine("(    ");
+                sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id    ");
+                sql.AppendLine("	,case when item=1 then iCbSOQN    ");
+                sql.AppendLine("	  when item=2 then iCbSOQN1    ");
+                sql.AppendLine("	  when item=3 then iCbSOQN2    ");
+                sql.AppendLine("	  else 0  end as iCbSOQN    ");
+                sql.AppendLine("	,case when item=1 then iTzhSOQN    ");
+                sql.AppendLine("		  when item=2 then iTzhSOQN1    ");
+                sql.AppendLine("		  when item=3 then iTzhSOQN2    ");
+                sql.AppendLine("		  else 0  end as iTzhSOQN    ");
+                sql.AppendLine("	from    ");
+                sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a    ");
+                sql.AppendLine("	left join    ");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1    ");
+                sql.AppendLine(")t1    ");
+                sql.AppendLine("left join    ");
+                sql.AppendLine("(--手配主表    ");
+                sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime     ");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime      ");
+                sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)    ");
+                sql.AppendLine("left join(    --//收容数 N    ");
+                sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty,dFromTime,dToTime         ");
+                sql.AppendLine("	from TSPMaster_Box         ");
+                sql.AppendLine("	where vcOperatorType='1'         ");
+                sql.AppendLine(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         ");
+                sql.AppendLine("and t1.vcYM between convert(varchar(6),t5.dFromTime,112) and convert(varchar(6),t5.dToTime,112)    ");
+                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t1.iCbSOQN%t5.iPackingQty<>0    ");
                 DataTable dt9 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                for (int i = 0; i < dt9.Rows.Count; i++)
-                {
-                    string strPart_id = dt9.Rows[i]["vcPart_id"].ToString();
-                    errMessageDict.Add(strPart_id, "订货数量不是收容数的整数倍");
-                }
+                ErrorMsg(ref dterrMessage, dtc, dt9, "订货数量不是收容数的整数倍", false);
                 #endregion
 
                 #region 验证10：if一括生产 校验： 对象月 >= 实施年月时间 不能订货(数量得是0) 3个月都校验
-                #region N月
-                //sql.Length = 0;//清空
-                //sql.Append("select t1.vcPart_id,t2.dDebugTime as dDebugTime_1,t3.dDebugTime as dDebugTime_2,t4.dDebugTime as dDebugTime_3    \n");
-                //sql.Append("from (        \n");
-                //sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and  vcYearMonth='" + strYearMonth + "'  and iCbSOQN>0       \n");
-                //sql.Append(")t1            \n");
-                //sql.Append("left join (        \n");
-                //sql.Append("	select vcPartId,dDebugTime       \n");
-                //sql.Append("	from TSPMaster         \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'         \n");
-                //sql.Append("	and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                //sql.Append("    and '" + strYearMonth + "'>=convert(varchar(6),dDebugTime,112) and vcOldProduction='一括生产'   \n");
-                //sql.Append("    and dFromTime<>dToTime     \n");
-                //sql.Append(")t2 on t1.vcPart_id=t2.vcPartId     \n");
-                //sql.Append("left join (        \n");
-                //sql.Append("	select vcPartId,dDebugTime       \n");
-                //sql.Append("	from TSPMaster         \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'         \n");
-                //sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                //sql.Append("    and '" + strYearMonth_2 + "'>=convert(varchar(6),dDebugTime,112)  and vcOldProduction='一括生产'  \n");
-                //sql.Append("    and dFromTime<>dToTime     \n");
-                //sql.Append(")t3 on t1.vcPart_id=t3.vcPartId     \n");
-                //sql.Append("left join (        \n");
-                //sql.Append("	select vcPartId,dDebugTime       \n");
-                //sql.Append("	from TSPMaster         \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'         \n");
-                //sql.Append("	and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                //sql.Append("    and '" + strYearMonth_3 + "'>=convert(varchar(6),dDebugTime,112) and vcOldProduction='一括生产'   \n");
-                //sql.Append("    and dFromTime<>dToTime     \n");
-                //sql.Append(")t4 on t1.vcPart_id=t4.vcPartId     \n");
-                //sql.Append("where t2.vcPartId is not null or t3.vcPartId is not null or t4.vcPartId is not null    \n");
-                //DataTable dt10 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //month_temp = "";
-                //for (int i = 0; i < dt10.Rows.Count; i++)
-                //{
-                //    month_temp = "";
-                //    string strPart_id = dt10.Rows[i]["vcPart_id"].ToString();
-                //    string dDebugTime1 = dt10.Rows[i]["dDebugTime_1"].ToString();
-                //    string dDebugTime2 = dt10.Rows[i]["dDebugTime_2"].ToString();
-                //    string dDebugTime3 = dt10.Rows[i]["dDebugTime_3"].ToString();
-                //    if (dDebugTime1 != "")
-                //        month_temp += strYearMonth + ",";
-                //    if (dDebugTime2 != "")
-                //        month_temp += strYearMonth_2 + ",";
-                //    if (dDebugTime3 != "")
-                //        month_temp += strYearMonth_3 + ",";
-
-                //    errMessageDict.Add(strPart_id, "在" + month_temp.Substring(0, month_temp.Length - 1) + "月以后不能订货");
-                //}
-                #endregion
-                #region not use N+1月
-                //sql.Length = 0;//清空
-                //sql.Append("select t1.vcPart_id,t2.dDebugTime    \n");
-                //sql.Append("from (        \n");
-                //sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'         \n");
-                //sql.Append(")t1            \n");
-                //sql.Append("left join (        \n");
-                //sql.Append("	select vcPartId,dDebugTime,vcSupplierId       \n");
-                //sql.Append("	from TSPMaster         \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'         \n");
-                //sql.Append("	and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                //sql.Append(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId     \n");
-                //sql.Append("where '" + strYearMonth_2 + "'>=convert(varchar(6),t2.dDebugTime,112) and t1.iTzhSOQN1>0    \n");
-                //DataTable dt10_1 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //for (int i = 0; i < dt10_1.Rows.Count; i++)
-                //{
-                //    string strPart_id = dt10_1.Rows[i]["vcPart_id"].ToString();
-                //    errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_2 + "月不能订货。");
-                //}
-                #endregion
-                #region not use N+2月
-                //sql.Length = 0;//清空
-                //sql.Append("select t1.vcPart_id,t2.dDebugTime    \n");
-                //sql.Append("from (        \n");
-                //sql.Append("	select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'         \n");
-                //sql.Append(")t1            \n");
-                //sql.Append("left join (        \n");
-                //sql.Append("	select vcPartId,dDebugTime,vcSupplierId       \n");
-                //sql.Append("	from TSPMaster         \n");
-                //sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'         \n");
-                //sql.Append("	and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)     \n");
-                //sql.Append(")t2 on t1.vcPart_id=t2.vcPartId  and t1.vcSupplier_id=t2.vcSupplierId    \n");
-                //sql.Append("where '" + strYearMonth_3 + "'>=convert(varchar(6),t2.dDebugTime,112) and t1.iTzhSOQN2>0    \n");
-                //DataTable dt10_2 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                //for (int i = 0; i < dt10_2.Rows.Count; i++)
-                //{
-                //    string strPart_id = dt10_2.Rows[i]["vcPart_id"].ToString();
-                //    errMessageList.Add("品番" + strPart_id + "在" + strYearMonth_3 + "月不能订货。");
-                //}
-                #endregion
+                sql.Length = 0;
+                sql.AppendLine("select * from ");
+                sql.AppendLine("(");
+                sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+                sql.AppendLine("	,case when item=1 then iCbSOQN");
+                sql.AppendLine("	  when item=2 then iCbSOQN1");
+                sql.AppendLine("	  when item=3 then iCbSOQN2");
+                sql.AppendLine("	  else 0  end as iCbSOQN");
+                sql.AppendLine("	,case when item=1 then iTzhSOQN");
+                sql.AppendLine("		  when item=2 then iTzhSOQN1");
+                sql.AppendLine("		  when item=3 then iTzhSOQN2");
+                sql.AppendLine("		  else 0  end as iTzhSOQN");
+                sql.AppendLine("	from");
+                sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+                sql.AppendLine("	left join");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+                sql.AppendLine(")t1");
+                sql.AppendLine("left join");
+                sql.AppendLine("(--手配主表");
+                sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime  and vcOldProduction='一括生产'");
+                sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
+                sql.AppendLine("and t1.vcYM>=convert(varchar(6),t2.dDebugTime,112)");
+                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
+                DataTable dt10 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                ErrorMsg(ref dterrMessage, dtc, dt10, "在{0}月以后不能订货", true);
                 #endregion
 
                 #region 验证11：特殊订货不能导入  
-                sql.Length = 0;//清空
-                sql.Append("select a.vcPart_id,b.vcPartId as vcPartId_1,c.vcPartId as vcPartId_2,d.vcPartId as vcPartId_3     \n");
-                sql.Append("from        \n");
-                sql.Append("(        \n");
-                sql.Append("   select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'       \n");
-                sql.Append(")a        \n");
-                sql.Append("left join        \n");
-                sql.Append("(        \n");
-                sql.Append("   select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'      \n");
-                sql.Append("   and '" + strYearMonth + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append("   and dFromTime<>dToTime      \r\n ");
-                sql.Append("   and vcOrderingMethod='1'    \n");//特殊订货
-                sql.Append(")b on a.vcPart_id=b.vcPartId       \n");
-                sql.Append("left join        \n");
-                sql.Append("(        \n");
-                sql.Append("   select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'      \n");
-                sql.Append("   and '" + strYearMonth_2 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append("   and dFromTime<>dToTime      \r\n ");
-                sql.Append("   and vcOrderingMethod='1'    \n");
-                sql.Append(")c on a.vcPart_id=c.vcPartId     \n");
-                sql.Append("left join        \n");
-                sql.Append("(        \n");
-                sql.Append("   select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'      \n");
-                sql.Append("   and '" + strYearMonth_3 + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");
-                sql.Append("   and dFromTime<>dToTime      \r\n ");
-                sql.Append("   and vcOrderingMethod='1'    \n");
-                sql.Append(")d on a.vcPart_id=d.vcPartId     \n");
-                sql.Append("where b.vcPartId is not null or  c.vcPartId is not null or d.vcPartId is not null    \n");
+                sql.Length = 0;
+                sql.AppendLine("select * from ");
+                sql.AppendLine("(");
+                sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+                sql.AppendLine("	,case when item=1 then iCbSOQN");
+                sql.AppendLine("	  when item=2 then iCbSOQN1");
+                sql.AppendLine("	  when item=3 then iCbSOQN2");
+                sql.AppendLine("	  else 0  end as iCbSOQN");
+                sql.AppendLine("	,case when item=1 then iTzhSOQN");
+                sql.AppendLine("		  when item=2 then iTzhSOQN1");
+                sql.AppendLine("		  when item=3 then iTzhSOQN2");
+                sql.AppendLine("		  else 0  end as iTzhSOQN");
+                sql.AppendLine("	from");
+                sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+                sql.AppendLine("	left join");
+                sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+                sql.AppendLine(")t1");
+                sql.AppendLine("left join");
+                sql.AppendLine("(--手配主表");
+                sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime  and vcOrderingMethod='1'");
+                sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
+                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
                 DataTable dt11 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                month_temp = "";
-                for (int i = 0; i < dt11.Rows.Count; i++)
-                {
-                    month_temp = "";
-                    string strPart_id = dt11.Rows[i]["vcPart_id"].ToString();
-                    string strPart1 = dt11.Rows[i]["vcPartId_1"].ToString();
-                    string strPart2 = dt11.Rows[i]["vcPartId_2"].ToString();
-                    string strPart3 = dt11.Rows[i]["vcPartId_3"].ToString();
-                    if (strPart1 != "")
-                        month_temp += strYearMonth + ",";
-                    if (strPart2 != "")
-                        month_temp += strYearMonth_2 + ",";
-                    if (strPart3 != "")
-                        month_temp += strYearMonth_3 + ",";
-
-                    errMessageDict.Add(strPart_id, "特殊品番不能订货");
-                }
+                ErrorMsg(ref dterrMessage, dtc, dt11, "{0}月特殊品番不能订货", true);
                 #endregion
             }
             catch (Exception ex)
@@ -1166,6 +763,311 @@ namespace DataAccess
             }
         }
         #endregion
+        //public void SaveCheck(List<Dictionary<string, Object>> listInfoData, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3,
+        //    ref DataTable dterrMessage, string strUnit)
+        //{
+        //    try
+        //    {
+        //        StringBuilder sql = new StringBuilder();
+        //        sql.Append(" delete TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "' ;  \r\n ");
+
+        //        #region 先插入临时表
+        //        for (int i = 0; i < listInfoData.Count; i++)
+        //        {
+        //            bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+        //            bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+        //            if (baddflag == true)
+        //            {//新增
+        //                //没有新增情况
+        //            }
+        //            if (baddflag == false && bmodflag == true)
+        //            {//修改
+        //                sql.Append("  INSERT INTO TSoq_temp(vcYearMonth,vcPart_id,vcSupplier_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcOperator,dOperatorTime,  ");
+        //                sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2) values       \n");
+        //                sql.Append("('" + strYearMonth + "',");
+        //                sql.Append("'" + listInfoData[i]["vcPart_id"].ToString() + "',");
+        //                sql.Append("'" + listInfoData[i]["vcSupplier_id"].ToString() + "',");
+        //                sql.Append("'" + listInfoData[i]["iTzhSOQN"].ToString() + "',");
+        //                sql.Append("'" + listInfoData[i]["iTzhSOQN1"].ToString() + "',");
+        //                sql.Append("'" + listInfoData[i]["iTzhSOQN2"].ToString() + "',");
+        //                sql.Append("'" + strUserId + "',");
+        //                sql.Append("getDate(),");
+        //                sql.Append("'" + listInfoData[i]["iCbSOQN"].ToString() + "',");
+        //                sql.Append("'" + listInfoData[i]["iCbSOQN1"].ToString() + "',");
+        //                sql.Append("'" + listInfoData[i]["iCbSOQN2"].ToString() + "'");
+        //                sql.Append(")");
+        //            }
+        //        }
+        //        excute.ExcuteSqlWithStringOper(sql.ToString());//先导入临时表，然后check
+        //        #endregion
+
+        //        #region 品番
+        //        sql.Length = 0;//清空
+        //        sql.Append("      select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'    \r\n ");
+        //        DataTable dtc = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        #endregion
+
+        //        #region 验证1：是否为TFTM品番（包装工厂）
+        //        sql.Length = 0;//清空
+        //        sql.Append("   select a.vcPart_id from    \r\n ");
+        //        sql.Append("   (    \r\n ");
+        //        sql.Append("      select * from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'    \r\n ");
+        //        sql.Append("   )a    \r\n ");
+        //        sql.Append("   left join    \r\n ");
+        //        sql.Append("   (    \r\n ");
+        //        sql.Append("      select * from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06'     \r\n ");
+        //        sql.Append("   )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId    \r\n ");
+        //        sql.Append("   where b.vcPartId is  null    \r\n ");
+        //        DataTable dt1 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        for (int i = 0; i < dt1.Rows.Count; i++)
+        //        {
+        //            DataRow dr = dterrMessage.NewRow();
+        //            dr["vcPart_id"] = dt1.Rows[i]["vcPart_id"].ToString();
+        //            dr["vcMsg"] = "此品番不存在";
+        //            dterrMessage.Rows.Add(dr);
+        //        }
+        //        #endregion
+
+        //        #region 验证2：N 月品番有效性(N月得有数量),有数量才校验  
+        //        sql.Length = 0;//清空
+        //        sql.AppendLine("select * from ");
+        //        sql.AppendLine("(");
+        //        sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+        //        sql.AppendLine("	,case when item=1 then iCbSOQN");
+        //        sql.AppendLine("	  when item=2 then iCbSOQN1");
+        //        sql.AppendLine("	  when item=3 then iCbSOQN2");
+        //        sql.AppendLine("	  else 0  end as iCbSOQN");
+        //        sql.AppendLine("	,case when item=1 then iTzhSOQN");
+        //        sql.AppendLine("		  when item=2 then iTzhSOQN1");
+        //        sql.AppendLine("		  when item=3 then iTzhSOQN2");
+        //        sql.AppendLine("		  else 0  end as iTzhSOQN");
+        //        sql.AppendLine("	from");
+        //        sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+        //        sql.AppendLine("	left join");
+        //        sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+        //        sql.AppendLine(")t1");
+        //        sql.AppendLine("left join");
+        //        sql.AppendLine("(");
+        //        sql.AppendLine("	select vcPartId,vcSupplierId,dFromTime,dToTime from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and dFromTime<>dToTime  ");
+        //        sql.AppendLine(")t2");
+        //        sql.AppendLine("on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId ");
+        //        sql.AppendLine("and t1.vcYM between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)");
+        //        sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is null");
+        //        DataTable dt2 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        ErrorMsg(ref dterrMessage, dtc, dt2, "不满足{0}月有效性", true);
+        //        #endregion
+
+        //        #region 验证5：是否有价格，且在有效期内(只判断N月)，数量为0不校验；如果是强制订货，则没有价格也可以
+        //        sql.Length = 0;
+        //        sql.AppendLine("select * from ");
+        //        sql.AppendLine("(");
+        //        sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+        //        sql.AppendLine("	,case when item=1 then iCbSOQN");
+        //        sql.AppendLine("	  when item=2 then iCbSOQN1");
+        //        sql.AppendLine("	  when item=3 then iCbSOQN2");
+        //        sql.AppendLine("	  else 0  end as iCbSOQN");
+        //        sql.AppendLine("	,case when item=1 then iTzhSOQN");
+        //        sql.AppendLine("		  when item=2 then iTzhSOQN1");
+        //        sql.AppendLine("		  when item=3 then iTzhSOQN2");
+        //        sql.AppendLine("		  else 0  end as iTzhSOQN");
+        //        sql.AppendLine("	from");
+        //        sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+        //        sql.AppendLine("	left join");
+        //        sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+        //        sql.AppendLine(")t1");
+        //        sql.AppendLine("left join");
+        //        sql.AppendLine("(--手配主表");
+        //        sql.AppendLine("	select vcPartId,vcSupplierId,vcMandOrder,dFromTime,dToTime ");
+        //        sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and dFromTime<>dToTime ");
+        //        sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
+        //        sql.AppendLine("left join     ");
+        //        sql.AppendLine("(--价格     ");
+        //        sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd from TPrice     ");
+        //        sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplierId and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
+        //        sql.AppendLine("where item=1 and cast(t1.iTzhSOQN as int) <>0 and t3.vcPart_id is null and isnull(t2.vcMandOrder,'')<>'1' --vcMandOrder='1' 是强制订货");
+        //        DataTable dt5 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        ErrorMsg(ref dterrMessage, dtc, dt5, "{0}月没有价格", true);
+        //        #endregion
+
+        //        #region 验证6：手配中是否有受入、收容数、发注工厂（N、N+1、N+2都判断），数量为0不校验
+        //        sql.Length = 0;//清空
+        //        sql.AppendLine("select * from     ");
+        //        sql.AppendLine("(    ");
+        //        sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id    ");
+        //        sql.AppendLine("	,case when item=1 then iCbSOQN    ");
+        //        sql.AppendLine("	  when item=2 then iCbSOQN1    ");
+        //        sql.AppendLine("	  when item=3 then iCbSOQN2    ");
+        //        sql.AppendLine("	  else 0  end as iCbSOQN    ");
+        //        sql.AppendLine("	,case when item=1 then iTzhSOQN    ");
+        //        sql.AppendLine("		  when item=2 then iTzhSOQN1    ");
+        //        sql.AppendLine("		  when item=3 then iTzhSOQN2    ");
+        //        sql.AppendLine("		  else 0  end as iTzhSOQN    ");
+        //        sql.AppendLine("	from    ");
+        //        sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a    ");
+        //        sql.AppendLine("	left join    ");
+        //        sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1    ");
+        //        sql.AppendLine(")t1    ");
+        //        sql.AppendLine("left join    ");
+        //        sql.AppendLine("(--手配主表    ");
+        //        sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime     ");
+        //        sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and dFromTime<>dToTime      ");
+        //        sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)    ");
+        //        sql.AppendLine("left join (    --//供应商工区 N    ");
+        //        sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,dFromTime,dToTime         ");
+        //        sql.AppendLine("	from TSPMaster_SupplierPlant         ");
+        //        sql.AppendLine("	where vcOperatorType='1'         ");
+        //        sql.AppendLine(")t4 on t2.vcPartId=t4.vcPartId and t2.vcPackingPlant=t4.vcPackingPlant and t2.vcReceiver=t4.vcReceiver and t2.vcSupplierId=t4.vcSupplierId       ");
+        //        sql.AppendLine("and t1.vcYM between convert(varchar(6),t4.dFromTime,112) and convert(varchar(6),t4.dToTime,112)    ");
+        //        sql.AppendLine("left join (    --//发注工厂 N    ");
+        //        sql.AppendLine("	select vcValue1 as [供应商编号],vcValue2 as [工区],vcValue3 as [开始时间],        ");
+        //        sql.AppendLine("	vcValue4 as [结束时间],vcValue5 as [发注工厂] from TOutCode         ");
+        //        sql.AppendLine("	where vcCodeId='C010' and vcIsColum='0'         ");
+        //        sql.AppendLine(")fzgc on t2.vcSupplierId=fzgc.供应商编号 and t4.vcSupplierPlant=fzgc.工区      ");
+        //        sql.AppendLine("and t1.vcYM between convert(varchar(6),fzgc.[开始时间],112) and convert(varchar(6),fzgc.[结束时间],112)    ");
+        //        sql.AppendLine("left join(    --//收容数 N    ");
+        //        sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty,dFromTime,dToTime         ");
+        //        sql.AppendLine("	from TSPMaster_Box         ");
+        //        sql.AppendLine("	where vcOperatorType='1'         ");
+        //        sql.AppendLine(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         ");
+        //        sql.AppendLine("and t1.vcYM between convert(varchar(6),t5.dFromTime,112) and convert(varchar(6),t5.dToTime,112)    ");
+        //        sql.AppendLine("left join         ");
+        //        sql.AppendLine("(    --//受入 N    ");
+        //        sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn,dFromTime,dToTime    ");
+        //        sql.AppendLine("	from TSPMaster_SufferIn        ");
+        //        sql.AppendLine("	where vcOperatorType='1'        ");
+        //        sql.AppendLine(")t6 on t2.vcPartId=t6.vcPartId and t2.vcPackingPlant=t6.vcPackingPlant and t2.vcReceiver=t6.vcReceiver and t2.vcSupplierId=t6.vcSupplierId      ");
+        //        sql.AppendLine("and t1.vcYM between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)    ");
+        //        sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and (fzgc.供应商编号 is null or t5.vcPartId is null or t6.vcPartId is null)    ");
+        //        DataTable dt6 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        ErrorMsg(ref dterrMessage, dtc, dt6, "{0}月无手配信息", true);
+        //        #endregion
+
+        //        #region 验证8：品番3个月数量不能全为0
+        //        sql.Length = 0;//清空
+        //        sql.Append("select vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2 from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'    \n");
+        //        sql.Append("and ISNULL(iTzhSOQN,0)=0 and ISNULL(iTzhSOQN1,0)=0 and ISNULL(iTzhSOQN2,0)=0     \n");
+        //        DataTable dt8 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        for (int i = 0; i < dt8.Rows.Count; i++)
+        //        {
+        //            DataRow dr = dterrMessage.NewRow();
+        //            dr["vcPart_id"] = dt8.Rows[i]["vcPart_id"].ToString();
+        //            dr["vcMsg"] = "3个月数量全为0";
+        //            dterrMessage.Rows.Add(dr);
+        //        }
+        //        #endregion
+
+        //        #region 验证8-1：调整3个月数量加总必须等于初版3个月数量加总
+        //        sql.Length = 0;//清空
+        //        sql.Append("select vcPart_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2 from TSoq_temp where vcOperator='" + strUserId + "' and vcYearMonth='" + strYearMonth + "'    \n");
+        //        sql.Append("and ISNULL(iTzhSOQN,0)+ISNULL(iTzhSOQN1,0)+ISNULL(iTzhSOQN2,0)!=ISNULL(iCbSOQN,0)+ISNULL(iCbSOQN1,0)+ISNULL(iCbSOQN2,0)     \n");
+        //        DataTable dt8_1 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        for (int i = 0; i < dt8_1.Rows.Count; i++)
+        //        {
+        //            DataRow dr = dterrMessage.NewRow();
+        //            dr["vcPart_id"] = dt8_1.Rows[i]["vcPart_id"].ToString();
+        //            dr["vcMsg"] = "3个月调整数量总和与初版不一致";
+        //            dterrMessage.Rows.Add(dr);
+        //        }
+        //        #endregion
+
+        //        #region 验证9：收容数整倍数
+        //        sql.Length = 0;
+        //        sql.AppendLine("select * from     ");
+        //        sql.AppendLine("(    ");
+        //        sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id    ");
+        //        sql.AppendLine("	,case when item=1 then iCbSOQN    ");
+        //        sql.AppendLine("	  when item=2 then iCbSOQN1    ");
+        //        sql.AppendLine("	  when item=3 then iCbSOQN2    ");
+        //        sql.AppendLine("	  else 0  end as iCbSOQN    ");
+        //        sql.AppendLine("	,case when item=1 then iTzhSOQN    ");
+        //        sql.AppendLine("		  when item=2 then iTzhSOQN1    ");
+        //        sql.AppendLine("		  when item=3 then iTzhSOQN2    ");
+        //        sql.AppendLine("		  else 0  end as iTzhSOQN    ");
+        //        sql.AppendLine("	from    ");
+        //        sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a    ");
+        //        sql.AppendLine("	left join    ");
+        //        sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1    ");
+        //        sql.AppendLine(")t1    ");
+        //        sql.AppendLine("left join    ");
+        //        sql.AppendLine("(--手配主表    ");
+        //        sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime     ");
+        //        sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and dFromTime<>dToTime      ");
+        //        sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)    ");
+        //        sql.AppendLine("left join(    --//收容数 N    ");
+        //        sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty,dFromTime,dToTime         ");
+        //        sql.AppendLine("	from TSPMaster_Box         ");
+        //        sql.AppendLine("	where vcOperatorType='1'         ");
+        //        sql.AppendLine(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         ");
+        //        sql.AppendLine("and t1.vcYM between convert(varchar(6),t5.dFromTime,112) and convert(varchar(6),t5.dToTime,112)    ");
+        //        sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t1.iCbSOQN%t5.iPackingQty<>0    ");
+        //        DataTable dt9 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        ErrorMsg(ref dterrMessage, dtc, dt9, "订货数量不是收容数的整数倍", false);
+        //        #endregion
+
+        //        #region 验证10：if一括生产 校验： 对象月 >= 实施年月时间 不能订货(数量得是0) 3个月都校验
+        //        sql.Length = 0;
+        //        sql.AppendLine("select * from ");
+        //        sql.AppendLine("(");
+        //        sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+        //        sql.AppendLine("	,case when item=1 then iCbSOQN");
+        //        sql.AppendLine("	  when item=2 then iCbSOQN1");
+        //        sql.AppendLine("	  when item=3 then iCbSOQN2");
+        //        sql.AppendLine("	  else 0  end as iCbSOQN");
+        //        sql.AppendLine("	,case when item=1 then iTzhSOQN");
+        //        sql.AppendLine("		  when item=2 then iTzhSOQN1");
+        //        sql.AppendLine("		  when item=3 then iTzhSOQN2");
+        //        sql.AppendLine("		  else 0  end as iTzhSOQN");
+        //        sql.AppendLine("	from");
+        //        sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+        //        sql.AppendLine("	left join");
+        //        sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+        //        sql.AppendLine(")t1");
+        //        sql.AppendLine("left join");
+        //        sql.AppendLine("(--手配主表");
+        //        sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
+        //        sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and dFromTime<>dToTime  and vcOldProduction='一括生产'");
+        //        sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
+        //        sql.AppendLine("and t1.vcYM>=convert(varchar(6),t2.dDebugTime,112)");
+        //        sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
+        //        DataTable dt10 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        ErrorMsg(ref dterrMessage, dtc, dt10, "在{0}月以后不能订货", true);
+        //        #endregion
+
+        //        #region 验证11：特殊订货不能导入  
+        //        sql.Length = 0;
+        //        sql.AppendLine("select * from ");
+        //        sql.AppendLine("(");
+        //        sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+        //        sql.AppendLine("	,case when item=1 then iCbSOQN");
+        //        sql.AppendLine("	  when item=2 then iCbSOQN1");
+        //        sql.AppendLine("	  when item=3 then iCbSOQN2");
+        //        sql.AppendLine("	  else 0  end as iCbSOQN");
+        //        sql.AppendLine("	,case when item=1 then iTzhSOQN");
+        //        sql.AppendLine("		  when item=2 then iTzhSOQN1");
+        //        sql.AppendLine("		  when item=3 then iTzhSOQN2");
+        //        sql.AppendLine("		  else 0  end as iTzhSOQN");
+        //        sql.AppendLine("	from");
+        //        sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+        //        sql.AppendLine("	left join");
+        //        sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+        //        sql.AppendLine(")t1");
+        //        sql.AppendLine("left join");
+        //        sql.AppendLine("(--手配主表");
+        //        sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
+        //        sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and dFromTime<>dToTime  and vcOrderingMethod='1'");
+        //        sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
+        //        sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
+        //        DataTable dt11 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+        //        ErrorMsg(ref dterrMessage, dtc, dt11, "{0}月特殊品番不能订货", true);
+        //        #endregion
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+        #endregion
+
 
         #region 导入后保存
         public void importSave(string strYearMonth, string strUserId, string strUnit)

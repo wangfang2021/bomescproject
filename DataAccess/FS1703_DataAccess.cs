@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace DataAccess
 {
-    public class FS1702_DataAccess
+    public class FS1703_DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 

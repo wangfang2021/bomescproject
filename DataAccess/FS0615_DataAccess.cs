@@ -108,5 +108,35 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 紧急订单导航页初始化
+        public void getCounts(ref int counts1, ref int counts2)
+        {
+            try
+            {
+                counts1 = excute.ExecuteScalar("select count(1) from TOrderUploadManage where vcOrderType='H' and vcOrderState='0'");
+                counts2 = excute.ExecuteScalar("select count(1) from TOrderUploadManage where vcOrderType='H' and vcOrderState='4'");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 初始化订单下拉框
+        public DataTable getOrders()
+        {
+            try
+            {
+                string sql = "select distinct vcOrderNo as vcValue from TOrderUploadManage order by vcOrderNo";
+                return excute.ExcuteSqlWithSelectToDT(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

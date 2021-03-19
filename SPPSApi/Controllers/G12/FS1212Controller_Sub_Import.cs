@@ -68,9 +68,9 @@ namespace SPPSApi.Controllers.G12
                 string strMsg = "";
                 string[,] headers = new string[,] {{"品番","开始时间","截止时间","受入","品番工场","车型","英文品名","秦丰涂装","看板收容数","器具收容数","生产部署","组别","订货方式","收货方","供应商编码"},
                                                 {"vcPartsNo","dTimeFrom","dTimeTo","vcDock","vcPartPlant","vcCarFamilyCode","vcPartsNameEN","vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcOrderingMethod","vcReceiver","vcSupplierId" },
-                                                {"",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Decimal,"","",FieldCheck.Num,FieldCheck.Num,"","","","",""},
-                                                {"14","0","0","50", "50", "0", "0","0","0","0","0","0","0","10","10"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1","0","0","0", "0","0","0","0","0","0","0","1","1"}};//最小长度设定,可以为空用0
+                                                {"",FieldCheck.Date,FieldCheck.Date,"","","","","",FieldCheck.Num,FieldCheck.Num,"","","","",""},
+                                                {"12","10","10","5","50","0","500","0","0","0","0","0","10","10","10"},//最大长度设定,不校验最大长度用0
+                                                {"12","10","10","0","0","0", "0","0","0","0","0","0","0","1","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {

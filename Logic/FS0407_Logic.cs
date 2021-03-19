@@ -21,6 +21,14 @@ namespace Logic
         }
         #endregion
 
+        public DataTable getPartId()
+        {
+            return fs0407_dataAccess.getPartId();
+        }
 
+        public DataTable getOrder()
+        {
+            return fs0407_dataAccess.getOrder();
+        }
     }
 }

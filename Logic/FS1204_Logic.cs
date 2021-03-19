@@ -172,8 +172,5 @@ namespace Logic
         {
             dataAccess.UpdateTable(dt, Month);
         }
-
-
-
     }
 }

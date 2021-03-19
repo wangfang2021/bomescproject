@@ -769,8 +769,8 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 //N+1
                 DateTime N1 = time.AddMonths(1);
-
                 DateTime CL = time.AddMonths(-1);
+
                 sbr.AppendLine("DECLARE @TargetYM VARCHAR(6)");
                 sbr.AppendLine("DECLARE @CLYM VARCHAR(6)");
                 sbr.AppendLine("DECLARE @startTime DATETIME");
@@ -779,16 +779,16 @@ namespace DataAccess
                 sbr.AppendLine("SET @CLYM = '" + CL.ToString("yyyyMM") + "'");
                 sbr.AppendLine("SET @startTime = CONVERT(DATETIME,@TargetYM+'01')");
                 sbr.AppendLine("SET @endTime = DATEADD(DAY,-1,DATEADD(Month,1,@startTime))");
+
                 sbr.AppendLine("DELETE TNeiShi WHERE TARGETMONTH = @TargetYM");
                 sbr.AppendLine("INSERT INTO TNeiShi(CPDCOMPANY, dInputDate, TARGETMONTH, PARTSNO, CARFAMCODE, INOUTFLAG, SUPPLIERCODE, iSupplierPlant, DOCK, RESULTQTYTOTAL, varInputUser, vcOperatorID, dOperatorTime)");
-                sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
+                sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,a.SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
                 sbr.AppendLine("(");
-                //sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = @TargetYM  AND vcCLYM = @CLYM AND vcMakingOrderType = '0'");
-                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,ISNULL(iPartNums,0) AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
+                sbr.AppendLine("	SELECT vcReceiver AS CPDCOMPANY,vcSupplier_id AS SUPPLIERCODE,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,ISNULL(iPartNums,0) AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
                 sbr.AppendLine(") A");
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(");
-                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn FROM");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn,a.vcReceiver FROM");
                 sbr.AppendLine("	(");
                 sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
                 sbr.AppendLine("	) a");
@@ -798,10 +798,10 @@ namespace DataAccess
                 sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
                 sbr.AppendLine("	");
                 sbr.AppendLine("	WHERE  b.vcSufferIn IS NOT NULL ");
-                sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId ");
+                sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId AND a.CPDCOMPANY = b.vcReceiver AND a.SUPPLIERCODE = b.vcSupplierId");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(");
-                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant FROM");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant,a.vcReceiver FROM");
                 sbr.AppendLine("	(");
                 sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
                 sbr.AppendLine("	) a");
@@ -810,7 +810,7 @@ namespace DataAccess
                 sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
                 sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
                 sbr.AppendLine("	WHERE b.vcSupplierPlant IS NOT NULL ");
-                sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId ");
+                sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId  AND a.CPDCOMPANY = C.vcReceiver  AND a.SUPPLIERCODE = b.vcSupplierId");
 
 
                 //N+2
@@ -822,14 +822,13 @@ namespace DataAccess
                 sbr.AppendLine("SET @endTime = DATEADD(DAY,-1,DATEADD(Month,1,@startTime))");
                 sbr.AppendLine("DELETE TNeiShi WHERE TARGETMONTH = @TargetYM");
                 sbr.AppendLine("INSERT INTO TNeiShi(CPDCOMPANY, dInputDate, TARGETMONTH, PARTSNO, CARFAMCODE, INOUTFLAG, SUPPLIERCODE, iSupplierPlant, DOCK, RESULTQTYTOTAL, varInputUser, vcOperatorID, dOperatorTime)");
-                sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,b.vcSupplierId AS SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
+                sbr.AppendLine("SELECT a.CPDCOMPANY,a.dInputDate,a.TARGETMONTH,a.PARTSNO,a.CARFAMCODE,a.INOUTFLAG,a.SUPPLIERCODE,c.vcSupplierPlant AS iSupplierPlant,b.vcSufferIn AS DOCK,a.RESULTQTYTOTAL,'" + userId + "' as varInputUser,'" + userId + "' as vcOperatorID,GETDATE() AS dOperatorTime FROM");
                 sbr.AppendLine("(");
-                //sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcInOutFlag = '0' AND vcDXYM = @TargetYM  AND vcCLYM = @CLYM AND vcMakingOrderType = '0'");
-                sbr.AppendLine("	SELECT 'APC06' AS CPDCOMPANY,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,iPartNums AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
+                sbr.AppendLine("	SELECT vcReceiver AS CPDCOMPANY,vcSupplier_id AS SUPPLIERCODE,GETDATE() AS dInputDate,@TargetYM AS TARGETMONTH,vcPart_id AS PARTSNO,vcCarType AS CARFAMCODE,vcInOutFlag AS INOUTFLAG,ISNULL(iPartNums,0) AS RESULTQTYTOTAL FROM  dbo.TSoqReply WHERE vcDXYM = @TargetYM  AND vcCLYM = @CLYM ");
                 sbr.AppendLine(") A");
                 sbr.AppendLine("LEFT JOIN ");
                 sbr.AppendLine("(");
-                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn FROM");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSufferIn,a.vcReceiver FROM");
                 sbr.AppendLine("	(");
                 sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
                 sbr.AppendLine("	) a");
@@ -839,10 +838,10 @@ namespace DataAccess
                 sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
                 sbr.AppendLine("	");
                 sbr.AppendLine("	WHERE  b.vcSufferIn IS NOT NULL ");
-                sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId ");
+                sbr.AppendLine(") B ON a.PARTSNO = b.vcPartId AND a.CPDCOMPANY = b.vcReceiver AND a.SUPPLIERCODE = b.vcSupplierId");
                 sbr.AppendLine("LEFT JOIN");
                 sbr.AppendLine("(");
-                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant FROM");
+                sbr.AppendLine("	SELECT DISTINCT a.vcPartId,a.vcSupplierId,b.vcSupplierPlant,a.vcReceiver FROM");
                 sbr.AppendLine("	(");
                 sbr.AppendLine("		SELECT * FROM TSPMaster WHERE dFromTime <= @startTime AND dToTime >= @endTime");
                 sbr.AppendLine("	) a");
@@ -851,7 +850,8 @@ namespace DataAccess
                 sbr.AppendLine("		SELECT * FROM dbo.TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= @startTime AND dToTime >= @endTime");
                 sbr.AppendLine("	) b ON a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcPackingPlant = b.vcPackingPlant AND a.vcSupplierId = b.vcSupplierId");
                 sbr.AppendLine("	WHERE b.vcSupplierPlant IS NOT NULL ");
-                sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId ");
+                sbr.AppendLine(") C  ON a.PARTSNO = C.vcPartId  AND a.CPDCOMPANY = C.vcReceiver  AND a.SUPPLIERCODE = b.vcSupplierId");
+
                 return sbr.ToString();
             }
             catch (Exception ex)

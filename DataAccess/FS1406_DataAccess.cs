@@ -88,7 +88,19 @@ namespace DataAccess
                 throw ex;
             }
         }
-
+        public DataTable getSearchInfo(string strApplyId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select * from TSPISApply where vcApplyId='"+ strApplyId + "'");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void setAdmitInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();

@@ -21,6 +21,7 @@ namespace Logic
         FS0602_DataAccess fs0602_DataAccess = new FS0602_DataAccess();
         FS0603_DataAccess fs0603_DataAccess = new FS0603_DataAccess();
         FS0307_DataAccess fs0307_dataAccess = new FS0307_DataAccess();
+        FS0501_DataAccess fs0501_DataAccess = new FS0501_DataAccess();
         FS0603_Logic fs0603_Logic = new FS0603_Logic();
         FS0625_Logic fs0625_Logic = new FS0625_Logic();
 
@@ -181,8 +182,18 @@ namespace Logic
         {
             try
             {
-                fs0602_DataAccess.checkSaveInfo(dtMultiple, strYearMonth, strYearMonth1, strYearMonth2,
-                    strOperId, strPackingPlant, strReceiver, ref dtMessage);
+                DataTable dterrMessage = new DataTable();
+                dterrMessage.Columns.Add("vcPart_id");
+                dterrMessage.Columns.Add("vcMsg");
+                //fs0602_DataAccess.checkSaveInfo(dtMultiple, strYearMonth, strYearMonth1, strYearMonth2,
+                //    strOperId, strPackingPlant, strReceiver, ref dtMessage);
+                fs0501_DataAccess.SaveCheck(dtMultiple, strOperId, strYearMonth, strYearMonth1, strYearMonth2, ref dterrMessage, strPackingPlant, strReceiver);
+                for (int i = 0; i < dterrMessage.Rows.Count; i++)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = dterrMessage.Rows[i]["vcPart_id"].ToString()+"     "+ dterrMessage.Rows[i]["vcMsg"].ToString();
+                    dtMessage.Rows.Add(dataRow);
+                }
                 return dtMultiple;
             }
             catch (Exception ex)

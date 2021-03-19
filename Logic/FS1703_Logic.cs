@@ -12,34 +12,34 @@ using System.IO;
 
 namespace Logic
 {
-    public class FS1702_Logic
+    public class FS1703_Logic
     {
-        FS1702_DataAccess fs1702_DataAccess;
+        FS1703_DataAccess fs1703_DataAccess;
 
-        public FS1702_Logic()
+        public FS1703_Logic()
         {
-            fs1702_DataAccess = new FS1702_DataAccess();
+            fs1703_DataAccess = new FS1703_DataAccess();
         }
 
         #region 绑定工程
         public DataTable getAllProject()
         {
-            return fs1702_DataAccess.getAllProject();
+            return fs1703_DataAccess.getAllProject();
         }
         #endregion
 
         #region 检索
         public DataTable Search(string vcProject, string dChuHeDateFrom, string dChuHeDateTo)
         {
-            return fs1702_DataAccess.Search(vcProject, dChuHeDateFrom, dChuHeDateTo);
+            return fs1703_DataAccess.Search(vcProject, dChuHeDateFrom, dChuHeDateTo);
         }
         public DataTable Search_jinji(string vcPart_id)
         {
-            return fs1702_DataAccess.Search_jinji(vcPart_id);
+            return fs1703_DataAccess.Search_jinji(vcPart_id);
         }
         public DataTable Search_kb()
         {
-            return fs1702_DataAccess.Search_kb();
+            return fs1703_DataAccess.Search_kb();
         }
         #endregion
 
@@ -199,7 +199,7 @@ namespace Logic
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId,ref string strErrorName)
         {
-            fs1702_DataAccess.importSave(dt, strUserId,ref strErrorName);
+            fs1703_DataAccess.importSave(dt, strUserId,ref strErrorName);
         }
         #endregion
 
@@ -207,7 +207,7 @@ namespace Logic
         public void qrdPrint(List<Dictionary<string, Object>> checkedInfoData,string strUserId)
         {
             //更新确认单打印时间
-            fs1702_DataAccess.qrdPrint(checkedInfoData, strUserId);
+            fs1703_DataAccess.qrdPrint(checkedInfoData, strUserId);
         }
         #endregion
 
@@ -215,7 +215,7 @@ namespace Logic
         public void kbPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
             //更新出荷看板打印时间
-            fs1702_DataAccess.kbPrint(checkedInfoData, strUserId);
+            fs1703_DataAccess.kbPrint(checkedInfoData, strUserId);
         }
         #endregion
 
@@ -223,21 +223,21 @@ namespace Logic
         public void chuheOK(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
             //更新出荷完了时间+更新在库
-            fs1702_DataAccess.chuheOK(checkedInfoData, strUserId);
+            fs1703_DataAccess.chuheOK(checkedInfoData, strUserId);
         }
         #endregion
 
         public DataTable GetqrdInfo(string vcProject, string dChuHeDate)
         {
-            return fs1702_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
+            return fs1703_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
         }
         public DataTable getKBData(string vcProject, string dChuHeDate)
         {
-            return fs1702_DataAccess.getKBData(vcProject, dChuHeDate);
+            return fs1703_DataAccess.getKBData(vcProject, dChuHeDate);
         }
         public DataTable getKBData(string vcpart_id)
         {
-            return fs1702_DataAccess.getKBData(vcpart_id);
+            return fs1703_DataAccess.getKBData(vcpart_id);
         }
 
         public string generateExcelWithXlt(string vcQueRenNo, DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
@@ -329,28 +329,28 @@ namespace Logic
         #region 保存
         public void Save_jinji(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs1702_DataAccess.Save_jinji(listInfoData, strUserId);
+            fs1703_DataAccess.Save_jinji(listInfoData, strUserId);
         }
         public void Save_kb(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
-            fs1702_DataAccess.Save_kb(listInfoData, strUserId);
+            fs1703_DataAccess.Save_kb(listInfoData, strUserId);
         }
         #endregion
 
         #region 删除
         public void Del_jinji(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
-            fs1702_DataAccess.Del_jinji(checkedInfoData, strUserId);
+            fs1703_DataAccess.Del_jinji(checkedInfoData, strUserId);
         }
         public void Del_kb(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
         {
-            fs1702_DataAccess.Del_kb(checkedInfoData, strUserId);
+            fs1703_DataAccess.Del_kb(checkedInfoData, strUserId);
         }
         #endregion
 
         public bool isExitInSSP(string vcPart_id)
         {
-            int count = fs1702_DataAccess.isExitInSSP(vcPart_id);
+            int count = fs1703_DataAccess.isExitInSSP(vcPart_id);
             if (count > 0)
                 return true;
             else

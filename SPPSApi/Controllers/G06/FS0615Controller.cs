@@ -50,7 +50,9 @@ namespace SPPSApi.Controllers.G06
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<object> dataList_StateSource = ComFunction.convertAllToResult(ComFunction.getTCode("C044"));
+                List<object> dataList_OrdersSource = ComFunction.convertAllToResult(fs0615_Logic.getOrders());
                 res.Add("dataList_C044", dataList_StateSource);
+                res.Add("dataList_OrdersSource", dataList_OrdersSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -185,6 +187,41 @@ namespace SPPSApi.Controllers.G06
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1303", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 菜单数量初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string jjddloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                int counts1 = 0; //当前入手新订单数量
+                int counts2 = 0; //当前确认中订单数量
+                fs0615_Logic.getCounts(ref counts1, ref counts2);
+                res.Add("counts1", counts1);
+                res.Add("counts2", counts2);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

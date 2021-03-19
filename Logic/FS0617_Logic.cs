@@ -177,6 +177,22 @@ namespace Logic
                 return bufferPhoto;
             }
         }
+        public byte[] PhotoToArray(string path)
+        {
+            try
+            {
+                FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                byte[] bufferPhoto = new byte[stream.Length];
+                stream.Read(bufferPhoto, 0, Convert.ToInt32(stream.Length));
+                stream.Flush();
+                stream.Close();
+                return bufferPhoto;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
         #region 生成QRCODE二维码

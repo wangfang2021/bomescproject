@@ -254,26 +254,52 @@ namespace SPPSApi.Controllers.G14
                 string strSPISStatus = listInfoData[0]["vcSPISStatus"] == null ? "" : listInfoData[0]["vcSPISStatus"].ToString();
                 string strPartId = listInfoData[0]["vcPartId"] == null ? "" : listInfoData[0]["vcPartId"].ToString();
                 string strPartENName = listInfoData[0]["vcPartENName"] == null ? "" : listInfoData[0]["vcPartENName"].ToString();
-                string strFromTime = listInfoData[0]["dFromTime"] == null ? "" : listInfoData[0]["dFromTime"].ToString();
-                string strToTime = listInfoData[0]["dToTime"] == null ? "" : listInfoData[0]["dToTime"].ToString();
                 string strCarfamilyCode = listInfoData[0]["vcCarfamilyCode"] == null ? "" : listInfoData[0]["vcCarfamilyCode"].ToString();
-                string strOrderPlant = listInfoData[0]["vcOrderPlant"] == null ? "" : listInfoData[0]["vcOrderPlant"].ToString();
                 string strSupplierId = listInfoData[0]["vcSupplierId"] == null ? "" : listInfoData[0]["vcSupplierId"].ToString();
-                string strModItem = listInfoData[0]["vcModItem"] == null ? "" : listInfoData[0]["vcModItem"].ToString();
                 string strPicUrl = listInfoData[0]["vcPicUrl"] == null ? "" : listInfoData[0]["vcPicUrl"].ToString();
-                DataTable dataTable = fS1406_Logic.getSearchInfo(strPartId, strSupplierId, "", "", "");
+                string strSPISUrl = listInfoData[0]["vcSPISUrl"] == null ? "" : listInfoData[0]["vcSPISUrl"].ToString();
+                string strModItem = listInfoData[0]["vcModItem"] == null ? "" : listInfoData[0]["vcModItem"].ToString();
 
-                res.Add("modelItem", "");
-                res.Add("SPISTimeItem", System.DateTime.Now.ToString("yyyy/MM/dd"));
-                res.Add("PartIdItem", strPartId);
-                res.Add("CarfamilyCodeItem", strCarfamilyCode);
-                res.Add("SupplierIdItem", strSupplierId);
-                res.Add("PartENNameItem", strPartENName);
-                res.Add("ColourNoItem", "");
-                res.Add("ColourCodeItem", "");
-                res.Add("ColourNameItem", "");
-                res.Add("ModItemItem", strModItem);
-                res.Add("PicUrlItem", strPicUrl);
+                string strApplyIdItem = strApplyId;
+                string strSPISStatusItem = strSPISStatus;
+                string strSPISTimeItem = System.DateTime.Now.ToString("yyyy/MM/dd");
+                string strPartIdItem = strPartId;
+                string strCarfamilyCodeItem = strCarfamilyCode;
+                string strSupplierIdItem = strSupplierId;
+                string strPartENNameItem = strPartENName;
+                string strColourNoItem = string.Empty;
+                string strColourCodeItem = string.Empty;
+                string strColourNameItem = string.Empty;
+                string strModItemItem = strModItem;
+                string strPicUrlItem = strPicUrl;
+                string strSPISUrlItem = strSPISUrl;
+                string strModelItem = "NG";
+                DataTable dtApply = fS1406_Logic.getSearchInfo(strApplyId);
+                if (dtApply.Rows.Count != 0)
+                {
+                    strApplyIdItem = dtApply.Rows[0]["vcApplyId"].ToString();
+                    strSPISTimeItem = dtApply.Rows[0]["dSPISTime"].ToString();
+                    strColourNoItem = dtApply.Rows[0]["vcColourNo"].ToString();
+                    strColourCodeItem = dtApply.Rows[0]["vcColourCode"].ToString();
+                    strColourNameItem = dtApply.Rows[0]["vcColourName"].ToString();
+                    strModItemItem = dtApply.Rows[0]["vcModItem"].ToString();
+                    strPicUrlItem = dtApply.Rows[0]["vcPicUrl"].ToString();
+                }
+                if(strSPISStatusItem=="0"|| strSPISStatusItem == "1" || strSPISStatusItem == "4")
+                    strModelItem = "OK";
+                res.Add("ApplyIdItem", strApplyIdItem);
+                res.Add("SPISStatusItem", strSPISStatusItem);
+                res.Add("modelItem", strModelItem);
+                res.Add("SPISTimeItem", strSPISTimeItem);
+                res.Add("PartIdItem", strPartIdItem);
+                res.Add("CarfamilyCodeItem", strCarfamilyCodeItem);
+                res.Add("SupplierIdItem", strSupplierIdItem);
+                res.Add("PartENNameItem", strPartENNameItem);
+                res.Add("ColourNoItem", strColourNoItem);
+                res.Add("ColourCodeItem", strColourCodeItem);
+                res.Add("ColourNameItem", strColourNameItem);
+                res.Add("PicUrlItem", strPicUrlItem);
+                res.Add("ModItemItem", strModItemItem);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -307,26 +333,47 @@ namespace SPPSApi.Controllers.G14
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                string strModel = dataForm.model;
-                string strSPISTime = dataForm.SPISTime;
-                string strPartId = dataForm.PartId;
-                string strCarfamilyCode = dataForm.CarfamilyCode;
-                string strSupplierId = dataForm.SupplierId;
-                string strPartENName = dataForm.PartENName;
-                string strColourNo = dataForm.ColourNo;
-                string strColourCode = dataForm.ColourCode;
-                string strColourName = dataForm.ColourName;
-                string strModItem = dataForm.ModItem;
-                string strOperImage = dataForm.PicRoutes;
-                string strDelImageRoutes = dataForm.DelPicRoutes;
-                DataTable dtImport = fS0603_Logic.createTable("savFs1406");
+                string strModel = dataForm.model==null?"": dataForm.model.ToString();
+                string strApplyId = dataForm.ApplyId == null?"": dataForm.ApplyId.ToString();
+                string strSPISStatus = dataForm.SPISStatus == null?"": dataForm.SPISStatus.ToString();
+                string strSPISTime = dataForm.SPISTime == null ? "" : dataForm.SPISTime.ToString();
+                string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+                string strCarfamilyCode = dataForm.CarfamilyCode == null ? "" : dataForm.CarfamilyCode.ToString();
+                string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
+                string strPartENName = dataForm.PartENName == null ? "" : dataForm.PartENName.ToString();
+                string strColourNo = dataForm.ColourNo == null ? "" : dataForm.ColourNo.ToString();
+                string strColourCode = dataForm.ColourCode == null ? "" : dataForm.ColourCode.ToString();
+                string strColourName = dataForm.ColourName == null ? "" : dataForm.ColourName.ToString();
+                string strModItem = dataForm.ModItem == null ? "" : dataForm.ModItem.ToString();
+                string strOperImage = dataForm.PicRoutes == null ? "" : dataForm.PicRoutes.ToString();
+                string strDelImageRoutes = dataForm.DelPicRoutes == null ? "" : dataForm.DelPicRoutes.ToString();
+                DataTable dtImport = fS0603_Logic.createTable("SPISApply");
                 DataRow drImport = dtImport.NewRow();
                 drImport["LinId"] = "";
+                drImport["vcApplyId"] = strApplyId;
+                drImport["dFromTime_SPIS"] = "";
+                drImport["dToTime_SPIS"] = "";
+                drImport["dSPISTime"] = strSPISTime;
+                drImport["vcPartId"] = strPartId;
+                drImport["vcCarfamilyCode"] = strCarfamilyCode;
+                drImport["vcSupplierId"] = strSupplierId;
+                drImport["vcPartENName"] = strPartENName;
+                drImport["vcColourNo"] = strColourNo;
+                drImport["vcColourCode"] = strColourCode;
+                drImport["vcColourName"] = strColourName;
+                drImport["vcModItem"] = strModItem;
+                drImport["vcPicUrl"] = strOperImage;
+                drImport["vcPDFUrl"] = string.Empty;
+                drImport["vcSPISUrl"] = string.Empty;
+                drImport["vcSupplier_1"] = string.Empty;
+                drImport["vcSupplier_2"] = string.Empty;
+                drImport["vcOperName"] = string.Empty;
+                drImport["vcGM"] = string.Empty;
+                drImport["vcSPISStatus"] = strSPISStatus;
                 dtImport.Rows.Add(drImport);
-
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                string strPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spis" + Path.DirectorySeparatorChar + "spis" + Path.DirectorySeparatorChar;
-                DataTable dtInfo = fS1406_Logic.checkSaveInfo(dtImport, strPath, ref dtMessage);
+                string strPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spisapply" + Path.DirectorySeparatorChar + "apply" + Path.DirectorySeparatorChar;
+                DataTable dtInfo = fS1406_Logic.checkSaveInfo(dtImport, strPath, loginInfo.UserId, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
@@ -357,77 +404,6 @@ namespace SPPSApi.Controllers.G14
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-        /// <summary>
-        /// 保存并回复方法
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [EnableCors("any")]
-        public string savereplyApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                string strModel = dataForm.model;
-                string strSPISTime = dataForm.SPISTime;
-                string strPartId = dataForm.PartId;
-                string strCarfamilyCode = dataForm.CarfamilyCode;
-                string strSupplierId = dataForm.SupplierId;
-                string strPartENName = dataForm.PartENName;
-                string strColourNo = dataForm.ColourNo;
-                string strColourCode = dataForm.ColourCode;
-                string strColourName = dataForm.ColourName;
-                string strModItem = dataForm.ModItem;
-                string strOperImage = dataForm.PicRoutes;
-                string strDelImageRoutes = dataForm.DelPicRoutes;
-                DataTable dtImport = fS0603_Logic.createTable("savFs1406");
-                DataRow drImport = dtImport.NewRow();
-                drImport["LinId"] = "";
-                dtImport.Rows.Add(drImport);
 
-                DataTable dtMessage = fS0603_Logic.createTable("MES");
-                string strPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spis" + Path.DirectorySeparatorChar + "spis" + Path.DirectorySeparatorChar;
-                DataTable dtInfo = fS1406_Logic.checkSaveInfo(dtImport, strPath, ref dtMessage);
-                if (dtMessage != null && dtMessage.Rows.Count != 0)
-                {
-                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                fS1406_Logic.setSaveInfo(dtImport, loginInfo.UserId, ref dtMessage);
-                fS1406_Logic.replyInfo(dtImport, loginInfo.UserId, ref dtMessage);
-                if (dtMessage.Rows.Count != 0)
-                {
-                    //弹出错误dtMessage
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "回复SPIS失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
     }
 }

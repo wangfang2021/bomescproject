@@ -136,11 +136,60 @@ namespace Logic
         #endregion
 
         #region 保存后校验
+        #region 保存后校验
         public void SaveCheck(List<Dictionary<string, Object>> listInfoData, string strUserId, string strYearMonth, string strYearMonth_2, string strYearMonth_3,
-            ref Dictionary<string,string> errMessageList, string strUnit)
+            ref Dictionary<string, string> errMessageList, string strUnit)
         {
-            fs0501_DataAccess.SaveCheck(listInfoData, strUserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref errMessageList, strUnit);
+            DataTable dterrMessage = new DataTable();
+            dterrMessage.Columns.Add("vcPart_id");
+            dterrMessage.Columns.Add("vcMsg");
+            string strReceiver = "APC06";
+            FS0603_Logic fs0603_Logic = new FS0603_Logic();
+            FS0603_DataAccess fs0603_DataAccess = new FS0603_DataAccess();
+            DataTable dtMultiple = fs0603_Logic.createTable("SOQ602");
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                if (baddflag == false && bmodflag == true)
+                {//修改
+                    string strDyState = "";
+                    string strHyState = "";
+                    string strPart_id = fs0603_DataAccess.setNullValue(listInfoData[i]["vcPart_id"], "", "");
+                    string strCbSOQN = fs0603_DataAccess.setNullValue(listInfoData[i]["iCbSOQN"], "", "0");
+                    string strCbSOQN1 = fs0603_DataAccess.setNullValue(listInfoData[i]["iCbSOQN1"], "", "0");
+                    string strCbSOQN2 = fs0603_DataAccess.setNullValue(listInfoData[i]["iCbSOQN2"], "", "0");
+                    string strTzhSOQN = fs0603_DataAccess.setNullValue(listInfoData[i]["iTzhSOQN"], "", "0");
+                    string strTzhSOQN1 = fs0603_DataAccess.setNullValue(listInfoData[i]["iTzhSOQN1"], "", "0");
+                    string strTzhSOQN2 = fs0603_DataAccess.setNullValue(listInfoData[i]["iTzhSOQN2"], "", "0");
+                    string strSupplierId = fs0603_DataAccess.setNullValue(listInfoData[i]["vcSupplier_id"], "", "");
+                    string strExpectTime = "";
+                    string strInputType = "supplier";
+                    DataRow drMultiple = dtMultiple.NewRow();
+                    drMultiple["vcYearMonth"] = strYearMonth;
+                    drMultiple["vcDyState"] = strDyState;
+                    drMultiple["vcHyState"] = strHyState;
+                    drMultiple["vcPart_id"] = strPart_id;
+                    drMultiple["iCbSOQN"] = strCbSOQN;
+                    drMultiple["iCbSOQN1"] = strCbSOQN1;
+                    drMultiple["iCbSOQN2"] = strCbSOQN2;
+                    drMultiple["iTzhSOQN"] = strTzhSOQN;
+                    drMultiple["iTzhSOQN1"] = strTzhSOQN1;
+                    drMultiple["iTzhSOQN2"] = strTzhSOQN2;
+                    drMultiple["vcSupplierId"] = strSupplierId;
+                    drMultiple["dExpectTime"] = strExpectTime;
+                    drMultiple["vcInputType"] = strInputType;
+                    dtMultiple.Rows.Add(drMultiple);
+                }
+            }
+            //fs0501_DataAccess.SaveCheck(listInfoData, strUserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref dterrMessage, strUnit);
+            fs0501_DataAccess.SaveCheck(dtMultiple, strUserId, strYearMonth, strYearMonth_2, strYearMonth_3, ref dterrMessage, strUnit, strReceiver);
+            for (int i = 0; i < dterrMessage.Rows.Count; i++)
+            {
+                errMessageList.Add(dterrMessage.Rows[i]["vcPart_id"].ToString(), dterrMessage.Rows[i]["vcMsg"].ToString());
+            }
         }
+        #endregion
         #endregion
 
         #region 插入导入履历

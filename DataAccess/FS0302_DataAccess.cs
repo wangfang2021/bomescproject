@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Common;
 using System.Data;
@@ -192,9 +193,15 @@ namespace DataAccess
                 List<string> partchangeList = getPartListChange();
                 List<string> partListHaoKao = getHaoPart();
                 List<string> partListJiu = getJiuPart();
+                List<string> carType = new List<string>();
+                Hashtable changeht = getChangeList();
+                Hashtable finishht = getFinishList();
+
+                Hashtable listPath = new Hashtable();
+
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
+                    string change = changeht[ObjToString(listInfoData[i]["THChange"]).Trim()].ToString();
                     string vcPart_Id_new = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
                     string vcPart_Id_old = ObjToString(listInfoData[i]["vcPart_Id_old"]).Trim();
                     if (!changeList.Contains(change))
@@ -219,17 +226,34 @@ namespace DataAccess
                             }
                         }
                     }
+
+                    if (change == "1" || change == "2")
+                    {
+                        string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();
+                        if (!string.IsNullOrWhiteSpace(CarType))
+                        {
+                            carType.Add(CarType);
+                        }
+                    }
                 }
                 if (!string.IsNullOrWhiteSpace(refMsg))
                 {
                     return;
                 }
 
+                carType = carType.Distinct().ToList();
+                for (int i = 0; i < carType.Count; i++)
+                {
+                    listPath.Add(carType[i], getDataList(carType[i]));
+                }
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                    string finishstate = getValue("C014", ObjToString(listInfoData[i]["FinishState"]).Trim());
-                    string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
+                    string finishstate = finishht[ObjToString(listInfoData[i]["FinishState"]).Trim()].ToString();
+                    string change = changeht[ObjToString(listInfoData[i]["THChange"]).Trim()].ToString();
+
+                    //string finishstate = getValue("C014", ObjToString(listInfoData[i]["FinishState"]).Trim());
+                    //string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
                     string memo = ObjToString(listInfoData[i]["vcFileNameTJ"]) + ObjToString(listInfoData[i]["THChange"]);
                     string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_old"]).Trim();
                     if (finishstate.Equals("2"))
@@ -257,7 +281,7 @@ namespace DataAccess
                                 string NRPartId = "";
                                 if (vcType.Equals("1"))
                                 {
-                                    NRPartId = getPartId(CarType, vcPart_Id, vcNewProj);
+                                    NRPartId = getPartId((List<List<ParentEntity>>)listPath[CarType], vcPart_Id, vcNewProj);
                                 }
 
                                 sbr.Append(" INSERT INTO TUnit  \r\n");
@@ -476,19 +500,19 @@ namespace DataAccess
         }
         #endregion
 
-        #region 获取纳入品番
-        public string getPartId(string vcCarType, string vcPart_Id, string vcParent)
+        #region 获取基础数据表
+
+        public List<List<ParentEntity>> getDataList(string vcCarType)
         {
             try
             {
-                string partId = "";
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append(" SELECT iLV,vcUseLocation,vcPart_Id,vcPart_Id_Father,vcParent  FROM TPartList  \r\n");
                 sbr.Append(" WHERE vcCarType = '" + vcCarType + "' \r\n");
-                sbr.Append(" AND vcUseLocation IN (SELECT DISTINCT vcUseLocation FROM TPartList WHERE vcPart_Id = '" + vcPart_Id + "' ) \r\n");
                 sbr.Append(" ORDER BY vcUseLocation,iAutoId \r\n");
 
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+
                 List<FatherNode> list = new List<FatherNode>();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -542,6 +566,23 @@ namespace DataAccess
                     }
                 }
 
+                return listPath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region 获取纳入品番
+        public string getPartId(List<List<ParentEntity>> listPath, string vcPart_Id, string vcParent)
+        {
+            try
+            {
+                string partId = "";
+
                 for (int i = 0; i < listPath.Count; i++)
                 {
                     int index = getIndex(vcPart_Id, listPath[i]);
@@ -551,7 +592,7 @@ namespace DataAccess
                         {
                             if (vcParent.Equals(listPath[i][j].Parent))
                             {
-                                partId = listPath[i][j].PartId;
+                                partId = listPath[i][0].PartId;
                                 break;
                             }
                         }
@@ -570,6 +611,100 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        //public string getPartId(string vcCarType, string vcPart_Id, string vcParent)
+        //{
+        //    try
+        //    {
+        //        string partId = "";
+        //        StringBuilder sbr = new StringBuilder();
+        //        sbr.Append(" SELECT iLV,vcUseLocation,vcPart_Id,vcPart_Id_Father,vcParent  FROM TPartList  \r\n");
+        //        sbr.Append(" WHERE vcCarType = '" + vcCarType + "' \r\n");
+        //        sbr.Append(" AND vcUseLocation IN (SELECT DISTINCT vcUseLocation FROM TPartList WHERE vcPart_Id = '" + vcPart_Id + "' ) \r\n");
+        //        sbr.Append(" ORDER BY vcUseLocation,iAutoId \r\n");
+
+        //        DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+        //        List<FatherNode> list = new List<FatherNode>();
+        //        for (int i = 0; i < dt.Rows.Count; i++)
+        //        {
+        //            string UseLocation = dt.Rows[i]["vcUseLocation"].ToString();
+        //            string Part_Id = dt.Rows[i]["vcPart_Id"].ToString();
+        //            string Part_Id_Father = dt.Rows[i]["vcPart_Id_Father"].ToString();
+        //            string Parent = dt.Rows[i]["vcParent"].ToString();
+        //            int iLV = Convert.ToInt32(dt.Rows[i]["iLV"]);
+        //            ParentEntity entity = new ParentEntity(Part_Id, Parent, iLV);
+        //            Node node = new Node(entity);
+        //            int hasExist = -1;
+
+        //            for (int j = 0; j < list.Count; j++)
+        //            {
+        //                if (list[j].UseLocation.Equals(UseLocation))
+        //                {
+        //                    hasExist = j;
+        //                    break;
+        //                }
+        //            }
+        //            //没找到创建一个父节点
+        //            if (hasExist == -1)
+        //            {
+        //                list.Add(new FatherNode(UseLocation, node));
+        //                hasExist = list.Count;
+        //            }
+        //            //找到创建一个子节点
+        //            else
+        //            {
+        //                if (iLV == 1)
+        //                {
+        //                    list[hasExist].childNodes.Add(node);
+        //                }
+        //                else
+        //                {
+        //                    BLSearch(iLV - 1, ref list[hasExist].childNodes, Part_Id_Father, entity);
+        //                }
+        //            }
+
+
+        //        }
+
+        //        List<List<ParentEntity>> listPath = new List<List<ParentEntity>>();
+        //        for (int i = 0; i < list.Count; i++)
+        //        {
+        //            List<Node> nodes = list[i].childNodes;
+        //            foreach (Node node in nodes)
+        //            {
+        //                //获取路径
+        //                listPath.AddRange(getList(node));
+        //            }
+        //        }
+
+        //        for (int i = 0; i < listPath.Count; i++)
+        //        {
+        //            int index = getIndex(vcPart_Id, listPath[i]);
+        //            if (index != -1)
+        //            {
+        //                for (int j = index; j >= 0; j--)
+        //                {
+        //                    if (vcParent.Equals(listPath[i][j].Parent))
+        //                    {
+        //                        partId = listPath[i][0].PartId;
+        //                        break;
+        //                    }
+        //                }
+
+        //                if (!string.IsNullOrEmpty(partId))
+        //                {
+        //                    break;
+        //                }
+        //            }
+        //        }
+
+        //        return partId;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
         public class ParentEntity
         {
             public ParentEntity(string PartId, string Parent, int LV)
@@ -847,6 +982,51 @@ namespace DataAccess
                     int id = Convert.ToInt32(listInfoData[0]["iAutoId"]);
                     changeFileState(id, strUserId);
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取变更事项
+
+        public Hashtable getChangeList()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C002'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                Hashtable ht = new Hashtable();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    ht.Add(dt.Rows[i]["vcName"].ToString(), dt.Rows[i]["vcValue"].ToString());
+                }
+
+                return ht;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Hashtable getFinishList()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue,vcName FROM TCode WHERE vcCodeId = 'C014'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                Hashtable ht = new Hashtable();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    ht.Add(dt.Rows[i]["vcName"].ToString(), dt.Rows[i]["vcValue"].ToString());
+                }
+
+                return ht;
             }
             catch (Exception ex)
             {

@@ -130,7 +130,7 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "供应商代码", "工区", "纳入日-开始", "纳入日-结束","备注" };
+                head = new string[] { "供应商代码", "工区", "开始日", "结束日", "备注" };
                 field = new string[] { "vcSupplier_id", "vcWorkArea", "dBeginDate", "dEndDate","vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
@@ -199,7 +199,7 @@ namespace SPPSApi.Controllers.G06
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"供应商代码", "工区", "纳入日-开始", "纳入日-结束","备注"},
+                    string[,] strField = new string[,] {{"供应商代码", "工区", "开始日", "结束日","备注"},
                                                 {"vcSupplier_id", "vcWorkArea", "dBeginDate", "dEndDate","vcMemo"},
                                                 {"","","","","" },
                                                 {"4","50","0","0","500"},//最大长度设定,不校验最大长度用0

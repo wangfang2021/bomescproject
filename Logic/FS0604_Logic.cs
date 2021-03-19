@@ -5,7 +5,12 @@ using System.Text;
 using System.Data;
 using DataAccess;
 using System.Collections;
-
+using System.IO;
+using System.Text.RegularExpressions;
+using Common;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using NPOI.HSSF.UserModel;
 
 namespace Logic
 {
@@ -86,10 +91,10 @@ namespace Logic
                 //string result = "Success";
                 sbr.AppendLine("<p>各位供应商 殿：大家好</p>");
                 sbr.AppendLine("<p>"+UnitCode+"补给"+UnitName+"</p>");
-                sbr.AppendLine("<p>感谢大家一直以来对" + UnitCode + "补给业务的协力！</p><p><br></p>");
+                sbr.AppendLine("<p>感谢大家一直以来对" + UnitCode + "补给业务的协力！</p>");
                 sbr.AppendLine("<p>【一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，</p>");
-                sbr.AppendLine("<p>请填写完整后，于<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>日前在系统上给予回复，谢谢!</p><br><br/></p>");
-                sbr.AppendLine("<p>拜托严守纳期，如有疑问及时联络</p><br>");
+                sbr.AppendLine("<p>请填写完整后，于<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>日前在系统上给予回复，谢谢!</p>");
+                sbr.AppendLine("<p>拜托严守纳期，如有疑问及时联络</p>");
                 sbr.AppendLine("<p>以上。</p>");
             }
             else if (flag == "1")
@@ -175,6 +180,241 @@ namespace Logic
         {
             DataTable dt = fs0604_DataAccess.checkIsExistByPartNo(vcPartNo);
             return dt;
+        }
+
+        public DataTable createTable(string strSpSub)
+        {
+            DataTable dataTable = new DataTable(); 
+            if (strSpSub == "fs0604")
+            {
+                dataTable.Columns.Add("vcPartNo");
+                dataTable.Columns.Add("vcMessage");
+            }
+            return dataTable;
+        }
+        public DataTable ExcelToDataTableFfs0604(string FileFullName, string sheetName, string[,] Header, ref bool bReault, ref DataTable dataTable)
+        {
+            FileStream fs = null;
+            IWorkbook workbook = null;
+            ISheet sheet = null;
+            List<int> index = new List<int>();
+            DataTable data = new DataTable();
+            int startRow = 0;
+
+            try
+            {
+                fs = new FileStream(FileFullName, FileMode.Open, FileAccess.Read);
+
+                if (FileFullName.IndexOf(".xlsx") > 0 || FileFullName.IndexOf(".xlsm") > 0) // 2007版本
+                    workbook = new XSSFWorkbook(fs);
+                else if (FileFullName.IndexOf(".xls") > 0) // 2003版本
+                    workbook = new HSSFWorkbook(fs);
+
+                if (sheetName != null)
+                {
+                    sheet = workbook.GetSheet(sheetName);
+                    if (sheet == null) //如果没有找到指定的sheetName对应的sheet，则尝试获取第一个sheet
+                    {
+                        sheet = workbook.GetSheetAt(0);
+                    }
+                }
+                else
+                {
+                    sheet = workbook.GetSheetAt(0);
+                }
+
+                if (sheet != null)
+                {
+                    IRow firstRow = sheet.GetRow(0);
+                    int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+
+                    //对应索引
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        bool bFound = false;
+                        for (int j = 0; j < cellCount; j++)
+                        {
+                            ICell cell = firstRow.GetCell(j);
+                            string cellValue = cell.StringCellValue;
+                            if (!string.IsNullOrEmpty(cellValue))
+                            {
+                                if (Header[0, i] == cellValue)
+                                {
+                                    bFound = true;
+                                    index.Add(j);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (bFound == false)
+                        {
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcPartNo"] = "";
+                            dataRow["vcMessage"] = Header[0, i] + "列不存在";
+                            dataTable.Rows.Add(dataRow);
+                            bReault = false;
+                            //RetMsg = Header[0, i] + "列不存在";
+                            //return null;
+                        }
+                    }
+
+                    //创建Datatable的列
+                    for (int i = 0; i < Header.GetLength(1); i++)
+                    {
+                        data.Columns.Add(Header[1, i].ToString().Trim());
+                    }
+
+                    //获取数据首尾行
+                    startRow = sheet.FirstRowNum + 1;
+                    int rowCount = sheet.LastRowNum;
+
+                    //读取数据
+                    for (int i = startRow; i <= rowCount; ++i)
+                    {
+                        IRow row = sheet.GetRow(i);
+                        if (row == null) continue; //没有数据的行默认是null　　　　　　　
+
+                        DataRow dataRow = data.NewRow();
+                        for (int j = 0; j < Header.GetLength(1); j++)
+                        {
+                            ICell cell = row.GetCell(index[j]);
+                            if (cell != null) //同理，没有数据的单元格都默认是null
+                            {
+
+                                if (cell.CellType == CellType.Numeric && DateUtil.IsCellDateFormatted(cell))
+                                {
+                                    dataRow[j] = DateTime.FromOADate(cell.NumericCellValue);
+                                }
+                                else
+                                {
+                                    dataRow[j] = cell.ToString();
+                                }
+                            }
+                        }
+
+                        data.Rows.Add(dataRow);
+                    }
+                }
+
+                for (int i = 0; i < data.Columns.Count; i++)
+                {
+                    data.Columns[i].DataType = typeof(string);
+                }
+
+                #region 校验格式
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    DataRow dr = data.Rows[i];
+                    for (int j = 0; j < Header.GetLength(1); j++)
+                    {
+                        if (Convert.ToInt32(Header[3, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length > Convert.ToInt32(Header[3, j]))
+                        {
+
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcPartNo"] = "";
+                            dataRow["vcMessage"] = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
+                            dataTable.Rows.Add(dataRow);
+                            bReault = false;
+                            //RetMsg = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
+                            //return null;
+                        }
+
+                        if (Convert.ToInt32(Header[4, j]) > 0 &&
+                            dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
+                        {
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcPartNo"] = "";
+                            dataRow["vcMessage"] = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
+                            dataTable.Rows.Add(dataRow);
+                            bReault = false;
+                            //RetMsg = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
+                            //return null;
+                        }
+
+                        switch (Header[2, j])
+                        {
+                            case "decimal":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDecimal(dr[Header[1, j]].ToString()))
+                                {
+                                    DataRow dataRow = dataTable.NewRow();
+                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
+                                    dataTable.Rows.Add(dataRow);
+                                    bReault = false;
+                                    //RetMsg = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
+                                    //return null;
+                                }
+
+                                break;
+                            case "d":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDate(dr[Header[1, j]].ToString()))
+                                {
+                                    DataRow dataRow = dataTable.NewRow();
+                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    dataTable.Rows.Add(dataRow);
+                                    bReault = false;
+                                    //RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    //return null;
+                                }
+
+                                break;
+                            case "ym":
+                                if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckYearMonth(dr[Header[1, j]].ToString()))
+                                {
+                                    DataRow dataRow = dataTable.NewRow();
+                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    dataTable.Rows.Add(dataRow);
+                                    bReault = false;
+                                    //RetMsg = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
+                                    //return null;
+                                }
+
+                                break;
+                            default:
+                                if (Header[2, j].Length > 0 && Regex.Match(dr[Header[1, j]].ToString(), Header[2, j],
+                                    RegexOptions.None).Success)
+                                {
+                                    DataRow dataRow = dataTable.NewRow();
+                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcMessage"] = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
+                                    dataTable.Rows.Add(dataRow);
+                                    bReault = false;
+                                    //RetMsg = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
+                                    //return null;
+                                }
+
+                                break;
+                        }
+                    }
+                }
+
+
+                #endregion
+
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (workbook != null)
+                {
+                    workbook.Close();
+                }
+                if (fs != null)
+                {
+                    fs.Close();
+                    fs.Dispose();
+                }
+            }
         }
     }
 }

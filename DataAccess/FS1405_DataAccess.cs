@@ -20,6 +20,7 @@ namespace DataAccess
                 strSql.AppendLine("select T1.LinId AS LinId");
                 strSql.AppendLine("		,T1.vcApplyId AS vcApplyId");
                 strSql.AppendLine("		,t1.vcSPISStatus AS vcSPISStatus");
+                strSql.AppendLine("		,t5.dToTime_SPIS AS dToTime_SPIS");
                 strSql.AppendLine("		,T6.vcName AS vcSPISStatus_name");
                 strSql.AppendLine("		,T1.vcPartId AS vcPartId");
                 strSql.AppendLine("		,T1.vcPartENName AS vcPartENName");

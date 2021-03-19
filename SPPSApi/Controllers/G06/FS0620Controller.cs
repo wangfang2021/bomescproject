@@ -156,6 +156,12 @@ namespace SPPSApi.Controllers.G06
             string vcPackPlant = dataForm.vcPackPlant == null ? "" : dataForm.vcPackPlant;
             try
             {
+                if (vcType.Length==0|| vcTargetYear.Length==0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先选择年计类型和对象年再检索数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 DataTable dt = fs0620_Logic.Search(dOperatorTime,vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplierId, vcWorkArea,  vcType, vcPackPlant, vcReceiver);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
@@ -205,8 +211,8 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "导入时间","年计类型","收货方", "包装工场", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
-                field = new string[] { "dOperatorTime","vcType", "vcReceiver", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType","vcSupplier_id", "vcWorkArea",  "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
+                head = new string[] { "导入时间","状态","年计类型","收货方", "包装工场", "对象年份", "品番", "发注工场", "内外", "供应商代码", "工区", "车型", "收容数", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "对象年合计", "N+1年预测", "N+2年预测" };
+                field = new string[] { "dOperatorTime", "vcEmailFlag", "vcType", "vcReceiver", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType","vcSupplier_id", "vcWorkArea",  "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
                 string msg = string.Empty; 
                 string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0620_Data.xlsx", 1, loginInfo.UserId, FunctionID);
                 //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
@@ -371,7 +377,7 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "导入时间","年计类型","包装工场", "对象年份", "品番", "发注工厂", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "对象年合计", "N+1年预测", "N+2年预测" };
+                head = new string[] { "导入时间","年计类型","包装工场", "对象年份", "品番", "发注工场", "内外", "供应商代码", "工区", "车型", "收容数", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月", "对象年合计", "N+1年预测", "N+2年预测" };
                 field = new string[] { "dOperatorTime", "vcType", "vcPackPlant", "vcTargetYear", "vcPartNo", "vcInjectionFactory", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcCarType", "vcAcceptNum", "vcJanuary", "vcFebruary", "vcMarch", "vcApril", "vcMay", "vcJune", "vcJuly", "vcAugust", "vcSeptember", "vcOctober", "vcNovember", "vcDecember", "vcSum", "vcNextOneYear", "vcNextTwoYear" };
                 string path = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
                 StringBuilder strErr = new StringBuilder();
@@ -737,7 +743,10 @@ namespace SPPSApi.Controllers.G06
                 {
                     string plantCode = dtPlant.Rows[i]["vcInjectionFactory"].ToString(); //发注工厂
                     DataTable dt = fs0620_Logic.getDtByTargetYearAndPlant(vcTargetYear, plantCode, vcType);
-                    arrayList.Add(dt);
+                    if (dt.Rows.Count>1)
+                    {
+                        arrayList.Add(dt);
+                    }
                 }
                 // 外注
                 DataTable dtWaiZhu = new DataTable();
@@ -908,8 +917,8 @@ namespace SPPSApi.Controllers.G06
                 IRow FiveRowHSSF = mysheetHSSF.CreateRow(4); //设置第五行
                 int nextRow = 6;
                 string strYear2 = DateTime.Now.ToString("yyyy").Substring(2);
-                string strNextOneYear = DateTime.Now.ToString("yyyy") + 1;
-                string strNextTwoYear = DateTime.Now.ToString("yyyy") + 2;
+                string strNextOneYear = (Convert.ToInt32( DateTime.Now.ToString("yyyy")) + 1).ToString();
+                string strNextTwoYear = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) + 2).ToString();
                 if (arrayList.Count > 0)
                 {
                     FiveRowHSSF.Height = 34 * 20; //设置高度为50个点

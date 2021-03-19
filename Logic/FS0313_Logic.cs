@@ -98,5 +98,30 @@ namespace Logic
         }
         #endregion
 
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            fs0313_DataAccess.importSave(dt, strUserId);
+        }
+        #endregion
+
+        #region 验证品番是否都是已经送信
+        public string checkState(string strAutoIds)
+        {
+            DataTable dt = fs0313_DataAccess.checkState(strAutoIds);
+            if (dt == null || dt.Rows.Count == 0)
+                return "";
+            else
+            {
+                StringBuilder res = new StringBuilder();
+                for(int i = 0; i < dt.Rows.Count; i++)
+                {
+                    res.Append(dt.Rows[i]["vcPart_id"].ToString()).Append(";");
+                }
+                return res.ToString();
+            }
+        }
+        #endregion
+
     }
 }

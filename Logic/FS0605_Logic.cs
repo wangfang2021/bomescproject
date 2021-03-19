@@ -52,5 +52,20 @@ namespace Logic
         {
             fs0605_DataAccess.importSave(importDt, userId);
         }
+
+        public DataTable GetSupplier()
+        {
+             return fs0605_DataAccess.GetSupplier();
+        }
+
+        public DataTable GetWorkArea()
+        {
+            return fs0605_DataAccess.GetWorkArea();
+        }
+
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            return fs0605_DataAccess.GetWorkAreaBySupplier(supplierCode);
+        }
     }
 }

@@ -338,6 +338,10 @@ namespace Logic
         {
             fs1702_DataAccess.Del_jinji(checkedInfoData, strUserId);
         }
+        public void Del_kb(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs1702_DataAccess.Del_kb(checkedInfoData, strUserId);
+        }
         #endregion
     }
 

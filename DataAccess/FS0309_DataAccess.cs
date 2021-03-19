@@ -308,7 +308,7 @@ namespace DataAccess
         
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId,bool isWuBtnVisible)
+        public void importSave(DataTable dt, string strUserId, ref string strErrorPartId)
         {
             try
             {
@@ -322,36 +322,24 @@ namespace DataAccess
                     string dUseBegin = dt.Rows[i]["dUseBegin"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseBegin"].ToString();
                     string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
 
-                    if (isWuBtnVisible)
-                    {
-                        sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
-                        sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
+                    sql.Append("  update TPrice set    \r\n");
+                    sql.Append("  vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
+                    sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
 
 
-                        //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
-                        sql.Append("  ,decPriceAfter=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceAfter"], true) + "   \r\n");
-                        sql.Append("  ,decPriceTNPWithTax=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceTNPWithTax"], true) + "   \r\n");
+                    //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
+                    sql.Append("  ,decPriceAfter=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceAfter"], true) + "   \r\n");
+                    sql.Append("  ,decPriceTNPWithTax=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceTNPWithTax"], true) + "   \r\n");
 
 
-                        sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
-                        sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
-                        sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
-                        //sql.Append("  ,dOperatorTime=getdate()   \r\n");
-                        sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null   and vcPriceState<>'4' \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null  and vcPriceState<>'4'  \r\n");
+                    sql.Append("  ,dPricebegin=" + ComFunction.getSqlValue(dt.Rows[i]["dPricebegin"], true) + "   \r\n");
+                    sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
+                    sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
+                    //sql.Append("  ,dOperatorTime=getdate()   \r\n");
+                    sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
+                    sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where iAutoId=" + strAutoId + " and decPriceTNPWithTax is not null and decPriceOrigin is not null   and vcPriceState<>'4' \r\n");
+                    sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where iAutoId=" + strAutoId + " and decPriceTNPWithTax is null and decPriceOrigin is not null and vcPriceState<>'4'  \r\n");
 
-                    }
-                    else
-                    {
-                        sql.Append("  update TPrice set    \r\n");
-                        sql.Append("  decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
-                        sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
-                        sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
-                        sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcPriceState is null  and vcPriceState<>'4'  \r\n");
-                        sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where decPriceOrigin is not null and vcPriceState is null  and vcPriceState<>'4'  \r\n");
-                    }
                 }
                 if (sql.Length > 0)
                 {

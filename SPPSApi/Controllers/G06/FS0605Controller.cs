@@ -33,37 +33,78 @@ namespace SPPSApi.Controllers.G06
             _webHostEnvironment = webHostEnvironment;
         }
 
-        #region 绑定
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string bindConst()
-        //{
-        //    //验证是否登录
-        //    string strToken = Request.Headers["X-Token"];
-        //    if (!isLogin(strToken))
-        //    {
-        //        return error_login();
-        //    }
-        //    LoginInfo loginInfo = getLoginByToken(strToken);
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    try
-        //    {
-        //        DataTable dt = fs0605_Logic.BindConst();
-        //        List<Object> dataList = ComFunction.convertToResult(dt, new string[] { "vcCodeId", "vcCodeName" });
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = dataList;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0501", ex, loginInfo.UserId);
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "绑定常量列表失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtSupplier = fs0605_Logic.GetSupplier();
+                DataTable dtWorkArea = fs0605_Logic.GetWorkArea();
+               
+                List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
+                res.Add("Supplier", dataList_Supplier);
+                res.Add("WorkArea", dataList_WorkArea);
+              
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0401", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         #endregion
+
+        [HttpPost]
+        [EnableCors("any")]
+        public string changeSupplieridApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string supplierCode = dataForm.supplierCode == null ? "" : dataForm.supplierCode;
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtWorkAreaBySupplier = fs0605_Logic.GetWorkAreaBySupplier(supplierCode);
+
+                List<Object> dataList_WorkAreaBySupplier = ComFunction.convertToResult(dtWorkAreaBySupplier, new string[] { "vcValue", "vcName" });
+
+                res.Add("WorkAreaBySupplier", dataList_WorkAreaBySupplier);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0410", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "选择供应商联动工区失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
 
         #region 检索
         [HttpPost]

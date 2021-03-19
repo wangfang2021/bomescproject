@@ -50,7 +50,9 @@ namespace SPPSApi.Controllers.G06
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<object> dataList_StateSource = ComFunction.convertAllToResult(ComFunction.getTCode("C044"));
+                List<object> dataList_OrdersSource = ComFunction.convertAllToResult(fs0615_Logic.getOrders());
                 res.Add("dataList_C044", dataList_StateSource);
+                res.Add("dataList_OrdersSource", dataList_OrdersSource);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -190,7 +192,7 @@ namespace SPPSApi.Controllers.G06
         }
         #endregion
 
-        #region 页面初始化
+        #region 菜单数量初始化
         [HttpPost]
         [EnableCors("any")]
         public string jjddloadApi()

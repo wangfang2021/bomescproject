@@ -61,5 +61,12 @@ namespace Logic
             da.getCounts(ref counts1, ref counts2);
         }
         #endregion
+
+        #region 初始化订单下拉框
+        public DataTable getOrders()
+        {
+            return da.getOrders();
+        }
+        #endregion
     }
 }

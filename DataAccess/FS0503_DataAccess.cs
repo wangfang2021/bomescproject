@@ -134,7 +134,7 @@ namespace DataAccess
                     }
                 }
 
-                strSql.AppendLine("  order by a.vcState asc, a.dSendDate desc ");
+                strSql.AppendLine("  order by a.vcState asc, a.vcPartNo desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -285,7 +285,7 @@ namespace DataAccess
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcWide else a.vcWide end as [vcWide],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcHeight else a.vcHeight end as[vcHeight],    ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcEmptyWeight else a.vcEmptyWeight end as [vcEmptyWeight],       ");
-                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcEmptyWeight else a.vcEmptyWeight end as [vcUnitNetWeight],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcUnitNetWeight else a.vcUnitNetWeight end as [vcUnitNetWeight],    ");
                 strSql.AppendLine("      a.[dSendDate], a.[dReplyDate], a.[dAdmitDate], a.[dWeaveDate], a.[vcMemo],     ");
                 strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcImageRoutes else a.vcImageRoutes end as vcImageRoutes,        ");
                 strSql.AppendLine("     a.[vcInserter], a.[vcInserterDate],a.[vcFactoryOperatorID], a.[dFactoryOperatorTime],       ");
@@ -648,6 +648,15 @@ namespace DataAccess
                 {
                     vcState = "4";
                 }
+                else if (vcState == "待回复(已填写)")
+                {
+                    vcState = "5";
+                }
+                else if (vcState == "退回(已填写)")
+                {
+                    vcState = "6";
+                }
+
                 string vcWorkArea = dataForm.vcWorkArea;
                 string vcSupplier_id = dataForm.vcSupplier_id;
                 string vcIntake = dataForm.vcIntake;
@@ -661,16 +670,20 @@ namespace DataAccess
                 string vcImageRoutes =  dataForm.vcImageRoutes;
                 //1   待回复  2 已回复   3退回4   已承认
 
-                if (vcState == "1" || vcState == "3")
+                if (vcState == "1" || vcState == "3"|| vcState == "5" || vcState == "6")
                 {
                     int editSate = 0;
                     if (vcState == "1")
                     {
                         editSate = 5;
                     }
-                    else
+                    else if (vcState == "3")
                     {
                         editSate = 6;
+                    }
+                    else
+                    {
+                        editSate = Convert.ToInt32(vcState);
                     }
 
                     strSql.AppendLine(" delete from  THeZiManageTmp where iAutoId=" + iAutoId + ";   ");

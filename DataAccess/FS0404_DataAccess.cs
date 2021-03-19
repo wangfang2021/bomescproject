@@ -488,13 +488,13 @@ namespace DataAccess
                     //{
                     //    dtNei.ImportRow(dr);
                     //}
-
+                    DataTable dockTmp = getDockTable(dTargetDate.Replace("-", "").Replace("/", ""));
                     for (int i = 0; i < fileList.Count; i++)
                     {
                         filePath = fileList[i]["filePath"].ToString();
                         fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                         fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                        DataTable dockTmp = getDockTable(dTargetDate.Replace("-", "").Replace("/", ""));
+                        
                         int No = 1;
                         string strInOutflag = string.Empty;
                         Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
@@ -901,8 +901,10 @@ namespace DataAccess
                     filePath = fileList[i]["filePath"].ToString();
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                    DataTable dockTmp = getDockTable("202003");
+                    //DataTable dockTmp = getDockTable("202003");
                     Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
+                    List<string> TargetYM = new List<string>();
+
                     //读取文件
 
                     string vcPackingFactory = uionCode;
@@ -910,6 +912,25 @@ namespace DataAccess
                     //读取Order
                     Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
                     StringBuilder sbr = new StringBuilder();
+                    //追加紧急日期
+                    foreach (Detail detail in order.Details)
+                    {
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        string date = detail.Date;
+                        if (!TargetYM.Contains(date.Substring(0,6)))
+                        {
+                            TargetYM.Add(date.Substring(0, 6));
+                        }
+                    }
+                    //获取dockTmp
+                    Hashtable dockTmp = new Hashtable();
+                    for (int k = 0; k < TargetYM.Count; k++)
+                    {
+                        DataTable dt = getDockTable(TargetYM[k]);
+                        dockTmp.Add(TargetYM[k].ToString(), dt);
+                    }
                     //判断头
                     foreach (Detail detail in order.Details)
                     {
@@ -925,11 +946,11 @@ namespace DataAccess
                         string vcSupplierPlace = "";//出荷场
                         string vcOrderNum = detail.QTY;
                         string vcOrderingMethod = "";
-
+                        string TargetTmp = detail.Date.Trim();
                         string dateTime = detail.Date.Trim();
                         string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
                         //检测品番表是否存在该品番
-                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, (DataTable)dockTmp[TargetTmp.Substring(0, 6)]);
                         if (hashtable.Keys.Count > 0)
                         {
                             //inout = hashtable["vcInOut"].ToString();
@@ -1028,7 +1049,7 @@ namespace DataAccess
                     strSql.AppendLine("   ;  ");
 
                     //获取基础信息
-                    DataTable dockTmp = getDockTable("202003");
+                    //DataTable dockTmp = getDockTable("202003");
                     //读取文件
 
                     string vcPackingFactory = uionCode;
@@ -1036,6 +1057,27 @@ namespace DataAccess
 
                     //读取Order
                     Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    List<string> TargetYM = new List<string>();
+                    //追加紧急日期
+                    foreach (Detail detail in order.Details)
+                    {
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        string date = detail.Date;
+                        if (!TargetYM.Contains(date.Substring(0, 6)))
+                        {
+                            TargetYM.Add(date.Substring(0, 6));
+                        }
+                    }
+                    //获取dockTmp
+                    Hashtable dockTmp = new Hashtable();
+                    for (int k = 0; k < TargetYM.Count; k++)
+                    {
+                        DataTable dt = getDockTable(TargetYM[k]);
+                        dockTmp.Add(TargetYM[k].ToString(), dt);
+                    }
+
                     StringBuilder sbr = new StringBuilder();
                     //判断头
                     foreach (Detail detail in order.Details)
@@ -1055,11 +1097,11 @@ namespace DataAccess
                         string vcOESP = "";
                         string vcSufferIn = "";
                         string iPackingQty = "";
-
+                        string TargetTmp = detail.Date.Trim();
                         string dateTime = detail.Date.Trim();
                         string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
                         //检测品番表是否存在该品番
-                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, (DataTable)dockTmp[TargetTmp.Substring(0, 6)]);
                         if (hashtable.Keys.Count > 0)
                         {
                             //sbr.AppendLine("   SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSupplierPlant,a.vcPackingPlant,  ");
@@ -1076,7 +1118,7 @@ namespace DataAccess
                         }
                         
                         strSql.Append("  insert into  [dbo].[TUrgentOrder] (vcOrderNo,vcPart_id,vcSupplier_id,vcGQ,vcChuHePlant,  ");
-                        strSql.Append("  iOrderQuantity,vcStatus,vcDelete,vcInOut,vcOrderPlant,vcHaoJiu,vcOESP,vcChuHePlant,vcSufferIn,iPackingQty,vcOperatorID,dOperatorTime ) values (  ");
+                        strSql.Append("  iOrderQuantity,vcStatus,vcDelete,vcInOut,vcOrderPlant,vcHaoJiu,vcOESP,vcSufferIn,iPackingQty,vcOperatorID,dOperatorTime ) values (  ");
                         strSql.Append("  '" + fileName + "',  ");
                         strSql.Append("  '"+ vcPart_id + "',  ");
                         strSql.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
@@ -1089,7 +1131,7 @@ namespace DataAccess
                         strSql.Append(ComFunction.getSqlValue(vcOrderPlant, false) + ",");
                         strSql.Append(ComFunction.getSqlValue(vcHaoJiu, false) + ",");
                         strSql.Append(ComFunction.getSqlValue(vcOESP, false) + ",");
-                        strSql.Append(ComFunction.getSqlValue(vcSupplierPlace, false) + ",");
+                        //strSql.Append(ComFunction.getSqlValue(vcSupplierPlace, false) + ",");
                         strSql.Append(ComFunction.getSqlValue(vcSufferIn, false) + ",");
                         strSql.Append(ComFunction.getSqlValue(iPackingQty, false) + ",");
                         strSql.AppendLine("  '" + userId + "',GETDATE());   ");
@@ -1170,7 +1212,7 @@ namespace DataAccess
                     filePath = fileList[i]["filePath"].ToString();
                     fileName = fileList[i]["fileName"].ToString().Trim().Substring(0, fileList[i]["fileName"].ToString().Trim().LastIndexOf("."));
                     fileOrderNo = fileName.Substring(fileName.LastIndexOf("-") + 1);//获取基础信息
-                    DataTable dockTmp = getDockTable("202003");
+                    //DataTable dockTmp = getDockTable("202003");
                     Dictionary<string, string> dicPartNo = new Dictionary<string, string>();
                     //读取文件
 
@@ -1178,6 +1220,26 @@ namespace DataAccess
                     string vcOrderNo = fileName;
                     //读取Order
                     Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    List<string> TargetYM = new List<string>();
+                    //追加紧急日期
+                    foreach (Detail detail in order.Details)
+                    {
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        string date = detail.Date;
+                        if (!TargetYM.Contains(date.Substring(0, 6)))
+                        {
+                            TargetYM.Add(date.Substring(0, 6));
+                        }
+                    }
+                    //获取dockTmp
+                    Hashtable dockTmp = new Hashtable();
+                    for (int k = 0; k < TargetYM.Count; k++)
+                    {
+                        DataTable dt = getDockTable(TargetYM[k]);
+                        dockTmp.Add(TargetYM[k].ToString(), dt);
+                    }
                     StringBuilder sbr = new StringBuilder();
                     //判断头
                     foreach (Detail detail in order.Details)
@@ -1194,11 +1256,11 @@ namespace DataAccess
                         string vcSupplierPlace = "";//出荷场
                         string vcOrderNum = detail.QTY;
                         string vcOrderingMethod = "";
-
+                        string TargetTmp = detail.Date.Trim();
                         string dateTime = detail.Date.Trim();
                         string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
                         //检测品番表是否存在该品番
-                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, (DataTable)dockTmp[TargetTmp.Substring(0, 6)]);
                         if (hashtable.Keys.Count > 0)
                         {
                             //inout = hashtable["vcInOut"].ToString();
@@ -1325,7 +1387,7 @@ namespace DataAccess
                     strSql.AppendLine("   insert into TUploadOrderRelation (vcLastOrderNo,vcNewOrderNo) values ('"+ chushiLastOrderNo + "','"+ fileName + "');   ");
                    
                     //获取基础信息
-                    DataTable dockTmp = getDockTable("202003");
+                    //DataTable dockTmp = getDockTable("202003");
                     //读取文件
 
                     string vcPackingFactory = uionCode;
@@ -1333,6 +1395,25 @@ namespace DataAccess
 
                     //读取Order
                     Order order = GetPartFromFile(realPath + filePath, fileName, ref msg);
+                    List<string> TargetYM = new List<string>();
+                    foreach (Detail detail in order.Details)
+                    {
+                        string vcPart_id = detail.PartsNo.Trim();
+                        string CPD = detail.CPD.Trim();
+                        string vcSeqno = detail.ItemNo.Trim();
+                        string date = detail.Date;
+                        if (!TargetYM.Contains(date.Substring(0, 6)))
+                        {
+                            TargetYM.Add(date.Substring(0, 6));
+                        }
+                    }
+                    //获取dockTmp
+                    Hashtable dockTmp = new Hashtable();
+                    for (int k = 0; k < TargetYM.Count; k++)
+                    {
+                        DataTable dt = getDockTable(TargetYM[k]);
+                        dockTmp.Add(TargetYM[k].ToString(), dt);
+                    }
                     StringBuilder sbr = new StringBuilder();
                     //判断头
                     foreach (Detail detail in order.Details)
@@ -1353,11 +1434,11 @@ namespace DataAccess
                         string vcSupplierPlant = "";//工区
                         string vcSupplierPlace = "";//出荷场
                         string vcOrderNum = detail.QTY;
-
+                        string TargetTmp = detail.Date.Trim();
                         string dateTime = detail.Date.Trim();
                         string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
                         //检测品番表是否存在该品番
-                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
+                        Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, (DataTable)dockTmp[TargetTmp.Substring(0, 6)]);
                         if (hashtable.Keys.Count > 0)
                         {
                             vcOrderPlant = hashtable["vcOrderPlant"].ToString();
@@ -1521,9 +1602,9 @@ namespace DataAccess
                 DateTime timeTo = timeFrom.AddMonths(1).AddMilliseconds(-1);
                 StringBuilder sbr = new StringBuilder();
 
-                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking FROM ");
+                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcOESP,e.iPackingQty,a.vcSupplierPlace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking FROM ");
                 sbr.AppendLine("(");
-                sbr.AppendLine("	SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking FROM TSPMaster WHERE ");
+                sbr.AppendLine("	SELECT vcSupplierId,vcOESP,vcSupplierPlace,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking FROM TSPMaster WHERE ");
                 sbr.AppendLine("	dFromTime <= '" + timeFrom + "' AND dToTime >='" + timeTo + "' ");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("LEFT JOIN");
@@ -1538,7 +1619,10 @@ namespace DataAccess
                 sbr.AppendLine("(");
                 sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),'" + timeFrom + "',23) AND vcValue4>=CONVERT(VARCHAR(10),'" + timeTo + "',23)");
                 sbr.AppendLine(") d ON a.vcSupplierId = d.vcSupplierId AND c.vcSupplierPlant = d.vcSupplierPlant");
-
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("select  vcPackingPlant, vcPartId, vcReceiver, vcSupplierId, vcSupplierPlant, dFromTime, dToTime, iPackingQty,  vcOperatorType, dOperatorTime from TSPMaster_Box WHERE vcOperatorType = '1' AND dFromTime <= '" + timeFrom + "' AND dToTime >= '" + timeTo + "'");
+                sbr.AppendLine(") e ON a.vcSupplierId = e.vcSupplierId AND a.vcPartId = e.vcPartId AND a.vcReceiver = e.vcReceiver AND a.vcPackingPlant = e.vcPackingPlant");
                 //sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking FROM ");
                 //sbr.AppendLine("(");
                 //sbr.AppendLine("	SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking FROM TSPMaster WHERE ");

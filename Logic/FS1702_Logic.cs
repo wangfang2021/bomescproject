@@ -37,6 +37,10 @@ namespace Logic
         {
             return fs1702_DataAccess.Search_jinji(vcPart_id);
         }
+        public DataTable Search_kb()
+        {
+            return fs1702_DataAccess.Search_kb();
+        }
         #endregion
 
         #region 按用户文件格式读取数据
@@ -231,6 +235,10 @@ namespace Logic
         {
             return fs1702_DataAccess.getKBData(vcProject, dChuHeDate);
         }
+        public DataTable getKBData(string vcpart_id)
+        {
+            return fs1702_DataAccess.getKBData(vcpart_id);
+        }
 
         public string generateExcelWithXlt(string vcQueRenNo, DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
         {
@@ -323,6 +331,10 @@ namespace Logic
         {
             fs1702_DataAccess.Save_jinji(listInfoData, strUserId);
         }
+        public void Save_kb(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs1702_DataAccess.Save_kb(listInfoData, strUserId);
+        }
         #endregion
 
         #region 删除
@@ -330,7 +342,20 @@ namespace Logic
         {
             fs1702_DataAccess.Del_jinji(checkedInfoData, strUserId);
         }
+        public void Del_kb(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            fs1702_DataAccess.Del_kb(checkedInfoData, strUserId);
+        }
         #endregion
+
+        public bool isExitInSSP(string vcPart_id)
+        {
+            int count = fs1702_DataAccess.isExitInSSP(vcPart_id);
+            if (count > 0)
+                return true;
+            else
+                return false;
+        }
     }
 
 }

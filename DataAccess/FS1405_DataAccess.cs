@@ -20,6 +20,7 @@ namespace DataAccess
                 strSql.AppendLine("select T1.LinId AS LinId");
                 strSql.AppendLine("		,T1.vcApplyId AS vcApplyId");
                 strSql.AppendLine("		,t1.vcSPISStatus AS vcSPISStatus");
+                strSql.AppendLine("		,t5.dToTime_SPIS AS dToTime_SPIS");
                 strSql.AppendLine("		,T6.vcName AS vcSPISStatus_name");
                 strSql.AppendLine("		,T1.vcPartId AS vcPartId");
                 strSql.AppendLine("		,T1.vcPartENName AS vcPartENName");
@@ -400,7 +401,7 @@ namespace DataAccess
             }
         }
 
-        public void setRejectInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
+        public void setRejectInfo(DataTable dtImport, DataTable dtSPISTime, string strOperId, ref DataTable dtMessage)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
 
@@ -408,18 +409,27 @@ namespace DataAccess
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try
             {
+                #region sqlCommand_modinfo
                 SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
                 sqlCommand_modinfo.Transaction = sqlTransaction;
                 sqlCommand_modinfo.CommandType = CommandType.Text;
                 StringBuilder strSql_modinfo = new StringBuilder();
-                strSql_modinfo.AppendLine(" ");
+                #region SQL and Parameters
+                strSql_modinfo.AppendLine("UPDATE tCheckMethod_Master SET vcSPISStatus=@vcSPISStatus WHERE LinId=@LinId ");
+                strSql_modinfo.AppendLine(" update TSPISApply set vcPicUrl=NULL,vcPDFUrl=NULL,vcSPISUrl=NULL,vcOperName=NULL, vcGM=NULL,vcOperatorID='" + strOperId + "',dOperatorTime=GETDATE() where vcApplyId=@vcApplyId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
-                sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
+                sqlCommand_modinfo.Parameters.AddWithValue("@LinId", "");
+                sqlCommand_modinfo.Parameters.AddWithValue("@vcSPISStatus", "");
+                sqlCommand_modinfo.Parameters.AddWithValue("@vcApplyId", "");
+                #endregion
                 foreach (DataRow item in dtImport.Rows)
                 {
-                    sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
+                    sqlCommand_modinfo.Parameters["@LinId"].Value = item["LinId"].ToString();
+                    sqlCommand_modinfo.Parameters["@vcSPISStatus"].Value = item["vcSPISStatus"].ToString();
+                    sqlCommand_modinfo.Parameters["@vcApplyId"].Value = item["vcApplyId"].ToString();
                     sqlCommand_modinfo.ExecuteNonQuery();
                 }
+                #endregion
                 //提交事务
                 sqlTransaction.Commit();
                 sqlConnection.Close();

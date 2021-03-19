@@ -155,12 +155,58 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable checkrejectInfo(List<Dictionary<string, Object>> checkedInfoData, string strOperId, string strPackingPlant, ref DataTable dtMessage)
+        public void checkrejectInfo(List<Dictionary<string, Object>> multipleInfoData, ref DataTable dtImport, string strOperId, string strPackingPlant, ref DataTable dtMessage)
         {
             try
             {
-                DataTable dtImport = new DataTable();
-                return dtImport;
+                DataTable dtSPISTime = fs0603_Logic.createTable("savFs1404");
+                if (multipleInfoData.Count != 0)
+                {
+                    for (int i = 0; i < multipleInfoData.Count; i++)
+                    {
+                        if (fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcSPISStatus"], "", "") == "2")
+                        {
+                            string strLinId = fs0603_DataAccess.setNullValue(multipleInfoData[i]["LinId"], "", "");
+                            string strApplyId = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcApplyId"], "", "");
+                            string strFromTime_SPIS = fs0603_DataAccess.setNullValue(multipleInfoData[i]["dToTime_SPIS"], "date", "");
+                            string strToTime_SPIS = fs0603_DataAccess.setNullValue(multipleInfoData[i]["dToTime"], "date", "");
+                            string strPicUrl = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcPicUrl"], "", "");
+                            string strPDFUrl = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcPDFUrl"], "", "");
+                            string strSPISUrl = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcSPISUrl"], "", "");
+                            string strPartId = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcPartId"], "", "");
+                            string strCarfamilyCode = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcCarfamilyCode"], "", "");
+                            string strSupplierId = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcSupplierId"], "", "");
+                            string strModItem = fs0603_DataAccess.setNullValue(multipleInfoData[i]["vcModItem"], "", "");
+                            DataRow drImport = dtImport.NewRow();
+                            drImport["LinId"] = strLinId;
+                            drImport["vcApplyId"] = strApplyId;
+                            drImport["dFromTime_SPIS"] = strFromTime_SPIS;
+                            drImport["dToTime_SPIS"] = strToTime_SPIS;
+                            drImport["vcPartId"] = strPartId;
+                            drImport["vcCarfamilyCode"] = strCarfamilyCode;
+                            drImport["vcSupplierId"] = strSupplierId;
+                            drImport["vcModItem"] = strModItem;
+                            drImport["vcPicUrl"] = strPicUrl;
+                            drImport["vcPDFUrl"] = strPDFUrl;
+                            drImport["vcSPISUrl"] = strSPISUrl;
+                            drImport["vcSPISStatus"] = "4";//依赖标识
+                            dtImport.Rows.Add(drImport);
+                        }
+                    }
+                }
+                if (dtImport.Rows.Count == 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "没有可供驳回的数据";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    return;
+                dtSPISTime = checkTimeAndPic(dtImport, dtSPISTime, "reject", ref dtMessage);//赋值
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    return;
+                rejectInfo(dtImport, dtSPISTime, strOperId, ref dtMessage);//更新
+                return;
             }
             catch (Exception ex)
             {
@@ -233,6 +279,24 @@ namespace Logic
                         dtSPISTime.Rows.Add(drSPISTime);
                     }
                 }
+                if (strFunType == "reject")
+                {
+                    for (int i = 0; i < dtImport.Rows.Count; i++)
+                    {
+                        string strLinId = dtImport.Rows[i]["strLinId"].ToString();
+                        string strApplyId = dtImport.Rows[i]["vcApplyId"].ToString();
+                        string strFromTime_SPIS = dtImport.Rows[i]["dFromTime_SPIS"].ToString();
+                        string strToTime_SPIS = dtImport.Rows[i]["dToTime_SPIS"].ToString();
+                        string strPartId = dtImport.Rows[i]["vcPartId"].ToString();
+                        string strCarfamilyCode = dtImport.Rows[i]["vcCarfamilyCode"].ToString();
+                        string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString();
+                        string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
+                        string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();
+                        //根据条件删除照片
+                        string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();
+                        string strSPISUrl = "";
+                    }
+                }
                 return dtSPISTime;
             }
             catch (Exception ex)
@@ -255,18 +319,18 @@ namespace Logic
         {
             try
             {
-                fs1405_DataAccess.setAdmitInfo(dtImport, dtSPISTime,strOperId, ref dtMessage);
+                fs1405_DataAccess.setAdmitInfo(dtImport, dtSPISTime, strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public void rejectInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
+        public void rejectInfo(DataTable dtImport, DataTable dtSPISTime, string strOperId, ref DataTable dtMessage)
         {
             try
             {
-                fs1405_DataAccess.setRejectInfo(dtImport, strOperId, ref dtMessage);
+                fs1405_DataAccess.setRejectInfo(dtImport, dtSPISTime, strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {

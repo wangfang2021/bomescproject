@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Common;
 using Logic;
@@ -19,6 +20,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace SPPSApi.Controllers.G06
 {
@@ -66,7 +70,6 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-                string strMsg = "";
                 //string[,] headers = new string[,] {{"状态","包装工场","收货方","供应商代码","品番","要望纳期","要望收容数","收容数", "箱最大收容数", "箱种", "长(mm)", "宽(mm)", "高(mm)", "空箱重量(g)", "单品净重(g)","备注"},
                 //                                {"vcOperWay","vcPackingPlant","vcReceiver","vcSupplier_id","vcPartNo","dExpectDeliveryDate", "vcExpectIntake","vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcMemo"},
                 //                                {"","","",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Num, FieldCheck.Num,FieldCheck.Num,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,""},
@@ -87,16 +90,18 @@ namespace SPPSApi.Controllers.G06
 
 
                 DataTable importDt = new DataTable();
+                DataTable dataTable = fs0604_Logic.createTable("fs0604");
+                bool bReault = true;
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
-                    if (strMsg != "")
-                    {
-                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    DataTable dt = fs0604_Logic.ExcelToDataTableFfs0604(info.FullName, "sheet1", headers, ref bReault,ref dataTable);
+                    //if (strMsg != "")
+                    //{
+                    //    ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                    //    apiResult.code = ComConstant.ERROR_CODE;
+                    //    apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
+                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    //}
                     if (importDt.Columns.Count == 0)
                         importDt = dt.Clone();
                     if (dt.Rows.Count == 0)
@@ -112,23 +117,24 @@ namespace SPPSApi.Controllers.G06
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
-
-
+                
                 var result = from r in importDt.AsEnumerable()
                              group r by new { r2 = r.Field<string>("vcPartNo"), r3 = r.Field<string>("vcPackingPlant"), r4 = r.Field<string>("vcReceiver"), r5 = r.Field<string>("vcSupplier_id") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
                 {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
+                    //StringBuilder sbr = new StringBuilder();
+                    //sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r2 + "包装工厂: " + item.Key.r3 + "收货方: " + item.Key.r4 + "供应商代码:" + item.Key.r5 + " < br/>");
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = item.Key.r2;
+                        dataRow["vcMessage"] = "包装工厂: " + item.Key.r3 + "收货方: " + item.Key.r4 + "供应商代码:" + item.Key.r5 + "导入数据重复";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                        //sbr.Append("品番:" + item.Key.r2 + "包装工厂: " + item.Key.r3 + "收货方: " + item.Key.r4 + "供应商代码:" + item.Key.r5 + " < br/>");
                     }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //判断新增的数据四个主键是否在数存在重复
                 for (int i=0;i< importDt.Rows.Count;i++)
@@ -137,11 +143,21 @@ namespace SPPSApi.Controllers.G06
                     {
                         if (fs0604_Logic.isCheckImportAddData(importDt.Rows[i]["vcPackingPlant"].ToString().Trim(), importDt.Rows[i]["vcReceiver"].ToString().Trim(), importDt.Rows[i]["vcSupplier_id"].ToString().Trim(), importDt.Rows[i]["vcPartNo"].ToString().Trim()))
                         {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "新增状态的数据,包装工厂"+ importDt.Rows[i]["vcPackingPlant"].ToString().Trim()+",收货方"+ importDt.Rows[i]["vcReceiver"].ToString().Trim()+",供应商代码"+ importDt.Rows[i]["vcSupplier_id"].ToString().Trim()+"品番"+importDt.Rows[i]["vcPartNo"].ToString().Trim()+"数据库主键重复,不能新增！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            DataRow dataRow = dataTable.NewRow();
+                            dataRow["vcPartNo"] = importDt.Rows[i]["vcPartNo"].ToString().Trim();
+                            dataRow["vcMessage"] = "新增状态的数据,包装工厂" + importDt.Rows[i]["vcPackingPlant"].ToString().Trim() + ",收货方" + importDt.Rows[i]["vcReceiver"].ToString().Trim() + ",供应商代码" + importDt.Rows[i]["vcSupplier_id"].ToString().Trim() +  "数据库主键重复,不能新增！";
+                            dataTable.Rows.Add(dataRow);
+                            bReault = false;
                         }
                     }
+                }
+                if (!bReault)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dataTable;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 fs0604_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -219,5 +235,6 @@ namespace SPPSApi.Controllers.G06
         }
         #endregion
 
+        
     }
 }

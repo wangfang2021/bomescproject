@@ -53,10 +53,6 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                if (loginInfo.Special == "财务用户")
-                    res.Add("caiWuBtnVisible", false);
-                else
-                    res.Add("caiWuBtnVisible", true);
 
                 List<Object> dataList_C002 = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
                 Dictionary<string, object> row = new Dictionary<string, object>();
@@ -131,8 +127,6 @@ namespace SPPSApi.Controllers.G03
             string strOriginCompany = dataForm.OriginCompany;
             string strHaoJiu = dataForm.HaoJiu;
             string strProjectType = dataForm.ProjectType;
-            if (loginInfo.Special == "财务用户")
-                strProjectType = "0";
 
             string strPriceChangeInfo = dataForm.PriceChangeInfo;
             string strCarTypeDev = dataForm.CarTypeDev;

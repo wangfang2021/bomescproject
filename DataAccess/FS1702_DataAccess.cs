@@ -61,10 +61,24 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from tChuHe_jinji   \n");
-                if(vcPart_id!="" && vcPart_id !=null)
-                    sql.Append("where vcPart_id like '"+vcPart_id+"%'    \n");
+                if (vcPart_id != "" && vcPart_id != null)
+                    sql.Append("where vcPart_id like '" + vcPart_id + "%'    \n");
                 sql.Append("order by vcPart_id    \n");
 
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable Search_kb()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TChuHe_KB    \n");
+                sql.Append("order by vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -75,7 +89,7 @@ namespace DataAccess
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId,ref string strErrorName)
+        public void importSave(DataTable dt, string strUserId, ref string strErrorName)
         {
             try
             {
@@ -100,8 +114,8 @@ namespace DataAccess
                         qty = "0";
                     else
                         qty = dt.Rows[i]["iQuantity"].ToString();
-                    sql.Append("           ,'"+ qty + "'    \n");
-                    sql.Append("           ,'"+strUserId+"'    \n");
+                    sql.Append("           ,'" + qty + "'    \n");
+                    sql.Append("           ,'" + strUserId + "'    \n");
                     sql.Append("           ,getdate())    \n");
                     #endregion
                 }
@@ -151,7 +165,7 @@ namespace DataAccess
                 sql.Append("           ,[dChuHeOKTime]    \n");
                 sql.Append("           ,[vcOperatorID]    \n");
                 sql.Append("           ,[dOperatorTime])    \n");
-                sql.Append("select t1.vcQueRenNo,t1.vcProject,t1.dChuHeDate,t1.iQuantity,null,null,null,'" + strUserId+"',GETDATE()     \n");
+                sql.Append("select t1.vcQueRenNo,t1.vcProject,t1.dChuHeDate,t1.iQuantity,null,null,null,'" + strUserId + "',GETDATE()     \n");
                 sql.Append("from (    \n");
                 sql.Append("	select t1.vcQueRenNo,t1.vcProject,t1.dChuHeDate,sum(t1.iQuantity) as iQuantity     \n");
                 sql.Append("	from (    \n");
@@ -187,7 +201,7 @@ namespace DataAccess
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
 
-                    sql.Append("update TChuHe set dQueRenPrintTime='"+time+"' where iAutoId=" + iAutoId + "   \n");
+                    sql.Append("update TChuHe set dQueRenPrintTime='" + time + "' where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -258,7 +272,7 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select ROW_NUMBER() over(order by t1.vcPart_id) as id,t1.vcPart_id,t1.iQuantity,t2.vcBackPart_id,'' as vcRemark from (    \n");
-                sql.Append("	select * from TChuHe_Detail where vcProject='"+vcProject+"' and dChuHeDate='"+dChuHeDate+ "' and iQuantity>0    \n");
+                sql.Append("	select * from TChuHe_Detail where vcProject='" + vcProject + "' and dChuHeDate='" + dChuHeDate + "' and iQuantity>0    \n");
                 sql.Append(")t1    \n");
                 sql.Append("left join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id    \n");
 
@@ -285,6 +299,21 @@ namespace DataAccess
                 sql.Append("	select * from TChuHe_Detail where vcProject='2W' and dChuHeDate='2021-01-29 00:00:00.000' and iQuantity>0    \n");
                 sql.Append(")t2 on t1.vcProject=t2.vcPart_id    \n");
 
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getKBData(string vcPart_id)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select '补给品中心' as vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,    \n");
+                sql.Append("vcChuHePart_id,vcPart_Name,iCapacity,vcBoxType    \n");
+                sql.Append("from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -321,7 +350,62 @@ namespace DataAccess
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
                         sql.Append("update tChuHe_jinji set vcPart_id='" + listInfoData[i]["vcPart_id"].ToString() + "'," +
                             "iQuantity=nullif('" + listInfoData[i]["iQuantity"].ToString() + "',''),vcReason='" + listInfoData[i]["vcReason"].ToString() + "'," +
-                            "vcOperatorID='"+strUserId+"',dOperatorTime=getdate()   \n");
+                            "vcOperatorID='" + strUserId + "',dOperatorTime=getdate()   \n");
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void Save_kb(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+
+                    //标识说明
+                    //默认  bmodflag:false  baddflag:false
+                    //新增  bmodflag:true   baddflag:true
+                    //修改  bmodflag:true   baddflag:false
+
+                    if (baddflag == true)
+                    {//新增
+                        sql.Append("INSERT INTO [TChuHe_KB]    \n");
+                        sql.Append("           ([vcPart_id]    \n");
+                        sql.Append("           ,[vcProject]    \n");
+                        sql.Append("           ,[iQuantity]    \n");
+                        sql.Append("           ,[iKBQuantity]    \n");
+                        sql.Append("           ,[vcOperatorID]    \n");
+                        sql.Append("           ,[dOperatorTime])    \n");
+                        sql.Append("     VALUES    \n");
+                        sql.Append("           ('" + listInfoData[i]["vcPart_id"].ToString() + "'    \n");
+                        sql.Append("           ,'" + listInfoData[i]["vcProject"].ToString() + "'    \n");
+                        sql.Append("           ,nullif('" + listInfoData[i]["iQuantity"].ToString() + "','')    \n");
+                        sql.Append("           ,nullif('" + listInfoData[i]["iKBQuantity"].ToString() + "','')    \n");
+                        sql.Append("           ,'"+strUserId+"'    \n");
+                        sql.Append("           ,getdate())    \n");
+                    }
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        sql.Append("UPDATE [TChuHe_KB]    \n");
+                        sql.Append("   SET [vcPart_id] = '" + listInfoData[i]["vcPart_id"].ToString() + "'    \n");
+                        sql.Append("      ,[vcProject] = '" + listInfoData[i]["vcProject"].ToString() + "'    \n");
+                        sql.Append("      ,[iQuantity] = nullif('" + listInfoData[i]["iQuantity"].ToString() + "','')    \n");
+                        sql.Append("      ,[iKBQuantity] = nullif('" + listInfoData[i]["iKBQuantity"].ToString() + "','')    \n");
+                        sql.Append("      ,[vcOperatorID] = '" + strUserId + "'    \n");
+                        sql.Append("      ,[dOperatorTime] = getdate()    \n");
+                        sql.Append(" WHERE iAutoId="+iAutoId+"    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -346,7 +430,28 @@ namespace DataAccess
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
                     sql.Append("delete from tChuHe_jinji where iAutoId=" + iAutoId + "   \n");
-                   
+
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void Del_kb(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < checkedInfoData.Count; i++)
+                {
+                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    sql.Append("delete from tChuHe_kb where iAutoId=" + iAutoId + "   \n");
+
                 }
                 if (sql.Length > 0)
                 {
@@ -359,5 +464,19 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public int isExitInSSP(string vcPart_id)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select count(1) from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'     \n");
+                return excute.ExecuteScalar(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

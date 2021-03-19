@@ -1007,7 +1007,7 @@ namespace DataAccess
                 sql.AppendLine("  (    \r\n ");
                 sql.AppendLine("    select * from TSoq where vcYearMonth='"+ strLastYearMonth + "'    \r\n ");
                 sql.AppendLine("  )b on a.vcPart_id=b.vcPart_id    \r\n ");
-                sql.AppendLine("  where a.vcYearMonth='" + strYearMonth + "' and b.iHySOQN is not null    \r\n ");
+                sql.AppendLine("  where a.vcYearMonth='" + strYearMonth + "' --and b.iHySOQN is not null    \r\n ");
 
                 //在SOQprocess表中插入状态
                 //sql.AppendLine("DELETE TSOQProcess WHERE vcYearMonth='"+ strYearMonth + "'; \r\n ");

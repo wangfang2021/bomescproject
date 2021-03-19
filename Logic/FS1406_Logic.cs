@@ -5,6 +5,7 @@ using System.Text;
 using System.Data;
 using DataAccess;
 using System.Collections;
+using System.IO;
 
 namespace Logic
 {
@@ -56,6 +57,7 @@ namespace Logic
                     string strColourName = dtImport.Rows[i]["vcColourName"].ToString();
                     string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
                     string strOperImage = dtImport.Rows[i]["vcPicUrl"].ToString();
+                    string strPICUrl = string.Empty;
                     string strPDFUrl = string.Empty;
                     string strSPISUrl = string.Empty;
                     string strSupplier_1 = string.Empty;
@@ -88,6 +90,12 @@ namespace Logic
                             }
                             else
                             {
+                                //原图名
+                                strPICUrl = strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_1.jpg";
+                                //PDF名
+                                strPDFUrl = strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_2.pdf";
+                                //SPIS名
+                                strSPISUrl = strPartId + strSupplierId + Convert.ToDateTime(strFromTime_SPIS).ToString("yyyyMMdd") + "_3.jpg";
                                 if (strApplyId == "")
                                 {
                                     dtImport.Rows[i]["vcType"] = "add";
@@ -110,25 +118,50 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable savePic(DataTable dtImport, string strOperId, ref DataTable dtMessage)
+        public DataTable savePic(DataTable dtImport,
+            string strPath_temp, string strPath_pic, string strPath_pdf, string strPath_sips,
+            string strOperId, ref DataTable dtMessage)
         {
             try
             {
-                for (int i = 0; i < dtImport.Rows.Count; i++)
-                {
-                    string strLinId = dtImport.Rows[i]["strLinId"].ToString();
-                    string strApplyId = dtImport.Rows[i]["vcApplyId"].ToString();
-                    string strFromTime_SPIS = dtImport.Rows[i]["dFromTime_SPIS"].ToString();
-                    string strToTime_SPIS = dtImport.Rows[i]["dToTime_SPIS"].ToString();
-                    string strPartId = dtImport.Rows[i]["vcPartId"].ToString();
-                    string strCarfamilyCode = dtImport.Rows[i]["vcCarfamilyCode"].ToString();
-                    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString();
-                    string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
-                    string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();
-                    //根据条件删除照片
-                    string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();
-                    string strSPISUrl = "";
-                }
+                //for (int i = 0; i < dtImport.Rows.Count; i++)
+                //{
+                //    string strLinId = dtImport.Rows[i]["strLinId"].ToString();
+                //    string strApplyId = dtImport.Rows[i]["vcApplyId"].ToString();
+                //    string strFromTime_SPIS = dtImport.Rows[i]["dFromTime_SPIS"].ToString();
+                //    string strToTime_SPIS = dtImport.Rows[i]["dToTime_SPIS"].ToString();
+                //    string strPartId = dtImport.Rows[i]["vcPartId"].ToString();
+                //    string strCarfamilyCode = dtImport.Rows[i]["vcCarfamilyCode"].ToString();
+                //    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString();
+                //    string strModItem = dtImport.Rows[i]["vcModItem"].ToString();
+                //    string strTempUrl = dtImport.Rows[i]["vcTempUrl"].ToString();//原图临时文件
+                //    string sources_temp = strPath_temp + strTempUrl;//原图临时文件地址
+                //    string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();//原图正式文件
+                //    string sources_pic = strPath_pic + strPicUrl;//原图正式文件地址
+                //    //移动到原图正式地址
+                //    if (System.IO.File.Exists(sources_temp))
+                //    {
+                //        File.Copy(sources_temp, sources_pic, true);//true代表可以覆盖同名文件
+                //        File.Delete(sources_temp);
+                //    }
+                    
+
+                //    string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();//PDF文件
+                //    string sources_pdf = strPath_pdf + strPDFUrl;//PDF文件地址
+
+                //    string strSPISUrl = dtImport.Rows[i]["vcSPISUrl"].ToString();//正式文件
+                //    string sources_spis = strPath_sips + strSPISUrl;//式文件地址
+
+                //    //string sources = strPath + dtImport.Rows[i]["vcPicUrl"].ToString();
+                //    //string dest = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar + dtImport.Rows[i]["vcPicUrlUUID"].ToString();
+                //    //fS1404_Logic.CopyFile(sources, dest);
+                    
+
+                //    string strPicUrl = dtImport.Rows[i]["vcPicUrl"].ToString();
+
+                //    string strPDFUrl = dtImport.Rows[i]["vcPDFUrl"].ToString();
+                //    string strSPISUrl = "";
+                //}
                 return dtImport;
             }
             catch (Exception ex)

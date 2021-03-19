@@ -230,7 +230,7 @@ namespace SPPSApi.Controllers.G12
                 if (CheckWeek(vcMonth, vcWeek, vcPlant) == false)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "对象月不包含" + NumberToText(vcWeek) + "！";
+                    apiResult.data = "对象月#" + vcPlant + "厂" + NumberToText(vcWeek) + "的稼动日历不存在！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
@@ -416,7 +416,7 @@ namespace SPPSApi.Controllers.G12
                     };
                     fS1205_Logic.TXTUpdateTableDetermine(dtPartsWeekLevel, vcMonth, vcOrderNo, vcWeek, vcPlant);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw ex;
                 }

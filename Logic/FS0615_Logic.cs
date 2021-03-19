@@ -55,6 +55,11 @@ namespace Logic
         }
         #endregion
 
-
+        #region 紧急订单导航页初始化
+        public void getCounts(ref int counts1, ref int counts2)
+        {
+            da.getCounts(ref counts1, ref counts2);
+        }
+        #endregion
     }
 }

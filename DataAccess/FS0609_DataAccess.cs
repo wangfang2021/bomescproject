@@ -38,7 +38,7 @@ namespace DataAccess
 
                 //先删除
                 strSql.AppendLine(" DELETE TCalendar_PingZhun_Nei ");
-                strSql.AppendLine(" WHERE TARGETMONTH=@varDxny; ");
+                strSql.AppendLine(" WHERE TARGETMONTH=@varDxny and vcFZGC='" + vcFZGC + "'; ");
 
                 //再新增
                 strSql.AppendLine(" INSERT INTO TCalendar_PingZhun_Nei( ");

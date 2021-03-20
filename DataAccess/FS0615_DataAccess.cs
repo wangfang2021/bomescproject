@@ -158,7 +158,7 @@ namespace DataAccess
         {
             try
             {
-                string sql = "select distinct vcOrderNo as vcValue from TOrderUploadManage where  order by vcOrderNo";
+                string sql = "select distinct vcOrderNo as vcValue from TOrderUploadManage where vcOrderType in ('H','F','C') order by vcOrderNo";
                 return excute.ExcuteSqlWithSelectToDT(sql);
             }
             catch (Exception ex)

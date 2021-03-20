@@ -62,6 +62,13 @@ namespace Logic
         }
         #endregion
 
+        #region 获取订单路径
+        public string getPath(string orderNo)
+        {
+            return da.getPath(orderNo);
+        }
+        #endregion
+
         #region 初始化订单下拉框
         public DataTable getOrders()
         {

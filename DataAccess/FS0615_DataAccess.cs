@@ -140,6 +140,27 @@ namespace DataAccess
         }
         #endregion
 
+        #region 获取订单路径
+        public string getPath(string orderNo)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcFilePath FROM TOrderUploadManage WHERE vcOrderNo = '" + orderNo + "'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                if (dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0]["vcFilePath"].ToString();
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 初始化订单下拉框
         public DataTable getOrders()
         {

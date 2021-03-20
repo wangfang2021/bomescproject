@@ -129,7 +129,7 @@ namespace SPPSApi.Controllers.G06
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "操作失败：" + strErrorPartId;
+                    apiResult.data = strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }

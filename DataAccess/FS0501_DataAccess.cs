@@ -480,7 +480,7 @@ namespace DataAccess
                 for (int i = 0; i < dtMultiple.Rows.Count; i++)
                 {
                     sql.Append("  INSERT INTO TSoq_temp(vcYearMonth,vcPart_id,vcSupplier_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcOperator,dOperatorTime,  ");
-                    sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2) values       \n");
+                    sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2,vcDyState,vcHyState) values       \n");
                     sql.Append("('" + dtMultiple.Rows[i]["vcYearMonth"].ToString() + "',");
                     sql.Append("'" + dtMultiple.Rows[i]["vcPart_id"].ToString() + "',");
                     sql.Append("'" + dtMultiple.Rows[i]["vcSupplierId"].ToString() + "',");
@@ -491,7 +491,9 @@ namespace DataAccess
                     sql.Append("getDate(),");
                     sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN"].ToString() + "',");
                     sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN1"].ToString() + "',");
-                    sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN2"].ToString() + "'");
+                    sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN2"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["vcDyState"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["vcHyState"].ToString() + "'");
                     sql.Append(")");
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());//先导入临时表，然后check

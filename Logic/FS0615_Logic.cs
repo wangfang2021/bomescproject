@@ -67,6 +67,10 @@ namespace Logic
         {
             return da.getOrders();
         }
+        public DataTable getTCode()
+        {
+            return da.getTCode();
+        }
         #endregion
     }
 }

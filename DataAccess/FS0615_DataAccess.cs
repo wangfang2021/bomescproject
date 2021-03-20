@@ -60,14 +60,18 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                    sql.Append("  update TOrderUploadManage set \r\n");
-                    sql.Append("  vcOrderState='4'  \r\n");
-                    sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
-                    sql.Append("  update TUrgentOrder set vcShowFlag='1' \r\n");
-                    sql.Append("  where vcOrderNo=" + ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], true) + " \r\n");
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                    if (listInfoData[i]["vcOrderState"] != null && listInfoData[i]["vcOrderState"].ToString() == "待处理")
+                    {
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("  update TOrderUploadManage set \r\n");
+                        sql.Append("  vcOrderState='4'  \r\n");
+                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                        sql.Append("  update TUrgentOrder set vcShowFlag='1' \r\n");
+                        sql.Append("  where vcOrderNo=" + ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], true) + "; \r\n");
+                    }
                 }
+                if (sql.ToString().Trim().Length > 0)
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
@@ -131,6 +135,17 @@ namespace DataAccess
             {
                 string sql = "select distinct vcOrderNo as vcValue from TOrderUploadManage order by vcOrderNo";
                 return excute.ExcuteSqlWithSelectToDT(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getTCode()
+        {
+            try
+            {
+                return excute.ExcuteSqlWithSelectToDT("select vcName,vcValue from TCode where vcCodeId='C044' ORDER BY vcMeaning");
             }
             catch (Exception ex)
             {

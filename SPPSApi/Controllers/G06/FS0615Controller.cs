@@ -49,7 +49,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<object> dataList_StateSource = ComFunction.convertAllToResult(ComFunction.getTCode("C044"));
+                List<object> dataList_StateSource = ComFunction.convertAllToResult(fs0615_Logic.getTCode());
                 List<object> dataList_OrdersSource = ComFunction.convertAllToResult(fs0615_Logic.getOrders());
                 res.Add("dataList_C044", dataList_StateSource);
                 res.Add("dataList_OrdersSource", dataList_OrdersSource);

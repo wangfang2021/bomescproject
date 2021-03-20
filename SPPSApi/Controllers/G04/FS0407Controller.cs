@@ -41,11 +41,11 @@ namespace SPPSApi.Controllers.G04
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
-                List<Object> dataList_PartId = ComFunction.convertAllToResult(fs0407_Logic.getPartId());//内外
+                //List<Object> dataList_PartId = ComFunction.convertAllToResult(fs0407_Logic.getPartId());//内外
                 List<Object> dataList_OrderNo = ComFunction.convertAllToResult(fs0407_Logic.getOrder());//内外
 
 
-                res.Add("PartId", dataList_PartId);
+                //res.Add("PartId", dataList_PartId);
                 res.Add("OrderNo", dataList_OrderNo);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

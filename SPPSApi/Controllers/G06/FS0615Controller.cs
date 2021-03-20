@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
+using System.IO;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -49,7 +47,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<object> dataList_StateSource = ComFunction.convertAllToResult(ComFunction.getTCode("C044"));
+                List<object> dataList_StateSource = ComFunction.convertAllToResult(fs0615_Logic.getTCode());
                 List<object> dataList_OrdersSource = ComFunction.convertAllToResult(fs0615_Logic.getOrders());
                 res.Add("dataList_C044", dataList_StateSource);
                 res.Add("dataList_OrdersSource", dataList_OrdersSource);
@@ -127,23 +125,23 @@ namespace SPPSApi.Controllers.G06
                 List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 string strErrorPartId = "";
-                fs0615_Logic.dateMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                strErrorPartId = fs0615_Logic.dateMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "操作失败：<br/>" + strErrorPartId;
+                    apiResult.data = strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "确认成功！";
+                apiResult.data = "纳期确认成功！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1303", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "纳期确认失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -170,26 +168,91 @@ namespace SPPSApi.Controllers.G06
                 List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 string strErrorPartId = "";
-                fs0615_Logic.orderMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                strErrorPartId = fs0615_Logic.orderMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "操作失败：<br/>" + strErrorPartId;
+                    apiResult.data = "操作失败：" + strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "做成成功！";
+                apiResult.data = "订单做成成功！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1303", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "订单做成失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string fileName = dataForm.fileName;
+            try
+            {
+                string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "orders";
+                string filepath = fs0615_Logic.getPath(fileName);
+                if (!string.IsNullOrWhiteSpace(filepath))
+                {
+                    string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                                          Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar +"Order"; //文件临时目录，导入完成后 删除
+                    string tmp = fileSavePath + Path.DirectorySeparatorChar;
+                    if (Directory.Exists(tmp))
+                    {
+                        ComFunction.DeleteFolder(tmp);
+                    }
+                    string filepathTmp = realPath + filepath;
+                    string filePathFinally = fileSavePath + filepath;
+
+                    string strPath = Path.GetDirectoryName(filePathFinally);
+                    if (!Directory.Exists(strPath))
+                    {
+                        Directory.CreateDirectory(strPath);
+                    }
+                    if (System.IO.File.Exists(filepathTmp))
+                    {
+                        System.IO.File.Copy(filepathTmp, filePathFinally, true);
+                        filepath = "Order" + Path.DirectorySeparatorChar + filepath;
+                    }
+                    else
+                    {
+                        filepath = "";
+                    }
+                }
+                else
+                {
+                    filepath = "";
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1403", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "下载文件失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
         #endregion
 
         #region 菜单数量初始化

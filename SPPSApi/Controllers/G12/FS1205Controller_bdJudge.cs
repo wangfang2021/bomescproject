@@ -177,25 +177,32 @@ namespace SPPSApi.Controllers.G12
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcMonth = dataForm.vcMonth;
             string vcWeek = dataForm.vcWeek;
-            string vcPlant = dataForm.vcPlant;
-            DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
+            string vcPlant = dataForm.vcPlant; 
+            string msg = "";
             try
             {
-                string exlName = "";
-                string msg = "";
-                DataTable tb = fS1205_Logic.BdpdFileExport(dt, ref exlName, ref msg);
-                string[] fields = {
-                       "vcMonth", "vcWeek", "vcPartsno", "vcWeekTotal", "vcWeekOrderingCount", "vcWeekLevelPercentage","vcFlag","vcQuantityPerContainer","vcAdjust","vcMonTotal","vcRealTotal"
-                };
-                string filepath = ComFunction.generateExcelWithXlt(tb, fields, _webHostEnvironment.ContentRootPath, "FS1205_Exp.xlsx", 1, loginInfo.UserId, FunctionID);
-                if (filepath == "")
+                DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
+                if (dt != null && dt.Rows.Count > 0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    string exlName = "";      
+                    DataTable tb = fS1205_Logic.BdpdFileExport(dt, ref exlName, ref msg);
+                    if (tb != null && tb.Rows.Count > 0)
+                    {
+                        string[] fields = { "vcMonth", "vcWeek", "vcPartsno", "vcWeekTotal", "vcWeekOrderingCount", "vcWeekLevelPercentage", "vcFlag", "vcQuantityPerContainer", "vcAdjust", "vcMonTotal", "vcRealTotal" };
+                        string filepath = ComFunction.generateExcelWithXlt(tb, fields, _webHostEnvironment.ContentRootPath, "FS1205_Exp.xlsx", 1, loginInfo.UserId, FunctionID);
+                        if (filepath == "")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导出失败！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        apiResult.code = ComConstant.SUCCESS_CODE;
+                        apiResult.data = filepath;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "无数据，导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

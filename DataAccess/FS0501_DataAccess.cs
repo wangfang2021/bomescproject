@@ -480,7 +480,7 @@ namespace DataAccess
                 for (int i = 0; i < dtMultiple.Rows.Count; i++)
                 {
                     sql.Append("  INSERT INTO TSoq_temp(vcYearMonth,vcPart_id,vcSupplier_id,iTzhSOQN,iTzhSOQN1,iTzhSOQN2,vcOperator,dOperatorTime,  ");
-                    sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2) values       \n");
+                    sql.Append("  iCbSOQN,iCbSOQN1,iCbSOQN2,vcDyState,vcHyState) values       \n");
                     sql.Append("('" + dtMultiple.Rows[i]["vcYearMonth"].ToString() + "',");
                     sql.Append("'" + dtMultiple.Rows[i]["vcPart_id"].ToString() + "',");
                     sql.Append("'" + dtMultiple.Rows[i]["vcSupplierId"].ToString() + "',");
@@ -491,7 +491,9 @@ namespace DataAccess
                     sql.Append("getDate(),");
                     sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN"].ToString() + "',");
                     sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN1"].ToString() + "',");
-                    sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN2"].ToString() + "'");
+                    sql.Append("'" + dtMultiple.Rows[i]["iCbSOQN2"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["vcDyState"].ToString() + "',");
+                    sql.Append("'" + dtMultiple.Rows[i]["vcHyState"].ToString() + "'");
                     sql.Append(")");
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());//先导入临时表，然后check
@@ -578,8 +580,8 @@ namespace DataAccess
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("left join     ");
                 sql.AppendLine("(--价格     ");
-                sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd from TPrice     ");
-                sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplierId and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
+                sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd,vcSupplier_id from TPrice     ");
+                sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplier_id and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
                 sql.AppendLine("where item=1 and cast(t1.iTzhSOQN as int) <>0 and t3.vcPart_id is null and isnull(t2.vcMandOrder,'')<>'1' --vcMandOrder='1' 是强制订货");
                 DataTable dt5 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 ErrorMsg(ref dterrMessage, dtc, dt5, "{0}月没有价格", true);
@@ -687,7 +689,7 @@ namespace DataAccess
                 sql.AppendLine("left join    ");
                 sql.AppendLine("(--手配主表    ");
                 sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime     ");
-                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime      ");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime      ");
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)    ");
                 sql.AppendLine("left join(    --//收容数 N    ");
                 sql.AppendLine("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSupplierPlant,iPackingQty,dFromTime,dToTime         ");
@@ -695,7 +697,7 @@ namespace DataAccess
                 sql.AppendLine("	where vcOperatorType='1'         ");
                 sql.AppendLine(")t5 on t2.vcPartId=t5.vcPartId and t2.vcPackingPlant=t5.vcPackingPlant and t2.vcReceiver=t5.vcReceiver and t2.vcSupplierId=t5.vcSupplierId         ");
                 sql.AppendLine("and t1.vcYM between convert(varchar(6),t5.dFromTime,112) and convert(varchar(6),t5.dToTime,112)    ");
-                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t1.iCbSOQN%t5.iPackingQty<>0    ");
+                sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t1.iTzhSOQN%t5.iPackingQty<>0    ");
                 DataTable dt9 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 ErrorMsg(ref dterrMessage, dtc, dt9, "订货数量不是收容数的整数倍", false);
                 #endregion
@@ -721,7 +723,7 @@ namespace DataAccess
                 sql.AppendLine("left join");
                 sql.AppendLine("(--手配主表");
                 sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
-                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime  and vcOldProduction='一括生产'");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime  and vcOldProduction='一括生产'");
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("and t1.vcYM>=convert(varchar(6),t2.dDebugTime,112)");
                 sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
@@ -750,7 +752,7 @@ namespace DataAccess
                 sql.AppendLine("left join");
                 sql.AppendLine("(--手配主表");
                 sql.AppendLine("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dDebugTime,dFromTime,dToTime ");
-                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='strReceiver' and dFromTime<>dToTime  and vcOrderingMethod='1'");
+                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime  and vcOrderingMethod='1'");
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("where cast(t1.iTzhSOQN as int) <>0 and t2.vcPartId is not null");
                 DataTable dt11 = excute.ExcuteSqlWithSelectToDT(sql.ToString());

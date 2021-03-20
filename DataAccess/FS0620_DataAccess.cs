@@ -271,7 +271,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string dOperatorTime,  string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierId,string vcWorkArea, string vcType,string vcPackPlant,string vcReceiver)
+        public DataTable Search(string dOperatorTime,  string vcTargetYear, string vcPartNo, string vcInjectionFactory, string vcInsideOutsideType, string vcSupplierId,string vcWorkArea, string vcType,string vcPackPlant,string vcReceiver,string vcEmailFlag)
         {
             try
             {
@@ -298,6 +298,11 @@ namespace DataAccess
                 if (vcTargetYear.Length > 0)
                 {
                     strSql.AppendLine("  and  vcTargetYear = '" + vcTargetYear + "' ");
+                }
+                
+                if (vcEmailFlag.Length > 0)
+                {
+                    strSql.AppendLine("  and  isnull(vcEmailFlag,'0') = '" + vcEmailFlag + "' ");
                 }
                 if (vcReceiver.Length > 0)
                 {

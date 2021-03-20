@@ -226,7 +226,7 @@ namespace DataAccess
                 sql.Append(")t1    \n");
                 sql.Append("left join (    \n");
                 sql.Append("	select * from TSoq    \n");
-                sql.Append("	where vcYearMonth='" + strDXYM + "' and vcFZGC='" + strPlant + "'' and vcInOutFlag='1'   \n");
+                sql.Append("	where vcYearMonth='" + strDXYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1'   \n");
                 sql.Append(") t2 on t1.vcPart_id=t2.vcPart_id     \n");
 
                 cmd.Connection = conn;

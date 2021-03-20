@@ -38,9 +38,9 @@ namespace Logic
         /// <param name="vcOrderNo"></param>
         /// <param name="vcOrderState"></param>
         /// <returns></returns>
-        public void dateMake(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public string dateMake(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            da.dateMake(listInfoData, strUserId, ref strErrorPartId);
+            return da.dateMake(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
 
@@ -49,9 +49,9 @@ namespace Logic
         /// 订单做成
         /// </summary>
         /// <returns></returns>
-        public void orderMake(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
+        public string orderMake(List<Dictionary<string, object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            da.orderMake(listInfoData, strUserId, ref strErrorPartId);
+            return da.orderMake(listInfoData, strUserId, ref strErrorPartId);
         }
         #endregion
 

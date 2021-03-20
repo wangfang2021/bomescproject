@@ -127,23 +127,23 @@ namespace SPPSApi.Controllers.G06
                 List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 string strErrorPartId = "";
-                fs0615_Logic.dateMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                strErrorPartId = fs0615_Logic.dateMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "操作失败：<br/>" + strErrorPartId;
+                    apiResult.data = "操作失败：" + strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "确认成功！";
+                apiResult.data = "纳期确认成功！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1303", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "纳期确认失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -170,23 +170,23 @@ namespace SPPSApi.Controllers.G06
                 List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 string strErrorPartId = "";
-                fs0615_Logic.orderMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                strErrorPartId = fs0615_Logic.orderMake(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "操作失败：<br/>" + strErrorPartId;
+                    apiResult.data = "操作失败：" + strErrorPartId;
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "做成成功！";
+                apiResult.data = "订单做成成功！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE1303", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "订单做成失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

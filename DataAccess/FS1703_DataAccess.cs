@@ -11,43 +11,24 @@ namespace DataAccess
 {
     public class FS1703_DataAccess
     {
-        private MultiExcute excute = new MultiExcute();
-
-        #region 检索所有的工程下拉框选择
-        public DataTable getAllProject()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.Append("select distinct vcProject as vcValue,vcProject as vcName from TChuHe_Detail  \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
+        private MultiExcute excute = new MultiExcute();       
 
         #region 检索
-        public DataTable Search(string vcProject, string dChuHeDateFrom, string dChuHeDateTo)
+        public DataTable Search(string vcPart_id, string vcChaYi)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select iAutoId,vcQueRenNo,vcProject,dChuHeDate,iQuantity,    \n");
-                strSql.Append("case when dQueRenPrintTime is not null then '√' else '' end as QueRenPrintFlag,    \n");
-                strSql.Append("case when vcQueRenNo like 'BJW%' then '━' when dKBPrintTime is not null then '√' else '' end as KBPrintFlag,    \n");
-                strSql.Append("case when dChuHeOKTime is not null then '√' else '' end as ChuHeOKFlag    \n");
-                strSql.Append("from TChuHe where 1=1   \n");
-                if (vcProject != "" && vcProject != null)
-                    strSql.Append("and vcProject = '" + vcProject + "'    \n");
-                if (dChuHeDateFrom == "" || dChuHeDateFrom == null)
-                    dChuHeDateFrom = "2001/01/01";
-                if (dChuHeDateTo == "" || dChuHeDateTo == null)
-                    dChuHeDateTo = "2099/12/31";
-                strSql.Append("and dChuHeDate between '" + dChuHeDateFrom + "' and '" + dChuHeDateTo + "'  \n");
-                strSql.Append("order by vcQueRenNo,dChuHeDate   \n");
+                strSql.Append("select t1.*,t2.vcPlace,'0' as vcModFlag,'0' as vcAddFlag from TPanDian t1    \n");
+                strSql.Append("left join TSSPManagement t2 on t1.vcPart_id=t2.vcNaRuPart_id    \n");
+                strSql.Append("where 1=1    \n");
+                if (vcPart_id != "" && vcPart_id != null)
+                    strSql.Append("and t1.vcPart_id like '" + vcPart_id + "%'    \n");
+                if (vcChaYi=="是")
+                    strSql.Append("and isnull(t1.iSystemQuantity,0)<>isnull(t1.iRealQuantity,0)  \n");
+                else if(vcChaYi=="否")
+                    strSql.Append("and isnull(t1.iSystemQuantity,0)=isnull(t1.iRealQuantity,0)  \n");
+                strSql.Append("order by t1.vcPart_id   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -87,6 +68,51 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 保存
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+
+                    //标识说明
+                    //默认  bmodflag:false  baddflag:false
+                    //新增  bmodflag:true   baddflag:true
+                    //修改  bmodflag:true   baddflag:false
+
+                    if (baddflag == true)
+                    {//新增
+                        //无新增情况
+                    }
+                    else if (baddflag == false && bmodflag == true)
+                    {//修改
+                        #region modify sql
+                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        string iRealQuantity = listInfoData[i]["iRealQuantity"] == null ? "" : listInfoData[i]["iRealQuantity"].ToString();
+
+                        sql.Append("update TPanDian set iRealQuantity=nullif('" + iRealQuantity + "',''),   \n");
+                        sql.Append("vcOperatorID='"+iAutoId+"',dOperatorTime=getdate()  \n");
+                        sql.Append("where iAutoId='" + iAutoId + "'    \n");
+                        #endregion
+                    }
+                }
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
 
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId, ref string strErrorName)
@@ -190,293 +216,5 @@ namespace DataAccess
         }
         #endregion
 
-        #region 确认单打印
-        public void qrdPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                DateTime time = DateTime.Now;
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-
-                    sql.Append("update TChuHe set dQueRenPrintTime='" + time + "' where iAutoId=" + iAutoId + "   \n");
-                }
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 出荷看板打印
-        public void kbPrint(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                DateTime time = DateTime.Now;
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-
-                    sql.Append("update TChuHe set dKBPrintTime='" + time + "' where iAutoId=" + iAutoId + "   \n");
-                }
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 出荷完了
-        public void chuheOK(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                DateTime time = DateTime.Now;
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-
-                    sql.Append("update TChuHe set dChuHeOKTime='" + time + "' where iAutoId=" + iAutoId + "   \n");
-                }
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 取出确认单信息
-        public DataTable GetqrdInfo(string vcProject, string dChuHeDate)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select ROW_NUMBER() over(order by t1.vcPart_id) as id,t1.vcPart_id,t1.iQuantity,t2.vcBackPart_id,'' as vcRemark from (    \n");
-                sql.Append("	select * from TChuHe_Detail where vcProject='" + vcProject + "' and dChuHeDate='" + dChuHeDate + "' and iQuantity>0    \n");
-                sql.Append(")t1    \n");
-                sql.Append("left join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id    \n");
-
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 取出看板信息
-        public DataTable getKBData(string vcProject, string dChuHeDate)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select '补给品中心' as vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
-                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t1.iCapacity,t1.vcBoxType    \n");
-                sql.Append("from TSSPManagement t1    \n");
-                sql.Append("inner join     \n");
-                sql.Append("(    \n");
-                sql.Append("	select * from TChuHe_Detail where vcProject='2W' and dChuHeDate='2021-01-29 00:00:00.000' and iQuantity>0    \n");
-                sql.Append(")t2 on t1.vcProject=t2.vcPart_id    \n");
-
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public DataTable getKBData(string vcPart_id)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select '补给品中心' as vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,    \n");
-                sql.Append("vcChuHePart_id,vcPart_Name,iCapacity,vcBoxType    \n");
-                sql.Append("from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'    \n");
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 保存
-        public void Save_jinji(List<Dictionary<string, Object>> listInfoData, string strUserId)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-
-                    //标识说明
-                    //默认  bmodflag:false  baddflag:false
-                    //新增  bmodflag:true   baddflag:true
-                    //修改  bmodflag:true   baddflag:false
-
-                    if (baddflag == true)
-                    {//新增
-                        sql.Append("insert into tChuHe_jinji (vcPart_id,iQuantity,vcReason,vcOperatorID,dOperatorTime) values   \n");
-                        sql.Append("('" + listInfoData[i]["vcPart_id"].ToString() + "',nullif('" + listInfoData[i]["iQuantity"].ToString() + "','')," +
-                            "'" + listInfoData[i]["vcReason"].ToString() + "','" + strUserId + "',getdate())  \n");
-                    }
-                    else if (baddflag == false && bmodflag == true)
-                    {//修改
-                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("update tChuHe_jinji set vcPart_id='" + listInfoData[i]["vcPart_id"].ToString() + "'," +
-                            "iQuantity=nullif('" + listInfoData[i]["iQuantity"].ToString() + "',''),vcReason='" + listInfoData[i]["vcReason"].ToString() + "'," +
-                            "vcOperatorID='" + strUserId + "',dOperatorTime=getdate()   \n");
-                    }
-                }
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public void Save_kb(List<Dictionary<string, Object>> listInfoData, string strUserId)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bmodflag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool baddflag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-
-                    //标识说明
-                    //默认  bmodflag:false  baddflag:false
-                    //新增  bmodflag:true   baddflag:true
-                    //修改  bmodflag:true   baddflag:false
-
-                    if (baddflag == true)
-                    {//新增
-                        sql.Append("INSERT INTO [TChuHe_KB]    \n");
-                        sql.Append("           ([vcPart_id]    \n");
-                        sql.Append("           ,[vcProject]    \n");
-                        sql.Append("           ,[iQuantity]    \n");
-                        sql.Append("           ,[iKBQuantity]    \n");
-                        sql.Append("           ,[vcOperatorID]    \n");
-                        sql.Append("           ,[dOperatorTime])    \n");
-                        sql.Append("     VALUES    \n");
-                        sql.Append("           ('" + listInfoData[i]["vcPart_id"].ToString() + "'    \n");
-                        sql.Append("           ,'" + listInfoData[i]["vcProject"].ToString() + "'    \n");
-                        sql.Append("           ,nullif('" + listInfoData[i]["iQuantity"].ToString() + "','')    \n");
-                        sql.Append("           ,nullif('" + listInfoData[i]["iKBQuantity"].ToString() + "','')    \n");
-                        sql.Append("           ,'"+strUserId+"'    \n");
-                        sql.Append("           ,getdate())    \n");
-                    }
-                    else if (baddflag == false && bmodflag == true)
-                    {//修改
-                        string iAutoId = listInfoData[i]["iAutoId"].ToString();
-                        sql.Append("UPDATE [TChuHe_KB]    \n");
-                        sql.Append("   SET [vcPart_id] = '" + listInfoData[i]["vcPart_id"].ToString() + "'    \n");
-                        sql.Append("      ,[vcProject] = '" + listInfoData[i]["vcProject"].ToString() + "'    \n");
-                        sql.Append("      ,[iQuantity] = nullif('" + listInfoData[i]["iQuantity"].ToString() + "','')    \n");
-                        sql.Append("      ,[iKBQuantity] = nullif('" + listInfoData[i]["iKBQuantity"].ToString() + "','')    \n");
-                        sql.Append("      ,[vcOperatorID] = '" + strUserId + "'    \n");
-                        sql.Append("      ,[dOperatorTime] = getdate()    \n");
-                        sql.Append(" WHERE iAutoId="+iAutoId+"    \n");
-                    }
-                }
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 删除
-        public void Del_jinji(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from tChuHe_jinji where iAutoId=" + iAutoId + "   \n");
-
-                }
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public void Del_kb(List<Dictionary<string, Object>> checkedInfoData, string strUserId)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from tChuHe_kb where iAutoId=" + iAutoId + "   \n");
-
-                }
-                if (sql.Length > 0)
-                {
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        public int isExitInSSP(string vcPart_id)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select count(1) from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'     \n");
-                return excute.ExecuteScalar(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
     }
 }

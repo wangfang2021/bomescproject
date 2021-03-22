@@ -90,7 +90,7 @@ namespace SPPSApi.Controllers.G04
                 }
 
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-                string[,] headers = new string[,] {{"PartsNo", "发注工厂", "订货频度", "CFC", "OrdLot", "N Units"
+                string[,] headers = new string[,] {{"PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
                 ,"N PCS","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","D14"
                 ,"D15","D16","D17","D18","D19","D20","D21","D22","D23","D24","D25","D26","D27","D28"
                 ,"D29","D30","D31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"},
@@ -152,7 +152,7 @@ namespace SPPSApi.Controllers.G04
                     if (dr.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 2) + "行[订货频度]列只能填写" + temp;
+                        apiResult.data = "第" + (i + 2) + "行[订货方式]列只能填写" + temp;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -176,6 +176,7 @@ namespace SPPSApi.Controllers.G04
 
                 //验证修改后每日平准箱数是否跟总箱数一致
                 StringBuilder errPart = new StringBuilder();
+                StringBuilder errPart_SRS = new StringBuilder();//不是收容数整数倍的异常品番
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     string strPart_id = importDt.Rows[i]["vcPart_id"].ToString();
@@ -188,10 +189,23 @@ namespace SPPSApi.Controllers.G04
                         string strSRS = importDt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : importDt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
                         int iSRS = strSRS.Trim() == "" ? 1 : Convert.ToInt32(strSRS.Trim());//收容数
                         int iD = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim()) / iSRS;
+                        if (strIDTemp.Trim() != "" && Convert.ToInt32(strIDTemp.Trim()) % iSRS != 0)//用户输入的不符合收容数要求
+                        {
+                            errPart_SRS.Append(strPart_id + ":D" + j + ",");
+                        }
                         iCheck = iCheck + iD;
                     }
                     if (iBoxes != iCheck)
                         errPart.Append(strPart_id + ",");
+                }
+                if (errPart_SRS.Length > 0)
+                {
+                    StringBuilder sbr = new StringBuilder();
+                    sbr.Append("以下品番修改后不符合收容数整数倍要求:<br/>");
+                    sbr.Append(errPart_SRS);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (errPart.Length > 0)
                 {

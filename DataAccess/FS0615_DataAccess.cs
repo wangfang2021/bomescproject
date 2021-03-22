@@ -108,7 +108,7 @@ namespace DataAccess
                     else
                     {
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                        sql.Append("  update TUrgentOrder set vcShowFlag='1' \r\n");
+                        sql.Append("  update TOrderUploadManage set vcShowFlag='1' \r\n");
                         sql.Append("  where vcOrderNo=" + ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], true) + "; \r\n");
                     }
                 }

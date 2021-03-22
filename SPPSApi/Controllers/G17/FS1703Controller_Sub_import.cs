@@ -32,7 +32,7 @@ namespace SPPSApi.Controllers.G17
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS1702_Logic fs1702_Logic = new FS1702_Logic();
+        FS1703_Logic fs1703_Logic = new FS1703_Logic();
         private readonly string FunctionID = "FS1703";
 
         public FS1703Controller_Sub_import(IWebHostEnvironment webHostEnvironment)
@@ -69,10 +69,15 @@ namespace SPPSApi.Controllers.G17
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
+                string[,] headers = new string[,] {{"纳入品番","所番地","应有数量","实际数量"},
+                                                {"vcPart_id","vcPlace" ,"iSystemQuantity", "iRealQuantity"},
+                                                {FieldCheck.NumCharL,"",FieldCheck.Num,FieldCheck.Num},
+                                                {"20","25","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","0","0","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = fs1702_Logic.ExcelToDataTableformRows(info.FullName,"sheet1", ref strMsg);
+                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
                     if (strMsg != "")
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
@@ -97,7 +102,7 @@ namespace SPPSApi.Controllers.G17
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r1 = r.Field<string>("vcPart_id")} into g
+                             group r by new { r1 = r.Field<string>("vcPart_id") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -106,32 +111,14 @@ namespace SPPSApi.Controllers.G17
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("品番:" + item.Key.r1 + "<br/>");
+                        sbr.Append("纳入品番:" + item.Key.r1 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtBoss = new DataTable();
-                dtBoss.Columns.Add("vcProject");
-                dtBoss.Columns.Add("vcPart_id");
-                dtBoss.Columns.Add("dChuHeDate");
-                dtBoss.Columns.Add("iQuantity");
-                for (int i=0;i< importDt.Rows.Count;i++)
-                {
-                    for(int j=2;j<importDt.Columns.Count;j++)
-                    {
-                        DataRow dr = dtBoss.NewRow();
-                        dr["vcProject"] = importDt.Rows[i]["vcProject"].ToString();
-                        dr["vcPart_id"] = importDt.Rows[i]["vcPart_id"].ToString();
-                        dr["dChuHeDate"] = importDt.Columns[j].ColumnName;
-                        dr["iQuantity"] = importDt.Rows[i][importDt.Columns[j].ColumnName].ToString();
-                        dtBoss.Rows.Add(dr);
-                    }
-                }
-                string strErrorName = "";
-                fs1702_Logic.importSave(dtBoss, loginInfo.UserId,ref strErrorName);
 
+                fs1703_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -141,7 +128,7 @@ namespace SPPSApi.Controllers.G17
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导入品目关系失败" + ex.Message;
+                apiResult.data = "保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

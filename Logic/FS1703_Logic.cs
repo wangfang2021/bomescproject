@@ -47,9 +47,9 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId,ref string strErrorName)
+        public void importSave(DataTable dt, string strUserId)
         {
-            fs1703_DataAccess.importSave(dt, strUserId,ref strErrorName);
+            fs1703_DataAccess.importSave(dt, strUserId);
         }
         #endregion
 

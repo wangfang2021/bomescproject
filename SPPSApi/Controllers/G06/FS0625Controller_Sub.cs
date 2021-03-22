@@ -1503,7 +1503,7 @@ namespace SPPSApi.Controllers.G06
                             string strPartNanem = dtNewCarType.Rows[p]["vcPartName"].ToString();
                             string strDock = dtNewCarType.Rows[p]["vcDock"].ToString();
                             string strNum = dtNewCarType.Rows[p]["vcNumber"].ToString();
-                            string strNaruRi = dtNewCarType.Rows[p]["dOrderReceiveDate"].ToString();
+                            string strNaruRi = dtNewCarType.Rows[p]["dOrderPurposesDate"].ToString();
                             string strChuHeRi = dtNewCarType.Rows[p]["dOrderReceiveDate"].ToString();
                             IRow row = sheetOrder.GetRow(p + startRowIndex);
                             row.Height = 660;

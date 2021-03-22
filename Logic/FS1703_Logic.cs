@@ -26,13 +26,9 @@ namespace Logic
         {
             return fs1703_DataAccess.Search(vcPart_id, vcChaYi);
         }
-        public DataTable Search_jinji(string vcPart_id)
+        public DataTable Search_history(string vcPart_id,string vcPlace)
         {
-            return fs1703_DataAccess.Search_jinji(vcPart_id);
-        }
-        public DataTable Search_kb()
-        {
-            return fs1703_DataAccess.Search_kb();
+            return fs1703_DataAccess.Search_history(vcPart_id,vcPlace);
         }
         #endregion
 

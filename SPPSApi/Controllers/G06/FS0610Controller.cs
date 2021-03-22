@@ -395,7 +395,7 @@ namespace SPPSApi.Controllers.G06
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
                 ,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_Download.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_Download.xlsx", 1, loginInfo.UserId, FunctionID,true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

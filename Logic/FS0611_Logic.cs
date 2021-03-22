@@ -6,6 +6,9 @@ using System.IO;
 using Common;
 using DataAccess;
 using DataEntity;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace Logic
 {
@@ -98,5 +101,7 @@ namespace Logic
             return Convert.ToInt32(dt.Rows[0]["vcValue1"]);
         }
         #endregion
+
+        
     }
 }

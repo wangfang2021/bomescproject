@@ -405,13 +405,13 @@ namespace DataAccess
                 string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], \n");
-                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货频度'  \n");
+                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货频度',e.vcName as '发注工厂'  \n");
                 strSql.AppendLine(" FROM \n");
                 strSql.AppendLine(" ( \n");
                 strSql.AppendLine("   SELECT ");
                 strSql.AppendLine("   vcPart_id as 'PartsNo', \n");
                 //发注工厂
-                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂', \n");
+                strSql.AppendLine("   vcFZGC, \n");
                 //订货频度
                 strSql.AppendLine("   vcMakingOrderType, \n");
                 strSql.AppendLine("   vcCarType as 'CFC', \n");
@@ -468,6 +468,7 @@ namespace DataAccess
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id  \n");
 
                 strSql.AppendLine("left join (select * from TCode where vcCodeId='C047')d on a.vcMakingOrderType=d.vcValue    \n");
+                strSql.AppendLine("left join (select vcValue,vcName from TCode where vcCodeId='C000')e on a.vcFZGC=e.vcValue ");
 
                 strSql.AppendLine(" order by a.iAutoId ");
 
@@ -495,7 +496,12 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 sql.Append("      select * into #TSOQReply from       \n");
                 sql.Append("      (      \n");
-                sql.Append("      	select * from TSOQReply where 1=0      \n");
+                sql.Append("      	select       \n");
+                sql.Append("       vcPart_id,vcFZGC,vcMakingOrderType,vcCarType,iQuantityPercontainer,iBoxes,iPartNums      \n");
+                sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
+                sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
+                sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
+                sql.Append("      	  from TSOQReply where 1=0      \n");
                 sql.Append("      ) a      ;\n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {

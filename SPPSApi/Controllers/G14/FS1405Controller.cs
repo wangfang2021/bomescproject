@@ -184,7 +184,7 @@ namespace SPPSApi.Controllers.G14
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtImport = fS0603_Logic.createTable("SPISApply");
-                fS1405_Logic.checksendtoInfo(checkedInfoData, strToTime_SPIS, ref dtImport, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                fS1405_Logic.checksendtoInfo(checkedInfoData,  ref dtImport, strToTime_SPIS, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -244,8 +244,7 @@ namespace SPPSApi.Controllers.G14
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                DataTable dtImport = fS0603_Logic.createTable("SPISApply");
-                fS1405_Logic.checkadmitInfo(checkedInfoData, ref dtImport, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                fS1405_Logic.checkadmitInfo(checkedInfoData, loginInfo.UserId, loginInfo.UserName, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -292,8 +291,7 @@ namespace SPPSApi.Controllers.G14
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                DataTable dtImport = fS0603_Logic.createTable("SPISApply");
-                fS1405_Logic.checkrejectInfo(checkedInfoData, ref dtImport, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                fS1405_Logic.checkrejectInfo(checkedInfoData, loginInfo.UserId, loginInfo.UserName, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage

@@ -60,7 +60,7 @@ namespace DataAccess
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
                         string vcIsDQ = listInfoData[i]["vcIsDQ"].ToString() == "" ? "是" : listInfoData[i]["vcIsDQ"].ToString();
                         string vcIsDQ_old = listInfoData[i]["vcIsDQ_old"].ToString();
-                        string strTickNo = listInfoData[i]["strTickNo"].ToString();
+                        string strTickNo = listInfoData[i]["vcTicketNo"].ToString();
                         string vcLJNo = listInfoData[i]["vcLJNo"].ToString();
                         string iQuantity = string.IsNullOrEmpty(listInfoData[i]["iQuantity"].ToString()) ? "0" : listInfoData[i]["iQuantity"].ToString();
                         string iQuantity_old = string.IsNullOrEmpty(listInfoData[i]["iQuantity_old"].ToString()) ? "0" : listInfoData[i]["iQuantity_old"].ToString();
@@ -136,10 +136,8 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    string strTickNo = checkedInfoData[i]["strTickNo"].ToString();
+                    string strTickNo = checkedInfoData[i]["vcTicketNo"].ToString();
                     string vcLJNo = checkedInfoData[i]["vcLJNo"].ToString();
-
-                    sql.Append("delete from TNRManagement where iAutoId=" + iAutoId + "   \n");
 
                     #region update TPanDian 数量减少
                     sql.AppendLine("update t2 set t2.iSystemQuantity=isnull(t2.iSystemQuantity,0)-isnull(t1.iQuantity,0),");
@@ -151,6 +149,8 @@ namespace DataAccess
                     sql.AppendLine("	select * from TPanDian where vcPart_id='" + vcLJNo + "'");
                     sql.AppendLine(")t2 on t1.vcLJNo=t2.vcPart_id");
                     #endregion
+
+                    sql.Append("delete from TNRManagement where iAutoId=" + iAutoId + "   \n");
                 }
                 if (sql.Length > 0)
                 {
@@ -227,16 +227,6 @@ namespace DataAccess
                     }
                 }
                 #region 更新库存
-                sql.AppendLine("insert into TPanDian (vcPart_id,iSystemQuantity,iRealQuantity,vcOperatorID,dOperatorTime)");
-                sql.AppendLine("select t1.vcLJNo,t1.iQuantity,null,'" + strUserId + "','" + now + "' from(");
-                sql.AppendLine("    select vcLJNo,sum(isnull(iQuantity,0)) as iQuantity from TNRManagement_Temp where vcOperatorID='" + strUserId + "' ");
-                sql.AppendLine("    group by vcLJNo");
-                sql.AppendLine(")t1 ");
-                sql.AppendLine("left join (");
-                sql.AppendLine("	select * from TPanDian  ");
-                sql.AppendLine(")t2 on t1.vcLJNo=t2.vcPart_id");
-                sql.AppendLine("where t2.iAutoId is null");
-
                 sql.AppendLine("update t2 set t2.iSystemQuantity=isnull(t2.iSystemQuantity,0)+isnull(t1.iQuantity,0),");
                 sql.AppendLine("t2.vcOperatorID='" + strUserId + "',t2.dOperatorTime='" + now + "' ");
                 sql.AppendLine("from (");
@@ -246,6 +236,16 @@ namespace DataAccess
                 sql.AppendLine("inner join (");
                 sql.AppendLine("	select * from TPanDian ");
                 sql.AppendLine(")t2 on t1.vcLJNo=t2.vcPart_id");
+
+                sql.AppendLine("insert into TPanDian (vcPart_id,iSystemQuantity,iRealQuantity,vcOperatorID,dOperatorTime)");
+                sql.AppendLine("select t1.vcLJNo,t1.iQuantity,null,'" + strUserId + "','" + now + "' from(");
+                sql.AppendLine("    select vcLJNo,sum(isnull(iQuantity,0)) as iQuantity from TNRManagement_Temp where vcOperatorID='" + strUserId + "' ");
+                sql.AppendLine("    group by vcLJNo");
+                sql.AppendLine(")t1 ");
+                sql.AppendLine("left join (");
+                sql.AppendLine("	select * from TPanDian  ");
+                sql.AppendLine(")t2 on t1.vcLJNo=t2.vcPart_id");
+                sql.AppendLine("where t2.iAutoId is null");
                 #endregion
 
                 if (sql.Length > 0)

@@ -254,12 +254,12 @@ namespace SPPSApi.Controllers.G06
                     ArrayList arrResult_DXYM = new ArrayList();//dtCalendar,dtSoq_dxym,null,null
                     ArrayList arrResult_NSYM = new ArrayList();//dtCalendar,dtSoq_nsym,null,null
                     ArrayList arrResult_NNSYM = new ArrayList();//dtCalendar,dtSoq_nnsym,null,null
-
+                    int iSub = fs0610_Logic.getPingZhunAddSubDay();
                     if (find)
                     {
-                        arrResult_DXYM = soqCompute.getPinZhunList(dtSoq_dxym, dtCalendar, null, null);
-                        arrResult_NSYM = soqCompute.getPinZhunList(dtSoq_nsym, dtCalendar_2, null, null);
-                        arrResult_NNSYM = soqCompute.getPinZhunList(dtSoq_nnsym, dtCalendar_3, null, null);
+                        arrResult_DXYM = soqCompute.getPinZhunList(dtSoq_dxym, dtCalendar, null, null, strYearMonth, iSub);
+                        arrResult_NSYM = soqCompute.getPinZhunList(dtSoq_nsym, dtCalendar_2, null, null, strYearMonth_2, iSub);
+                        arrResult_NNSYM = soqCompute.getPinZhunList(dtSoq_nnsym, dtCalendar_3, null, null, strYearMonth_3, iSub);
                     }
                     //if (find_2)
                     //    arrResult_NSYM = soqCompute.getPinZhunList(dtSoq_nsym, dtCalendar_2, null, null);

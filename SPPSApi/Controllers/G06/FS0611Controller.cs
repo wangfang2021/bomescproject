@@ -324,12 +324,12 @@ namespace SPPSApi.Controllers.G06
 
 
                 DataTable dt = fs0611_Logic.search(strYearMonth, strYearMonth_2, strYearMonth_3);
-                string[] fields = { "PartsNo", "发注工厂", "订货频度", "CFC", "OrdLot", "N Units"
+                string[] fields = { "PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
                 ,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
                 ,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0611_Download.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0611_Download.xlsx", 1, loginInfo.UserId, FunctionID,true);
                 
                 if (filepath == "")
                 {

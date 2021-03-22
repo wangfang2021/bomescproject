@@ -385,13 +385,13 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 string strCLYM = System.DateTime.Now.ToString("yyyyMM");
                 strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], ");
-                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货频度' ");
+                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货方式',e.vcName as  '发注工厂' ");
                 strSql.AppendLine(" FROM ");
                 strSql.AppendLine(" ( ");
                 strSql.AppendLine("   SELECT ");
                 strSql.AppendLine("   vcPart_id as 'PartsNo',");
                 //发注工厂
-                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂',");
+                strSql.AppendLine("   vcFZGC,");
                 //订货频度
                 strSql.AppendLine("   vcMakingOrderType,");
                 strSql.AppendLine("   vcCarType as 'CFC',");
@@ -448,8 +448,9 @@ namespace DataAccess
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id ");
 
                 strSql.AppendLine("left join (select * from TCode where vcCodeId='C047')d on a.vcMakingOrderType=d.vcValue    \n");
+                strSql.AppendLine("left join (select * from TCode where vcCodeId='C000')e on a.vcFZGC=e.vcValue    \n");
 
-
+                
                 strSql.AppendLine(" order by a.iAutoId ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

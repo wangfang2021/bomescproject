@@ -1440,6 +1440,8 @@ namespace SPPSApi.Controllers.G06
                     hsOrderstyle2.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
                     hsOrderstyle2.VerticalAlignment = VerticalAlignment.Center;
                     ICellStyle hsOrderstyle3 = hsorderworkbook.CreateCellStyle();//声明style1对象，设置Excel表格的样式 标题 车型 左边
+                    hsOrderstyle3.BorderLeft = BorderStyle.Thin;
+                    hsOrderstyle3.BorderBottom = BorderStyle.Thin;
                     hsOrderstyle3.BorderRight = BorderStyle.Thin;
                     hsOrderstyle3.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
                     hsOrderstyle3.VerticalAlignment = VerticalAlignment.Center;
@@ -1476,11 +1478,11 @@ namespace SPPSApi.Controllers.G06
                         if (dtNewCarType.Rows.Count > 1)
                         {
                             sheetOrder.ShiftRows(startRowIndex, sheetOrder.LastRowNum, dtNewCarType.Rows.Count - 1, true, false);
-                            for (int k = startRowIndex; k < startRowIndex + dtNewCarType.Rows.Count - 3; k++)
+                            for (int k = startRowIndex; k < startRowIndex + dtNewCarType.Rows.Count - 1; k++)
                             {
                                 var rowInsert = sheetOrder.CreateRow(k);
 
-                                for (int col = 0; col < 8; col++)
+                                for (int col = 0; col <= 8; col++)
                                 {
                                     var cellInsert = rowInsert.CreateCell(col);
                                     if (col == 8)
@@ -1582,18 +1584,11 @@ namespace SPPSApi.Controllers.G06
                     //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "list";
-                    apiResult.data = bReault;
+                    apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                if (strErr.Length > 0)
-                {
-                    apiResult.data = strErr.ToString() + ",其余发送成功！";
-                }
-                else
-                {
-                    apiResult.data = "邮件发送成功！";
-                }
+                apiResult.data = "邮件发送成功！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

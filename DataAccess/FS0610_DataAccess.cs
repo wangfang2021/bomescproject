@@ -193,6 +193,20 @@ namespace DataAccess
                 cmd.ExecuteNonQuery();
                 #endregion
 
+                #region 删除生产计划相关表
+                string mon = strDXYM.Substring(0, 4) + "-" + strDXYM.Substring(4, 2);
+                sql.AppendLine("delete from MonthKanBanPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthKanBanPlanTbl.vcPartsno and dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "')");
+                sql.AppendLine("delete from MonthP3PlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthP3PlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthPackPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthPackPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthProdPlanTbl  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthProdPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthTZPlanTbl where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthTZPlanTbl.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthKanBanPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthKanBanPlanTblTMP.vcPartsno  and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthP3PlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthP3PlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthPackPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthPackPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthProPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthProPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                sql.AppendLine("delete from MonthTZPlanTblTMP where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthTZPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+                #endregion
+
                 st.Commit();
                 ComConnectionHelper.CloseConnection_SQL(ref conn);
             }

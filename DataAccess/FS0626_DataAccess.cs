@@ -38,7 +38,7 @@ namespace DataAccess
                 return dt.Rows.Count > 0;
             }
             catch (Exception ex)
-            {
+            { 
                 throw ex;
             }
         }

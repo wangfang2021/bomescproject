@@ -1153,7 +1153,7 @@ namespace DataAccess
             {
                 cmd.Connection.Close();
             }
-            return msg;
+            return plant + "厂" + msg;
         }
         public void TransactionPlan(List<DataTable> dt, SqlCommand cmd, DataTable partsInfo, string TableName, string user, string lbltime, string plant, ref string msg)
         {

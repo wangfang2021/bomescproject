@@ -48,43 +48,45 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" select vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, ");
-                strSql.AppendLine(" vcDock, vcOrderNo, vcPartNo, vcNewOldFlag, ");
-                strSql.AppendLine(" vcOrderNumber, vcNoReceiveNumber, ");
-                strSql.AppendLine(" vcNoReceiveReason, vcExpectRedeemDate, 1 as vcFlag, '0' as iflag,'0' as vcModFlag,'0' as vcAddFlag, iAutoId  ");
-                strSql.AppendLine(" from TOutsidePurchaseManage where 1=1 ");
-                //strSql.AppendLine(" order by vcDate ");
+                strSql.AppendLine(" select a.vcPackPlant, a.vcInjectionFactory, a.vcTargetMonth, a.vcSupplier_id, a.vcWorkArea, ");
+                strSql.AppendLine(" a.vcDock, a.vcOrderNo, a.vcPartNo, b.vcName as vcNewOldFlag, ");
+                strSql.AppendLine(" a.vcOrderNumber, a.vcNoReceiveNumber, ");
+                strSql.AppendLine(" a.vcNoReceiveReason, a.vcExpectRedeemDate, 1 as vcFlag, '0' as iflag,'0' as vcModFlag,'0' as vcAddFlag, a.iAutoId  ");
+                strSql.AppendLine(" from TOutsidePurchaseManage a ");
+                strSql.AppendLine(" left join (select vcName,vcValue from TCode where vcCodeId='C004') b ");
+                strSql.AppendLine(" on a.vcNewOldFlag=b.vcValue ");
+                strSql.AppendLine(" where 1=1 ");
                 if (vcPackPlant.Length > 0)
                 {
-                    strSql.AppendLine(" and vcPackPlant= '" + vcPackPlant + "' ");
+                    strSql.AppendLine(" and a.vcPackPlant= '" + vcPackPlant + "' ");
                 } 
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine(" and vcInjectionFactory='#" + vcInjectionFactory + "' ");
+                    strSql.AppendLine(" and a.vcInjectionFactory='#" + vcInjectionFactory + "' ");
                 }
                 if (vcTargetMonth.Length > 0)
                 {
-                    strSql.AppendLine(" and vcTargetMonth= '" + vcTargetMonth.Replace("-", "").Replace("/", "") + "' ");
+                    strSql.AppendLine(" and a.vcTargetMonth= '" + vcTargetMonth.Replace("-", "").Replace("/", "") + "' ");
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine(" and vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine(" and a.vcSupplier_id like '%" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine(" and vcWorkArea like '%" + vcWorkArea + "%' ");
+                    strSql.AppendLine(" and a.vcWorkArea like '%" + vcWorkArea + "%' ");
                 }
                 if (vcDock.Length > 0)
                 {
-                    strSql.AppendLine(" and vcDock like '%" + vcDock + "%' ");
+                    strSql.AppendLine(" and a.vcDock like '%" + vcDock + "%' ");
                 }
                 if (vcOrderNo.Length > 0)
                 {
-                    strSql.AppendLine(" and vcOrderNo like '%" + vcOrderNo + "%' ");
+                    strSql.AppendLine(" and a.vcOrderNo like '%" + vcOrderNo + "%' ");
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine(" and vcPartNo like '%" + vcPartNo + "%' ");
+                    strSql.AppendLine(" and a.vcPartNo like '%" + vcPartNo + "%' ");
                 }
                 if (vcReceiveFlag == "1")
                 {
@@ -92,9 +94,9 @@ namespace DataAccess
                 }
                 else if (vcReceiveFlag == "0")
                 {
-                    strSql.AppendLine(" and vcNoReceiveNumber<>0 ");
+                    strSql.AppendLine(" and a.vcNoReceiveNumber<>0 ");
                 }
-                strSql.AppendLine(" order by dOperatorTime desc ");
+                strSql.AppendLine(" order by a.dOperatorTime desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

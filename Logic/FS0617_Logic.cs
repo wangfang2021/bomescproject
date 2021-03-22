@@ -27,7 +27,7 @@ namespace Logic
         {
             return fs0617_DataAccess.getSearchInfo(strOrderPlant, strPartId, strCarModel, strReceiver, strSupplier);
         }
-        public bool getPrintInfo(List<Dictionary<string, Object>> listInfoData, string imagefile_sp, string imagefile_qr, string strOperId, ref DataTable dtMessage)
+        public void getPrintInfo(List<Dictionary<string, Object>> listInfoData, string imagefile_sp, string imagefile_qr, string strOperId, ref DataTable dtMessage)
         {
             try
             {
@@ -140,12 +140,8 @@ namespace Logic
                     }
                 }
                 if (dtMessage.Rows.Count != 0)
-                    return false;
+                    return;
                 fs0617_DataAccess.setPrintTemp(dtMain, dtSub, strOperId, ref dtMessage);
-                if (dtMessage.Rows.Count != 0)
-                    return false;
-                else
-                    return true;
             }
             catch (Exception ex)
             {

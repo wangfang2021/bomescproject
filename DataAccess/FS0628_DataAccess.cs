@@ -18,7 +18,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id, string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate)
+        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id, string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate,string vcCarType)
         {
             try
             {
@@ -42,7 +42,11 @@ namespace DataAccess
                 }
                 if (vcOrderNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOrderNo like '%" + vcOrderNo + "%' ");
+                    strSql.AppendLine("  and  vcOrderNo like '" + vcOrderNo + "%' ");
+                }
+                if (vcCarType.Length > 0)
+                {
+                    strSql.AppendLine("  and  vcCarType like '" + vcCarType + "%' ");
                 }
                 if (vcPartNo.Length > 0)
                 {
@@ -99,6 +103,23 @@ namespace DataAccess
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetCarType()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("    select vcCarType as vcValue,vcCarType as vcName from(       ");
+                strSql.AppendLine("    select distinct isnull(vcCarType,'无') as vcCarType from TEmergentOrderManage      ");
+                strSql.AppendLine("    )s order by vcCarType asc           ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -376,7 +397,7 @@ namespace DataAccess
                         strSql.AppendLine("  [dExpectReceiveDate], [vcOderTimes], [vcInjectionOrderNo], [vcMemo], [vcOperatorID], [dOperatorTime]) values(   ");
                         strSql.AppendLine("  " + getSqlValue(dOrderHandleDate, true) + "," + getSqlValue(vcOrderNo, true) + ",'" + vcPartNo + "','" + vcInsideOutsideType + "','" + vcNewOldFlag + "'  ");
                         strSql.AppendLine("   ,'" + vcInjectionFactory + "','" + vcDock + "','" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCHCCode + "','" + vcCarType + "','" + vcOrderNum + "'  ");
-                        strSql.AppendLine("   ," + getSqlValue(dExpectReceiveDate, true) + "," + getSqlValue(vcOderTimes, true) + "," + getSqlValue(vcInjectionOrderNo, true) + "," + getSqlValue(vcMemo, true) + "' ");
+                        strSql.AppendLine("   ," + getSqlValue(dExpectReceiveDate, true) + "," + getSqlValue(vcOderTimes, true) + "," + getSqlValue(vcInjectionOrderNo, true) + "," + getSqlValue(vcMemo, true) + " ");
                         strSql.AppendLine("   ,'" + strUserId + "',GETDATE()) ;   ");
                     }
                     else

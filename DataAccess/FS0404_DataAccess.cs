@@ -330,6 +330,20 @@ namespace DataAccess
 
                             string dateTime = detail.Date.Trim();
                             string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                           
+                            #region
+                             //单条的订单类型是否匹配
+                            string vcClassType = detail.ClassType;
+                            if (vcClassType!=vcOrderType)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = fileName;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = "选中的订单类型与该品番的txt文件的订单类型不匹配";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                            #endregion
                             //检测品番表是否存在该品番
                             Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
                             if (hashtable.Keys.Count > 0)
@@ -524,6 +538,19 @@ namespace DataAccess
 
                             string dateTime = detail.Date.Trim();
                             string Day = Convert.ToInt32(dateTime.Substring(6, 2)).ToString();
+                            #region
+                            //单条的订单类型是否匹配
+                            string vcClassType = detail.ClassType;
+                            if (vcClassType != vcOrderType)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = fileName;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = "选中的订单类型与该品番的txt文件的订单类型不匹配";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                            #endregion
                             //检测品番表是否存在该品番
                             Hashtable hashtable = getDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
                             if (hashtable.Keys.Count > 0)
@@ -872,8 +899,10 @@ namespace DataAccess
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
 
-                vcTargetYear = "";
-                vcTargetMonth = "";
+                //vcTargetYear = "";
+                //vcTargetMonth = "";
+                vcTargetYear = dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 4).ToString();
+                vcTargetMonth = dTargetDate.Replace("-", "").Replace("/", "").Substring(4, 2).ToString();
                 vcTargetDay = "";
                 dTargetWeek = "";
                 //if (vcOrderType == "0")
@@ -954,7 +983,19 @@ namespace DataAccess
                         string iPackingQty = "";
                         string vcSufferIn = "";
                         string vcOrderPlant = "";
-
+                        #region
+                        //单条的订单类型是否匹配
+                        string vcClassType = detail.ClassType;
+                        if (vcClassType != vcOrderType)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcOrder"] = fileName;
+                            dataRow["vcPartNo"] = vcPart_id;
+                            dataRow["vcMessage"] = "选中的订单类型与该品番的txt文件的订单类型不匹配";
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                        #endregion
                         //检测品番表是否存在该品番
                         Hashtable hashtable = getJinJiDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
                         if (hashtable.Keys.Count > 0)
@@ -1266,10 +1307,14 @@ namespace DataAccess
                 string vcTargetYear = string.Empty;
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
-                
+                vcTargetYear = dTargetDate.Replace("-", "").Replace("/", "").Substring(0,4).ToString();
+                vcTargetMonth = dTargetDate.Replace("-", "").Replace("/", "").Substring(4, 2).ToString();
                 string fileName = string.Empty;
                 string filePath = string.Empty;
                 string fileOrderNo = string.Empty;
+
+                DataTable dockTmpNQ = getJinJiNQ(vcJiLuLastOrderNo, dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6).ToString());
+
                 for (int i = 0; i < fileList.Count; i++)
                 {
                     filePath = fileList[i]["filePath"].ToString();
@@ -1327,6 +1372,19 @@ namespace DataAccess
                         string iPackingQty = "";
                         string vcSufferIn = "";
                         string vcOrderPlant = "";
+                        #region
+                        //单条的订单类型是否匹配
+                        string vcClassType = detail.ClassType;
+                        if (vcClassType != vcOrderType)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcOrder"] = fileName;
+                            dataRow["vcPartNo"] = vcPart_id;
+                            dataRow["vcMessage"] = "选中的订单类型与该品番的txt文件的订单类型不匹配";
+                            dtMessage.Rows.Add(dataRow);
+                            bReault = false;
+                        }
+                        #endregion
                         //检测品番表是否存在该品番
                         Hashtable hashtable = getJinJiDock(vcPart_id, CPD, vcPackingFactory, dockTmp);
                         if (hashtable.Keys.Count > 0)
@@ -1404,6 +1462,30 @@ namespace DataAccess
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
+                            //
+                            Hashtable hashtableNQ = getJinJiDockNQ(vcPart_id, dockTmpNQ);
+                            if (hashtableNQ.Keys.Count > 0)
+                            {
+                                string numNQ = hashtableNQ["num"].ToString();
+                                if (Convert.ToInt32(numNQ) - Convert.ToInt32(vcOrderNum) < 0) {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = fileName;
+                                    dataRow["vcPartNo"] = vcPart_id;
+                                    dataRow["vcMessage"] = "修正订单的品番的数量不应该大于纳期表确认的数量";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
+                            }
+                            else
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = fileName;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = "纳期表未找到数量";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+
                             //判断价格 手配品
                             #region
                             if (decPriceTNPWithTax.Length == 0)
@@ -1600,6 +1682,58 @@ namespace DataAccess
                 {
                     excute.ExcuteSqlWithStringOper(strSql.ToString());
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private Hashtable getJinJiDockNQ(string PartID, DataTable dt)
+        {
+            try
+            {
+                Hashtable hashtable = new Hashtable();
+
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (PartID.Trim().Equals(dt.Rows[i]["vcPartId"].ToString().Trim()))
+                        {
+                            hashtable.Add("num", dt.Rows[i]["num"].ToString());
+                            break;
+                        }
+                    }
+                }
+
+                return hashtable;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 得到紧急纳期
+        /// </summary>
+        /// <param name="vcJiLuLastOrderNo"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        private DataTable getJinJiNQ(string vcJiLuLastOrderNo, string TargetYM)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+
+                sbr.AppendLine("   select vcOrderNo,vcPart_id, vcTargetYM,sum(iDuiYingQuantity) as num from    ");
+                sbr.AppendLine("   (    ");
+                sbr.AppendLine("   select vcOrderNo,vcPart_id,  CONVERT(varchar(6),dOutPutDate,112) as vcTargetYM, iDuiYingQuantity     ");
+                sbr.AppendLine("   from VI_UrgentOrder_OperHistory where CONVERT(varchar(6),dOutPutDate,112) ='"+ TargetYM + "' and  vcOrderNo='"+ vcJiLuLastOrderNo + "'  ");
+                sbr.AppendLine("   ) a group by a.vcOrderNo,a.vcPart_id, a.vcTargetYM    ");
+
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {
@@ -1897,6 +2031,7 @@ namespace DataAccess
                 detail.DataId = temp.Substring(0, 1);
                 detail.CPD = temp.Substring(1, 5);
                 detail.Date = temp.Substring(6, 8);
+                detail.ClassType = temp.Substring(14, 1);
                 detail.Type = temp.Substring(14, 8);
                 detail.ItemNo = temp.Substring(22, 4);
                 detail.PartsNo = temp.Substring(26, 12).Replace(" ","0");
@@ -1962,6 +2097,7 @@ namespace DataAccess
         public string DataId;
         public string CPD;
         public string Date;
+           
         public string No;
         public string Type;
         public string Code;
@@ -1973,6 +2109,7 @@ namespace DataAccess
         public string DataId;
         public string CPD;
         public string Date;
+        public string ClassType;
         public string Type;
         public string ItemNo;
         public string PartsNo;

@@ -36,30 +36,18 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable Search_jinji(string vcPart_id)
+        public DataTable Search_history(string vcPart_id, string vcPlace)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from tChuHe_jinji   \n");
+                sql.Append("select * from TPanDian_History  where 1=1  \n");
                 if (vcPart_id != "" && vcPart_id != null)
-                    sql.Append("where vcPart_id like '" + vcPart_id + "%'    \n");
-                sql.Append("order by vcPart_id    \n");
+                    sql.Append("and vcPart_id like '" + vcPart_id + "%'    \n");
+                if(vcPlace!="" && vcPlace!=null)
+                    sql.Append("and vcPlace like '%" + vcPlace + "%'    \n");
+                sql.Append("order by dOperatorTime desc,vcPart_id    \n");
 
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public DataTable Search_kb()
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TChuHe_KB    \n");
-                sql.Append("order by vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -208,6 +196,30 @@ namespace DataAccess
                 {
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 覆盖
+        public void cover(string strUserId)
+        {
+            try
+            {
+                DateTime now = DateTime.Now;
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("insert into TPanDian_History (vcPart_id,vcPlace,iBefore,iAfter,vcOperatorID,dOperatorTime)");
+                sql.AppendLine("select t1.vcPart_id,t2.vcPlace,t1.iSystemQuantity,iRealQuantity,'"+strUserId+"','"+now+"' from TPanDian t1");
+                sql.AppendLine("left join TSSPManagement t2 on t1.vcPart_id=t2.vcNaRuPart_id");
+                sql.AppendLine("where iRealQuantity is not null and iRealQuantity<>iSystemQuantity ");
+
+                sql.AppendLine("update TPanDian set iSystemQuantity=iRealQuantity,vcOperatorID='"+strUserId+"',dOperatorTime='"+now+"'");
+                sql.AppendLine("where iRealQuantity is not null and iRealQuantity<>iSystemQuantity ");
+
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {

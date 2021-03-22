@@ -244,25 +244,10 @@ namespace SPPSApi.Controllers.G17
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                //string vcPart_id = dataForm.vcPart_id;
-                //string vcChaYi = dataForm.vcChaYi;
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                int count = 0;
-
-                //覆盖方式是什么？全体覆盖/勾选覆盖？覆盖履历只保留最后一次？
-
-                //if (listInfoData.Count != 0)//选中了数据操作
-                //{
-                //        count = fs1703_Logic.cover(listInfoData, loginInfo.UserId);
-                //}
-                //else//按检索条件
-                //{
-                //        count = fs1703_Logic.cover(vcPart_id, vcChaYi,loginInfo.UserId);
-                //}
+                fs1703_Logic.cover(loginInfo.UserId);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = count;
+                apiResult.data = "覆盖成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
             }

@@ -59,12 +59,15 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtSupplier = fs0628_Logic.GetSupplier();
                 DataTable dtWorkArea = fs0628_Logic.GetWorkArea();
                 DataTable dtInjectionOrderNo = fs0628_Logic.GetInjectionOrderNo();
-               
+                DataTable dtCarType = fs0628_Logic.GetCarType();
+
                 List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_InjectionOrderNo = ComFunction.convertToResult(dtInjectionOrderNo, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_CarType = ComFunction.convertToResult(dtCarType, new string[] { "vcValue", "vcName" });
 
                 res.Add("C000", dataList_C000);
+                res.Add("CarType", dataList_CarType);
                 res.Add("C003", dataList_C003);
                 res.Add("C004", dataList_C004);
                 res.Add("Supplier", dataList_Supplier);
@@ -143,9 +146,10 @@ namespace SPPSApi.Controllers.G06
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcInjectionOrderNo = dataForm.vcInjectionOrderNo == null ? "" : dataForm.vcInjectionOrderNo;
             string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
+            string vcCarType= dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate,vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate);
+                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate,vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate, vcCarType);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -192,16 +196,17 @@ namespace SPPSApi.Controllers.G06
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcInjectionOrderNo = dataForm.vcInjectionOrderNo == null ? "" : dataForm.vcInjectionOrderNo;
             string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
+            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate);
+                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate, vcCarType);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
                 //const tHeader = ["订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工厂", "受入", "供应商代码", "工区", "出荷场代码", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注"];
                 //const filterVal = ["dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo"];
 
-                head = new string[] { "iAutoId", "进度状态管理", "订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工场", "受入", "供应商代码", "工区", "出荷场", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注" };
+                head = new string[] { "iAutoId", "进度状态", "订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工场", "受入", "供应商代码", "工区", "出荷场", "车型", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注" };
                 field = new string[] { "iAutoId", "vcIsExportFlag", "dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);

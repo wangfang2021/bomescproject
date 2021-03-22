@@ -26,13 +26,9 @@ namespace Logic
         {
             return fs1703_DataAccess.Search(vcPart_id, vcChaYi);
         }
-        public DataTable Search_jinji(string vcPart_id)
+        public DataTable Search_history(string vcPart_id,string vcPlace)
         {
-            return fs1703_DataAccess.Search_jinji(vcPart_id);
-        }
-        public DataTable Search_kb()
-        {
-            return fs1703_DataAccess.Search_kb();
+            return fs1703_DataAccess.Search_history(vcPart_id,vcPlace);
         }
         #endregion
 
@@ -44,14 +40,10 @@ namespace Logic
         #endregion
 
         #region 覆盖
-        //public int cover(List<Dictionary<string, Object>> listInfoData, string strUserId)
-        //{
-        //    return fs1703_DataAccess.cover( listInfoData, strUserId);
-        //}
-        //public int cover(string vcPart_id, string vcChaYi, string strUserId)
-        //{
-        //    return fs1703_DataAccess.cover(vcPart_id, vcChaYi, strUserId);
-        //}
+        public void cover(string strUserId)
+        {
+            fs1703_DataAccess.cover(strUserId);
+        }
         #endregion
 
         #region 导入后保存

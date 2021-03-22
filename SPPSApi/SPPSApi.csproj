@@ -184,7 +184,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Connected Services\" />
     <Folder Include="Controllers\G08\" />
     <Folder Include="Controllers\G17\" />
     <Folder Include="Doc\Image\Checking\" />

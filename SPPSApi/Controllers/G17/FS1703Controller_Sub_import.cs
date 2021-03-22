@@ -19,24 +19,26 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace SPPSApi.Controllers.G17
 {
-    [Route("api/FS1704_Sub/[action]")]
+    [Route("api/FS1703_Sub_import/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS1704Controller_Sub : BaseController
+    public class FS1703Controller_Sub_import : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS1704_Logic fs1704_Logic = new FS1704_Logic();
-        private readonly string FunctionID = "FS1704";
+        FS1703_Logic fs1703_Logic = new FS1703_Logic();
+        private readonly string FunctionID = "FS1703";
 
-        public FS1704Controller_Sub(IWebHostEnvironment webHostEnvironment)
+        public FS1703Controller_Sub_import(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
-
 
         #region 导入之后点保存
         [HttpPost]
@@ -67,17 +69,11 @@ namespace SPPSApi.Controllers.G17
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {
-                    {"出荷品番","纳入品番","背番", "品名", "收容数", "箱种", "厂家名称", "车型",
-                         "工程", "工程所番地", "受入", "所番地", "看板打印方式"},
-                    {"vcChuHePart_id","vcNaRuPart_id","vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
-                         "vcProject","vcProjectPlace","vcSR","vcPlace","vcKBPrintWay"},
-                    {FieldCheck.NumCharL,FieldCheck.NumCharL,"","",FieldCheck.Num,"","","",
-                         "","","","",""},
-                    {"25","25","25","25","0","25","25","25",
-                         "25","25","25","25","25"},//最大长度设定,不校验最大长度用0
-                    {"1","1","0","0","0","0","0","0",
-                         "0","0","0","0","0"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"纳入品番","所番地","应有数量","实际数量"},
+                                                {"vcPart_id","vcPlace" ,"iSystemQuantity", "iRealQuantity"},
+                                                {FieldCheck.NumCharL,"",FieldCheck.Num,FieldCheck.Num},
+                                                {"20","25","0","0"},//最大长度设定,不校验最大长度用0
+                                                {"1","0","0","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
@@ -106,7 +102,7 @@ namespace SPPSApi.Controllers.G17
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 var result = from r in importDt.AsEnumerable()
-                             group r by new { r1 = r.Field<string>("vcChuHePart_id") } into g
+                             group r by new { r1 = r.Field<string>("vcPart_id") } into g
                              where g.Count() > 1
                              select g;
                 if (result.Count() > 0)
@@ -115,22 +111,6 @@ namespace SPPSApi.Controllers.G17
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("出荷品番:" + item.Key.r1 + "<br/>");
-                    }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                var result2 = from r in importDt.AsEnumerable()
-                             group r by new { r1 = r.Field<string>("vcNaRuPart_id") } into g
-                             where g.Count() > 1
-                             select g;
-                if (result2.Count() > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result2)
-                    {
                         sbr.Append("纳入品番:" + item.Key.r1 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -138,7 +118,7 @@ namespace SPPSApi.Controllers.G17
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                fs1704_Logic.importSave_Sub(importDt, loginInfo.UserId);
+                fs1703_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -154,7 +134,7 @@ namespace SPPSApi.Controllers.G17
         }
         #endregion
 
-
-
     }
+
+
 }

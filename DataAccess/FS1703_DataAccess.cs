@@ -36,30 +36,18 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable Search_jinji(string vcPart_id)
+        public DataTable Search_history(string vcPart_id, string vcPlace)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from tChuHe_jinji   \n");
+                sql.Append("select * from TPanDian_History  where 1=1  \n");
                 if (vcPart_id != "" && vcPart_id != null)
-                    sql.Append("where vcPart_id like '" + vcPart_id + "%'    \n");
-                sql.Append("order by vcPart_id    \n");
+                    sql.Append("and vcPart_id like '" + vcPart_id + "%'    \n");
+                if(vcPlace!="" && vcPlace!=null)
+                    sql.Append("and vcPlace like '%" + vcPlace + "%'    \n");
+                sql.Append("order by dOperatorTime desc,vcPart_id    \n");
 
-                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public DataTable Search_kb()
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from TChuHe_KB    \n");
-                sql.Append("order by vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)

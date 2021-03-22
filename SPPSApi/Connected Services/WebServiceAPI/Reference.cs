@@ -259,11 +259,11 @@ namespace WebServiceAPI
         {
             if ((endpointConfiguration == EndpointConfiguration.WebServiceAPISoap))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost/WebAPI/WebServiceAPI.asmx");
+                return new System.ServiceModel.EndpointAddress("http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
             }
             if ((endpointConfiguration == EndpointConfiguration.WebServiceAPISoap12))
             {
-                return new System.ServiceModel.EndpointAddress("http://localhost/WebAPI/WebServiceAPI.asmx");
+                return new System.ServiceModel.EndpointAddress("http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
             }
             throw new System.InvalidOperationException(string.Format("找不到名称为“{0}”的终结点。", endpointConfiguration));
         }

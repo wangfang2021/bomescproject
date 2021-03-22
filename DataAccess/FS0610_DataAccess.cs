@@ -205,6 +205,13 @@ namespace DataAccess
                 sql.AppendLine("delete from MonthPackPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthPackPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
                 sql.AppendLine("delete from MonthProPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthProPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
                 sql.AppendLine("delete from MonthTZPlanTblTMP where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthTZPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+
+                cmd.Connection = conn;
+                cmd.Transaction = st;
+                cmd.CommandText = sql.ToString();
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = 0;
+                cmd.ExecuteNonQuery();
                 #endregion
 
                 st.Commit();
@@ -497,7 +504,7 @@ namespace DataAccess
                 sql.Append("      select * into #TSOQReply from       \n");
                 sql.Append("      (      \n");
                 sql.Append("      	select       \n");
-                sql.Append("       vcPart_id,vcFZGC,vcMakingOrderType,vcCarType,iQuantityPercontainer,iBoxes,iPartNums      \n");
+                sql.Append("       vcPart_id,iBoxes      \n");
                 sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
                 sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
                 sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
@@ -510,16 +517,14 @@ namespace DataAccess
                     sql.Append("            \n");
                     sql.Append("      insert into #TSOQReply       \n");
                     sql.Append("       (         \n");
-                    sql.Append("       vcPart_id,vcFZGC,vcMakingOrderType,vcCarType,iQuantityPercontainer,iBoxes,iPartNums      \n");
+                    sql.Append("       vcPart_id,iBoxes      \n");
                     sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
                     sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
                     sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
                     sql.Append("       ) values         \n");
                     sql.Append("      (      \n");
-                    sql.Append("      '" + dt.Rows[i]["vcPart_id"].ToString() + "','" + dt.Rows[i]["vcFZGC"].ToString() + "',      \n");
-                    sql.Append("      '" + dt.Rows[i]["vcMakingOrderType"].ToString() + "','" + dt.Rows[i]["vcCarType"].ToString() + "',      \n");
-                    sql.Append("      nullif('" + dt.Rows[i]["iQuantityPercontainer"].ToString() + "',''),nullif('" + dt.Rows[i]["iBoxes"].ToString() + "',''),      \n");
-                    sql.Append("      nullif('" + dt.Rows[i]["iPartNums"].ToString() + "','')     \n");
+                    sql.Append("      '" + dt.Rows[i]["vcPart_id"].ToString() + "',      \n");
+                    sql.Append("      nullif('" + dt.Rows[i]["iBoxes"].ToString() + "',''),      \n");
                     for (int j = 1; j < 32; j++)
                     {
                         sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["iD" + j], true) + "      \n");
@@ -527,8 +532,7 @@ namespace DataAccess
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("update t1 set t1.vcOperatorID='" + strUserId + "',t1.dOperatorTime=GETDATE(),t1.vcFZGC=t2.vcFZGC,t1.vcMakingOrderType=t2.vcMakingOrderType,    \n");
-                sql.Append("t1.vcCarType=t2.vcCarType,t1.iQuantityPercontainer=t2.iQuantityPercontainer,t1.iBoxes=t2.iBoxes,t1.iPartNums=t2.iPartNums,     \n");
+                sql.Append("update t1 set t1.vcOperatorID='" + strUserId + "',t1.dOperatorTime=GETDATE(),t1.iBoxes=t2.iBoxes,   \n");
                 for (int j = 1; j < 32; j++)
                 {
                     sql.Append(" t1.iD" + j + "=t2.iD" + j);

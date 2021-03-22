@@ -72,11 +72,11 @@ namespace SPPSApi.Controllers.G17
                          "工程", "工程所番地", "受入", "所番地", "看板打印方式"},
                     {"vcChuHePart_id","vcNaRuPart_id","vcBackPart_id", "vcPart_Name", "iCapacity", "vcBoxType", "vcSupplierName", "vcCarType",
                          "vcProject","vcProjectPlace","vcSR","vcPlace","vcKBPrintWay"},
-                    {FieldCheck.NumCharL,"","","",FieldCheck.Num,"","","",
+                    {FieldCheck.NumCharL,FieldCheck.NumCharL,"","",FieldCheck.Num,"","","",
                          "","","","",""},
                     {"25","25","25","25","0","25","25","25",
                          "25","25","25","25","25"},//最大长度设定,不校验最大长度用0
-                    {"1","0","0","0","0","0","0","0",
+                    {"1","1","0","0","0","0","0","0",
                          "0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -121,7 +121,23 @@ namespace SPPSApi.Controllers.G17
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                
+                var result2 = from r in importDt.AsEnumerable()
+                             group r by new { r1 = r.Field<string>("vcNaRuPart_id") } into g
+                             where g.Count() > 1
+                             select g;
+                if (result2.Count() > 0)
+                {
+                    StringBuilder sbr = new StringBuilder();
+                    sbr.Append("导入数据重复:<br/>");
+                    foreach (var item in result2)
+                    {
+                        sbr.Append("纳入品番:" + item.Key.r1 + "<br/>");
+                    }
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 fs1704_Logic.importSave_Sub(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

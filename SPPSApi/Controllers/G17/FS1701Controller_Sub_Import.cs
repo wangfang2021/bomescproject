@@ -150,6 +150,23 @@ namespace SPPSApi.Controllers.G17
                 //}
                 #endregion
 
+                #region 文件内容校验
+                for(int i=0;i<ds.Tables.Count;i++)
+                {
+                    DataTable dt = ds.Tables[i];
+                    for (int j = 0; j < dt.Rows.Count; j++)
+                    {
+                        string vcType = dt.Rows[j]["vcIsDQ"].ToString();
+                        if (vcType!="" && Array.IndexOf(new string[] {"是", "否" }, vcType) == -1)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "[是否到齐]列只能填写是/否";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                }
+                #endregion
+
                 fs1701_Logic.importSave_Sub(ds, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

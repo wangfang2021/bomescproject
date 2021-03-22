@@ -107,8 +107,8 @@ namespace DataAccess
                 strSql.AppendLine(" @TOTALWORKDAYS, ");
                 strSql.AppendLine(" @DADDTIME, ");
                 strSql.AppendLine(" @CUPDUSER); ");
-                if (days < 3)
-                    return "最少必须维护3天";
+                if (days < 2)
+                    return "最少必须维护2天";
                 excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
                 return msg;
             }

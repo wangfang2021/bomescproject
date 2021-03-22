@@ -573,7 +573,7 @@ namespace DataAccess
                 sql.Append("      (      \n");
                 sql.Append("      	select * from #TUnit_temp      \n");
                 sql.Append("      ) b      \n");
-                sql.Append("      on a.iAutoId = b.iAutoId      \n");
+                sql.Append("      on a.iAutoId = b.iAutoId and a.vcPart_id=b.vcPart_id     \n");
 
                 sql.Append("      insert into TUnit      \n");
                 sql.Append("      (      \n");

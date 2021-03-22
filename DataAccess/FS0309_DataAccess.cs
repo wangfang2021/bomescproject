@@ -135,7 +135,7 @@ namespace DataAccess
                     if (bAddFlag == true)
                     {//新增
                         sql.Append("  insert into TPrice(vcChange,vcPart_id,dUseBegin,dUseEnd,vcProjectType,vcSupplier_id,vcSupplier_Name,dProjectBegin,dProjectEnd,vcHaoJiu   \r\n");
-                        sql.Append("  ,dJiuBegin,dJiuEnd,dJiuBeginSustain,vcPriceChangeInfo,vcPriceState,dPriceStateDate,vcPriceGS,decPriceOrigin,decPriceAfter,decPriceTNPWithTax   \r\n");
+                        sql.Append("  ,dJiuBegin,dJiuEnd,dJiuBeginSustain,vcPriceChangeInfo,vcPriceState,dPriceStateDate,vcPriceGS,decPriceOrigin,decPriceOrigin_CW,decPriceAfter,decPriceTNPWithTax   \r\n");
                         sql.Append("  ,dPricebegin,dPriceEnd,vcCarTypeDev,vcCarTypeDesign,vcPart_Name,vcOE,vcPart_id_HK,vcStateFX,vcFXNO,vcSumLater,vcReceiver,vcOriginCompany,vcOperatorID,dOperatorTime,vcLastTimeFlag   \r\n");
                         sql.Append("  )   \r\n");
                         sql.Append(" values (  \r\n");
@@ -156,6 +156,7 @@ namespace DataAccess
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceState"], false) + ",  \r\n");
                         sql.Append("getDate(),  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], true) + ",  \r\n");
+                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + ",  \r\n");
                         sql.Append(ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + ",  \r\n");
 
                         //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
@@ -208,12 +209,15 @@ namespace DataAccess
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         int iAutoId =Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        string strPart_id = listInfoData[i]["vcPart_id"].ToString();
 
                         sql.Append("  update TPrice set    \r\n");
                         sql.Append("  vcChange=" + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "   \r\n");
                         //sql.Append("  ,vcPriceChangeInfo="+ ComFunction.getSqlValue(listInfoData[i]["vcPriceChangeInfo"], false) + "   \r\n");
                         sql.Append("  ,vcPriceGS=" + ComFunction.getSqlValue(listInfoData[i]["vcPriceGS"], true) + "   \r\n");
                         sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
+                        if (listInfoData[i]["decPriceOrigin"] != null && listInfoData[i]["decPriceOrigin"].ToString() != "")
+                            sql.Append("  ,decPriceOrigin_CW=" + ComFunction.getSqlValue(listInfoData[i]["decPriceOrigin"], true) + "   \r\n");
 
                         //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
                         sql.Append("  ,decPriceAfter=" + ComFunction.getSqlValue(listInfoData[i]["decPriceAfter"], true) + "   \r\n");
@@ -225,7 +229,7 @@ namespace DataAccess
                         //sql.Append("  ,dOperatorTime=getdate()   \r\n");
                         sql.Append("  ,vcLastTimeFlag='" + strLastTimeFlag + "'   \r\n");
                         
-                        sql.Append("  where iAutoId="+ iAutoId + "  ; \r\n");
+                        sql.Append("  where iAutoId="+ iAutoId + "  and vcPart_id='" + strPart_id + "' ; \r\n");
                         sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where decPriceTNPWithTax is not null and vcLastTimeFlag='" + strLastTimeFlag + "' and vcPriceState<>'4' \r\n");//PIC=4，PIC状态不再发生变化
                         sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where isnull(vcChange,'')<>'' and decPriceOrigin is not null and decPriceTNPWithTax is null  and vcLastTimeFlag='" + strLastTimeFlag + "'  and vcPriceState<>'4'   \r\n");
                     }
@@ -315,13 +319,15 @@ namespace DataAccess
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     string strAutoId = dt.Rows[i]["iAutoId"] == System.DBNull.Value ? "" : dt.Rows[i]["iAutoId"].ToString();
-                    string vcPart_id = dt.Rows[i]["vcPart_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPart_id"].ToString();
+                    string strPart_id = dt.Rows[i]["vcPart_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPart_id"].ToString();
                     string dUseBegin = dt.Rows[i]["dUseBegin"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseBegin"].ToString();
                     string dUseEnd = dt.Rows[i]["dUseEnd"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseEnd"].ToString();
 
                     sql.Append("  update TPrice set    \r\n");
                     sql.Append("  vcPriceGS=" + ComFunction.getSqlValue(dt.Rows[i]["vcPriceGS_Name"], true) + "   \r\n");
                     sql.Append("  ,decPriceOrigin=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
+                    if(dt.Rows[i]["decPriceOrigin"]!=null&& dt.Rows[i]["decPriceOrigin"].ToString()!="")
+                        sql.Append("  ,decPriceOrigin_CW=" + ComFunction.getSqlValue(dt.Rows[i]["decPriceOrigin"], true) + "   \r\n");
 
 
                     //以下两个字段直接用前台输入框的金额，系统不做重新计算（防止更新的跟用户看见的不一致）
@@ -333,7 +339,7 @@ namespace DataAccess
                     sql.Append("  ,dPriceEnd=" + ComFunction.getSqlValue(dt.Rows[i]["dPriceEnd"], true) + "   \r\n");
                     sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
                     //sql.Append("  ,dOperatorTime=getdate()   \r\n");
-                    sql.Append("  where iAutoId=" + strAutoId + "  ; \r\n");
+                    sql.Append("  where iAutoId=" + strAutoId + "  and   vcPart_id='"+ strPart_id + "'   ; \r\n");
                     sql.Append("  update TPrice set vcPriceState='3',dPriceStateDate=GETDATE() where iAutoId=" + strAutoId + " and decPriceTNPWithTax is not null and decPriceOrigin is not null   and vcPriceState<>'4' \r\n");
                     sql.Append("  update TPrice set vcPriceState='2',dPriceStateDate=GETDATE() where iAutoId=" + strAutoId + " and decPriceTNPWithTax is null and decPriceOrigin is not null and vcPriceState<>'4'  \r\n");
 

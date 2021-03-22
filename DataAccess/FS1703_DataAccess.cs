@@ -216,5 +216,29 @@ namespace DataAccess
         }
         #endregion
 
+        #region 覆盖
+        public void cover(string strUserId)
+        {
+            try
+            {
+                DateTime now = DateTime.Now;
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("insert into TPanDian_History (vcPart_id,vcPlace,iBefore,iAfter,vcOperatorID,dOperatorTime)");
+                sql.AppendLine("select t1.vcPart_id,t2.vcPlace,t1.iSystemQuantity,iRealQuantity,'"+strUserId+"','"+now+"' from TPanDian t1");
+                sql.AppendLine("left join TSSPManagement t2 on t1.vcPart_id=t2.vcNaRuPart_id");
+                sql.AppendLine("where iRealQuantity is not null and iRealQuantity<>iSystemQuantity ");
+
+                sql.AppendLine("update TPanDian set iSystemQuantity=iRealQuantity,vcOperatorID='"+strUserId+"',dOperatorTime='"+now+"'");
+                sql.AppendLine("where iRealQuantity is not null and iRealQuantity<>iSystemQuantity ");
+
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
     }
 }

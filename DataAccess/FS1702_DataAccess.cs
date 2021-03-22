@@ -483,7 +483,6 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
-                    sql.Append("delete from tChuHe_jinji where iAutoId=" + iAutoId + "   \n");
 
                     #region update TPanDian 数量增加
                     sql.AppendLine("update t2 set t2.iSystemQuantity=isnull(t2.iSystemQuantity,0)+isnull(t1.iQuantity,0),");
@@ -498,6 +497,8 @@ namespace DataAccess
                     sql.AppendLine("	select * from TPanDian ");
                     sql.AppendLine(")t2 on t1.vcNaRuPart_id=t2.vcPart_id");
                     #endregion
+
+                    sql.Append("delete from tChuHe_jinji where iAutoId=" + iAutoId + "   \n");
 
                 }
                 if (sql.Length > 0)

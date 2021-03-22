@@ -141,7 +141,7 @@ namespace Logic
                 DataTable dt_info = fs0610_DataAccess.getSoqInfo(vcDxny, vcFZGC[k]);
                 if (dt_info.Rows.Count == 0)
                 {
-                    return "请先导入SOQREPLY再生成计划！";
+                    return "请先导入“" + vcFZGC[k] + "厂”SOQREPLY再生成计划！";
                 }
                 else
                 {
@@ -149,7 +149,7 @@ namespace Logic
                     {
                         if (dt_info.Rows[i]["kbsrs"].ToString().Length == 0)
                         {
-                            return "品番：" + dt_info.Rows[i]["Partsno"].ToString() + "器具收容数未维护！";
+                            return vcFZGC[k] + "厂品番：" + dt_info.Rows[i]["Partsno"].ToString() + "器具收容数未维护！";
                         }
                     }
                 }
@@ -973,6 +973,16 @@ namespace Logic
         }
 
 
+        #endregion
+
+        #region 获取平准化加减天数
+        public int getPingZhunAddSubDay()
+        {
+            DataTable dt = fs0610_DataAccess.getPingZhunAddSubDay();
+            if (dt == null || dt.Rows.Count == 0)
+                return 0;
+            return Convert.ToInt32(dt.Rows[0]["vcValue1"]);
+        }
         #endregion
 
     }

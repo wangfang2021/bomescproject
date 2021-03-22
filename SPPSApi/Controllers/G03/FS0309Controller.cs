@@ -133,14 +133,19 @@ namespace SPPSApi.Controllers.G03
             string strSupplier_id = dataForm.Supplier_id;
             string strReceiver = dataForm.Receiver;
             string strPriceState = dataForm.PriceState;
-            string strMaxNum = dataForm.iMaxNum;
 
             try
             {
-                DataTable dt = fs0309_Logic.Search(strMaxNum,strChange, strPart_id, strOriginCompany, strHaoJiu
+                DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
                     , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                     , strReceiver, strPriceState
                     );
+                if (dt != null && dt.Rows.Count >= 5000)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "本次检索数据条数超过5000,为避免浏览器内存溢出，请调整检索条件或进行数据导出。";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -197,7 +202,7 @@ namespace SPPSApi.Controllers.G03
             string strPriceState = dataForm.PriceState;
             try
             {
-                DataTable dt = fs0309_Logic.Search("",strChange, strPart_id, strOriginCompany, strHaoJiu
+                DataTable dt = fs0309_Logic.Search(strChange, strPart_id, strOriginCompany, strHaoJiu
                    , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                    , strReceiver, strPriceState
                    );

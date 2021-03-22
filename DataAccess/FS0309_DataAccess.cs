@@ -13,7 +13,7 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strMaxNum,string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
+        public DataTable Search(string strChange, string strPart_id, string strOriginCompany, string strHaoJiu
             , string strProjectType, string strPriceChangeInfo, string strCarTypeDev, string strSupplier_id
             , string strReceiver, string strPriceState
             )
@@ -21,10 +21,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                if(strMaxNum!="")
-                    strSql.Append("       select top "+ strMaxNum + " *         \n");
-                else
-                    strSql.Append("       select *         \n");
+                strSql.Append("       select *         \n");
                 strSql.Append("       ,b.vcName as 'vcChange_Name'     \n");
                 strSql.Append("       ,b2.vcName as 'vcHaoJiu_Name'      \n");
                 strSql.Append("       ,b3.vcName as 'vcProjectType_Name'      \n");

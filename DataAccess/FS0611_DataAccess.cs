@@ -18,7 +18,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select * from TCalendar_PingZhun_Wai where vcFZGC='" + strPlant + "' and TARGETMONTH='" + vcDXYM + "'    \n");
+                sql.Append("select * from TCalendar_PingZhun_Wai where vcFZGC='" + strPlant + "' and TARGETMONTH='" + vcDXYM + "'  and TOTALWORKDAYS>0   \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -41,6 +41,7 @@ namespace DataAccess
                 strhycolumn = "iHySOQN2";
             sql.Append("select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer from TSoq     \n");
             sql.Append("where vcYearMonth='" + strYearMonth + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1'   \n");
+            sql.Append(" and " + strhycolumn + ">0  \n");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
         #endregion
@@ -56,8 +57,12 @@ namespace DataAccess
                 strhycolumn = "iHySOQN1";
             else if (strType == "nnsym")
                 strhycolumn = "iHySOQN2";
-            sql.Append("select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer from TSoq     \n");
-            sql.Append("where vcYearMonth='" + strYearMonth + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1' and vcHyState='2'   order by iAutoId  \n");
+            sql.Append("  select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer,b.dFromTime,b.dToTime from TSoq a     \n");
+            sql.Append("  left join   \n");
+            sql.Append("  (   \n");
+            sql.Append("  select * from TSPMaster   \n");
+            sql.Append("  )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId and b.vcReceiver='APC06'   \n");
+            sql.Append("  where a.vcYearMonth='" + strYearMonth + "' and a.vcFZGC='" + strPlant + "' and a.vcInOutFlag='1' and a.vcHyState='2'   order by a.iAutoId  \n");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
         #endregion
@@ -217,7 +222,7 @@ namespace DataAccess
                     "and vcInOutFlag='1')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='"+strUnit+"' and vcReceiver='APC06' and GETDATE() between dFromTime and dToTime    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='"+strUnit+ "' and vcReceiver='APC06' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
                 sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id     \n");
@@ -499,6 +504,23 @@ namespace DataAccess
                 sql.Append("      and  a.vcDXYM='" + strYearMonth + "'; \n  ");
                 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 获取平准化加减天数
+        public DataTable getPingZhunAddSubDay()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine(
+                    "SELECT vcValue1 FROM dbo.TOutCode WHERE vcCodeId = 'C027'AND vcIsColum = '0' ");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {

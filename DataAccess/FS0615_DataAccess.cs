@@ -97,7 +97,7 @@ namespace DataAccess
             try
             {
                 string msg = "";
-                //StringBuilder sql = new StringBuilder();
+                StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (listInfoData[i]["vcOrderState"].ToString() != "待处理" && listInfoData[i]["vcOrderState"].ToString() != "处理中")
@@ -105,9 +105,15 @@ namespace DataAccess
                         msg = "订单“" + listInfoData[i]["vcOrderNo"] + "”状态不能做成！";
                         break;
                     }
+                    else
+                    {
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("  update TUrgentOrder set vcShowFlag='1' \r\n");
+                        sql.Append("  where vcOrderNo=" + ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], true) + "; \r\n");
+                    }
                 }
-                //if (msg.Length <= 0)
-                //    excute.ExcuteSqlWithStringOper(sql.ToString());
+                if (msg.Length <= 0)
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
                 return msg;
             }
             catch (Exception ex)

@@ -17,11 +17,13 @@ namespace DataAccess
         /// 保存
         /// </summary>
         /// <returns></returns>
-        public void save(List<string> re, string varDxny, string vcFZGC, decimal TOTALWORKDAYS, string strUserId)
+        public string save(List<string> re, string varDxny, string vcFZGC, decimal TOTALWORKDAYS, string strUserId)
         {
             try
             {
-                System.Data.SqlClient.SqlParameter[] parameters = {
+                string msg = "";
+                int days = 0;
+                SqlParameter[] parameters = {
                     new SqlParameter("@varDxny", SqlDbType.VarChar),
                     new SqlParameter("@vcFZGC", SqlDbType.VarChar),
                     new SqlParameter("@TOTALWORKDAYS", SqlDbType.Decimal),
@@ -33,7 +35,6 @@ namespace DataAccess
                 parameters[2].Value = TOTALWORKDAYS;
                 parameters[3].Value = DateTime.Now;
                 parameters[4].Value = strUserId;
-
                 StringBuilder strSql = new StringBuilder();
 
                 //先删除
@@ -84,17 +85,31 @@ namespace DataAccess
                 for (int i = 0; i < 31; i++)
                 {
                     if (re.Count > i && !string.IsNullOrEmpty(re[i]))
+                    {
                         strSql.AppendLine("'" + re[i] + "',");
+                        if (re[i].ToString() != "0")
+                            days++;
+                    }
                     else
-                        strSql.AppendLine("NULL,");
+                    {
+                        try
+                        {
+                            DateTime t = Convert.ToDateTime(varDxny.Substring(0, 4) + "-" + varDxny.Substring(4, 2) + "-" + (i + 1).ToString());
+                            return "请进行分配！";
+                        }
+                        catch
+                        {
+                            strSql.AppendLine("NULL,");
+                        }
+                    }
                 }
-
                 strSql.AppendLine(" @TOTALWORKDAYS, ");
                 strSql.AppendLine(" @DADDTIME, ");
                 strSql.AppendLine(" @CUPDUSER); ");
-
-
+                if (days < 3)
+                    return "最少必须维护3天";
                 excute.ExcuteSqlWithStringOper(strSql.ToString(), parameters);
+                return msg;
             }
             catch (Exception ex)
             {

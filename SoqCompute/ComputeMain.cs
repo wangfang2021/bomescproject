@@ -12,6 +12,7 @@ namespace SoqCompute
         Compute_2 compute_2 = new Compute_2();
         Compute_3toM compute_3toM = new Compute_3toM();
         Compute_MtoMax compute_MtoMax = new Compute_MtoMax();
+        Compute_Old_New compute_Old_New = new Compute_Old_New();
         Compute_SpecialPart compute_SpecialPart = new Compute_SpecialPart();
         Compute_SpecialSupplier compute_SpecialSupplier = new Compute_SpecialSupplier();
 
@@ -24,7 +25,7 @@ namespace SoqCompute
         /// <param name="dtSpecialSupplier">某月特殊厂家，没有给null</param>
         /// <param name="dtSpecialPart">某月特殊品番，没有给null</param>
         /// <returns></returns>
-        public ArrayList getPinZhunList(DataTable dtSoq, DataTable dtCalendar, DataTable dtSpecialSupplier, DataTable dtSpecialPart)
+        public ArrayList getPinZhunList(DataTable dtSoq, DataTable dtCalendar, DataTable dtSpecialSupplier, DataTable dtSpecialPart,string strYearMonth,int iSub)
         {
             decimal decTotalWorkDays = 0;//可能会有小数0.5出现													
             decTotalWorkDays = Convert.ToDecimal(dtCalendar.Rows[0]["TOTALWORKDAYS"]);
@@ -59,6 +60,8 @@ namespace SoqCompute
             if (dtSpecialPart != null && dtSpecialPart.Rows.Count > 0)
                 compute_SpecialPart.pinZhun_SpecialPart(ref result, dtCalendar, dtSpecialPart);//特殊品番处理
 
+            compute_Old_New.pinZhun_Old_New(ref result, dtCalendar, strYearMonth, iSub);//新品番、废止品番处理
+
             return result;
         }
 
@@ -68,10 +71,22 @@ namespace SoqCompute
             for (int i = 0; i < dtSoq.Rows.Count; i++)
             {
                 int iHyNum = Convert.ToInt32(dtSoq.Rows[i]["iHyNum"].ToString());//合意订单数量													
-                int iQuantityPercontainer = Convert.ToInt32(dtSoq.Rows[i]["iQuantityPercontainer"].ToString());//收容数													
+                int iQuantityPercontainer = Convert.ToInt32(dtSoq.Rows[i]["iQuantityPercontainer"].ToString());//收容数	
+                string strFromTime = "";
+                string strToTime = "";
+                try
+                {
+                    strFromTime = dtSoq.Rows[i]["dFromTime"]==DBNull.Value?"":Convert.ToDateTime(dtSoq.Rows[i]["dFromTime"].ToString()).ToString("yyyy-MM-dd");//品番有效期起
+                    strToTime = dtSoq.Rows[i]["dToTime"] == DBNull.Value ? "" : Convert.ToDateTime(dtSoq.Rows[i]["dToTime"].ToString()).ToString("yyyy-MM-dd");//品番有效期止
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
                 int iBox = iHyNum / iQuantityPercontainer;//箱子数量													
                 string strPart_id = dtSoq.Rows[i]["vcPart_id"].ToString();
-                string[] temp = new string[37];//一行数据													
+                string[] temp = new string[39];//一行数据													
                 temp[0] = strPart_id;
                 temp[1] = iHyNum.ToString();
                 temp[2] = iQuantityPercontainer.ToString();
@@ -99,6 +114,9 @@ namespace SoqCompute
                 {
                     beginData_4.Add(temp);
                 }
+                temp[37] = strFromTime;
+                temp[38] = strToTime;
+
             }
         }
     }

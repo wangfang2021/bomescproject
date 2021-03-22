@@ -87,5 +87,16 @@ namespace Logic
             fs0611_DataAccess.importSave(dt, strYearMonth, strUserId);
         }
         #endregion
+
+
+        #region 获取平准化加减天数
+        public int getPingZhunAddSubDay()
+        {
+            DataTable dt=fs0611_DataAccess.getPingZhunAddSubDay();
+            if (dt == null || dt.Rows.Count == 0)
+                return 0;
+            return Convert.ToInt32(dt.Rows[0]["vcValue1"]);
+        }
+        #endregion
     }
 }

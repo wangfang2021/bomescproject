@@ -221,13 +221,15 @@ namespace SPPSApi.Controllers.G06
 
                     if (!find && !find_2 && !find_3)
                         continue;//如果该厂没有要处理的数据，则跳过
-                    
-                    if(find)
-                        arrResult_DXYM=soqCompute.getPinZhunList(dtSoq_dxym, dtCalendar, dtSpecialSupplier, dtSpecialPart);
+
+                    int iSub=fs0611_Logic.getPingZhunAddSubDay();
+
+                    if (find)
+                        arrResult_DXYM=soqCompute.getPinZhunList(dtSoq_dxym, dtCalendar, dtSpecialSupplier, dtSpecialPart, strYearMonth, iSub);
                     if (find_2)
-                        arrResult_NSYM =soqCompute.getPinZhunList(dtSoq_nsym, dtCalendar_2, dtSpecialSupplier_2, dtSpecialPart_2);
+                        arrResult_NSYM =soqCompute.getPinZhunList(dtSoq_nsym, dtCalendar_2, dtSpecialSupplier_2, dtSpecialPart_2, strYearMonth_2, iSub);
                     if (find_3)
-                        arrResult_NNSYM =soqCompute.getPinZhunList(dtSoq_nnsym, dtCalendar_3, dtSpecialSupplier_3, dtSpecialPart_3);
+                        arrResult_NNSYM =soqCompute.getPinZhunList(dtSoq_nnsym, dtCalendar_3, dtSpecialSupplier_3, dtSpecialPart_3, strYearMonth_3, iSub);
 
                     if (arrResult_DXYM.Count == 0 || arrResult_NSYM.Count == 0 || arrResult_NNSYM.Count == 0)
                     {

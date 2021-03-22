@@ -98,7 +98,7 @@ namespace SPPSApi.Controllers.G04
                 ,"iPartNums","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
                 ,"iD29","iD30","iD31","vcCarType2","iBoxes2","iPartNums2","vcCarType3","iBoxes3","iPartNums3"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.Num,"",FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num,
+                                                {FieldCheck.NumCharLLL,"","",FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
@@ -138,24 +138,24 @@ namespace SPPSApi.Controllers.G04
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 //校验导入文件中订货频度列的内容
-                DataTable dt_MakingOrderType = ComFunction.getTCode("C047");
-                string temp = "";
-                for (int i = 0; i < dt_MakingOrderType.Rows.Count; i++)
-                {
-                    temp += dt_MakingOrderType.Rows[i]["vcName"].ToString() + ",";
-                }
-                temp = temp.Substring(0, temp.Length - 1);
-                for (int i = 0; i < importDt.Rows.Count; i++)
-                {
-                    string vcMakingOrderType_import = importDt.Rows[i]["vcMakingOrderType"].ToString();
-                    DataRow[] dr = dt_MakingOrderType.Select("vcName='" + vcMakingOrderType_import + "'   ");
-                    if (dr.Length == 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 2) + "行[订货方式]列只能填写" + temp;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
+                //DataTable dt_MakingOrderType = ComFunction.getTCode("C047");
+                //string temp = "";
+                //for (int i = 0; i < dt_MakingOrderType.Rows.Count; i++)
+                //{
+                //    temp += dt_MakingOrderType.Rows[i]["vcName"].ToString() + ",";
+                //}
+                //temp = temp.Substring(0, temp.Length - 1);
+                //for (int i = 0; i < importDt.Rows.Count; i++)
+                //{
+                //    string vcMakingOrderType_import = importDt.Rows[i]["vcMakingOrderType"].ToString();
+                //    DataRow[] dr = dt_MakingOrderType.Select("vcName='" + vcMakingOrderType_import + "'   ");
+                //    if (dr.Length == 0)
+                //    {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = "第" + (i + 2) + "行[订货方式]列只能填写" + temp;
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //}
                 //校验导入文件中数据重复项
                 var result = from r in importDt.AsEnumerable()
                              group r by new { r2 = r.Field<string>("vcPart_id") } into g
@@ -217,22 +217,22 @@ namespace SPPSApi.Controllers.G04
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //校验导入文件中品番是否与所选工厂一致
-                DataTable dtFilePlant = fs0610_Logic.GetFilePlant(strCLYM, importDt);
-                List<string> lsfileplant = new List<string>();
-                plantList.Sort();
-                for (int i = 0; i < dtFilePlant.Rows.Count; i++)
-                {
-                    lsfileplant.Add(dtFilePlant.Rows[i][0].ToString());
-                }
-                lsfileplant.Sort();
-                string t1 = string.Join(",", lsfileplant.ToArray());
-                string t2 = string.Join(",", plantList.ToArray());
-                if (t1 != t2)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导入文件中品番工厂与画面所选工厂不一致";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //DataTable dtFilePlant = fs0610_Logic.GetFilePlant(strCLYM, importDt);
+                //List<string> lsfileplant = new List<string>();
+                //plantList.Sort();
+                //for (int i = 0; i < dtFilePlant.Rows.Count; i++)
+                //{
+                //    lsfileplant.Add(dtFilePlant.Rows[i][0].ToString());
+                //}
+                //lsfileplant.Sort();
+                //string t1 = string.Join(",", lsfileplant.ToArray());
+                //string t2 = string.Join(",", plantList.ToArray());
+                //if (t1 != t2)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "导入文件中品番工厂与画面所选工厂不一致";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
                 fs0610_Logic.importSave(importDt, strYearMonth, loginInfo.UserId, plantList);
                 apiResult.code = ComConstant.SUCCESS_CODE;

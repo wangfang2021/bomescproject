@@ -872,8 +872,10 @@ namespace DataAccess
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
 
-                vcTargetYear = "";
-                vcTargetMonth = "";
+                //vcTargetYear = "";
+                //vcTargetMonth = "";
+                vcTargetYear = dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 4).ToString();
+                vcTargetMonth = dTargetDate.Replace("-", "").Replace("/", "").Substring(4, 2).ToString();
                 vcTargetDay = "";
                 dTargetWeek = "";
                 //if (vcOrderType == "0")
@@ -1266,10 +1268,14 @@ namespace DataAccess
                 string vcTargetYear = string.Empty;
                 string vcTargetMonth = string.Empty;
                 string vcTargetDay = string.Empty;
-                
+                vcTargetYear = dTargetDate.Replace("-", "").Replace("/", "").Substring(0,4).ToString();
+                vcTargetMonth = dTargetDate.Replace("-", "").Replace("/", "").Substring(4, 2).ToString();
                 string fileName = string.Empty;
                 string filePath = string.Empty;
                 string fileOrderNo = string.Empty;
+
+                DataTable dockTmpNQ = getJinJiNQ(vcJiLuLastOrderNo, dTargetDate.Replace("-", "").Replace("/", "").Substring(0, 6).ToString());
+
                 for (int i = 0; i < fileList.Count; i++)
                 {
                     filePath = fileList[i]["filePath"].ToString();
@@ -1404,6 +1410,30 @@ namespace DataAccess
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
+                            //
+                            Hashtable hashtableNQ = getJinJiDockNQ(vcPart_id, dockTmpNQ);
+                            if (hashtableNQ.Keys.Count > 0)
+                            {
+                                string numNQ = hashtableNQ["num"].ToString();
+                                if (Convert.ToInt32(numNQ) - Convert.ToInt32(vcOrderNum) < 0) {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcOrder"] = fileName;
+                                    dataRow["vcPartNo"] = vcPart_id;
+                                    dataRow["vcMessage"] = "修正订单的品番的数量不应该大于纳期表确认的数量";
+                                    dtMessage.Rows.Add(dataRow);
+                                    bReault = false;
+                                }
+                            }
+                            else
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcOrder"] = fileName;
+                                dataRow["vcPartNo"] = vcPart_id;
+                                dataRow["vcMessage"] = "纳期表未找到数量";
+                                dtMessage.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+
                             //判断价格 手配品
                             #region
                             if (decPriceTNPWithTax.Length == 0)
@@ -1600,6 +1630,58 @@ namespace DataAccess
                 {
                     excute.ExcuteSqlWithStringOper(strSql.ToString());
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private Hashtable getJinJiDockNQ(string PartID, DataTable dt)
+        {
+            try
+            {
+                Hashtable hashtable = new Hashtable();
+
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (PartID.Trim().Equals(dt.Rows[i]["vcPartId"].ToString().Trim()))
+                        {
+                            hashtable.Add("num", dt.Rows[i]["num"].ToString());
+                            break;
+                        }
+                    }
+                }
+
+                return hashtable;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 得到紧急纳期
+        /// </summary>
+        /// <param name="vcJiLuLastOrderNo"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        private DataTable getJinJiNQ(string vcJiLuLastOrderNo, string TargetYM)
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+
+                sbr.AppendLine("   select vcOrderNo,vcPart_id, vcTargetYM,sum(iDuiYingQuantity) as num from    ");
+                sbr.AppendLine("   (    ");
+                sbr.AppendLine("   select vcOrderNo,vcPart_id,  CONVERT(varchar(6),dOutPutDate,112) as vcTargetYM, iDuiYingQuantity     ");
+                sbr.AppendLine("   from VI_UrgentOrder_OperHistory where CONVERT(varchar(6),dOutPutDate,112) ='"+ TargetYM + "' and  vcOrderNo='"+ vcJiLuLastOrderNo + "'  ");
+                sbr.AppendLine("   ) a group by a.vcOrderNo,a.vcPart_id, a.vcTargetYM    ");
+
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
             {

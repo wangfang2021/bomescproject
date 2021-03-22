@@ -504,14 +504,20 @@ namespace SPPSApi.Controllers.G04
                 //}
                 #endregion
                 #endregion
-                if (!IsOrderTypeJinjiFlag)
+                //if (!IsOrderTypeJinjiFlag)
+                //{
+                //    if (dTargetDate.Length == 0)
+                //    {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = "对象年月(日)不能为空！";
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //}
+                if (dTargetDate.Length == 0)
                 {
-                    if (dTargetDate.Length == 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "对象年月(日)不能为空！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "对象年月(日)不能为空！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (fileList.Count == 0)
                 {
@@ -719,6 +725,13 @@ namespace SPPSApi.Controllers.G04
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "修正时原订单号不能为空,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+                if (dTargetDate.Length == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "修正时对象月不能为空,请确认！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }

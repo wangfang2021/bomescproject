@@ -60,7 +60,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select *,'0' as vcModFlag,'0' as vcAddFlag from tChuHe_jinji   \n");
+                sql.Append("select *,iQuantity as iQuantity_old,'0' as vcModFlag,'0' as vcAddFlag from tChuHe_jinji   \n");
                 if (vcPart_id != "" && vcPart_id != null)
                     sql.Append("where vcPart_id like '" + vcPart_id + "%'    \n");
                 sql.Append("order by vcPart_id    \n");
@@ -250,8 +250,24 @@ namespace DataAccess
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
+                    string vcProject = checkedInfoData[i]["vcProject"].ToString();
+                    string dChuHeDate = checkedInfoData[i]["dChuHeDate"].ToString();
 
                     sql.Append("update TChuHe set dChuHeOKTime='" + time + "' where iAutoId=" + iAutoId + "   \n");
+
+                    #region update TPanDian 数量减少
+                    sql.AppendLine("update t2 set t2.iSystemQuantity=isnull(t2.iSystemQuantity,0)-isnull(t1.iQuantity,0),");
+                    sql.AppendLine("t2.vcOperatorID='" + strUserId + "',t2.dOperatorTime='" + time + "'");
+                    sql.AppendLine("from (");
+                    sql.AppendLine("	select t2.vcNaRuPart_id,t1.iQuantity from (");
+                    sql.AppendLine("		select * from TChuHe_Detail where vcProject='" + vcProject + "' and dChuHeDate='" + dChuHeDate + "'");
+                    sql.AppendLine("	)t1");
+                    sql.AppendLine("	inner join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id");
+                    sql.AppendLine(")t1");
+                    sql.AppendLine("inner join (");
+                    sql.AppendLine("	select * from TPanDian ");
+                    sql.AppendLine(")t2 on t1.vcNaRuPart_id=t2.vcPart_id");
+                    #endregion
                 }
                 if (sql.Length > 0)
                 {
@@ -313,7 +329,7 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select '补给品中心' as vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,    \n");
                 sql.Append("vcChuHePart_id,vcPart_Name,iCapacity,vcBoxType    \n");
-                sql.Append("from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'    \n");
+                sql.Append("from TSSPManagement where vcChuHePart_id='" + vcPart_id + "'    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -328,6 +344,7 @@ namespace DataAccess
         {
             try
             {
+                DateTime time = DateTime.Now;
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -344,13 +361,49 @@ namespace DataAccess
                         sql.Append("insert into tChuHe_jinji (vcPart_id,iQuantity,vcReason,vcOperatorID,dOperatorTime) values   \n");
                         sql.Append("('" + listInfoData[i]["vcPart_id"].ToString() + "',nullif('" + listInfoData[i]["iQuantity"].ToString() + "','')," +
                             "'" + listInfoData[i]["vcReason"].ToString() + "','" + strUserId + "',getdate())  \n");
+
+                        #region update TPanDian 数量减少
+                        sql.AppendLine("update t2 set t2.iSystemQuantity=isnull(t2.iSystemQuantity,0)-isnull(t1.iQuantity,0),");
+                        sql.AppendLine("t2.vcOperatorID='" + strUserId + "',t2.dOperatorTime='" + time + "'");
+                        sql.AppendLine("from (");
+                        sql.AppendLine("	select t2.vcNaRuPart_id,t1.iQuantity from (");
+                        sql.AppendLine("		select * from TChuHe_jinji where vcPart_id='" + listInfoData[i]["vcPart_id"].ToString() + "' ");
+                        sql.AppendLine("	)t1");
+                        sql.AppendLine("	inner join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id");
+                        sql.AppendLine(")t1");
+                        sql.AppendLine("inner join (");
+                        sql.AppendLine("	select * from TPanDian ");
+                        sql.AppendLine(")t2 on t1.vcNaRuPart_id=t2.vcPart_id");
+                        #endregion
                     }
                     else if (baddflag == false && bmodflag == true)
                     {//修改
                         string iAutoId = listInfoData[i]["iAutoId"].ToString();
+                        int qty_old = Convert.ToInt32(listInfoData[i]["iQuantity_old"].ToString());
+                        int qty_now = Convert.ToInt32(listInfoData[i]["iQuantity"].ToString());
+                        int cha = qty_old - qty_now;
+
                         sql.Append("update tChuHe_jinji set vcPart_id='" + listInfoData[i]["vcPart_id"].ToString() + "'," +
                             "iQuantity=nullif('" + listInfoData[i]["iQuantity"].ToString() + "',''),vcReason='" + listInfoData[i]["vcReason"].ToString() + "'," +
                             "vcOperatorID='" + strUserId + "',dOperatorTime=getdate()   \n");
+
+                        if (cha != 0)
+                        {//出多了或出少了，库存加回去或减回去
+                            #region update TPanDian 数量增加
+                            sql.AppendLine("update t2 set t2.iSystemQuantity=isnull(t2.iSystemQuantity,0)+" + cha + ",");
+                            sql.AppendLine("t2.vcOperatorID='" + strUserId + "',t2.dOperatorTime='" + time + "'");
+                            sql.AppendLine("from (");
+                            sql.AppendLine("	select t2.vcNaRuPart_id,t1.iQuantity from (");
+                            sql.AppendLine("		select * from TChuHe_jinji where vcPart_id='" + listInfoData[i]["vcPart_id"].ToString() + "' ");
+                            sql.AppendLine("	)t1");
+                            sql.AppendLine("	inner join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id");
+                            sql.AppendLine(")t1");
+                            sql.AppendLine("inner join (");
+                            sql.AppendLine("	select * from TPanDian ");
+                            sql.AppendLine(")t2 on t1.vcNaRuPart_id=t2.vcPart_id");
+                            #endregion
+                        }
+
                     }
                 }
                 if (sql.Length > 0)
@@ -392,7 +445,7 @@ namespace DataAccess
                         sql.Append("           ,'" + listInfoData[i]["vcProject"].ToString() + "'    \n");
                         sql.Append("           ,nullif('" + listInfoData[i]["iQuantity"].ToString() + "','')    \n");
                         sql.Append("           ,nullif('" + listInfoData[i]["iKBQuantity"].ToString() + "','')    \n");
-                        sql.Append("           ,'"+strUserId+"'    \n");
+                        sql.Append("           ,'" + strUserId + "'    \n");
                         sql.Append("           ,getdate())    \n");
                     }
                     else if (baddflag == false && bmodflag == true)
@@ -405,7 +458,7 @@ namespace DataAccess
                         sql.Append("      ,[iKBQuantity] = nullif('" + listInfoData[i]["iKBQuantity"].ToString() + "','')    \n");
                         sql.Append("      ,[vcOperatorID] = '" + strUserId + "'    \n");
                         sql.Append("      ,[dOperatorTime] = getdate()    \n");
-                        sql.Append(" WHERE iAutoId="+iAutoId+"    \n");
+                        sql.Append(" WHERE iAutoId=" + iAutoId + "    \n");
                     }
                 }
                 if (sql.Length > 0)
@@ -425,11 +478,26 @@ namespace DataAccess
         {
             try
             {
+                DateTime time = DateTime.Now;
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < checkedInfoData.Count; i++)
                 {
                     string iAutoId = checkedInfoData[i]["iAutoId"].ToString();
                     sql.Append("delete from tChuHe_jinji where iAutoId=" + iAutoId + "   \n");
+
+                    #region update TPanDian 数量增加
+                    sql.AppendLine("update t2 set t2.iSystemQuantity=isnull(t2.iSystemQuantity,0)+isnull(t1.iQuantity,0),");
+                    sql.AppendLine("t2.vcOperatorID='" + strUserId + "',t2.dOperatorTime='" + time + "'");
+                    sql.AppendLine("from (");
+                    sql.AppendLine("	select t2.vcNaRuPart_id,t1.iQuantity from (");
+                    sql.AppendLine("		select * from TChuHe_jinji where iAutoId=" + iAutoId + " ");
+                    sql.AppendLine("	)t1");
+                    sql.AppendLine("	inner join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id");
+                    sql.AppendLine(")t1");
+                    sql.AppendLine("inner join (");
+                    sql.AppendLine("	select * from TPanDian ");
+                    sql.AppendLine(")t2 on t1.vcNaRuPart_id=t2.vcPart_id");
+                    #endregion
 
                 }
                 if (sql.Length > 0)
@@ -470,7 +538,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select count(1) from TSSPManagement where vcChuHePart_id='"+vcPart_id+"'     \n");
+                sql.Append("select count(1) from TSSPManagement where vcChuHePart_id='" + vcPart_id + "'     \n");
                 return excute.ExecuteScalar(sql.ToString());
             }
             catch (Exception ex)

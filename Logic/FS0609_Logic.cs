@@ -244,7 +244,7 @@ namespace Logic
             return data;
         }
 
-        public void save(List<string> dayTypeVals, List<string> weekTypeVals, string varDxny, string varFZGC, decimal TOTALWORKDAYS, string strUserId)
+        public string save(List<string> dayTypeVals, List<string> weekTypeVals, string varDxny, string varFZGC, decimal TOTALWORKDAYS, string strUserId)
         {
             //1表示第1周，*表示单值
             List<string> re = new List<string>();
@@ -273,9 +273,7 @@ namespace Logic
                     re.Add(null);
                 }
             }
-
-
-            fs0609_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);
+            return fs0609_DataAccess.save(re, varDxny, varFZGC, TOTALWORKDAYS, strUserId);
         }
 
         public string CopyTo(string vcPlantFrom, List<string> vcPlantTo, List<string> vcMon, string strUserId)

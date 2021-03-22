@@ -101,7 +101,8 @@ namespace Logic
         }
         public bool isSCPlan(string strPlant, string strCLYM)
         {
-            int num = fs0610_DataAccess.isSCPlan(strPlant, strCLYM);
+            string strDXYM = Convert.ToDateTime(strCLYM.Substring(0, 4) + "-" + strCLYM.Substring(4, 2) + "-01").AddMonths(1).ToString("yyyyMM");
+            int num = fs0610_DataAccess.isSCPlan(strPlant, strDXYM);
             if (num > 0)
                 return true;
             else

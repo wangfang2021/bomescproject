@@ -27,7 +27,7 @@ namespace DataAccess
                 sbr.AppendLine("	   [vcChuHePlant] as vcSupplierPlace,[vcSufferIn] as vcSufferIn,[iPackingQty] as iPackingQty,[iOrderQuantity] as iOrderQuantity,");
                 sbr.AppendLine("	   [dReplyOverDate] as dReplyOverDate,isnull([vcDelete],'0') as [vcDelete]");
                 sbr.AppendLine("  FROM [TUrgentOrder]");
-                sbr.AppendLine("  WHERE isnull([vcDelete],'0')='0'");
+                sbr.AppendLine("  WHERE isnull([vcDelete],'0')='0' AND vcStatus = '3' ");
                 if (OrderNo != "")
                 {
                     sbr.AppendLine("AND [vcOrderNo] LIKE '" + OrderNo + "%'");
@@ -64,8 +64,32 @@ namespace DataAccess
             }
         }
 
-
-
+        public DataTable getOrder()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT DISTINCT vcOrderNo FROM TUrgentOrder WHERE vcStatus = '3'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getPartId()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT DISTINCT vcPart_id FROM TUrgentOrder WHERE vcStatus = '3'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }

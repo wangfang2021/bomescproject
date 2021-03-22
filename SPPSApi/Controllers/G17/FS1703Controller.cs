@@ -52,8 +52,8 @@ namespace SPPSApi.Controllers.G17
                 //else
                 //    res.Add("caiWuBtnVisible", true);
 
-                List<Object> dataList_Project = ComFunction.convertAllToResult(fs1703_Logic.getAllProject());//工程
-                res.Add("optionProject", dataList_Project);
+                List<Object> dataList_C021 = ComFunction.convertAllToResult(ComFunction.getTCode("C021"));//盘点差异
+                res.Add("optionC021", dataList_C021);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -84,14 +84,14 @@ namespace SPPSApi.Controllers.G17
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcProject = dataForm.vcProject;
-            string dChuHeDateFrom = dataForm.dChuHeDateFrom;
-            string dChuHeDateTo = dataForm.dChuHeDateTo;
+            string vcPart_id = dataForm.vcPart_id;
+            string vcChaYi = dataForm.vcChaYi;
             try
             {
-                DataTable dt = fs1703_Logic.Search(vcProject, dChuHeDateFrom, dChuHeDateTo);
+                DataTable dt = fs1703_Logic.Search(vcPart_id, vcChaYi);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dChuHeDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -107,13 +107,11 @@ namespace SPPSApi.Controllers.G17
         }
         #endregion
 
-        #region 确认单打印
+        #region 导出
         [HttpPost]
         [EnableCors("any")]
-        [Obsolete]
-        public string qrdPrintApi([FromBody]dynamic data)
+        public string exportApi([FromBody] dynamic data)
         {
-            //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -122,54 +120,40 @@ namespace SPPSApi.Controllers.G17
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            string vcPart_id = dataForm.vcPart_id;
+            string vcChaYi = dataForm.vcChaYi;
             try
             {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (checkedInfoData.Count == 0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                //取出生成确认单的数据
-                string[] fields = { "id", "vcPart_id", "vcBackPart_id", "iQuantity", "vcRemark"};
-                string vcQueRenNo = checkedInfoData[0]["vcQueRenNo"].ToString();
-                string vcProject = checkedInfoData[0]["vcProject"].ToString();
-                string dChuHeDate = checkedInfoData[0]["dChuHeDate"].ToString();
-                DataTable dt = fs1703_Logic.GetqrdInfo(vcProject, dChuHeDate);
+                DataTable dt = fs1703_Logic.Search(vcPart_id, vcChaYi);
+                string[] heads = { "纳入品番", "所番地", "应有数量", "实际数量"};
+                string[] fields = { "vcPart_id", "vcPlace", "iSystemQuantity", "iRealQuantity"};
                 string strMsg = "";
-                //生成excel
-                string filepath = fs1703_Logic.generateExcelWithXlt(vcQueRenNo,dt, fields, _webHostEnvironment.ContentRootPath, "FS1703.xlsx", 0, 3, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strMsg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //调打印方法（没做呢）
-
-                //更新打印时间
-                fs1703_Logic.qrdPrint(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0703", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
 
-        #region 出荷看板打印
+        #region 保存
         [HttpPost]
         [EnableCors("any")]
-        public string kbPrintApi([FromBody]dynamic data)
+        public string saveApi([FromBody]dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -183,50 +167,70 @@ namespace SPPSApi.Controllers.G17
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (checkedInfoData.Count == 0)
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                bool hasFind = false;//是否找到需要新增或者修改的数据
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        hasFind = true;
+                    }
+                    else if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        hasFind = true;
+                    }
+                }
+                if (!hasFind)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string vcQueRenNo = checkedInfoData[0]["vcQueRenNo"].ToString();
-                string vcProject = checkedInfoData[0]["vcProject"].ToString();
-                string dChuHeDate = checkedInfoData[0]["dChuHeDate"].ToString();
-                for (int i = 0; i < checkedInfoData.Count; i++)
+                //开始数据验证
+                if (hasFind)
                 {
-                    if (vcQueRenNo.StartsWith("BJW"))
+                    #region 数据格式校验
+                    string[,] strField = new string[,]
+                    {
+                        {"实际数量"},//中文字段名
+                        {"iRealQuantity"},//英文字段名
+                        {FieldCheck.Num},//数据类型校验
+                        {"0"},//最大长度设定,不校验最大长度用0
+                        {"1"},//最小长度设定,可以为空用0
+                        {"4"},//前台显示列号，从0开始计算,注意有选择框的是0
+                    };
+                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1703");
+                    if (checkRes != null)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "确认单号[" + vcQueRenNo + "]不能进行出荷看板打印！";
+                        apiResult.data = checkRes;
+                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    #endregion
                 }
-                //取出生成看板数据
-                DataTable dt = fs1703_Logic.getKBData(vcProject,dChuHeDate);
-                //调用打印方法（还没做呢）
-
-                //更新打印时间
-                fs1703_Logic.kbPrint(checkedInfoData, loginInfo.UserId);
+                fs1703_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0704", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion
 
-        #region 出荷完了
+        #region 覆盖
         [HttpPost]
         [EnableCors("any")]
-        public string chuheOKApi([FromBody]dynamic data)
+        public string coverApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
@@ -240,48 +244,33 @@ namespace SPPSApi.Controllers.G17
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                //string vcPart_id = dataForm.vcPart_id;
+                //string vcChaYi = dataForm.vcChaYi;
                 JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (checkedInfoData.Count == 0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                for (int i = 0; i < checkedInfoData.Count; i++)
-                {
-                    string vcQueRenNo = checkedInfoData[i]["vcQueRenNo"].ToString();
-                    string QueRenPrintFlag= checkedInfoData[i]["QueRenPrintFlag"].ToString();
-                    string KBPrintFlagg = checkedInfoData[i]["KBPrintFlag"].ToString();
-                    if (vcQueRenNo.StartsWith("BJW"))
-                    {
-                        if(QueRenPrintFlag=="")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "确认单号[" + vcQueRenNo + "]：先进行确认单打印！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                    }
-                    else
-                    {
-                        if (QueRenPrintFlag == "" || KBPrintFlagg=="")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "确认单号[" + vcQueRenNo + "]：先进行确认单和出荷看板打印！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                    }
-                }
-                fs1703_Logic.chuheOK(checkedInfoData, loginInfo.UserId);//更新在库还没写呢
+                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+                int count = 0;
+
+                //覆盖方式是什么？全体覆盖/勾选覆盖？覆盖履历只保留最后一次？
+
+                //if (listInfoData.Count != 0)//选中了数据操作
+                //{
+                //        count = fs1703_Logic.cover(listInfoData, loginInfo.UserId);
+                //}
+                //else//按检索条件
+                //{
+                //        count = fs1703_Logic.cover(vcPart_id, vcChaYi,loginInfo.UserId);
+                //}
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = count;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0206", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

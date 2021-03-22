@@ -136,8 +136,13 @@ namespace SPPSApi.Controllers.G06
 
             try
             {
-                fs0608_Logic.save(dayTypeVals, weekTypeVals, varDxny, varFZGC, TOTALWORKDAYS, loginInfo.UserId);
-
+                string msg = fs0608_Logic.save(dayTypeVals, weekTypeVals, varDxny, varFZGC, TOTALWORKDAYS, loginInfo.UserId);
+                if (msg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }

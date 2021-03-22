@@ -25,7 +25,7 @@ namespace Logic
         {
             return fs1104_DataAccess.getCaseNoInfo(strPlant, strReceiver, strCaseNo);
         }
-        public bool getPrintInfo(string strPlant, string strReceiver, string strPrintNum, string strOperId, ref DataTable dtMessage)
+        public void getPrintInfo(string strPlant, string strReceiver, string strPrintNum, string strOperId, ref DataTable dtMessage)
         {
             int iCaseNo = Convert.ToInt32(getCaseNoInfo(strPlant, strReceiver, ""));
             int iPrintNum = Convert.ToInt32(strPrintNum);
@@ -46,10 +46,6 @@ namespace Logic
                 dtSub.Rows.Add(dataRow);
             }
             fs1104_DataAccess.setPrintTemp(dtSub, strOperId, ref dtMessage);
-            if (dtMessage.Rows.Count != 0)
-                return false;
-            else
-                return true;
         }
         public bool getPrintInfo(string strPlant, string strReceiver, string strCastNo, string strPrintNum, string strOperId, ref DataTable dtMessage)
         {

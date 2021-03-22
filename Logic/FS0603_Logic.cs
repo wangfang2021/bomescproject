@@ -2760,19 +2760,26 @@ namespace Logic
                 dataTable.Columns.Add("vcPartId", typeof(string));
                 dataTable.Columns.Add("vcCarfamilyCode", typeof(string));
                 dataTable.Columns.Add("vcSupplierId", typeof(string));
+                dataTable.Columns.Add("vcSupplierName", typeof(string));
                 dataTable.Columns.Add("vcPartENName", typeof(string));
                 dataTable.Columns.Add("vcColourNo", typeof(string));
                 dataTable.Columns.Add("vcColourCode", typeof(string));
                 dataTable.Columns.Add("vcColourName", typeof(string));
+                dataTable.Columns.Add("dModDate", typeof(string));
                 dataTable.Columns.Add("vcModItem", typeof(string));
-                dataTable.Columns.Add("vcPicUrl", typeof(string));
+                dataTable.Columns.Add("vcTempUrl", typeof(string));
+                dataTable.Columns.Add("vcPICUrl", typeof(string));
+                dataTable.Columns.Add("vcPICPath", typeof(string));
                 dataTable.Columns.Add("vcPDFUrl", typeof(string));
+                dataTable.Columns.Add("vcPDFPath", typeof(string));
                 dataTable.Columns.Add("vcSPISUrl", typeof(string));
+                dataTable.Columns.Add("vcSPISPath", typeof(string));
                 dataTable.Columns.Add("vcSupplier_1", typeof(string));
                 dataTable.Columns.Add("vcSupplier_2", typeof(string));
                 dataTable.Columns.Add("vcOperName", typeof(string));
                 dataTable.Columns.Add("vcGM", typeof(string));
                 dataTable.Columns.Add("vcSPISStatus", typeof(string));
+                dataTable.Columns.Add("vcType", typeof(string));
             }
             return dataTable;
         }

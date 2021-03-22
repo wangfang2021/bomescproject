@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -19,6 +20,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G14
 {
@@ -31,6 +33,7 @@ namespace SPPSApi.Controllers.G14
         FS1405_Logic fS1405_Logic = new FS1405_Logic();
         FS0602_Logic fS0602_Logic = new FS0602_Logic();
         FS0603_Logic fS0603_Logic = new FS0603_Logic();
+        FS1406_Logic fS1406_Logic = new FS1406_Logic();
         private readonly string FunctionID = "FS1405";
 
         public FS1405Controller(IWebHostEnvironment webHostEnvironment)
@@ -184,7 +187,7 @@ namespace SPPSApi.Controllers.G14
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtImport = fS0603_Logic.createTable("SPISApply");
-                fS1405_Logic.checksendtoInfo(checkedInfoData,  ref dtImport, strToTime_SPIS, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
+                fS1405_Logic.checksendtoInfo(checkedInfoData, ref dtImport, strToTime_SPIS, loginInfo.UserId, loginInfo.UnitCode, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -244,7 +247,11 @@ namespace SPPSApi.Controllers.G14
                 List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
-                fS1405_Logic.checkadmitInfo(checkedInfoData, loginInfo.UserId, loginInfo.UserName, ref dtMessage);
+                DataTable dtImport = fS0603_Logic.createTable("SPISApply");
+                DataTable dtApplyList = dtImport.Clone();
+                DataTable dtSPISTime = fS0603_Logic.createTable("savFs1404");
+                DataTable dtPDF_temp = fS1406_Logic.getTempDataInfo();
+                fS1405_Logic.checkadmitInfo(checkedInfoData, ref dtImport, ref dtApplyList, ref dtPDF_temp, ref dtSPISTime, loginInfo.UserId, loginInfo.UserName, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
@@ -253,6 +260,56 @@ namespace SPPSApi.Controllers.G14
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //处理图像
+                //1.插入并打印
+                for (int i = 0; i < dtPDF_temp.Rows.Count; i++)
+                {
+                    DataRow drPDF_temp = dtPDF_temp.Rows[i];
+                    string sources_pdf = drPDF_temp["vcPDFPath"].ToString();
+                    fS1406_Logic.setCRVtoPdf(drPDF_temp, loginInfo.UserId, ref dtMessage);
+                    #region 调用webApiPDF导出
+                    //创建 HTTP 绑定对象
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    var binding = new BasicHttpBinding();
+                    //根据 WebService 的 URL 构建终端点对象
+                    var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                    //创建调用接口的工厂，注意这里泛型只能传入接口
+                    var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                    //从工厂获取具体的调用实例
+                    var callClient = factory.CreateChannel();
+                    setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
+                    Body.strCRVName = file_crv + "crv_FS1406.rpt";
+                    Body.strTableName = "tPrintTemp_FS1406";
+                    Body.strOperID = loginInfo.UserId;
+                    Body.strDiskFileName = sources_pdf;
+                    Body.sqlUserID = "sa";
+                    Body.sqlPassword = "SPPS_Server2019";
+                    Body.sqlCatalog = "SPPSdb";
+                    Body.sqlSource = "172.23.180.116";
+                    //调用具体的方法，这里是 HelloWorldAsync 方法
+                    Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
+                    //获取结果
+                    setCRVToPDFResponse response = responseTask.Result;
+                    if (response.Body.setCRVToPDFResult != "导出成功")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+                }
+                //2.PDF转SPIS图片
+                fS1406_Logic.setPdftoImgs(dtApplyList, loginInfo.UserId, ref dtMessage);
+                //3.保存数据
+                fS1405_Logic.admitInfo(dtApplyList, dtSPISTime, loginInfo.UserId, ref dtMessage);//更新
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

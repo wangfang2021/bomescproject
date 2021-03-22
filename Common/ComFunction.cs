@@ -1310,6 +1310,11 @@ namespace Common
         #region 导出带模板
         public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
         {
+            return generateExcelWithXlt(dt, field, rootPath, xltName, startRow, strUserId, strFunctionName,false);
+        }
+
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, bool isAlignCenter)
+        {
             try
             {
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();
@@ -1322,6 +1327,10 @@ namespace Common
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.Alignment = HorizontalAlignment.Center;
+
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     IRow row = sheet.CreateRow(startRow + i);
@@ -1353,6 +1362,8 @@ namespace Common
                         {
                             cell.SetCellValue(dt.Rows[i][field[j]].ToString());
                         }
+                        if (isAlignCenter)
+                            cell.CellStyle = style;
                     }
                 }
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
@@ -1371,7 +1382,6 @@ namespace Common
                 return "";
             }
         }
-
         public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
         {
             try

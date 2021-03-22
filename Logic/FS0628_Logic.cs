@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id,string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate)
+        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id,string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate,string vcCarType)
         {
-            return fs0628_DataAccess.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate);
+            return fs0628_DataAccess.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate, vcCarType);
         }
 
         public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
@@ -61,6 +61,11 @@ namespace Logic
         public DataTable GetWorkAreaBySupplier(string supplierCode)
         {
             return fs0628_DataAccess.GetWorkAreaBySupplier(supplierCode);
+        }
+
+        public DataTable GetCarType()
+        {
+            return fs0628_DataAccess.GetCarType();
         }
 
         public void creatInjectionOrderNo(DataTable dtWZ, string userId)

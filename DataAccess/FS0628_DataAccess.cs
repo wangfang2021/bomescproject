@@ -46,7 +46,14 @@ namespace DataAccess
                 }
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcCarType like '" + vcCarType + "%' ");
+                    if (vcCarType == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(vcCarType,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  vcCarType like '" + vcCarType + "%' ");
+                    }
                 }
                 if (vcPartNo.Length > 0)
                 {

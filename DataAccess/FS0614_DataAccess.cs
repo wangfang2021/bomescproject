@@ -517,13 +517,15 @@ namespace DataAccess
                                     {
                                         break;
                                     }
-                                    int tmp1 = Convert.ToInt32(rowNQ[m]["iDuiYingQuantity"]);
-                                    if (tmp1 > sum)
+                                    List<string> tmp1 = new List<string>();
+                                    int tmp2 = Convert.ToInt32(rowNQ[m]["iDuiYingQuantity"]);
+                                    if (tmp2 > sum)
                                     {
-                                        tmp1 = sum;
+                                        tmp2 = sum;
                                     }
-
-                                    sum = sum - tmp1;
+                                    tmp1.Add(tmp2.ToString());
+                                    tmp1.Add(rowNQ[m]["dDeliveryDate"].ToString());
+                                    sum = sum - tmp2;
                                     NQ.Add(rowNQ[m]["dOutPutDate"].ToString(), tmp1);
                                 }
 
@@ -543,7 +545,8 @@ namespace DataAccess
                                 {
 
                                     name += "vcPlantQtyDaily" + Convert.ToInt32(key.Substring(6, 2)) + ",";
-                                    value += ComFunction.getSqlValue(NQ[key], true) + ",";
+                                    List<string> num = (List<string>)NQ[key];
+                                    value += ComFunction.getSqlValue(num[0], true) + ",";
                                 }
 
                                 //新增订单
@@ -576,6 +579,8 @@ namespace DataAccess
                                 //写入紧急台账
                                 foreach (string nqKey in NQ.Keys)
                                 {
+                                    List<string> list = (List<string>)NQ[nqKey];
+
                                     sbr.Append("INSERT INTO TEmergentOrderManage(dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcDock, vcSupplier_id, vcWorkArea, vcCHCCode, vcCarType, vcOrderNum, dExpectReceiveDate, vcOderTimes, vcInjectionOrderNo, vcMemo, vcOperatorID, dOperatorTime, vcIsExportFlag)");
                                     sbr.Append("VALUES(GETDATE(),");
                                     sbr.Append(ComFunction.getSqlValue(vcOrderNo, false) + "  ,");
@@ -588,8 +593,8 @@ namespace DataAccess
                                     sbr.Append(ComFunction.getSqlValue(vcSupplierPlant, false) + "  ,");
                                     sbr.Append(ComFunction.getSqlValue(vcSupplierPacking, false) + "  ,");
                                     sbr.Append(ComFunction.getSqlValue(vcCarType, false) + "  ,");
-                                    sbr.Append(ComFunction.getSqlValue(NQ[nqKey], false) + "  , ");
-                                    sbr.Append(ComFunction.getSqlValue(nqKey, true) + ",");
+                                    sbr.Append(ComFunction.getSqlValue(list[0], false) + "  , ");
+                                    sbr.Append(ComFunction.getSqlValue(list[1], true) + ",");
                                     sbr.Append("'01'  , ");
                                     sbr.Append("null  ,");
                                     sbr.Append("null  ,");
@@ -1332,7 +1337,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcOrderNo,vcPart_id,CONVERT(VARCHAR(8),dOutPutDate,112) AS dOutPutDate,CONVERT(VARCHAR(6),dOutPutDate,112) AS TargetYM,iDuiYingQuantity FROM dbo.VI_UrgentOrder_OperHistory WHERE dOutPutDate IS NOT null ORDER BY dOutPutDate");
+                sbr.AppendLine("SELECT vcOrderNo,vcPart_id,CONVERT(VARCHAR(8),dOutPutDate,112) AS dOutPutDate,CONVERT(VARCHAR(8),dDeliveryDate,112) AS dDeliveryDate,CONVERT(VARCHAR(6),dOutPutDate,112) AS TargetYM,iDuiYingQuantity FROM dbo.VI_UrgentOrder_OperHistory WHERE dOutPutDate IS NOT null ORDER BY dOutPutDate");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

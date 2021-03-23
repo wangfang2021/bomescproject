@@ -3,22 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
+using System.ServiceModel;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G14
 {
@@ -273,11 +271,13 @@ namespace SPPSApi.Controllers.G14
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
                 DataTable dtImport = fS1406_Logic.setInfoList(dataForm);
+                DataTable dtApplyList = dtImport.Clone();
                 string strPath_temp = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spisapply" + Path.DirectorySeparatorChar + "apply" + Path.DirectorySeparatorChar;
                 string strPath_pic = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPic" + Path.DirectorySeparatorChar;
                 string strPath_pdf = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISPdf" + Path.DirectorySeparatorChar;
                 string strPath_sips = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
-                DataTable dtApplyList = fS1406_Logic.checkSaveInfo(dtImport, strPath_temp, strPath_pic, strPath_pdf, strPath_sips, loginInfo.UserId, ref dtMessage);
+                DataTable dtPDF_temp = fS1406_Logic.getTempDataInfo();
+                fS1406_Logic.checkSaveInfo(dtImport, ref dtApplyList, ref dtPDF_temp, strPath_temp, strPath_pic, strPath_pdf, strPath_sips, loginInfo.UserId, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
@@ -286,6 +286,55 @@ namespace SPPSApi.Controllers.G14
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //处理图像
+                //1.插入并打印
+                for (int i = 0; i < dtPDF_temp.Rows.Count; i++)
+                {
+                    DataRow drPDF_temp = dtPDF_temp.Rows[i];
+                    string sources_pdf = drPDF_temp["vcPDFPath"].ToString();
+                    fS1406_Logic.setCRVtoPdf(drPDF_temp, loginInfo.UserId, ref dtMessage);
+                    #region 调用webApiPDF导出
+                    //创建 HTTP 绑定对象
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    var binding = new BasicHttpBinding();
+                    //根据 WebService 的 URL 构建终端点对象
+                    var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                    //创建调用接口的工厂，注意这里泛型只能传入接口
+                    var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                    //从工厂获取具体的调用实例
+                    var callClient = factory.CreateChannel();
+                    setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
+                    Body.strCRVName = file_crv + "crv_FS1406.rpt";
+                    Body.strTableName = "tPrintTemp_FS1406";
+                    Body.strOperID = loginInfo.UserId;
+                    Body.strDiskFileName = sources_pdf;
+                    Body.sqlUserID = "sa";
+                    Body.sqlPassword = "SPPS_Server2019";
+                    Body.sqlCatalog = "SPPSdb";
+                    Body.sqlSource = "172.23.180.116";
+                    //调用具体的方法，这里是 HelloWorldAsync 方法
+                    Task<setCRVToPDFResponse> responseTask = callClient.setCRVToPDFAsync(new setCRVToPDFRequest(Body));
+                    //获取结果
+                    setCRVToPDFResponse response = responseTask.Result;
+                    if (response.Body.setCRVToPDFResult != "导出成功")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+                }
+                //2.PDF转SPIS图片
+                fS1406_Logic.setPdftoImgs(dtApplyList, loginInfo.UserId, ref dtMessage);
+                //3.保存数据
                 fS1406_Logic.setSaveInfo(dtApplyList, loginInfo.UserId, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {

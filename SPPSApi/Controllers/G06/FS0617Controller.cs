@@ -182,8 +182,7 @@ namespace SPPSApi.Controllers.G06
                     Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
                     //获取结果
                     setCRVPrintResponse response = responseTask.Result;
-                    #endregion
-                    if(response.Body.setCRVPrintResult!= "打印成功")
+                    if (response.Body.setCRVPrintResult != "打印成功")
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
@@ -197,6 +196,7 @@ namespace SPPSApi.Controllers.G06
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    #endregion
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = "打印成功";
                 }

@@ -22,6 +22,13 @@ namespace WebServiceAPI
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setCRVPrint", ReplyAction="*")]
         System.Threading.Tasks.Task<WebServiceAPI.setCRVPrintResponse> setCRVPrintAsync(WebServiceAPI.setCRVPrintRequest request);
+        
+        // CODEGEN: 正在生成消息协定，因为命名空间 http://tempuri.org/ 的元素名称 strCRVName 未标记为 nillable
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setCRVToPDF", ReplyAction="*")]
+        WebServiceAPI.setCRVToPDFResponse setCRVToPDF(WebServiceAPI.setCRVToPDFRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setCRVToPDF", ReplyAction="*")]
+        System.Threading.Tasks.Task<WebServiceAPI.setCRVToPDFResponse> setCRVToPDFAsync(WebServiceAPI.setCRVToPDFRequest request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -132,6 +139,114 @@ namespace WebServiceAPI
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class setCRVToPDFRequest
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="setCRVToPDF", Namespace="http://tempuri.org/", Order=0)]
+        public WebServiceAPI.setCRVToPDFRequestBody Body;
+        
+        public setCRVToPDFRequest()
+        {
+        }
+        
+        public setCRVToPDFRequest(WebServiceAPI.setCRVToPDFRequestBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class setCRVToPDFRequestBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string strCRVName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
+        public string strTableName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
+        public string strOperID;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
+        public string strDiskFileName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
+        public string sqlUserID;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
+        public string sqlPassword;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
+        public string sqlCatalog;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=7)]
+        public string sqlSource;
+        
+        public setCRVToPDFRequestBody()
+        {
+        }
+        
+        public setCRVToPDFRequestBody(string strCRVName, string strTableName, string strOperID, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        {
+            this.strCRVName = strCRVName;
+            this.strTableName = strTableName;
+            this.strOperID = strOperID;
+            this.strDiskFileName = strDiskFileName;
+            this.sqlUserID = sqlUserID;
+            this.sqlPassword = sqlPassword;
+            this.sqlCatalog = sqlCatalog;
+            this.sqlSource = sqlSource;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class setCRVToPDFResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="setCRVToPDFResponse", Namespace="http://tempuri.org/", Order=0)]
+        public WebServiceAPI.setCRVToPDFResponseBody Body;
+        
+        public setCRVToPDFResponse()
+        {
+        }
+        
+        public setCRVToPDFResponse(WebServiceAPI.setCRVToPDFResponseBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class setCRVToPDFResponseBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string setCRVToPDFResult;
+        
+        public setCRVToPDFResponseBody()
+        {
+        }
+        
+        public setCRVToPDFResponseBody(string setCRVToPDFResult)
+        {
+            this.setCRVToPDFResult = setCRVToPDFResult;
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
     public interface WebServiceAPISoapChannel : WebServiceAPI.WebServiceAPISoap, System.ServiceModel.IClientChannel
     {
@@ -216,6 +331,49 @@ namespace WebServiceAPI
             inValue.Body.sqlCatalog = sqlCatalog;
             inValue.Body.sqlSource = sqlSource;
             return ((WebServiceAPI.WebServiceAPISoap)(this)).setCRVPrintAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        WebServiceAPI.setCRVToPDFResponse WebServiceAPI.WebServiceAPISoap.setCRVToPDF(WebServiceAPI.setCRVToPDFRequest request)
+        {
+            return base.Channel.setCRVToPDF(request);
+        }
+        
+        public string setCRVToPDF(string strCRVName, string strTableName, string strOperID, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        {
+            WebServiceAPI.setCRVToPDFRequest inValue = new WebServiceAPI.setCRVToPDFRequest();
+            inValue.Body = new WebServiceAPI.setCRVToPDFRequestBody();
+            inValue.Body.strCRVName = strCRVName;
+            inValue.Body.strTableName = strTableName;
+            inValue.Body.strOperID = strOperID;
+            inValue.Body.strDiskFileName = strDiskFileName;
+            inValue.Body.sqlUserID = sqlUserID;
+            inValue.Body.sqlPassword = sqlPassword;
+            inValue.Body.sqlCatalog = sqlCatalog;
+            inValue.Body.sqlSource = sqlSource;
+            WebServiceAPI.setCRVToPDFResponse retVal = ((WebServiceAPI.WebServiceAPISoap)(this)).setCRVToPDF(inValue);
+            return retVal.Body.setCRVToPDFResult;
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<WebServiceAPI.setCRVToPDFResponse> WebServiceAPI.WebServiceAPISoap.setCRVToPDFAsync(WebServiceAPI.setCRVToPDFRequest request)
+        {
+            return base.Channel.setCRVToPDFAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<WebServiceAPI.setCRVToPDFResponse> setCRVToPDFAsync(string strCRVName, string strTableName, string strOperID, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        {
+            WebServiceAPI.setCRVToPDFRequest inValue = new WebServiceAPI.setCRVToPDFRequest();
+            inValue.Body = new WebServiceAPI.setCRVToPDFRequestBody();
+            inValue.Body.strCRVName = strCRVName;
+            inValue.Body.strTableName = strTableName;
+            inValue.Body.strOperID = strOperID;
+            inValue.Body.strDiskFileName = strDiskFileName;
+            inValue.Body.sqlUserID = sqlUserID;
+            inValue.Body.sqlPassword = sqlPassword;
+            inValue.Body.sqlCatalog = sqlCatalog;
+            inValue.Body.sqlSource = sqlSource;
+            return ((WebServiceAPI.WebServiceAPISoap)(this)).setCRVToPDFAsync(inValue);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

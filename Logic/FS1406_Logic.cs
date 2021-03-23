@@ -168,7 +168,7 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable checkSaveInfo(DataTable dtImport, string strPath_temp, string strPath_pic, string strPath_pdf, string strPath_sips, string strOperId, ref DataTable dtMessage)
+        public void checkSaveInfo(DataTable dtImport, ref DataTable dtApplyList, ref DataTable dtPDF_temp, string strPath_temp, string strPath_pic, string strPath_pdf, string strPath_sips, string strOperId, ref DataTable dtMessage)
         {
             try
             {
@@ -232,24 +232,25 @@ namespace Logic
                         }
                     }
                 }
-                DataTable dtApplyList = dtImport.Clone();
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
-                    return dtImport;
-                saveSPISPicAndApplyList(dtImport, ref dtApplyList, strPath_temp, strPath_pic, strPath_pdf, strPath_sips, strOperId, ref dtMessage);
-                return dtApplyList;
+                    return;
+                saveSPISPicAndApplyList(dtImport, ref dtApplyList, ref dtPDF_temp, strPath_temp, strPath_pic, strPath_pdf, strPath_sips, strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public void saveSPISPicAndApplyList(DataTable dtImport, ref DataTable dtApplyList,
+        public DataTable getTempDataInfo()
+        {
+            return fs1406_DataAccess.getPrintTemp("FS1406").Clone();
+        }
+        public void saveSPISPicAndApplyList(DataTable dtImport, ref DataTable dtApplyList, ref DataTable dtPDF_temp,
             string strPath_temp, string strPath_pic, string strPath_pdf, string strPath_sips,
             string strOperId, ref DataTable dtMessage)
         {
             try
             {
-                DataTable dtPDF_temp = fs1406_DataAccess.getPrintTemp("FS1406").Clone();
                 for (int i = 0; i < dtImport.Rows.Count; i++)
                 {
                     #region  Data
@@ -355,40 +356,23 @@ namespace Logic
 
                     #endregion
                 }
-                //处理图像
-                //1.插入并打印
-                setCRVtoPdf(dtPDF_temp, strOperId, ref dtMessage);
-                //2.PDF转SPIS图片
-                setPdftoImgs(dtApplyList, strOperId, ref dtMessage);
+                ////处理图像
+                ////1.插入并打印
+                //setCRVtoPdf(dtPDF_temp, strOperId, ref dtMessage);
+                ////2.PDF转SPIS图片
+                //setPdftoImgs(dtApplyList, strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        public void setCRVtoPdf(DataTable dtPDF_temp, string strOperId, ref DataTable dtMessage)
+        public void setCRVtoPdf(DataRow drPDF_temp, string strOperId, ref DataTable dtMessage)
         {
             try
             {
-                for (int i = 0; i < dtPDF_temp.Rows.Count; i++)
-                {
-                    DataRow drPDF_temp = dtPDF_temp.Rows[i];
-                    string sources_pdf = drPDF_temp["vcPDFPath"].ToString();
-                    fs1406_DataAccess.setPrintTemp(drPDF_temp, strOperId, ref dtMessage);
-                    //调用WebService导出PDF到指定sources_pdf下
-                    //System.Net.WebClient WebClientObj = new System.Net.WebClient();
-                    //System.Collections.Specialized.NameValueCollection PostVars = new System.Collections.Specialized.NameValueCollection();
-                    //PostVars.Add("strDiskFileName", sources_pdf);//参数
-                    //try
-                    //{
-                    //    byte[] byRemoteInfo = WebClientObj.UploadValues(@"http://192.168.1.4/crvserver/WebService1.asmx", "POST", PostVars);//请求地址,传参方式,参数集合
-                    //    string sRemoteInfo = System.Text.Encoding.UTF8.GetString(byRemoteInfo);//获取返回值
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    throw ex;
-                    //}
-                }
+                string sources_pdf = drPDF_temp["vcPDFPath"].ToString();
+                fs1406_DataAccess.setPrintTemp(drPDF_temp, strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {

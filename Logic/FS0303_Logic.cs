@@ -6,13 +6,15 @@ using System.Data;
 using DataAccess;
 using System.Collections;
 using Common;
-
+using System.Net.Sockets;
+using System.Net;
 
 namespace Logic
 {
     public class FS0303_Logic
     {
         FS0303_DataAccess fs0303_DataAccess;
+        IPAddress ip;
 
         public FS0303_Logic()
         {
@@ -319,8 +321,6 @@ namespace Logic
                 }
                 #endregion
 
-
-
                 #region 向下游同步数据
                 //获取所有的事业体
                 DataTable dt = ComFunction.getTCode("C016");
@@ -337,11 +337,18 @@ namespace Logic
                          * 测试事业体服务器连通性
                         */
                         #region 测试该事业体服务器连通性
-
+                        string strIP = GetIp(dt.Rows[i]["vcName"].ToString(),ref strMessage);
+                        if (!Socket(strIP))
+                        {
+                            strMessage += "<font color=red>连接服务器失败！</font>";
+                        }
                         #endregion
 
                         #region 测试该事业体下游收货方是否已经维护
-
+                        if (!GetSYT2Receiver(dt.Rows[i]["vcName"].ToString()))
+                        {
+                            strMessage += "<font color=red>未维护下游收货方！</font>";
+                        }
                         #endregion
 
                         #region 准备就绪，开始同步操作
@@ -360,7 +367,7 @@ namespace Logic
             }
             catch (Exception ex)
             {
-                strMessage += "发送失败！ \n";
+                strMessage += "发送失败！ \n"+ex.Message;
                 throw ex;
             }
 
@@ -459,5 +466,94 @@ namespace Logic
         }
         #endregion
 
+        #region 获取事业体服务器连通性
+        public string GetIp(string strSYTCode,ref string strMessage)
+        {
+            try
+            {
+                string strConn = ComConnectionHelper.GetConnectionString_MainToUnit(strSYTCode);
+                int ipIndex = strConn.IndexOf("Source=");
+                string ip = strConn.Substring(ipIndex+7);
+                return ip;
+            }
+            catch (Exception ex)
+            {
+                strMessage += ex.Message;
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 测试数据库IP和1433端口能否联通
+        public bool Socket(string strIp)
+        {
+            try
+            {
+                if (IPAddress.TryParse(strIp, out ip))
+                {
+                    if (CheckConnection(strIp, 1433, 500))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 测试连接
+        /// <summary>
+        /// 测试连接
+        /// </summary>
+        /// <param name="host">地址</param>
+        /// <param name="port">端口</param>
+        /// <param name="millisecondsTimeout">延迟</param>
+        /// <returns></returns>
+        public bool CheckConnection(string host, int port, int millisecondsTimeout)
+        {
+            TcpClient client = new TcpClient();
+            try
+            {
+                var ar = client.BeginConnect(host, port, null, null);
+                ar.AsyncWaitHandle.WaitOne(millisecondsTimeout);
+                return client.Connected;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                client.Close();
+            }
+        }
+        #endregion
+
+        #region 校验该事业体的下游收货方是否维护
+        public bool GetSYT2Receiver(string strSYTCode)
+        {
+            DataTable dt = fs0303_DataAccess.getReceiver(strSYTCode);
+            if (dt!=null || dt.Rows.Count>0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        #endregion
     }
 }

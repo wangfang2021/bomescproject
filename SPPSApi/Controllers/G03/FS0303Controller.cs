@@ -821,7 +821,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                #region 特殊校验
+                #region 同步过的数据不可再次同步
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     //有同步时间的不可再次同步

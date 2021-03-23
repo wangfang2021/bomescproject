@@ -196,6 +196,7 @@ namespace Logic
         public DataTable dowloadProPlan(string vcDxny, string vcFZGC, string strUserId)
         {
             DataTable tb = serchData(vcDxny, "Importpro", "", vcFZGC, "");
+            PartsForFomat(ref tb);
             return tb;
         }
         #endregion
@@ -747,6 +748,7 @@ namespace Logic
                 case "Importpro":
                     {
                         dt = fs0610_DataAccess.getMonPackPlanTMPcur(mon, "MonthProPlanTblTMP", plant);
+
                         addEDflag(ref dt, "通常");
                         break;
                     }
@@ -858,6 +860,30 @@ namespace Logic
                         row.SetField<string>("vcPartsno", part.Insert(5, "-") + "-00");
                     }
                     a++;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+
+        public DataTable PartsForFomat(ref DataTable dt)//转换成品番-加00
+        {
+            try
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string trimChar = dt.Rows[i]["vcPartsno"].ToString().Substring(10, 2);
+                    if (trimChar == "00")
+                    {
+                        dt.Rows[i]["vcPartsno"] = dt.Rows[i]["vcPartsno"].ToString().Substring(0, 5) + "-" + dt.Rows[i]["vcPartsno"].ToString().Substring(5, 5);
+                    }
+                    else
+                    {
+                        dt.Rows[i]["vcPartsno"] = dt.Rows[i]["vcPartsno"].ToString().Substring(0, 5) + "-" + dt.Rows[i]["vcPartsno"].ToString().Substring(5, 5) + "-" + dt.Rows[i]["vcPartsno"].ToString().Substring(10, 2);
+                    }
                 }
             }
             catch (Exception ex)

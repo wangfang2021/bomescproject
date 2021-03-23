@@ -91,7 +91,7 @@ namespace DataAccess
                     strSql.AppendLine("  and   a.vcOEOrSP = '" + vcOESP + "' ");
                 }
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
+                strSql.AppendLine("  order by  iAutoId desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

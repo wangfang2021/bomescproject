@@ -23,5 +23,25 @@ namespace Logic
         {
             return fs0621_DataAccess.Search(vcConsignee, vcTargetMonth, vcPartNo, vcCarType, vcInsideOutsideType, vcSupplier_id, vcWorkArea);
         }
+
+        public DataTable GetSupplier()
+        {
+            return fs0621_DataAccess.GetSupplier();
+        }
+
+        public DataTable GetWorkArea()
+        {
+            return fs0621_DataAccess.GetWorkArea();
+        }
+
+        public DataTable GetCarType()
+        {
+            return fs0621_DataAccess.GetCarType();
+        }
+
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            return fs0621_DataAccess.GetWorkAreaBySupplier(supplierCode);
+        }
     }
 }

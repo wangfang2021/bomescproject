@@ -109,7 +109,7 @@ namespace DataAccess
                     strSql.AppendLine("  and   convert(varchar(10), dExpectReceiveDate,112) = '" + dExpectReceiveDate.Replace("-", "").Replace("/", "") + "'  ");
                 }
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
+                strSql.AppendLine("  order by  iAutoId desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -254,11 +254,44 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-
+                DataTable dtInjectionFactory = ComFunction.getTCode("C000");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+
+                    string vcInsideOutsideType = listInfoData[i]["vcInsideOutsideType"] == null ? null : listInfoData[i]["vcInsideOutsideType"].ToString();
+                    if (vcInsideOutsideType== "内制")
+                    {
+                        vcInsideOutsideType = "0";
+                    }
+                    else if (vcInsideOutsideType == "外注")
+                    {
+                        vcInsideOutsideType = "1";
+                    } else
+                    { }
+                    string vcNewOldFlag = listInfoData[i]["vcNewOldFlag"] == null ? null : listInfoData[i]["vcNewOldFlag"].ToString();
+                    if (vcNewOldFlag == "号口")
+                    {
+                        vcNewOldFlag = "H";
+                    }
+                    else if (vcNewOldFlag == "旧型")
+                    {
+                        vcNewOldFlag = "Q";
+                    }
+                    else
+                    { }
+                    string vcInjectionFactory= listInfoData[i]["vcInjectionFactory"] == null ? null : listInfoData[i]["vcInjectionFactory"].ToString();
+                    
+                    for (int j=0;j<dtInjectionFactory.Rows.Count;j++)
+                    {
+                        if (vcInjectionFactory== dtInjectionFactory.Rows[j]["vcName"].ToString())
+                        {
+                            vcInjectionFactory = dtInjectionFactory.Rows[j]["vcValue"].ToString();
+                            break;
+                        }
+                    }
+
                     if (bAddFlag == true)
                     {//新增
                         sql.Append("   insert into TEmergentOrderManage ( [dOrderHandleDate], [vcOrderNo], [vcPartNo], [vcInsideOutsideType], [vcNewOldFlag],  \n");
@@ -268,9 +301,9 @@ namespace DataAccess
                         sql.Append("   GETDATE(), \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcOrderNo"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcPartNo"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcInsideOutsideType"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcNewOldFlag"], false) + ",  \r\n");
-                        sql.Append(getSqlValue(listInfoData[i]["vcInjectionFactory"], false) + ",  \r\n");
+                        sql.Append(getSqlValue(vcInsideOutsideType, false) + ",  \r\n");
+                        sql.Append(getSqlValue(vcNewOldFlag, false) + ",  \r\n");
+                        sql.Append(getSqlValue(vcInjectionFactory, false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcDock"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                         sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");
@@ -291,9 +324,9 @@ namespace DataAccess
                         sql.Append("  update TEmergentOrderManage set    \r\n");
                         sql.Append("  vcOrderNo=" + getSqlValue(listInfoData[i]["vcOrderNo"], false) + ",   \r\n");
                         sql.Append("  vcPartNo=" + getSqlValue(listInfoData[i]["vcPartNo"], false) + ",    \r\n");
-                        sql.Append("  vcInsideOutsideType=" + getSqlValue(listInfoData[i]["vcInsideOutsideType"], false) + ",    \r\n");
-                        sql.Append("  vcNewOldFlag=" + getSqlValue(listInfoData[i]["vcNewOldFlag"], false) + " ,   \r\n");
-                        sql.Append("  vcInjectionFactory=" + getSqlValue(listInfoData[i]["vcInjectionFactory"], false) + " ,   \r\n");
+                        sql.Append("  vcInsideOutsideType=" + getSqlValue(vcInsideOutsideType, false) + ",    \r\n");
+                        sql.Append("  vcNewOldFlag=" + getSqlValue(vcNewOldFlag, false) + " ,   \r\n");
+                        sql.Append("  vcInjectionFactory=" + getSqlValue(vcInjectionFactory, false) + " ,   \r\n");
                         sql.Append("  vcDock=" + getSqlValue(listInfoData[i]["vcDock"], false) + ",    \r\n");
                         sql.Append("  vcSupplier_id=" + getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",    \r\n");
                         sql.Append("  vcWorkArea=" + getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",    \r\n");

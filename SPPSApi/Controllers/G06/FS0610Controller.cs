@@ -102,7 +102,7 @@ namespace SPPSApi.Controllers.G06
                         string plant = plantList[i].ToString();
                         if (fs0610_Logic.isHaveSORReplyData(plant, strCLYM))
                             iStep = 1;
-                        if(fs0610_Logic.isSCPlan(plant,strCLYM))
+                        if (fs0610_Logic.isSCPlan(plant, strCLYM))
                             iStep = 2;
                         if (fs0610_Logic.isZhankai(plant, strCLYM))
                             iStep = 3;
@@ -178,7 +178,7 @@ namespace SPPSApi.Controllers.G06
                     //bool find_2 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nsym").Rows.Count > 0 ? true : false;
                     //bool find_3 = fs0610_Logic.GetSoq(strPlant, strYearMonth, "nnsym").Rows.Count > 0 ? true : false;
 
-                    if(find==false)
+                    if (find == false)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = string.Format("没找到{0}厂{1}月soq数据(内制)。", strPlant, strYearMonth);
@@ -395,7 +395,7 @@ namespace SPPSApi.Controllers.G06
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
                 ,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_Download.xlsx", 1, loginInfo.UserId, FunctionID,true);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0610_Download.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -463,7 +463,7 @@ namespace SPPSApi.Controllers.G06
         [HttpPost]
         [EnableCors("any")]
         public string downloadProPlan([FromBody] dynamic data)
-        { 
+        {
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))
             {
@@ -478,25 +478,23 @@ namespace SPPSApi.Controllers.G06
                 string vcDxny = dataForm.vcDXYM == null ? "" : Convert.ToDateTime(dataForm.vcDXYM + "/01").ToString("yyyyMM");
                 object b = dataForm.vcFZGC;
                 string[] vcFZGC = b.ToString().Replace("\r\n", "").Replace("\"", "").Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
-                string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",
-                    "品名（中）","工程号","工程名","号旧","月度总量",
+                string[] heads = { "对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4","供应商编码",
+                    "工程号","工程名","号旧","月度总量",
                     "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
                     "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
                     "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜",
-                    "1日白 ","1日夜 ","2日白 ","2日夜 ","3日白 ","3日夜 ","4日白 ","4日夜 ","5日白 ","5日夜 ","6日白 ","6日夜 ","7日白 ","7日夜 ","8日白 ","8日夜 ","9日白 ","9日夜 ","10日白 ","10日夜 ",
-                    "11日白 ","11日夜 ","12日白 ","12日夜 ","13日白 ","13日夜 ","14日白 ","14日夜 ","15日白 ","15日夜 ","16日白 ","16日夜 ","17日白 ","17日夜 ","18日白 ","18日夜 ","19日白 ","19日夜 ","20日白 ","20日夜 ",
-                    "21日白 ","21日夜 ","22日白 ","22日夜 ","23日白 ","23日夜 ","24日白 ","24日夜 ","25日白 ","25日夜 ","26日白 ","26日夜 ","27日白 ","27日夜 ","28日白 ","28日夜 ","29日白 ","29日夜 ","30日白 ","30日夜 ","31日白 ","31日夜 ",
-                    "供应商编码"
+                    "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
+                    "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
+                    "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜",
                 };
-                string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
-                    "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
+                string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4","vcSupplier_id",
+                    "vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
                     "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y","TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y",
                     "TD11b","TD11y","TD12b","TD12y","TD13b","TD13y","TD14b","TD14y","TD15b","TD15y","TD16b","TD16y","TD17b","TD17y","TD18b","TD18y","TD19b","TD19y","TD20b","TD20y",
                     "TD21b","TD21y","TD22b","TD22y","TD23b","TD23y","TD24b","TD24y","TD25b","TD25y","TD26b","TD26y","TD27b","TD27y","TD28b","TD28y","TD29b","TD29y","TD30b","TD30y","TD31b","TD31y",
                     "ED1b","ED1y","ED2b","ED2y","ED3b","ED3y","ED4b","ED4y","ED5b","ED5y","ED6b","ED6y","ED7b","ED7y","ED8b","ED8y","ED9b","ED9y","ED10b","ED10y",
                     "ED11b","ED11y","ED12b","ED12y","ED13b","ED13y","ED14b","ED14y","ED15b","ED15y","ED16b","ED16y","ED17b","ED17y","ED18b","ED18y","ED19b","ED19y","ED20b","ED20y",
-                    "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y",
-                    "vcSupplier_id"
+                    "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
                 };
                 string filepath = "";
                 string tbName = "";

@@ -135,8 +135,18 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strOrderHandleTime_from = "";
+            string strOrderHandleTime_to = "";
+            JArray listOrderHandleDate = dataForm.dOrderHandleDate;
+            if (listOrderHandleDate != null && listOrderHandleDate.Count != 0)
+            {
+                strOrderHandleTime_from = listOrderHandleDate[0].ToString();
+                strOrderHandleTime_to = listOrderHandleDate[1].ToString();
+            }
+
             string vcIsExportFlag = dataForm.vcIsExportFlag == null ? "" : dataForm.vcIsExportFlag;
-            string dOrderHandleDate = dataForm.dOrderHandleDate == null ? "" : dataForm.dOrderHandleDate;
+            //string dOrderHandleDate = dataForm.dOrderHandleDate == null ? "" : dataForm.dOrderHandleDate;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
@@ -145,11 +155,22 @@ namespace SPPSApi.Controllers.G06
             string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcInjectionOrderNo = dataForm.vcInjectionOrderNo == null ? "" : dataForm.vcInjectionOrderNo;
-            string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
+
+            string strExpectReceiveleTime_from = "";
+            string strExpectReceiveTime_to = "";
+            JArray listExpectReceiveDate = dataForm.dExpectReceiveDate;
+            if (listExpectReceiveDate != null && listExpectReceiveDate.Count != 0)
+            {
+                strExpectReceiveleTime_from = listExpectReceiveDate[0].ToString();
+                strExpectReceiveTime_to = listExpectReceiveDate[1].ToString();
+            }
+
+
+            //string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
             string vcCarType= dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate,vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate, vcCarType);
+                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, strOrderHandleTime_from, strOrderHandleTime_to, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, strExpectReceiveleTime_from, strExpectReceiveTime_to, vcCarType);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -185,8 +206,18 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strOrderHandleTime_from = "";
+            string strOrderHandleTime_to = "";
+            JArray listOrderHandleDate = dataForm.dOrderHandleDate;
+            if (listOrderHandleDate != null && listOrderHandleDate.Count != 0)
+            {
+                strOrderHandleTime_from = listOrderHandleDate[0].ToString();
+                strOrderHandleTime_to = listOrderHandleDate[1].ToString();
+            }
+
             string vcIsExportFlag = dataForm.vcIsExportFlag == null ? "" : dataForm.vcIsExportFlag;
-            string dOrderHandleDate = dataForm.dOrderHandleDate == null ? "" : dataForm.dOrderHandleDate;
+            //string dOrderHandleDate = dataForm.dOrderHandleDate == null ? "" : dataForm.dOrderHandleDate;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
             string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
@@ -195,11 +226,22 @@ namespace SPPSApi.Controllers.G06
             string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
             string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
             string vcInjectionOrderNo = dataForm.vcInjectionOrderNo == null ? "" : dataForm.vcInjectionOrderNo;
-            string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
+
+            string strExpectReceiveleTime_from = "";
+            string strExpectReceiveTime_to = "";
+            JArray listExpectReceiveDate = dataForm.dExpectReceiveDate;
+            if (listExpectReceiveDate != null && listExpectReceiveDate.Count != 0)
+            {
+                strExpectReceiveleTime_from = listExpectReceiveDate[0].ToString();
+                strExpectReceiveTime_to = listExpectReceiveDate[1].ToString();
+            }
+
+
+            //string dExpectReceiveDate = dataForm.dExpectReceiveDate == null ? "" : dataForm.dExpectReceiveDate;
             string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate, vcCarType);
+                DataTable dt = fs0628_Logic.Search(vcIsExportFlag, strOrderHandleTime_from, strOrderHandleTime_to, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, strExpectReceiveleTime_from, strExpectReceiveTime_to, vcCarType);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]

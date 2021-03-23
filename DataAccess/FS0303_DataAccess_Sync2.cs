@@ -839,7 +839,6 @@ namespace DataAccess
             strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,vcCarModel       =b.vcCarTypeDev            \r\n");
-            strSql.Append("       ,dFromTime        =b.dGYSTimeFrom            \r\n");
             strSql.Append("       ,dToTime          =b.dGYSTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
             strSql.Append("       ,vcInOut          =b.vcInOutflag            \r\n");
@@ -884,7 +883,6 @@ namespace DataAccess
             strSql.Append("       ,vcPartNameCn     =b.vcPartNameCn            \r\n");
             strSql.Append("       ,vcCarfamilyCode  =b.vcCarTypeDev            \r\n");
             strSql.Append("       ,vcCarModel       =b.vcCarTypeDev            \r\n");
-            strSql.Append("       ,dFromTime        =b.dGYSTimeFrom            \r\n");
             strSql.Append("       ,dToTime          =b.dGYSTimeTo            \r\n");
             strSql.Append("       ,vcPartId_Replace =b.vcPartReplace            \r\n");
             strSql.Append("       ,vcInOut          =b.vcInOutflag            \r\n");

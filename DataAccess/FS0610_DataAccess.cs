@@ -937,13 +937,13 @@ namespace DataAccess
                 updateSoqReply(cmd, mon, apt, user, plant);//更新SOQREPLY表
                 #endregion
                 #region 生成打印数据
-                msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
-                if (msg.Length > 0)
-                {
-                    cmd.Transaction.Rollback();
-                    cmd.Connection.Close();
-                    return msg;
-                }
+                //msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
+                //if (msg.Length > 0)
+                //{
+                //    cmd.Transaction.Rollback();
+                //    cmd.Connection.Close();
+                //    return msg;
+                //}
                 #endregion
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
@@ -2064,38 +2064,38 @@ namespace DataAccess
                     dt_Update.Rows[i]["iD30"] = (Convert.ToInt32(dr[0]["vcD30b"].ToString().Length == 0 ? "0" : dr[0]["vcD30b"]) + Convert.ToInt32(dr[0]["vcD30y"].ToString().Length == 0 ? "0" : dr[0]["vcD30y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
                     dt_Update.Rows[i]["iD31"] = (Convert.ToInt32(dr[0]["vcD31b"].ToString().Length == 0 ? "0" : dr[0]["vcD31b"]) + Convert.ToInt32(dr[0]["vcD31y"].ToString().Length == 0 ? "0" : dr[0]["vcD31y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
                     //dt_Update.Rows[i]["updateFlag"] = "1";
-                    //tmp = Convert.ToInt32(dt_Update.Rows[i]["iD1"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD2"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD3"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD4"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD5"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD6"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD7"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD8"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD9"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD10"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD11"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD12"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD13"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD14"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD15"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD16"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD17"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD18"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD19"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD20"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD21"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD22"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD23"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD24"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD25"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD26"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD27"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD28"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD29"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD30"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD31"]);
-                    //dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
+                    tmp = Convert.ToInt32(dt_Update.Rows[i]["iD1"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD2"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD3"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD4"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD5"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD6"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD7"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD8"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD9"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD10"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD11"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD12"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD13"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD14"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD15"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD16"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD17"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD18"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD19"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD20"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD21"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD22"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD23"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD24"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD25"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD26"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD27"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD28"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD29"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD30"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD31"]);
+                    dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
                 }
                 SqlCommandBuilder scb = new SqlCommandBuilder(apt);
 

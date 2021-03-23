@@ -158,13 +158,13 @@ namespace SPPSApi.Controllers.G06
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dExportDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dOrderPurposesDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dOrderReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dActualReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dAccountOrderReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dOrderSendDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dExportDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dOrderPurposesDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dOrderReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dActualReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dAccountOrderReceiveDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dOrderSendDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                //dtConverter.addField("dOperatorTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -215,7 +215,7 @@ namespace SPPSApi.Controllers.G06
                 head = new string[] { "导入时间", "车型", "品番", "品名", "内外", "供应商代码", "工区", "是否新规", "OE=SP", "受入", "号试数量", "号试目的", "订单预计发行日", "订单预计纳入日", "纳入便次","实际纳入数量", "实际纳入日", "结算订单号", "结算订单验收日期", "号试订单验收日期", "备注" };
                 field = new string[] { "dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "vcActualNum", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "dOrderSendDate", "vcMemo" };
                 string msg = string.Empty;
-                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS625_Data.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0625_Data.xlsx", 1, loginInfo.UserId, FunctionID);
                 //string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS625_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
                 if (filepath == "")
@@ -230,7 +230,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0702", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2502", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -288,7 +288,7 @@ namespace SPPSApi.Controllers.G06
                                                 {"dExportDate", "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "dOrderSendDate", "vcMemo"},
                                                 {"","","","","","","","","","","","","","","","" ,"","","",""},
                                                 {"0","50","12","200","100","4","50","50","200","20","20","300","0","300","20","0","50","0","0","500"},//最大长度设定,不校验最大长度用0
-                                                {"0","0","1","1","0","1","1","0","1","0","1","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"0","1","12","0","0","4","0","0","0","1","1","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段

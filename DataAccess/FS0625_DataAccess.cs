@@ -45,7 +45,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("   select [iAutoId],convert(varchar(10), dExportDate,111) as [dExportDate], [vcCarType], [vcPartNo], [vcPartName],c.vcName as [vcInsideOutsideType],   ");
-                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea],case when vcIsNewRulesFlag='1' then '是' else '否' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock], [vcNumber],e.vcName as [vcPurposes],   ");
+                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea],case when vcIsNewRulesFlag='1' then '√' else ' ' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock], [vcNumber],e.vcName as [vcPurposes],   ");
                 strSql.AppendLine("   convert(varchar(10), dOrderPurposesDate,111) as [dOrderPurposesDate], [dOrderReceiveDate], [vcReceiveTimes],[vcActualNum],convert(varchar(10), dActualReceiveDate,111) as [dActualReceiveDate], [vcAccountOrderNo],    ");
                 strSql.AppendLine("   convert(varchar(10), dAccountOrderReceiveDate,111) as [dAccountOrderReceiveDate], convert(varchar(10), dOrderSendDate,111) as [dOrderSendDate], [vcMemo],'' as vcSupplier_name, [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("   from TOralTestManage a    ");
@@ -91,7 +91,7 @@ namespace DataAccess
                     strSql.AppendLine("  and   a.vcOEOrSP = '" + vcOESP + "' ");
                 }
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
+                strSql.AppendLine("  order by  iAutoId desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -207,11 +207,11 @@ namespace DataAccess
                         { }
                         string vcIsNewRulesFlag = listInfoData[i]["vcIsNewRulesFlag"] == null ? "" : listInfoData[i]["vcIsNewRulesFlag"].ToString();
 
-                        if (vcIsNewRulesFlag == "是")
+                        if (vcIsNewRulesFlag == "是"|| vcIsNewRulesFlag == "√")
                         {
                             vcIsNewRulesFlag = "1";
                         }
-                        else if (vcIsNewRulesFlag == "否")
+                        else if (vcIsNewRulesFlag == "否"|| vcIsNewRulesFlag == ""|| vcIsNewRulesFlag == " ")
                         {
                             vcIsNewRulesFlag = "0";
                         }

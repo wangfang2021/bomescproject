@@ -198,8 +198,10 @@ namespace SPPSApi.Controllers.G06
 
                 fs0610_Logic.TranColName(ref importDt);
                 fs0610_Logic.PartsNoFomatTo12(ref importDt);//2013-4-18 10位品番后两位加00
-
-
+                for (int k = 0; k < importDt.Rows.Count; k++)
+                {
+                    importDt.Rows[k]["vcPartsno"] = importDt.Rows[k]["vcPartsno"].ToString().Replace("-", "");
+                }
                 Exception ex = new Exception();
                 for (int i = 0; i < vcFZGC.Count; i++)
                 {

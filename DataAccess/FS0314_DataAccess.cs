@@ -156,7 +156,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.Append("SELECT DISTINCT vcSupplier_id FROM TSupplier");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
                 List<string> res = new List<string>();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {

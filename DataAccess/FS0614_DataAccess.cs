@@ -413,7 +413,7 @@ namespace DataAccess
                             sbr.AppendLine(MonthToNeishi(Time, userId));
                             //修改状态
                             int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                            sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
+                            sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE(),dCreateDate = GETDATE() WHERE iAutoId =" + iAutoId + " ");
 
 
                         }
@@ -606,7 +606,7 @@ namespace DataAccess
                             }
                             //修改状态
                             int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                            sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1' ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
+                            sbr.AppendLine("UPDATE TOrderUploadManage SET vcOrderState = '1',dCreateDate = GETDATE() ,vcOperatorID = '" + userId + "',dOperatorTime = GETDATE() WHERE iAutoId =" + iAutoId + " ");
 
                         }
                         #endregion

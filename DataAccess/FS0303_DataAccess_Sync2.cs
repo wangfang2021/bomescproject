@@ -944,6 +944,8 @@ namespace DataAccess
             strSql.Append("           and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("           and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("           and a.vcPackingPlant = b.vcSYTCode          \r\n");
+            //strSql.Append("          where a.dFromTime < GETDATE()          \r\n");
+            //strSql.Append("          and a.dToTime >= GETDATE()          \r\n");
             #endregion
             #region 收容数信息子表
             strSql.Append("       update TSPMaster_Box set          \r\n");
@@ -966,6 +968,8 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
+            //strSql.Append("          where a.dFromTime < GETDATE()          \r\n");
+            //strSql.Append("          and a.dToTime >= GETDATE()          \r\n");
             #endregion
             #region 受入信息子表
             strSql.Append("       update TSPMaster_SufferIn set          \r\n");
@@ -988,6 +992,8 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
+            //strSql.Append("          where a.dFromTime < GETDATE()          \r\n");
+            //strSql.Append("          and a.dToTime >= GETDATE()          \r\n");
             #endregion
             #endregion
 
@@ -1085,6 +1091,8 @@ namespace DataAccess
             strSql.Append("           and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("           and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("           and a.vcPackingPlant = b.vcSYTCode          \r\n");
+            //strSql.Append("          where a.dFromTime < GETDATE()          \r\n");
+            //strSql.Append("          and a.dToTime >= GETDATE()          \r\n");
             #endregion
             #region 收容数信息子表
             strSql.Append("       update TSPMaster_Box set          \r\n");
@@ -1107,6 +1115,8 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
+            //strSql.Append("          where a.dFromTime < GETDATE()          \r\n");
+            //strSql.Append("          and a.dToTime >= GETDATE()          \r\n");
             #endregion
             #region 受入信息子表
             strSql.Append("       update TSPMaster_SufferIn set          \r\n");
@@ -1129,7 +1139,15 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
+            //strSql.Append("          where a.dFromTime < GETDATE()          \r\n");
+            //strSql.Append("          and a.dToTime >= GETDATE()          \r\n");
             #endregion
+            #endregion
+
+            #region 删除三个子表中使用结束时间大于使用开始时间的数据
+            strSql.Append("       delete TSPMaster_SupplierPlant where dToTime < dFromTime      \r\n");
+            strSql.Append("       delete TSPMaster_Box where dToTime<dFromTime      \r\n");
+            strSql.Append("       delete TSPMaster_SufferIn where dToTime<dFromTime      \r\n");
             #endregion
         }
 

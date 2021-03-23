@@ -854,7 +854,7 @@ namespace DataAccess
             strSql.Append("       ,dSyncToSPTime    =GETDATE()            \r\n");
             strSql.Append("       ,vcOrderingMethod ='0'            \r\n");
             strSql.Append("       ,vcMandOrder      ='0'            \r\n");
-            strSql.Append("       ,vcBillType       =case when a.vcBillType is null and a.vcBillType ='' then b.vcPart_id else a.vcBillType end            \r\n");
+            strSql.Append("       ,vcBillType       =case when isnull(a.vcBillType,'')='' then b.vcBillType else a.vcBillType end            \r\n");
             strSql.Append("       ,vcOperatorID     ='" + strOperatorID + "'            \r\n");
             strSql.Append("       ,dOperatorTime    =GETDATE()            \r\n");
             strSql.Append("          from TSPMaster a          \r\n");
@@ -898,7 +898,7 @@ namespace DataAccess
             strSql.Append("       ,dSyncToSPTime    =GETDATE()            \r\n");
             strSql.Append("       ,vcOrderingMethod ='0'            \r\n");
             strSql.Append("       ,vcMandOrder      ='0'            \r\n");
-            strSql.Append("       ,vcBillType       =case when a.vcBillType is null and a.vcBillType ='' then b.vcPart_id else a.vcBillType end            \r\n");
+            strSql.Append("       ,vcBillType       =case when isnull(a.vcBillType,'')='' then b.vcBillType else a.vcBillType end            \r\n");
             strSql.Append("       ,vcOperatorID    ='"+strOperatorID+"'            \r\n");
             strSql.Append("       ,dOperatorTime    =GETDATE()            \r\n");
             strSql.Append("          from TSPMaster_temp a          \r\n");
@@ -993,7 +993,7 @@ namespace DataAccess
             //strSql.Append("          where a.dFromTime < GETDATE()          \r\n");
             //strSql.Append("          and a.dToTime >= GETDATE()          \r\n");
             #endregion
-            #endregion
+            #endregion   
 
             #region 对不相同部分进行新增操作
             strSql.Append("      insert into TSPMaster        \r\n");
@@ -1002,15 +1002,17 @@ namespace DataAccess
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut                  \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime               \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
+            strSql.Append("      	,vcOrderingMethod,vcMandOrder,vcBillType       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
             strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcPartNameCn,a.vcCarTypeDev,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'" + strOperatorID + "',GETDATE()       \r\n");
+            strSql.Append("      	,'0','0',a.vcBillType       \r\n");
             strSql.Append("       from        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	select a.*,b.vcDownRecever from         \r\n");
+            strSql.Append("      	select a.*,b.vcDownRecever，case when isnull(vcInOutflag,'')='' or  isnull(vcOE,'')='' then null  else case when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='0' then 'A1' when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='1' then 'A2' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='0' then 'A3' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='1' then 'A4' end end as vcBillType from         \r\n");
             strSql.Append("      	(       \r\n");
             strSql.Append("      	    select * from " + tempTableName + "       \r\n");
             strSql.Append("      	 ) a      \r\n");
@@ -1038,15 +1040,17 @@ namespace DataAccess
             strSql.Append("      	,vcReceiver,dFromTime,dToTime,vcPartId_Replace,vcInOut                  \r\n");
             strSql.Append("      	,vcOESP,vcHaoJiu,vcOldProduction,dOldStartTime,dDebugTime               \r\n");
             strSql.Append("      	,vcSupplierId,dSupplierFromTime,dSupplierToTime,vcSupplierName,dSyncTime,dSyncToSPTime,vcOperatorID,dOperatorTime       \r\n");
+            strSql.Append("      	,vcOrderingMethod,vcMandOrder,vcBillType       \r\n");
             strSql.Append("      )       \r\n");
             strSql.Append("      select        \r\n");
             strSql.Append("      	 a.vcChange,a.vcSYTCode,a.vcPart_id,a.vcPartNameEn,a.vcPartNameCn,a.vcCarTypeDev,a.vcCarTypeDev       \r\n");
             strSql.Append("      	,a.vcDownRecever,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcPartReplace,a.vcInOutflag       \r\n");
             strSql.Append("      	,a.vcOE,a.vcHaoJiu,a.vcNXQF,a.dJiuBegin,a.dSSDate       \r\n");
             strSql.Append("      	,a.vcSupplier_id,a.dGYSTimeFrom,a.dGYSTimeTo,a.vcSupplier_Name,GETDATE(),GETDATE(),'"+strOperatorID+"',GETDATE()       \r\n");
+            strSql.Append("      	,'0','0',a.vcBillType       \r\n");
             strSql.Append("       from        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	select a.*,b.vcDownRecever from         \r\n");
+            strSql.Append("      	select a.*,b.vcDownRecever，case when isnull(vcInOutflag,'')='' or  isnull(vcOE,'')='' then null  else case when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='0' then 'A1' when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='1' then 'A2' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='0' then 'A3' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='1' then 'A4' end end as vcBillType from         \r\n");
             strSql.Append("      	(       \r\n");
             strSql.Append("      	    select * from " + tempTableName + "       \r\n");
             strSql.Append("      	 ) a      \r\n");

@@ -199,22 +199,26 @@ namespace SPPSApi.Controllers.G06
                 fs0610_Logic.TranColName(ref importDt);
                 fs0610_Logic.PartsNoFomatTo12(ref importDt);//2013-4-18 10位品番后两位加00
 
+
+                Exception ex = new Exception();
                 for (int i = 0; i < vcFZGC.Count; i++)
                 {
-                    strMsg = fs0610_Logic.checkExcelData_Pro(ref importDt, vcMon, vcFZGC[i]);//校验数据
+                    DataRow[] rows = importDt.Select("vcPlant='#" + vcFZGC[i] + "'"); 
+                    DataTable importDt_f = importDt.Clone();
+                    foreach (DataRow row in rows)
+                    {
+                        importDt_f.ImportRow(row);
+                    }
+
+                    strMsg = fs0610_Logic.checkExcelData_Pro(ref importDt_f, vcMon, vcFZGC[i]);//校验数据
                     if (strMsg.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = strMsg;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                }
-
-                Exception ex = new Exception();
-                for (int i = 0; i < vcFZGC.Count; i++)
-                {
                     string mon = vcMon.Substring(0, 4) + "-" + vcMon.Substring(4, 2);
-                    strMsg = fs0610_Logic.updatePro(importDt, loginInfo.UserId, mon, ref ex, vcFZGC[i]);
+                    strMsg = fs0610_Logic.updatePro(importDt_f, loginInfo.UserId, mon, ref ex, vcFZGC[i]);
                     if (strMsg.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

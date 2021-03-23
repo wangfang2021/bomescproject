@@ -926,13 +926,13 @@ namespace DataAccess
                 updateSoqReply(cmd, mon, apt, user, plant);//更新SOQREPLY表
                 #endregion
                 #region 生成打印数据
-                msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
-                if (msg.Length > 0)
-                {
-                    cmd.Transaction.Rollback();
-                    cmd.Connection.Close();
-                    return msg;
-                }
+                //msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
+                //if (msg.Length > 0)
+                //{
+                //    cmd.Transaction.Rollback();
+                //    cmd.Connection.Close();
+                //    return msg;
+                //}
                 #endregion
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();

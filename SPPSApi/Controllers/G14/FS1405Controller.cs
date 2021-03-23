@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.ServiceModel;
 using System.Text;
 using System.Text.Json;
 using System.Threading;

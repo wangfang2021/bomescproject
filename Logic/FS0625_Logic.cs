@@ -57,20 +57,26 @@ namespace Logic
             StringBuilder sbr = new StringBuilder();
             if (flag == "0")
             {
-                //strEmailBody += "<div style='font-family:宋体;font-size:12'>各位供应商 殿：大家好 <br /><br />";
-                //strEmailBody += loginInfo.UnitCode + "补给 " + loginInfo.UserName + "<br />";
-                //strEmailBody += "  感谢大家一直以来对" + loginInfo.UnitCode + "补给业务的协力！<br /><br />";
-                //strEmailBody += "  一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，<br />";
-                //strEmailBody += "  一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，<br />";
-                //strEmailBody += "  请填写完整后，于<span style='font-family:宋体;font-size:12;color:red'>" + dExpectDeliveryDate + "日前在系统上给予回复</span>，谢谢！<br /><br /></div>";
-                //string result = "Success";
-                sbr.AppendLine("<p>各位供应商 殿：大家好</p>");
-                sbr.AppendLine("<p>" + UnitCode + "补给" + UnitName + "</p>");
-                sbr.AppendLine("<p>感谢大家一直以来对" + UnitCode + "补给业务的协力！</p><p><br></p>");
-                sbr.AppendLine("<p>一丰补给管理系统】上传了贵司新设补给品荷姿确认，拜托贵司进行检讨，</p>");
-                sbr.AppendLine("<p>请填写完整后，于<u style=\"color: rgb(230, 0, 0);\">" + date + "</u>日前在系统上给予回复，谢谢!</p><br><br/></p>");
-                sbr.AppendLine("<p>拜托严守纳期，如有疑问及时联络</p><br>");
-                sbr.AppendLine("<p>以上。</p>");
+                sbr.AppendLine("   <p>相关各位供应商：大家好</p><p>" + UnitCode + "补给资材企管" + UnitName + "</p><p>感谢大家一直以来对" + UnitCode + "补给业务的协力</p>   ");
+                sbr.AppendLine("   <p>按照大日程，<strong style=\"color: blue;\"><u>现发送****车型补给品号试订单&amp;看板&amp;货垛标签</u></strong></p>   ");
+                sbr.AppendLine("   <p><span style=\"color: blue;\">拜托各位确认附件的补给品号试订单是否可以对应（</span><strong style=\"color: rgb(31, 73, 125);\">"+date+"</strong>   ");
+                sbr.AppendLine("   <strong style=\"color: red;\">日前邮件回复给我</strong><span style=\"color: blue;\">）</span></p><p><br></p><p>以下几点进行说明如下：</p>   ");
+                sbr.AppendLine("   <p><span style=\"background-color: yellow;\">1.&nbsp;&nbsp;&nbsp;&nbsp;【供应商发货日】</span></p><p>与号口1A（总装）号试品同期同车发货</p>   ");
+                sbr.AppendLine("   <p>正式的供应商发货时间表，会在订单预计纳入前一周以邮件的形式展开。</p>   ");
+                sbr.AppendLine("   <p><span style=\"background-color: yellow;\">2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;【荷姿】</span></p>   ");
+                sbr.AppendLine("   <p>号试补给品请按TFTM要求的正规箱种出货（EU/PL），每箱放1个零件（按照看板上的提示的数量）</p>   ");
+                sbr.AppendLine("   <p><span style=\"background-color: yellow; color: rgb(31, 73, 125);\">3</span><span style=\"background-color: yellow;\">&nbsp;【看板、托盘标签】</span></p>   ");
+                sbr.AppendLine("   <p>&nbsp;&nbsp;&nbsp;号试补给品纳入时，为区别号口品和补给品，请将<strong style=\"color: red;\">补给品</strong><strong style=\"color: blue;\">所有帐票（包括：订单、看板、货垛标签）用</strong><strong style=\"color: rgb(31, 73, 125);\">"+color+"颜色</strong><strong style=\"color: blue;\">A4纸打印</strong>。</p>   ");
+                sbr.AppendLine("   <p>&nbsp;&nbsp;&nbsp;看板的插放以及货垛标签的张贴方法以号口的要求为准。</p>   ");
+                sbr.AppendLine("   <p><span style=\"background-color: yellow;\">4&nbsp;【出货货垛】</span></p>   ");
+                sbr.AppendLine("   <p>&nbsp;&nbsp;<span style=\"color: rgb(31, 73, 125);\">&nbsp;   ");
+                sbr.AppendLine("   </span>请将<strong style=\"color: blue;\">补给品单独捆货垛</strong>（避免与号口号试品混载），EU箱出货时如一层未码平，请用空箱填平，并在外侧粘贴“空箱”标识</p>   ");
+                sbr.AppendLine("   <p><span style=\"background-color: yellow;\">5&nbsp;【空箱返还】</span></p>   ");
+                sbr.AppendLine("   <p>&nbsp;&nbsp;&nbsp;与号口同期同车返回</p>   ");
+                sbr.AppendLine("  <p><br></p><p><br></p><p>关于补给品号试相关内容，如有不明，请随时与我联络</p><p><br></p><p>以上</p>    ");
+                sbr.AppendLine("      ");
+                sbr.AppendLine("      ");
+               
             }
             else if (flag == "1")
             {

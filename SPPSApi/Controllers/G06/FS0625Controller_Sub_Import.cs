@@ -75,7 +75,7 @@ namespace SPPSApi.Controllers.G06
                                                 {  "vcCarType", "vcPartNo", "vcPartName", "vcInsideOutsideType", "vcSupplier_id", "vcWorkArea", "vcIsNewRulesFlag", "vcOEOrSP", "vcDock", "vcNumber", "vcPurposes", "dOrderPurposesDate", "dOrderReceiveDate", "vcReceiveTimes","vcActualNum", "dActualReceiveDate", "vcAccountOrderNo", "dAccountOrderReceiveDate", "vcMemo"},
                                                 {"",FieldCheck.NumCharLLL,"","",FieldCheck.NumCharLLL,"","","","",FieldCheck.Num,"",FieldCheck.Date,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Date,"",FieldCheck.Date,""},
                                                 {"50","12","200","100","4","50","50","200","20","20","300","0","300","20","0","0","50","0","500"},//最大长度设定,不校验最大长度用0
-                                                {"0","12","0","0","4","0","0","0","0","1","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
+                                                {"0","12","0","0","4","0","0","0","1","1","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {

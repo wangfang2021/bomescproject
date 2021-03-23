@@ -50,11 +50,21 @@ namespace SPPSApi.Controllers.G06
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
+                DataTable dtSupplier = fs0621_Logic.GetSupplier();
+                DataTable dtWorkArea = fs0621_Logic.GetWorkArea();
+                DataTable dtCarType = fs0621_Logic.GetCarType();
+
+                List<Object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
+                List<Object> dataList_CarType = ComFunction.convertToResult(dtCarType, new string[] { "vcValue", "vcName" });
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
 
                 res.Add("C018", dataList_C018);
                 res.Add("C003", dataList_C003);
+                res.Add("Supplier", dataList_Supplier);
+                res.Add("CarType", dataList_CarType);
+                res.Add("WorkArea", dataList_WorkArea);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -69,7 +79,40 @@ namespace SPPSApi.Controllers.G06
             }
         }
         #endregion
+        [HttpPost]
+        [EnableCors("any")]
+        public string changeSupplieridApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string supplierCode = dataForm.supplierCode == null ? "" : dataForm.supplierCode;
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                DataTable dtWorkAreaBySupplier = fs0621_Logic.GetWorkAreaBySupplier(supplierCode);
 
+                List<Object> dataList_WorkAreaBySupplier = ComFunction.convertToResult(dtWorkAreaBySupplier, new string[] { "vcValue", "vcName" });
+
+                res.Add("WorkAreaBySupplier", dataList_WorkAreaBySupplier);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2110", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "选择供应商联动工区失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         #region 检索
         [HttpPost]
         [EnableCors("any")]

@@ -42,6 +42,78 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        #region
+        public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("   select vcWorkArea as vcValue,vcWorkArea as vcName from(       ");
+                strSql.AppendLine("   select distinct isnull(iSupplierPlant,'无') as vcWorkArea from     ");
+                strSql.AppendLine("   TNeiShi   where SUPPLIERCODE='" + supplierCode + "'      ");
+                strSql.AppendLine("   ) t  order by vcWorkArea asc        ");
+                strSql.AppendLine("       ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetWorkArea()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("     select vcWorkArea as vcValue,vcWorkArea as vcName from(   ");
+                strSql.AppendLine("     select distinct isnull(iSupplierPlant,'无') as vcWorkArea from TNeiShi   ");
+                strSql.AppendLine("     ) t  order by vcWorkArea asc    ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetSupplier()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("   select vcSupplier_id as vcValue,vcSupplier_id as vcName from(      ");
+                strSql.AppendLine("    select distinct SUPPLIERCODE as vcSupplier_id from TNeiShi    ");
+                strSql.AppendLine("    ) t  order by vcSupplier_id asc    ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable GetCarType()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendLine("    select vcCarType as vcValue,vcCarType as vcName from(     ");
+                strSql.AppendLine("    select   distinct isnull(CARFAMCODE,'无') as vcCarType from TNeiShi      ");
+                strSql.AppendLine("    )s order by vcCarType asc      ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         /// <summary>
         /// 检索数据
         /// </summary>
@@ -53,7 +125,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  SELECT  [iAutoId], b.vcName as [CPDCOMPANY],convert(varchar(10), dInputDate,111) as [dInputDate], [TARGETMONTH], [PARTSNO], [CARFAMCODE],c.vcName as [INOUTFLAG], [SUPPLIERCODE],   ");
+                strSql.AppendLine("  SELECT  [iAutoId], [CPDCOMPANY],convert(varchar(10), dInputDate,111) as [dInputDate], [TARGETMONTH], [PARTSNO], [CARFAMCODE],c.vcName as [INOUTFLAG], [SUPPLIERCODE],   ");
                 strSql.AppendLine("  [iSupplierPlant], [DOCK], [RESULTQTYTOTAL], [varInputUser] ,'0' as vcModFlag,'0' as vcAddFlagFROM from [TNeiShi] a   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C018') b on a.[CPDCOMPANY] = b.vcValue   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C003') c on a.[INOUTFLAG] = c.vcValue  where 1=1  ");
@@ -72,7 +144,14 @@ namespace DataAccess
                 }
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  CARFAMCODE like '" + vcCarType + "%' ");
+                    if (vcCarType == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(CARFAMCODE,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  CARFAMCODE like '" + vcCarType + "%' ");
+                    }
                 }
                 if (vcInsideOutsideType.Length > 0)
                 {
@@ -80,11 +159,18 @@ namespace DataAccess
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine("  and  a.[SUPPLIERCODE]=  '" + vcSupplier_id + "%' ");
+                    strSql.AppendLine("  and  a.[SUPPLIERCODE] like  '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
-                    strSql.AppendLine("  and  a.iSupplierPlant = '" + vcWorkArea + "' ");
+                    if (vcWorkArea == "无")
+                    {
+                        strSql.AppendLine("  and  isnull( a.iSupplierPlant,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and   a.iSupplierPlant = '" + vcWorkArea + "' ");
+                    }
                 }
 
                 strSql.AppendLine("  order by  dOperatorTime desc ");

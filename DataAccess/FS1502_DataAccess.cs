@@ -458,7 +458,7 @@ namespace DataAccess
                 sql.Append("		group by t2.vcBZPlant,t3.vcBigPM,t2.vcSmallPM    \n");
                 sql.Append("	)a3 on a1.vcBigPM=a3.vcBigPM and a1.vcSmallPM=a3.vcSmallPM and a1.vcPlant=a3.vcBZPlant    \n");
                 sql.Append("	left join (        \n");
-                sql.Append("		--N日累积包装残=N-1日实行计划合计-N-1日作业实绩中包装的(N-1 07:00-N 07:00)        \n");
+                sql.Append("		--N日累积包装残=N-1日实行计划合计-N日作业实绩中包装的(N-1 07:00-N 07:00)        \n");
                 sql.Append("		select vcPlant,vcBigPM,vcSmallPM,sum(heji) as E  from         \n");
                 sql.Append("		(        \n");
                 sql.Append("			--N-1日实行计划合计        \n");

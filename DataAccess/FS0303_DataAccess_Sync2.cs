@@ -944,8 +944,6 @@ namespace DataAccess
             strSql.Append("           and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("           and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("           and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            strSql.Append("           where a.dFromTime < GETDATE()          \r\n");
-            strSql.Append("           and a.dToTime > GETDATE()          \r\n");
             #endregion
             #region 收容数信息子表
             strSql.Append("       update TSPMaster_Box set          \r\n");
@@ -968,8 +966,6 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            strSql.Append("          where a.dFromTime < a.dToTime          \r\n");
-            strSql.Append("          and a.dToTime > GETDATE()          \r\n");
             #endregion
             #region 受入信息子表
             strSql.Append("       update TSPMaster_SufferIn set          \r\n");
@@ -992,8 +988,6 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            strSql.Append("          where a.dFromTime < a.dToTime          \r\n");
-            strSql.Append("          and a.dToTime > GETDATE()          \r\n");
             #endregion
             #endregion
 
@@ -1091,8 +1085,6 @@ namespace DataAccess
             strSql.Append("           and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("           and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("           and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            strSql.Append("           where a.dFromTime < GETDATE()          \r\n");
-            strSql.Append("           and a.dToTime > GETDATE()          \r\n");
             #endregion
             #region 收容数信息子表
             strSql.Append("       update TSPMaster_Box set          \r\n");
@@ -1115,8 +1107,6 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            strSql.Append("          where a.dFromTime < a.dToTime          \r\n");
-            strSql.Append("          and a.dToTime > GETDATE()          \r\n");
             #endregion
             #region 受入信息子表
             strSql.Append("       update TSPMaster_SufferIn set          \r\n");
@@ -1139,8 +1129,6 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            strSql.Append("          where a.dFromTime < a.dToTime          \r\n");
-            strSql.Append("          and a.dToTime > GETDATE()          \r\n");
             #endregion
             #endregion
         }

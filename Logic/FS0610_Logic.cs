@@ -333,7 +333,7 @@ namespace Logic
                         string vcCalendar0 = dt.Rows[i]["vcCalendar0"].ToString();
                         if (vcCalendar1.Length <= 0 || vcCalendar0.Length <= 0)
                         {
-                            msg = "工程：" + gc + ",组别：" + zb + ",生产条件未维护！";
+                            msg = "品番：" + partsno + "，工程：" + gc + ",组别：" + zb + ",生产条件未维护！";
                             return null;
                         }
                         string pro_gc = vcCalendar1.Split('-')[0];
@@ -343,7 +343,7 @@ namespace Logic
                         string vcCalendar4 = dt.Rows[i]["vcCalendar4"].ToString();
                         if (vcCalendar4.Length <= 0)
                         {
-                            msg = "工程：" + gc + ",组别：" + zb + ",生产条件未维护！";
+                            msg = "品番：" + partsno + "，工程：" + gc + ",组别：" + zb + ",生产条件未维护！";
                             return null;
                         }
                         string pack_gc = vcCalendar4.Split('-')[0];
@@ -376,12 +376,12 @@ namespace Logic
                         DataTable dtpack = fs0610_DataAccess.getCalendar(Year, Mon, pack_gc, pack_zb, "M", "M", "", plant);
                         if (dtpro.Rows.Count <= 1 || dtpro.Select("vcYear='" + Year + "' and  vcMonth ='" + Mon.ToString("00") + "'").Length == 0)
                         {
-                            msg = "对象月生产日历(" + pro_gc + "-" + pro_zb + ")不存在，请先维护生产日历再导入！";
+                            msg = "品番：" + partsno + "，对象月生产日历(" + pro_gc + "-" + pro_zb + ")不存在，请先维护生产日历再导入！";
                             return null;
                         }
                         if (dtpack.Rows.Count == 0)
                         {
-                            msg = "与生产日历(" + pro_gc + "-" + pro_zb + ")相对应的包装日历(" + pack_gc + "-" + pack_zb + ")不存在，请先维护包装日历再导入！";
+                            msg = "品番：" + partsno + "，与生产日历(" + pro_gc + "-" + pro_zb + ")相对应的包装日历(" + pack_gc + "-" + pack_zb + ")不存在，请先维护包装日历再导入！";
                             return null;
                         }
 
@@ -431,7 +431,7 @@ namespace Logic
                         //--2在包装日历上平准 
                         if (dtFinal_pack.Rows.Count <= 1)
                         {
-                            msg = "与生产日历相匹配的包装日历不存在，请先维护包装日历再导入！";
+                            msg = "品番：" + partsno + "，与生产日历相匹配的包装日历不存在，请先维护包装日历再导入！";
                             return null;
                         }
                         dt_reality = dtFinal_pack.Select(" zhi<>'9999' ").CopyToDataTable();

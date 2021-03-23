@@ -128,12 +128,12 @@ namespace Logic
                 throw ex;
             }
         }
-        public void checkadmitInfo(List<Dictionary<string, Object>> multipleInfoData, string strOperId, string strOpername, ref DataTable dtMessage)
+        public void checkadmitInfo(List<Dictionary<string, Object>> multipleInfoData, ref DataTable dtImport, ref DataTable dtApplyList,ref DataTable dtPDF_temp,ref DataTable dtSPISTime,
+            string strOperId, string strOpername, ref DataTable dtMessage)
         {
             try
             {
-                DataTable dtSPISTime = fs0603_Logic.createTable("savFs1404");
-                DataTable dtImport = fs0603_Logic.createTable("SPISApply");
+                
                 if (multipleInfoData.Count != 0)
                 {
                     for (int i = 0; i < multipleInfoData.Count; i++)
@@ -205,11 +205,9 @@ namespace Logic
                 }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                     return;
-                DataTable dtApplyList = dtImport.Clone();
-                saveSPISPicAndApplyList_ad(dtImport, ref dtApplyList, ref dtSPISTime, strOperId, ref dtMessage);//赋值
+                saveSPISPicAndApplyList_ad(dtImport, ref dtApplyList, ref dtPDF_temp, ref dtSPISTime, strOperId, ref dtMessage);//赋值
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
                     return;
-                admitInfo(dtApplyList, dtSPISTime, strOperId, ref dtMessage);//更新
                 return;
             }
             catch (Exception ex)
@@ -217,11 +215,11 @@ namespace Logic
                 throw ex;
             }
         }
-        public void saveSPISPicAndApplyList_ad(DataTable dtImport, ref DataTable dtApplyList, ref DataTable dtSPISTime, string strOperId, ref DataTable dtMessage)
+        public void saveSPISPicAndApplyList_ad(DataTable dtImport, ref DataTable dtApplyList, ref DataTable dtPDF_temp, ref DataTable dtSPISTime,
+            string strOperId, ref DataTable dtMessage)
         {
             try
             {
-                DataTable dtPDF_temp = fs1406_DataAccess.getPrintTemp("FS1406").Clone();
                 for (int i = 0; i < dtImport.Rows.Count; i++)
                 {
                     #region  Data
@@ -328,11 +326,11 @@ namespace Logic
                     dtSPISTime.Rows.Add(drSPISTime);
                     #endregion
                 }
-                //处理图像
-                //1.插入并打印
-                fS1406_Logic.setCRVtoPdf(dtPDF_temp, strOperId, ref dtMessage);
-                //2.PDF转SPIS图片
-                fS1406_Logic.setPdftoImgs(dtApplyList, strOperId, ref dtMessage);
+                ////处理图像
+                ////1.插入并打印
+                //fS1406_Logic.setCRVtoPdf(dtPDF_temp, strOperId, ref dtMessage);
+                ////2.PDF转SPIS图片
+                //fS1406_Logic.setPdftoImgs(dtApplyList, strOperId, ref dtMessage);
             }
             catch (Exception ex)
             {

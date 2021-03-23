@@ -97,8 +97,8 @@ namespace SPPSApi.Controllers.G06
             {
                 DataTable dt = fs0614_logic.searchApi(orderState, targetYM, orderNo, orderType, dUpload, memo);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dUploadDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dCreateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dUploadDate", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm");
+                dtConverter.addField("dCreateDate", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;

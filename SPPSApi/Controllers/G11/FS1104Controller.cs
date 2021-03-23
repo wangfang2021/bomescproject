@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.ServiceModel;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -14,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G11
 {
@@ -53,7 +56,7 @@ namespace SPPSApi.Controllers.G11
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 //处理初始化
                 List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
-                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C062"));
+                List<Object> PlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C071"));
 
                 res.Add("ReceiverList", ReceiverList);
                 res.Add("PlantList", PlantList);
@@ -177,23 +180,58 @@ namespace SPPSApi.Controllers.G11
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                bool bResult = fS1104_Logic.getPrintInfo(strPlant, strReceiver, strPrintNum, loginInfo.UserId, ref dtMessage);
-                if (!bResult)
+                fS1104_Logic.getPrintInfo(strPlant, strReceiver, strPrintNum, loginInfo.UserId, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
+                    //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "list";
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string strPrintName = "";//打印机
-                string strReportName = "fs1104_cry.rpt";//水晶报表模板
-                string strPrintData = "tPrintTemp_FS1104";//数据表
-                //引进打印调用
-                //主表    tPrintTemp_FS1104
+                #region 调用webApi打印
+                //创建 HTTP 绑定对象
+                string imagefile_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                var binding = new BasicHttpBinding();
+                //根据 WebService 的 URL 构建终端点对象
+                var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                //创建调用接口的工厂，注意这里泛型只能传入接口
+                var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                //从工厂获取具体的调用实例
+                var callClient = factory.CreateChannel();
+                setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                Body.strCRVName = imagefile_crv + "crv_FS1104.rpt";
+                Body.strTableName = "tPrintTemp_FS1104";
+                Body.strOperID = loginInfo.UserId;
+                Body.strPrinterName = "FinePrint";
+                Body.sqlUserID = "sa";
+                Body.sqlPassword = "SPPS_Server2019";
+                Body.sqlCatalog = "SPPSdb";
+                Body.sqlSource = "172.23.180.116";
+                //调用具体的方法，这里是 HelloWorldAsync 方法
+                Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                //获取结果
+                setCRVPrintResponse response = responseTask.Result;
+                if (response.Body.setCRVPrintResult != "打印成功")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
 
                 fS1104_Logic.setSaveInfo(loginInfo.UserId, ref dtMessage);
-                if (!bResult)
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
+                    //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "list";
                     apiResult.data = dtMessage;

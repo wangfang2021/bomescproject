@@ -90,7 +90,7 @@ namespace SPPSApi.Controllers.G04
                 }
 
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-                string[,] headers = new string[,] {{"PartsNo", "发注工厂", "订货频度", "CFC", "OrdLot", "N Units"
+                string[,] headers = new string[,] {{"PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
                 ,"N PCS","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","D14"
                 ,"D15","D16","D17","D18","D19","D20","D21","D22","D23","D24","D25","D26","D27","D28"
                 ,"D29","D30","D31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"},
@@ -98,7 +98,7 @@ namespace SPPSApi.Controllers.G04
                 ,"iPartNums","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
                 ,"iD29","iD30","iD31","vcCarType2","iBoxes2","iPartNums2","vcCarType3","iBoxes3","iPartNums3"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.Num,"",FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num,
+                                                {FieldCheck.NumCharLLL,"","",FieldCheck.NumChar,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                 FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num},
@@ -138,24 +138,24 @@ namespace SPPSApi.Controllers.G04
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 //校验导入文件中订货频度列的内容
-                DataTable dt_MakingOrderType = ComFunction.getTCode("C047");
-                string temp = "";
-                for (int i = 0; i < dt_MakingOrderType.Rows.Count; i++)
-                {
-                    temp += dt_MakingOrderType.Rows[i]["vcName"].ToString() + ",";
-                }
-                temp = temp.Substring(0, temp.Length - 1);
-                for (int i = 0; i < importDt.Rows.Count; i++)
-                {
-                    string vcMakingOrderType_import = importDt.Rows[i]["vcMakingOrderType"].ToString();
-                    DataRow[] dr = dt_MakingOrderType.Select("vcName='" + vcMakingOrderType_import + "'   ");
-                    if (dr.Length == 0)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 2) + "行[订货频度]列只能填写" + temp;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
+                //DataTable dt_MakingOrderType = ComFunction.getTCode("C047");
+                //string temp = "";
+                //for (int i = 0; i < dt_MakingOrderType.Rows.Count; i++)
+                //{
+                //    temp += dt_MakingOrderType.Rows[i]["vcName"].ToString() + ",";
+                //}
+                //temp = temp.Substring(0, temp.Length - 1);
+                //for (int i = 0; i < importDt.Rows.Count; i++)
+                //{
+                //    string vcMakingOrderType_import = importDt.Rows[i]["vcMakingOrderType"].ToString();
+                //    DataRow[] dr = dt_MakingOrderType.Select("vcName='" + vcMakingOrderType_import + "'   ");
+                //    if (dr.Length == 0)
+                //    {
+                //        apiResult.code = ComConstant.ERROR_CODE;
+                //        apiResult.data = "第" + (i + 2) + "行[订货方式]列只能填写" + temp;
+                //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //    }
+                //}
                 //校验导入文件中数据重复项
                 var result = from r in importDt.AsEnumerable()
                              group r by new { r2 = r.Field<string>("vcPart_id") } into g
@@ -176,6 +176,7 @@ namespace SPPSApi.Controllers.G04
 
                 //验证修改后每日平准箱数是否跟总箱数一致
                 StringBuilder errPart = new StringBuilder();
+                StringBuilder errPart_SRS = new StringBuilder();//不是收容数整数倍的异常品番
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     string strPart_id = importDt.Rows[i]["vcPart_id"].ToString();
@@ -188,10 +189,23 @@ namespace SPPSApi.Controllers.G04
                         string strSRS = importDt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : importDt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
                         int iSRS = strSRS.Trim() == "" ? 1 : Convert.ToInt32(strSRS.Trim());//收容数
                         int iD = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim()) / iSRS;
+                        if (strIDTemp.Trim() != "" && Convert.ToInt32(strIDTemp.Trim()) % iSRS != 0)//用户输入的不符合收容数要求
+                        {
+                            errPart_SRS.Append(strPart_id + ":D" + j + ",");
+                        }
                         iCheck = iCheck + iD;
                     }
                     if (iBoxes != iCheck)
                         errPart.Append(strPart_id + ",");
+                }
+                if (errPart_SRS.Length > 0)
+                {
+                    StringBuilder sbr = new StringBuilder();
+                    sbr.Append("以下品番修改后不符合收容数整数倍要求:<br/>");
+                    sbr.Append(errPart_SRS);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = sbr.ToString();
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (errPart.Length > 0)
                 {
@@ -203,22 +217,22 @@ namespace SPPSApi.Controllers.G04
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 //校验导入文件中品番是否与所选工厂一致
-                DataTable dtFilePlant = fs0610_Logic.GetFilePlant(strCLYM, importDt);
-                List<string> lsfileplant = new List<string>();
-                plantList.Sort();
-                for (int i = 0; i < dtFilePlant.Rows.Count; i++)
-                {
-                    lsfileplant.Add(dtFilePlant.Rows[i][0].ToString());
-                }
-                lsfileplant.Sort();
-                string t1 = string.Join(",", lsfileplant.ToArray());
-                string t2 = string.Join(",", plantList.ToArray());
-                if (t1 != t2)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导入文件中品番工厂与画面所选工厂不一致";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //DataTable dtFilePlant = fs0610_Logic.GetFilePlant(strCLYM, importDt);
+                //List<string> lsfileplant = new List<string>();
+                //plantList.Sort();
+                //for (int i = 0; i < dtFilePlant.Rows.Count; i++)
+                //{
+                //    lsfileplant.Add(dtFilePlant.Rows[i][0].ToString());
+                //}
+                //lsfileplant.Sort();
+                //string t1 = string.Join(",", lsfileplant.ToArray());
+                //string t2 = string.Join(",", plantList.ToArray());
+                //if (t1 != t2)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "导入文件中品番工厂与画面所选工厂不一致";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
                 fs0610_Logic.importSave(importDt, strYearMonth, loginInfo.UserId, plantList);
                 apiResult.code = ComConstant.SUCCESS_CODE;

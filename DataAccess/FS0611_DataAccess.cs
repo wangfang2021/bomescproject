@@ -385,15 +385,15 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 string strCLYM = System.DateTime.Now.ToString("yyyyMM");
                 strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], ");
-                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS] ");
+                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货方式',e.vcName as  '发注工厂' ");
                 strSql.AppendLine(" FROM ");
                 strSql.AppendLine(" ( ");
                 strSql.AppendLine("   SELECT ");
                 strSql.AppendLine("   vcPart_id as 'PartsNo',");
                 //发注工厂
-                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂',");
+                strSql.AppendLine("   vcFZGC,");
                 //订货频度
-                strSql.AppendLine("   cast(vcMakingOrderType as int) as '订货频度',");
+                strSql.AppendLine("   vcMakingOrderType,");
                 strSql.AppendLine("   vcCarType as 'CFC',");
                 strSql.AppendLine("   isnull(iQuantityPercontainer,0) as 'OrdLot',");
                 strSql.AppendLine("   isnull(iBoxes,0) as 'N Units',");
@@ -447,6 +447,10 @@ namespace DataAccess
                 strSql.AppendLine("  ) c ");
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id ");
 
+                strSql.AppendLine("left join (select * from TCode where vcCodeId='C047')d on a.vcMakingOrderType=d.vcValue    \n");
+                strSql.AppendLine("left join (select * from TCode where vcCodeId='C000')e on a.vcFZGC=e.vcValue    \n");
+
+                
                 strSql.AppendLine(" order by a.iAutoId ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -466,7 +470,12 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 sql.Append("      select * into #TSOQReply from       \n");
                 sql.Append("      (      \n");
-                sql.Append("      	select * from TSOQReply where 1=0      \n");
+                sql.Append("      	select       \n");
+                sql.Append("       vcPart_id,iBoxes      \n");
+                sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
+                sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
+                sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
+                sql.Append("      	  from TSOQReply where 1=0      \n");
                 sql.Append("      ) a      ;\n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -475,13 +484,13 @@ namespace DataAccess
                     sql.Append("            \n");
                     sql.Append("      insert into #TSOQReply       \n");
                     sql.Append("       (         \n");
-                    sql.Append("       vcPart_id      \n");
+                    sql.Append("       vcPart_id,iBoxes      \n");
                     sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
                     sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
                     sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
                     sql.Append("       ) values         \n");
                     sql.Append("      (      \n");
-                    sql.Append("      '" + dt.Rows[i]["vcPart_id"] + "'      \n");
+                    sql.Append("      '" + dt.Rows[i]["vcPart_id"] + "',nullif('" + dt.Rows[i]["iBoxes"].ToString() + "','')      \n");
                     for (int j = 1; j < 32; j++)
                     {
                         sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["iD"+ j], true) + "      \n");
@@ -489,7 +498,7 @@ namespace DataAccess
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),      \n");
+                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),iBoxes=b.iBoxes,      \n");
                 for (int j = 1; j < 32; j++)
                 {
                     sql.Append(" iD" + j + "=b.iD" + j  );
@@ -502,7 +511,19 @@ namespace DataAccess
                 sql.Append("      ) b on a.vcPart_id=b.vcPart_id      \n");
                 sql.Append("      and  a.vcInOutFlag='1'   \n ");//外注
                 sql.Append("      and  a.vcDXYM='" + strYearMonth + "'; \n  ");
-                
+
+                string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
+
+                sql.Append("delete t1    \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply    \n");
+                sql.Append("	where vcCLYM='" + vcCLYM + "'  and vcInOutFlag='1'    \n");
+                sql.Append(")t1    \n");
+                sql.Append("left join (    \n");
+                sql.Append("	select * from #TSOQReply    \n");
+                sql.Append(")t2 on t1.vcPart_id=t2.vcPart_id    \n");
+                sql.Append("where t2.vcPart_id is null    \n");
+
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)

@@ -16,6 +16,12 @@ namespace SoqCompute
 			for (int i = 0; i < beginData.Count; i++)
 			{
 				string[] temp = (string[])beginData[i];
+				//string strPart_id=temp[0] ;
+				//if (strPart_id == "8158002D6200")
+				//{
+				//	int a = 0;
+				//	a = 1;
+				//}
 				string strFromTime = temp[37];
 				string strToTime = temp[38];
 				int iFromTime_Check = -1;//起始时间校验，不为-1则判定需要校验
@@ -35,7 +41,7 @@ namespace SoqCompute
 				//循环品番品准结果，没有稼动日的箱数清空，计入剩余没有分配数量中
 				clearDay(ref temp, dtCam);
 				//按照找最少箱数的算法(最少箱数相等，从左到右)进行分配
-				pinZhun(ref temp);
+				pinZhun(ref temp, dtCam);
  
 			}
 		}
@@ -89,6 +95,8 @@ namespace SoqCompute
 		//循环品番品准结果，没有稼动日的箱数清空，计入剩余没有分配数量中
 		public void clearDay(ref string[] temp, DataTable dtCalendar )
 		{
+			//先对品番35位存储的剩余未分配清空（前面算法有的没清）
+			temp[35] = "0";
 			for (int i = 1; i <= 31; i++)//遍历当前周日期范围	
 			{
 				string strNowDay = dtCalendar.Rows[0]["TARGETDAY" + i] == System.DBNull.Value ? "0" : dtCalendar.Rows[0]["TARGETDAY" + i].ToString();
@@ -102,7 +110,7 @@ namespace SoqCompute
 			}
 		}
 		//按照调整后的剩余箱数，进行最少箱数的算法(最少箱数相等，从左到右)进行分配
-		public void pinZhun(ref string[] temp)
+		public void pinZhun(ref string[] temp, DataTable dtCam)
 		{
 			int iBox_Last_PZ = Convert.ToInt32(temp[35]);//剩余需要平准化的箱数	
 			if (iBox_Last_PZ <= 0)
@@ -114,7 +122,8 @@ namespace SoqCompute
 				int iMinBox = 9999999;
 				for (int i = 1; i <= 31; i++)//遍历当前周日期范围	
 				{
-					if (temp[i + 3] != "0"&&Convert.ToInt32(temp[i + 3])< iMinBox)
+					string strNowDay = dtCam.Rows[0]["TARGETDAY" + i] == System.DBNull.Value ? "0" : dtCam.Rows[0]["TARGETDAY" + i].ToString();
+					if (strNowDay != "0"&&Convert.ToInt32(temp[i + 3])< iMinBox)
 					{
 						iMinDay = i;
 						iMinBox = Convert.ToInt32(temp[i + 3]);

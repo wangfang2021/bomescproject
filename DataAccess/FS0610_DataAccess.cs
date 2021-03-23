@@ -205,6 +205,13 @@ namespace DataAccess
                 sql.AppendLine("delete from MonthPackPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthPackPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
                 sql.AppendLine("delete from MonthProPlanTblTMP  where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthProPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
                 sql.AppendLine("delete from MonthTZPlanTblTMP where ((vcMonth = '" + mon + "' and  montouch is null) or montouch ='" + mon + "')  and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = MonthTZPlanTblTMP.vcPartsno and  dTimeFrom<= '" + mon + "-01" + "' and dTimeTo >= '" + mon + "-01" + "');");
+
+                cmd.Connection = conn;
+                cmd.Transaction = st;
+                cmd.CommandText = sql.ToString();
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandTimeout = 0;
+                cmd.ExecuteNonQuery();
                 #endregion
 
                 st.Commit();
@@ -405,13 +412,13 @@ namespace DataAccess
                 string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], \n");
-                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货频度'  \n");
+                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货频度',e.vcName as '发注工厂'  \n");
                 strSql.AppendLine(" FROM \n");
                 strSql.AppendLine(" ( \n");
                 strSql.AppendLine("   SELECT ");
                 strSql.AppendLine("   vcPart_id as 'PartsNo', \n");
                 //发注工厂
-                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂', \n");
+                strSql.AppendLine("   vcFZGC, \n");
                 //订货频度
                 strSql.AppendLine("   vcMakingOrderType, \n");
                 strSql.AppendLine("   vcCarType as 'CFC', \n");
@@ -468,6 +475,7 @@ namespace DataAccess
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id  \n");
 
                 strSql.AppendLine("left join (select * from TCode where vcCodeId='C047')d on a.vcMakingOrderType=d.vcValue    \n");
+                strSql.AppendLine("left join (select vcValue,vcName from TCode where vcCodeId='C000')e on a.vcFZGC=e.vcValue ");
 
                 strSql.AppendLine(" order by a.iAutoId ");
 
@@ -495,7 +503,12 @@ namespace DataAccess
                 StringBuilder sql = new StringBuilder();
                 sql.Append("      select * into #TSOQReply from       \n");
                 sql.Append("      (      \n");
-                sql.Append("      	select * from TSOQReply where 1=0      \n");
+                sql.Append("      	select       \n");
+                sql.Append("       vcPart_id,iBoxes      \n");
+                sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
+                sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
+                sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
+                sql.Append("      	  from TSOQReply where 1=0      \n");
                 sql.Append("      ) a      ;\n");
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -504,16 +517,14 @@ namespace DataAccess
                     sql.Append("            \n");
                     sql.Append("      insert into #TSOQReply       \n");
                     sql.Append("       (         \n");
-                    sql.Append("       vcPart_id,vcFZGC,vcMakingOrderType,vcCarType,iQuantityPercontainer,iBoxes,iPartNums      \n");
+                    sql.Append("       vcPart_id,iBoxes      \n");
                     sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
                     sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
                     sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
                     sql.Append("       ) values         \n");
                     sql.Append("      (      \n");
-                    sql.Append("      '" + dt.Rows[i]["vcPart_id"].ToString() + "','" + dt.Rows[i]["vcFZGC"].ToString() + "',      \n");
-                    sql.Append("      '" + dt.Rows[i]["vcMakingOrderType"].ToString() + "','" + dt.Rows[i]["vcCarType"].ToString() + "',      \n");
-                    sql.Append("      nullif('" + dt.Rows[i]["iQuantityPercontainer"].ToString() + "',''),nullif('" + dt.Rows[i]["iBoxes"].ToString() + "',''),      \n");
-                    sql.Append("      nullif('" + dt.Rows[i]["iPartNums"].ToString() + "','')     \n");
+                    sql.Append("      '" + dt.Rows[i]["vcPart_id"].ToString() + "',      \n");
+                    sql.Append("      nullif('" + dt.Rows[i]["iBoxes"].ToString() + "',''),      \n");
                     for (int j = 1; j < 32; j++)
                     {
                         sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["iD" + j], true) + "      \n");
@@ -521,8 +532,7 @@ namespace DataAccess
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("update t1 set t1.vcOperatorID='" + strUserId + "',t1.dOperatorTime=GETDATE(),t1.vcFZGC=t2.vcFZGC,t1.vcMakingOrderType=t2.vcMakingOrderType,    \n");
-                sql.Append("t1.vcCarType=t2.vcCarType,t1.iQuantityPercontainer=t2.iQuantityPercontainer,t1.iBoxes=t2.iBoxes,t1.iPartNums=t2.iPartNums,     \n");
+                sql.Append("update t1 set t1.vcOperatorID='" + strUserId + "',t1.dOperatorTime=GETDATE(),t1.iBoxes=t2.iBoxes,   \n");
                 for (int j = 1; j < 32; j++)
                 {
                     sql.Append(" t1.iD" + j + "=t2.iD" + j);
@@ -916,13 +926,13 @@ namespace DataAccess
                 updateSoqReply(cmd, mon, apt, user, plant);//更新SOQREPLY表
                 #endregion
                 #region 生成打印数据
-                msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
-                if (msg.Length > 0)
-                {
-                    cmd.Transaction.Rollback();
-                    cmd.Connection.Close();
-                    return msg;
-                }
+                //msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
+                //if (msg.Length > 0)
+                //{
+                //    cmd.Transaction.Rollback();
+                //    cmd.Connection.Close();
+                //    return msg;
+                //}
                 #endregion
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
@@ -960,7 +970,7 @@ namespace DataAccess
             ssql += "  t3.vcProName4,t3.vcLT4, t3.vcCalendar4,  ";
             ssql += "  t1.vcSupplier_id  ";
             ssql += "  from (select * from TSoqReply where vcInOutFlag='0' and vcDXYM='" + mon + "' and vcCLYM='" + moncl + "') t1 ";
-            ssql += "  left join (select vcPartsNo, vcDock, vcCarFamilyCode, vcQJcontainer, iQuantityPerContainer,vcPorType, vcZB, vcQFflag,dTimeFrom,dTimeTo from tPartInfoMaster where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE() and vcInOutFlag='0') t2 ";
+            ssql += "  left join (select vcPartsNo, vcDock, vcCarFamilyCode, vcQJcontainer, iQuantityPerContainer,vcPorType, vcZB, vcQFflag,dTimeFrom,dTimeTo from tPartInfoMaster where dTimeFrom<='" + mon1 + "-01" + "' and dTimeTo>='" + mon1 + "-01" + "' and vcInOutFlag='0') t2 ";
             ssql += "  on t1.vcPart_id=t2.vcPartsNo and t1.vcCarType=t2.vcCarFamilyCode ";
             ssql += "  left join ProRuleMst t3 ";
             ssql += "  on t3.vcPorType=t2.vcPorType and t3.vcZB=t2.vcZB ";

@@ -72,22 +72,22 @@ namespace SPPSApi.Controllers.G06
 
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string[,] headers = new string[,] {{"对象月","工厂","品番","受入","车型","紧急区分","工程1","工程2","工程3","工程4",
-                            "品名（中）","工程号","工程名","号旧","月度总量",
+                            "供应商编码","工程号","工程名","号旧","月度总量",
                             "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
                             "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
                             "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜",
                             "1日白","1日夜","2日白","2日夜","3日白","3日夜","4日白","4日夜","5日白","5日夜","6日白","6日夜","7日白","7日夜","8日白","8日夜","9日白","9日夜","10日白","10日夜",
                             "11日白","11日夜","12日白","12日夜","13日白","13日夜","14日白","14日夜","15日白","15日夜","16日白","16日夜","17日白","17日夜","18日白","18日夜","19日白","19日夜","20日白","20日夜",
-                            "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜","供应商编码"},
+                            "21日白","21日夜","22日白","22日夜","23日白","23日夜","24日白","24日夜","25日白","25日夜","26日白","26日夜","27日白","27日夜","28日白","28日夜","29日白","29日夜","30日白","30日夜","31日白","31日夜"},
                            {"vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
-                            "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
+                            "vcSupplier_id","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
                             "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y","TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y",
                             "TD11b","TD11y","TD12b","TD12y","TD13b","TD13y","TD14b","TD14y","TD15b","TD15y","TD16b","TD16y","TD17b","TD17y","TD18b","TD18y","TD19b","TD19y","TD20b","TD20y",
                             "TD21b","TD21y","TD22b","TD22y","TD23b","TD23y","TD24b","TD24y","TD25b","TD25y","TD26b","TD26y","TD27b","TD27y","TD28b","TD28y","TD29b","TD29y","TD30b","TD30y","TD31b","TD31y",
                             "ED1b","ED1y","ED2b","ED2y","ED3b","ED3y","ED4b","ED4y","ED5b","ED5y","ED6b","ED6y","ED7b","ED7y","ED8b","ED8y","ED9b","ED9y","ED10b","ED10y",
                             "ED11b","ED11y","ED12b","ED12y","ED13b","ED13y","ED14b","ED14y","ED15b","ED15y","ED16b","ED16y","ED17b","ED17y","ED18b","ED18y","ED19b","ED19y","ED20b","ED20y",
-                            "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y","vcSupplier_id"},
-                            {"","","","","","","","","","","","","","","",
+                            "ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y","ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"},
+                            {FieldCheck.FNum,"",FieldCheck.NumCharL,"","","","","","","",FieldCheck.NumChar,"","","",FieldCheck.Num,
                              FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                              FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                              FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
@@ -99,9 +99,9 @@ namespace SPPSApi.Controllers.G06
                              FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                              FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
                              FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,
-                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.NumChar
+                             FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num
                              },
-                            {"7","2","14","4","4","10","20","20","20","20","500","20","7","2","10",
+                            {"7","2","14","4","4","10","20","20","20","20","6","20","7","2","10",
                              "10","10","10","10","10","10","10","10","10","10",
                              "10","10","10","10","10","10","10","10","10","10",
                              "10","10","10","10","10","10","10","10","10","10",
@@ -113,7 +113,7 @@ namespace SPPSApi.Controllers.G06
                              "10","10","10","10","10","10","10","10","10","10",
                              "10","10","10","10","10","10","10","10","10","10",
                              "10","10","10","10","10","10","10","10","10","10",
-                             "10","10","10","10","10","10","10","10","10","10","10","10","10"
+                             "10","10","10","10","10","10","10","10","10","10","10","10"
                             },//最大长度设定,不校验最大长度用0
                             {"7","2","11","0","0","0","0","0","0","0","0","0","0","0","0",
                              "0","0","0","0","0","0","0","0","0","0",
@@ -127,7 +127,7 @@ namespace SPPSApi.Controllers.G06
                              "0","0","0","0","0","0","0","0","0","0",
                              "0","0","0","0","0","0","0","0","0","0",
                              "0","0","0","0","0","0","0","0","0","0",
-                             "0","0","0","0","0","0","0","0","0","0","0","0","0"
+                             "0","0","0","0","0","0","0","0","0","0","0","0"
                             },//最小长度设定,可以为空用0
                             {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15",
                             "16","17","18","19","20","21","22","23","24","25",
@@ -141,7 +141,7 @@ namespace SPPSApi.Controllers.G06
                             "98","99","100","101","102","103","104","105","106","107",
                             "108","109","110","111","112","113","114","115","116","117",
                             "118","119","120","121","122","123","124","125","126","127",
-                            "128","129","130","131","132","133","134","135","136","137","138","139","140"
+                            "128","129","130","131","132","133","134","135","136","137","138","139"
                             }//前台显示列号，从0开始计算,注意有选择框的是0
                 };
                 string strMsg = "";
@@ -203,7 +203,7 @@ namespace SPPSApi.Controllers.G06
                 Exception ex = new Exception();
                 for (int i = 0; i < vcFZGC.Count; i++)
                 {
-                    DataRow[] rows = importDt.Select("vcPlant='#" + vcFZGC[i] + "'"); 
+                    DataRow[] rows = importDt.Select("vcPlant='#" + vcFZGC[i] + "'");
                     DataTable importDt_f = importDt.Clone();
                     foreach (DataRow row in rows)
                     {

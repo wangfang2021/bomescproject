@@ -471,7 +471,7 @@ namespace DataAccess
                 sql.Append("      select * into #TSOQReply from       \n");
                 sql.Append("      (      \n");
                 sql.Append("      	select       \n");
-                sql.Append("       vcPart_id,iBoxes      \n");
+                sql.Append("       vcPart_id,iBoxes,iQuantityPercontainer      \n");
                 sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
                 sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
                 sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
@@ -484,21 +484,32 @@ namespace DataAccess
                     sql.Append("            \n");
                     sql.Append("      insert into #TSOQReply       \n");
                     sql.Append("       (         \n");
-                    sql.Append("       vcPart_id,iBoxes      \n");
+                    sql.Append("       vcPart_id,iBoxes,iQuantityPercontainer      \n");
                     sql.Append("       ,iD1 ,iD2 ,iD3 ,iD4 ,iD5 ,iD6 ,iD7 ,iD8 ,iD9 ,iD10   \n");
                     sql.Append("       ,iD11 ,iD12 ,iD13 ,iD14 ,iD15 ,iD16 ,iD17 ,iD18 ,iD19 ,iD20   \n");
                     sql.Append("       ,iD21 ,iD22 ,iD23 ,iD24 ,iD25 ,iD26 ,iD27 ,iD28 ,iD29 ,iD30 ,iD31  \n");
                     sql.Append("       ) values         \n");
                     sql.Append("      (      \n");
-                    sql.Append("      '" + dt.Rows[i]["vcPart_id"] + "',nullif('" + dt.Rows[i]["iBoxes"].ToString() + "','')      \n");
+                    sql.Append("      '" + dt.Rows[i]["vcPart_id"] + "',nullif('" + dt.Rows[i]["iBoxes"].ToString() + "',''),      \n");
+                    sql.Append("      nullif('" + dt.Rows[i]["iQuantityPercontainer"].ToString() + "','')      \n");
+
                     for (int j = 1; j < 32; j++)
                     {
-                        sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["iD"+ j], true) + "      \n");
+                        string strIDTemp = dt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : dt.Rows[i]["iD" + j].ToString();
+                        if(strIDTemp!="" && Convert.ToInt32(strIDTemp)!=0)
+                        {
+                            string strSRS = dt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : dt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
+                            int iSRS = Convert.ToInt32(strSRS.Trim());//收容数
+                            int iD =  Convert.ToInt32(strIDTemp.Trim()) / iSRS;
+                            sql.Append("      ," + iD + "      \n");
+                        }
+                        else
+                            sql.Append("      ,null      \n");
                     }
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),iBoxes=b.iBoxes,      \n");
+                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),iBoxes=b.iBoxes,iPartNums=b.iQuantityPercontainer*b.iBoxes,      \n");
                 for (int j = 1; j < 32; j++)
                 {
                     sql.Append(" iD" + j + "=b.iD" + j  );

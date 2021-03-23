@@ -45,6 +45,7 @@ namespace SPPSApi.Controllers.G06
         [EnableCors("any")]
         public string importSaveApi([FromBody] dynamic data)
         {
+            Console.Write("OOKK");
             //验证是否登录
             string strToken = Request.Headers["X-Token"];
             if (!isLogin(strToken))

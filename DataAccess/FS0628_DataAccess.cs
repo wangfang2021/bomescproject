@@ -18,7 +18,7 @@ namespace DataAccess
         /// </summary>
         /// <param name="typeCode"></param>
         /// <returns></returns>
-        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id, string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate,string vcCarType)
+        public DataTable Search(string vcIsExportFlag, string strOrderHandleTime_from, string strOrderHandleTime_to, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id, string vcWorkArea, string vcInjectionOrderNo, string strExpectReceiveleTime_from, string strExpectReceiveTime_to, string vcCarType)
         {
             try
             {
@@ -36,9 +36,13 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and  vcIsExportFlag = '" + vcIsExportFlag + "' ");
                 }
-                if (dOrderHandleDate.Length > 0)
+                if (strOrderHandleTime_from.Length > 0)
                 {
-                    strSql.AppendLine("  and  convert(varchar(10), dOrderHandleDate,112) = '" + dOrderHandleDate.Replace("-", "").Replace("/", "") + "'  ");
+                    strSql.AppendLine("  and  convert(varchar(10), dOrderHandleDate,112) >= '" + strOrderHandleTime_from.Replace("-", "").Replace("/", "") + "'  ");
+                }
+                if (strOrderHandleTime_to.Length > 0)
+                {
+                    strSql.AppendLine("  and  convert(varchar(10), dOrderHandleDate,112) <= '" + strOrderHandleTime_to.Replace("-", "").Replace("/", "") + "'  ");
                 }
                 if (vcOrderNo.Length > 0)
                 {
@@ -104,9 +108,13 @@ namespace DataAccess
                         strSql.AppendLine("  and  left(vcInjectionOrderNo,6) like '" + vcInjectionOrderNo + "%' ");
                     }
                 }
-                if (dExpectReceiveDate.Length > 0)
+                if (strExpectReceiveleTime_from.Length > 0)
                 {
-                    strSql.AppendLine("  and   convert(varchar(10), dExpectReceiveDate,112) = '" + dExpectReceiveDate.Replace("-", "").Replace("/", "") + "'  ");
+                    strSql.AppendLine("  and   convert(varchar(10), dExpectReceiveDate,112) >= '" + strExpectReceiveleTime_from.Replace("-", "").Replace("/", "") + "'  ");
+                }
+                if (strExpectReceiveTime_to.Length > 0)
+                {
+                    strSql.AppendLine("  and   convert(varchar(10), dExpectReceiveDate,112) <= '" + strExpectReceiveTime_to.Replace("-", "").Replace("/", "") + "'  ");
                 }
 
                 strSql.AppendLine("  order by  iAutoId desc ");

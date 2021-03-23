@@ -19,9 +19,9 @@ namespace Logic
 
         }
 
-        public DataTable Search(string vcIsExportFlag, string dOrderHandleDate, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id,string vcWorkArea, string vcInjectionOrderNo, string dExpectReceiveDate,string vcCarType)
+        public DataTable Search(string  vcIsExportFlag, string strOrderHandleTime_from, string strOrderHandleTime_to, string vcOrderNo, string vcPartNo, string vcInsideOutsideType, string vcNewOldFlag, string vcInjectionFactory, string vcSupplier_id, string vcWorkArea, string vcInjectionOrderNo, string strExpectReceiveleTime_from, string strExpectReceiveTime_to, string vcCarType)
         {
-            return fs0628_DataAccess.Search(vcIsExportFlag, dOrderHandleDate, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, dExpectReceiveDate, vcCarType);
+            return fs0628_DataAccess.Search(vcIsExportFlag, strOrderHandleTime_from, strOrderHandleTime_to, vcOrderNo, vcPartNo, vcInsideOutsideType, vcNewOldFlag, vcInjectionFactory, vcSupplier_id, vcWorkArea, vcInjectionOrderNo, strExpectReceiveleTime_from, strExpectReceiveTime_to, vcCarType);
         }
 
         public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)

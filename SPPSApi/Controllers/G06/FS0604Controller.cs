@@ -144,8 +144,17 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string dSynchronizationDateFrom = dataForm.dSynchronizationDateFrom == null ? "" : dataForm.dSynchronizationDateFrom;
-            string dSynchronizationDateTo = dataForm.dSynchronizationDateTo == null ? "" : dataForm.dSynchronizationDateTo;
+
+            string dSynchronizationDateFrom = "";
+            string dSynchronizationDateTo = "";
+            JArray listSynDate = dataForm.dSynchronizationAlist;
+            if (listSynDate != null && listSynDate.Count != 0)
+            {
+                dSynchronizationDateFrom = listSynDate[0].ToString();
+                dSynchronizationDateTo = listSynDate[1].ToString();
+            }
+            //string dSynchronizationDateFrom = dataForm.dSynchronizationDateFrom == null ? "" : dataForm.dSynchronizationDateFrom;
+            //string dSynchronizationDateTo = dataForm.dSynchronizationDateTo == null ? "" : dataForm.dSynchronizationDateTo;
             string dSynchronizationDate = dataForm.dSynchronizationDate == null ? "" : dataForm.dSynchronizationDate;
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
@@ -202,8 +211,16 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string dSynchronizationDateFrom = dataForm.dSynchronizationDateFrom == null ? "" : dataForm.dSynchronizationDateFrom;
-            string dSynchronizationDateTo = dataForm.dSynchronizationDateTo == null ? "" : dataForm.dSynchronizationDateTo;
+            string dSynchronizationDateFrom = "";
+            string dSynchronizationDateTo = "";
+            JArray listSynDate = dataForm.dSynchronizationAlist;
+            if (listSynDate != null && listSynDate.Count != 0)
+            {
+                dSynchronizationDateFrom = listSynDate[0].ToString();
+                dSynchronizationDateTo = listSynDate[1].ToString();
+            }
+            //string dSynchronizationDateFrom = dataForm.dSynchronizationDateFrom == null ? "" : dataForm.dSynchronizationDateFrom;
+            //string dSynchronizationDateTo = dataForm.dSynchronizationDateTo == null ? "" : dataForm.dSynchronizationDateTo;
             string dSynchronizationDate = dataForm.dSynchronizationDate == null ? "" : dataForm.dSynchronizationDate;
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;

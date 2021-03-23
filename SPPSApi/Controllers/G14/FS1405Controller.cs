@@ -267,7 +267,7 @@ namespace SPPSApi.Controllers.G14
                 {
                     DataRow drPDF_temp = dtPDF_temp.Rows[i];
                     string sources_pdf = drPDF_temp["vcPDFPath"].ToString();
-                    fS1406_Logic.setCRVtoPdf(drPDF_temp, loginInfo.UserId, ref dtMessage);
+                    fS1406_Logic.setCRVtoPdf(drPDF_temp, loginInfo.UserId, ref dtMessage);  
                     #region 调用webApiPDF导出
                     //创建 HTTP 绑定对象
                     string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;

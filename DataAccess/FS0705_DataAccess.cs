@@ -137,14 +137,14 @@ namespace DataAccess
  
 
         #region 获取系统当前需要计算的数据范围
-        public DataTable SearchFaZhuTime()
+        public DataTable SearchFaZhuLastTime(string strPackSpot)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("     select a.vcPackSpot,a.vcFaZhuID,b.dEnd  from     \n");
                 strSql.AppendLine("     (     \n");
-                strSql.AppendLine("        select distinct vcPackSpot,vcFaZhuID from TPackFaZhuTime      \n");
+                strSql.AppendLine("        select distinct vcPackSpot,vcFaZhuID from TPackFaZhuTime  where vcPackSpot='"+ strPackSpot + "'     \n");
                 strSql.AppendLine("     )a     \n");
                 strSql.AppendLine("     left join     \n");
                 strSql.AppendLine("     (     \n");
@@ -262,14 +262,28 @@ namespace DataAccess
             }
         }
         #endregion
- 
-
-
- 
 
 
 
- 
+        #region 获取包材发注时间
+        public DataTable getFaZhuTime(string strFaZhuID)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='"+ strFaZhuID + "'   \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+
+
 
 
 

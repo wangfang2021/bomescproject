@@ -58,14 +58,17 @@ namespace SPPSApi.Controllers.G07
                 res.Add("C023", dataList_C023);
 
 
-                List<Object> dataList_C065 = ComFunction.convertAllToResult(ComFunction.getTCode("C065"));//车型
-                res.Add("C065", dataList_C065);
+                List<Object> dataList_C069 = ComFunction.convertAllToResult(ComFunction.getTCode("C069"));//
+                res.Add("C069", dataList_C069);
 
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 res.Add("C018", dataList_C018);
 
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0702_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
+
+                List<Object> dataList_Note = ComFunction.convertAllToResult(FS0702_Logic.SearchNote());//变更事项
+                res.Add("optionNote", dataList_Note);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -132,8 +135,30 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string Note = dataForm.Note;
-            string PackSpot = dataForm.PackSpot;
+
+            List<Object> Note = new List<object>();
+
+            if (dataForm.Note.ToObject<List<Object>>() == null)
+            {
+                Note = new List<object>();
+            }
+            else
+            {
+                Note = dataForm.Note.ToObject<List<Object>>();
+            }
+
+            List<Object> PackSpot = new List<object>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+
+
             string Shouhuofang = dataForm.Shouhuofang;
             string Pinfan = dataForm.PartsNo;
             string Car = dataForm.Car;
@@ -491,6 +516,19 @@ namespace SPPSApi.Controllers.G07
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dtcheck = new DataTable();
+                //check
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    dtcheck = FS0702_Logic.checkSOQ(listInfoData[i]["vcPartsNo"].ToString());
+
+                    if (dtcheck.Rows.Count ==2)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = dtcheck.Rows[i]["vcPart_id"] + "存在上游不可删除！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 FS0702_Logic.Del(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

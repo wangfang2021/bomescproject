@@ -30,19 +30,31 @@ namespace Logic
         }
         #endregion
 
-    
+
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
-            FS0719_DataAccess.Save(listInfoData, strUserId,ref strErrorPartId);
+    
+            DataTable dtbase = FS0719_DataAccess.SearchBase(listInfoData[0]["vcPackSpot"].ToString());
+
+            FS0719_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId, dtbase);
         }
         #endregion
+
+
+
+
+
+
+
 
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)
         {
-            FS0719_DataAccess.importSave(dt, strUserId);
+            DataTable dtOrderNO = FS0719_DataAccess.Search();
+            DataTable dtbase = FS0719_DataAccess.SearchBase(dt.Rows[0]["vcPackSpot"].ToString());
+            FS0719_DataAccess.importSave(dt, strUserId,dtbase, dtOrderNO);
         }
         #endregion
 
@@ -61,9 +73,9 @@ namespace Logic
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search_GS(string strBegin, string strEnd )
+        public DataTable Search_GS(string strBegin, string strEnd)
         {
-            return FS0719_DataAccess.Search_GS(strBegin, strEnd );
+            return FS0719_DataAccess.Search_GS(strBegin, strEnd);
         }
         #endregion
 

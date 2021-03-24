@@ -90,7 +90,11 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("   select a.vcPackSpot,a.vcPackNo,a.iLiLun+c.iNumber-b.iNumber as ibeginNum,b.iNumber as iRKNum,c.iNumber as iConsume,a.iLiLun from    ");
+                strSql.AppendLine("   select a.vcPackSpot,a.vcPackNo,    ");
+                strSql.AppendLine("   a.iLiLun+c.iCNum-b.iRNum as ibeginNum,    ");
+                strSql.AppendLine("   b.iRNum as iRKNum,    ");
+                strSql.AppendLine("   c.iCNum as iConsume,    ");
+                strSql.AppendLine("   a.iLiLun from        ");
                 strSql.AppendLine("   (    ");
                 strSql.AppendLine("   select * from TPackZaiKu     ");
                 strSql.AppendLine("   where 1=1    ");
@@ -98,17 +102,19 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
                 if (!string.IsNullOrEmpty(PackSpot))
                     strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
-                strSql.AppendLine(" )a inner join      ");
+                strSql.AppendLine(" )a left join      ");
                 strSql.AppendLine(" (      ");
-                strSql.AppendLine(" select * from TPackWork        ");
+                strSql.AppendLine(" select vcPackNo,sum(iNumber) as iRNum from TPackWork        ");
                 strSql.AppendLine(" where vcZuoYeQuFen ='0'      ");
                 strSql.AppendLine("    and dBuJiTime between '"+ BeginTime + "' and '"+ EndTime + "'   ");
+                strSql.AppendLine("  group by vcPackNo   ");
                 strSql.AppendLine("  )b on a.vcPackNo=b.vcPackNo     ");
-                strSql.AppendLine("  inner join     ");
+                strSql.AppendLine("  left join     ");
                 strSql.AppendLine("  (     ");
-                strSql.AppendLine("  select * from TPackWork       ");
+                strSql.AppendLine(" select vcPackNo,sum(iNumber) as iCNum from TPackWork           ");
                 strSql.AppendLine("  where vcZuoYeQuFen ='2'      ");
                 strSql.AppendLine("  and dBuJiTime between '"+ BeginTime + "' and '"+ EndTime + "'     ");
+                strSql.AppendLine("  group by vcPackNo   ");
                 strSql.AppendLine("  )c on a.vcPackNo=c.vcPackNo     ");
                 strSql.AppendLine("       ");
 

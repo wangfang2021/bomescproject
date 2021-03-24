@@ -91,6 +91,7 @@ namespace BatchProcess
                 sql.AppendLine("left join (select * from TPackingPlan_Report where vcYearMonth='" + now_YYYYMM + "') t2 ");
                 sql.AppendLine("on t1.kind=t2.vcKind and t1.vcPlant=t2.vcPlant");
                 sql.AppendLine("and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
+                sql.AppendLine("where t2.iAutoId is null");
                 excute.ExcuteSqlWithStringOper(sql.ToString());
                 #endregion
 
@@ -146,7 +147,7 @@ namespace BatchProcess
                 sql.AppendLine(")t3 on t1.vcPlant=t3.vcBZPlant and t1.vcBigPM=t3.vcBigPM and t1.vcSmallPM=t3.vcSmallPM");
 
                 sql.AppendLine("--更新N-1日当日实际");
-                sql.AppendLine("update t1 set t1.iD"+ sub1_day + "=t3.iD"+ sub1_day + "");
+                sql.AppendLine("update t1 set t1.iD"+ sub1_day + "=t2.iD"+ sub1_day + "");
                 sql.AppendLine("from");
                 sql.AppendLine("(");
                 sql.AppendLine("	select * from TPackingPlan_Report where vcYearMonth='"+ sub1_YYYYMM + "' and vcKind='当日实际'");
@@ -204,7 +205,7 @@ namespace BatchProcess
                 sql.AppendLine(")t2 on t1.vcPlant=t2.vcPlant and t1.vcBigPM=t2.vcBigPM and t1.vcSmallPM=t2.vcSmallPM");
 
                 sql.AppendLine("--更新N-1日累计残");
-                sql.AppendLine("update t1 set t1.iEmergencyOrder=t2.iD"+ sub1_day + "");
+                sql.AppendLine("update t1 set t1.iLJBZRemain=t2.iD" + sub1_day + "");
                 sql.AppendLine("from ");
                 sql.AppendLine("(");
                 sql.AppendLine("	select * from TPackingPlan_Summary where dPackDate='"+ sub1_YYYYMMDD + "'");

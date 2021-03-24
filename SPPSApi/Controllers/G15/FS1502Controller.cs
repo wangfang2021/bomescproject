@@ -272,8 +272,8 @@ namespace SPPSApi.Controllers.G15
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string dPackDate = Convert.ToDateTime(listInfoData[i]["dPackDate"].ToString()).ToString("yyyy-MM-dd");
-                    string iLJBZRemain = listInfoData[i]["iLJBZRemain"].ToString();
-                    string iLJBZRemain_old = listInfoData[i]["iLJBZRemain_old"].ToString();
+                    string iLJBZRemain = listInfoData[i]["iLJBZRemain"] == null ? "0" : listInfoData[i]["iLJBZRemain"].ToString();
+                    string iLJBZRemain_old = listInfoData[i]["iLJBZRemain_old"] == null ? "0": listInfoData[i]["iLJBZRemain_old"].ToString();
                     string time = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
                     if (iLJBZRemain != iLJBZRemain_old && dPackDate != time)
                     {
@@ -315,8 +315,8 @@ namespace SPPSApi.Controllers.G15
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                string person = dataForm.person == null || dataForm.person=="" ? "0" : dataForm.person;
-                string hour = dataForm.hour == null || dataForm.hour =="" ? "0" : dataForm.hour;
+                string person = dataForm.person == null || dataForm.person == "" ? "0" : dataForm.person;
+                string hour = dataForm.hour == null || dataForm.hour == "" ? "0" : dataForm.hour;
 
                 decimal decperson = Convert.ToDecimal(person);
                 decimal dechour = Convert.ToDecimal(hour);

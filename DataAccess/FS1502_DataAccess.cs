@@ -28,7 +28,7 @@ namespace DataAccess
                 strSql.Append("union all    \n");
                 strSql.Append("select '外注品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),2 as id,'1' as bSelectFlag,0 as iAutoId,dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),2 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='外注'    \n");
                 strSql.Append("union all     \n");
                 strSql.Append("select vcBigPM,vcSmallPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
@@ -39,12 +39,12 @@ namespace DataAccess
                 strSql.Append("union all    \n");
                 strSql.Append("select '内制品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),4 as id,'1' as bSelectFlag,0 as iAutoId,dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),4 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='内制'    \n");
                 strSql.Append("union all    \n");
                 strSql.Append("select '全体合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),5 as id,'1' as bSelectFlag,0 as iAutoId,dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),5 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "'     \n");
                 strSql.Append(")a    \n");
                 strSql.Append("order by id,vcBigPM,vcSmallPM      \n");

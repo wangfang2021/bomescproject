@@ -181,10 +181,10 @@ namespace Logic
                 }
                 for (int i = 0; i < dtOPR.Rows.Count; i++)//月度计划纳入计算
                 {
-                    string partsno = dtOPR.Rows[i]["partsno"].ToString();
-                    string dock = dtOPR.Rows[i]["dock"].ToString();
-                    string order = dtOPR.Rows[i]["kanbanorderno"].ToString().Trim();
-                    string serial = dtOPR.Rows[i]["dock"].ToString();
+                    string partsno = dtOPR.Rows[i]["vcPart_id"].ToString();
+                    string dock = dtOPR.Rows[i]["vcSR"].ToString();
+                    string order = dtOPR.Rows[i]["vcKBOrderNo"].ToString().Trim();
+                    string serial = dtOPR.Rows[i]["vcSR"].ToString();
                     string ED = "S";
                     string type = dtOPR.Rows[i]["Otype"].ToString();
                     //判断该订单号属于哪个月的计划
@@ -227,7 +227,7 @@ namespace Logic
                             zhi = "y";
                         }
                         string colName = tmpMon + tmpDay + zhi + "A";
-                        DataRow[] dr = dtNZ.Select("vcPartsNo ='" + dtOPR.Rows[i]["partsno"].ToString() + "' and vcDock='" + dtOPR.Rows[i]["dock"].ToString() + "' and EDflag ='" + ED + "' ");
+                        DataRow[] dr = dtNZ.Select("vcPartsNo ='" + dtOPR.Rows[i]["vcPart_id"].ToString() + "' and vcDock='" + dtOPR.Rows[i]["vcSR"].ToString() + "' and EDflag ='" + ED + "' ");
                         if (dr.Length == 1)
                         {
                             dr[0][colName] = Convert.ToInt32(dr[0][colName].ToString().Length == 0 ? "0" : dr[0][colName].ToString()) + Convert.ToInt32(dtOPR.Rows[i]["num"]);

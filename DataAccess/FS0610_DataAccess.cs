@@ -1228,7 +1228,7 @@ namespace DataAccess
                     vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
                     //20180929不是看板打印计划表，则不区分品番频度；是看板打印计划表，则区分品番频度，不是周度的则更新。
                     //即TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"时，不进行更新操作 - 李兴旺
-                    if (!(TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"))
+                    if (!(TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "2"))
                     {
                         #region 插入、更新数据操作
                         foreach (DataRow dr in dt[i].Rows)
@@ -1299,7 +1299,7 @@ namespace DataAccess
                 vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
                 //20180928不是看板打印计划表，则不区分品番频度；是看板打印计划表，则区分品番频度，不是周度的则更新。
                 //即toTable == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"时，不进行更新操作 - 李兴旺
-                if (!(toTable == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"))
+                if (!(toTable == "MonthKanBanPlanTblTMP" && vcPartFrequence == "2"))
                 {
                     #region 更新操作
                     string tmp = "";
@@ -1430,7 +1430,7 @@ namespace DataAccess
             BulkInsert.Columns.Add("bushu");
             BulkInsert.Columns.Add("dayin");
             BulkInsert.Columns.Add("shengchan");
-            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
+            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4 from tPartInfoMaster t1";
             partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
             partsql += "  where exists (select vcPartsno from MonthPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno) and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
             cmd.CommandText = partsql;
@@ -1459,7 +1459,7 @@ namespace DataAccess
                     vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
                     //20180929看板打印计划表没有周度品番数据，而其他工程的计划表有周度品番，且生成的看板打印数据需要读取其他工程的计划数据，
                     //如果不筛选则会报索引超出了数组界限的错误，因此生成看板打印数据时也要筛选一次周度品番 - 李兴旺
-                    if (vcPartFrequence != "周度")
+                    if (vcPartFrequence != "2")
                     {
                         #region 生成看板打印数据
                         dt_calendarname = dtcalendarname.Select("vcPartsno='" + vcPartsno + "'  and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCartype + "'   ").CopyToDataTable();
@@ -1616,10 +1616,6 @@ namespace DataAccess
             //分组排连番
             for (int m = 0; m < query.Count(); m++)
             {
-
-
-
-                #region 优化之前
                 DataTable dt = query.ElementAt(m).CopyToDataTable();
                 //按工位排序
                 DataView dv = dt.DefaultView;
@@ -1631,9 +1627,9 @@ namespace DataAccess
                     serial = (Convert.ToInt32(serial) + 1).ToString("0000");
                     dt.Rows[n]["vcKBSerial"] = serial;
                     //检查该连番下是否存在数据 存在时：
-                    string ssql = "select t1.vcPartsNo,t1.vcDock,vcKBSerial from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock ";
-                    ssql += "  where t1.vcEDflag ='S' and t1.vcKBorderno='" + dt.Rows[n]["vcKBorderno"].ToString() + "' ";
-                    ssql += " and t2.vcPorType= '" + dt.Rows[n]["bushu"].ToString() + "' and vcComDate00='" + dt.Rows[n]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[n]["vcBanZhi00"].ToString() + "' ";
+                    string ssql = "select * from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock=t2.vcDock ";
+                    ssql += "  where t1.vcEDflag='S' and t1.vcKBorderno='" + dt.Rows[n]["vcKBorderno"].ToString() + "' ";
+                    ssql += " and t2.vcPorType='" + dt.Rows[n]["bushu"].ToString() + "' and vcComDate00='" + dt.Rows[n]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[n]["vcBanZhi00"].ToString() + "' ";
                     ssql += " and vcComDate01='" + dt.Rows[n]["vcComDate01"].ToString() + "' and vcBanZhi01='" + dt.Rows[n]["vcBanZhi01"].ToString() + "' ";
                     ssql += " and t2.vcPartFrequence='0' ";//明早测试去掉这行的效果
                     //20180930上面SQL文最后一行增加对周度月度品番的判断，因为SQL文是按照部署、工程0和工程1的日期和值别检索数据，
@@ -1646,7 +1642,7 @@ namespace DataAccess
                     apt.Fill(dttmp);
                     if (dttmp.Rows.Count > 0)//如果存在
                     {
-                        DataRow[] existKB = dttmp.Select("vcPartsNo='" + dt.Rows[n]["vcPartsNo"].ToString().Trim() + "' and vcDock='" + dt.Rows[n]["vcDock"].ToString().Trim() + "' and vcKBSerial='" + serial + "'");
+                        DataRow[] existKB = dttmp.Select("vcPartsNo = '" + dt.Rows[n]["vcPartsNo"].ToString().Trim() + "' and vcDock ='" + dt.Rows[n]["vcDock"].ToString().Trim() + "' and vcKBSerial ='" + serial + "'");
                         if (existKB.Count() > 0)//1、与该信息相符 
                         {
                             dt.Rows[n].Delete();
@@ -1700,7 +1696,6 @@ namespace DataAccess
                 apt = new SqlDataAdapter();
                 apt.InsertCommand = cmd;
                 apt.Update(dt);
-                #endregion
             }
             return msg;
         }

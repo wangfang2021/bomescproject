@@ -285,9 +285,9 @@ namespace DataAccess
                                 }
 
                                 sbr.Append(" INSERT INTO TUnit  \r\n");
-                                sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDesign,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff,vcSQContent) values\r\n");
+                                sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDesign,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff,vcSQContent,vcHKGC) values\r\n");
                                 //sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
-                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(memo + ";", false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + listInfoData[i]["vcUnit"].ToString() + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + "," + ComFunction.getSqlValue("未确认", false) + ")  \r\n");
+                                sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(memo + ";", false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + listInfoData[i]["vcUnit"].ToString() + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + "," + ComFunction.getSqlValue("未确认", false) + "," + ComFunction.getSqlValue(vcNewProj, false) + ")  \r\n");
 
                                 sbr.Append(" UPDATE TSBManager \r\n");
                                 sbr.Append(" SET vcFinishState = '3', \r\n");
@@ -577,6 +577,40 @@ namespace DataAccess
         #endregion
 
         #region 获取纳入品番
+        //public string getPartId(List<List<ParentEntity>> listPath, string vcPart_Id, string vcParent)
+        //{
+        //    try
+        //    {
+        //        string partId = "";
+
+        //        for (int i = 0; i < listPath.Count; i++)
+        //        {
+        //            int index = getIndex(vcPart_Id, listPath[i]);
+        //            if (index != -1)
+        //            {
+        //                for (int j = index; j >= 0; j--)
+        //                {
+        //                    if (vcParent.Equals(listPath[i][j].Parent))
+        //                    {
+        //                        partId = listPath[i][0].PartId;
+        //                        break;
+        //                    }
+        //                }
+
+        //                if (!string.IsNullOrEmpty(partId))
+        //                {
+        //                    break;
+        //                }
+        //            }
+        //        }
+
+        //        return partId;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
         public string getPartId(List<List<ParentEntity>> listPath, string vcPart_Id, string vcParent)
         {
             try
@@ -592,7 +626,7 @@ namespace DataAccess
                         {
                             if (vcParent.Equals(listPath[i][j].Parent))
                             {
-                                partId = listPath[i][0].PartId;
+                                partId = listPath[i][j].PartId;
                                 break;
                             }
                         }

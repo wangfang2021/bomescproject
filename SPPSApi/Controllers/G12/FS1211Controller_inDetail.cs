@@ -215,7 +215,7 @@ namespace SPPSApi.Controllers.G12
                     apiResult.data = msg;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcMonth","vcGC","vcPlant","vcPartNo","vcDock","vcOrderNo","vcSerial","vcRealPrintTime","vcPlanPrintAB","vcRealPrintTime",
+                string[] fields = { "vcMonth","vcGC","vcPlant","vcPartNo","vcDock","vcOrderNo","vcSerial","vcQuantityPerContainer","vcPlanPrintDate","vcPlanPrintAB","vcRealPrintTime",
                                     "vcPlanProductionDate","vcPlanProductionAB","vcPlanProcDate","vcPlanProcAB","vcRealProcTime"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1211_PartList.xlsx", 1, loginInfo.UserId, FunctionID);

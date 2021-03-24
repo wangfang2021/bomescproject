@@ -663,7 +663,7 @@ namespace DataAccess
                 sbSQL.AppendLine("  FROM tKanbanPrintTbl t1 ");
                 sbSQL.AppendLine("  left join tPartInfoMaster t2  ");
                 sbSQL.AppendLine("   on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock = t2.vcDock ");
-                sbSQL.AppendLine("   and t2.dTimeFrom <= t1.vcPlanMonth + '-01' and t2.dTimeTo >=  t1.vcPlanMonth + '-01' ");//01改为-01
+                sbSQL.AppendLine("   and t2.dTimeFrom <= t1.vcPlanMonth + '-01' and t2.dTimeTo >= t1.vcPlanMonth + '-01' ");//01改为-01
                 sbSQL.AppendLine(" where 1=1  ");
                 if (mon != null && mon.Trim() != "")
                 {

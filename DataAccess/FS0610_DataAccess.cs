@@ -1430,7 +1430,7 @@ namespace DataAccess
             BulkInsert.Columns.Add("bushu");
             BulkInsert.Columns.Add("dayin");
             BulkInsert.Columns.Add("shengchan");
-            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
+            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4 from tPartInfoMaster t1";
             partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
             partsql += "  where exists (select vcPartsno from MonthPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno) and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
             cmd.CommandText = partsql;
@@ -1459,7 +1459,7 @@ namespace DataAccess
                     vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
                     //20180929看板打印计划表没有周度品番数据，而其他工程的计划表有周度品番，且生成的看板打印数据需要读取其他工程的计划数据，
                     //如果不筛选则会报索引超出了数组界限的错误，因此生成看板打印数据时也要筛选一次周度品番 - 李兴旺
-                    if (vcPartFrequence != "0")
+                    if (vcPartFrequence != "2")
                     {
                         #region 生成看板打印数据
                         dt_calendarname = dtcalendarname.Select("vcPartsno='" + vcPartsno + "'  and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCartype + "'   ").CopyToDataTable();
@@ -1627,11 +1627,11 @@ namespace DataAccess
                     serial = (Convert.ToInt32(serial) + 1).ToString("0000");
                     dt.Rows[n]["vcKBSerial"] = serial;
                     //检查该连番下是否存在数据 存在时：
-                    string ssql = "select * from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock  = t2.vcDock ";
-                    ssql += "  where t1.vcEDflag ='S' and t1.vcKBorderno='" + dt.Rows[n]["vcKBorderno"].ToString() + "' ";
-                    ssql += " and t2.vcPorType = '" + dt.Rows[n]["bushu"].ToString() + "' and vcComDate00 ='" + dt.Rows[n]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[n]["vcBanZhi00"].ToString() + "' ";
-                    ssql += " and vcComDate01 ='" + dt.Rows[n]["vcComDate01"].ToString() + "' and vcBanZhi01 ='" + dt.Rows[n]["vcBanZhi01"].ToString() + "' ";
-                    ssql += " and t2.vcPartFrequence = '月度' ";//明早测试去掉这行的效果
+                    string ssql = "select * from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock=t2.vcDock ";
+                    ssql += "  where t1.vcEDflag='S' and t1.vcKBorderno='" + dt.Rows[n]["vcKBorderno"].ToString() + "' ";
+                    ssql += " and t2.vcPorType='" + dt.Rows[n]["bushu"].ToString() + "' and vcComDate00='" + dt.Rows[n]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[n]["vcBanZhi00"].ToString() + "' ";
+                    ssql += " and vcComDate01='" + dt.Rows[n]["vcComDate01"].ToString() + "' and vcBanZhi01='" + dt.Rows[n]["vcBanZhi01"].ToString() + "' ";
+                    ssql += " and t2.vcPartFrequence='0' ";//明早测试去掉这行的效果
                     //20180930上面SQL文最后一行增加对周度月度品番的判断，因为SQL文是按照部署、工程0和工程1的日期和值别检索数据，
                     //会包括周度品番，而看板打印数据不包含周度品番，且其余月度品番的看板序列号也会发生变化，则造成覆盖范围不符的情况
                     //因此需要清空旧有的（若导入对象月为七月，则包括六月底到八月初的）看板打印数据 - 李兴旺

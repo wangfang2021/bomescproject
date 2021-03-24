@@ -683,7 +683,7 @@ namespace SPPSApi.Controllers.G06
                 #region 设置第十行
                 IRow MoneySellNameRowHSSF = mysheetHSSF.CreateRow(nextRow);
                 MoneySellNameRowHSSF.CreateCell(0).SetCellValue("销售额(万元）");
-                MoneySellNameRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
+                //MoneySellNameRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
                 nextRow++;
                 #endregion
                 #region 销售万元明细
@@ -767,7 +767,7 @@ namespace SPPSApi.Controllers.G06
                                 {
                                     if (k != 2)//k=2是 年份 去掉
                                     {
-                                        NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[j][k].ToString());
+                                        NextRowHSSF.CreateCell(colNum).SetCellValue(dtMonty.Rows[j][k].ToString());
                                         NextRowHSSF.GetCell(colNum).CellStyle = style6;
                                         colNum++;
                                     }
@@ -807,9 +807,9 @@ namespace SPPSApi.Controllers.G06
 
                     NineRowHSSF.CreateCell(1).SetCellValue("");
                     NineRowHSSF.CreateCell(1).CellStyle = style2;
-                    for (var i = 3; i < dtNum.Columns.Count; i++)
+                    for (var i = 3; i < dtMonty.Columns.Count; i++)
                     {
-                        NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
+                        NineRowHSSF.CreateCell(i - 1).SetCellValue(dtMonty.Rows[dtMonty.Rows.Count - 1][i].ToString());
                         NineRowHSSF.GetCell(i - 1).CellStyle = style2;
                     }
                     nextRow++;

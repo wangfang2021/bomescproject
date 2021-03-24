@@ -51,14 +51,14 @@ namespace DataAccess
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine("  and  a.vcPartNo = '" + vcPartNo + "' ");
+                    strSql.AppendLine("  and  a.vcPartNo like '" + vcPartNo + "%' ");
                 }
                 if (vcFluctuationRange.Length > 0)
                 {
                     strSql.AppendLine("  and  a.vcFluctuationRange = '" + vcFluctuationRange + "' ");
                 }
 
-                strSql.AppendLine("  order by  a.dOperatorTime desc ");
+                strSql.AppendLine("  order by  a.iAutoId desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

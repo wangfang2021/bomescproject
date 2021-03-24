@@ -28,14 +28,14 @@ namespace DataAccess
 
                 if (vcDock.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcDock like '%" + vcDock + "%' ");
+                    strSql.AppendLine("  and  vcDock like '" + vcDock + "%' ");
                 }
                 if (vcCarType.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcCarType = '" + vcCarType + "' ");
+                    strSql.AppendLine("  and  vcCarType like  '" + vcCarType + "%' ");
                 }
 
-                strSql.AppendLine("  order by  dOperatorTime desc ");
+                strSql.AppendLine("  order by iAutoId desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

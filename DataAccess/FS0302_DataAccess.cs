@@ -577,6 +577,40 @@ namespace DataAccess
         #endregion
 
         #region 获取纳入品番
+        //public string getPartId(List<List<ParentEntity>> listPath, string vcPart_Id, string vcParent)
+        //{
+        //    try
+        //    {
+        //        string partId = "";
+
+        //        for (int i = 0; i < listPath.Count; i++)
+        //        {
+        //            int index = getIndex(vcPart_Id, listPath[i]);
+        //            if (index != -1)
+        //            {
+        //                for (int j = index; j >= 0; j--)
+        //                {
+        //                    if (vcParent.Equals(listPath[i][j].Parent))
+        //                    {
+        //                        partId = listPath[i][0].PartId;
+        //                        break;
+        //                    }
+        //                }
+
+        //                if (!string.IsNullOrEmpty(partId))
+        //                {
+        //                    break;
+        //                }
+        //            }
+        //        }
+
+        //        return partId;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
         public string getPartId(List<List<ParentEntity>> listPath, string vcPart_Id, string vcParent)
         {
             try
@@ -592,7 +626,7 @@ namespace DataAccess
                         {
                             if (vcParent.Equals(listPath[i][j].Parent))
                             {
-                                partId = listPath[i][0].PartId;
+                                partId = listPath[i][j].PartId;
                                 break;
                             }
                         }

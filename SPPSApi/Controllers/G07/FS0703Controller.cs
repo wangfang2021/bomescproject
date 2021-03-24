@@ -121,10 +121,11 @@ namespace SPPSApi.Controllers.G07
             {
 
                 DataTable dt = FS0703_Logic.Calculation(PackSpot, PackFrom, SupplierCodeList);
-                //if (dt.Rows.Count > 0)
-                //{
-                //    FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId);
-                //}
+                string strErrorPartId = "";
+                if (dt.Rows.Count > 0)
+                {
+                    FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId);
+                }
 
                 //DataTable dtcheck = FS0703_Logic.SearchCheck();
 
@@ -338,41 +339,13 @@ namespace SPPSApi.Controllers.G07
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool hasFind = false;//是否找到需要新增或者修改的数据
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        hasFind = true;
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        hasFind = true;
-                    }
-                    Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
-                    bool b = regex.IsMatch(listInfoData[i]["iRelease"].ToString());
-                    if (!b)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "请填写正常的发住收容数格式！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
-                }
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-
+               
                 string strErrorPartId = "";
-                //FS0703_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                FS0703_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败";
+                    apiResult.data = "发送失败";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -384,7 +357,7 @@ namespace SPPSApi.Controllers.G07
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败";
+                apiResult.data = "发送失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

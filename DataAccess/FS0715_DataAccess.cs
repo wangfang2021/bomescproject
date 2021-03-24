@@ -204,7 +204,7 @@ namespace DataAccess
         {
             try
             {
-              
+
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -213,7 +213,7 @@ namespace DataAccess
                     if (bAddFlag == true)
                     {//新增
                         sql.AppendLine("     delete  from TPackSpotBZ where vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "'and vcBZ='" + listInfoData[i]["vcBZ"] + "'  ");
-                        
+
                         sql.AppendLine("  INSERT INTO [dbo].[TPackSpotBZ]    ");
                         sql.AppendLine("             ([vcPackSpot]     ");
                         sql.AppendLine("             ,[vcBZ]     ");
@@ -231,7 +231,8 @@ namespace DataAccess
                         sql.AppendLine("     		getDate()");
                         sql.AppendLine("      ) ");
                     }
-                    else if (bAddFlag == false && bModFlag == true) {
+                    else if (bAddFlag == false && bModFlag == true)
+                    {
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoID"]);
 
                         sql.AppendLine("  UPDATE [TPackSpotBZ]");
@@ -248,9 +249,9 @@ namespace DataAccess
                     }
 
                 }
-                
 
-               
+
+
                 excute.ExcuteSqlWithStringOper(sql.ToString());
 
 
@@ -276,8 +277,12 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for (int i=0;i< dt.Rows.Count;i++) {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
                     sql.AppendLine("     delete  from TPackCalendar where vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "' and vcYearMonth='" + dt.Rows[i]["vcYearMonth"] + "'  ");
+                }
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
                     sql.AppendLine("  INSERT INTO [dbo].[TPackCalendar]   ");
                     sql.AppendLine("             ([vcPackSpot]   ");
                     sql.AppendLine("             ,[vcYearMonth]   ");
@@ -317,7 +322,7 @@ namespace DataAccess
                     sql.AppendLine("             ,[dOperatorTime])   ");
                     sql.AppendLine("       VALUES   ");
                     sql.AppendLine("     	(  ");
-                    sql.AppendLine("     	'"+ dt.Rows[i]["vcPackSpot"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcPackSpot"].ToString() + "', ");
                     sql.AppendLine("     	'" + dt.Rows[i]["vcYearMonth"].ToString() + "', ");
                     sql.AppendLine("     	'" + dt.Rows[i]["vcDay01"].ToString() + "', ");
                     sql.AppendLine("     	'" + dt.Rows[i]["vcDay02"].ToString() + "', ");
@@ -350,11 +355,21 @@ namespace DataAccess
                     sql.AppendLine("     	'" + dt.Rows[i]["vcDay29"].ToString() + "', ");
                     sql.AppendLine("     	'" + dt.Rows[i]["vcDay30"].ToString() + "', ");
                     sql.AppendLine("     	'" + dt.Rows[i]["vcDay31"].ToString() + "', ");
+                    int count = 0;
+                    for (int x = 1; x <= 31; x++)
+                    {
+                        if (dt.Rows[i]["vcDay" + x.ToString().PadLeft(2,'0')].ToString() != "无稼动" || dt.Rows[i]["vcDay" + x.ToString()].ToString() != "")
+                        {
+                            count++;
+                        }
+                    }
+
+                    sql.AppendLine("     	'"+ count + "', ");
                     sql.AppendLine($"     		{strUserId},");
                     sql.AppendLine("     		getDate()");
                     sql.AppendLine("     	)  ");
                 }
-
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {

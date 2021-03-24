@@ -919,7 +919,7 @@ namespace DataAccess
             strSql.Append("          and a.vcReceiver = b.vcDownRecever          \r\n");
             strSql.Append("          and a.vcSupplierId = b.vcSupplier_id          \r\n");
             strSql.Append("          and a.vcPackingPlant = b.vcSYTCode          \r\n");
-            #endregion
+            #endregion 
             #region 更新子表
             #region 工区信息子表
             strSql.Append("          update TSPMaster_SupplierPlant set          \r\n");
@@ -1070,7 +1070,7 @@ namespace DataAccess
             strSql.Append("      and a.vcDownRecever =b.vcReceiver       \r\n");
             strSql.Append("      and a.vcSupplier_id = b.vcSupplierId       \r\n");
             strSql.Append("      where b.vcPartId is null       \r\n");
-            #endregion
+            #endregion 
             #region 更新子表
             #region 工区信息子表
             strSql.Append("          update TSPMaster_SupplierPlant set          \r\n");

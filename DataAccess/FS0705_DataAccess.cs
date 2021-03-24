@@ -231,6 +231,74 @@ namespace DataAccess
         #endregion
 
 
+        #region 发注数量计算
+        public void computer(string strFaZhuID) 
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("       declare @dBegin datetime      \r\n");
+            strSql.Append("       declare @dEnd datetime      \r\n");
+            strSql.Append("       set @dBegin=(select max(dEnd) from TPackCompute_Time where vcFaZhuID = "+strFaZhuID+");      \r\n");
+            strSql.Append("       set @dEnd = (select MAX(cast(convert(varchar(10),getdate(),120)+' '+convert(varchar(50),druHeToTime) as datetime)) from TPackFaZhuTime where dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime);      \r\n");
+            strSql.Append("             \r\n");
+            strSql.Append("       insert into TPackCompute(vcFaZhuID,vcTimeStr,vcPackNo,iA_SRS,iB_LastShengYu,iC_LiLun,iD_TiaoZheng,iE_JinJi,iF_DingGou,iG_ShengYu,vcOperatorID,dOperatorTime)      \r\n");
+            strSql.Append("       select a.*,(a.B+a.E+a.F-a.[C ]-a.D) as 'G','000000',GETDATE() from      \r\n");
+            strSql.Append("       (      \r\n");
+            strSql.Append("       	select "+strFaZhuID+"as vcFaZhuID,GETDATE() as vcTimeStr,a.vcPackNo as '包材品番',a.iRelease as 'A',b.iG_ShengYu as'B'       \r\n");
+            strSql.Append("       	,c.iBiYao as 'C ',d.iNumber as 'D',e.iSJNumber as 'E',case when (b.iG_ShengYu+e.iSJNumber-c.iBiYao-d.iNumber)>=0 then 0 else (CEILING(c.iBiYao+d.iNumber-b.iG_ShengYu-e.iSJNumber)/a.iRelease)*a.iRelease end as 'F'      \r\n");
+            strSql.Append("       	from      \r\n");
+            strSql.Append("       	(      \r\n");
+            strSql.Append("       		select vcPackSpot,vcPackNo,iRelease from TPackBase where dPackFrom <= GETDATE() and dPackTo >= GETDATE()      \r\n");
+            strSql.Append("       	) a      \r\n");
+            strSql.Append("       	left join      \r\n");
+            strSql.Append("       	(      \r\n");
+            strSql.Append("       		select a.vcPackNo,b.iG_ShengYu from      \r\n");
+            strSql.Append("       		(      \r\n");
+            strSql.Append("       			select MAX(iautoId) as MaxAutoId, vcPackNo from TPackCompute where vcFaZhuID = "+strFaZhuID+" group by vcFaZhuID,vcPackNo      \r\n");
+            strSql.Append("       		)a      \r\n");
+            strSql.Append("       		inner join       \r\n");
+            strSql.Append("       		(      \r\n");
+            strSql.Append("       			select iAutoId,vcPackNo,iG_ShengYu from TPackCompute      \r\n");
+            strSql.Append("       		)b on a.MaxAutoId = b.iAutoId      \r\n");
+            strSql.Append("       	) b on a.vcPackNo = b.vcPackNo      \r\n");
+            strSql.Append("       	left join      \r\n");
+            strSql.Append("       	(      \r\n");
+            strSql.Append("       		select vcBZPlant,vcPart_id,vcPackNo,SUM(iBiYao)as iBiYao from      \r\n");
+            strSql.Append("       		(      \r\n");
+            strSql.Append("       			select * from      \r\n");
+            strSql.Append("       			(      \r\n");
+            strSql.Append("       				select vcBZPlant,vcPart_id,dEnd from TOperateSJ where vcZYType='S0' and @dBegin<=dEnd and dEnd<=@dEnd      \r\n");
+            strSql.Append("       			) a      \r\n");
+            strSql.Append("       			left join      \r\n");
+            strSql.Append("       			(      \r\n");
+            strSql.Append("       				select * from TPackItem       \r\n");
+            strSql.Append("       			) b on a.vcPart_id = b.vcPartsNo      \r\n");
+            strSql.Append("       		) a group by vcPart_id,vcPackNo,vcBZPlant      \r\n");
+            strSql.Append("       	) c on a.vcPackNo = c.vcPackNo and a.vcPackSpot = c.vcBZPlant      \r\n");
+            strSql.Append("       	left join      \r\n");
+            strSql.Append("       	(      \r\n");
+            strSql.Append("       		select vcPackNo,iNumber from TPackCompute_Ajust      \r\n");
+            strSql.Append("       	) d on a.vcPackNo = d.vcPackNo      \r\n");
+            strSql.Append("       	left join      \r\n");
+            strSql.Append("       	(      \r\n");
+            strSql.Append("       		select a.vcPackSpot,a.vcPackNo,b.iSJNumber from       \r\n");
+            strSql.Append("       		(      \r\n");
+            strSql.Append("       			select vcPackSpot,vcPackNo from TPackOrderFaZhu where VCFaBuType = '1'      \r\n");
+            strSql.Append("       		) a      \r\n");
+            strSql.Append("       		left join      \r\n");
+            strSql.Append("       		(      \r\n");
+            strSql.Append("       			select vcPackNo,iSJNumber from TPack_FaZhu_ShiJi where dNaRuShiJi is not null and @dBegin<=dNaRuShiJi and dNaRuShiJi<=@dEnd      \r\n");
+            strSql.Append("       		) b on a.vcPackNo = b.vcPackNo      \r\n");
+            strSql.Append("       	) e on a.vcPackNo = e.vcPackNo and a.vcPackSpot = e.vcPackSpot      \r\n");
+            strSql.Append("       ) a;      \r\n");
+            #region 插入计算时间履历表
+            strSql.Append("       insert into TPackCompute_Time(vcFaZhuID,dBegin,dEnd,vcOperatorID,dOperatorTime) values ('vcFaZhuID',@dBegin,@dEnd,'000000',GETDATE());      \r\n");
+            #endregion
+            
+        }
+        #endregion
+
+
+
         ////////////////////////////////////////////////
         /// 发注计算
         /// 

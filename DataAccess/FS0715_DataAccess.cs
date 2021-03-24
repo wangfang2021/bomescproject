@@ -37,17 +37,76 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      SELECT");
-                strSql.AppendLine("      	*");
-                strSql.AppendLine("      FROM");
-                strSql.AppendLine("      	TPackCalendar");
+                strSql.AppendLine("  select a.vcPackSpot,a.vcYearMonth,a.vcDay,a.vcBZ,a.vcModFlag,a.vcAddFlag,b.backColor from (    ");
+                strSql.AppendLine("  SELECT vcPackSpot,vcYearMonth,vcDay=attribute, vcBZ=value ,'0' as vcModFlag,'0' as vcAddFlag    ");
+                strSql.AppendLine("  FROM TPackCalendar     ");
+                strSql.AppendLine("    UNPIVOT     ");
+                strSql.AppendLine("    (     ");
+                strSql.AppendLine("      value FOR attribute IN(vcDay01,vcDay02,vcDay03,vcDay04,vcDay05,vcDay06,vcDay07,vcDay08,vcDay09,vcDay10,     ");
+                strSql.AppendLine("  	vcDay11,vcDay12,vcDay13,vcDay14,vcDay15,vcDay16,vcDay17,vcDay18,vcDay19,vcDay20,     ");
+                strSql.AppendLine("  	vcDay21,vcDay22,vcDay23,vcDay24,vcDay25,vcDay26,vcDay27,vcDay28,vcDay29,vcDay30,vcDay31     ");
+                strSql.AppendLine("  	)     ");
+                strSql.AppendLine("    ) AS UPV     ");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
                 if (!string.IsNullOrEmpty(PackSpot))
                     strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
                 if (!string.IsNullOrEmpty(YearMonth))
                     strSql.AppendLine($"      AND vcYearMonth = '{YearMonth}'");
-               
+                strSql.AppendLine("  )a left join    	");
+                strSql.AppendLine("  (    	");
+                strSql.AppendLine("   select '无稼动'as vcName,'#adb2b8' as backColor    	");
+                strSql.AppendLine("  )b on a.vcBZ=b.vcName    	");
+
+
+
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 导出检索
+        public DataTable Search_EX(string PackSpot, string YearMonth)
+        {
+            try
+            {
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select * from TPackCalendar   ");
+                strSql.AppendLine("      WHERE");
+                strSql.AppendLine("      	1 = 1");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+                if (!string.IsNullOrEmpty(YearMonth))
+                    strSql.AppendLine($"      AND vcYearMonth = '{YearMonth}'");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        #region 导出检索
+        public DataTable Search_BZ(string PackSpot)
+        {
+            try
+            {
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select *,'0' as vcModFlag,'0' as vcAddFlag  from    ");
+                strSql.AppendLine("    TPackSpotBZ   ");
+                strSql.AppendLine("      WHERE");
+                strSql.AppendLine("      	1 = 1");
+                if (!string.IsNullOrEmpty(PackSpot))
+                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -63,66 +122,66 @@ namespace DataAccess
         {
             try
             {
-
+                int count = 0;
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < listInfoData.Count; i++)
+                sql.AppendLine("     delete  from TPackCalendar where vcPackSpot='" + listInfoData[0]["vcPackSpot"] + "' and vcYearMonth='" + listInfoData[0]["vcYearMonth"] + "'  ");
+
+                sql.AppendLine("  INSERT INTO [dbo].[TPackCalendar]   ");
+                sql.AppendLine("             ([vcPackSpot]   ");
+                sql.AppendLine("             ,[vcYearMonth]   ");
+                sql.AppendLine("             ,[vcDay01]   ");
+                sql.AppendLine("             ,[vcDay02]   ");
+                sql.AppendLine("             ,[vcDay03]   ");
+                sql.AppendLine("             ,[vcDay04]   ");
+                sql.AppendLine("             ,[vcDay05]   ");
+                sql.AppendLine("             ,[vcDay06]   ");
+                sql.AppendLine("             ,[vcDay07]   ");
+                sql.AppendLine("             ,[vcDay08]   ");
+                sql.AppendLine("             ,[vcDay09]   ");
+                sql.AppendLine("             ,[vcDay10]   ");
+                sql.AppendLine("             ,[vcDay11]   ");
+                sql.AppendLine("             ,[vcDay12]   ");
+                sql.AppendLine("             ,[vcDay13]   ");
+                sql.AppendLine("             ,[vcDay14]   ");
+                sql.AppendLine("             ,[vcDay15]   ");
+                sql.AppendLine("             ,[vcDay16]   ");
+                sql.AppendLine("             ,[vcDay17]   ");
+                sql.AppendLine("             ,[vcDay18]   ");
+                sql.AppendLine("             ,[vcDay19]   ");
+                sql.AppendLine("             ,[vcDay20]   ");
+                sql.AppendLine("             ,[vcDay21]   ");
+                sql.AppendLine("             ,[vcDay22]   ");
+                sql.AppendLine("             ,[vcDay23]   ");
+                sql.AppendLine("             ,[vcDay24]   ");
+                sql.AppendLine("             ,[vcDay25]   ");
+                sql.AppendLine("             ,[vcDay26]   ");
+                sql.AppendLine("             ,[vcDay27]   ");
+                sql.AppendLine("             ,[vcDay28]   ");
+                sql.AppendLine("             ,[vcDay29]   ");
+                sql.AppendLine("             ,[vcDay30]   ");
+                sql.AppendLine("             ,[vcDay31]   ");
+                sql.AppendLine("             ,[vcDayTotal]   ");
+                sql.AppendLine("             ,[vcOperatorID]   ");
+                sql.AppendLine("             ,[dOperatorTime])   ");
+                sql.AppendLine("       VALUES   ");
+                sql.AppendLine("     	(  ");
+                sql.AppendLine("     	'" + listInfoData[0]["vcPackSpot"] + "',  ");
+                sql.AppendLine("     	'" + listInfoData[0]["vcYearMonth"] + "',  ");
+                for (int i = 0; i < 31; i++)
                 {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        sql.AppendLine("     INSERT INTO TPackPanKui ( ");
-                        sql.AppendLine("      vcPackSpot,");
-                        sql.AppendLine("      vcPackNo,");
-                        sql.AppendLine("      vcPackGPSNo,");
-                        sql.AppendLine("      vcSupplierID,");
-                        sql.AppendLine("      vcXiuZhengFlag,");
-                        sql.AppendLine("      iNumber,");
-                        sql.AppendLine("      dBuJiTime,");
-                        sql.AppendLine("      vcXiuZhengNote,");
-                        sql.AppendLine("      vcOperatorID,");
-                        sql.AppendLine("      dOperatorTime");
-                        sql.AppendLine("     )");
-                        sql.AppendLine("     VALUES");
-                        sql.AppendLine("     	(");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierID"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcXiuZhengFlag"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iNumber"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dBuJiTime"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcXiuZhengNote"], false) + ",");
-                        sql.AppendLine($"     		{strUserId},");
-                        sql.AppendLine("     		getDate()");
-                        sql.AppendLine("     	); ");
-
-
+                    if (listInfoData[i]["vcBZ"].ToString() != "" && listInfoData[i]["vcBZ"].ToString() != "无稼动")
+                    {
+                        count++;
                     }
-                    else if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-
-                        sql.AppendLine("  UPDATE TPackPanKui");
-                        sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
-                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},");
-                        sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)},");
-                        sql.AppendLine($"   vcSupplierID = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierID"], true)},");
-                        sql.AppendLine($"   vcXiuZhengFlag = {ComFunction.getSqlValue(listInfoData[i]["vcXiuZhengFlag"], false)},");
-                        sql.AppendLine($"   iNumber = {ComFunction.getSqlValue(listInfoData[i]["iNumber"], true)},");
-                        sql.AppendLine($"   dBuJiTime = {ComFunction.getSqlValue(listInfoData[i]["dBuJiTime"], true)},");
-                        sql.AppendLine($"   vcXiuZhengNote = {ComFunction.getSqlValue(listInfoData[i]["vcXiuZhengNote"], false)},");
-                        sql.AppendLine($"   vcOperatorID = '{strUserId}',");
-                        sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
-                        sql.AppendLine($"  WHERE");
-                        sql.AppendLine($"  iAutoId='{iAutoId}';");
-
-
-                    }
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-
+                    sql.AppendLine("     	'" + listInfoData[i]["vcBZ"] + "',  ");
                 }
+                sql.AppendLine("     	'" + count + "',  ");
+                sql.AppendLine($"     		{strUserId},");
+                sql.AppendLine("     		getDate()");
+                sql.AppendLine("     	); ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+
+
 
             }
             catch (Exception ex)
@@ -140,18 +199,199 @@ namespace DataAccess
         #endregion
 
 
+        #region 保存班制
+        public void Save_BZ(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+              
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+                        sql.AppendLine("     delete  from TPackSpotBZ where vcPackSpot='" + listInfoData[i]["vcPackSpot"] + "'and vcBZ='" + listInfoData[i]["vcBZ"] + "'  ");
+                        
+                        sql.AppendLine("  INSERT INTO [dbo].[TPackSpotBZ]    ");
+                        sql.AppendLine("             ([vcPackSpot]     ");
+                        sql.AppendLine("             ,[vcBZ]     ");
+                        sql.AppendLine("             ,[vcBeginTime]     ");
+                        sql.AppendLine("             ,[vcEndTime]     ");
+                        sql.AppendLine("             ,[vcOperatorID]     ");
+                        sql.AppendLine("             ,[dOperatorTime])     ");
+                        sql.AppendLine("       VALUES     ");
+                        sql.AppendLine("     (  ");
+                        sql.AppendLine("     '" + listInfoData[i]["vcPackSpot"] + "',  ");
+                        sql.AppendLine("     '" + listInfoData[i]["vcBZ"] + "',  ");
+                        sql.AppendLine("     '" + listInfoData[i]["vcBeginTime"] + "',  ");
+                        sql.AppendLine("     '" + listInfoData[i]["vcEndTime"] + "',  ");
+                        sql.AppendLine($"     		{strUserId},");
+                        sql.AppendLine("     		getDate()");
+                        sql.AppendLine("      ) ");
+                    }
+                    else if (bAddFlag == false && bModFlag == true) {
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoID"]);
+
+                        sql.AppendLine("  UPDATE [TPackSpotBZ]");
+                        sql.AppendLine("  SET ");
+                        sql.AppendLine($"   vcPackSpot = '{listInfoData[i]["vcPackSpot"]}',\r\n");
+                        sql.AppendLine($"   vcBZ = '{listInfoData[i]["vcBZ"]}',\r\n");
+                        sql.AppendLine($"   vcBeginTime = '{listInfoData[i]["vcBeginTime"]}',\r\n");
+                        sql.AppendLine($"   vcEndTime = '{listInfoData[i]["vcEndTime"]}',\r\n");
+                        sql.AppendLine($"   vcOperatorID = '{strUserId}',\r\n");
+                        sql.AppendLine($"   dOperatorTime = getdate() \r\n");
+                        sql.AppendLine($"  WHERE \r\n");
+                        sql.AppendLine($"  iAutoId='{iAutoId}'; \r\n");
+
+                    }
+
+                }
+                
+
+               
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+
+
+
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
+
+        #region 导入后保存
+        public void importSave(DataTable dt, string strUserId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i=0;i< dt.Rows.Count;i++) {
+                    sql.AppendLine("     delete  from TPackCalendar where vcPackSpot='" + dt.Rows[i]["vcPackSpot"] + "' and vcYearMonth='" + dt.Rows[i]["vcYearMonth"] + "'  ");
+                    sql.AppendLine("  INSERT INTO [dbo].[TPackCalendar]   ");
+                    sql.AppendLine("             ([vcPackSpot]   ");
+                    sql.AppendLine("             ,[vcYearMonth]   ");
+                    sql.AppendLine("             ,[vcDay01]   ");
+                    sql.AppendLine("             ,[vcDay02]   ");
+                    sql.AppendLine("             ,[vcDay03]   ");
+                    sql.AppendLine("             ,[vcDay04]   ");
+                    sql.AppendLine("             ,[vcDay05]   ");
+                    sql.AppendLine("             ,[vcDay06]   ");
+                    sql.AppendLine("             ,[vcDay07]   ");
+                    sql.AppendLine("             ,[vcDay08]   ");
+                    sql.AppendLine("             ,[vcDay09]   ");
+                    sql.AppendLine("             ,[vcDay10]   ");
+                    sql.AppendLine("             ,[vcDay11]   ");
+                    sql.AppendLine("             ,[vcDay12]   ");
+                    sql.AppendLine("             ,[vcDay13]   ");
+                    sql.AppendLine("             ,[vcDay14]   ");
+                    sql.AppendLine("             ,[vcDay15]   ");
+                    sql.AppendLine("             ,[vcDay16]   ");
+                    sql.AppendLine("             ,[vcDay17]   ");
+                    sql.AppendLine("             ,[vcDay18]   ");
+                    sql.AppendLine("             ,[vcDay19]   ");
+                    sql.AppendLine("             ,[vcDay20]   ");
+                    sql.AppendLine("             ,[vcDay21]   ");
+                    sql.AppendLine("             ,[vcDay22]   ");
+                    sql.AppendLine("             ,[vcDay23]   ");
+                    sql.AppendLine("             ,[vcDay24]   ");
+                    sql.AppendLine("             ,[vcDay25]   ");
+                    sql.AppendLine("             ,[vcDay26]   ");
+                    sql.AppendLine("             ,[vcDay27]   ");
+                    sql.AppendLine("             ,[vcDay28]   ");
+                    sql.AppendLine("             ,[vcDay29]   ");
+                    sql.AppendLine("             ,[vcDay30]   ");
+                    sql.AppendLine("             ,[vcDay31]   ");
+                    sql.AppendLine("             ,[vcDayTotal]   ");
+                    sql.AppendLine("             ,[vcOperatorID]   ");
+                    sql.AppendLine("             ,[dOperatorTime])   ");
+                    sql.AppendLine("       VALUES   ");
+                    sql.AppendLine("     	(  ");
+                    sql.AppendLine("     	'"+ dt.Rows[i]["vcPackSpot"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcYearMonth"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay01"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay02"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay03"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay04"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay05"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay06"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay07"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay08"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay09"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay10"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay11"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay12"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay13"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay14"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay15"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay16"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay17"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay18"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay19"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay20"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay21"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay22"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay23"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay24"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay25"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay26"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay27"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay28"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay29"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay30"].ToString() + "', ");
+                    sql.AppendLine("     	'" + dt.Rows[i]["vcDay31"].ToString() + "', ");
+                    sql.AppendLine($"     		{strUserId},");
+                    sql.AppendLine("     		getDate()");
+                    sql.AppendLine("     	)  ");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 查找工厂
+        public DataTable SearchPackSpot()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("       SELECT * FROM TCode where vcCodeId='C023'       \n");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  delete TPackPanKui where iAutoId in(   \r\n ");
+                sql.Append("  delete from  TPackSpotBZ where iAutoId in(   \r\n ");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (i != 0)
                         sql.Append(",");
-                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoID"]);
                     sql.Append(iAutoId);
                 }
                 sql.Append("  )   \r\n ");
@@ -164,145 +404,6 @@ namespace DataAccess
         }
         #endregion
 
-
-
-        #region 导入后保存
-        public void importSave(DataTable dt, string strUserId)
-        {
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 
-        public DataTable getSupplier()
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode,vcPackSupplierName from TPackSupplier;");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 按检索条件检索,返回dt----公式
-        public DataTable Search_GS(string strBegin, string strEnd)
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                strSql.Append("      select *,'0' as vcModFlag,'0' as vcAddFlag from TPrice_GS         \n");
-                strSql.Append("       where          \n");
-                strSql.Append("       1=1         \n");
-                if (strBegin != "")
-                    strSql.Append("   and    dBegin>='" + strBegin + "'         \n");
-                if (strEnd != "")
-                    strSql.Append("   and    dEnd<='" + strEnd + "'         \n");
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        #endregion
-
-        #region 保存-公式
-        public void Save_GS(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorName)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        sql.Append("  insert into TPrice_GS(vcName,vcGs,vcArea,dBegin,dEnd,vcReason,vcOperatorID,dOperatorTime   \r\n");
-                        sql.Append("  )   \r\n");
-                        sql.Append(" values (  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcName"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcGs"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcArea"], false) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dBegin"], true) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["dEnd"], true) + ",  \r\n");
-                        sql.Append(ComFunction.getSqlValue(listInfoData[i]["vcReason"], false) + ",  \r\n");
-                        sql.Append("'" + strUserId + "',  \r\n");
-                        sql.Append("getdate()  \r\n");
-                        sql.Append(" );  \r\n");
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
-
-                        sql.Append("  update TPrice_GS set    \r\n");
-                        sql.Append("  vcName=" + ComFunction.getSqlValue(listInfoData[i]["vcName"], false) + "   \r\n");
-                        sql.Append("  ,vcGs=" + ComFunction.getSqlValue(listInfoData[i]["vcGs"], false) + "   \r\n");
-                        sql.Append("  ,vcArea=" + ComFunction.getSqlValue(listInfoData[i]["vcArea"], false) + "   \r\n");
-                        sql.Append("  ,dBegin=" + ComFunction.getSqlValue(listInfoData[i]["dBegin"], true) + "   \r\n");
-                        sql.Append("  ,dEnd=" + ComFunction.getSqlValue(listInfoData[i]["dEnd"], true) + "   \r\n");
-                        sql.Append("  ,vcReason=" + ComFunction.getSqlValue(listInfoData[i]["vcReason"], false) + "   \r\n");
-                        sql.Append("  ,vcOperatorID='" + strUserId + "'   \r\n");
-                        sql.Append("  ,dOperatorTime=getdate()   \r\n");
-                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
-                    }
-                }
-                if (sql.Length > 0)
-                {
-                    //以下追加验证数据库中是否存在品番区间重叠判断，如果存在则终止提交
-                    sql.Append("  DECLARE @errorName varchar(50)   \r\n");
-                    sql.Append("  set @errorName=''   \r\n");
-                    sql.Append("  set @errorName=(   \r\n");
-                    sql.Append("  	select a.vcName+';' from   \r\n");
-                    sql.Append("  	(   \r\n");
-                    sql.Append("  		select distinct a.vcName from TPrice_GS a   \r\n");
-                    sql.Append("  		left join   \r\n");
-                    sql.Append("  		(   \r\n");
-                    sql.Append("  		   select * from TPrice_GS   \r\n");
-                    sql.Append("  		)b on a.vcName=b.vcName and a.iAutoId<>b.iAutoId   \r\n");
-                    sql.Append("  		   and    \r\n");
-                    sql.Append("  		   (   \r\n");
-                    sql.Append("  			   (a.dBegin>=b.dBegin and a.dBegin<=b.dEnd)   \r\n");
-                    sql.Append("  			   or   \r\n");
-                    sql.Append("  			   (a.dEnd>=b.dBegin and a.dEnd<=b.dEnd)   \r\n");
-                    sql.Append("  		   )   \r\n");
-                    sql.Append("  		where b.iAutoId is not null   \r\n");
-                    sql.Append("  	)a for xml path('')   \r\n");
-                    sql.Append("  )   \r\n");
-                    sql.Append("      \r\n");
-                    sql.Append("  if @errorName<>''   \r\n");
-                    sql.Append("  begin   \r\n");
-                    sql.Append("    select CONVERT(int,'-->'+@errorName+'<--')   \r\n");
-                    sql.Append("  end    \r\n");
-
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.IndexOf("-->") != -1)
-                {//主动判断抛出的异常
-                    int startIndex = ex.Message.IndexOf("-->");
-                    int endIndex = ex.Message.LastIndexOf("<--");
-                    strErrorName = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
-                }
-                else
-                    throw ex;
-            }
-        }
-        #endregion
 
 
     }

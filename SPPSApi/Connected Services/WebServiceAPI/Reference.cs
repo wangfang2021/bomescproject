@@ -29,6 +29,13 @@ namespace WebServiceAPI
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setCRVToPDF", ReplyAction="*")]
         System.Threading.Tasks.Task<WebServiceAPI.setCRVToPDFResponse> setCRVToPDFAsync(WebServiceAPI.setCRVToPDFRequest request);
+        
+        // CODEGEN: 正在生成消息协定，因为命名空间 http://tempuri.org/ 的元素名称 strDiskFileName 未标记为 nillable
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setExcelPrint", ReplyAction="*")]
+        WebServiceAPI.setExcelPrintResponse setExcelPrint(WebServiceAPI.setExcelPrintRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/setExcelPrint", ReplyAction="*")]
+        System.Threading.Tasks.Task<WebServiceAPI.setExcelPrintResponse> setExcelPrintAsync(WebServiceAPI.setExcelPrintRequest request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -62,35 +69,31 @@ namespace WebServiceAPI
         public string strCRVName;
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
-        public string strTableName;
+        public string strScrpit;
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
-        public string strOperID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
         public string strPrinterName;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
         public string sqlUserID;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
         public string sqlPassword;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
         public string sqlCatalog;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=7)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
         public string sqlSource;
         
         public setCRVPrintRequestBody()
         {
         }
         
-        public setCRVPrintRequestBody(string strCRVName, string strTableName, string strOperID, string strPrinterName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        public setCRVPrintRequestBody(string strCRVName, string strScrpit, string strPrinterName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
             this.strCRVName = strCRVName;
-            this.strTableName = strTableName;
-            this.strOperID = strOperID;
+            this.strScrpit = strScrpit;
             this.strPrinterName = strPrinterName;
             this.sqlUserID = sqlUserID;
             this.sqlPassword = sqlPassword;
@@ -170,35 +173,31 @@ namespace WebServiceAPI
         public string strCRVName;
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
-        public string strTableName;
+        public string strScrpit;
         
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
-        public string strOperID;
-        
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
         public string strDiskFileName;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=3)]
         public string sqlUserID;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=4)]
         public string sqlPassword;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=5)]
         public string sqlCatalog;
         
-        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=7)]
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=6)]
         public string sqlSource;
         
         public setCRVToPDFRequestBody()
         {
         }
         
-        public setCRVToPDFRequestBody(string strCRVName, string strTableName, string strOperID, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        public setCRVToPDFRequestBody(string strCRVName, string strScrpit, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
             this.strCRVName = strCRVName;
-            this.strTableName = strTableName;
-            this.strOperID = strOperID;
+            this.strScrpit = strScrpit;
             this.strDiskFileName = strDiskFileName;
             this.sqlUserID = sqlUserID;
             this.sqlPassword = sqlPassword;
@@ -244,6 +243,94 @@ namespace WebServiceAPI
         public setCRVToPDFResponseBody(string setCRVToPDFResult)
         {
             this.setCRVToPDFResult = setCRVToPDFResult;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class setExcelPrintRequest
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="setExcelPrint", Namespace="http://tempuri.org/", Order=0)]
+        public WebServiceAPI.setExcelPrintRequestBody Body;
+        
+        public setExcelPrintRequest()
+        {
+        }
+        
+        public setExcelPrintRequest(WebServiceAPI.setExcelPrintRequestBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class setExcelPrintRequestBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string strDiskFileName;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
+        public string strOperID;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=2)]
+        public string strPrinterName;
+        
+        public setExcelPrintRequestBody()
+        {
+        }
+        
+        public setExcelPrintRequestBody(string strDiskFileName, string strOperID, string strPrinterName)
+        {
+            this.strDiskFileName = strDiskFileName;
+            this.strOperID = strOperID;
+            this.strPrinterName = strPrinterName;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class setExcelPrintResponse
+    {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="setExcelPrintResponse", Namespace="http://tempuri.org/", Order=0)]
+        public WebServiceAPI.setExcelPrintResponseBody Body;
+        
+        public setExcelPrintResponse()
+        {
+        }
+        
+        public setExcelPrintResponse(WebServiceAPI.setExcelPrintResponseBody Body)
+        {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.2")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class setExcelPrintResponseBody
+    {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string setExcelPrintResult;
+        
+        public setExcelPrintResponseBody()
+        {
+        }
+        
+        public setExcelPrintResponseBody(string setExcelPrintResult)
+        {
+            this.setExcelPrintResult = setExcelPrintResult;
         }
     }
     
@@ -296,13 +383,12 @@ namespace WebServiceAPI
             return base.Channel.setCRVPrint(request);
         }
         
-        public string setCRVPrint(string strCRVName, string strTableName, string strOperID, string strPrinterName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        public string setCRVPrint(string strCRVName, string strScrpit, string strPrinterName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
             WebServiceAPI.setCRVPrintRequest inValue = new WebServiceAPI.setCRVPrintRequest();
             inValue.Body = new WebServiceAPI.setCRVPrintRequestBody();
             inValue.Body.strCRVName = strCRVName;
-            inValue.Body.strTableName = strTableName;
-            inValue.Body.strOperID = strOperID;
+            inValue.Body.strScrpit = strScrpit;
             inValue.Body.strPrinterName = strPrinterName;
             inValue.Body.sqlUserID = sqlUserID;
             inValue.Body.sqlPassword = sqlPassword;
@@ -318,13 +404,12 @@ namespace WebServiceAPI
             return base.Channel.setCRVPrintAsync(request);
         }
         
-        public System.Threading.Tasks.Task<WebServiceAPI.setCRVPrintResponse> setCRVPrintAsync(string strCRVName, string strTableName, string strOperID, string strPrinterName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        public System.Threading.Tasks.Task<WebServiceAPI.setCRVPrintResponse> setCRVPrintAsync(string strCRVName, string strScrpit, string strPrinterName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
             WebServiceAPI.setCRVPrintRequest inValue = new WebServiceAPI.setCRVPrintRequest();
             inValue.Body = new WebServiceAPI.setCRVPrintRequestBody();
             inValue.Body.strCRVName = strCRVName;
-            inValue.Body.strTableName = strTableName;
-            inValue.Body.strOperID = strOperID;
+            inValue.Body.strScrpit = strScrpit;
             inValue.Body.strPrinterName = strPrinterName;
             inValue.Body.sqlUserID = sqlUserID;
             inValue.Body.sqlPassword = sqlPassword;
@@ -339,13 +424,12 @@ namespace WebServiceAPI
             return base.Channel.setCRVToPDF(request);
         }
         
-        public string setCRVToPDF(string strCRVName, string strTableName, string strOperID, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        public string setCRVToPDF(string strCRVName, string strScrpit, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
             WebServiceAPI.setCRVToPDFRequest inValue = new WebServiceAPI.setCRVToPDFRequest();
             inValue.Body = new WebServiceAPI.setCRVToPDFRequestBody();
             inValue.Body.strCRVName = strCRVName;
-            inValue.Body.strTableName = strTableName;
-            inValue.Body.strOperID = strOperID;
+            inValue.Body.strScrpit = strScrpit;
             inValue.Body.strDiskFileName = strDiskFileName;
             inValue.Body.sqlUserID = sqlUserID;
             inValue.Body.sqlPassword = sqlPassword;
@@ -361,19 +445,51 @@ namespace WebServiceAPI
             return base.Channel.setCRVToPDFAsync(request);
         }
         
-        public System.Threading.Tasks.Task<WebServiceAPI.setCRVToPDFResponse> setCRVToPDFAsync(string strCRVName, string strTableName, string strOperID, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
+        public System.Threading.Tasks.Task<WebServiceAPI.setCRVToPDFResponse> setCRVToPDFAsync(string strCRVName, string strScrpit, string strDiskFileName, string sqlUserID, string sqlPassword, string sqlCatalog, string sqlSource)
         {
             WebServiceAPI.setCRVToPDFRequest inValue = new WebServiceAPI.setCRVToPDFRequest();
             inValue.Body = new WebServiceAPI.setCRVToPDFRequestBody();
             inValue.Body.strCRVName = strCRVName;
-            inValue.Body.strTableName = strTableName;
-            inValue.Body.strOperID = strOperID;
+            inValue.Body.strScrpit = strScrpit;
             inValue.Body.strDiskFileName = strDiskFileName;
             inValue.Body.sqlUserID = sqlUserID;
             inValue.Body.sqlPassword = sqlPassword;
             inValue.Body.sqlCatalog = sqlCatalog;
             inValue.Body.sqlSource = sqlSource;
             return ((WebServiceAPI.WebServiceAPISoap)(this)).setCRVToPDFAsync(inValue);
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        WebServiceAPI.setExcelPrintResponse WebServiceAPI.WebServiceAPISoap.setExcelPrint(WebServiceAPI.setExcelPrintRequest request)
+        {
+            return base.Channel.setExcelPrint(request);
+        }
+        
+        public string setExcelPrint(string strDiskFileName, string strOperID, string strPrinterName)
+        {
+            WebServiceAPI.setExcelPrintRequest inValue = new WebServiceAPI.setExcelPrintRequest();
+            inValue.Body = new WebServiceAPI.setExcelPrintRequestBody();
+            inValue.Body.strDiskFileName = strDiskFileName;
+            inValue.Body.strOperID = strOperID;
+            inValue.Body.strPrinterName = strPrinterName;
+            WebServiceAPI.setExcelPrintResponse retVal = ((WebServiceAPI.WebServiceAPISoap)(this)).setExcelPrint(inValue);
+            return retVal.Body.setExcelPrintResult;
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        System.Threading.Tasks.Task<WebServiceAPI.setExcelPrintResponse> WebServiceAPI.WebServiceAPISoap.setExcelPrintAsync(WebServiceAPI.setExcelPrintRequest request)
+        {
+            return base.Channel.setExcelPrintAsync(request);
+        }
+        
+        public System.Threading.Tasks.Task<WebServiceAPI.setExcelPrintResponse> setExcelPrintAsync(string strDiskFileName, string strOperID, string strPrinterName)
+        {
+            WebServiceAPI.setExcelPrintRequest inValue = new WebServiceAPI.setExcelPrintRequest();
+            inValue.Body = new WebServiceAPI.setExcelPrintRequestBody();
+            inValue.Body.strDiskFileName = strDiskFileName;
+            inValue.Body.strOperID = strOperID;
+            inValue.Body.strPrinterName = strPrinterName;
+            return ((WebServiceAPI.WebServiceAPISoap)(this)).setExcelPrintAsync(inValue);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

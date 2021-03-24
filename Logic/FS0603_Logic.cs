@@ -2336,6 +2336,18 @@ namespace Logic
                 throw ex;
             }
         }
+
+        public string getPrinterName(string strPageId, string strOperId)
+        {
+            try
+            {
+                return fs0603_DataAccess.getPrinterName(strPageId, strOperId);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable createTable(string strSpSub)
         {
             DataTable dataTable = new DataTable();

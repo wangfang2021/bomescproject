@@ -36,6 +36,7 @@ namespace Logic
                     {
                         DataRow dataRow = dtSub.NewRow();
                         dataRow["UUID"] = uuid;
+                        dataRow["vcNo"] = (j + 1).ToString();
                         dataRow["vcCpdcode"] = dtSPInfo.Rows[j]["vcCpdcode"].ToString();
                         dataRow["vcCpdname"] = dtSPInfo.Rows[j]["vcCpdname"].ToString();
                         dataRow["vcCpdaddress"] = dtSPInfo.Rows[j]["vcCpdaddress"].ToString();
@@ -45,6 +46,8 @@ namespace Logic
                         dataRow["vcPart_id"] = dtSPInfo.Rows[j]["vcPart_id"].ToString();
                         dataRow["vcPartsname"] = dtSPInfo.Rows[j]["vcPartsname"].ToString();
                         dataRow["iQty"] = dtSPInfo.Rows[j]["iQty"].ToString();
+                        dataRow["iTotalcnt"] = dtSPInfo.Rows[j]["iTotalcnt"].ToString();
+                        dataRow["iTotalpiece"] = dtSPInfo.Rows[j]["iTotalpiece"].ToString();
                         dataRow["dPrintDate"] = dtSPInfo.Rows[j]["dPrintDate"].ToString();
                         byte[] vcCodemage = fS0617_Logic.GenerateQRCode(dtSPInfo.Rows[j]["vcCaseno"].ToString());//二维码信息
                         dataRow["vcCodemage"] = vcCodemage;

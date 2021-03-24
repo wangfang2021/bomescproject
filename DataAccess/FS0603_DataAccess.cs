@@ -1401,7 +1401,6 @@ namespace DataAccess
                 throw ex;
             }
         }
-
         public DataTable getOrderPlantInfo(string strSupplierId, string strSupplierPlant, string strToTime)
         {
             StringBuilder strSql = new StringBuilder();
@@ -1409,8 +1408,6 @@ namespace DataAccess
             strSql.AppendLine("and vcValue1='" + strSupplierId + "' and vcValue2='" + strSupplierPlant + "' and vcValue3<=CONVERT(VARCHAR(10),'" + strToTime + "',23) AND vcValue4>=CONVERT(VARCHAR(10),'" + strToTime + "',23)");
             return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
         }
-
-
         public string setNullValue(Object obj, string strModle, string strDefault)
         {
             if (obj == null)
@@ -1457,7 +1454,6 @@ namespace DataAccess
             DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             return dataTable;
         }
-
         public DataSet getSyncInfo()
         {
             StringBuilder strSql = new StringBuilder();
@@ -1577,7 +1573,6 @@ namespace DataAccess
             DataSet dataSet = excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             return dataSet;
         }
-
         public void setSyncInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
@@ -1628,6 +1623,17 @@ namespace DataAccess
                     sqlConnection.Close();
                 }
             }
+        }
+
+        public string getPrinterName(string strPageId,string strOperId)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendLine("select vcPrintName from TPrinterName where vcOperator='"+ strOperId + "' and vcPageId='"+ strPageId+ "' order by LinId desc");
+            DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            if (dataTable.Rows.Count != 0)
+                return dataTable.Rows[0]["vcPrintName"].ToString();
+            else
+                return "";
         }
     }
 }

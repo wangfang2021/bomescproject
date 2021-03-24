@@ -31,8 +31,28 @@ namespace DataAccess
         }
         #endregion
 
+
+
+        #region 
+        public DataTable SearchNote()
+        {
+            try
+            {
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("     select distinct varChangedItem as vcName from TPackItem ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 按检索条件检索,返回dt
-        public DataTable Search(string Note, string PackSpot, string Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
+        public DataTable Search(List<Object> Note, List<Object> PackSpot, string Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
         {
             try
             {
@@ -71,18 +91,42 @@ namespace DataAccess
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNO}%'");
                 if (!string.IsNullOrEmpty(Pinfan))
                     strSql.AppendLine($"      AND vcPartsNo LIKE '%{Pinfan}%'");
-                if (!string.IsNullOrEmpty(PackSpot))
-                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
-                if (!string.IsNullOrEmpty(PackSpot))
+                if (PackSpot.Count != 0)
+                {
+                    strSql.AppendLine($"      AND vcPackSpot in( ");
+                    for (int i = 0; i < PackSpot.Count; i++)
+                    {
+                        if (PackSpot.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + PackSpot[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + PackSpot[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
+                if (!string.IsNullOrEmpty(Shouhuofang))
                     strSql.AppendLine($"      AND vcShouhuofangID = '{Shouhuofang}'");
-                if (!string.IsNullOrEmpty(PackSpot))
+                if (!string.IsNullOrEmpty(Car))
                     strSql.AppendLine($"      AND vcCar = '{Car}'");
-                if (!string.IsNullOrEmpty(PackSpot))
-                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
                 if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
-                if (!string.IsNullOrEmpty(Note))
-                    strSql.AppendLine($"      AND vcNote LIKE '%{Note}%'");
+
+                if (Note.Count != 0)
+                {
+                    strSql.AppendLine($"      AND varChangedItem in( ");
+                    for (int i = 0; i < Note.Count; i++)
+                    {
+                        if (Note.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + Note[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + Note[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
+
 
                 strSql.AppendLine($"      AND dFrom BETWEEN '{dtFromBegin}' and '{dtFromEnd}'");
                 strSql.AppendLine($"      AND dTo BETWEEN '{dtToBegin}' and '{dtToEnd}'");
@@ -228,7 +272,7 @@ namespace DataAccess
 
 
                     string dfrom = listInfoData[i]["dFrom"].ToString() == "" ? "1990-01-01 0:00:00" : listInfoData[i]["dFrom"].ToString();
-                    string dto = listInfoData[i]["dTo"].ToString() == "" ? "3000-01-01 0:00:00" : listInfoData[i]["dTo"].ToString(); 
+                    string dto = listInfoData[i]["dTo"].ToString() == "" ? "3000-01-01 0:00:00" : listInfoData[i]["dTo"].ToString();
 
                     //if (listInfoData[i]["vcShouhuofang"].ToString() != "")
                     //{
@@ -251,7 +295,7 @@ namespace DataAccess
                     {
                         PackGPSNo = dr1[0]["vcPackGPSNo"].ToString();
                     }
-                    DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem='"+ listInfoData[i]["varChangedItem"] + "'");
+                    DataRow[] dr2 = dtPackitem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"] + "'and  varChangedItem='" + listInfoData[i]["varChangedItem"] + "'");
                     if (dr2.Length == 0)
                     {
                         dUserFrom = "1990-01-01";
@@ -390,6 +434,30 @@ namespace DataAccess
             }
         }
         #endregion
+
+
+        #region 检查
+        public DataTable checkSOQ(string vcPartsNo)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  select distinct vcPart_id from TSoqReply where vcPart_id ='"+ vcPartsNo + "'   \r\n ");
+                sql.Append("  union all   \r\n ");
+                sql.Append(" select vcPartsNo from TPackItem where vcPartsNo ='"+ vcPartsNo + "' \r\n ");
+                
+
+
+
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
 
 
         #region 导入后保存

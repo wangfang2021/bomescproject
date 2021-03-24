@@ -62,6 +62,9 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0701_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
+                List<Object> ReleaseName = ComFunction.convertAllToResult(FS0701_Logic.SearchFZLJ()) ;//发注逻辑
+                res.Add("optionReleaseName", ReleaseName);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -91,13 +94,31 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;//包装厂
+            List<Object> PackSpot = new List<object>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+
             string PackNo = dataForm.PackNo;//包材品番
             string PackGPSNo = dataForm.PackGPSNo;//GPS品番
 
-           //供应商
+            //供应商
             List<Object> strSupplierCode = new List<object>();
-            strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+
+            if (dataForm.SupplierCode.ToObject<List<Object>>() == null)
+            {
+                strSupplierCode = new List<object>();
+            }
+            else
+            {
+                strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+            }
 
 
             string dFromB = dataForm.dtKaishiBegin;
@@ -152,15 +173,39 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;
-            string PackNo = dataForm.PackNo;
-            string PackGPSNo = dataForm.PackGPSNo;
+
+            List<Object> PackSpot = new List<object>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+
+            string PackNo = dataForm.PackNo;//包材品番
+            string PackGPSNo = dataForm.PackGPSNo;//GPS品番
+
+            //供应商
             List<Object> strSupplierCode = new List<object>();
-            strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+
+            if (dataForm.SupplierCode.ToObject<List<Object>>() == null)
+            {
+                strSupplierCode = new List<object>();
+            }
+            else
+            {
+                strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+            }
+
+
             string dFromB = dataForm.dtKaishiBegin;
             string dFromE = dataForm.dtKaishiEnd;
             string dToB = dataForm.dtJieshuBegin;
             string dToE = dataForm.dtJieshuEnd;
+
 
             try
             {
@@ -230,12 +275,29 @@ namespace SPPSApi.Controllers.G07
                     {//修改
                         hasFind = true;
                     }
+                    if (listInfoData[i]["vcPackLocation"].ToString().Length>20) {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "超过20位！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
                     bool b = regex.IsMatch(listInfoData[i]["iRelease"].ToString());
                     if (!b)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "请填写正常的发住收容数格式！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (Convert.ToInt32(listInfoData[i]["iRelease"])% Convert.ToInt32(listInfoData[i]["iZCRelease"])!=0) {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "收容数不是订购批量的整数倍！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    DataTable dtcheckTime = FS0701_Logic.searchcheckTime(listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], listInfoData[i]["dPackTo"].ToString().Split(' ')[0]);
+                    if (dtcheckTime.Rows.Count>0) {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "品番有维护重复有效时间！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

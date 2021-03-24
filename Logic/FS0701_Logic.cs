@@ -23,10 +23,14 @@ namespace Logic
             return FS0701_DataAccess.SearchSupplier();
         }
 
+        public DataTable SearchFZLJ()
+        {
+            return FS0701_DataAccess.SearchFZLJ();
+        }
 
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(string  PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
+        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
         {
             return FS0701_DataAccess.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, dFromB, dFromE, dToB, dToE);
         }
@@ -44,6 +48,16 @@ namespace Logic
         {
             FS0701_DataAccess.Save(listInfoData, strUserId,ref strErrorPartId);
         }
+        #endregion
+
+
+        #region checkTime
+        public DataTable searchcheckTime(string strPackNo,string dFrom,string dTo)
+        {
+            return FS0701_DataAccess.searchcheckTime(strPackNo, dFrom, dTo);
+        }
+
+
         #endregion
 
         #region 导入后保存

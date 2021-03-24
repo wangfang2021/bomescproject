@@ -61,11 +61,6 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0708_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
-                List<Object> dataList_OrderStateData = ComFunction.convertAllToResult(ComFunction.getTCode("C063"));//纳入状态
-                res.Add("OrderStateData", dataList_OrderStateData);
-
-
-
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -95,8 +90,16 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
+            List<Object> PackSpot = new List<object>();
 
-            string PackSpot = dataForm.PackSpot;
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
             string OrderFrom = dataForm.OrderFrom;
             string OrderTo = dataForm.OrderTo;
             string PackNo = dataForm.PackNo;
@@ -104,10 +107,26 @@ namespace SPPSApi.Controllers.G07
             string Type = dataForm.Type;
             List<Object> OrderState = new List<object>();
 
-            OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
+            if (dataForm.OrderState.ToObject<List<Object>>() == null)
+            {
+                OrderState = new List<object>();
+            }
+            else
+            {
+                OrderState = dataForm.OrderState.ToObject<List<Object>>();
+            }
 
             string IsQianPin = dataForm.IsQianPin;
-            string SupplierName = dataForm.SupplierName;
+            List<Object> strSupplierCode = new List<object>();
+
+            if (dataForm.SupplierName.ToObject<List<Object>>() == null)
+            {
+                strSupplierCode = new List<object>();
+            }
+            else
+            {
+                strSupplierCode = dataForm.SupplierName.ToObject<List<Object>>();
+            }
             string ZuCode = dataForm.ZuCode;
             string dFaZhuFrom = dataForm.dFaZhuFrom;
             string dFaZhuTo = dataForm.dFaZhuTo;
@@ -119,7 +138,16 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = FS0708_Logic.Search(PackSpot, PackNo, PackGPSNo, OrderFrom, OrderTo, Type, OrderState, IsQianPin, SupplierName, ZuCode, dFaZhuFrom, dFaZhuTo, dNaQiFrom, dNaQiTo, dNaRuFrom, dNaRuTo);
+                BatchProcess.FP0015 fp0015 = new BatchProcess.FP0015();
+
+                if (!fp0015.main(loginInfo.UserId))
+                {
+
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "同步更新失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dt = FS0708_Logic.Search(PackSpot, PackNo, PackGPSNo, OrderFrom, OrderTo, Type, OrderState, IsQianPin, strSupplierCode, ZuCode, dFaZhuFrom, dFaZhuTo, dNaQiFrom, dNaQiTo, dNaRuFrom, dNaRuTo);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -163,16 +191,43 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            List<Object> PackSpot = new List<object>();
 
-            string PackSpot = dataForm.PackSpot;
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
             string OrderFrom = dataForm.OrderFrom;
             string OrderTo = dataForm.OrderTo;
             string PackNo = dataForm.PackNo;
             string PackGPSNo = dataForm.PackGPSNo;
             string Type = dataForm.Type;
-            List<Object> OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
+            List<Object> OrderState = new List<object>();
+
+            if (dataForm.SupplierName.ToObject<List<Object>>() == null)
+            {
+                OrderState = new List<object>();
+            }
+            else
+            {
+                OrderState = dataForm.OrderStateData.ToObject<List<Object>>();
+            }
+
             string IsQianPin = dataForm.IsQianPin;
-            string SupplierName = dataForm.SupplierName;
+            List<Object> strSupplierCode = new List<object>();
+
+            if (dataForm.SupplierName.ToObject<List<Object>>() == null)
+            {
+                strSupplierCode = new List<object>();
+            }
+            else
+            {
+                strSupplierCode = dataForm.SupplierName.ToObject<List<Object>>();
+            }
             string ZuCode = dataForm.ZuCode;
             string dFaZhuFrom = dataForm.dFaZhuFrom;
             string dFaZhuTo = dataForm.dFaZhuTo;
@@ -183,7 +238,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = FS0708_Logic.Search(PackSpot, PackNo, PackGPSNo, OrderFrom, OrderTo, Type, OrderState, IsQianPin, SupplierName, ZuCode, dFaZhuFrom, dFaZhuTo, dNaQiFrom, dNaQiTo, dNaRuFrom, dNaRuTo);
+                DataTable dt = FS0708_Logic.Search(PackSpot, PackNo, PackGPSNo, OrderFrom, OrderTo, Type, OrderState, IsQianPin, strSupplierCode, ZuCode, dFaZhuFrom, dFaZhuTo, dNaQiFrom, dNaQiTo, dNaRuFrom, dNaRuTo);
 
                 if (dt.Rows.Count == 0)
                 {

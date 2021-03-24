@@ -92,15 +92,25 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;//包装厂
+            List<Object> PackSpot = new List<object>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+
             string PackFrom = dataForm.dFrom;//对象年月
 
             List<Object> SupplierCodeList = new List<object>();
 
             SupplierCodeList = dataForm.vcSupplierCode.ToObject<List<Object>>();
+            string strSearchKey = FunctionID + loginInfo.UserId;
 
-
-            if (string.IsNullOrEmpty(PackSpot) || string.IsNullOrEmpty(PackFrom) || SupplierCodeList == null)
+            if (PackSpot.Count == 0 || string.IsNullOrEmpty(PackFrom) || SupplierCodeList == null)
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "请填写必要项！";
@@ -111,34 +121,45 @@ namespace SPPSApi.Controllers.G07
             {
 
                 DataTable dt = FS0703_Logic.Calculation(PackSpot, PackFrom, SupplierCodeList);
-                string strErrorPartId = "";
-                if (dt.Rows.Count > 0)
+                //if (dt.Rows.Count > 0)
+                //{
+                //    FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId);
+                //}
+
+                //DataTable dtcheck = FS0703_Logic.SearchCheck();
+
+                DataTable dtcope = dt.Copy();
+
+                dtcope.TableName = "123";
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    FS0703_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorPartId);
+                    if (string.IsNullOrEmpty(dt.Rows[i]["vcPackNo"].ToString()))
+                    {
+                        dtcope = new DataTable();
+                        FS0703_Logic.InsertCheck(dt.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dt.Rows[i]["vcPackNo"].ToString() + "没有维护包材品番信息！");
+                    }
+                    if (string.IsNullOrEmpty(dt.Rows[i]["dUsedFrom"].ToString())|| string.IsNullOrEmpty(dt.Rows[i]["dUsedTo"].ToString()))
+                    {
+                        dtcope = new DataTable();
+                        FS0703_Logic.InsertCheck(dt.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dt.Rows[i]["vcpart_id"].ToString() + "没有维护时间！");
+                    }
+                    else if (!(Convert.ToDateTime(dt.Rows[i]["dUsedFrom"]) < DateTime.Now) && !(DateTime.Now < Convert.ToDateTime(dt.Rows[i]["dUsedTo"])))
+                    {
+                        dtcope = new DataTable();
+                        FS0703_Logic.InsertCheck(dt.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dt.Rows[i]["vcpart_id"].ToString() + "不在有效期内！");
+
+                    }
                 }
-
-                DataTable dtcheck = FS0703_Logic.SearchCheck();
-
-                for (int i = 0; i < dtcheck.Rows.Count; i++)
-                {
-                    if (string.IsNullOrEmpty(dtcheck.Rows[i]["vcPackNo"].ToString()))
-                    {
-                        FS0703_Logic.InsertCheck(dtcheck.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dtcheck.Rows[i]["vcPackNo"].ToString() + "没有维护包材品番信息");
-                    }
-                    if (string.IsNullOrEmpty(dtcheck.Rows[i]["vcCycle"].ToString()))
-                    {
-                        FS0703_Logic.InsertCheck(dtcheck.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dtcheck.Rows[i]["vcPackNo"].ToString() + "没有维护纳入周期");
-                    }
-                    if (string.IsNullOrEmpty(dtcheck.Rows[i]["iRelease"].ToString()))
-                    {
-                        FS0703_Logic.InsertCheck(dtcheck.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dtcheck.Rows[i]["vcPackNo"].ToString() + "没有维护纳入单位");
-                    }
-
-                }
-                //DataTable dtE = FS0703_Logic.SearchExceptionCK();
+                //放入缓存
+                initSearchCash(strSearchKey, dtcope);
+                DataTable dtE = FS0703_Logic.SearchExceptionCK();
                 //List<Object> dataList = ComFunction.convertAllToResult(dtE);
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> vcException = ComFunction.convertAllToResult(FS0703_Logic.SearchExceptionCK());//
+                if (dtE.Rows.Count>0) {
+
+                    initSearchCash("Exception", dtE);
+                }
+                List<Object> vcException = ComFunction.convertAllToResult(dtE);//
                 res.Add("strException", vcException);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -170,20 +191,43 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
 
-            string PackSpot = dataForm.PackSpot;//包装厂
+            List<Object> PackSpot = new List<object>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+            //包装厂
+
+
             string PackFrom = dataForm.dFrom;//对象年月
             List<Object> SupplierCodeList = new List<object>();
 
             SupplierCodeList = dataForm.vcSupplierCode.ToObject<List<Object>>();
-
+            string strSearchKey = FunctionID + loginInfo.UserId;
 
             try
             {
                 DataTable dt = new DataTable();
-                dt=FS0703_Logic.Search(PackSpot, PackFrom, SupplierCodeList);
+                //dt = FS0703_Logic.Search(PackSpot, PackFrom, SupplierCodeList);
+                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                {
+                    dt = getResultCashByKey(strSearchKey);
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可导出数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 if (dt.Rows.Count == 0)
                 {
+
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "没有可导出数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -233,7 +277,17 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
-                DataTable dt = FS0703_Logic.SearchException();
+                DataTable dt = new DataTable();
+                if (isExistSearchCash("Exception"))//缓存已经存在，则从缓存中获取
+                {
+                    dt = FS0703_Logic.SearchException();
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请重新计算！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 if (dt.Rows.Count == 0)
                 {
@@ -242,7 +296,7 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] fields = { "vcPart_id","vcException"
+                string[] fields = { "vcValue","vcName"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0703_Exception.xlsx", 1, loginInfo.UserId, "月度内示");
                 if (filepath == "")

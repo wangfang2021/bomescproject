@@ -75,6 +75,9 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
+
+
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -90,15 +93,33 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;//包装厂
+
+            List<Object> PackSpot = new List<object>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
             string PackNo = dataForm.PackNo;//包材品番
             string PackGPSNo = dataForm.PackGPSNo;//GPS品番
-            string strSupplierCode = dataForm.SupplierCode;//供应商
-            string strRatio = dataForm.Ratio;
+            List<Object> strSupplierCode = new List<object>();
+
+            if (dataForm.SupplierCode.ToObject<List<Object>>() == null)
+            {
+                strSupplierCode = new List<object>();
+            }
+            else
+            {
+                strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+            }
 
             try
             {
-                DataTable dt = FS0713_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, strRatio);
+                DataTable dt = FS0713_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -143,15 +164,32 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string PackSpot = dataForm.PackSpot;
-            string PackNo = dataForm.PackNo;
-            string PackGPSNo = dataForm.PackGPSNo;
-            string strSupplierCode = dataForm.SupplierCode;
-            string strRatio = dataForm.Ratio;
+            List<Object> PackSpot = new List<object>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+            string PackNo = dataForm.PackNo;//包材品番
+            string PackGPSNo = dataForm.PackGPSNo;//GPS品番
+            List<Object> strSupplierCode = new List<object>();
+
+            if (dataForm.SupplierCode.ToObject<List<Object>>() == null)
+            {
+                strSupplierCode = new List<object>();
+            }
+            else
+            {
+                strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+            }
 
             try
             {
-                DataTable dt = FS0713_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, strRatio);
+                DataTable dt = FS0713_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode);
 
                 if (dt.Rows.Count == 0)
                 {
@@ -160,9 +198,12 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] fields = { "vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierCode","vcAvgUse","vcadviceZK","vcSaveZK","vcKBcycle"
-                };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0713_Export.xlsx", 1, loginInfo.UserId, "包装材基础数据");
+                string resMsg = "";
+                string[] head = { "包装厂", "包材品番", "GPS品番", "供应商", "平均消耗", "峰值消耗", "建议安全在库", "安全在库", "看板循环" };
+
+                string[] fields = { "vcPackSpot", "vcPackNo" , "vcPackGPSNo" , "vcSupplierCode", "dAvgUse", "dMax", "vcadviceZK", "vcSaveZK", "vcKBcycle" };
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -216,14 +257,14 @@ namespace SPPSApi.Controllers.G07
                     {//修改
                         hasFind = true;
                     }
-                    Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
-                    bool b = regex.IsMatch(listInfoData[i]["vcKBcycle"].ToString());
-                    if (!b)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "请填写正常的看板循环数！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    //Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
+                    //bool b = regex.IsMatch(listInfoData[i]["vcKBcycle"].ToString());
+                    //if (!b)
+                    //{
+                    //    apiResult.code = ComConstant.ERROR_CODE;
+                    //    apiResult.data = "请填写正常的看板循环数！";
+                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    //}
                 }
                 if (!hasFind)
                 {

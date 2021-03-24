@@ -39,40 +39,40 @@ namespace SPPSApi.Controllers.G07
         }
 
         #region 页面初始化
-        //[HttpPost]
-        //[EnableCors("any")]
-        //public string pageloadApi()
-        //{
-        //    string strToken = Request.Headers["X-Token"];
-        //    if (!isLogin(strToken))
-        //    {
-        //        return error_login();
-        //    }
-        //    LoginInfo loginInfo = getLoginByToken(strToken);
-        //    //以下开始业务处理
-        //    ApiResult apiResult = new ApiResult();
-        //    try
-        //    {
-        //        Dictionary<string, object> res = new Dictionary<string, object>();
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
 
-        //        List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
 
-        //        res.Add("C023", dataList_C023);
-        //        List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0719_Logic.SearchSupplier());//供应商
-        //        res.Add("optionSupplier", dataList_Supplier);
+                res.Add("C023", dataList_C023);
+                List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0719_Logic.SearchSupplier());//供应商
+                res.Add("optionSupplier", dataList_Supplier);
 
-        //        apiResult.code = ComConstant.SUCCESS_CODE;
-        //        apiResult.data = res;
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
-        //        apiResult.code = ComConstant.ERROR_CODE;
-        //        apiResult.data = "初始化失败";
-        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-        //    }
-        //}
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         #endregion
 
         #region 检索
@@ -92,6 +92,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
+
                 DataTable dt = FS0719_Logic.Search();
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
@@ -122,7 +123,13 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-        #region 导出
+
+
+
+
+
+
+        #region 发注
         [HttpPost]
         [EnableCors("any")]
         public string exportApi([FromBody] dynamic data)
@@ -150,9 +157,21 @@ namespace SPPSApi.Controllers.G07
                 }
                 string strErrorPartId = "";
                 FS0719_Logic.SaveFZ(dt, loginInfo.UserId, ref strErrorPartId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                if (strErrorPartId == "")
+                {
+
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "发注成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strErrorPartId;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+
             }
             catch (Exception ex)
             {
@@ -181,6 +200,7 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             try
             {
+               
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
@@ -198,12 +218,13 @@ namespace SPPSApi.Controllers.G07
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
-                        if (listInfoData[i]["VCFaBuType"].ToString()!="1") {
+                        if (listInfoData[i]["VCFaBuType"].ToString() != "1")
+                        {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "仅能修改手动发注数据！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        
+
                     }
                     Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
                     bool b = regex.IsMatch(listInfoData[i]["iOrderNumber"].ToString());
@@ -222,6 +243,9 @@ namespace SPPSApi.Controllers.G07
                 }
 
                 string strErrorPartId = "";
+             
+
+                
                 FS0719_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {

@@ -1459,7 +1459,7 @@ namespace DataAccess
                     vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
                     //20180929看板打印计划表没有周度品番数据，而其他工程的计划表有周度品番，且生成的看板打印数据需要读取其他工程的计划数据，
                     //如果不筛选则会报索引超出了数组界限的错误，因此生成看板打印数据时也要筛选一次周度品番 - 李兴旺
-                    if (vcPartFrequence != "周度")
+                    if (vcPartFrequence != "0")
                     {
                         #region 生成看板打印数据
                         dt_calendarname = dtcalendarname.Select("vcPartsno='" + vcPartsno + "'  and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCartype + "'   ").CopyToDataTable();
@@ -2064,38 +2064,38 @@ namespace DataAccess
                     dt_Update.Rows[i]["iD30"] = (Convert.ToInt32(dr[0]["vcD30b"].ToString().Length == 0 ? "0" : dr[0]["vcD30b"]) + Convert.ToInt32(dr[0]["vcD30y"].ToString().Length == 0 ? "0" : dr[0]["vcD30y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
                     dt_Update.Rows[i]["iD31"] = (Convert.ToInt32(dr[0]["vcD31b"].ToString().Length == 0 ? "0" : dr[0]["vcD31b"]) + Convert.ToInt32(dr[0]["vcD31y"].ToString().Length == 0 ? "0" : dr[0]["vcD31y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
                     //dt_Update.Rows[i]["updateFlag"] = "1";
-                    //tmp = Convert.ToInt32(dt_Update.Rows[i]["iD1"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD2"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD3"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD4"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD5"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD6"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD7"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD8"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD9"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD10"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD11"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD12"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD13"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD14"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD15"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD16"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD17"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD18"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD19"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD20"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD21"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD22"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD23"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD24"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD25"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD26"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD27"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD28"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD29"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD30"]) +
-                    //    Convert.ToInt32(dt_Update.Rows[i]["iD31"]);
-                    //dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
+                    tmp = Convert.ToInt32(dt_Update.Rows[i]["iD1"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD2"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD3"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD4"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD5"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD6"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD7"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD8"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD9"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD10"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD11"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD12"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD13"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD14"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD15"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD16"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD17"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD18"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD19"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD20"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD21"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD22"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD23"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD24"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD25"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD26"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD27"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD28"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD29"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD30"]) +
+                        Convert.ToInt32(dt_Update.Rows[i]["iD31"]);
+                    dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
                 }
                 SqlCommandBuilder scb = new SqlCommandBuilder(apt);
 

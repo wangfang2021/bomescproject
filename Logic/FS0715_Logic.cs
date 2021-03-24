@@ -25,7 +25,21 @@ namespace Logic
         }
         #endregion
 
-    
+        #region 导出检索
+        public DataTable Search_EX(string PackSpot, string YearMonth)
+        {
+            return FS0715_DataAccess.Search_EX(PackSpot, YearMonth);
+        }
+        #endregion
+
+        #region 班制检索
+        public DataTable Search_BZ(string PackSpot)
+        {
+            return FS0715_DataAccess.Search_BZ(PackSpot);
+        }
+        #endregion
+
+
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId)
@@ -33,6 +47,15 @@ namespace Logic
             FS0715_DataAccess.Save(listInfoData, strUserId,ref strErrorPartId);
         }
         #endregion
+
+        #region 保存班制
+        public void Save_BZ(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            FS0715_DataAccess.Save_BZ(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+
 
         #region 导入后保存
         public void importSave(DataTable dt, string strUserId)
@@ -48,24 +71,10 @@ namespace Logic
         }
         #endregion
 
-        #region 
-        public DataTable getSupplier()
+        #region 查找工厂
+        public DataTable SearchPackSpot()
         {
-            return FS0715_DataAccess.getSupplier();
-        }
-        #endregion
-
-        #region 按检索条件检索,返回dt
-        public DataTable Search_GS(string strBegin, string strEnd )
-        {
-            return FS0715_DataAccess.Search_GS(strBegin, strEnd );
-        }
-        #endregion
-
-        #region 保存
-        public void Save_GS(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorName)
-        {
-            FS0715_DataAccess.Save_GS(listInfoData, strUserId, ref strErrorName);
+            return FS0715_DataAccess.SearchPackSpot();
         }
         #endregion
 

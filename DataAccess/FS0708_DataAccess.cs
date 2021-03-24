@@ -31,61 +31,48 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, string OrderFrom, string OrderTo, string Type, List<Object> OrderState, string IsQianPin, string SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
+        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo, string OrderFrom, string OrderTo, string Type, List<Object> OrderState, string IsQianPin, List<object> SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
         {
             try
             {
-                string strState = string.Join(",", OrderState);
-                if (string.IsNullOrEmpty(dFaZhuFrom))
-                {
-                    dFaZhuFrom = "1990-01-01 0:00:00";
-
-                }
-
-                if (string.IsNullOrEmpty(dFaZhuTo))
-                {
-                    dFaZhuTo = "3000-01-01 0:00:00";
-
-                }
-                if (string.IsNullOrEmpty(dNaQiFrom))
-                {
-                    dNaQiFrom = "1990-01-01 0:00:00";
-
-                }
-                if (string.IsNullOrEmpty(dNaQiTo))
-                {
-                    dFaZhuTo = "3000-01-01 0:00:00";
-
-                }
-                if (string.IsNullOrEmpty(dNaRuFrom))
-                {
-                    dNaQiFrom = "1990-01-01 0:00:00";
-
-                }
-                if (string.IsNullOrEmpty(dNaRuTo))
-                {
-                    dNaRuTo = "3000-01-01 0:00:00";
-
-                }
+               
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPack_FaZhu_ShiJi");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
-                if (!string.IsNullOrEmpty(SupplierName))
+                if (SupplierName.Count != 0)
                 {
-
-                    strSql.AppendLine($"      AND vcSupplierCode LIKE '{SupplierName}'");
+                    strSql.AppendLine($"      AND vcSupplierID in( ");
+                    for (int i = 0; i < SupplierName.Count; i++)
+                    {
+                        if (SupplierName.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + SupplierName[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + SupplierName[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
                 }
                 if (!string.IsNullOrEmpty(PackNo))
                 {
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
                 }
-                   
-                if (!string.IsNullOrEmpty(PackSpot))
+                if (PackSpot.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+                    strSql.AppendLine($"      AND vcPackSpot in( ");
+                    for (int i = 0; i < PackSpot.Count; i++)
+                    {
+                        if (PackSpot.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + PackSpot[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + PackSpot[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
                 }
                 if (!string.IsNullOrEmpty(PackGPSNo))
                 {
@@ -103,13 +90,32 @@ namespace DataAccess
                 {
                     strSql.AppendLine($"      AND vcZuCode = '{ZuCode}'");
                 }
-                if (!string.IsNullOrEmpty(strState))
+                if (OrderState.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcState LIKE '%{strState}%'");
+                    strSql.AppendLine($"      AND vcState in( ");
+                    for (int i = 0; i < OrderState.Count; i++)
+                    {
+                        if (OrderState.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + OrderState[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + OrderState[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
                 }
-                strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
-                strSql.AppendLine($"      AND dFaZhuTime BETWEEN '{dFaZhuFrom}' and '{dFaZhuTo}'");
-                strSql.AppendLine($"      AND dNaRuShiJi BETWEEN '{dNaQiFrom}' and '{dNaQiTo}'");
+                if (!string.IsNullOrEmpty(dNaRuFrom)|| !string.IsNullOrEmpty(dNaRuTo))
+                {
+                    strSql.AppendLine($"      AND dNaRuYuDing BETWEEN '{dNaRuFrom}' and '{dNaRuTo}'");
+                }
+                if (!string.IsNullOrEmpty(dFaZhuFrom) || !string.IsNullOrEmpty(dFaZhuTo))
+                {
+                    strSql.AppendLine($"      AND dFaZhuTime BETWEEN '{dFaZhuFrom}' and '{dFaZhuTo}'");
+                }
+                if (!string.IsNullOrEmpty(dNaQiFrom) || !string.IsNullOrEmpty(dNaQiTo))
+                {
+                    strSql.AppendLine($"      AND dNaRuShiJi BETWEEN '{dNaQiFrom}' and '{dNaQiTo}'");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

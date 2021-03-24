@@ -58,7 +58,6 @@ namespace SPPSApi.Controllers.G07
 
                 res.Add("C023", dataList_C023);
 
-
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -89,24 +88,12 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string PackSpot = dataForm.PackSpot;
-            string YearMonth = dataForm.YearMonth;
-          
+            string YearMonth = dataForm.Month;
+
             try
             {
                 DataTable dt = FS0715_Logic.Search(PackSpot, YearMonth);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -138,19 +125,30 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strChange = dataForm.Change;
-          
+            string PackSpot = dataForm.PackSpot;
+            string YearMonth = dataForm.Month;
+
             try
             {
-                //DataTable dt = FS0715_Logic.Search();
-                DataTable dt = null;
-                string[] fields = { "vcChange_Name", "vcPart_id", "dUseBegin", "dUseEnd", "vcProjectType_Name", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBegin","dProjectEnd","vcHaoJiu_Name","dJiuBegin","dJiuEnd","dJiuBeginSustain","vcPriceChangeInfo"
-                ,"vcPriceState_Name","dPriceStateDate","vcPriceGS","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebegin","dPriceEnd"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
-                ,"vcOriginCompany_Name"
+                DataTable dt = FS0715_Logic.Search_EX(PackSpot, YearMonth);
+                string resMsg = "";
+                if (dt.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可导出数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+                string[] head = { "包装厂", "日期年月", "1日", "2日", "3日", "4日", "5日", "6日", "7日", "8日", "9日", "10日"
+                                     , "11日", "12日", "13日", "14日", "15日", "16日", "17日", "18日", "19日", "20日"
+                                     , "21日", "22日", "23日", "24日", "25日", "26日", "27日", "28日", "29日", "30日", "31日"};
+
+                string[] fields = { "vcPackSpot", "vcYearMonth", "vcDay01", "vcDay02", "vcDay03", "vcDay04", "vcDay05", "vcDay06", "vcDay07", "vcDay08", "vcDay09", "vcDay10",
+                                   "vcDay11", "vcDay12", "vcDay13", "vcDay14", "vcDay15", "vcDay16", "vcDay17", "vcDay18", "vcDay19", "vcDay20",
+                                   "vcDay21", "vcDay22", "vcDay23", "vcDay24", "vcDay25", "vcDay26", "vcDay27", "vcDay28", "vcDay29", "vcDay30", "vcDay31"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0715_Export.xlsx", 2,loginInfo.UserId,FunctionID  );
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -170,7 +168,6 @@ namespace SPPSApi.Controllers.G07
             }
         }
         #endregion
-        //导出列值应该显示名字
 
         #region 保存
         [HttpPost]
@@ -189,29 +186,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
+                JArray listInfo = dataForm;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-                bool hasFind = false;//是否找到需要新增或者修改的数据
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        hasFind = true;
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        hasFind = true;
-                    }
-                }
-                if (!hasFind)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少有一个编辑行！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-             
                 string strErrorPartId = "";
                 FS0715_Logic.Save(listInfoData, loginInfo.UserId,ref strErrorPartId);
                 if (strErrorPartId != "")
@@ -235,45 +211,7 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
-        #region 删除
-        [HttpPost]
-        [EnableCors("any")]
-        public string delApi([FromBody]dynamic data)
-        {
-            //验证是否登录
-            string strToken = Request.Headers["X-Token"];
-            if (!isLogin(strToken))
-            {
-                return error_login();
-            }
-            LoginInfo loginInfo = getLoginByToken(strToken);
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (listInfoData.Count == 0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一条数据！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                FS0715_Logic.Del(listInfoData, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0903", ex, loginInfo.UserId);
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
+ 
 
        
     }

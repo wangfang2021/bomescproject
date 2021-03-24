@@ -23,8 +23,18 @@ namespace Logic
             return FS0702_DataAccess.SearchSupplier();
         }
 
+        /// <summary>
+        /// 变更事项
+        /// </summary>
+        /// <returns></returns>
+        public DataTable SearchNote()
+        {
+            return FS0702_DataAccess.SearchNote();
+        }
+
+
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(string Note, string PackSpot, string Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
+        public DataTable Search(List<Object> Note, List<Object> PackSpot, string Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
         {
             return FS0702_DataAccess.Search( Note,  PackSpot,  Shouhuofang,  Pinfan,  Car,  PackNO,  PackGPSNo,  dtFromBegin,  dtFromEnd,  dtToBegin,  dtToEnd);
         }
@@ -71,6 +81,14 @@ namespace Logic
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
             FS0702_DataAccess.Del(listInfoData, strUserId);
+        }
+        #endregion
+
+
+        #region 检查
+        public DataTable checkSOQ(string vcPartsNo)
+        {
+          return  FS0702_DataAccess.checkSOQ(vcPartsNo);
         }
         #endregion
 

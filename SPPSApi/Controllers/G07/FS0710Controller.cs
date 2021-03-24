@@ -102,10 +102,19 @@ namespace SPPSApi.Controllers.G07
                 DataTable dt = FS0710_Logic.Search_NR(PackSpot, strSupplierCode, dFrom, dTo);
                 //插入临时表
                 string strErrorPartId = "";
-                FS0710_Logic.Save_NR(dt, ref strErrorPartId);
-                if (strErrorPartId == "")
+
+                if (dt.Rows.Count == 0)
                 {
-                    strErrorPartId = "纳入统计计算成功！";
+
+                    strErrorPartId = "纳入统计0条！";
+                }
+                else
+                {
+                    FS0710_Logic.Save_NR(dt, ref strErrorPartId);
+                    if (strErrorPartId == "")
+                    {
+                        strErrorPartId = "纳入统计计算成功！";
+                    }
                 }
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 res.Add("strException", strErrorPartId);
@@ -149,7 +158,7 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] head = {"供应商","供应商名称","GPS品番","品名","规格","数量","单位","费用负担","备注" };
+                string[] head = { "供应商", "供应商名称", "GPS品番", "品名", "规格", "数量", "单位", "费用负担", "备注" };
                 string[] fields = { "vcSupplieCode", "vcSupplierName", "vcPackGPSNo", "vcParstName", "vcFormat", "isjNum", "vcUnit", "vcCostID", "Memo" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);

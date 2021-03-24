@@ -72,5 +72,10 @@ namespace Logic
         {
             fs0628_DataAccess.creatInjectionOrderNo(dtWZ, userId);
         }
+
+        public void allInstall(List<Dictionary<string, object>> listInfoData, string vcIntake, string userId)
+        {
+            fs0628_DataAccess.allInstall(listInfoData, vcIntake, userId);
+        }
     }
 }

@@ -76,9 +76,9 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMonth = dataForm.vcMonth;
-            string vcWeek = dataForm.vcWeek;
-            string vcPlant = dataForm.vcPlant;
+            string vcMonth = dataForm.vcMonth == null ? "" : dataForm.vcMonth;
+            string vcWeek = dataForm.vcWeek == null ? "" : dataForm.vcWeek;
+            string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
             try
             {
                 DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
@@ -117,6 +117,9 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string vcMonth = dataForm.vcMonth == null ? "" : dataForm.vcMonth;
+                string vcWeek = dataForm.vcWeek == null ? "" : dataForm.vcWeek;
+                string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
@@ -137,16 +140,97 @@ namespace SPPSApi.Controllers.G12
                 }
                 try
                 {
-                    DataTable dt = ListToDataTable(listInfoData);
-                    fS1205_Logic.TXTUpdateTableDetermine(dt);
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = "保存成功";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        for(int j = 0;j< listInfoData.Count;j++)
+                        {
+                            if (dt.Rows[i]["iAutoId"].ToString() == listInfoData[j]["iAutoId"].ToString())
+                                dt.Rows[i]["vcFlag"] = listInfoData[j]["vcFlag"].ToString();
+                        }
+                    }
+                    if (dt == null || dt.Rows.Count == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "无可更新的数据请先检索！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    else
+                    {
+                        //遍历检查一遍有没有NG数据
+                        for (int i = 0; i < dt.Rows.Count; i++)
+                        {
+                            if (dt.Rows[i]["vcFlag"].ToString() == "N")
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "数据中有NG的数据，不能更新！";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                        //更新操作
+                        try
+                        {
+                            string Month = dt.Rows[0]["vcMonth"].ToString();//获取数据源中的对象月
+                            string OrderNo = dt.Rows[0]["vcOrderNo"].ToString();//获取数据源中的订单号
+                            string Week = dt.Rows[0]["vcWeek"].ToString();//获取数据源中的对象周
+                            string Plant = dt.Rows[0]["vcPlant"].ToString();//获取数据源中的厂区
+                            string ColumnName = string.Empty;//对应周的实际订货数量的列名
+                            switch (Week)
+                            {
+                                case "1": ColumnName = "vc1stWeekTotal"; break;
+                                case "2": ColumnName = "vc2ndWeekTotal"; break;
+                                case "3": ColumnName = "vc3rdWeekTotal"; break;
+                                case "4": ColumnName = "vc4thWeekTotal"; break;
+                                case "5": ColumnName = "vc5thWeekTotal"; break;
+                            }
+                            for (int k = 0; k < dt.Rows.Count; k++)
+                            {
+                                //将本周实际订货数放到对应的周总数中
+                                dt.Rows[k][ColumnName] = dt.Rows[k]["vcWeekOrderingCount"];
+                                //合计更新
+                                dt.Rows[k]["vcTotal"] = (Convert.ToInt32(dt.Rows[k]["vc1stWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc2ndWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc3rdWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc4thWeekTotal"].ToString()) + Convert.ToInt32(dt.Rows[k]["vc5thWeekTotal"].ToString())).ToString();
+                            }
+                            //设置主键
+                            dt.PrimaryKey = new DataColumn[]
+                            {
+                                dt.Columns["vcMonth"],
+                                dt.Columns["vcOrderNo"],
+                                dt.Columns["vcWeek"],
+                                dt.Columns["vcPlant"],
+                                dt.Columns["vcGC"],
+                                dt.Columns["vcZB"],
+                                dt.Columns["vcPartsno"]
+                            };
+                            fS1205_Logic.TXTUpdateTableDetermine(dt, Month, OrderNo, Week, Plant);
+                            //全部设定为OK后，开始进行平准化操作
+                            string msg = fS1205_Logic.TXTInsertToWeekLevelSchedule(dt);
+                            if (msg.Length > 0)
+                            {
+                                //大于0，意思是有异常情况
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = msg;
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                            else
+                            {
+                                //最终提示信息
+                                apiResult.code = ComConstant.SUCCESS_CODE;
+                                apiResult.data = null;
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "更新失败！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败";
+                    apiResult.data = "更新失败！";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
@@ -177,14 +261,14 @@ namespace SPPSApi.Controllers.G12
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcMonth = dataForm.vcMonth;
             string vcWeek = dataForm.vcWeek;
-            string vcPlant = dataForm.vcPlant; 
+            string vcPlant = dataForm.vcPlant;
             string msg = "";
             try
             {
                 DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    string exlName = "";      
+                    string exlName = "";
                     DataTable tb = fS1205_Logic.BdpdFileExport(dt, ref exlName, ref msg);
                     if (tb != null && tb.Rows.Count > 0)
                     {

@@ -210,6 +210,7 @@ namespace DataAccess
                         sql.AppendLine("     dNaRuYuDing,	 ");
                         sql.AppendLine("     vcNaRuBianCi,	 ");
                         sql.AppendLine("     vcNaRuUnit,	 ");
+                        sql.AppendLine("     vcState,	 ");//纳入状态
                         sql.AppendLine("     vcPackSupplierID,	 ");
                         sql.AppendLine("     vcPackSpot,	 ");
                         sql.AppendLine("     vcCangKuID,vcOperatorID,dOperatorTime	 ");
@@ -223,6 +224,7 @@ namespace DataAccess
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iOrderNumber"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["VCFaBuType"], false) + ",");
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dNaRuTime"], false) + ",");
+                        sql.AppendLine("   '0',  	");//纳入状态未发注
                         sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcNaRuBianci"], false) + ",");
                         sql.AppendLine("'" + dr[0]["iRelease"].ToString() + "',");
                         sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");

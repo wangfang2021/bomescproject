@@ -239,7 +239,7 @@ namespace DataAccess
             sb.AppendFormat("  left join (select distinct vcPartNameCN,vcHJ,vcProType,vcZB,vcPlant,vcQFflag,vcPartsNo,vcDock,vcCarType,vcSRS from tPlanPartInfo where vcMonth ='{0}' and vcEDflag ='S' ) t3", mon);
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType");
             sb.AppendLine("  left join ProRuleMst t4");
-            sb.AppendLine("  on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
+            sb.AppendLine("  on t4.vcPorType=t3.vcProType and t4.vcZB = t3.vcZB");
             if (plant.Trim().Length > 0)
             {
                 sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcQFflag ='1' and t3.vcPlant ='{1}' ", mon, plant);
@@ -276,7 +276,7 @@ namespace DataAccess
             DataTable dtEDorder = SearchData(ssql);
             string tmpsql = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
-            tmpsql += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,vcOperatorID,'T0' as otype,'紧急' as vcEDflag ";
+            tmpsql += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T0' as otype,'紧急' as vcEDflag ";
             tmpsql += " from TOperateSJ t where vcZYType='S0' ";
             tmpsql += " and (";
             for (int i = 0; i < dtEDorder.Rows.Count; i++)
@@ -320,7 +320,7 @@ namespace DataAccess
             DataTable dtEDorder2 = SearchData(ssql);
             string tmpsql2 = " select vcPart_id,vcSHF,vcSR,vcInputNo,iQuantity,vcKBOrderNo,vcKBLFNo,";
             tmpsql2 += " case when packingcondition='1' then '未包装' else '已包装' end as packingcondition,";
-            tmpsql2 += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,vcOperatorID,'T1' as otype ,'紧急' as vcEDflag ";
+            tmpsql2 += " vcBZPlant,dStart,vcOperatorID,vcSheBeiNo,dOperatorTime,'T1' as otype ,'紧急' as vcEDflag ";
             tmpsql2 += " from TOperateSJ t where vcZYType='S0' ";
             tmpsql2 += "  and ( ";
             for (int i = 0; i < dtEDorder2.Rows.Count; i++)

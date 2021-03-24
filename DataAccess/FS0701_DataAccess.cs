@@ -30,8 +30,26 @@ namespace DataAccess
         }
         #endregion
 
+        #region 
+        public DataTable SearchFZLJ()
+        {
+            try
+            {
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("    select vcValue1 as vcValue,vcValue2 as vcName from TOutCode where vcCodeName='发注逻辑' and vcIsColum='0' ");
+
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
+        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo, List<Object> strSupplierCode, string dFromB, string dFromE, string dToB, string dToE)
         {
             try
             {
@@ -64,7 +82,7 @@ namespace DataAccess
                 strSql.AppendLine("      	TPackBase");
                 strSql.AppendLine("      WHERE");
                 strSql.AppendLine("      	1 = 1");
-                if (strSupplierCode.Count!=0)
+                if (strSupplierCode.Count != 0)
                 {
                     strSql.AppendLine($"      AND vcSupplierCode in( ");
                     for (int i = 0; i < strSupplierCode.Count; i++)
@@ -80,8 +98,21 @@ namespace DataAccess
                 }
                 if (!string.IsNullOrEmpty(PackNo))
                     strSql.AppendLine($"      AND vcPackNo LIKE '%{PackNo}%'");
-                if (!string.IsNullOrEmpty(PackSpot))
-                    strSql.AppendLine($"      AND vcPackSpot = '{PackSpot}'");
+
+                if (PackSpot.Count != 0)
+                {
+                    strSql.AppendLine($"      AND vcPackSpot in( ");
+                    for (int i = 0; i < PackSpot.Count; i++)
+                    {
+                        if (PackSpot.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + PackSpot[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + PackSpot[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
                 if (!string.IsNullOrEmpty(PackGPSNo))
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
                 strSql.AppendLine($"      AND dPackFrom BETWEEN '{dFromB}' and '{dFromE}'");
@@ -105,6 +136,26 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    select * from TPackBase   ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        #endregion
+
+
+
+        #region checktime
+        public DataTable searchcheckTime(string strPackNo, string dFrom, string dTo)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("   select * from TPackBase where vcPackNo='"+ strPackNo + "'and dPackFrom<='"+ dFrom + "' and dPackTo>='"+ dTo + "'   ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -268,7 +319,7 @@ namespace DataAccess
                     sql.Append("  delete from  TPackBase where vcPackSpot=" + ComFunction.getSqlValue(dt.Rows[i]["vcPackSpot"], false) + " and vcPackNo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + " and vcPackGPSNo=" + ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], false) + "   \r\n");
                 }
                 //插入
-                
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     sql.Append("  INSERT INTO [dbo].[TPackBase]   \r\n");

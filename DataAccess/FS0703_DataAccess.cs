@@ -76,113 +76,129 @@ namespace DataAccess
 
 
         #region 计算
-        public DataTable Calculation(string PackSpot, string PackFrom, List<Object> strSupplierCode)
+        public DataTable Calculation(List<Object> PackSpot, string PackFrom, List<Object> strSupplierCode)
         {
             try
             {
-                DateTime dtn1 = DateTime.ParseExact(PackFrom.Substring(0, 7), "yyyy-MM", System.Globalization.CultureInfo.CurrentCulture);
-                string strN = dtn1.AddMonths(1).ToString("yyyyMM");
-                string strN_1 = dtn1.AddMonths(2).ToString("yyyyMM");
-                string strN_2 = dtn1.AddMonths(3).ToString("yyyyMM");
+                DateTime dtn1 = DateTime.Parse(PackFrom.Substring(0, 7));
+                   // DateTime.ParseExact(PackFrom.Substring(0, 7), "yyyy-MM", System.Globalization.CultureInfo.CurrentCulture);
+                string strN = dtn1.ToString("yyyyMM");
+                string strN_1 = dtn1.AddMonths(1).ToString("yyyyMM");
+                string strN_2 = dtn1.AddMonths(2).ToString("yyyyMM");
 
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" delete from TPackJSException   ;     \n");
-                strSql.AppendLine(" delete from TPackNSCalculation   ;     \n");
-                strSql.AppendLine(" select        \n");
-                strSql.AppendLine(" T_1.vcYearMonth       \n");
-                strSql.AppendLine("  ,T_1.vcPart_id         \n");
-                strSql.AppendLine(" ,T_2.vcPackSpot,T_2.vcSupplierCode,      \n");
-                strSql.AppendLine("  T_2.vcSupplierPlant,T_2.vcSupplierName,      \n");
-                strSql.AppendLine(" '' as vcSupplierPack ---供应商包装       \n");
-                strSql.AppendLine(" ,T_2.vcPackNo      \n");
-                strSql.AppendLine(" ,T_2.vcCycle,T_2.iRelease,T_1.iHySOQN,T_1.iHySOQN1,T_1.iHySOQN2,      \n");
-                strSql.AppendLine("  T_1.iD1*T_1.iQuantityPercontainer as iD1,      \n");
-                strSql.AppendLine("  T_1.iD2*T_1.iQuantityPercontainer as iD2,      \n");
-                strSql.AppendLine("  T_1.iD3*T_1.iQuantityPercontainer as iD3,      \n");
-                strSql.AppendLine("  T_1.iD4*T_1.iQuantityPercontainer as iD4,      \n");
-                strSql.AppendLine("  T_1.iD5*T_1.iQuantityPercontainer as iD5,      \n");
-                strSql.AppendLine("  T_1.iD6*T_1.iQuantityPercontainer as iD6,      \n");
-                strSql.AppendLine("  T_1.iD7*T_1.iQuantityPercontainer as iD7,      \n");
-                strSql.AppendLine("  T_1.iD8*T_1.iQuantityPercontainer as iD8,      \n");
-                strSql.AppendLine("  T_1.iD9*T_1.iQuantityPercontainer as iD9,           \n");
-                strSql.AppendLine("  T_1.iD10*T_1.iQuantityPercontainer as iD10,      \n");
-                strSql.AppendLine("  T_1.iD11*T_1.iQuantityPercontainer as iD11,      \n");
-                strSql.AppendLine("  T_1.iD12*T_1.iQuantityPercontainer as iD12,      \n");
-                strSql.AppendLine("  T_1.iD13*T_1.iQuantityPercontainer as iD13,      \n");
-                strSql.AppendLine("  T_1.iD14*T_1.iQuantityPercontainer as iD14,      \n");
-                strSql.AppendLine("  T_1.iD15*T_1.iQuantityPercontainer as iD15,      \n");
-                strSql.AppendLine("  T_1.iD16*T_1.iQuantityPercontainer as iD16,      \n");
-                strSql.AppendLine("  T_1.iD17*T_1.iQuantityPercontainer as iD17,      \n");
-                strSql.AppendLine("  T_1.iD18*T_1.iQuantityPercontainer as iD18,      \n");
-                strSql.AppendLine("  T_1.iD19*T_1.iQuantityPercontainer as iD19,      \n");
-                strSql.AppendLine("  T_1.iD20*T_1.iQuantityPercontainer as iD20,      \n");
-                strSql.AppendLine("  T_1.iD21*T_1.iQuantityPercontainer as iD21,      \n");
-                strSql.AppendLine("  T_1.iD22*T_1.iQuantityPercontainer as iD22,       \n");
-                strSql.AppendLine("  T_1.iD23*T_1.iQuantityPercontainer as iD23,       \n");
-                strSql.AppendLine("  T_1.iD24*T_1.iQuantityPercontainer as iD24,       \n");
-                strSql.AppendLine("  T_1.iD25*T_1.iQuantityPercontainer as iD25,       \n");
-                strSql.AppendLine("  T_1.iD26*T_1.iQuantityPercontainer as iD26,       \n");
-                strSql.AppendLine("  T_1.iD27*T_1.iQuantityPercontainer as iD27,       \n");
-                strSql.AppendLine("  T_1.iD28*T_1.iQuantityPercontainer as iD28,       \n");
-                strSql.AppendLine("  T_1.iD29*T_1.iQuantityPercontainer as iD29,       \n");
-                strSql.AppendLine("  T_1.iD30*T_1.iQuantityPercontainer as iD30,       \n");
-                strSql.AppendLine("  T_1.iD31*T_1.iQuantityPercontainer as iD31,       \n");
-                strSql.AppendLine("  GETDATE() as dZCTime --作成时间        \n");
-                strSql.AppendLine(" from         \n");
-                strSql.AppendLine("  (       \n");
-                strSql.AppendLine("  select a.vcYearMonth,a.vcPart_id,      \n");
-                strSql.AppendLine("    case when b.vcDXYM is null then '0'else  a.iHySOQN end as iHySOQN,        \n");
-                strSql.AppendLine("    case when c.vcDXYM is null then '0'else  a.iHySOQN1 end as iHySOQN1,        \n");
-                strSql.AppendLine("    case when d.vcDXYM is null then '0'else  a.iHySOQN2 end as iHySOQN2        \n");
-                strSql.AppendLine("  ,b.vcDXYM as vcDXYM,c.vcDXYM as vcDXYM1,d.vcDXYM as vcDXYM2,b.iQuantityPercontainer,     \n");
-                strSql.AppendLine("  b.iD1 ,b.iD2,b.iD3,b.iD4,b.iD5,b.iD6,b.iD7,b.iD8,b.iD9,b.iD10,b.iD11,b.iD12,b.iD13,b.iD14,b.iD15,b.iD16,     \n");
-                strSql.AppendLine("  b.iD17,b.iD18,b.iD19,b.iD20,b.iD21,b.iD22,b.iD23,b.iD24,b.iD25,b.iD26,b.iD27,b.iD28,b.iD29,b.iD30,b.iD31     \n");
-                strSql.AppendLine("  from       \n");
-                strSql.AppendLine("  (         \n");
-                strSql.AppendLine("   select *from TSoq where vcYearMonth='" + strN + "'      \n");
-                strSql.AppendLine("  )a        \n");
-                strSql.AppendLine("  left join      \n");
-                strSql.AppendLine("  (        \n");
-                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "'      \n");
-                strSql.AppendLine("  )b on a.vcPart_id=b.vcPart_id      \n");
-                strSql.AppendLine("  left join      \n");
-                strSql.AppendLine("  (        \n");
-                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN_1 + "'     \n");
-                strSql.AppendLine("  )c on a.vcPart_id=c.vcPart_id       \n");
-                strSql.AppendLine("  left join      \n");
-                strSql.AppendLine("   (         \n");
-                strSql.AppendLine("   select * from TSoqReply where vcDXYM='" + strN_2 + "'      \n");
-                strSql.AppendLine("   )d on a.vcPart_id=d.vcPart_id     \n");
-                strSql.AppendLine("   inner join     \n");
-                strSql.AppendLine("   (     \n");
-                strSql.AppendLine("     select * from TPackageMaster where vcBZPlant='" + PackSpot + "'  and GETDATE() between dTimeFrom and dTimeTo    \n");
-                strSql.AppendLine("   )e on a.vcPart_id=e.vcPart_id     \n");
-                strSql.AppendLine("   )T_1      \n");
-                strSql.AppendLine("   left join     \n");
-                strSql.AppendLine("   (         \n");
-                strSql.AppendLine("      select vcPartsNo,ss.vcPackSpot,ss.vcSupplierCode,ss.vcSupplierPlant,ss.vcSupplierName,     \n");
-                strSql.AppendLine("  	 ss.vcPackNo,ss.vcCycle,ss.iRelease     \n");
-                strSql.AppendLine("  	  from      \n");
-                strSql.AppendLine("  	 (     \n");
-                strSql.AppendLine("       select * from TPackItem       \n");
-                strSql.AppendLine("  	  )s inner join     \n");
-                strSql.AppendLine("  	  (     \n");
-                strSql.AppendLine("  	    select * from TPackBase     \n");
-                strSql.AppendLine("  where vcSupplierCode in (     \n");
+                strSql.AppendLine(" delete from TPackJSException   ;      ");
+                strSql.AppendLine(" delete from TPackNSCalculation   ;      ");
+                strSql.AppendLine(" select         ");
+                strSql.AppendLine(" T_1.vcYearMonth        ");
+                strSql.AppendLine("  ,T_1.vcPart_id          ");
+                strSql.AppendLine(" ,T_2.vcPackSpot,T_2.vcSupplierCode,       ");
+                strSql.AppendLine("  T_2.vcSupplierPlant,T_2.vcSupplierName,       ");
+                strSql.AppendLine(" '' as vcSupplierPack ---供应商包装        ");
+                strSql.AppendLine(" ,T_2.vcPackNo ,T_2.dUsedFrom,T_2.dUsedTo           ");
+                strSql.AppendLine(" ,T_2.vcCycle,T_2.iRelease,T_1.iHySOQN,T_1.iHySOQN1,T_1.iHySOQN2,       ");
+                strSql.AppendLine("  T_1.iD1*T_1.iQuantityPercontainer as iD1,       ");
+                strSql.AppendLine("  T_1.iD2*T_1.iQuantityPercontainer as iD2,       ");
+                strSql.AppendLine("  T_1.iD3*T_1.iQuantityPercontainer as iD3,       ");
+                strSql.AppendLine("  T_1.iD4*T_1.iQuantityPercontainer as iD4,       ");
+                strSql.AppendLine("  T_1.iD5*T_1.iQuantityPercontainer as iD5,       ");
+                strSql.AppendLine("  T_1.iD6*T_1.iQuantityPercontainer as iD6,       ");
+                strSql.AppendLine("  T_1.iD7*T_1.iQuantityPercontainer as iD7,       ");
+                strSql.AppendLine("  T_1.iD8*T_1.iQuantityPercontainer as iD8,       ");
+                strSql.AppendLine("  T_1.iD9*T_1.iQuantityPercontainer as iD9,            ");
+                strSql.AppendLine("  T_1.iD10*T_1.iQuantityPercontainer as iD10,       ");
+                strSql.AppendLine("  T_1.iD11*T_1.iQuantityPercontainer as iD11,       ");
+                strSql.AppendLine("  T_1.iD12*T_1.iQuantityPercontainer as iD12,       ");
+                strSql.AppendLine("  T_1.iD13*T_1.iQuantityPercontainer as iD13,       ");
+                strSql.AppendLine("  T_1.iD14*T_1.iQuantityPercontainer as iD14,       ");
+                strSql.AppendLine("  T_1.iD15*T_1.iQuantityPercontainer as iD15,       ");
+                strSql.AppendLine("  T_1.iD16*T_1.iQuantityPercontainer as iD16,       ");
+                strSql.AppendLine("  T_1.iD17*T_1.iQuantityPercontainer as iD17,       ");
+                strSql.AppendLine("  T_1.iD18*T_1.iQuantityPercontainer as iD18,       ");
+                strSql.AppendLine("  T_1.iD19*T_1.iQuantityPercontainer as iD19,       ");
+                strSql.AppendLine("  T_1.iD20*T_1.iQuantityPercontainer as iD20,       ");
+                strSql.AppendLine("  T_1.iD21*T_1.iQuantityPercontainer as iD21,       ");
+                strSql.AppendLine("  T_1.iD22*T_1.iQuantityPercontainer as iD22,        ");
+                strSql.AppendLine("  T_1.iD23*T_1.iQuantityPercontainer as iD23,        ");
+                strSql.AppendLine("  T_1.iD24*T_1.iQuantityPercontainer as iD24,        ");
+                strSql.AppendLine("  T_1.iD25*T_1.iQuantityPercontainer as iD25,        ");
+                strSql.AppendLine("  T_1.iD26*T_1.iQuantityPercontainer as iD26,        ");
+                strSql.AppendLine("  T_1.iD27*T_1.iQuantityPercontainer as iD27,        ");
+                strSql.AppendLine("  T_1.iD28*T_1.iQuantityPercontainer as iD28,        ");
+                strSql.AppendLine("  T_1.iD29*T_1.iQuantityPercontainer as iD29,        ");
+                strSql.AppendLine("  T_1.iD30*T_1.iQuantityPercontainer as iD30,        ");
+                strSql.AppendLine("  T_1.iD31*T_1.iQuantityPercontainer as iD31,        ");
+                strSql.AppendLine("  GETDATE() as dZCTime --作成时间         ");
+                strSql.AppendLine(" from          ");
+                strSql.AppendLine("  (        ");
+                strSql.AppendLine("  select a.vcYearMonth,a.vcPart_id,       ");
+                strSql.AppendLine("    case when b.vcDXYM is null then '0'else  a.iHySOQN end as iHySOQN,         ");
+                strSql.AppendLine("    case when c.vcDXYM is null then '0'else  a.iHySOQN1 end as iHySOQN1,         ");
+                strSql.AppendLine("    case when d.vcDXYM is null then '0'else  a.iHySOQN2 end as iHySOQN2         ");
+                strSql.AppendLine("  ,b.vcDXYM as vcDXYM,c.vcDXYM as vcDXYM1,d.vcDXYM as vcDXYM2,b.iQuantityPercontainer,      ");
+                strSql.AppendLine("  b.iD1 ,b.iD2,b.iD3,b.iD4,b.iD5,b.iD6,b.iD7,b.iD8,b.iD9,b.iD10,b.iD11,b.iD12,b.iD13,b.iD14,b.iD15,b.iD16,      ");
+                strSql.AppendLine("  b.iD17,b.iD18,b.iD19,b.iD20,b.iD21,b.iD22,b.iD23,b.iD24,b.iD25,b.iD26,b.iD27,b.iD28,b.iD29,b.iD30,b.iD31      ");
+                strSql.AppendLine("  from        ");
+                strSql.AppendLine("  (          ");
+                strSql.AppendLine("   select *from TSoq where vcYearMonth='" + strN + "'       ");
+                strSql.AppendLine("  )a         ");
+                strSql.AppendLine("  left join       ");
+                strSql.AppendLine("  (         ");
+                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "'       ");
+                strSql.AppendLine("  )b on a.vcPart_id=b.vcPart_id       ");
+                strSql.AppendLine("  left join       ");
+                strSql.AppendLine("  (         ");
+                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN_1 + "'      ");
+                strSql.AppendLine("  )c on a.vcPart_id=c.vcPart_id        ");
+                strSql.AppendLine("  left join       ");
+                strSql.AppendLine("   (          ");
+                strSql.AppendLine("   select * from TSoqReply where vcDXYM='" + strN_2 + "'       ");
+                strSql.AppendLine("   )d on a.vcPart_id=d.vcPart_id      ");
+                strSql.AppendLine("   left join      ");
+                strSql.AppendLine("   (      ");
+                strSql.AppendLine("     select * from TPackageMaster where  1=1   ");
+                if (PackSpot.Count != 0)
+                {
+                    strSql.AppendLine($"   and   vcBZPlant in (   ");
+                    for (int i = 0; i < PackSpot.Count; i++)
+                    {
+                        if (PackSpot.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + PackSpot[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + PackSpot[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
+                strSql.AppendLine("   and GETDATE() between dTimeFrom and dTimeTo      ");
+                strSql.AppendLine("   )e on a.vcPart_id=e.vcPart_id      ");
+                strSql.AppendLine("   )T_1       ");
+                strSql.AppendLine("   left join      ");
+                strSql.AppendLine("   (          ");
+                strSql.AppendLine("      select vcPartsNo,ss.vcPackSpot,ss.vcSupplierCode,ss.vcSupplierPlant,ss.vcSupplierName,      ");
+                strSql.AppendLine("  	 ss.vcPackNo,ss.vcCycle,ss.iRelease,dUsedFrom,dUsedTo        ");
+                strSql.AppendLine("  	  from       ");
+                strSql.AppendLine("  	 (      ");
+                strSql.AppendLine("       select * from TPackItem        ");
+                strSql.AppendLine("  	  )s LEFT join      ");
+                strSql.AppendLine("  	  (      ");
+                strSql.AppendLine("  	    select * from TPackBase      ");
+                strSql.AppendLine("  where vcSupplierCode in (      ");
                 for (int i = 0; i < strSupplierCode.Count; i++)
                 {
                     if (strSupplierCode.Count - i == 1)
                     {
-                        strSql.AppendLine("   '" + strSupplierCode[i] + "'   \n");
+                        strSql.AppendLine("   '" + strSupplierCode[i] + "'    ");
                     }
                     else
-                        strSql.AppendLine("  '" + strSupplierCode[i] + "' ,   \n");
+                        strSql.AppendLine("  '" + strSupplierCode[i] + "' ,    ");
                 }
-                strSql.AppendLine("  )    \n");
-                strSql.AppendLine("  	  )ss on s.vcPackNo=ss.vcPackNo     \n");
-                strSql.AppendLine("       \n");
-                strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo         \n");
+                strSql.AppendLine("  )     ");
+                strSql.AppendLine("  	  )ss on s.vcPackNo=ss.vcPackNo      ");
+                strSql.AppendLine("        ");
+                strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo          ");
          
 
 
@@ -246,7 +262,13 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("      select *from TPackNSCalculation         \n");
+                strSql.Append("     select a.*,b.dUsedFrom,b.dUsedTo from (        \n");
+                strSql.Append("     select * from TPackNSCalculation        \n");
+                strSql.Append("     )a left join        \n");
+                strSql.Append("     (        \n");
+                strSql.Append("     select * from TPackItem        \n");
+                strSql.Append("     )b on a.vcpart_id=b.vcPartsNo        \n");
+                strSql.Append("             \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -264,7 +286,7 @@ namespace DataAccess
 
 
         #region 按检索条件检索,返回dt----公式
-        public DataTable Search(string PackSpot, string PackFrom, List<Object> strSupplierCode)
+        public DataTable Search(List<Object> PackSpot, string PackFrom, List<Object> strSupplierCode)
         {
             try
             {
@@ -285,8 +307,21 @@ namespace DataAccess
                 strSql.Append("      from TPackNSCalculation         \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
-                if (PackSpot != "")
-                    strSql.Append("   and  vcPackSpot='" + PackSpot + "'       \n");
+                if (PackSpot.Count != 0)
+                {
+                    strSql.AppendLine($"   and   vcPackSpot in (   ");
+                    for (int i = 0; i < PackSpot.Count; i++)
+                    {
+                        if (PackSpot.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + PackSpot[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + PackSpot[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
+                }
+
                 if (strN != "")
                     strSql.Append("   and    vcYearMonth ='" + strN + "'         \n");
                 if (strSupplierCode.Count != 0)

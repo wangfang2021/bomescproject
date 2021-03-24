@@ -35,7 +35,7 @@ namespace Logic
 
 
         #region 计算
-        public DataTable Calculation(string PackSpot, string PackFrom, List<Object> strSupplierCode)
+        public DataTable Calculation(List<Object> PackSpot, string PackFrom, List<Object> strSupplierCode)
         {
             return FS0703_DataAccess.Calculation(PackSpot, PackFrom, strSupplierCode);
         }
@@ -61,7 +61,7 @@ namespace Logic
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string PackSpot, string PackFrom, List<Object> strSupplierCode)
+        public DataTable Search(List<Object> PackSpot, string PackFrom, List<Object> strSupplierCode)
         {
             return FS0703_DataAccess.Search( PackSpot,  PackFrom, strSupplierCode);
         }

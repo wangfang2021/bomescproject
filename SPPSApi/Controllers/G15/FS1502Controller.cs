@@ -89,13 +89,13 @@ namespace SPPSApi.Controllers.G15
             string vcBigPM = dataForm.vcBigPM == null ? "" : dataForm.vcBigPM;
             try
             {
-                if(dBZDate=="")
+                if (dBZDate == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请选择包装日期！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dt = fs1502_Logic.Search(dBZDate,vcBigPM);
+                DataTable dt = fs1502_Logic.Search(dBZDate, vcBigPM);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -176,10 +176,16 @@ namespace SPPSApi.Controllers.G15
             string dBZDate = dataForm.dBZDate == null ? "" : dataForm.dBZDate;
             try
             {
+                //DataTable dt = fs1502_Logic.Search_report(dBZDate);
+                //string[] fields = { "kind", "dt", "vcBigPM", "heji"};
+                //string filepath = fs1502_Logic.generateExcelWithXlt_report(dt, fields, _webHostEnvironment.ContentRootPath, "FS1502_Report.xls", 1, loginInfo.UserId, FunctionID);
                 DataTable dt = fs1502_Logic.Search_report(dBZDate);
-                string[] fields = { "kind", "dt", "vcBigPM", "heji"};
-                string filepath = fs1502_Logic.generateExcelWithXlt_report(dt, fields, _webHostEnvironment.ContentRootPath, "FS1502_Report.xls", 1, loginInfo.UserId, FunctionID);
-
+                string[] heads = { "类别", "大品目", "小品目", "1日", "2日", "3日", "4日", "5日", "6日", "7日", "8日", "9日", "10日",
+                "11日","12日","13日","14日","15日","16日","17日","18日","19日","20日","21日","22日","23日","24日","25日","26日","27日","28日","29日","30日","31日"};
+                string[] fields = { "vcKind", "vcBigPM", "vcSmallPM", "iD1", "iD2", "iD3", "iD4", "iD5", "iD6", "iD7", "iD8", "iD9", "iD10",
+                "iD11","iD12","iD13","iD14","iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28","iD29","iD30","iD31"};
+                string strMsg = "";
+                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -250,7 +256,7 @@ namespace SPPSApi.Controllers.G15
                         {FieldCheck.Num,FieldCheck.Num},//数据类型校验
                         {"0","0"},//最大长度设定,不校验最大长度用0
                         {"1","1"},//最小长度设定,可以为空用0
-                        {"6","7"},//前台显示列号，从0开始计算,注意有选择框的是0
+                        {"7","8"},//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1502");
                     if (checkRes != null)
@@ -262,6 +268,21 @@ namespace SPPSApi.Controllers.G15
                     }
                     #endregion
                 }
+
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string dPackDate = Convert.ToDateTime(listInfoData[i]["dPackDate"].ToString()).ToString("yyyy-MM-dd");
+                    string iLJBZRemain = listInfoData[i]["iLJBZRemain"].ToString();
+                    string iLJBZRemain_old = listInfoData[i]["iLJBZRemain_old"].ToString();
+                    string time = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+                    if (iLJBZRemain != iLJBZRemain_old && dPackDate != time)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "只有修改" + time + "的累计包装残！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
                 fs1502_Logic.Save(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
@@ -272,6 +293,84 @@ namespace SPPSApi.Controllers.G15
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1003", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 人变化
+        [HttpPost]
+        [EnableCors("any")]
+        public string personchangeApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string person = dataForm.person == null || dataForm.person=="" ? "0" : dataForm.person;
+                string hour = dataForm.hour == null || dataForm.hour =="" ? "0" : dataForm.hour;
+
+                decimal decperson = Convert.ToDecimal(person);
+                decimal dechour = Convert.ToDecimal(hour);
+
+                decimal result = decperson * 450 + decperson * (dechour * 60);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = result;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 小时变化
+        [HttpPost]
+        [EnableCors("any")]
+        public string hourchangeApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string person = dataForm.person == null || dataForm.person == "" ? "0" : dataForm.person;
+                string hour = dataForm.hour == null || dataForm.hour == "" ? "0" : dataForm.hour;
+
+                decimal decperson = Convert.ToDecimal(person);
+                decimal dechour = Convert.ToDecimal(hour);
+
+                decimal result = decperson * 450 + decperson * (dechour * 60);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = result;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -301,7 +400,7 @@ namespace SPPSApi.Controllers.G15
                     apiResult.data = "请选择包装日期！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs1502_Logic.Cal(dBZDate, loginInfo.UserId,loginInfo.UnitCode);
+                fs1502_Logic.Cal(dBZDate, loginInfo.UserId, loginInfo.UnitCode);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

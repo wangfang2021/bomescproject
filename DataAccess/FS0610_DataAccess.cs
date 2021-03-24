@@ -1228,7 +1228,7 @@ namespace DataAccess
                     vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
                     //20180929不是看板打印计划表，则不区分品番频度；是看板打印计划表，则区分品番频度，不是周度的则更新。
                     //即TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"时，不进行更新操作 - 李兴旺
-                    if (!(TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"))
+                    if (!(TableName == "MonthKanBanPlanTblTMP" && vcPartFrequence == "2"))
                     {
                         #region 插入、更新数据操作
                         foreach (DataRow dr in dt[i].Rows)
@@ -1299,7 +1299,7 @@ namespace DataAccess
                 vcPartFrequence = dtPartFrequence.Rows[0]["vcPartFrequence"].ToString().Trim();
                 //20180928不是看板打印计划表，则不区分品番频度；是看板打印计划表，则区分品番频度，不是周度的则更新。
                 //即toTable == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"时，不进行更新操作 - 李兴旺
-                if (!(toTable == "MonthKanBanPlanTblTMP" && vcPartFrequence == "周度"))
+                if (!(toTable == "MonthKanBanPlanTblTMP" && vcPartFrequence == "2"))
                 {
                     #region 更新操作
                     string tmp = "";

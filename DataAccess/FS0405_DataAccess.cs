@@ -32,12 +32,13 @@ namespace DataAccess
              *    注意：用户输入的是对象年月，这里需要转换为处理年月，用户传来的数据“XXXX/XX”
              *    对象年月转处理年月方法：对象年月字符串加“/01”，然后转换为时间格式，进行减1月操作，再对时间格式进行tostring()为“yyyyMM”格式
              * 3、执行SQL查询，查询出需要查询的处理年月
-             * 
+             * 4、进行两个循环，第一个循环是内外的检索条件，第二个循环是处理年月的检索条件
+             * 5、每次执行循环都会执行SQL语句查询，获取的结果为1条结果，将此结果放入临时的DataDT表中
+             * 6、循环执行完毕，再根据用户所选的内外和状态两个条件对DataDT进行筛选，筛选出的数据放入returnDT中，返回returnDT
              */
             #region 1
             DataTable dtCLYM = new DataTable();
             DataTable DataDT = new DataTable();
-            DataDT.Columns.Add("selection");
             DataDT.Columns.Add("vcDXYM");
             DataDT.Columns.Add("vcInOutFlag");
             DataDT.Columns.Add("vcZhanKaiState");
@@ -115,10 +116,10 @@ namespace DataAccess
                     strSql.Append("        	end     \r\n");
                     strSql.Append("        end     \r\n");
                     //获取最后展开时间
-                    strSql.Append("        select @time = COUNT(1) from (     \r\n");
-                    strSql.Append("        select MAX(dZhanKaiTime)as dZhanKaiTime from TSoqReply where vcInOutFlag = '"+i+"' and vcCLYM = '"+strCLYM+"')T     \r\n");
+                    strSql.Append("        select @time = (     \r\n");
+                    strSql.Append("        select MAX(dZhanKaiTime)as dZhanKaiTime from TSoqReply where vcInOutFlag = '"+i+"' and vcCLYM = '"+strCLYM+"')     \r\n");
                     strSql.Append("             \r\n");
-                    strSql.Append("        select '0' as selection,'" + strDXYM+ "'as vcDXYM,'" + i+ "'as vcInOutFlag,@state as vcZhanKaiState,@time  as dZhanKaiTime     \r\n");
+                    strSql.Append("        select '" + strDXYM+ "'as vcDXYM,'" + i+ "'as vcInOutFlag,@state as vcZhanKaiState,@time  as dZhanKaiTime     \r\n");
                     DataTable dt2 = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                     DataDT.ImportRow(dt2.Rows[0]);
                 }
@@ -151,64 +152,6 @@ namespace DataAccess
 
             return returnDT;
 
-            #region 弃用
-            //try
-            //{
-            //    strSql.Append("       select * from ( select vcCLYM,vcInOutFlag,case when Flag1='OK' and Flag = 'OK' then '可下载' else '待发送' end [State] ,dZhanKaiTime from(      \n");
-            //    strSql.Append("             \n");
-            //    strSql.Append("       select distinct TT1.vcCLYM,TT1.vcInOutFlag,isnull(TT2.Flag1,'OK') as Flag1,isnull(TT3.Flag,'OK') Flag,TT4.dZhanKaiTime from TSoqReply TT1      \n");
-            //    strSql.Append("       left join      \n");
-            //    strSql.Append("       (      \n");
-            //    strSql.Append("       select vcCLYM,vcInOutFlag,Flag1 from (      \n");
-            //    strSql.Append("       select distinct vcCLYM,vcInOutFlag,case when dZhanKaiTime is not null then 'OK' else 'NG' end Flag1 from (      \n");
-            //    strSql.Append("       select distinct T1.vcCLYM,T1.vcDXYM,T1.vcFZGC,T1.vcInOutFlag,T2.dZhanKaiTime from TSoqReply T1      \n");
-            //    strSql.Append("       left join(      \n");
-            //    strSql.Append("       select distinct vcCLYM,vcDXYM,vcFZGC,vcInOutFlag,max(dZhanKaiTime) as dZhanKaiTime from TSoqReply       \n");
-            //    strSql.Append("       group by vcCLYM,vcDXYM,vcFZGC,vcInOutFlag )T2       \n");
-            //    strSql.Append("       on T1.vcCLYM = T2.vcCLYM and T1.vcDXYM = T2.vcDXYM and T1.vcFZGC = T2.vcFZGC and T1.vcInOutFlag = T2.vcInOutFlag      \n");
-            //    strSql.Append("       ) TT ) TALL      \n");
-            //    strSql.Append("        where Flag1 = 'NG'      \n");
-            //    strSql.Append("       ) TT2 on TT1.vcCLYM = TT2.vcCLYM and TT1.vcInOutFlag = TT2.vcInOutFlag      \n");
-            //    strSql.Append("       left join(      \n");
-            //    strSql.Append("       select distinct vcCLYM,TT.vcInOutFlag,Flag from (      \n");
-            //    strSql.Append("       --判断处理年月是否全部OK      \n");
-            //    strSql.Append("       select vcCLYM,TA.vcInOutFlag,case when TA.flag-TB.flag = 0 then 'OK' else 'NG' end Flag from (      \n");
-            //    strSql.Append("       --判断发注工厂是否全部SOQReply      \n");
-            //    strSql.Append("       select vcCLYM,vcDXYM,vcInOutFlag,count(vcFZGC) as flag from (      \n");
-            //    strSql.Append("       select distinct vcCLYM,vcDXYM,vcFZGC,vcInOutFlag from TSoqReply  ) T1      \n");
-            //    strSql.Append("       group by vcCLYM,vcDXYM,vcInOutFlag ) TA      \n");
-            //    strSql.Append("       left join(      \n");
-            //    strSql.Append("       select vcYearMonth,vcInOutFlag,count(vcFZGC) as flag from (      \n");
-            //    strSql.Append("       select distinct vcYearMonth,vcFZGC,vcInOutFlag from tsoq ) T2      \n");
-            //    strSql.Append("       group by vcYearMonth,vcInOutFlag ) TB on TA.vcDXYM = TB.vcYearMonth and TA.flag = TB.flag and TA.vcInOutFlag = TB.vcInOutFlag      \n");
-            //    strSql.Append("             \n");
-            //    strSql.Append("       ) TT where Flag = 'NG'      \n");
-            //    strSql.Append("       ) TT3 on TT1.vcCLYM = TT3.vcCLYM and TT1.vcInOutFlag = TT3.vcInOutFlag       \n");
-            //    strSql.Append("       left join(      \n");
-            //    strSql.Append("       select vcCLYM,vcInOutFlag,max(dZhanKaiTime) as dZhanKaiTime from TSoqReply       \n");
-            //    strSql.Append("       group by vcCLYM,vcInOutFlag ) TT4 on TT1.vcCLYM = TT4.vcCLYM and TT1.vcInOutFlag = TT4.vcInOutFlag       \n");
-            //    strSql.Append("       ) TT5    ) TAB    \n");
-            //    strSql.Append("       where 1=1      \n");
-            //    if (!string.IsNullOrEmpty(strDXDateMonth))
-            //    {
-            //        strSql.Append("    and vcCLYM = '" + strDXDateMonth.Replace("/", "") + "'         \n");
-            //    }
-            //    if (!string.IsNullOrEmpty(strInOutFlag))
-            //    {
-            //        strSql.Append("    and vcInOutFlag = '" + strInOutFlag+"'         \n");
-            //    }
-            //    if (!string.IsNullOrEmpty(strState))
-            //    {
-            //        strSql.Append("    and [State] = '" + strState + "'         \n");
-            //    }
-
-            //    return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw ex;
-            //}
-            #endregion
         }
         #endregion
 

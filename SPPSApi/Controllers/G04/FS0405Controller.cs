@@ -111,7 +111,6 @@ namespace SPPSApi.Controllers.G03
 
                 DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("selection", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dZhanKaiTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);

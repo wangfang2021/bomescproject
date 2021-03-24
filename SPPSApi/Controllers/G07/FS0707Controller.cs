@@ -60,7 +60,7 @@ namespace SPPSApi.Controllers.G07
                 res.Add("optionProject", dataList_Project);
 
 
-                List<Object> dataList_Kind = ComFunction.convertAllToResult(ComFunction.getTCode("C062"));//计划类别
+                List<Object> dataList_Kind = ComFunction.convertAllToResult(ComFunction.getTCode("C070"));//计划类别
                 res.Add("optionKind", dataList_Kind);
 
 
@@ -141,6 +141,10 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string strBegin = dataForm.dFromBegin;
             string strEnd = dataForm.dFromEnd;
+            string strFromBeginBZ = dataForm.vcFromBeginBZ;
+            string strFromEndBZ = dataForm.vcFromEndBZ;
+
+
             List<Object> strProject = new List<object>();
             strProject = dataForm.Project.ToObject<List<Object>>();
             string strKind = dataForm.Kind;
@@ -181,8 +185,23 @@ namespace SPPSApi.Controllers.G07
                         int count = Convert.ToInt32(strEnd.Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
                         for (int j = 0; j <= count + 1; j++)
                         {
-                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "bFShow"] = "true";
-                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "yFShow"] = "true";
+                            if (strFromBeginBZ == "1" && j == 0)
+                            {
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "bFShow"] = "";
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "yFShow"] = "true";
+                            }
+                            else if (strFromEndBZ == "0" && j == count + 1)
+                            {
+
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "bFShow"] = "true";
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "yFShow"] = "";
+                            }
+                            else
+                            {
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "bFShow"] = "true";
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "yFShow"] = "true";
+
+                            }
                         }
                     }
                     else
@@ -191,14 +210,34 @@ namespace SPPSApi.Controllers.G07
                         int ss = Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
                         for (int z = 0; z <= ss + 1; z++)
                         {
-                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "bFShow"] = "true";
-                            dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "yFShow"] = "true";
+                            if (strFromBeginBZ == "1" && z == 0)
+                            {
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "bFShow"] = "";
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "yFShow"] = "true";
+                            }
+                            else
+                            {
+
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "bFShow"] = "true";
+                                dt.Rows[i]["vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "yFShow"] = "true";
+
+                            }
                         }
                         int cs = Convert.ToInt32(strEnd.Split("-")[2]);
                         for (int r = 0; r < cs; r++)
                         {
-                            dt.Rows[i]["vcD" + (1 + r).ToString() + "bTShow"] = "true";
-                            dt.Rows[i]["vcD" + (1 + r).ToString() + "yTShow"] = "true";
+                            if (strFromEndBZ == "0" && r == cs - 1)
+                            {
+                                dt.Rows[i]["vcD" + (1 + r).ToString() + "bTShow"] = "true";
+                                dt.Rows[i]["vcD" + (1 + r).ToString() + "yTShow"] = "";
+                            }
+                            else
+                            {
+
+
+                                dt.Rows[i]["vcD" + (1 + r).ToString() + "bTShow"] = "true";
+                                dt.Rows[i]["vcD" + (1 + r).ToString() + "yTShow"] = "true";
+                            }
                         }
 
                     }
@@ -212,7 +251,7 @@ namespace SPPSApi.Controllers.G07
                 for (int t = 0; t < dt2.Rows.Count; t++)
                 {
 
-                    dt2.Rows[t]["vcNum"] = t.ToString();
+                    dt2.Rows[t]["vcNum"] = (t + 1).ToString();
                 }
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt2, dtConverter);
@@ -247,6 +286,8 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string strBegin = dataForm.dFromBegin;
             string strEnd = dataForm.dFromEnd;
+            string strFromBeginBZ = dataForm.vcFromBeginBZ;
+            string strFromEndBZ = dataForm.vcFromEndBZ;
             try
             {
 
@@ -261,7 +302,7 @@ namespace SPPSApi.Controllers.G07
                 for (int t = 0; t < dt.Rows.Count; t++)
                 {
 
-                    dt.Rows[t]["vcNum"] = t.ToString();
+                    dt.Rows[t]["vcNum"] = (t + 1).ToString();
                 }
                 string resMsg = "";
                 int count = 0;
@@ -269,7 +310,16 @@ namespace SPPSApi.Controllers.G07
                 string[] fieldsData = new string[0];
                 if (strBegin.Split("-")[1] == strEnd.Split("-")[1])
                 {
-                    count = Convert.ToInt32(strEnd.Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) - 1;
+                    count = (Convert.ToInt32(strEnd.Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
+
+                    if (strFromBeginBZ == "1")
+                    {
+                        count--;
+                    }
+                    else if (strFromBeginBZ == "0")
+                    {
+                        count--;
+                    }
                     headData = new string[count + 5];
                     fieldsData = new string[count + 5];
                     headData[0] = "序号";
@@ -282,20 +332,55 @@ namespace SPPSApi.Controllers.G07
                     fieldsData[2] = "vcPackGPSNo";
                     fieldsData[3] = "vcSupplierName";
                     fieldsData[4] = "iRelease";
-                    for (int j = 0; j <= count + 1; j++)
+                    int x = 1;
+                    for (int i = 1; i <= 31; i++)
                     {
-                        headData[5 + j] = (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "日夜值F";
-                        headData[5 + j] = (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "日白值F";
-                        fieldsData[5 + j] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "yF";
-                        fieldsData[5 + j] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + j).ToString() + "bF";
+
+                        if (dt.Rows[0]["vcD" + i + "bFShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日白值F";
+                            fieldsData[4 + x] = "vcD" + i + "bF";
+                            x++;
+
+                        }
+                        if (dt.Rows[0]["vcD" + i + "yFShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日夜值F";
+                            fieldsData[4 + x] = "vcD" + i + "yF";
+                            x++;
+                        }
+                        if (dt.Rows[0]["vcD" + i + "bTShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日白值T";
+                            fieldsData[4 + x] = "vcD" + i + "bT";
+                            x++;
+                        }
+
+                        if (dt.Rows[0]["vcD" + i + "yTShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日夜值T";
+                            fieldsData[4 + x] = "vcD" + i + "yT";
+                            x++;
+
+                        }
                     }
+
+
                 }
                 else
                 {
 
                     DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
-                    int ss = Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1;
-                    int cs = Convert.ToInt32(strEnd.Split("-")[2]);
+                    int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1)*2;
+                    int cs = Convert.ToInt32(strEnd.Split("-")[2])*2;
+                    if (strFromBeginBZ == "1")
+                    {
+                        ss--;
+                    }
+                    else if (strFromBeginBZ == "0")
+                    {
+                        cs--;
+                    }
                     headData = new string[ss + 5 + cs];
                     fieldsData = new string[ss + 5 + cs];
                     headData[0] = "序号";
@@ -308,23 +393,37 @@ namespace SPPSApi.Controllers.G07
                     fieldsData[2] = "vcPackGPSNo";
                     fieldsData[3] = "vcSupplierName";
                     fieldsData[4] = "iRelease";
-                    int cc = 0;
-                    for (int z = 0; z < ss; z++)
+                    int x = 1;
+                    for (int i = 1; i <= 31; i++)
                     {
-                        headData[5 + z] = (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "日夜值F";
-                        headData[5 + z] = (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "日白值F";
-                        fieldsData[5 + z] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "yF";
-                        fieldsData[5 + z] = "vcD" + (Convert.ToInt32(strBegin.Split("-")[2]) + z).ToString() + "bF";
-                        cc++;
-                    }
 
-                    for (int r = 0; r < cs; r++)
-                    {
-                        headData[5 + cc + r] = (1 + r).ToString() + "日夜值T";
-                        headData[5 + cc + r] = (1 + r).ToString() + "日白值T";
-                        fieldsData[5 + cc + r] = "vcD" + (1 + r).ToString() + "yT";
-                        fieldsData[5 + cc + r] = "vcD" + (1 + r).ToString() + "bT";
+                        if (dt.Rows[0]["vcD" + i + "bFShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日白值F";
+                            fieldsData[4 + x] = "vcD" + i + "bF";
+                            x++;
 
+                        }
+                        if (dt.Rows[0]["vcD" + i + "yFShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日夜值F";
+                            fieldsData[4 + x] = "vcD" + i + "yF";
+                            x++;
+                        }
+                        if (dt.Rows[0]["vcD" + i + "bTShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日白值T";
+                            fieldsData[4 + x] = "vcD" + i + "bT";
+                            x++;
+                        }
+
+                        if (dt.Rows[0]["vcD" + i + "yTShow"].ToString() == "true")
+                        {
+                            headData[4 + x] = i + "日夜值T";
+                            fieldsData[4 + x] = "vcD" + i + "yT";
+                            x++;
+
+                        }
                     }
 
                 }

@@ -1056,5 +1056,14 @@ namespace DataAccess
             }
         }
         #endregion
+
+        #region 获取事业体的下游收货方
+        public DataTable getReceiver(string strSYTCode)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append("     select vcValue3 from TOutCode where vcCodeId = 'C004' and vcIsColum = '0' and vcValue1 = 'TFTM'    ");
+            return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+        }
+        #endregion
     }
 }

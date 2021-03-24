@@ -60,7 +60,7 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_Supplier = ComFunction.convertAllToResult(FS0712_Logic.SearchSupplier());//供应商
                 res.Add("optionSupplier", dataList_Supplier);
 
-                List<Object> dataList_ZuoYeQuFen = ComFunction.convertAllToResult(ComFunction.getTCode("C064"));//作业区分
+                List<Object> dataList_ZuoYeQuFen = ComFunction.convertAllToResult(ComFunction.getTCode("C072"));//作业区分
                 res.Add("ZuoYeQuFen", dataList_ZuoYeQuFen);
 
 

@@ -937,13 +937,13 @@ namespace DataAccess
                 updateSoqReply(cmd, mon, apt, user, plant);//更新SOQREPLY表
                 #endregion
                 #region 生成打印数据
-                //msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
-                //if (msg.Length > 0)
-                //{
-                //    cmd.Transaction.Rollback();
-                //    cmd.Connection.Close();
-                //    return msg;
-                //}
+                msg = CreatOrderNo(cmd, mon, apt, user, plant);//2018-2-26增加AB值 - Malcolm.L 刘刚
+                if (msg.Length > 0)
+                {
+                    cmd.Transaction.Rollback();
+                    cmd.Connection.Close();
+                    return msg;
+                }
                 #endregion
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
@@ -1616,6 +1616,10 @@ namespace DataAccess
             //分组排连番
             for (int m = 0; m < query.Count(); m++)
             {
+
+
+
+                #region 优化之前
                 DataTable dt = query.ElementAt(m).CopyToDataTable();
                 //按工位排序
                 DataView dv = dt.DefaultView;
@@ -1627,11 +1631,11 @@ namespace DataAccess
                     serial = (Convert.ToInt32(serial) + 1).ToString("0000");
                     dt.Rows[n]["vcKBSerial"] = serial;
                     //检查该连番下是否存在数据 存在时：
-                    string ssql = "select * from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo = t2.vcPartsNo and t1.vcDock  = t2.vcDock ";
+                    string ssql = "select t1.vcPartsNo,t1.vcDock,vcKBSerial from tKanbanPrintTbl t1 left join tPartInfoMaster t2 on t1.vcPartsNo=t2.vcPartsNo and t1.vcDock=t2.vcDock ";
                     ssql += "  where t1.vcEDflag ='S' and t1.vcKBorderno='" + dt.Rows[n]["vcKBorderno"].ToString() + "' ";
-                    ssql += " and t2.vcPorType = '" + dt.Rows[n]["bushu"].ToString() + "' and vcComDate00 ='" + dt.Rows[n]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[n]["vcBanZhi00"].ToString() + "' ";
-                    ssql += " and vcComDate01 ='" + dt.Rows[n]["vcComDate01"].ToString() + "' and vcBanZhi01 ='" + dt.Rows[n]["vcBanZhi01"].ToString() + "' ";
-                    ssql += " and t2.vcPartFrequence = '月度' ";//明早测试去掉这行的效果
+                    ssql += " and t2.vcPorType= '" + dt.Rows[n]["bushu"].ToString() + "' and vcComDate00='" + dt.Rows[n]["vcComDate00"].ToString() + "' and vcBanZhi00='" + dt.Rows[n]["vcBanZhi00"].ToString() + "' ";
+                    ssql += " and vcComDate01='" + dt.Rows[n]["vcComDate01"].ToString() + "' and vcBanZhi01='" + dt.Rows[n]["vcBanZhi01"].ToString() + "' ";
+                    ssql += " and t2.vcPartFrequence='0' ";//明早测试去掉这行的效果
                     //20180930上面SQL文最后一行增加对周度月度品番的判断，因为SQL文是按照部署、工程0和工程1的日期和值别检索数据，
                     //会包括周度品番，而看板打印数据不包含周度品番，且其余月度品番的看板序列号也会发生变化，则造成覆盖范围不符的情况
                     //因此需要清空旧有的（若导入对象月为七月，则包括六月底到八月初的）看板打印数据 - 李兴旺
@@ -1642,7 +1646,7 @@ namespace DataAccess
                     apt.Fill(dttmp);
                     if (dttmp.Rows.Count > 0)//如果存在
                     {
-                        DataRow[] existKB = dttmp.Select("vcPartsNo = '" + dt.Rows[n]["vcPartsNo"].ToString().Trim() + "' and vcDock ='" + dt.Rows[n]["vcDock"].ToString().Trim() + "' and vcKBSerial ='" + serial + "'");
+                        DataRow[] existKB = dttmp.Select("vcPartsNo='" + dt.Rows[n]["vcPartsNo"].ToString().Trim() + "' and vcDock='" + dt.Rows[n]["vcDock"].ToString().Trim() + "' and vcKBSerial='" + serial + "'");
                         if (existKB.Count() > 0)//1、与该信息相符 
                         {
                             dt.Rows[n].Delete();
@@ -1696,6 +1700,7 @@ namespace DataAccess
                 apt = new SqlDataAdapter();
                 apt.InsertCommand = cmd;
                 apt.Update(dt);
+                #endregion
             }
             return msg;
         }
@@ -1853,7 +1858,7 @@ namespace DataAccess
                 sb.Append("select * from TSoqReply t1 ");
                 sb.Append("where exists(");
                 sb.Append("             select vcPartsNo, vcCarFamilyCode,dTimeFrom,dTimeTo from tPartInfoMaster t2 ");
-                sb.Append("             where dTimeFrom<=GETDATE() and dTimeTo>=GETDATE() and vcInOutFlag='0'  ");
+                sb.Append("             where dTimeFrom<='" + mon + "-01" + "' and dTimeTo>='" + mon + "-01" + "' and vcInOutFlag='0'  ");
                 sb.Append("             and t1.vcPart_id=t2.vcPartsNo and t1.vcCarType=t2.vcCarFamilyCode and t2.dTimeFrom<='" + mon + "- 01' and t2.dTimeTo>='" + mon + "- 01') ");
                 sb.Append("and iPartNums<>'0' and vcFZGC='" + plant + "' and vcInOutFlag='0' and vcDXYM='" + vcDXYM + "' and vcCLYM='" + vcCLYM + "'");
                 sb.Append("order by vcPart_id");
@@ -2032,37 +2037,37 @@ namespace DataAccess
                         throw new Exception("品番" + vcPart_id + "工程4日历类型取得失败");
                     }
                     DataRow[] dr = dtPack.Select("vcMonth='" + mon + "' and vcPartsno='" + vcPart_id + "' and vcCarType='" + vcCarType + "' ");
-                    dt_Update.Rows[i]["iD1"] = Convert.ToInt32(dr[0]["vcD1b"].ToString().Length == 0 ? "0" : dr[0]["vcD1b"]) + Convert.ToInt32(dr[0]["vcD1y"].ToString().Length == 0 ? "0" : dr[0]["vcD1y"]);
-                    dt_Update.Rows[i]["iD2"] = Convert.ToInt32(dr[0]["vcD2b"].ToString().Length == 0 ? "0" : dr[0]["vcD2b"]) + Convert.ToInt32(dr[0]["vcD2y"].ToString().Length == 0 ? "0" : dr[0]["vcD2y"]);
-                    dt_Update.Rows[i]["iD3"] = Convert.ToInt32(dr[0]["vcD3b"].ToString().Length == 0 ? "0" : dr[0]["vcD3b"]) + Convert.ToInt32(dr[0]["vcD3y"].ToString().Length == 0 ? "0" : dr[0]["vcD3y"]);
-                    dt_Update.Rows[i]["iD4"] = Convert.ToInt32(dr[0]["vcD4b"].ToString().Length == 0 ? "0" : dr[0]["vcD4b"]) + Convert.ToInt32(dr[0]["vcD4y"].ToString().Length == 0 ? "0" : dr[0]["vcD4y"]);
-                    dt_Update.Rows[i]["iD5"] = Convert.ToInt32(dr[0]["vcD5b"].ToString().Length == 0 ? "0" : dr[0]["vcD5b"]) + Convert.ToInt32(dr[0]["vcD5y"].ToString().Length == 0 ? "0" : dr[0]["vcD5y"]);
-                    dt_Update.Rows[i]["iD6"] = Convert.ToInt32(dr[0]["vcD6b"].ToString().Length == 0 ? "0" : dr[0]["vcD6b"]) + Convert.ToInt32(dr[0]["vcD6y"].ToString().Length == 0 ? "0" : dr[0]["vcD6y"]);
-                    dt_Update.Rows[i]["iD7"] = Convert.ToInt32(dr[0]["vcD7b"].ToString().Length == 0 ? "0" : dr[0]["vcD7b"]) + Convert.ToInt32(dr[0]["vcD7y"].ToString().Length == 0 ? "0" : dr[0]["vcD7y"]);
-                    dt_Update.Rows[i]["iD8"] = Convert.ToInt32(dr[0]["vcD8b"].ToString().Length == 0 ? "0" : dr[0]["vcD8b"]) + Convert.ToInt32(dr[0]["vcD8y"].ToString().Length == 0 ? "0" : dr[0]["vcD8y"]);
-                    dt_Update.Rows[i]["iD9"] = Convert.ToInt32(dr[0]["vcD9b"].ToString().Length == 0 ? "0" : dr[0]["vcD9b"]) + Convert.ToInt32(dr[0]["vcD9y"].ToString().Length == 0 ? "0" : dr[0]["vcD9y"]);
-                    dt_Update.Rows[i]["iD10"] = Convert.ToInt32(dr[0]["vcD10b"].ToString().Length == 0 ? "0" : dr[0]["vcD10b"]) + Convert.ToInt32(dr[0]["vcD10y"].ToString().Length == 0 ? "0" : dr[0]["vcD10y"]);
-                    dt_Update.Rows[i]["iD11"] = Convert.ToInt32(dr[0]["vcD11b"].ToString().Length == 0 ? "0" : dr[0]["vcD11b"]) + Convert.ToInt32(dr[0]["vcD11y"].ToString().Length == 0 ? "0" : dr[0]["vcD11y"]);
-                    dt_Update.Rows[i]["iD12"] = Convert.ToInt32(dr[0]["vcD12b"].ToString().Length == 0 ? "0" : dr[0]["vcD12b"]) + Convert.ToInt32(dr[0]["vcD12y"].ToString().Length == 0 ? "0" : dr[0]["vcD12y"]);
-                    dt_Update.Rows[i]["iD13"] = Convert.ToInt32(dr[0]["vcD13b"].ToString().Length == 0 ? "0" : dr[0]["vcD13b"]) + Convert.ToInt32(dr[0]["vcD13y"].ToString().Length == 0 ? "0" : dr[0]["vcD13y"]);
-                    dt_Update.Rows[i]["iD14"] = Convert.ToInt32(dr[0]["vcD14b"].ToString().Length == 0 ? "0" : dr[0]["vcD14b"]) + Convert.ToInt32(dr[0]["vcD14y"].ToString().Length == 0 ? "0" : dr[0]["vcD14y"]);
-                    dt_Update.Rows[i]["iD15"] = Convert.ToInt32(dr[0]["vcD15b"].ToString().Length == 0 ? "0" : dr[0]["vcD15b"]) + Convert.ToInt32(dr[0]["vcD15y"].ToString().Length == 0 ? "0" : dr[0]["vcD15y"]);
-                    dt_Update.Rows[i]["iD16"] = Convert.ToInt32(dr[0]["vcD16b"].ToString().Length == 0 ? "0" : dr[0]["vcD16b"]) + Convert.ToInt32(dr[0]["vcD16y"].ToString().Length == 0 ? "0" : dr[0]["vcD16y"]);
-                    dt_Update.Rows[i]["iD17"] = Convert.ToInt32(dr[0]["vcD17b"].ToString().Length == 0 ? "0" : dr[0]["vcD17b"]) + Convert.ToInt32(dr[0]["vcD17y"].ToString().Length == 0 ? "0" : dr[0]["vcD17y"]);
-                    dt_Update.Rows[i]["iD18"] = Convert.ToInt32(dr[0]["vcD18b"].ToString().Length == 0 ? "0" : dr[0]["vcD18b"]) + Convert.ToInt32(dr[0]["vcD18y"].ToString().Length == 0 ? "0" : dr[0]["vcD18y"]);
-                    dt_Update.Rows[i]["iD19"] = Convert.ToInt32(dr[0]["vcD19b"].ToString().Length == 0 ? "0" : dr[0]["vcD19b"]) + Convert.ToInt32(dr[0]["vcD19y"].ToString().Length == 0 ? "0" : dr[0]["vcD19y"]);
-                    dt_Update.Rows[i]["iD20"] = Convert.ToInt32(dr[0]["vcD20b"].ToString().Length == 0 ? "0" : dr[0]["vcD20b"]) + Convert.ToInt32(dr[0]["vcD20y"].ToString().Length == 0 ? "0" : dr[0]["vcD20y"]);
-                    dt_Update.Rows[i]["iD21"] = Convert.ToInt32(dr[0]["vcD21b"].ToString().Length == 0 ? "0" : dr[0]["vcD21b"]) + Convert.ToInt32(dr[0]["vcD21y"].ToString().Length == 0 ? "0" : dr[0]["vcD21y"]);
-                    dt_Update.Rows[i]["iD22"] = Convert.ToInt32(dr[0]["vcD22b"].ToString().Length == 0 ? "0" : dr[0]["vcD22b"]) + Convert.ToInt32(dr[0]["vcD22y"].ToString().Length == 0 ? "0" : dr[0]["vcD22y"]);
-                    dt_Update.Rows[i]["iD23"] = Convert.ToInt32(dr[0]["vcD23b"].ToString().Length == 0 ? "0" : dr[0]["vcD23b"]) + Convert.ToInt32(dr[0]["vcD23y"].ToString().Length == 0 ? "0" : dr[0]["vcD23y"]);
-                    dt_Update.Rows[i]["iD24"] = Convert.ToInt32(dr[0]["vcD24b"].ToString().Length == 0 ? "0" : dr[0]["vcD24b"]) + Convert.ToInt32(dr[0]["vcD24y"].ToString().Length == 0 ? "0" : dr[0]["vcD24y"]);
-                    dt_Update.Rows[i]["iD25"] = Convert.ToInt32(dr[0]["vcD25b"].ToString().Length == 0 ? "0" : dr[0]["vcD25b"]) + Convert.ToInt32(dr[0]["vcD25y"].ToString().Length == 0 ? "0" : dr[0]["vcD25y"]);
-                    dt_Update.Rows[i]["iD26"] = Convert.ToInt32(dr[0]["vcD26b"].ToString().Length == 0 ? "0" : dr[0]["vcD26b"]) + Convert.ToInt32(dr[0]["vcD26y"].ToString().Length == 0 ? "0" : dr[0]["vcD26y"]);
-                    dt_Update.Rows[i]["iD27"] = Convert.ToInt32(dr[0]["vcD27b"].ToString().Length == 0 ? "0" : dr[0]["vcD27b"]) + Convert.ToInt32(dr[0]["vcD27y"].ToString().Length == 0 ? "0" : dr[0]["vcD27y"]);
-                    dt_Update.Rows[i]["iD28"] = Convert.ToInt32(dr[0]["vcD28b"].ToString().Length == 0 ? "0" : dr[0]["vcD28b"]) + Convert.ToInt32(dr[0]["vcD28y"].ToString().Length == 0 ? "0" : dr[0]["vcD28y"]);
-                    dt_Update.Rows[i]["iD29"] = Convert.ToInt32(dr[0]["vcD29b"].ToString().Length == 0 ? "0" : dr[0]["vcD29b"]) + Convert.ToInt32(dr[0]["vcD29y"].ToString().Length == 0 ? "0" : dr[0]["vcD29y"]);
-                    dt_Update.Rows[i]["iD30"] = Convert.ToInt32(dr[0]["vcD30b"].ToString().Length == 0 ? "0" : dr[0]["vcD30b"]) + Convert.ToInt32(dr[0]["vcD30y"].ToString().Length == 0 ? "0" : dr[0]["vcD30y"]);
-                    dt_Update.Rows[i]["iD31"] = Convert.ToInt32(dr[0]["vcD31b"].ToString().Length == 0 ? "0" : dr[0]["vcD31b"]) + Convert.ToInt32(dr[0]["vcD31y"].ToString().Length == 0 ? "0" : dr[0]["vcD31y"]);
+                    dt_Update.Rows[i]["iD1"] = (Convert.ToInt32(dr[0]["vcD1b"].ToString().Length == 0 ? "0" : dr[0]["vcD1b"]) + Convert.ToInt32(dr[0]["vcD1y"].ToString().Length == 0 ? "0" : dr[0]["vcD1y"]))/ Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD2"] = (Convert.ToInt32(dr[0]["vcD2b"].ToString().Length == 0 ? "0" : dr[0]["vcD2b"]) + Convert.ToInt32(dr[0]["vcD2y"].ToString().Length == 0 ? "0" : dr[0]["vcD2y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD3"] = (Convert.ToInt32(dr[0]["vcD3b"].ToString().Length == 0 ? "0" : dr[0]["vcD3b"]) + Convert.ToInt32(dr[0]["vcD3y"].ToString().Length == 0 ? "0" : dr[0]["vcD3y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD4"] = (Convert.ToInt32(dr[0]["vcD4b"].ToString().Length == 0 ? "0" : dr[0]["vcD4b"]) + Convert.ToInt32(dr[0]["vcD4y"].ToString().Length == 0 ? "0" : dr[0]["vcD4y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD5"] = (Convert.ToInt32(dr[0]["vcD5b"].ToString().Length == 0 ? "0" : dr[0]["vcD5b"]) + Convert.ToInt32(dr[0]["vcD5y"].ToString().Length == 0 ? "0" : dr[0]["vcD5y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD6"] = (Convert.ToInt32(dr[0]["vcD6b"].ToString().Length == 0 ? "0" : dr[0]["vcD6b"]) + Convert.ToInt32(dr[0]["vcD6y"].ToString().Length == 0 ? "0" : dr[0]["vcD6y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD7"] = (Convert.ToInt32(dr[0]["vcD7b"].ToString().Length == 0 ? "0" : dr[0]["vcD7b"]) + Convert.ToInt32(dr[0]["vcD7y"].ToString().Length == 0 ? "0" : dr[0]["vcD7y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD8"] = (Convert.ToInt32(dr[0]["vcD8b"].ToString().Length == 0 ? "0" : dr[0]["vcD8b"]) + Convert.ToInt32(dr[0]["vcD8y"].ToString().Length == 0 ? "0" : dr[0]["vcD8y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD9"] = (Convert.ToInt32(dr[0]["vcD9b"].ToString().Length == 0 ? "0" : dr[0]["vcD9b"]) + Convert.ToInt32(dr[0]["vcD9y"].ToString().Length == 0 ? "0" : dr[0]["vcD9y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD10"] = (Convert.ToInt32(dr[0]["vcD10b"].ToString().Length == 0 ? "0" : dr[0]["vcD10b"]) + Convert.ToInt32(dr[0]["vcD10y"].ToString().Length == 0 ? "0" : dr[0]["vcD10y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD11"] = (Convert.ToInt32(dr[0]["vcD11b"].ToString().Length == 0 ? "0" : dr[0]["vcD11b"]) + Convert.ToInt32(dr[0]["vcD11y"].ToString().Length == 0 ? "0" : dr[0]["vcD11y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD12"] = (Convert.ToInt32(dr[0]["vcD12b"].ToString().Length == 0 ? "0" : dr[0]["vcD12b"]) + Convert.ToInt32(dr[0]["vcD12y"].ToString().Length == 0 ? "0" : dr[0]["vcD12y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD13"] = (Convert.ToInt32(dr[0]["vcD13b"].ToString().Length == 0 ? "0" : dr[0]["vcD13b"]) + Convert.ToInt32(dr[0]["vcD13y"].ToString().Length == 0 ? "0" : dr[0]["vcD13y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD14"] = (Convert.ToInt32(dr[0]["vcD14b"].ToString().Length == 0 ? "0" : dr[0]["vcD14b"]) + Convert.ToInt32(dr[0]["vcD14y"].ToString().Length == 0 ? "0" : dr[0]["vcD14y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD15"] = (Convert.ToInt32(dr[0]["vcD15b"].ToString().Length == 0 ? "0" : dr[0]["vcD15b"]) + Convert.ToInt32(dr[0]["vcD15y"].ToString().Length == 0 ? "0" : dr[0]["vcD15y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD16"] = (Convert.ToInt32(dr[0]["vcD16b"].ToString().Length == 0 ? "0" : dr[0]["vcD16b"]) + Convert.ToInt32(dr[0]["vcD16y"].ToString().Length == 0 ? "0" : dr[0]["vcD16y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD17"] = (Convert.ToInt32(dr[0]["vcD17b"].ToString().Length == 0 ? "0" : dr[0]["vcD17b"]) + Convert.ToInt32(dr[0]["vcD17y"].ToString().Length == 0 ? "0" : dr[0]["vcD17y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD18"] = (Convert.ToInt32(dr[0]["vcD18b"].ToString().Length == 0 ? "0" : dr[0]["vcD18b"]) + Convert.ToInt32(dr[0]["vcD18y"].ToString().Length == 0 ? "0" : dr[0]["vcD18y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD19"] = (Convert.ToInt32(dr[0]["vcD19b"].ToString().Length == 0 ? "0" : dr[0]["vcD19b"]) + Convert.ToInt32(dr[0]["vcD19y"].ToString().Length == 0 ? "0" : dr[0]["vcD19y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD20"] = (Convert.ToInt32(dr[0]["vcD20b"].ToString().Length == 0 ? "0" : dr[0]["vcD20b"]) + Convert.ToInt32(dr[0]["vcD20y"].ToString().Length == 0 ? "0" : dr[0]["vcD20y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD21"] = (Convert.ToInt32(dr[0]["vcD21b"].ToString().Length == 0 ? "0" : dr[0]["vcD21b"]) + Convert.ToInt32(dr[0]["vcD21y"].ToString().Length == 0 ? "0" : dr[0]["vcD21y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD22"] = (Convert.ToInt32(dr[0]["vcD22b"].ToString().Length == 0 ? "0" : dr[0]["vcD22b"]) + Convert.ToInt32(dr[0]["vcD22y"].ToString().Length == 0 ? "0" : dr[0]["vcD22y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD23"] =( Convert.ToInt32(dr[0]["vcD23b"].ToString().Length == 0 ? "0" : dr[0]["vcD23b"]) + Convert.ToInt32(dr[0]["vcD23y"].ToString().Length == 0 ? "0" : dr[0]["vcD23y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD24"] =( Convert.ToInt32(dr[0]["vcD24b"].ToString().Length == 0 ? "0" : dr[0]["vcD24b"]) + Convert.ToInt32(dr[0]["vcD24y"].ToString().Length == 0 ? "0" : dr[0]["vcD24y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD25"] = (Convert.ToInt32(dr[0]["vcD25b"].ToString().Length == 0 ? "0" : dr[0]["vcD25b"]) + Convert.ToInt32(dr[0]["vcD25y"].ToString().Length == 0 ? "0" : dr[0]["vcD25y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD26"] = (Convert.ToInt32(dr[0]["vcD26b"].ToString().Length == 0 ? "0" : dr[0]["vcD26b"]) + Convert.ToInt32(dr[0]["vcD26y"].ToString().Length == 0 ? "0" : dr[0]["vcD26y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD27"] =( Convert.ToInt32(dr[0]["vcD27b"].ToString().Length == 0 ? "0" : dr[0]["vcD27b"]) + Convert.ToInt32(dr[0]["vcD27y"].ToString().Length == 0 ? "0" : dr[0]["vcD27y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD28"] = (Convert.ToInt32(dr[0]["vcD28b"].ToString().Length == 0 ? "0" : dr[0]["vcD28b"]) + Convert.ToInt32(dr[0]["vcD28y"].ToString().Length == 0 ? "0" : dr[0]["vcD28y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD29"] =( Convert.ToInt32(dr[0]["vcD29b"].ToString().Length == 0 ? "0" : dr[0]["vcD29b"]) + Convert.ToInt32(dr[0]["vcD29y"].ToString().Length == 0 ? "0" : dr[0]["vcD29y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD30"] = (Convert.ToInt32(dr[0]["vcD30b"].ToString().Length == 0 ? "0" : dr[0]["vcD30b"]) + Convert.ToInt32(dr[0]["vcD30y"].ToString().Length == 0 ? "0" : dr[0]["vcD30y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
+                    dt_Update.Rows[i]["iD31"] = (Convert.ToInt32(dr[0]["vcD31b"].ToString().Length == 0 ? "0" : dr[0]["vcD31b"]) + Convert.ToInt32(dr[0]["vcD31y"].ToString().Length == 0 ? "0" : dr[0]["vcD31y"])) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]);
                     //dt_Update.Rows[i]["updateFlag"] = "1";
                     tmp = Convert.ToInt32(dt_Update.Rows[i]["iD1"]) +
                         Convert.ToInt32(dt_Update.Rows[i]["iD2"]) +
@@ -2095,7 +2100,7 @@ namespace DataAccess
                         Convert.ToInt32(dt_Update.Rows[i]["iD29"]) +
                         Convert.ToInt32(dt_Update.Rows[i]["iD30"]) +
                         Convert.ToInt32(dt_Update.Rows[i]["iD31"]);
-                    dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
+                    dt_Update.Rows[i][strDate] = Convert.ToInt32(dt_Update.Rows[i]["iPartNums"]) / Convert.ToInt32(dt_Update.Rows[i]["iQuantityPercontainer"]) - tmp + Convert.ToInt32(dt_Update.Rows[i][strDate]);
                 }
                 SqlCommandBuilder scb = new SqlCommandBuilder(apt);
 

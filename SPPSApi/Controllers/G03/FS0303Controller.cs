@@ -55,7 +55,7 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> res = new Dictionary<string, object>();
 
                 List<string> dataList_C002 = convertTCodeToResult(getTCode("C002"));//变更事项
-                dataList_C002.Add("");
+                //dataList_C002.Add("");
                 List<string> dataList_C003 = convertTCodeToResult(getTCode("C003"));//内外区分
                 List<string> dataList_C004 = convertTCodeToResult(getTCode("C004"));//号旧区分
                 List<string> dataList_C005 = convertTCodeToResult(getTCode("C005"));//收货方
@@ -821,7 +821,7 @@ namespace SPPSApi.Controllers.G03
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                #region 特殊校验
+                #region 同步过的数据不可再次同步
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     //有同步时间的不可再次同步

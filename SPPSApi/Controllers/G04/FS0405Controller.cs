@@ -177,6 +177,17 @@ namespace SPPSApi.Controllers.G03
 
                 DataTable dt = fs0405_Logic.exportSearch(strYearMonth, strYearMonth_2, strYearMonth_3,strInOutFlag);
 
+                #region 对品番进行特殊处理，如果品番长度为12，并且后两位是“00”，则去掉“00”
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string strPartsNo = dt.Rows[i]["PartsNo"].ToString();
+                    if (strPartsNo.Length==12 && (strPartsNo.Substring(strPartsNo.Length-2)=="00"))
+                    {
+                        dt.Rows[i]["PartsNo"] = strPartsNo.Substring(0, strPartsNo.Length - 2);
+                    }
+                }
+                #endregion
+
                 string[] ExcelHeader = { "PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
                 ,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"

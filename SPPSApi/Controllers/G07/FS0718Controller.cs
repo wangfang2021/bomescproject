@@ -30,7 +30,7 @@ namespace SPPSApi.Controllers.G07
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS0719_Logic FS0718_Logic = new FS0719_Logic();
+        FS0718_Logic FS0718_Logic = new FS0718_Logic();
         private readonly string FunctionID = "FS0718";
 
         public FS0718Controller(IWebHostEnvironment webHostEnvironment)
@@ -58,11 +58,11 @@ namespace SPPSApi.Controllers.G07
                 DToptionC001.Columns.Add("vcName");
                 DToptionC001.Columns.Add("vcValue");
                 DataRow dr = DToptionC001.NewRow();
-                dr["vcName"] = "未导出";
+                dr["vcName"] = "月度内示";
                 dr["vcValue"] = "0";
                 DToptionC001.Rows.Add(dr);
                 dr = DToptionC001.NewRow();
-                dr["vcName"] = "已导出";
+                dr["vcName"] = "周度内示";
                 dr["vcValue"] = "1";
                 DToptionC001.Rows.Add(dr);
                 List<Object> dataList_C001 = ComFunction.convertAllToResult(DToptionC001);//包装场
@@ -99,8 +99,21 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-
-                DataTable dt = null;
+                string strNSDiff = dataForm.strNSDiff;
+                string strDXYM = dataForm.strDXYM;
+                if (string.IsNullOrEmpty(strNSDiff))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择内示类别";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (!string.IsNullOrEmpty(strNSDiff) && string.IsNullOrEmpty(strDXYM))
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择对象年月";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DataTable dt = FS0718_Logic.Search();
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);

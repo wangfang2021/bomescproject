@@ -130,8 +130,8 @@ namespace SPPSApi.Controllers.G06
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]
-                head = new string[] { "组别", "品番", "波动比例(%)","定义" };
-                field = new string[] { "vcGroupName", "vcPartNo", "vcFluctuationRange", "vcDefinition" };
+                head = new string[] {  "品番","组别", "波动比例(%)","定义" };
+                field = new string[] { "vcPartNo","vcGroupName",  "vcFluctuationRange", "vcDefinition" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
                 string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0622_Data.xlsx", 1, loginInfo.UserId, FunctionID);
@@ -198,12 +198,12 @@ namespace SPPSApi.Controllers.G06
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"组别", "品番", "波动比例(%)"},
-                                                {"vcGroupName", "vcPartNo", "vcFluctuationRange"},
-                                                {"","",""},
-                                                {"0","12","0"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1"},//最小长度设定,可以为空用0
-                                                {"1","2","3"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"品番","组别",  },
+                                                { "vcPartNo","vcGroupName", },
+                                                {"",""},
+                                                {"12","0"},//最大长度设定,不校验最大长度用0
+                                                {"12","1"},//最小长度设定,可以为空用0
+                                                {"1","2"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };

@@ -43,5 +43,17 @@ namespace Logic
         {
             return fs0107_DataAccess.CheckDistinctByTable(dtadd);
         }
+
+        public DataTable createTable(string strSpSub)
+        {
+            DataTable dataTable = new DataTable();
+            if (strSpSub == "fs0107")
+            {
+                dataTable.Columns.Add("vcCodeId");
+                dataTable.Columns.Add("vcCodeName");
+                dataTable.Columns.Add("vcMessage");
+            }
+            return dataTable;
+        }
     }
 }

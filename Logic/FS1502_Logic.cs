@@ -24,7 +24,7 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string dBZDate,string vcBigPM)
+        public DataTable Search(string dBZDate, string vcBigPM)
         {
             return fs1502_DataAccess.Search(dBZDate, vcBigPM);
         }
@@ -123,14 +123,14 @@ namespace Logic
         #endregion
 
         #region 导入后保存
-        public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId,string strUnit)
+        public void importSave_Sub(DataTable dt, string vcFZPlant, string dBZDate, string strUserId, string strUnit)
         {
-            fs1502_DataAccess.importSave_Sub(dt, vcFZPlant, dBZDate, strUserId,strUnit);
+            fs1502_DataAccess.importSave_Sub(dt, vcFZPlant, dBZDate, strUserId, strUnit);
         }
         #endregion
 
         #region 计算
-        public void Cal(string dBZDate, string strUserId,string strUnit)
+        public void Cal(string dBZDate, string strUserId, string strUnit)
         {
             fs1502_DataAccess.Cal(dBZDate, strUserId, strUnit);
         }
@@ -166,7 +166,7 @@ namespace Logic
                         if (j == 0)
                             cell.SetCellValue(value);
                         else
-                            cell.SetCellValue(Convert.ToInt32(value==""?"0":value));//设置数字格式
+                            cell.SetCellValue(Convert.ToInt32(value == "" ? "0" : value));//设置数字格式
                     }
                     string strBigPM = dt.Rows[i]["vcBigPM"].ToString();
                     if (strBigPM.Contains("合计"))
@@ -219,7 +219,7 @@ namespace Logic
                         ICell cell = row.CreateCell(j);
                         if (j == 3)
                             cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));//设置数字格式
-                        else if(j==1)
+                        else if (j == 1)
                         {//设置日期格式
                             cell.CellStyle = dateStyle;
                             cell.SetCellValue(Convert.ToDateTime(dt.Rows[i][field[j]].ToString()));
@@ -250,7 +250,7 @@ namespace Logic
         }
         #endregion
 
-        public decimal result(List<Dictionary<string, Object>> listInfoData, string radio, decimal iminute, ref string strMsg,ref decimal checkedvalue)
+        public decimal result(List<Dictionary<string, Object>> listInfoData, string radio, decimal iminute, ref string strMsg, ref decimal checkedvalue)
         {
             //找出基准时间
             DataTable dtStandardTime = GetStandardTime();
@@ -302,5 +302,79 @@ namespace Logic
         {
             return fs1502_DataAccess.GetStandardTime();
         }
+
+        #region 导出带模板_报表
+        public string generateExcelWithXlt_report2(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                HSSFWorkbook hssfworkbook = new HSSFWorkbook();
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new HSSFWorkbook(fs);
+                    fs.Close();
+                }
+                ISheet sheet = hssfworkbook.GetSheet("数据源");
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.Alignment = HorizontalAlignment.Center;
+                //赋值
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        Type type = dt.Columns[field[j]].DataType;
+                        ICell cell = row.CreateCell(j);
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                        cell.CellStyle = style;
+                    }
+                }
+
+                //ISheet sheet1 = hssfworkbook.GetSheetAt(0);//刷新第一个sheet页的公式
+                //sheet1.ForceFormulaRecalculation = true;
+
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xls";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据 
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        #endregion
+
+
     }
 }

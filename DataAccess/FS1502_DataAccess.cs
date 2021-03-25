@@ -62,9 +62,9 @@ namespace DataAccess
         {
             try
             {
-                string vcYearMonth = dBZDate.Substring(0, 4) + dBZDate.Substring(4, 2);
+                string vcYearMonth = dBZDate.Substring(0, 4) + dBZDate.Substring(5, 2);
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select * from (");
+                strSql.AppendLine("select *,ROW_NUMBER() over(order by id,vcBigPM,vcSmallPM) as xuhao from (");
                 strSql.AppendLine("select vcKind,vcBigPM,vcSmallPM,iD1,iD2,iD3,iD4,iD5,iD6,iD7,iD8,iD9,iD10,iD11,iD12,iD13,iD14,iD15,");
                 strSql.AppendLine("iD16,iD17,iD18,iD19,iD20,iD21,iD22,iD23,iD24,iD25,iD26,iD27,iD28,iD29,iD30,iD31,1 as id");
                 strSql.AppendLine("from TPackingPlan_Report where vcYearMonth='"+ vcYearMonth + "' and vcKind='纳入计划'");

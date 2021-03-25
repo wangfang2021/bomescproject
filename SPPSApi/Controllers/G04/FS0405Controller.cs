@@ -55,22 +55,7 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcValue");
-                dt.Columns.Add("vcName");
-                DataRow dr = dt.NewRow();
-                dt.Rows.Clear();
-                dr = dt.NewRow();
-                dr["vcValue"] = "待发送";
-                dr["vcName"] = "待发送";
-                dt.Rows.Add(dr);
-                dr = dt.NewRow();
-                dr["vcValue"] = "可下载";
-                dr["vcName"] = "可下载";
-                dt.Rows.Add(dr);
-                List<Object> dataList_C002 = ComFunction.convertAllToResult(dt);//状态
                 res.Add("C003", dataList_C003);
-                res.Add("C002", dataList_C002);
                 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -103,11 +88,10 @@ namespace SPPSApi.Controllers.G03
 
             string strDXDataMonth = dataForm.strDXDataMonth;
             string strInOutFlag = dataForm.strInOutFlag;
-            string strState = dataForm.strState;
 
             try
             {
-                DataTable dt = fs0405_Logic.Search(strDXDataMonth, strInOutFlag, strState);
+                DataTable dt = fs0405_Logic.Search(strDXDataMonth, strInOutFlag);
 
                 DtConverter dtConverter = new DtConverter();
 

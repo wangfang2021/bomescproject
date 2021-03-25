@@ -21,9 +21,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string strDXDateMonth, string strInOutFlag, string strState)
+        public DataTable Search(string strDXDateMonth, string strInOutFlag)
         {
-            DataTable dt = fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag, strState);
+            DataTable dt = fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag);
             dt.DefaultView.Sort="vcDXYM desc,vcInOutFlag";
             dt = dt.DefaultView.ToTable();
             return dt;

@@ -57,9 +57,11 @@ namespace SPPSApi.Controllers.G04
                 //List<Object> dataList_C045 = ComFunction.convertAllToResult(ComFunction.getTCode("C045"));//荷姿状态
                 List<Object> dataList_C046 = ComFunction.convertAllToResult(ComFunction.getTCode("C046"));//荷姿状态
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//荷姿状态
+                List<Object> dataList_C044 = ComFunction.convertAllToResult(ComFunction.getTCode("C044"));//荷姿状态
                 res.Add("C045", dataList_C045);
                 res.Add("C046", dataList_C046);
                 res.Add("C003", dataList_C003);
+                res.Add("C044", dataList_C044);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

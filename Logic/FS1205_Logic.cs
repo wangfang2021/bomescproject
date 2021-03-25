@@ -3030,14 +3030,14 @@ namespace Logic
                 StringBuilder sb = new StringBuilder();
                 sb.Length = 0;
                 sb.AppendLine(" insert into tPlanPartInfo ");
-                sb.AppendFormat(" select '{0}' as vcMonth, t1.*,'S' as vcEDFlag,t2.vcPartPlant , ", mon);
-                sb.AppendLine(" t2.vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType , t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
-                sb.AppendLine(" select distinct vcPartsno ,vcCarType,vcDock from WeekPackPlanTbl ");//周度包装计划
-                sb.AppendFormat(" where montouch ='{0}' or (vcMonth ='{1}' and montouch is null)", mon, mon);
+                sb.AppendFormat(" select '{0}' as vcMonth,t1.*,'S' as vcEDFlag,t2.vcPartPlant, ", mon);
+                sb.AppendLine(" t2.vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType,t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
+                sb.AppendLine(" select distinct vcPartsno,vcCarType,vcDock from WeekPackPlanTbl ");//周度包装计划
+                sb.AppendFormat(" where montouch='{0}' or (vcMonth='{1}' and montouch is null)", mon, mon);
                 sb.AppendLine(" ) t1");
                 sb.AppendLine(" left join tPartInfoMaster t2");
-                sb.AppendLine(" on t1.vcPartsno = t2.vcPartsNo  and t1.vcDock = t2.vcDock ");
-                sb.AppendFormat(" where t2.vcPartPlant ='{0}'  and t2.dTimeFrom <='{1}' and t2.dTimeTo>='{2}'", plant, tmpmon, tmpmon);
+                sb.AppendLine(" on t1.vcPartsno=t2.vcPartsNo  and t1.vcDock=t2.vcDock ");
+                sb.AppendFormat(" where t2.vcPartPlant='{0}'  and t2.dTimeFrom<='{1}' and t2.dTimeTo>='{2}'", plant, tmpmon, tmpmon);
 
                 cmd.CommandText = sb.ToString();
                 cmd.ExecuteNonQuery();
@@ -4021,6 +4021,8 @@ namespace Logic
         //生成看板打印数据
         public string CreatOrderNo(SqlCommand cmd, string mon, SqlDataAdapter apt, string user, string plant, string week)
         {
+            FS1203_DataAccess ICalendar2 = new FS1203_DataAccess();
+
             //不同计划对应的列名考虑LT
             string msg = "";
             int iWeekDays = 0;
@@ -4039,22 +4041,22 @@ namespace Logic
             sb.Length = 0;
             sb.AppendLine(" select distinct vcMonth,allTotal, daysig from ( ");
             sb.AppendLine("   select distinct vcMonth,allTotal, daysig,vcPartsno ,vcDock from (");
-            sb.AppendLine("   select vcMonth, vcPartsno,vcDock,vcCartype,sigTotal , allTotal from WeekPackPlanTbl");
-            sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
+            sb.AppendLine("   select vcMonth, vcPartsno,vcDock,vcCartype,sigTotal, allTotal from WeekPackPlanTbl");
+            sb.AppendFormat("   unpivot( sigTotal for allTotal in( {0} ", tmp);
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and montouch ='{0}'", mon);
             sb.AppendLine("    union all ");
             sb.AppendLine("    select vcMonth,vcPartsno,vcDock,vcCartype,sigTotal , allTotal from WeekPackPlanTbl  ");
-            sb.AppendFormat("    unpivot( sigTotal for allTotal in( {0} ", tmp);
-            sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth ='{0}'", mon);
+            sb.AppendFormat("    unpivot( sigTotal for allTotal in({0} ", tmp);
+            sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth='{0}'", mon);
             sb.AppendLine("    ) t1");
             sb.AppendLine("    left join (");
-            sb.AppendFormat("    select daysig , dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
+            sb.AppendFormat("    select daysig, dayN from sPlanConst unpivot (daysig for dayN in( {0}", tmp);
             sb.AppendLine("     )) P ) t2 ");
-            sb.AppendLine("     on t1.allTotal = t2.dayN");
+            sb.AppendLine("     on t1.allTotal=t2.dayN");
             sb.AppendLine(" ) tall ");
-            sb.AppendLine(" left join dbo.tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock  and   tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
-            sb.AppendFormat(" where tinfo.vcPartPlant ='{0}' ", plant);
-            sb.AppendLine("    order by vcMonth , allTotal");
+            sb.AppendLine(" left join tPartInfoMaster tinfo on tall.vcPartsno=tinfo.vcPartsNo and tall.vcDock=tinfo.vcDock and tinfo.dTimeFrom<='" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
+            sb.AppendFormat(" where tinfo.vcPartPlant='{0}' ", plant);
+            sb.AppendLine("    order by vcMonth, allTotal");
             cmd.CommandText = sb.ToString();
             DataTable DayType = new DataTable();
             apt.Fill(DayType);
@@ -4074,16 +4076,16 @@ namespace Logic
             DataTable pro4 = new DataTable();
             apt.Fill(pro4);
             //------------------优化start
-            cmd.CommandText = " select top(1)* from tKanbanPrintTbl ";
+            cmd.CommandText = " select top(1) * from tKanbanPrintTbl ";
             DataTable BulkInsert = new DataTable();
             apt.Fill(BulkInsert);
             BulkInsert = BulkInsert.Clone();
             BulkInsert.Columns.Add("bushu");
             BulkInsert.Columns.Add("dayin");
             BulkInsert.Columns.Add("shengchan");
-            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode ,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
-            partsql += " left join dbo.ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
-            partsql += "  where exists (select vcPartsno from WeekPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno  )  and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
+            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4 from tPartInfoMaster t1";
+            partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB=t2.vcZB ";
+            partsql += "  where exists (select vcPartsno from WeekPackPlanTbl where (vcMonth='" + mon + "' or montouch='" + mon + "') and vcPartsno=t1.vcPartsno  )  and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo>= '" + mon + "-01" + "' ";
             cmd.CommandText = partsql;
             DataTable dtcalendarname = new DataTable();
             apt.Fill(dtcalendarname);
@@ -4091,7 +4093,7 @@ namespace Logic
             //------------------优化end
             for (int i = 0; i < DayType.Rows.Count; i++)
             {
-                DataRow[] dr = pro4.Select(" vcMonth ='" + DayType.Rows[i]["vcMonth"].ToString() + "' and allTotal ='" + DayType.Rows[i]["allTotal"].ToString() + "' ");
+                DataRow[] dr = pro4.Select(" vcMonth='" + DayType.Rows[i]["vcMonth"].ToString() + "' and allTotal='" + DayType.Rows[i]["allTotal"].ToString() + "' ");
                 int OrderStart = 0000;
                 string tmp_part = "";
                 string tmp_dock = "";
@@ -4102,7 +4104,7 @@ namespace Logic
                     string vcCartype = dr[j]["vcCartype"].ToString();
                     string flag = dr[j]["flag"].ToString();
                     #region 生成看板打印数据
-                    dt_calendarname = dtcalendarname.Select("vcPartsno='" + vcPartsno + "'  and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCartype + "'   ").CopyToDataTable();
+                    dt_calendarname = dtcalendarname.Select("vcPartsno='" + vcPartsno + "'  and vcDock ='" + vcDock + "' and vcCarFamilyCode='" + vcCartype + "' ").CopyToDataTable();
                     string srs = dt_calendarname.Rows[0]["iQuantityPerContainer"].ToString().Trim();
                     int k = Convert.ToInt32(dr[j]["sigTotal"]) / Convert.ToInt32(srs);
                     if (tmp_part != vcPartsno || tmp_dock != vcDock)
@@ -4121,7 +4123,7 @@ namespace Logic
                     string zhi00 = vcBanZhi00 == "白" ? "0" : "1";
                     //2018-2-26 Malcolm.L 刘刚 获取工程0的A/B班值
 
-                    string vcAB00 = "";// ICalendar2.getABClass(vcComDate00, zhi00, plant, dt_calendarname.Rows[0]["vcCalendar0"].ToString().Trim());
+                    string vcAB00 = ICalendar2.getABClass(vcComDate00, zhi00, plant, dt_calendarname.Rows[0]["vcCalendar0"].ToString().Trim());
                     string by0 = vcBanZhi00 == "白" ? "01" : "02";
                     string vcProject00 = dt_calendarname.Rows[0]["vcProName0"].ToString();
                     //pro1
@@ -4132,7 +4134,7 @@ namespace Logic
                     string zhi01 = vcBanZhi01 == "白" ? "0" : "1";
                     //2018-2-26 Malcolm.L 刘刚 获取工程1的A/B班值
 
-                    string vcAB01 = "";// ICalendar2.getABClass(vcComDate01, zhi01, plant, dt_calendarname.Rows[0]["vcCalendar1"].ToString().Trim());
+                    string vcAB01 =  ICalendar2.getABClass(vcComDate01, zhi01, plant, dt_calendarname.Rows[0]["vcCalendar1"].ToString().Trim());
                     string by1 = vcBanZhi01 == "白" ? "01" : "02";
                     string vcProject01 = dt_calendarname.Rows[0]["vcProName1"].ToString();
                     //pro2
@@ -4153,7 +4155,7 @@ namespace Logic
                         zhi02 = vcBanZhi02 == "白" ? "0" : "1";
                         //2018-2-26 Malcolm.L 刘刚 获取工程2的A/B班值
 
-                        vcAB02 = "";// ICalendar2.getABClass(vcComDate02, zhi02, plant, dt_calendarname.Rows[0]["vcCalendar2"].ToString().Trim());
+                        vcAB02 =  ICalendar2.getABClass(vcComDate02, zhi02, plant, dt_calendarname.Rows[0]["vcCalendar2"].ToString().Trim());
                         by2 = vcBanZhi02 == "白" ? "01" : "02";
                         vcProject02 = dt_calendarname.Rows[0]["vcProName2"].ToString();
                     }
@@ -4175,7 +4177,7 @@ namespace Logic
                         zhi03 = vcBanZhi03 == "白" ? "0" : "1";
                         //2018-2-26 Malcolm.L 刘刚 获取工程3的A/B班值
 
-                        vcAB03 = "";// ICalendar2.getABClass(vcComDate03, zhi03, plant, dt_calendarname.Rows[0]["vcCalendar3"].ToString().Trim());
+                        vcAB03 = ICalendar2.getABClass(vcComDate03, zhi03, plant, dt_calendarname.Rows[0]["vcCalendar3"].ToString().Trim());
                         by3 = vcBanZhi03 == "白" ? "01" : "02";
                         vcProject03 = dt_calendarname.Rows[0]["vcProName3"].ToString();
                     }
@@ -4186,7 +4188,7 @@ namespace Logic
                     string zhi04 = vcBanZhi04 == "白" ? "0" : "1";
                     //2018-2-26 Malcolm.L 刘刚 获取工程0的A/B班值
 
-                    string vcAB04 = "";// ICalendar2.getABClass(vcComDate04, zhi04, plant, dt_calendarname.Rows[0]["vcCalendar4"].ToString().Trim());
+                    string vcAB04 =  ICalendar2.getABClass(vcComDate04, zhi04, plant, dt_calendarname.Rows[0]["vcCalendar4"].ToString().Trim());
                     string by04 = vcBanZhi04 == "白" ? "01" : "02";
                     string vcProject04 = dt_calendarname.Rows[0]["vcProName4"].ToString();
                     for (int n = 0; n < k; n++)

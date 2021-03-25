@@ -131,14 +131,14 @@ namespace Logic
                 dr["vcMonth"] = dt.Rows[i]["vcMonth"];
                 dr["vcWeek"] = NumberToText(dt.Rows[i]["vcWeek"].ToString());
                 dr["vcPartsno"] = dt.Rows[i]["vcPartsno"];
-                dr["vcWeekTotal"] = dt.Rows[i]["vcWeekTotal"];
-                dr["vcWeekOrderingCount"] = dt.Rows[i]["vcWeekOrderingCount"];
+                dr["vcWeekTotal"] = Convert.ToUInt32(dt.Rows[i]["vcWeekTotal"]);
+                dr["vcWeekOrderingCount"] = Convert.ToInt32(dt.Rows[i]["vcWeekOrderingCount"]);
                 dr["vcWeekLevelPercentage"] = dt.Rows[i]["vcWeekLevelPercentage"];
                 dr["vcFlag"] = dt.Rows[i]["vcFlag"].ToString() == "Y" ? "OK" : "NG";
-                dr["vcQuantityPerContainer"] = TXTQuantity(dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcMonth"].ToString());
+                dr["vcQuantityPerContainer"] = Convert.ToInt32(TXTQuantity(dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcMonth"].ToString()));
                 dr["vcMonTotal"] = dt.Rows[i]["vcMonTotal"];
-                dr["vcRealTotal"] = TXTRealTotal(dt.Rows[i]["vcMonth"].ToString(), dt.Rows[i]["vcWeek"].ToString(),
-                    dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcPlant"].ToString());//本月实际订货数
+                dr["vcRealTotal"] = Convert.ToInt32(TXTRealTotal(dt.Rows[i]["vcMonth"].ToString(), dt.Rows[i]["vcWeek"].ToString(),
+                    dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcPlant"].ToString()));//本月实际订货数
                 dtResult.Rows.Add(dr);
             }
             if (dtResult.Rows.Count == 0)
@@ -151,7 +151,7 @@ namespace Logic
             string Week = dt.Rows[0]["vcWeek"].ToString();//获取数据源中的对象周
             string Plant = dt.Rows[0]["vcPlant"].ToString();//获取数据源中的厂区
 
-            TXTUpdateTableDetermine(dt, Month, OrderNo, Week, Plant);
+            //TXTUpdateTableDetermine(dt, Month, OrderNo, Week, Plant);
             //导出到Excel
             string strOrderNo = dt.Rows[0]["vcOrderNo"].ToString();
             exlName = "周订单：" + strOrderNo + "确认文件" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
@@ -2103,6 +2103,27 @@ namespace Logic
         /// <param name="strPlant">工厂</param>
         /// <returns>检索结果数据表</returns>
         public DataTable TXTSearchWeekLevelSchedule(string strMonth, string strWeek, string strPlant)
+        {
+            DataTable dt = new DataTable();
+            StringBuilder strSQL1 = new StringBuilder();
+            strSQL1.AppendLine(" select " +
+                "vcMonth, vcWeek, vcPlant, vcGC, vcZB, vcPartsno, vcQuantityPerContainer, vcD1b, vcD1y, vcD2b, vcD2y, vcD3b, vcD3y, vcD4b, vcD4y, vcD5b, vcD5y, vcD6b, vcD6y, vcD7b, vcD7y, vcD8b, vcD8y, vcD9b, vcD9y, vcD10b, vcD10y, vcD11b, vcD11y, vcD12b, vcD12y, vcD13b, vcD13y, vcD14b, vcD14y, vcD15b, vcD15y, vcD16b, vcD16y, vcD17b, vcD17y, vcD18b, vcD18y, vcD19b, vcD19y, vcD20b, vcD20y, vcD21b, vcD21y, vcD22b, vcD22y, vcD23b, vcD23y, vcD24b, vcD24y, vcD25b, vcD25y, vcD26b, vcD26y, vcD27b, vcD27y, vcD28b, vcD28y, vcD29b, vcD29y, vcD30b, vcD30y, vcD31b, vcD31y, vcWeekTotal, vcLevelD1b, vcLevelD1y, vcLevelD2b, vcLevelD2y, vcLevelD3b, vcLevelD3y, vcLevelD4b, vcLevelD4y, vcLevelD5b, vcLevelD5y, vcLevelD6b, vcLevelD6y, vcLevelD7b, vcLevelD7y, vcLevelD8b, vcLevelD8y, vcLevelD9b, vcLevelD9y, vcLevelD10b, vcLevelD10y, vcLevelD11b, vcLevelD11y, vcLevelD12b, vcLevelD12y, vcLevelD13b, vcLevelD13y, vcLevelD14b, vcLevelD14y, vcLevelD15b, vcLevelD15y, vcLevelD16b, vcLevelD16y, vcLevelD17b, vcLevelD17y, vcLevelD18b, vcLevelD18y, vcLevelD19b, vcLevelD19y, vcLevelD20b, vcLevelD20y, vcLevelD21b, vcLevelD21y, vcLevelD22b, vcLevelD22y, vcLevelD23b, vcLevelD23y, vcLevelD24b, vcLevelD24y, vcLevelD25b, vcLevelD25y, vcLevelD26b, vcLevelD26y, vcLevelD27b, vcLevelD27y, vcLevelD28b, vcLevelD28y, vcLevelD29b, vcLevelD29y, vcLevelD30b, vcLevelD30y, vcLevelD31b, vcLevelD31y, vcLevelWeekTotal " +
+                ",'0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from WeekLevelSchedule where vcMonth='" + strMonth + "' and vcWeek='" + strWeek + "' and vcPlant='" + strPlant + "' ");
+            dt = excute.ExcuteSqlWithSelectToDT(strSQL1.ToString());
+            return dt;
+        }
+        #endregion
+
+        #region 用对象月、对象周、工厂检索周度订单平准化管理表WeekLevelSchedule 导出
+
+        /// <summary>
+        /// 用对象月、对象周、工厂检索周度订单平准化管理表WeekLevelSchedule
+        /// </summary>
+        /// <param name="strMonth">对象月</param>
+        /// <param name="strWeek">对象周</param>
+        /// <param name="strPlant">工厂</param>
+        /// <returns>检索结果数据表</returns>
+        public DataTable TXTSearchWeekLevelSchedule_Out(string strMonth, string strWeek, string strPlant)
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL1 = new StringBuilder();

@@ -68,11 +68,11 @@ namespace SPPSApi.Controllers.G06
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
                
-                string[,] headers = new string[,] {{"组别", "品番", "波动比例(%)"},
-                                                { "vcGroupName", "vcPartNo", "vcFluctuationRange"},
-                                                {"",FieldCheck.NumCharLLL,FieldCheck.Num},
-                                                {"100","12","20"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","1"}};//最小长度设定,可以为空用0
+                string[,] headers = new string[,] {{"组别", "品番"},
+                                                { "vcGroupName", "vcPartNo"},
+                                                {"",FieldCheck.NumCharLLL,},
+                                                {"100","12"},//最大长度设定,不校验最大长度用0
+                                                {"1","12"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {

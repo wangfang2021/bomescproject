@@ -25,6 +25,7 @@ namespace DataAccess
         {
             try
             {
+                //case when [vcOrderState]=2 then '撤销' when [vcOrderState]=3 then '已修正' else '已上传' end as
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine(" select [iAutoId], [vcOrderNo],  ");
@@ -32,22 +33,24 @@ namespace DataAccess
                 strSql.AppendLine("    	when vcOrderType='W' then [vcTargetYear]+'/'+[vcTargetMonth]+''+c.vcName   ");
                 strSql.AppendLine("    	when vcOrderType='S' then [vcTargetYear]+'/'+[vcTargetMonth]  ");
                 strSql.AppendLine("    else '' end as [dTargetDate],  ");
-                strSql.AppendLine("  b.vcOrderDifferentiation as [vcOrderType],e.vcName as  vcInOutFlag, case when [vcOrderState]=2 then '撤销' when [vcOrderState]=3 then '已修正' else '已上传' end as vcOrderState, [vcMemo],   ");
+                strSql.AppendLine("  b.vcOrderDifferentiation as [vcOrderType],e.vcName as  vcInOutFlag,f.vcName  as  vcOrderState, [vcMemo],   ");
                 strSql.AppendLine("  [dUploadDate], [vcFilePath], [vcOperatorID], [dOperatorTime],vcLastOrderNo,'0' as vcModFlag,'0' as vcAddFlag from [dbo].[TOrderUploadManage]  a  ");
                 strSql.AppendLine("  left join (select vcOrderDifferentiation,vcOrderInitials from [dbo].[TOrderDifferentiation] )b on a.vcOrderType= b.vcOrderInitials     ");
                 strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C046' )c on a.vcTargetWeek= c.vcValue      ");
                 strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C003' )e on a.vcInOutFlag= e.vcValue      ");
+                strSql.AppendLine("  left join (select vcValue,vcName from Tcode where vcCodeId='C044' )f on a.vcOrderState= f.vcValue      ");
                 strSql.AppendLine("  left join ( select vcUnitCode,vcUserID from [dbo].[SUser] )d on a.vcOperatorID= d.vcUserID  where d.vcUnitCode=( select vcUnitCode from [dbo].[SUser] where vcUserID = '"+ userID + "')    ");
                 if (vcOrderState.Length > 0)
                 {
-                    if (vcOrderState == "2")
-                    {
-                        strSql.AppendLine("  and vcOrderState = '2' ");
-                    }
-                    else
-                    {
-                        strSql.AppendLine("  and vcOrderState <>'2' ");
-                    }
+                    //if (vcOrderState == "2")
+                    //{
+                    //    strSql.AppendLine("  and vcOrderState = '2' ");
+                    //}
+                    //else
+                    //{
+                    //    strSql.AppendLine("  and vcOrderState <>'2' ");
+                    //}
+                    strSql.AppendLine("  and vcOrderState =  '" + vcOrderState + "' ");
                 }
                 if (vcInOutFlag.Length > 0)
                 {
@@ -77,6 +80,11 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+
+        public DataTable getStateType()
+        {
+            throw new NotImplementedException();
         }
 
         public DataTable checkTSoqDayChange(string dTargetDate)

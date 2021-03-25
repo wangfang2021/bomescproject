@@ -2107,7 +2107,134 @@ namespace Logic
             DataTable dt = new DataTable();
             StringBuilder strSQL1 = new StringBuilder();
             strSQL1.AppendLine(" select " +
-                "vcMonth, vcWeek, vcPlant, vcGC, vcZB, vcPartsno, vcQuantityPerContainer, vcD1b, vcD1y, vcD2b, vcD2y, vcD3b, vcD3y, vcD4b, vcD4y, vcD5b, vcD5y, vcD6b, vcD6y, vcD7b, vcD7y, vcD8b, vcD8y, vcD9b, vcD9y, vcD10b, vcD10y, vcD11b, vcD11y, vcD12b, vcD12y, vcD13b, vcD13y, vcD14b, vcD14y, vcD15b, vcD15y, vcD16b, vcD16y, vcD17b, vcD17y, vcD18b, vcD18y, vcD19b, vcD19y, vcD20b, vcD20y, vcD21b, vcD21y, vcD22b, vcD22y, vcD23b, vcD23y, vcD24b, vcD24y, vcD25b, vcD25y, vcD26b, vcD26y, vcD27b, vcD27y, vcD28b, vcD28y, vcD29b, vcD29y, vcD30b, vcD30y, vcD31b, vcD31y, vcWeekTotal, vcLevelD1b, vcLevelD1y, vcLevelD2b, vcLevelD2y, vcLevelD3b, vcLevelD3y, vcLevelD4b, vcLevelD4y, vcLevelD5b, vcLevelD5y, vcLevelD6b, vcLevelD6y, vcLevelD7b, vcLevelD7y, vcLevelD8b, vcLevelD8y, vcLevelD9b, vcLevelD9y, vcLevelD10b, vcLevelD10y, vcLevelD11b, vcLevelD11y, vcLevelD12b, vcLevelD12y, vcLevelD13b, vcLevelD13y, vcLevelD14b, vcLevelD14y, vcLevelD15b, vcLevelD15y, vcLevelD16b, vcLevelD16y, vcLevelD17b, vcLevelD17y, vcLevelD18b, vcLevelD18y, vcLevelD19b, vcLevelD19y, vcLevelD20b, vcLevelD20y, vcLevelD21b, vcLevelD21y, vcLevelD22b, vcLevelD22y, vcLevelD23b, vcLevelD23y, vcLevelD24b, vcLevelD24y, vcLevelD25b, vcLevelD25y, vcLevelD26b, vcLevelD26y, vcLevelD27b, vcLevelD27y, vcLevelD28b, vcLevelD28y, vcLevelD29b, vcLevelD29y, vcLevelD30b, vcLevelD30y, vcLevelD31b, vcLevelD31y, vcLevelWeekTotal " +
+                "vcMonth, case vcWeek when null then null else convert(int,vcWeek) end as vcWeek, vcPlant, vcGC, vcZB, vcPartsno, " +
+                "case vcQuantityPerContainer when null then null else convert(int,vcQuantityPerContainer) end as vcQuantityPerContainer, " +
+                "case vcD1b when null then null else convert(int,vcD1b) end as vcD1b," +
+                "case vcD1y when null then null else convert(int,vcD1y) end as vcD1y, " +
+                "case vcD2b when null then null else convert(int,vcD2b) end as vcD2b," +
+                "case vcD2y when null then null else convert(int,vcD2y) end as vcD2y, " +
+                "case vcD3b when null then null else convert(int,vcD3b) end as vcD3b, " +
+                "case vcD3y when null then null else convert(int,vcD3y) end as vcD3y, " +
+                "case vcD4b when null then null else convert(int,vcD4b) end as vcD4b, " +
+                "case vcD4y when null then null else convert(int,vcD4y) end as vcD4y, " +
+                "case vcD5b when null then null else convert(int,vcD5b) end as vcD5b, " +
+                "case vcD5y when null then null else convert(int,vcD5y) end as vcD5y, " +
+                "case vcD6b when null then null else convert(int,vcD6b) end as vcD6b, " +
+                "case vcD6y when null then null else convert(int,vcD6y) end as vcD6y, " +
+                "case vcD7b when null then null else convert(int,vcD7b) end as vcD7b, " +
+                "case vcD7y when null then null else convert(int,vcD7y) end as vcD7y, " +
+                "case vcD8b when null then null else convert(int,vcD8b) end as vcD8b, " +
+                "case vcD8y when null then null else convert(int,vcD8y) end as vcD8y, " +
+                "case vcD9b when null then null else convert(int,vcD9b) end as vcD9b, " +
+                "case vcD9y when null then null else convert(int,vcD9y) end as vcD9y, " +
+                "case vcD10b when null then null else convert(int,vcD10b) end as vcD10b, " +
+                "case vcD10y when null then null else convert(int,vcD10y) end as vcD10y, " +
+                "case vcD11b when null then null else convert(int,vcD11b) end as vcD11b, " +
+                "case vcD11y when null then null else convert(int,vcD11y) end as vcD11y, " +
+                "case vcD12b when null then null else convert(int,vcD12b) end as vcD12b, " +
+                "case vcD12y when null then null else convert(int,vcD12y) end as vcD12y, " +
+                "case vcD13b when null then null else convert(int,vcD13b) end as vcD13b, " +
+                "case vcD13y when null then null else convert(int,vcD13y) end as vcD13y, " +
+                "case vcD14b when null then null else convert(int,vcD14b) end as vcD14b, " +
+                "case vcD14y when null then null else convert(int,vcD14y) end as vcD14y, " +
+                "case vcD15b when null then null else convert(int,vcD15b) end as vcD15b, " +
+                "case vcD15y when null then null else convert(int,vcD15y) end as vcD15y, " +
+                "case vcD16b when null then null else convert(int,vcD16b) end as vcD16b, " +
+                "case vcD16y when null then null else convert(int,vcD16y) end as vcD16y, " +
+                "case vcD17b when null then null else convert(int,vcD17b) end as vcD17b, " +
+                "case vcD17y when null then null else convert(int,vcD17y) end as vcD17y, " +
+                "case vcD18b when null then null else convert(int,vcD18b) end as vcD18b, " +
+                "case vcD18y when null then null else convert(int,vcD18y) end as vcD18y, " +
+                "case vcD19b when null then null else convert(int,vcD19b) end as vcD19b, " +
+                "case vcD19y when null then null else convert(int,vcD19y) end as vcD19y, " +
+                "case vcD20b when null then null else convert(int,vcD20b) end as vcD20b, " +
+                "case vcD20y when null then null else convert(int,vcD20y) end as vcD20y, " +
+                "case vcD21b when null then null else convert(int,vcD21b) end as vcD21b, " +
+                "case vcD21y when null then null else convert(int,vcD21y) end as vcD21y, " +
+                "case vcD22b when null then null else convert(int,vcD22b) end as vcD22b, " +
+                "case vcD22y when null then null else convert(int,vcD22y) end as vcD22y, " +
+                "case vcD23b when null then null else convert(int,vcD23b) end as vcD23b, " +
+                "case vcD23y when null then null else convert(int,vcD23y) end as vcD23y, " +
+                "case vcD24b when null then null else convert(int,vcD24b) end as vcD24b, " +
+                "case vcD24y when null then null else convert(int,vcD24y) end as vcD24y, " +
+                "case vcD25b when null then null else convert(int,vcD25b) end as vcD25b, " +
+                "case vcD25y when null then null else convert(int,vcD25y) end as vcD25y, " +
+                "case vcD26b when null then null else convert(int,vcD26b) end as vcD26b, " +
+                "case vcD26y when null then null else convert(int,vcD26y) end as vcD26y, " +
+                "case vcD27b when null then null else convert(int,vcD27b) end as vcD27b, " +
+                "case vcD27y when null then null else convert(int,vcD27y) end as vcD27y, " +
+                "case vcD28b when null then null else convert(int,vcD28b) end as vcD28b, " +
+                "case vcD28y when null then null else convert(int,vcD28y) end as vcD28y, " +
+                "case vcD29b when null then null else convert(int,vcD29b) end as vcD29b, " +
+                "case vcD29y when null then null else convert(int,vcD29y) end as vcD29y, " +
+                "case vcD30b when null then null else convert(int,vcD30b) end as vcD30b, " +
+                "case vcD30y when null then null else convert(int,vcD30y) end as vcD30y, " +
+                "case vcD31b when null then null else convert(int,vcD31b) end as vcD31b, " +
+                "case vcD31y when null then null else convert(int,vcD31y) end as vcD31y, " +
+                "case vcWeekTotal when null then null else convert(int,vcWeekTotal) end as vcWeekTotal, " +
+                "case vcLevelD1b when null then null else convert(int,vcLevelD1b) end as vcLevelD1b, " +
+                "case vcLevelD1y when null then null else convert(int,vcLevelD1y) end as vcLevelD1y, " +
+                "case vcLevelD2b when null then null else convert(int,vcLevelD2b) end as vcLevelD2b, " +
+                "case vcLevelD2y when null then null else convert(int,vcLevelD2y) end as vcLevelD2y, " +
+                "case vcLevelD3b when null then null else convert(int,vcLevelD3b) end as vcLevelD3b, " +
+                "case vcLevelD3y when null then null else convert(int,vcLevelD3y) end as vcLevelD3y, " +
+                "case vcLevelD4b when null then null else convert(int,vcLevelD4b) end as vcLevelD4b, " +
+                "case vcLevelD4y when null then null else convert(int,vcLevelD4y) end as vcLevelD4y, " +
+                "case vcLevelD5b when null then null else convert(int,vcLevelD5b) end as vcLevelD5b, " +
+                "case vcLevelD5y when null then null else convert(int,vcLevelD5y) end as vcLevelD5y, " +
+                "case vcLevelD6b when null then null else convert(int,vcLevelD6b) end as vcLevelD6b, " +
+                "case vcLevelD6y when null then null else convert(int,vcLevelD6y) end as vcLevelD6y, " +
+                "case vcLevelD7b when null then null else convert(int,vcLevelD7b) end as vcLevelD7b, " +
+                "case vcLevelD7y when null then null else convert(int,vcLevelD7y) end as vcLevelD7y, " +
+                "case vcLevelD8b when null then null else convert(int,vcLevelD8b) end as vcLevelD8b, " +
+                "case vcLevelD8y when null then null else convert(int,vcLevelD8y) end as vcLevelD8y, " +
+                "case vcLevelD9b when null then null else convert(int,vcLevelD9b) end as vcLevelD9b, " +
+                "case vcLevelD9y when null then null else convert(int,vcLevelD9y) end as vcLevelD9y, " +
+                "case vcLevelD10b when null then null else convert(int,vcLevelD10b) end as vcLevelD10b, " +
+                "case vcLevelD10y when null then null else convert(int,vcLevelD10y) end as vcLevelD10y, " +
+                "case vcLevelD11b when null then null else convert(int,vcLevelD11b) end as vcLevelD11b, " +
+                "case vcLevelD11y when null then null else convert(int,vcLevelD11y) end as vcLevelD11y, " +
+                "case vcLevelD12b when null then null else convert(int,vcLevelD12b) end as vcLevelD12b, " +
+                "case vcLevelD12y when null then null else convert(int,vcLevelD12y) end as vcLevelD12y, " +
+                "case vcLevelD13b when null then null else convert(int,vcLevelD13b) end as vcLevelD13b, " +
+                "case vcLevelD13y when null then null else convert(int,vcLevelD13y) end as vcLevelD13y, " +
+                "case vcLevelD14b when null then null else convert(int,vcLevelD14b) end as vcLevelD14b, " +
+                "case vcLevelD14y when null then null else convert(int,vcLevelD14y) end as vcLevelD14y, " +
+                "case vcLevelD15b when null then null else convert(int,vcLevelD15b) end as vcLevelD15b, " +
+                "case vcLevelD15y when null then null else convert(int,vcLevelD15y) end as vcLevelD15y, " +
+                "case vcLevelD16b when null then null else convert(int,vcLevelD16b) end as vcLevelD16b, " +
+                "case vcLevelD16y when null then null else convert(int,vcLevelD16y) end as vcLevelD16y, " +
+                "case vcLevelD17b when null then null else convert(int,vcLevelD17b) end as vcLevelD17b, " +
+                "case vcLevelD17y when null then null else convert(int,vcLevelD17y) end as vcLevelD17y, " +
+                "case vcLevelD18b when null then null else convert(int,vcLevelD18b) end as vcLevelD18b, " +
+                "case vcLevelD18y when null then null else convert(int,vcLevelD18y) end as vcLevelD18y, " +
+                "case vcLevelD19b when null then null else convert(int,vcLevelD19b) end as vcLevelD19b, " +
+                "case vcLevelD19y when null then null else convert(int,vcLevelD19y) end as vcLevelD19y, " +
+                "case vcLevelD20b when null then null else convert(int,vcLevelD20b) end as vcLevelD20b, " +
+                "case vcLevelD20y when null then null else convert(int,vcLevelD20y) end as vcLevelD20y, " +
+                "case vcLevelD21b when null then null else convert(int,vcLevelD21b) end as vcLevelD21b, " +
+                "case vcLevelD21y when null then null else convert(int,vcLevelD21y) end as vcLevelD21y, " +
+                "case vcLevelD22b when null then null else convert(int,vcLevelD22b) end as vcLevelD22b, " +
+                "case vcLevelD22y when null then null else convert(int,vcLevelD22y) end as vcLevelD22y, " +
+                "case vcLevelD23b when null then null else convert(int,vcLevelD23b) end as vcLevelD23b, " +
+                "case vcLevelD23y when null then null else convert(int,vcLevelD23y) end as vcLevelD23y, " +
+                "case vcLevelD24b when null then null else convert(int,vcLevelD24b) end as vcLevelD24b, " +
+                "case vcLevelD24y when null then null else convert(int,vcLevelD24y) end as vcLevelD24y, " +
+                "case vcLevelD25b when null then null else convert(int,vcLevelD25b) end as vcLevelD25b, " +
+                "case vcLevelD25y when null then null else convert(int,vcLevelD25y) end as vcLevelD25y, " +
+                "case vcLevelD26b when null then null else convert(int,vcLevelD26b) end as vcLevelD26b, " +
+                "case vcLevelD26y when null then null else convert(int,vcLevelD26y) end as vcLevelD26y, " +
+                "case vcLevelD27b when null then null else convert(int,vcLevelD27b) end as vcLevelD27b, " +
+                "case vcLevelD27y when null then null else convert(int,vcLevelD27y) end as vcLevelD27y, " +
+                "case vcLevelD28b when null then null else convert(int,vcLevelD28b) end as vcLevelD28b, " +
+                "case vcLevelD28y when null then null else convert(int,vcLevelD28y) end as vcLevelD28y, " +
+                "case vcLevelD29b when null then null else convert(int,vcLevelD29b) end as vcLevelD29b, " +
+                "case vcLevelD29y when null then null else convert(int,vcLevelD29y) end as vcLevelD29y, " +
+                "case vcLevelD30b when null then null else convert(int,vcLevelD30b) end as vcLevelD30b, " +
+                "case vcLevelD30y when null then null else convert(int,vcLevelD30y) end as vcLevelD30y, " +
+                "case vcLevelD31b when null then null else convert(int,vcLevelD31b) end as vcLevelD31b, " +
+                "case vcLevelD31y when null then null else convert(int,vcLevelD31y) end as vcLevelD31y, " +
+                "case vcLevelWeekTotal when null then null else convert(int,vcLevelWeekTotal) end as vcLevelWeekTotal " +
                 ",'0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from WeekLevelSchedule where vcMonth='" + strMonth + "' and vcWeek='" + strWeek + "' and vcPlant='" + strPlant + "' ");
             dt = excute.ExcuteSqlWithSelectToDT(strSQL1.ToString());
             return dt;
@@ -2333,6 +2460,9 @@ namespace Logic
         /// <param name="strPlant">工厂</param>
         public void TXTUpdateTableSchedule(DataTable dtSource, string strMonth, string strWeek, string strPlant)
         {
+            if (dtSource.Columns.Contains("iFlag")) dtSource.Columns.Remove("iFlag");
+            if (dtSource.Columns.Contains("vcModFlag")) dtSource.Columns.Remove("vcModFlag");
+            if (dtSource.Columns.Contains("vcAddFlag")) dtSource.Columns.Remove("vcAddFlag");
             string strSQLSearch = " select * from WeekLevelSchedule ";
             StringBuilder strSQL = new StringBuilder();
             //删周度订单平准化管理表

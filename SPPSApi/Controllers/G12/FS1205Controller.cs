@@ -78,17 +78,17 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcMonth = dataForm.vcMonth;
-            string vcWeek = dataForm.vcWeek;
-            string vcPlant = dataForm.vcPlant;
-            string vcType = dataForm.vcType;
+            string vcMonth = dataForm.vcMonth == null ? "" : dataForm.vcMonth;
+            string vcWeek = dataForm.vcWeek == null ? "" : dataForm.vcWeek;
+            string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
             try
             {
                 DataTable dt = fS1205_Logic.TXTSearchWeekLevelSchedule(vcMonth, vcWeek, vcPlant);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -120,6 +120,10 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string vcMonth = dataForm.vcMonth == null ? "" : dataForm.vcMonth;
+                string vcWeek = dataForm.vcWeek == null ? "" : dataForm.vcWeek;
+                string vcPlant = dataForm.vcPlant == null ? "" : dataForm.vcPlant;
+                string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, object>> listInfoData = listInfo.ToObject<List<Dictionary<string, object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
@@ -343,19 +347,99 @@ namespace SPPSApi.Controllers.G12
                 }
                 else
                 {
-                    dt.PrimaryKey = new DataColumn[]
+                    DataTable dt1 = fS1205_Logic.TXTSearchWeekLevelSchedule(vcMonth, vcWeek, vcPlant);
+                    for (int i = 0; i < dt1.Rows.Count; i++)
                     {
-                            dt.Columns["vcMonth"],
-                            dt.Columns["vcWeek"],
-                            dt.Columns["vcPlant"],
-                            dt.Columns["vcGC"],
-                            dt.Columns["vcZB"],
-                            dt.Columns["vcPartsno"]
-                    };
-                    fS1205_Logic.TXTUpdateTableSchedule(dt, Month, Week, Plant);
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = "更新成功！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        for (int j = 0; j < listInfoData.Count; j++)
+                        {
+                            if (dt1.Rows[i]["iAutoId"].ToString() == listInfoData[j]["iAutoId"].ToString())
+                            {
+                                dt1.Rows[i]["vcLevelD1b"] = listInfoData[j]["vcLevelD1b"];
+                                dt1.Rows[i]["vcLevelD1y"] = listInfoData[j]["vcLevelD1y"];
+                                dt1.Rows[i]["vcLevelD2b"] = listInfoData[j]["vcLevelD2b"];
+                                dt1.Rows[i]["vcLevelD2y"] = listInfoData[j]["vcLevelD2y"];
+                                dt1.Rows[i]["vcLevelD3b"] = listInfoData[j]["vcLevelD3b"];
+                                dt1.Rows[i]["vcLevelD3y"] = listInfoData[j]["vcLevelD3y"];
+                                dt1.Rows[i]["vcLevelD4b"] = listInfoData[j]["vcLevelD4b"];
+                                dt1.Rows[i]["vcLevelD4y"] = listInfoData[j]["vcLevelD4y"];
+                                dt1.Rows[i]["vcLevelD5b"] = listInfoData[j]["vcLevelD5b"];
+                                dt1.Rows[i]["vcLevelD5y"] = listInfoData[j]["vcLevelD5y"];
+                                dt1.Rows[i]["vcLevelD6b"] = listInfoData[j]["vcLevelD6b"];
+                                dt1.Rows[i]["vcLevelD6y"] = listInfoData[j]["vcLevelD6y"];
+                                dt1.Rows[i]["vcLevelD7b"] = listInfoData[j]["vcLevelD7b"];
+                                dt1.Rows[i]["vcLevelD7y"] = listInfoData[j]["vcLevelD7y"];
+                                dt1.Rows[i]["vcLevelD8b"] = listInfoData[j]["vcLevelD8b"];
+                                dt1.Rows[i]["vcLevelD8y"] = listInfoData[j]["vcLevelD8y"];
+                                dt1.Rows[i]["vcLevelD9b"] = listInfoData[j]["vcLevelD9b"];
+                                dt1.Rows[i]["vcLevelD9y"] = listInfoData[j]["vcLevelD9y"];
+                                dt1.Rows[i]["vcLevelD10b"] = listInfoData[j]["vcLevelD10b"];
+                                dt1.Rows[i]["vcLevelD10y"] = listInfoData[j]["vcLevelD10y"];
+                                dt1.Rows[i]["vcLevelD11b"] = listInfoData[j]["vcLevelD11b"];
+                                dt1.Rows[i]["vcLevelD11y"] = listInfoData[j]["vcLevelD11y"];
+                                dt1.Rows[i]["vcLevelD12b"] = listInfoData[j]["vcLevelD12b"];
+                                dt1.Rows[i]["vcLevelD12y"] = listInfoData[j]["vcLevelD12y"];
+                                dt1.Rows[i]["vcLevelD13b"] = listInfoData[j]["vcLevelD13b"];
+                                dt1.Rows[i]["vcLevelD13y"] = listInfoData[j]["vcLevelD13y"];
+                                dt1.Rows[i]["vcLevelD14b"] = listInfoData[j]["vcLevelD14b"];
+                                dt1.Rows[i]["vcLevelD14y"] = listInfoData[j]["vcLevelD14y"];
+                                dt1.Rows[i]["vcLevelD15b"] = listInfoData[j]["vcLevelD15b"];
+                                dt1.Rows[i]["vcLevelD15y"] = listInfoData[j]["vcLevelD15y"];
+                                dt1.Rows[i]["vcLevelD16b"] = listInfoData[j]["vcLevelD16b"];
+                                dt1.Rows[i]["vcLevelD16y"] = listInfoData[j]["vcLevelD16y"];
+                                dt1.Rows[i]["vcLevelD17b"] = listInfoData[j]["vcLevelD17b"];
+                                dt1.Rows[i]["vcLevelD17y"] = listInfoData[j]["vcLevelD17y"];
+                                dt1.Rows[i]["vcLevelD18b"] = listInfoData[j]["vcLevelD18b"];
+                                dt1.Rows[i]["vcLevelD18y"] = listInfoData[j]["vcLevelD18y"];
+                                dt1.Rows[i]["vcLevelD19b"] = listInfoData[j]["vcLevelD19b"];
+                                dt1.Rows[i]["vcLevelD19y"] = listInfoData[j]["vcLevelD19y"];
+                                dt1.Rows[i]["vcLevelD20b"] = listInfoData[j]["vcLevelD20b"];
+                                dt1.Rows[i]["vcLevelD20y"] = listInfoData[j]["vcLevelD20y"];
+                                dt1.Rows[i]["vcLevelD21b"] = listInfoData[j]["vcLevelD21b"];
+                                dt1.Rows[i]["vcLevelD21y"] = listInfoData[j]["vcLevelD21y"];
+                                dt1.Rows[i]["vcLevelD23b"] = listInfoData[j]["vcLevelD23b"];
+                                dt1.Rows[i]["vcLevelD23y"] = listInfoData[j]["vcLevelD23y"];
+                                dt1.Rows[i]["vcLevelD24b"] = listInfoData[j]["vcLevelD24b"];
+                                dt1.Rows[i]["vcLevelD24y"] = listInfoData[j]["vcLevelD24y"];
+                                dt1.Rows[i]["vcLevelD25b"] = listInfoData[j]["vcLevelD25b"];
+                                dt1.Rows[i]["vcLevelD25y"] = listInfoData[j]["vcLevelD25y"];
+                                dt1.Rows[i]["vcLevelD26b"] = listInfoData[j]["vcLevelD26b"];
+                                dt1.Rows[i]["vcLevelD26y"] = listInfoData[j]["vcLevelD26y"];
+                                dt1.Rows[i]["vcLevelD27b"] = listInfoData[j]["vcLevelD27b"];
+                                dt1.Rows[i]["vcLevelD27y"] = listInfoData[j]["vcLevelD27y"];
+                                dt1.Rows[i]["vcLevelD28b"] = listInfoData[j]["vcLevelD28b"];
+                                dt1.Rows[i]["vcLevelD28y"] = listInfoData[j]["vcLevelD28y"];
+                                dt1.Rows[i]["vcLevelD29b"] = listInfoData[j]["vcLevelD29b"];
+                                dt1.Rows[i]["vcLevelD29y"] = listInfoData[j]["vcLevelD29y"];
+                                dt1.Rows[i]["vcLevelD30b"] = listInfoData[j]["vcLevelD30b"];
+                                dt1.Rows[i]["vcLevelD30y"] = listInfoData[j]["vcLevelD30y"];
+                                dt1.Rows[i]["vcLevelD31b"] = listInfoData[j]["vcLevelD31b"];
+                                dt1.Rows[i]["vcLevelD31y"] = listInfoData[j]["vcLevelD31y"];
+                            }
+                        }
+                    }
+                    if (dt1 == null || dt1.Rows.Count == 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "无可更新的数据请先检索！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    else
+                    {
+                        dt1.PrimaryKey = new DataColumn[]
+                        {
+                            dt1.Columns["vcMonth"],
+                            dt1.Columns["vcWeek"],
+                            dt1.Columns["vcPlant"],
+                            dt1.Columns["vcGC"],
+                            dt1.Columns["vcZB"],
+                            dt1.Columns["vcPartsno"]
+                        };
+                        fS1205_Logic.TXTUpdateTableSchedule(dt1, Month, Week, Plant);
+                        apiResult.code = ComConstant.SUCCESS_CODE;
+                        apiResult.data = "更新成功！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                 }
             }
             catch (Exception ex)

@@ -3030,14 +3030,14 @@ namespace Logic
                 StringBuilder sb = new StringBuilder();
                 sb.Length = 0;
                 sb.AppendLine(" insert into tPlanPartInfo ");
-                sb.AppendFormat(" select '{0}' as vcMonth, t1.*,'S' as vcEDFlag,t2.vcPartPlant , ", mon);
-                sb.AppendLine(" t2.vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType , t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
-                sb.AppendLine(" select distinct vcPartsno ,vcCarType,vcDock from WeekPackPlanTbl ");//周度包装计划
-                sb.AppendFormat(" where montouch ='{0}' or (vcMonth ='{1}' and montouch is null)", mon, mon);
+                sb.AppendFormat(" select '{0}' as vcMonth,t1.*,'S' as vcEDFlag,t2.vcPartPlant, ", mon);
+                sb.AppendLine(" t2.vcPartsNameCHN,t2.vcCurrentPastCode,t2.vcPorType,t2.vcZB,t2.iQuantityPerContainer,t2.vcQFflag from (");
+                sb.AppendLine(" select distinct vcPartsno,vcCarType,vcDock from WeekPackPlanTbl ");//周度包装计划
+                sb.AppendFormat(" where montouch='{0}' or (vcMonth='{1}' and montouch is null)", mon, mon);
                 sb.AppendLine(" ) t1");
                 sb.AppendLine(" left join tPartInfoMaster t2");
-                sb.AppendLine(" on t1.vcPartsno = t2.vcPartsNo  and t1.vcDock = t2.vcDock ");
-                sb.AppendFormat(" where t2.vcPartPlant ='{0}'  and t2.dTimeFrom <='{1}' and t2.dTimeTo>='{2}'", plant, tmpmon, tmpmon);
+                sb.AppendLine(" on t1.vcPartsno=t2.vcPartsNo  and t1.vcDock=t2.vcDock ");
+                sb.AppendFormat(" where t2.vcPartPlant='{0}'  and t2.dTimeFrom<='{1}' and t2.dTimeTo>='{2}'", plant, tmpmon, tmpmon);
 
                 cmd.CommandText = sb.ToString();
                 cmd.ExecuteNonQuery();

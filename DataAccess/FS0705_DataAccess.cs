@@ -247,13 +247,13 @@ namespace DataAccess
 
 
 
-        #region 取工厂对应白班的起始时间
-        public DataTable getBanZhiStart(string strPackPlant)
+        #region 取工厂对应班值的时间范围
+        public DataTable getBanZhi(string strPackPlant,string strBanZhi)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select tFromTime from TBZTime where vcBanZhi='白' and vcPackPlant='" + strPackPlant + "'   \n");
+                strSql.AppendLine("  select * from TBZTime where vcBanZhi='"+ strBanZhi + "' and vcPackPlant='" + strPackPlant + "'   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -262,16 +262,16 @@ namespace DataAccess
             }
         }
         #endregion
-
+ 
 
 
         #region 获取包材发注时间
-        public DataTable getFaZhuTime(string strFaZhuID)
+        public DataTable getFaZhuTime(string strFaZhuID,string strPackSpot)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='"+ strFaZhuID + "'   \n");
+                strSql.AppendLine("  select * from TPackFaZhuTime where vcFaZhuID='"+ strFaZhuID + "' and vcPackSpot='"+ strPackSpot + "' order by charindex(vcBianCi,'白'),vcBianCi   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

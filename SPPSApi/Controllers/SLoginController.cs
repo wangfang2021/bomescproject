@@ -39,6 +39,7 @@ namespace SPPSApi.Controllers
                     ApiToken token = new ApiToken();
                     token.token = strTokenValue;
                     apiResult.data = token;
+                    slogin_Logic.UpdateLoginDate(info.UserId);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else

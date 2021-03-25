@@ -13,7 +13,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 按检索条件返回dt
-        public DataTable Search(string strDXDateMonth, string strInOutFlag, string strState)
+        public DataTable Search(string strDXDateMonth, string strInOutFlag)
         {
             /*
              * 逻辑梳理：
@@ -131,18 +131,12 @@ namespace DataAccess
             #region 再根据用户所选择的其他条件对dataDT进行筛选
 
             StringBuilder strSearch = new StringBuilder();
+            strSearch.Append("vcZhanKaiState='可下载'");
             if (!string.IsNullOrEmpty(strInOutFlag))
             {
-                strSearch.Append("vcInOutFlag='"+strInOutFlag+"'");
+                strSearch.Append("and vcInOutFlag='"+strInOutFlag+"'");
             }
-            if (!string.IsNullOrEmpty(strInOutFlag) && !string.IsNullOrEmpty(strState))
-            {
-                strSearch.Append(" and ");
-            }
-            if (!string.IsNullOrEmpty(strState))
-            {
-                strSearch.Append("vcZhanKaiState='"+strState+"'");
-            }
+            
             DataRow[] drs = DataDT.Select(strSearch.ToString());
             for (int i = 0; i < drs.Length; i++)
             {

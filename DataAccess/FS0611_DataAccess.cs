@@ -509,7 +509,7 @@ namespace DataAccess
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),iBoxes=b.iBoxes,iPartNums=b.iQuantityPercontainer*b.iBoxes,      \n");
+                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),iBoxes=b.iBoxes,iPartNums=b.iQuantityPercontainer*b.iBoxes,vcZhanKaiID=null,dZhanKaiTime=null,      \n");
                 for (int j = 1; j < 32; j++)
                 {
                     sql.Append(" iD" + j + "=b.iD" + j  );

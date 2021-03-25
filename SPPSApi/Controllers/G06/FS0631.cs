@@ -136,7 +136,7 @@ namespace SPPSApi.Controllers.G06
                 string[] heads = { "品番", "处理年月", "对象年月","工厂","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12",
                     "D13","D14","D15","D16" ,"D17","D18","D19","D20","D21","D22","D23","D24","D25","D26","D27","D28","D29","D30","D31"
                 };
-                string[] fields = { "Part_No","Process_YYYYMM","Start_date_for_daily_qty","Process_Factory","Daily_Qty_01","Daily_Qty_02","Daily_Qty_03","Daily_Qty_04",
+                string[] fields = { "Part_No_Disp","Process_YYYYMM","Start_date_for_daily_qty","Process_Factory","Daily_Qty_01","Daily_Qty_02","Daily_Qty_03","Daily_Qty_04",
                     "Daily_Qty_05","Daily_Qty_06","Daily_Qty_07","Daily_Qty_08","Daily_Qty_09","Daily_Qty_10","Daily_Qty_11","Daily_Qty_12",
                     "Daily_Qty_13","Daily_Qty_14","Daily_Qty_15","Daily_Qty_16","Daily_Qty_17","Daily_Qty_18","Daily_Qty_19","Daily_Qty_20",
                     "Daily_Qty_21","Daily_Qty_22","Daily_Qty_23","Daily_Qty_24","Daily_Qty_25","Daily_Qty_26","Daily_Qty_27","Daily_Qty_28",

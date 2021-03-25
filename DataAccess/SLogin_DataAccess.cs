@@ -84,5 +84,21 @@ namespace DataAccess
             }
 
         }
+
+        #region 更新登录时间
+        public void UpdateLoginDate(string strUserId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.Append("  update SUser set dLoginTime=GETDATE()  where vcUserID='" + strUserId + "'    \n");
+                me.ExcuteSqlWithStringOper(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

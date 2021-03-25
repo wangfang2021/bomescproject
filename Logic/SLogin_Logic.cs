@@ -596,5 +596,12 @@ namespace Logic
             return nodes;
         }
         #endregion
+
+        #region 更新登录时间
+        public void UpdateLoginDate(string strUserId)
+        {
+            da.UpdateLoginDate(strUserId);
+        }
+        #endregion
     }
 }

@@ -47,7 +47,7 @@ namespace DataAccess
                 strSql.Append("and isnull(t1.dInDate,'2001/01/01 00:01:00') >= '" + dStart + "' and isnull(t1.dInDate,'2001/01/01 00:01:00') <= '" + dEnd + "'  \n");
                 if (vcBPStatus == "1")
                     strSql.Append("and (isnull(iDBZ,0)!=0 or isnull(iDZX,0)!=0 or isnull(iDCH,0)!=0 )    \n");
-                //strSql.Append("order by    \n");
+                strSql.Append("order by t1.vcBZPlant,t1.vcSHF,t1.vcPart_id,t1.vcInputNo   \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

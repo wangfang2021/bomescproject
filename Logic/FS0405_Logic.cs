@@ -24,16 +24,16 @@ namespace Logic
         public DataTable Search(string strDXDateMonth, string strInOutFlag, string strState)
         {
             DataTable dt = fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag, strState);
-            dt.DefaultView.Sort="vcDXYM,vcInOutFlag";
+            dt.DefaultView.Sort="vcDXYM desc,vcInOutFlag";
             dt = dt.DefaultView.ToTable();
             return dt;
         }
         #endregion
 
-        #region 导出
-        public DataTable exportSearch(string strDXYM,string strInOutFlag,string strDXYM1,string strDXYM2)
+        #region 下载SOQReply（检索内容）
+        public DataTable exportSearch(string strYearMonth, string strYearMonth_2, string strYearMonth_3,string strInOutFlag)
         {
-            return fs0405_DataAccess.exportSearch(strDXYM, strInOutFlag, strDXYM1, strDXYM2);
+            return fs0405_DataAccess.search(strYearMonth, strYearMonth_2, strYearMonth_3,strInOutFlag);
         }
         #endregion
 

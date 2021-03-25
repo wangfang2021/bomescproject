@@ -157,23 +157,25 @@ namespace DataAccess
 
 
 
-        #region 导出检索
-        public DataTable exportSearch(string strDXYM, string strInOutFlag,string strDXYM1, string strDXYM2)
+        #region 下载SOQReply（检索内容）
+        public DataTable search(string strYearMonth, string strYearMonth_2, string strYearMonth_3,string strInOutFlag)
         {
             try
             {
                 StringBuilder strSql = new StringBuilder();
-
+                string strCLYM = strYearMonth.Insert(4,"/");
+                strCLYM = strCLYM.Insert(strCLYM.Length, "/01");
+                strCLYM = Convert.ToDateTime(strCLYM).AddMonths(-1).ToString("yyyyMM");
                 strSql.AppendLine(" SELECT a.*,b.[N+1 O/L],b.[N+1 Units],b.[N+1 PCS], ");
-                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS] ");
+                strSql.AppendLine(" c.[N+2 O/L],c.[N+2 Units],c.[N+2 PCS],d.vcName as '订货方式',e.vcName as  '发注工厂' ");
                 strSql.AppendLine(" FROM ");
                 strSql.AppendLine(" ( ");
                 strSql.AppendLine("   SELECT ");
                 strSql.AppendLine("   vcPart_id as 'PartsNo',");
                 //发注工厂
-                strSql.AppendLine("   cast(vcFZGC as int) as '发注工厂',");
+                strSql.AppendLine("   vcFZGC,");
                 //订货频度
-                strSql.AppendLine("   cast(vcMakingOrderType as int) as '订货频度',");
+                strSql.AppendLine("   vcMakingOrderType,");
                 strSql.AppendLine("   vcCarType as 'CFC',");
                 strSql.AppendLine("   isnull(iQuantityPercontainer,0) as 'OrdLot',");
                 strSql.AppendLine("   isnull(iBoxes,0) as 'N Units',");
@@ -210,47 +212,26 @@ namespace DataAccess
                 strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30,");
                 strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31,");
                 strSql.AppendLine("   iAutoId");
-                strSql.AppendLine("   FROM TSOQReply  ");
-                strSql.AppendLine("   WHERE 1=1 ");
-                if (!string.IsNullOrEmpty(strInOutFlag))
-                {
-                    strSql.AppendLine("   AND vcInOutFlag='" + strInOutFlag + "'       ");//内外
-                }
-                if (!string.IsNullOrEmpty(strDXYM))
-                {
-                    strSql.AppendLine("   AND vcDXYM='" + strDXYM + "'       ");//对象年月1
-                }
+                strSql.AppendLine("   FROM TSOQReply WHERE vcCLYM='" + strCLYM + "' and  vcInOutFlag='"+strInOutFlag+"'  AND vcDXYM='" + strYearMonth + "'");//外注
                 strSql.AppendLine(" ) a ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
                 strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+1 O/L',isnull(iBoxes,0) as 'N+1 Units',isnull(iPartNums,0) as 'N+1 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE 1=1 ");
-                if (!string.IsNullOrEmpty(strInOutFlag))
-                {
-                    strSql.AppendLine("   AND vcInOutFlag='" + strInOutFlag + "'       ");//内外
-                }
-                if (!string.IsNullOrEmpty(strDXYM2))
-                {
-                    strSql.AppendLine("   AND vcDXYM='" + strDXYM2 + "'       ");//对象年月2
-                }
+                strSql.AppendLine("   WHERE vcCLYM='" + strCLYM + "' and  vcInOutFlag='"+strInOutFlag+"'  AND vcDXYM='" + strYearMonth_2 + "' ");//外注
                 strSql.AppendLine("  ) b ");
                 strSql.AppendLine(" ON a.PartsNo=b.vcPart_id ");
 
                 strSql.AppendLine(" LEFT JOIN (   ");
                 strSql.AppendLine("   SELECT vcPart_id,isnull(iQuantityPercontainer,0) as 'N+2 O/L',isnull(iBoxes,0) as 'N+2 Units',isnull(iPartNums,0) as 'N+2 PCS' ");
                 strSql.AppendLine("   FROM TSOQReply   ");
-                strSql.AppendLine("   WHERE 1=1 ");
-                if (!string.IsNullOrEmpty(strInOutFlag))
-                {
-                    strSql.AppendLine("   AND vcInOutFlag='" + strInOutFlag + "'       ");//内外
-                }
-                if (!string.IsNullOrEmpty(strDXYM2))
-                {
-                    strSql.AppendLine("   AND vcDXYM='" + strDXYM2 + "'       ");//对象年月3
-                }
+                strSql.AppendLine("   WHERE vcCLYM='" + strCLYM + "' and  vcInOutFlag='"+strInOutFlag+"'  AND vcDXYM='" + strYearMonth_3 + "' ");//外注
                 strSql.AppendLine("  ) c ");
                 strSql.AppendLine(" ON a.PartsNo=c.vcPart_id ");
+
+                strSql.AppendLine("left join (select * from TCode where vcCodeId='C047')d on a.vcMakingOrderType=d.vcValue    \n");
+                strSql.AppendLine("left join (select * from TCode where vcCodeId='C000')e on a.vcFZGC=e.vcValue    \n");
+
 
                 strSql.AppendLine(" order by a.iAutoId ");
 

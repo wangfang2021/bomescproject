@@ -87,18 +87,11 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
  
-
             try
             {
-                DataTable dt = new DataTable();
-                dt = fs0705_Logic.SearchFaZhuTime("");
-                DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-
+               
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = "";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

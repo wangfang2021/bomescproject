@@ -87,15 +87,10 @@ namespace SPPSApi.Controllers.G07
             string PackSpot = "H2";
             try
             {
-                DataTable dt = new DataTable();
-                dt = fs0705_Logic.SearchFaZhuTime(PackSpot);
-                DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                ArrayList list = fs0705_Logic.SearchFaZhuTime(PackSpot);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
+                apiResult.data = list;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

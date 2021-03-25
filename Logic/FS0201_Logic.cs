@@ -281,12 +281,12 @@ namespace Logic
                 int NewProjTimeError = 0;
                 int startYearMonth = 0;
                 List<string> errorlist = new List<string>();
-                if (string.IsNullOrWhiteSpace(vcStartYearMonth))
-                {
-                    startYearMonth = 1;
-                    errorlist.Add("品番实施时期必填");
+                //if (string.IsNullOrWhiteSpace(vcStartYearMonth))
+                //{
+                //    startYearMonth = 1;
+                //    errorlist.Add("品番实施时期必填");
 
-                }
+                //}
                 if (!string.IsNullOrWhiteSpace(vcOldProjTime) && !IsDate(vcOldProjTime))
                 {
                     OldProjTimeError = 1;

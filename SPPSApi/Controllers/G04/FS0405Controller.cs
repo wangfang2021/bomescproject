@@ -144,7 +144,6 @@ namespace SPPSApi.Controllers.G03
             ApiResult apiResult = new ApiResult();
             try
             {
-                
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
@@ -168,32 +167,31 @@ namespace SPPSApi.Controllers.G03
 
                 #endregion
 
-                string strDXYM = listInfoData[0]["vcDXYM"].ToString()+"01";
-                strDXYM = strDXYM.Insert(6, "-");
-                strDXYM = strDXYM.Insert(4, "-");
-                DateTime dDXYM = Convert.ToDateTime(strDXYM);
-                strDXYM = dDXYM.ToString("yyyy") + dDXYM.ToString("MM");
+                string strDXYM = listInfoData[0]["vcDXYM"].ToString();
+                strDXYM = strDXYM.Insert(4, "/");
+                strDXYM = strDXYM.Insert(strDXYM.Length, "/01");
                 string strInOutFlag = listInfoData[0]["vcInOutFlag"].ToString();
-                string strDXYM1 = dDXYM.AddMonths(1).ToString("yyyy") + dDXYM.AddMonths(1).ToString("MM");
-                string strDXYM2 = dDXYM.AddMonths(2).ToString("yyyy") + dDXYM.AddMonths(2).ToString("MM");
+                string strYearMonth = Convert.ToDateTime(strDXYM).ToString("yyyyMM");
+                string strYearMonth_2 = Convert.ToDateTime(strDXYM).AddMonths(1).ToString("yyyyMM");
+                string strYearMonth_3 = Convert.ToDateTime(strDXYM).AddMonths(2).ToString("yyyyMM");
 
-                DataTable dt = fs0405_Logic.exportSearch(strDXYM, strInOutFlag, strDXYM1, strDXYM2);
+                DataTable dt = fs0405_Logic.exportSearch(strYearMonth, strYearMonth_2, strYearMonth_3,strInOutFlag);
 
-                string[] ExcelHeader = { "PartsNo", "发注工厂", "订货频度", "CFC", "OrdLot", "N Units"
+                string[] ExcelHeader = { "PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
                 ,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
                 ,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS" };
 
-                string[] DataTableHeader = { "PartsNo", "发注工厂", "订货频度", "CFC", "OrdLot", "N Units"
-                ,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
-                ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
-                ,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"
-                };
+                //string[] DataTableHeader = { "PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
+                //,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
+                //,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
+                //,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"
+                //};
 
-                string strFileName = "SOQREP_" + "0_" + strDXYM1 + "_" + strInOutFlag + "_" + DateTime.Now.ToString("yyyy")+DateTime.Now.ToString("MM")+DateTime.Now.ToString("dd")+DateTime.Now.ToString("HH")+DateTime.Now.ToString("mm")+DateTime.Now.ToString("ss");
+                string strFileName = "SOQREP_" + "0_" + strYearMonth + "_" + strInOutFlag + "_" + DateTime.Now.ToString("yyyy")+DateTime.Now.ToString("MM")+DateTime.Now.ToString("dd")+DateTime.Now.ToString("HH")+DateTime.Now.ToString("mm")+DateTime.Now.ToString("ss")+".xlsx";
 
                 string RetMsg = "";
-                string filepath = fs0405_Logic.DataTableToExcel(ExcelHeader, DataTableHeader, dt, _webHostEnvironment.ContentRootPath, strFileName, ref RetMsg);
+                string filepath = fs0405_Logic.generateExcelWithXlt(dt, ExcelHeader, _webHostEnvironment.ContentRootPath, "FS0405.xlsx", 1, loginInfo.UserId, strFileName, false);
 
                 if (RetMsg != "")
                 {

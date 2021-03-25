@@ -314,37 +314,37 @@ namespace DataAccess
             sql.Append("           ,nullif(" + arr[2] + ",'')    \n");//收容数
             sql.Append("           ,nullif(" + arr[3] + ",'')    \n");//箱数
             sql.Append("           ,nullif(" + arr[1] + ",'')    \n");//订单数
-            sql.Append("           ,nullif(" + arr[4] + ",'')    \n");//D1
-            sql.Append("           ,nullif(" + arr[5] + ",'')    \n");//D2
-            sql.Append("           ,nullif(" + arr[6] + ",'')    \n");//D3
-            sql.Append("           ,nullif(" + arr[7] + ",'')    \n");//D4
-            sql.Append("           ,nullif(" + arr[8] + ",'')    \n");//D5
-            sql.Append("           ,nullif(" + arr[9] + ",'')    \n");//D6
-            sql.Append("           ,nullif(" + arr[10] + ",'')   \n");//D7
-            sql.Append("           ,nullif(" + arr[11] + ",'')   \n");//D8
-            sql.Append("           ,nullif(" + arr[12] + ",'')   \n");//D9
-            sql.Append("           ,nullif(" + arr[13] + ",'')    \n");//D10
-            sql.Append("           ,nullif(" + arr[14] + ",'')    \n");//D11
-            sql.Append("           ,nullif(" + arr[15] + ",'')    \n");//D12
-            sql.Append("           ,nullif(" + arr[16] + ",'')    \n");//D13
-            sql.Append("           ,nullif(" + arr[17] + ",'')    \n");//D14
-            sql.Append("           ,nullif(" + arr[18] + ",'')    \n");//D15
-            sql.Append("           ,nullif(" + arr[19] + ",'')    \n");//D16
-            sql.Append("           ,nullif(" + arr[20] + ",'')    \n");//D17
-            sql.Append("           ,nullif(" + arr[21] + ",'')    \n");//D18
-            sql.Append("           ,nullif(" + arr[22] + ",'')    \n");//D19
-            sql.Append("           ,nullif(" + arr[23] + ",'')    \n");//D20
-            sql.Append("           ,nullif(" + arr[24] + ",'')    \n");//D21
-            sql.Append("           ,nullif(" + arr[25] + ",'')    \n");//D22
-            sql.Append("           ,nullif(" + arr[26] + ",'')    \n");//D23
-            sql.Append("           ,nullif(" + arr[27] + ",'')    \n");//D24
-            sql.Append("           ,nullif(" + arr[28] + ",'')    \n");//D25
-            sql.Append("           ,nullif(" + arr[29] + ",'')    \n");//D26
-            sql.Append("           ,nullif(" + arr[30] + ",'')    \n");//D27
-            sql.Append("           ,nullif(" + arr[31] + ",'')    \n");//D28
-            sql.Append("           ,nullif(" + arr[32] + ",'')    \n");//D29
-            sql.Append("           ,nullif(" + arr[33] + ",'')    \n");//D30
-            sql.Append("           ,nullif(" + arr[34] + ",'')    \n");//D31
+            sql.Append("           ,nullif(" + arr[4] + "*" + arr[2] + ",'')    \n");//D1
+            sql.Append("           ,nullif(" + arr[5] + "*" + arr[2] + ",'')    \n");//D2
+            sql.Append("           ,nullif(" + arr[6] + "*" + arr[2] + ",'')    \n");//D3
+            sql.Append("           ,nullif(" + arr[7] + "*" + arr[2] + ",'')    \n");//D4
+            sql.Append("           ,nullif(" + arr[8] + "*" + arr[2] + ",'')    \n");//D5
+            sql.Append("           ,nullif(" + arr[9] + "*" + arr[2] + ",'')    \n");//D6
+            sql.Append("           ,nullif(" + arr[10] + "*" + arr[2] + ",'')   \n");//D7
+            sql.Append("           ,nullif(" + arr[11] + "*" + arr[2] + ",'')   \n");//D8
+            sql.Append("           ,nullif(" + arr[12] + "*" + arr[2] + ",'')   \n");//D9
+            sql.Append("           ,nullif(" + arr[13] + "*" + arr[2] + ",'')    \n");//D10
+            sql.Append("           ,nullif(" + arr[14] + "*" + arr[2] + ",'')    \n");//D11
+            sql.Append("           ,nullif(" + arr[15] + "*" + arr[2] + ",'')    \n");//D12
+            sql.Append("           ,nullif(" + arr[16] + "*" + arr[2] + ",'')    \n");//D13
+            sql.Append("           ,nullif(" + arr[17] + "*" + arr[2] + ",'')    \n");//D14
+            sql.Append("           ,nullif(" + arr[18] + "*" + arr[2] + ",'')    \n");//D15
+            sql.Append("           ,nullif(" + arr[19] + "*" + arr[2] + ",'')    \n");//D16
+            sql.Append("           ,nullif(" + arr[20] + "*" + arr[2] + ",'')    \n");//D17
+            sql.Append("           ,nullif(" + arr[21] + "*" + arr[2] + ",'')    \n");//D18
+            sql.Append("           ,nullif(" + arr[22] + "*" + arr[2] + ",'')    \n");//D19
+            sql.Append("           ,nullif(" + arr[23] + "*" + arr[2] + ",'')    \n");//D20
+            sql.Append("           ,nullif(" + arr[24] + "*" + arr[2] + ",'')    \n");//D21
+            sql.Append("           ,nullif(" + arr[25] + "*" + arr[2] + ",'')    \n");//D22
+            sql.Append("           ,nullif(" + arr[26] + "*" + arr[2] + ",'')    \n");//D23
+            sql.Append("           ,nullif(" + arr[27] + "*" + arr[2] + ",'')    \n");//D24
+            sql.Append("           ,nullif(" + arr[28] + "*" + arr[2] + ",'')    \n");//D25
+            sql.Append("           ,nullif(" + arr[29] + "*" + arr[2] + ",'')    \n");//D26
+            sql.Append("           ,nullif(" + arr[30] + "*" + arr[2] + ",'')    \n");//D27
+            sql.Append("           ,nullif(" + arr[31] + "*" + arr[2] + ",'')    \n");//D28
+            sql.Append("           ,nullif(" + arr[32] + "*" + arr[2] + ",'')    \n");//D29
+            sql.Append("           ,nullif(" + arr[33] + "*" + arr[2] + ",'')    \n");//D30
+            sql.Append("           ,nullif(" + arr[34] + "*" + arr[2] + ",'')    \n");//D31
             sql.Append("           ,'" + strUserId + "'    \n");//操作者
             sql.Append("           ,getdate())    \n");//操作时间
             #endregion
@@ -398,37 +398,37 @@ namespace DataAccess
                 strSql.AppendLine("   isnull(iQuantityPercontainer,0) as 'OrdLot',");
                 strSql.AppendLine("   isnull(iBoxes,0) as 'N Units',");
                 strSql.AppendLine("   isnull(iPartNums,0) as 'N PCS',");
-                strSql.AppendLine("   isnull(iD1,0)*isnull(iQuantityPercontainer,0) as iD1,");
-                strSql.AppendLine("   isnull(iD2,0)*isnull(iQuantityPercontainer,0) as iD2,");
-                strSql.AppendLine("   isnull(iD3,0)*isnull(iQuantityPercontainer,0) as iD3,");
-                strSql.AppendLine("   isnull(iD4,0)*isnull(iQuantityPercontainer,0) as iD4,");
-                strSql.AppendLine("   isnull(iD5,0)*isnull(iQuantityPercontainer,0) as iD5,");
-                strSql.AppendLine("   isnull(iD6,0)*isnull(iQuantityPercontainer,0) as iD6,");
-                strSql.AppendLine("   isnull(iD7,0)*isnull(iQuantityPercontainer,0) as iD7,");
-                strSql.AppendLine("   isnull(iD8,0)*isnull(iQuantityPercontainer,0) as iD8,");
-                strSql.AppendLine("   isnull(iD9,0)*isnull(iQuantityPercontainer,0) as iD9,");
-                strSql.AppendLine("   isnull(iD10,0)*isnull(iQuantityPercontainer,0) as iD10,");
-                strSql.AppendLine("   isnull(iD11,0)*isnull(iQuantityPercontainer,0) as iD11,");
-                strSql.AppendLine("   isnull(iD12,0)*isnull(iQuantityPercontainer,0) as iD12,");
-                strSql.AppendLine("   isnull(iD13,0)*isnull(iQuantityPercontainer,0) as iD13,");
-                strSql.AppendLine("   isnull(iD14,0)*isnull(iQuantityPercontainer,0) as iD14,");
-                strSql.AppendLine("   isnull(iD15,0)*isnull(iQuantityPercontainer,0) as iD15,");
-                strSql.AppendLine("   isnull(iD16,0)*isnull(iQuantityPercontainer,0) as iD16,");
-                strSql.AppendLine("   isnull(iD17,0)*isnull(iQuantityPercontainer,0) as iD17,");
-                strSql.AppendLine("   isnull(iD18,0)*isnull(iQuantityPercontainer,0) as iD18,");
-                strSql.AppendLine("   isnull(iD19,0)*isnull(iQuantityPercontainer,0) as iD19,");
-                strSql.AppendLine("   isnull(iD20,0)*isnull(iQuantityPercontainer,0) as iD20,");
-                strSql.AppendLine("   isnull(iD21,0)*isnull(iQuantityPercontainer,0) as iD21,");
-                strSql.AppendLine("   isnull(iD22,0)*isnull(iQuantityPercontainer,0) as iD22,");
-                strSql.AppendLine("   isnull(iD23,0)*isnull(iQuantityPercontainer,0) as iD23,");
-                strSql.AppendLine("   isnull(iD24,0)*isnull(iQuantityPercontainer,0) as iD24,");
-                strSql.AppendLine("   isnull(iD25,0)*isnull(iQuantityPercontainer,0) as iD25,");
-                strSql.AppendLine("   isnull(iD26,0)*isnull(iQuantityPercontainer,0) as iD26,");
-                strSql.AppendLine("   isnull(iD27,0)*isnull(iQuantityPercontainer,0) as iD27,");
-                strSql.AppendLine("   isnull(iD28,0)*isnull(iQuantityPercontainer,0) as iD28,");
-                strSql.AppendLine("   isnull(iD29,0)*isnull(iQuantityPercontainer,0) as iD29,");
-                strSql.AppendLine("   isnull(iD30,0)*isnull(iQuantityPercontainer,0) as iD30,");
-                strSql.AppendLine("   isnull(iD31,0)*isnull(iQuantityPercontainer,0) as iD31,");
+                 strSql.AppendLine("   isnull(iD1,0) as iD1, \n");
+                strSql.AppendLine("   isnull(iD2,0) as iD2, \n");
+                strSql.AppendLine("   isnull(iD3,0) as iD3, \n");
+                strSql.AppendLine("   isnull(iD4,0) as iD4, \n");
+                strSql.AppendLine("   isnull(iD5,0) as iD5, \n");
+                strSql.AppendLine("   isnull(iD6,0) as iD6, \n");
+                strSql.AppendLine("   isnull(iD7,0) as iD7, \n");
+                strSql.AppendLine("   isnull(iD8,0) as iD8, \n");
+                strSql.AppendLine("   isnull(iD9,0) as iD9, \n");
+                strSql.AppendLine("   isnull(iD10,0) as iD10, \n");
+                strSql.AppendLine("   isnull(iD11,0) as iD11, \n");
+                strSql.AppendLine("   isnull(iD12,0) as iD12, \n");
+                strSql.AppendLine("   isnull(iD13,0) as iD13, \n");
+                strSql.AppendLine("   isnull(iD14,0) as iD14, \n");
+                strSql.AppendLine("   isnull(iD15,0) as iD15, \n");
+                strSql.AppendLine("   isnull(iD16,0) as iD16, \n");
+                strSql.AppendLine("   isnull(iD17,0) as iD17, \n");
+                strSql.AppendLine("   isnull(iD18,0) as iD18, \n");
+                strSql.AppendLine("   isnull(iD19,0) as iD19, \n");
+                strSql.AppendLine("   isnull(iD20,0) as iD20, \n");
+                strSql.AppendLine("   isnull(iD21,0) as iD21, \n");
+                strSql.AppendLine("   isnull(iD22,0) as iD22, \n");
+                strSql.AppendLine("   isnull(iD23,0) as iD23, \n");
+                strSql.AppendLine("   isnull(iD24,0) as iD24, \n");
+                strSql.AppendLine("   isnull(iD25,0) as iD25, \n");
+                strSql.AppendLine("   isnull(iD26,0) as iD26, \n");
+                strSql.AppendLine("   isnull(iD27,0) as iD27, \n");
+                strSql.AppendLine("   isnull(iD28,0) as iD28, \n");
+                strSql.AppendLine("   isnull(iD29,0) as iD29, \n");
+                strSql.AppendLine("   isnull(iD30,0) as iD30, \n");
+                strSql.AppendLine("   isnull(iD31,0) as iD31, \n");
                 strSql.AppendLine("   iAutoId");
                 strSql.AppendLine("   FROM TSOQReply WHERE vcCLYM='" + strCLYM + "' and  vcInOutFlag='1'  AND vcDXYM='" + strYearMonth + "'");//外注
                 strSql.AppendLine(" ) a ");
@@ -495,16 +495,18 @@ namespace DataAccess
 
                     for (int j = 1; j < 32; j++)
                     {
-                        string strIDTemp = dt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : dt.Rows[i]["iD" + j].ToString();
-                        if(strIDTemp!="" && Convert.ToInt32(strIDTemp)!=0)
-                        {
-                            string strSRS = dt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : dt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
-                            int iSRS = Convert.ToInt32(strSRS.Trim());//收容数
-                            int iD =  Convert.ToInt32(strIDTemp.Trim()) / iSRS;
-                            sql.Append("      ," + iD + "      \n");
-                        }
-                        else
-                            sql.Append("      ,null      \n");
+                        sql.Append("      ," + ComFunction.getSqlValue(dt.Rows[i]["iD" + j], true) + "      \n");
+
+                        //string strIDTemp = dt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : dt.Rows[i]["iD" + j].ToString();
+                        //if(strIDTemp!="" && Convert.ToInt32(strIDTemp)!=0)
+                        //{
+                        //    string strSRS = dt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : dt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
+                        //    int iSRS = Convert.ToInt32(strSRS.Trim());//收容数
+                        //    int iD =  Convert.ToInt32(strIDTemp.Trim()) / iSRS;
+                        //    sql.Append("      ," + iD + "      \n");
+                        //}
+                        //else
+                        //    sql.Append("      ,null      \n");
                     }
                     sql.Append("      );      \n");
                 }

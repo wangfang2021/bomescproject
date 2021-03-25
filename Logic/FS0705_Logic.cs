@@ -70,7 +70,7 @@ namespace Logic
                         dEnd_Index = dEnd;
                     else
                         dEnd_Index = DateTime.Now;
-                    while (DateDiff(dEnd_Index, DateTime.Now) <= 0)
+                    while (DateDiff(dEnd_Index, DateTime.Now) >= 0)
                     {
                         string strBanZhi = getPackBanZhi(dEnd_Index.ToString("yyyy-MM"), dEnd_Index.Day);
 
@@ -80,6 +80,9 @@ namespace Logic
                             bool isOver12 = false;//入荷时间是否夜班，且是12点以后
 
                             DateTime dX = Convert.ToDateTime(dEnd_Index.ToString("yyyy-MM-dd ") + dtStandard.Rows[j]["dFaZhuFromTime"].ToString());//发注起始时间
+                            if (dX > DateTime.Now)
+                                continue;//如果发注作业时间超过系统当前时间，则跳过
+                            
                             if (!isJiaDong(strPackSpot, dX,ref strX_WorkType))//如果不是稼动时间，那么继续判断下一个
                                 continue;
                             if (strX_WorkType == "夜" && dX.Hour < 12)//如果是夜班，且是12点之前，证明是夜班的第二天凌晨

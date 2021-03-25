@@ -182,16 +182,16 @@ namespace SPPSApi.Controllers.G03
                 ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
                 ,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS" };
 
-                string[] DataTableHeader = { "PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
-                ,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
-                ,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
-                ,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"
-                };
+                //string[] DataTableHeader = { "PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
+                //,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"
+                //,"iD15","iD16","iD17","iD18","iD19","iD20","iD21","iD22","iD23","iD24","iD25","iD26","iD27","iD28"
+                //,"iD29","iD30","iD31","N+1 O/L","N+1 Units","N+1 PCS","N+2 O/L","N+2 Units","N+2 PCS"
+                //};
 
-                string strFileName = "SOQREP_" + "0_" + strYearMonth + "_" + strInOutFlag + "_" + DateTime.Now.ToString("yyyy")+DateTime.Now.ToString("MM")+DateTime.Now.ToString("dd")+DateTime.Now.ToString("HH")+DateTime.Now.ToString("mm")+DateTime.Now.ToString("ss");
+                string strFileName = "SOQREP_" + "0_" + strYearMonth + "_" + strInOutFlag + "_" + DateTime.Now.ToString("yyyy")+DateTime.Now.ToString("MM")+DateTime.Now.ToString("dd")+DateTime.Now.ToString("HH")+DateTime.Now.ToString("mm")+DateTime.Now.ToString("ss")+".xlsx";
 
                 string RetMsg = "";
-                string filepath = fs0405_Logic.DataTableToExcel(ExcelHeader, DataTableHeader, dt, _webHostEnvironment.ContentRootPath, strFileName, ref RetMsg);
+                string filepath = fs0405_Logic.generateExcelWithXlt(dt, ExcelHeader, _webHostEnvironment.ContentRootPath, "FS0405.xlsx", 1, loginInfo.UserId, strFileName, false);
 
                 if (RetMsg != "")
                 {

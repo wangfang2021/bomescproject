@@ -23,14 +23,17 @@ namespace Logic
         #region 检索
         public DataTable Search(string strDXDateMonth, string strInOutFlag, string strState)
         {
-            return fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag, strState);
+            DataTable dt = fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag, strState);
+            dt.DefaultView.Sort="vcDXYM desc,vcInOutFlag";
+            dt = dt.DefaultView.ToTable();
+            return dt;
         }
         #endregion
 
-        #region 导出
-        public DataTable exportSearch(string strCLYM,string strInOutFlag,string strDXYM1,string strDXYM2,string strDXYM3)
+        #region 下载SOQReply（检索内容）
+        public DataTable exportSearch(string strYearMonth, string strYearMonth_2, string strYearMonth_3,string strInOutFlag)
         {
-            return fs0405_DataAccess.exportSearch(strCLYM, strInOutFlag, strDXYM1, strDXYM2, strDXYM3);
+            return fs0405_DataAccess.search(strYearMonth, strYearMonth_2, strYearMonth_3,strInOutFlag);
         }
         #endregion
 
@@ -165,5 +168,86 @@ namespace Logic
             }
         }
         #endregion
+
+        /// <summary>
+        /// 导出EXCEL
+        /// </summary>
+        /// <param name="dt">数据集</param>
+        /// <param name="field">列名</param>
+        /// <param name="rootPath">根目录</param>
+        /// <param name="xltName">模板名</param>
+        /// <param name="startRow">开始行</param>
+        /// <param name="strUserId">用户名</param>
+        /// <param name="strFileName">文件名</param>
+        /// <param name="isAlignCenter"></param>
+        /// <returns></returns>
+        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFileName, bool isAlignCenter)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.Alignment = HorizontalAlignment.Center;
+
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        Type type = dt.Columns[field[j]].DataType;
+                        ICell cell = row.CreateCell(j);
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                        if (isAlignCenter)
+                            cell.CellStyle = style;
+                    }
+                }
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "";
+            }
+        }
     }
 }

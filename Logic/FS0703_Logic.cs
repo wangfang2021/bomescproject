@@ -88,7 +88,16 @@ namespace Logic
         {
             return FS0703_DataAccess.SearchPackSpot();
         }
+
+
         #endregion
 
+
+        #region 发送
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
+        {
+            FS0703_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
+        }
+        #endregion
     }
 }

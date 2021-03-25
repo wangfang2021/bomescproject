@@ -91,10 +91,29 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             List<Object> PackSpot = new List<object>();
+
             PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                PackSpot = new List<object>();
+            }
+            else
+            {
+                PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+
+
             //供应商
             List<Object> strSupplierCode = new List<object>();
-            strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+            if (dataForm.SupplierCode.ToObject<List<Object>>() == null)
+            {
+                strSupplierCode = new List<object>();
+            }
+            else
+            {
+                strSupplierCode = dataForm.SupplierCode.ToObject<List<Object>>();
+            }
             string dFrom = dataForm.dFrom;
             string dTo = dataForm.dTo;
             try
@@ -158,8 +177,8 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] head = { "供应商", "供应商名称", "GPS品番", "品名", "规格", "数量", "单位", "费用负担", "备注" };
-                string[] fields = { "vcSupplieCode", "vcSupplierName", "vcPackGPSNo", "vcParstName", "vcFormat", "isjNum", "vcUnit", "vcCostID", "Memo" };
+                string[] head = { "供应商", "供应商名称", "GPS品番", "品名", "规格", "数量", "单位", "备注","费用负担" };
+                string[] fields = { "vcSupplieCode", "vcSupplieName", "vcPackGPSNo", "vcParstName", "vcFormat", "isjNum", "vcUnit",  "Memo","vcCostID" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")

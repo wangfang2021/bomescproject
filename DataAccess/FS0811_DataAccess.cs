@@ -13,6 +13,36 @@ namespace DataAccess
     {
         private MultiExcute excute = new MultiExcute();
 
+        public DataTable getBanZhiTime(string strPackPlant,string strFlag)
+        {
+            try
+            {
+                SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+                SqlParameter[] pars = new SqlParameter[]{
+                    new SqlParameter("@flag", strFlag),
+                    new SqlParameter("@PackPlant",strPackPlant)
+                };
+                string cmdText = "BSP0811_getBanZhiTime";
+                SqlDataAdapter sa = new SqlDataAdapter(cmdText, sqlConnection);
+                if (pars != null && pars.Length > 0)
+                {
+                    foreach (SqlParameter p in pars)
+                    {
+                        sa.SelectCommand.Parameters.Add(p);
+                    }
+                }
+                sa.SelectCommand.CommandTimeout = 0;
+                sa.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable dt = new DataTable();
+                sa.Fill(dt);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         public DataTable getNowBZInfo(string strPackPlant)
         {
             try
@@ -50,14 +80,20 @@ namespace DataAccess
                 strSql.AppendLine("		,cast(isnull(vcWorkOverTime,0) as decimal(16,2)) as vcWorkOverTime ");
                 strSql.AppendLine("from TInPutIntoOver_small");
                 strSql.AppendLine("where vcPackingPlant='" + strPackPlant + "' and Convert(varchar(10),dHosDate,23)='" + strHosDate + "' and vcBanZhi='" + strBanZhi + "'");
-                strSql.AppendLine("select vcBigPM");
+                strSql.AppendLine("select t2.* from ");
+                strSql.AppendLine("(SELECT * FROM [TInPutIntoOver])t1");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select vcBigPM");
                 strSql.AppendLine("		,sum(cast(isnull(decPackNum,0) as decimal(16,2))) as decPackNum,cast(isnull(decPlannedTime,0) as decimal(16,2)) as decPlannedTime");
                 strSql.AppendLine("		,cast(isnull(decPlannedPerson,0) as decimal(16,2)) as decPlannedPerson,cast(isnull(decInputPerson,0) as decimal(16,2)) as decInputPerson");
                 strSql.AppendLine("		,cast(isnull(decInputTime,0) as decimal(16,2)) as decInputTime,cast(isnull(decOverFlowTime,0) as decimal(16,2)) as decOverFlowTime ");
                 strSql.AppendLine("		,'' as decSysLander,'' as decDiffer ");
                 strSql.AppendLine("from TInPutIntoOver_small");
                 strSql.AppendLine("where vcPackingPlant='" + strPackPlant + "' and Convert(varchar(10),dHosDate,23)='" + strHosDate + "' and vcBanZhi='" + strBanZhi + "'");
-                strSql.AppendLine("group by vcBigPM,decPlannedTime,decPlannedPerson,decInputPerson,decInputTime,decOverFlowTime");
+                strSql.AppendLine("group by vcBigPM,decPlannedTime,decPlannedPerson,decInputPerson,decInputTime,decOverFlowTime)t2");
+                strSql.AppendLine(" on t1.vcPartItem=t2.vcBigPM");
+                strSql.AppendLine(" where vcBigPM is not null");
+                strSql.AppendLine(" order by t1.iOrderBy");
                 return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }
             catch (Exception ex)
@@ -79,14 +115,20 @@ namespace DataAccess
                 strSql.AppendLine("		,cast(isnull(vcWorkOverTime,0) as decimal(16,2)) as vcWorkOverTime ");
                 strSql.AppendLine("from TInPutIntoOver_temp");
                 strSql.AppendLine("where vcPackingPlant='" + strPackPlant + "' and Convert(varchar(10),dHosDate,23)='" + strHosDate + "' and vcBanZhi='" + strBanZhi + "'");
-                strSql.AppendLine("select vcBigPM");
+                strSql.AppendLine("select t2.* from ");
+                strSql.AppendLine("(SELECT * FROM [TInPutIntoOver])t1");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(select vcBigPM");
                 strSql.AppendLine("		,sum(cast(isnull(decPackNum,0) as decimal(16,2))) as decPackNum,cast(isnull(decPlannedTime,0) as decimal(16,2)) as decPlannedTime");
                 strSql.AppendLine("		,cast(isnull(decPlannedPerson,0) as decimal(16,2)) as decPlannedPerson,cast(isnull(decInputPerson,0) as decimal(16,2)) as decInputPerson");
                 strSql.AppendLine("		,cast(isnull(decInputTime,0) as decimal(16,2)) as decInputTime,cast(isnull(decOverFlowTime,0) as decimal(16,2)) as decOverFlowTime ");
                 strSql.AppendLine("		,'' as decSysLander,'' as decDiffer ");
                 strSql.AppendLine("from TInPutIntoOver_temp");
                 strSql.AppendLine("where vcPackingPlant='" + strPackPlant + "' and Convert(varchar(10),dHosDate,23)='" + strHosDate + "' and vcBanZhi='" + strBanZhi + "'");
-                strSql.AppendLine("group by vcBigPM,decPlannedTime,decPlannedPerson,decInputPerson,decInputTime,decOverFlowTime");
+                strSql.AppendLine("group by vcBigPM,decPlannedTime,decPlannedPerson,decInputPerson,decInputTime,decOverFlowTime)t2");
+                strSql.AppendLine("on t1.vcPartItem=t2.vcBigPM");
+                strSql.AppendLine("where vcBigPM is not null");
+                strSql.AppendLine("order by t1.iOrderBy");
                 return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }
             catch (Exception ex)
@@ -107,7 +149,10 @@ namespace DataAccess
                 strSql.AppendLine("		,CAST('450' as decimal(16,2)) AS vcCycleTime");
                 strSql.AppendLine("		,CAST((select decObjective from TDisplaySettings where vcPackPlant='" + strPackPlant + "') as decimal(16,2)) AS vcObjective");
                 strSql.AppendLine("		,'' AS vcWorkOverTime");
-                strSql.AppendLine("SELECT vcBigPM");
+                strSql.AppendLine("select t2.* from ");
+                strSql.AppendLine("(SELECT * FROM [TInPutIntoOver])t1");
+                strSql.AppendLine("left join");
+                strSql.AppendLine("(SELECT vcBigPM");
                 strSql.AppendLine("		,sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int)) as decPackNum");
                 strSql.AppendLine("		,cast((sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int))/3600) as decimal(16,2)) as decPlannedTime");
                 strSql.AppendLine("		,cast((sum(CAST(vcStandardTime as decimal(16,2))*CAST(iPackNum as int))/3600)/cast((450/60.0) as decimal(16,2)) as decimal(16,2)) as decPlannedPerson");
@@ -125,7 +170,10 @@ namespace DataAccess
                 strSql.AppendLine("		,case when '" + strBanZhi + "'='白' then iSSPlan_Day else iSSPlan_Night end iPackNum ");
                 strSql.AppendLine("from TPackingPlan_Summary ");
                 strSql.AppendLine(" where dPackDate='" + strHosDate + "' and vcPlant='" + strPackPlant + "')t1");
-                strSql.AppendLine(" group by vcBigPM");
+                strSql.AppendLine(" group by vcBigPM)t2");
+                strSql.AppendLine(" on t1.vcPartItem=t2.vcBigPM");
+                strSql.AppendLine(" where vcBigPM is not null");
+                strSql.AppendLine(" order by t1.iOrderBy");
                 return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }
             catch (Exception ex)

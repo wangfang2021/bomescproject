@@ -270,6 +270,13 @@ namespace SPPSApi.Controllers.G07
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
+                        DataTable dtcheckTime = FS0701_Logic.searchcheckTime(listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], listInfoData[i]["dPackTo"].ToString().Split(' ')[0]);
+                        if (dtcheckTime.Rows.Count > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "品番有维护重复有效时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
@@ -294,12 +301,7 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "收容数不是订购批量的整数倍！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    DataTable dtcheckTime = FS0701_Logic.searchcheckTime(listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], listInfoData[i]["dPackTo"].ToString().Split(' ')[0]);
-                    if (dtcheckTime.Rows.Count>0) {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "品番有维护重复有效时间！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                   
                 }
                 if (!hasFind)
                 {

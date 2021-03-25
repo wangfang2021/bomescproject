@@ -17,7 +17,8 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select distinct a.iAutoId as LinId, a.vcLotid as vcPackMaterNo,a.[vcTrolleyNo] AS vcTrolleyNo,'1' as bSelectFlag ");
+                strSql.AppendLine("select distinct a.vcLotid as vcPackMaterNo,a.[vcTrolleyNo] AS vcTrolleyNo,'1' as bSelectFlag ");
+                //strSql.AppendLine("select distinct a.iAutoId as LinId, a.vcLotid as vcPackMaterNo,a.[vcTrolleyNo] AS vcTrolleyNo,'1' as bSelectFlag ");
                 //strSql.AppendLine("select a.iAutoId, a.vcInno as vcInPutOrderNo,a.vcLotid as vcPackMaterNo,a.[vcTrolleyNo] AS vcTrolleyNo,a.vcPackingpartsno as vcPackPartId  ");
                 strSql.AppendLine("	from   ");
                 //strSql.AppendLine("		,cast(dQty as varchar(50)) as iQty,vcPackingpartslocation as vcLocation,a.vcPackinggroup,'1' as bSelectFlag 	from   ");
@@ -176,6 +177,37 @@ namespace DataAccess
                     sqlTransaction.Rollback();
                     sqlConnection.Close();
                 }
+            }
+        }
+
+        public DataSet getPrintInfo(string strOperId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT DISTINCT [vcLotid]");
+                strSql.AppendLine("  FROM [tPrintTemp_FS1101]");
+                strSql.AppendLine("  WHERE [vcOperator]='"+ strOperId + "'");
+                strSql.AppendLine("");
+                strSql.AppendLine("SELECT [UUID]");
+                strSql.AppendLine("      ,'' AS LinId");
+                strSql.AppendLine("      ,[vcOperator]");
+                strSql.AppendLine("      ,[dOperatorTime]");
+                strSql.AppendLine("      ,[vcTrolleyNo]");
+                strSql.AppendLine("      ,[vcLotid]");
+                strSql.AppendLine("      ,[vcPackingpartsno]");
+                strSql.AppendLine("      ,[vcPackinggroup]");
+                strSql.AppendLine("      ,[dQty]");
+                strSql.AppendLine("      ,[vcPackingpartslocation]");
+                strSql.AppendLine("      ,[dPrintDate]");
+                strSql.AppendLine("      ,[vcCodemage]");
+                strSql.AppendLine("  FROM [tPrintTemp_FS1101]");
+                strSql.AppendLine("  WHERE [vcOperator]='"+ strOperId + "'");
+                return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

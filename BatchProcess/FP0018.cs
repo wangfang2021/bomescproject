@@ -79,7 +79,10 @@ namespace BatchProcess
                 sql.Append("  )temp          \n");
                 sql.Append("  left join         \n");
                 sql.Append("  (         \n");
-                sql.Append("           \n");
+
+                sql.Append("     select Temp0.vcPartId,min(Temp0.dTime) as dTime from(          \n");
+
+
                 sql.Append("  select vcpartid,         \n");
                 sql.Append("       case          \n");
                 sql.Append("       when DQYX is not NULL and WLYX is not NULL and YQYX is not NULL then DQYX           \n");
@@ -122,6 +125,11 @@ namespace BatchProcess
                 sql.Append("             ) TD on TC.vcpartid = TD.vcpartid and TC.dToTime = TD.dToTime      \n");
                 sql.Append("           )A4 on A1.vcPartId=A4.vcPartId      \n");
                 sql.Append("     	 ) TT      \n");
+
+                sql.Append("      )temp0   	     \n");
+                sql.Append("      group by temp0.vcPartId	     \n");
+
+
                 sql.Append("     	 )Temp1 on temp.vcPartsNo=Temp1.vcPartId      \n");
                 sql.Append("     	 left join      \n");
                 sql.Append("     (      \n");
@@ -138,7 +146,7 @@ namespace BatchProcess
                 sql.Append("     select vcPartId,vcReceiver,max(dToTime) as dToTime from TSPMaster            \n");
                 sql.Append("     group by vcPartId,vcReceiver         \n");
                 sql.Append("     )Temp4 on Temp1.vcPartId=Temp4.vcPartId and Temp2.vcReceiver=Temp4.vcReceiver      \n");
-               
+
                 sql.Append("    union All       \n");
 
 
@@ -153,7 +161,7 @@ namespace BatchProcess
                 sql.Append("       '1990-01-01 0:00:00' as [dFrom],               \n");
                 sql.Append("       '3000-01-01 0:00:00' as [dTo],                 \n");
                 sql.Append("        '' as [vcDistinguish],                      \n");
-                sql.Append("        '' as [iBiYao],                      \n");
+                sql.Append("        NULL as [iBiYao],                      \n");
                 sql.Append("     '000000' as  [vcOperatorID],                    \n");
                 sql.Append("     GETDATE() as [dOperatorTime],                    \n");
                 sql.Append("      --varChangedItem                   \n");
@@ -161,6 +169,7 @@ namespace BatchProcess
                 sql.Append("      Temp2.vcChanges as [varChangedItem]           \n");
                 sql.Append("   from         \n");
                 sql.Append("   (         \n");
+                sql.Append("     select Temp0.vcPartId,min(Temp0.dTime) as dTime from(       \n");
                 sql.Append("        select vcpartid,        \n");
                 sql.Append("        case         \n");
                 sql.Append("        when DQYX is not NULL and WLYX is not NULL and YQYX is not NULL then DQYX          \n");
@@ -206,7 +215,8 @@ namespace BatchProcess
                 sql.Append("          (   \n");
                 sql.Append("          select vcPartsNo+vcShouhuofangID as fkey from TPackItem   \n");
                 sql.Append("       	  )A5 on TT.vcPartId+TT.vcReceiver=fkey where fkey is  NULL    \n");
-                sql.Append("           \n");
+                sql.Append("      )Temp0         \n");
+                sql.Append("      group by Temp0.vcPartId     \n");
                 sql.Append("       )Temp1     \n");
                 sql.Append("       left join    \n");
                 sql.Append("       (    \n");
@@ -223,7 +233,7 @@ namespace BatchProcess
                 sql.Append("       select vcPartId,vcReceiver,max(dToTime) as dToTime from TSPMaster          \n");
                 sql.Append("       group by vcPartId,vcReceiver       \n");
                 sql.Append("       )Temp4 on Temp1.vcPartId=Temp4.vcPartId and Temp2.vcReceiver=Temp4.vcReceiver    \n");
-               
+
 
 
 
@@ -252,7 +262,7 @@ namespace BatchProcess
                 sql.Append("  truncate  table TPackItem   \n");
                 for (int i = 0; i < dtNewItem.Rows.Count; i++)
                 {
-         
+
                     string dTo = dtNewItem.Rows[i]["dTo"].ToString() == "" ? "9999-12-31 23:59:59" : dtNewItem.Rows[i]["dTo"].ToString();
 
                     sql.Append("  insert into TPackItem  \n");
@@ -282,7 +292,18 @@ namespace BatchProcess
                     sql.Append("  '" + dtNewItem.Rows[i]["dFrom"].ToString() + "',  \n");
                     sql.Append("  '" + dTo + "',  \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["vcDistinguish"].ToString() + "',   \n");
-                    sql.Append("  '" + dtNewItem.Rows[i]["iBiYao"].ToString() + "',  \n");
+                    if (string.IsNullOrEmpty(dtNewItem.Rows[i]["iBiYao"].ToString()))
+                    {
+                        sql.Append("  NULL,  \n");
+
+                    }
+                    else
+                    {
+                        sql.Append("  '" + dtNewItem.Rows[i]["iBiYao"].ToString() + "',  \n");
+
+                    }
+
+
                     sql.Append("  '" + strUserId + "', \n");
                     sql.Append("   GETDATE(), \n");
                     sql.Append("  '" + dtNewItem.Rows[i]["varChangedItem"].ToString() + "', \n");

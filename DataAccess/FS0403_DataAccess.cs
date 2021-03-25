@@ -337,7 +337,7 @@ namespace DataAccess
             {
                 Hashtable ht = new Hashtable();
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT vcGroupId,vcPartNo,vcFluctuationRange FROM TDaysChangeOrdersBaseData");
+                sbr.AppendLine("SELECT vcPartNo,vcFluctuationRange FROM TDaysChangeOrdersBaseData a left join TGroup b on a.vcGroupId = b.iAutoId");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
 
                 for (int i = 0; i < dt.Rows.Count; i++)

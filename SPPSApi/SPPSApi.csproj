@@ -110,6 +110,7 @@
     <None Remove="Doc\Template\FS0713_Export.xlsx" />
     <None Remove="Doc\Template\FS0714.xlsx" />
     <None Remove="Doc\Template\FS0714_Export.xlsx" />
+    <None Remove="Doc\Template\FS0715.xlsx" />
     <None Remove="Doc\Template\FS0716.xlsx" />
     <None Remove="Doc\Template\FS0716_Export.xlsx" />
     <None Remove="Doc\Template\FS0719.xlsx" />
@@ -158,6 +159,7 @@
     <Content Include="Doc\Template\FS0712_Export.xlsx" />
     <Content Include="Doc\Template\FS0713.xlsx" />
     <Content Include="Doc\Template\FS0713_Export.xlsx" />
+    <Content Include="Doc\Template\FS0715.xlsx" />
     <Content Include="Doc\Template\FS0714.xlsx" />
     <Content Include="Doc\Template\FS0714_Export.xlsx" />
     <Content Include="Doc\Template\FS0716.xlsx" />

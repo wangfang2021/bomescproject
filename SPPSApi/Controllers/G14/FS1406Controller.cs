@@ -305,8 +305,7 @@ namespace SPPSApi.Controllers.G14
                     var callClient = factory.CreateChannel();
                     setCRVToPDFRequestBody Body = new setCRVToPDFRequestBody();
                     Body.strCRVName = file_crv + "crv_FS1406.rpt";
-                    Body.strTableName = "tPrintTemp_FS1406";
-                    Body.strOperID = loginInfo.UserId;
+                    Body.strScrpit = "select * from tPrintTemp_FS1406 WHERE vcOperator='" +loginInfo.UserId+ "' ORDER BY LinId";
                     Body.strDiskFileName = sources_pdf;
                     Body.sqlUserID = "sa";
                     Body.sqlPassword = "SPPS_Server2019";

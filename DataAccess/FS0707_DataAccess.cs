@@ -281,101 +281,23 @@ namespace DataAccess
 
         #endregion
 
-        #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        #region 发送
+        public void Save(string strUserId, ref string strErrorPartId)
         {
             try
             {
 
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-                        sql.AppendLine("     INSERT INTO TPackBase( ");
-                        sql.AppendLine("      vcPackNo,");
-                        sql.AppendLine("      vcPackSpot,");
-                        sql.AppendLine("      dPackFrom,");
-                        sql.AppendLine("      dPackTo,");
-                        sql.AppendLine("      vcPackGPSNo,");
-                        sql.AppendLine("      vcSupplierCode,");
-                        sql.AppendLine("      vcSupplierPlant,");
-                        sql.AppendLine("      vcCycle,");
-                        sql.AppendLine("      vcSupplierName,");
-                        sql.AppendLine("      vcParstName,");
-                        sql.AppendLine("      vcPackLocation,");
-                        sql.AppendLine("      vcDistinguish,");
-                        sql.AppendLine("      vcFormat,");
-                        //sql.AppendLine("      vcReleaseID,");
-                        sql.AppendLine("      vcReleaseName,");
-                        sql.AppendLine("      iRelease,");
-                        sql.AppendLine("      iZCRelease,");
-                        sql.AppendLine("      isYZC,");
-                        sql.AppendLine("      vcOperatorID,");
-                        sql.AppendLine("      dOperatorTime");
-                        sql.AppendLine("     )");
-                        sql.AppendLine("     VALUES");
-                        sql.AppendLine("     	(");
 
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackFrom"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcCycle"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierName"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcParstName"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackLocation"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcFormat"], false) + ",");
-                        //sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcReleaseID"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcReleaseName"], false) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iRelease"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["iZCRelease"], true) + ",");
-                        sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["isYZC"], true) + ",");
-                        sql.AppendLine($"     		{strUserId},");
-                        sql.AppendLine("     		getDate()");
-                        sql.AppendLine("     	); ");
+                sql.AppendLine("  UPDATE TPackWeekInfo");
+                sql.AppendLine("  SET ");
+                sql.AppendLine($"   vcIsorNoSend = '1',");
 
-                    }
-                    else if (bAddFlag == false && bModFlag == true)
-                    {//修改
-                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
-                        sql.AppendLine("  UPDATE TPackBase");
-                        sql.AppendLine("  SET ");
-                        sql.AppendLine($"   vcPackNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false)},");
-                        sql.AppendLine($"   vcPackSpot = {ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false)},");
-                        sql.AppendLine($"   dPackFrom = {ComFunction.getSqlValue(listInfoData[i]["dPackFrom"], true)},");
-                        sql.AppendLine($"   dPackTo = {ComFunction.getSqlValue(listInfoData[i]["dPackTo"], true)},");
-                        sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false)},");
-                        sql.AppendLine($"   vcSupplierCode = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierCode"], false)},");
-                        sql.AppendLine($"   vcSupplierPlant = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierPlant"], false)},");
-                        sql.AppendLine($"   vcCycle = {ComFunction.getSqlValue(listInfoData[i]["vcCycle"], false)},");
-                        sql.AppendLine($"   vcSupplierName = {ComFunction.getSqlValue(listInfoData[i]["vcSupplierName"], false)},");
-                        sql.AppendLine($"   vcParstName = {ComFunction.getSqlValue(listInfoData[i]["vcParstName"], false)},");
-                        sql.AppendLine($"   vcPackLocation = {ComFunction.getSqlValue(listInfoData[i]["vcPackLocation"], false)},");
-                        sql.AppendLine($"   vcDistinguish = {ComFunction.getSqlValue(listInfoData[i]["vcDistinguish"], false)},");
-                        sql.AppendLine($"   vcFormat = {ComFunction.getSqlValue(listInfoData[i]["vcFormat"], false)},");
-                        //sql.AppendLine($"   vcReleaseID = '{ComFunction.getSqlValue(listInfoData[i]["vcReleaseID"], false)}',");
-                        sql.AppendLine($"   vcReleaseName = {ComFunction.getSqlValue(listInfoData[i]["vcReleaseName"], false)},");
-                        sql.AppendLine($"   iRelease = {ComFunction.getSqlValue(listInfoData[i]["iRelease"], true)},");
-                        sql.AppendLine($"   iZCRelease = {ComFunction.getSqlValue(listInfoData[i]["iZCRelease"], true)},");
-                        sql.AppendLine($"   isYZC = {ComFunction.getSqlValue(listInfoData[i]["isYZC"], true)},");
-                        sql.AppendLine($"   vcOperatorID = {strUserId},");
-                        sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
-                        sql.AppendLine($"  WHERE");
-                        sql.AppendLine($"  iAutoId='{iAutoId}';");
 
-                    }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
 
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
 
-                }
 
             }
             catch (Exception ex)
@@ -529,7 +451,7 @@ namespace DataAccess
         #endregion
 
         #region 保存
-        public void Save_GS(DataTable listInfoData, string strUserId, ref string strErrorName,string strBegin,string strEnd)
+        public void Save_GS(DataTable listInfoData, string strUserId, ref string strErrorName, string strBegin, string strEnd)
         {
             try
             {
@@ -790,21 +712,23 @@ namespace DataAccess
                     sql.Append("       ,[vcD31yTShow]                       \r\n");
                     sql.Append("       ,[vcD31bT]                       \r\n");
                     sql.Append("       ,[vcD31bTShow]                       \r\n");
+                    sql.AppendLine("           ,[vcIsorNoSend]    \n");
+                    sql.AppendLine("           ,[vcIsorNoPrint]    \n");
                     sql.Append("       ,[vcOperatorID]                       \r\n");
                     sql.Append("       ,[dOperatorTime])                       \r\n");
                     sql.Append("       VALUES                       \r\n");
                     sql.Append("       (         \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[i]["vcPartsNo"].ToString()+ "',         \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[i]["vcPackNo"].ToString()+ "',            \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[i]["vcPackGPSNo"].ToString()+ "',          \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[i]["vcSupplierName"].ToString()+ "',              \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[i]["iRelease"].ToString()+ "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcPartsNo"].ToString() + "',         \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcPackNo"].ToString() + "',            \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcPackGPSNo"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcSupplierName"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["iRelease"].ToString() + "',          \r\n");
 
                     #region
-                    sql.Append("       '"+ listInfoData .Rows[i]["vcD1yF"].ToString()+ "',              \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[0]["vcD1yFShow"].ToString()+ "',          \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[i]["vcD1bF"].ToString()+ "',              \r\n");
-                    sql.Append("       '"+ listInfoData .Rows[0]["vcD1bFShow"].ToString()+ "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD1yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD1yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD1bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD1bFShow"].ToString() + "',          \r\n");
                     sql.Append("       '" + listInfoData.Rows[i]["vcD2yF"].ToString() + "',              \r\n");
                     sql.Append("       '" + listInfoData.Rows[0]["vcD2yFShow"].ToString() + "',          \r\n");
                     sql.Append("       '" + listInfoData.Rows[i]["vcD2bF"].ToString() + "',              \r\n");
@@ -1103,7 +1027,7 @@ namespace DataAccess
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
-                                          
+
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
@@ -1144,7 +1068,7 @@ namespace DataAccess
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
-                                         
+
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
                         sql.Append("       '',          \r\n");
@@ -1193,7 +1117,9 @@ namespace DataAccess
 
                     }
 
-                    sql.Append("    '"+ strUserId + "'   ,                 \r\n");
+                    sql.Append("       '0' ,                 \r\n");
+                    sql.Append("      '0' ,                 \r\n");
+                    sql.Append("    '" + strUserId + "'   ,                 \r\n");
                     sql.Append("      getdate()                   \r\n");
                     sql.Append("   )                       \r\n");
 
@@ -1246,12 +1172,12 @@ namespace DataAccess
                 strSql.Append("    ,vcD27bFShow,vcD27yFShow,vcD28bFShow,vcD28yFShow,vcD29bFShow,vcD29yFShow,vcD30bFShow,vcD30yFShow,vcD31bFShow, vcD31yFShow,            \n");
                 strSql.Append("                     \n");
                 strSql.Append("   vcD1bTShow,vcD1yTShow,vcD2bTShow,vcD2yTShow,vcD3bTShow, vcD3yTShow,vcD4bTShow,vcD4yTShow,vcD5bTShow, vcD5yTShow,vcD6bTShow ,vcD6yTShow                       \n");
-                
+
                 strSql.Append("   ,vcD7bTShow,vcD7yTShow,vcD8bTShow,vcD8yTShow,vcD9bTShow,vcD9yTShow,vcD10bTShow,vcD10yTShow,                      \n");
 
                 strSql.Append("   vcD11bTShow,vcD11yTShow,vcD12bTShow,vcD12yTShow,vcD13bTShow,vcD13yTShow,vcD14bTShow,vcD14yTShow,vcD15bTShow, vcD15yTShow,vcD16bTShow, vcD16yTShow               \n");
                 strSql.Append("   ,vcD17bTShow,vcD17yTShow,vcD18bTShow,vcD18yTShow,vcD19bTShow,vcD19yTShow,vcD20bTShow,vcD20yTShow,                       \n");
-               
+
                 strSql.Append("   vcD21bTShow,vcD21yTShow,vcD22bTShow, vcD22yTShow,vcD23bTShow,vcD23yTShow,vcD24bTShow, vcD24yTShow,vcD25bTShow,vcD25yTShow,vcD26bTShow,vcD26yTShow                      \n");
                 strSql.Append("   ,vcD27bTShow,vcD27yTShow,vcD28bTShow,vcD28yTShow,vcD29bTShow,vcD29yTShow,vcD30bTShow,vcD30yTShow,vcD31bTShow,  vcD31yTShow,          \n");
                 strSql.Append("             \n");

@@ -358,6 +358,11 @@ namespace BatchProcess
                             dtNQC.TableName = vcPlant + "_" + vcCLYM + "_" + iTimes + "_" + status + "_" + excutetime;
                             dsNQC.Tables.Add(dtNQC);
                         }
+                        else
+                        {
+                            dtNQCStatus.TableName = vcPlant + "_" + vcCLYM + "_" + iTimes + "_" + status + "_" + excutetime;
+                            dsNQC.Tables.Add(dtNQCStatus);
+                        }
                     }
                 }
                 return dsNQC;

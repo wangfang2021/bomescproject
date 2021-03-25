@@ -72,6 +72,7 @@ namespace DataAccess
                 throw ex;
             }
         }
+
         #endregion
 
 
@@ -240,7 +241,7 @@ namespace DataAccess
         #endregion
 
 
-        #region 
+        #region 供应商
         public DataTable getSupplier()
         {
             try
@@ -408,6 +409,8 @@ namespace DataAccess
                     sql.AppendLine("           ,[iDay30]    \n");
                     sql.AppendLine("           ,[iDay31]    \n");
                     sql.AppendLine("           ,[dZYTime]    \n");
+                    sql.AppendLine("           ,[vcIsorNoSend]    \n");
+                    sql.AppendLine("           ,[vcIsorNoPrint]    \n");
                     sql.AppendLine("           ,[vcOperatorID]    \n");
                     sql.AppendLine("           ,[dOperatorTime])    \n");
                     sql.AppendLine("     VALUES    \n");
@@ -457,6 +460,8 @@ namespace DataAccess
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iD30"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iD31"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["dZCTime"].ToString() + "',   \n");
+                    sql.AppendLine("   '0', \n");
+                    sql.AppendLine("   '0', \n");
                     sql.AppendLine("   '" + strUserId + "',   \n");
                     sql.AppendLine("   getdate()  \n");
                     sql.AppendLine("    )  \n");
@@ -497,6 +502,33 @@ namespace DataAccess
         }
         #endregion
 
+        #region 发送
+        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+             
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    sql.AppendLine(" update [dbo].[TPackNSCalculation] set   \n");
+                    sql.AppendLine(" vcIsorNoSend='1'            \n");
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
 
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.IndexOf("-->") != -1)
+                {//主动判断抛出的异常
+                    int startIndex = ex.Message.IndexOf("-->");
+                    int endIndex = ex.Message.LastIndexOf("<--");
+                    strErrorPartId = ex.Message.Substring(startIndex + 3, endIndex - startIndex - 3);
+                }
+                else
+                    throw ex;
+            }
+        }
+        #endregion
     }
 }

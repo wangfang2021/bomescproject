@@ -206,5 +206,38 @@ namespace DataAccess
                 }
             }
         }
+        public DataTable getPrintInfo(string strOperId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT '' AS [LinId]");
+                strSql.AppendLine("      ,[UUID]");
+                strSql.AppendLine("      ,[vcOperator]");
+                strSql.AppendLine("      ,[dOperatorTime]");
+                strSql.AppendLine("      ,[vcCpdcompany]");
+                strSql.AppendLine("      ,[vcCompany]");
+                strSql.AppendLine("      ,[vcPackingspot]");
+                strSql.AppendLine("      ,[vcControlno]");
+                strSql.AppendLine("      ,[vcPartsno]");
+                strSql.AppendLine("      ,[vcOrderno]");
+                strSql.AppendLine("      ,[vcSeqno]");
+                strSql.AppendLine("      ,[vcInvoiceno]");
+                strSql.AppendLine("      ,[vcPartsnamechn]");
+                strSql.AppendLine("      ,[vcPartsnameen]");
+                strSql.AppendLine("      ,[vcShippingqty]");
+                strSql.AppendLine("      ,[vcCaseno]");
+                strSql.AppendLine("      ,[vcCostwithtaxes]");
+                strSql.AppendLine("      ,[vcPrice]");
+                strSql.AppendLine("      ,[dPrintDate]");
+                strSql.AppendLine("      ,[vcCodemage]");
+                strSql.AppendLine("  FROM [tPrintTemp_FS0805] WHERE [vcOperator]='"+strOperId+"'");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

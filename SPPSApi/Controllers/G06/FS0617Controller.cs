@@ -160,8 +160,9 @@ namespace SPPSApi.Controllers.G06
                     //引进打印调用
                     //主表    tPrintTemp_main_FS0617
                     #region 调用webApi打印
+                    string strPrinterName = fS0603_Logic.getPrinterName("FS0617", loginInfo.UserId);
                     //创建 HTTP 绑定对象
-                    string imagefile_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
                     var binding = new BasicHttpBinding();
                     //根据 WebService 的 URL 构建终端点对象
                     var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
@@ -170,10 +171,9 @@ namespace SPPSApi.Controllers.G06
                     //从工厂获取具体的调用实例
                     var callClient = factory.CreateChannel();
                     setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
-                    Body.strCRVName = imagefile_crv + "crv_FS0617_main.rpt";
-                    Body.strTableName = "tPrintTemp_main_FS0617";
-                    Body.strOperID = loginInfo.UserId;
-                    Body.strPrinterName = "FinePrint";
+                    Body.strCRVName = file_crv + "crv_FS0617_main.rpt";
+                    Body.strScrpit = "select * from tPrintTemp_main_FS0617 where vcOperator='" + loginInfo.UserId + "' order by LinId";
+                    Body.strPrinterName = strPrinterName;
                     Body.sqlUserID = "sa";
                     Body.sqlPassword = "SPPS_Server2019";
                     Body.sqlCatalog = "SPPSdb";

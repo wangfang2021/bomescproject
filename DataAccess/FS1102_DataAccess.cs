@@ -50,7 +50,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcCpdcode,vcCpdname,vcCpdaddress,vcCaseno,SUBSTRING(vcCaseno,1,4)+'-'+SUBSTRING(vcCaseno,5,4) as vcCaseno_name,vcInno,vcPart_id,vcPartsname,iQty,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
+                strSql.AppendLine("select vcCpdcode,vcCpdname,vcCpdaddress,vcCasenoIntact AS vcCaseno,SUBSTRING(vcCaseno,1,4)+'-'+SUBSTRING(vcCaseno,5,4) as vcCaseno_name,vcInno,vcPart_id,vcPartsname,iQty,iTotalcnt,iTotalpiece,CONVERT(varchar(23),GETDATE(),23) as dPrintDate");
                 strSql.AppendLine("from TCaseList");
                 strSql.AppendLine("where vcCpdcode='" + strReceiver + "' and vcCaseno='" + strCaseNo.Replace("-", "") + "'");
                 strSql.AppendLine("order by iAutoId");
@@ -104,6 +104,7 @@ namespace DataAccess
                 #region SQL and Parameters
                 strSql_sub.AppendLine("INSERT INTO [dbo].[tPrintTemp_FS1102]");
                 strSql_sub.AppendLine("           ([UUID]");
+                strSql_sub.AppendLine("           ,[vcNo]");
                 strSql_sub.AppendLine("           ,[vcOperator]");
                 strSql_sub.AppendLine("           ,[dOperatorTime]");
                 strSql_sub.AppendLine("           ,[vcCpdcode]");
@@ -115,10 +116,13 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,[vcPart_id]");
                 strSql_sub.AppendLine("           ,[vcPartsname]");
                 strSql_sub.AppendLine("           ,[iQty]");
+                strSql_sub.AppendLine("           ,[iTotalcnt]");
+                strSql_sub.AppendLine("           ,[iTotalpiece]");
                 strSql_sub.AppendLine("           ,[dPrintDate]");
                 strSql_sub.AppendLine("           ,[vcCodemage])");
                 strSql_sub.AppendLine("     VALUES");
                 strSql_sub.AppendLine("           (@UUID");
+                strSql_sub.AppendLine("           ,@vcNo");
                 strSql_sub.AppendLine("           ,'" + strOperId + "'");
                 strSql_sub.AppendLine("           ,GETDATE()");
                 strSql_sub.AppendLine("           ,@vcCpdcode");
@@ -130,9 +134,12 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,@vcPart_id");
                 strSql_sub.AppendLine("           ,@vcPartsname");
                 strSql_sub.AppendLine("           ,@iQty");
+                strSql_sub.AppendLine("           ,@iTotalcnt");
+                strSql_sub.AppendLine("           ,@iTotalpiece");
                 strSql_sub.AppendLine("           ,@dPrintDate");
                 strSql_sub.AppendLine("           ,@vcCodemage)");
                 sqlCommand_sub.CommandText = strSql_sub.ToString();
+                sqlCommand_sub.Parameters.AddWithValue("@vcNo", "");
                 sqlCommand_sub.Parameters.AddWithValue("@UUID", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcCpdcode", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcCpdname", "");
@@ -143,12 +150,15 @@ namespace DataAccess
                 sqlCommand_sub.Parameters.AddWithValue("@vcPart_id", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcPartsname", "");
                 sqlCommand_sub.Parameters.AddWithValue("@iQty", "");
+                sqlCommand_sub.Parameters.AddWithValue("@iTotalcnt", "");
+                sqlCommand_sub.Parameters.AddWithValue("@iTotalpiece", "");
                 sqlCommand_sub.Parameters.AddWithValue("@dPrintDate", "");
                 sqlCommand_sub.Parameters.Add("@vcCodemage", SqlDbType.Image);
                 #endregion
                 foreach (DataRow item in dtSub.Rows)
                 {
                     #region Value
+                    sqlCommand_sub.Parameters["@vcNo"].Value = item["vcNo"].ToString();
                     sqlCommand_sub.Parameters["@UUID"].Value = item["UUID"].ToString();
                     sqlCommand_sub.Parameters["@vcCpdcode"].Value = item["vcCpdcode"];
                     sqlCommand_sub.Parameters["@vcCpdname"].Value = item["vcCpdname"];
@@ -159,6 +169,8 @@ namespace DataAccess
                     sqlCommand_sub.Parameters["@vcPart_id"].Value = item["vcPart_id"];
                     sqlCommand_sub.Parameters["@vcPartsname"].Value = item["vcPartsname"];
                     sqlCommand_sub.Parameters["@iQty"].Value = item["iQty"];
+                    sqlCommand_sub.Parameters["@iTotalcnt"].Value = item["iTotalcnt"];
+                    sqlCommand_sub.Parameters["@iTotalpiece"].Value = item["iTotalpiece"];
                     sqlCommand_sub.Parameters["@dPrintDate"].Value = item["dPrintDate"];
                     sqlCommand_sub.Parameters["@vcCodemage"].Value = item["vcCodemage"];
                     #endregion

@@ -75,7 +75,7 @@ namespace DataAccess
                 strSql.AppendLine("WHERE 1=1");
                 if (strRoler != "")
                 {
-                    strSql.AppendLine(" B.vcRoleID='" + strRoler + "'");
+                    strSql.AppendLine("AND B.vcRoleID='" + strRoler + "'");
                 }
                 strSql.AppendLine(")t1");
                 strSql.AppendLine("left join");

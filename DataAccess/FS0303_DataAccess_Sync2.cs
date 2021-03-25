@@ -1012,7 +1012,7 @@ namespace DataAccess
             strSql.Append("      	,'0','0',a.vcBillType       \r\n");
             strSql.Append("       from        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	select a.*,b.vcDownRecever，case when isnull(vcInOutflag,'')='' or  isnull(vcOE,'')='' then null  else case when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='0' then 'A1' when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='1' then 'A2' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='0' then 'A3' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='1' then 'A4' end end as vcBillType from         \r\n");
+            strSql.Append("      	select a.*,b.vcDownRecever,case when isnull(vcInOutflag,'')='' or  isnull(vcOE,'')='' then null  else case when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='0' then 'A1' when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='1' then 'A2' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='0' then 'A3' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='1' then 'A4' end end as vcBillType from         \r\n");
             strSql.Append("      	(       \r\n");
             strSql.Append("      	    select * from " + tempTableName + "       \r\n");
             strSql.Append("      	 ) a      \r\n");
@@ -1050,7 +1050,7 @@ namespace DataAccess
             strSql.Append("      	,'0','0',a.vcBillType       \r\n");
             strSql.Append("       from        \r\n");
             strSql.Append("      (       \r\n");
-            strSql.Append("      	select a.*,b.vcDownRecever，case when isnull(vcInOutflag,'')='' or  isnull(vcOE,'')='' then null  else case when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='0' then 'A1' when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='1' then 'A2' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='0' then 'A3' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='1' then 'A4' end end as vcBillType from         \r\n");
+            strSql.Append("      	select a.*,b.vcDownRecever,case when isnull(vcInOutflag,'')='' or  isnull(vcOE,'')='' then null  else case when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='0' then 'A1' when isnull(vcInOutflag,'')='1' and  isnull(vcOE,'')='1' then 'A2' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='0' then 'A3' when isnull(vcInOutflag,'')='0' and  isnull(vcOE,'')='1' then 'A4' end end as vcBillType from         \r\n");
             strSql.Append("      	(       \r\n");
             strSql.Append("      	    select * from " + tempTableName + "       \r\n");
             strSql.Append("      	 ) a      \r\n");

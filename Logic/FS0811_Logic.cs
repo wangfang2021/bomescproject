@@ -22,7 +22,7 @@ namespace Logic
         {
             try
             {
-                DataTable dtBanZhi = getNowBZInfo(strPackingPlant);
+                DataTable dtBanZhi = getBanZhiTime(strPackingPlant, "1");
                 if (dtBanZhi == null || dtBanZhi.Rows.Count == 0)
                 {
                     code = ComConstant.ERROR_CODE;
@@ -31,8 +31,8 @@ namespace Logic
                 }
                 string strHosDate = dtBanZhi.Rows[0]["dHosDate"].ToString();
                 string strBanZhi = dtBanZhi.Rows[0]["vcBanZhi"].ToString();
-                string strFromTime = dtBanZhi.Rows[0]["tFromTime"].ToString();
-                string strToTime = dtBanZhi.Rows[0]["tToTime"].ToString();
+                string strFromTime = dtBanZhi.Rows[0]["tToTime_bf"].ToString();
+                string strToTime = dtBanZhi.Rows[0]["tToTime_nw"].ToString();
                 //数据列表表头
                 string strBZ = strHosDate + "(" + strBanZhi + ")";
                 res.Add("BZItem", strBZ);
@@ -108,9 +108,9 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable getNowBZInfo(string strPackPlant)
+        public DataTable getBanZhiTime(string strPackPlant, string strFlag)
         {
-            return fs0811_DataAccess.getNowBZInfo(strPackPlant);
+            return fs0811_DataAccess.getBanZhiTime(strPackPlant, strFlag);
         }
         public DataSet getLoadData(string strPackPlant, string strHosDate, string strBanZhi)
         {
@@ -180,7 +180,7 @@ namespace Logic
                     drRowinfo["decPackNum"] = listInfoData[i]["decPackNum"] == null ? "" : listInfoData[i]["decPackNum"].ToString();
                     drRowinfo["decPlannedTime"] = listInfoData[i]["decPlannedTime"] == null ? "" : listInfoData[i]["decPlannedTime"].ToString();
                     drRowinfo["decPlannedPerson"] = listInfoData[i]["decPlannedPerson"] == null ? "" : listInfoData[i]["decPlannedPerson"].ToString();
-                    drRowinfo["decInputPerson"] = listInfoData[i]["decInputPerson"] == null ? "" : listInfoData[i]["decInputPerson"].ToString();
+                    drRowinfo["decInputPerson"] = listInfoData[i]["decInputPerson"] == null ? "0" : listInfoData[i]["decInputPerson"].ToString();
                     drRowinfo["decInputTime"] = listInfoData[i]["decInputTime"] == null ? "" : listInfoData[i]["decInputTime"].ToString();
                     drRowinfo["decOverFlowTime"] = listInfoData[i]["decOverFlowTime"] == null ? "" : listInfoData[i]["decOverFlowTime"].ToString();
                     dtImport.Rows.Add(drRowinfo);
@@ -195,11 +195,15 @@ namespace Logic
                         dataRow["vcMessage"] = "存在未匹配成功的品目信息";
                         dtMessage.Rows.Add(dataRow);
                     }
+                    //if (strInputPerson == "" || strInputPerson == "0")
+                    //{
+                    //    DataRow dataRow = dtMessage.NewRow();
+                    //    dataRow["vcMessage"] = string.Format("品目{0}的人员投入数录入有误)", strBigPM);
+                    //    dtMessage.Rows.Add(dataRow);
+                    //}
                     if (strInputPerson == "" || strInputPerson == "0")
                     {
-                        DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = string.Format("品目{0}的人员投入数录入有误)", strBigPM);
-                        dtMessage.Rows.Add(dataRow);
+                        dtImport.Rows[i]["decInputPerson"] = "0";
                     }
                 }
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -229,7 +233,7 @@ namespace Logic
                 decimal decWorkOverTime = 0;//计划人均加班小时数
                 if (decPlannedPerson_sum > decPeopleNum)
                 {
-                    decWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime)) * 60) / decPeopleNum;
+                    decWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime)) / 60) / decPeopleNum;
                 }
                 strWorkOverTime = decWorkOverTime < 0 ? "0" : decWorkOverTime.ToString();
                 return dtImport;
@@ -272,6 +276,29 @@ namespace Logic
         {
             fs0811_DataAccess.setInPutIntoOverInfo(strPackPlant, strHosDate, strBanZhi, ref dtMessage);
         }
-
+        public DataTable getDayRef(ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtDayRef = new DataTable();
+                return dtDayRef;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getMonthRef(ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtDayRef = new DataTable();
+                return dtDayRef;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

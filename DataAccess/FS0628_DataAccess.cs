@@ -552,6 +552,38 @@ namespace DataAccess
         }
         #endregion
 
+        /// <summary>
+        /// 一括赋予 更改要望收容数
+        /// </summary>
+        /// <returns></returns>
+        public void allInstall(List<Dictionary<string, object>> listInfoData, string vcIntake, string userId)
+        {
+            try
+            {
 
+                StringBuilder sql = new StringBuilder();
+
+                sql.Append("update [TEmergentOrderManage] set  \n");
+
+                if (vcIntake.Length > 0)
+                {
+                    sql.Append(" vcOderTimes='" + vcIntake + "', \n");
+                }
+                sql.Append(" vcOperatorID='" + userId + "',dOperatorTime=GETDATE() where iAutoId in( \n");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    sql.Append(iAutoId);
+                }
+                sql.Append("  )   \r\n ");
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

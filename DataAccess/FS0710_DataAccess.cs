@@ -39,7 +39,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFrom))
                 {
-                    dFrom = "1990-01-01 0:00:00";
+                    dFrom = "1900-01-01 0:00:00";
 
                 }
 
@@ -85,7 +85,7 @@ namespace DataAccess
                     strSql.Append("   )       \n");
                 }
 
-                strSql.AppendLine("   )a inner join    ");
+                strSql.AppendLine("   )a left join    ");
                 strSql.AppendLine("   (    ");
                 strSql.AppendLine("   select vcSupplierCode,vcSupplierName,vcParstName,vcFormat,vcPackNo,vcPackGPSNo from TPackBase    ");
                 strSql.AppendLine("   )b on a.vcPackNo=b.vcPackNo     ");
@@ -133,7 +133,7 @@ namespace DataAccess
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcUnit"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["isjNum"].ToString() + "',   ");
                     sql.AppendLine("    '',   ");
-                    sql.AppendLine("    '" + listInfoData.Rows[i]["vcCostID"].ToString() + "',   ");
+                    sql.AppendLine("    '" + listInfoData.Rows[i]["vcCostID"].ToString() + "'  ");
                     sql.AppendLine("     ) ");
 
 
@@ -230,7 +230,7 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select a.vcSupplieCode,a.vcOrderNo,a.vcPackGPSNo,a.vcPackNo,b.dNaRuYuDing,b.vcNaRuBianCi,b.iSJNumber,b.dNaRuShiJi fro    ");
+                strSql.AppendLine("  select a.vcSupplieCode,a.vcOrderNo,a.vcPackGPSNo,a.vcPackNo,b.dNaRuYuDing,b.vcNaRuBianCi,b.iSJNumber,b.dNaRuShiJi from    ");
                 strSql.AppendLine("  (    ");
                 strSql.AppendLine("    select c.vcSupplieCode,c.vcOrderNo,c.vcPackGPSNo,c.vcPackNo from(    ");
                 strSql.AppendLine("     select vcSupplieCode,vcOrderNo,vcPackGPSNo,vcPackNo from TPackRuKuInFo    "); 
@@ -266,12 +266,12 @@ namespace DataAccess
                     strSql.Append("   )       \n");
                 }
 
-                strSql.AppendLine("     )c inner join     ");
+                strSql.AppendLine("     )c left join     ");
                 strSql.AppendLine("     (     ");
                 strSql.AppendLine("     select * from TPackBase     ");
                 strSql.AppendLine("     )d on c.vcPackNo=d.vcPackNo     ");
                 strSql.AppendLine("        ");
-                strSql.AppendLine("  )a inner join     ");
+                strSql.AppendLine("  )a left join     ");
                 strSql.AppendLine("  (     ");
                 strSql.AppendLine("  select * from TPack_FaZhu_ShiJi     ");
                 strSql.AppendLine("  )b on a.vcOrderNo=b.vcOrderNo     ");

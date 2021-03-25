@@ -201,7 +201,14 @@ namespace DataAccess
                 }
                 if (dSynchronizationDate.Length > 0)
                 {
-                    strSql.AppendLine("  and  isnull(n.dSynchronizationDate,'') = '' ");
+                    if (dSynchronizationDateFrom.Length > 0 || dSynchronizationDateTo.Length > 0)
+                    {
+                        strSql.AppendLine("  or  isnull(n.dSynchronizationDate,'') = '' ");
+                    } else
+                    {
+                        strSql.AppendLine("  and  isnull(n.dSynchronizationDate,'') = '' ");
+                    }
+                    
                 }
                 if (vcState.Length > 0)
                 {

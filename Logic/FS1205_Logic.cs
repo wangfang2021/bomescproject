@@ -1543,6 +1543,43 @@ namespace Logic
         }
         #endregion
 
+
+        #region 编辑保存
+        public void Save_WeekLevelPercentage(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == false && bModFlag == true)
+                    {//修改
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        sql.Append("  update WeekLevelPercentage set    \r\n");
+                        sql.Append("  vcFlag=" + ComFunction.getSqlValue(listInfoData[i]["vcFlag"], false) + "   \r\n");
+                        sql.Append("  where iAutoId=" + iAutoId + "  ; \r\n");
+                    }
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+        public DataTable getWeekLevelPercentage(string strMonth, string strOrderNo, string strWeek, string strPlant)
+        {
+            string sql = " select * from WeekLevelPercentage where vcMonth='" + strMonth + "' and vcOrderNo='" + strOrderNo + "' and vcWeek='" + strWeek + "' and vcPlant='" + strPlant + "'; ";
+            return excute.ExcuteSqlWithSelectToDT(sql);
+        }
+
+
+
         #region 将数据更新到周计划变动幅度管理表WeekLevelPercentage - 李兴旺
 
         /// <summary>

@@ -108,9 +108,9 @@ namespace SPPSApi.Controllers.G03
             try
             {
                 DataTable dt = fs0405_Logic.Search(strDXDataMonth, strInOutFlag, strState);
+
                 DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("selection", ConvertFieldType.BoolType, null);
                 dtConverter.addField("dZhanKaiTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
@@ -158,7 +158,7 @@ namespace SPPSApi.Controllers.G03
 
                 #region 校验所选数据的状态必须为可下载
 
-                string strZKState = listInfoData[0]["State"].ToString();
+                string strZKState = listInfoData[0]["vcZhanKaiState"].ToString();
                 if (strZKState!="可下载")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -168,17 +168,16 @@ namespace SPPSApi.Controllers.G03
 
                 #endregion
 
-                string strCLYM = listInfoData[0]["vcCLYM"].ToString()+"01";
-                strCLYM = strCLYM.Insert(6, "-");
-                strCLYM = strCLYM.Insert(4, "-");
-                DateTime dCLYM = Convert.ToDateTime(strCLYM);
-                strCLYM = dCLYM.ToString("yyyy") + dCLYM.ToString("MM");
+                string strDXYM = listInfoData[0]["vcDXYM"].ToString()+"01";
+                strDXYM = strDXYM.Insert(6, "-");
+                strDXYM = strDXYM.Insert(4, "-");
+                DateTime dDXYM = Convert.ToDateTime(strDXYM);
+                strDXYM = dDXYM.ToString("yyyy") + dDXYM.ToString("MM");
                 string strInOutFlag = listInfoData[0]["vcInOutFlag"].ToString();
-                string strDXYM1 = dCLYM.AddMonths(1).ToString("yyyy") + dCLYM.AddMonths(1).ToString("MM");
-                string strDXYM2 = dCLYM.AddMonths(2).ToString("yyyy") + dCLYM.AddMonths(2).ToString("MM");
-                string strDXYM3 = dCLYM.AddMonths(3).ToString("yyyy") + dCLYM.AddMonths(3).ToString("MM");
+                string strDXYM1 = dDXYM.AddMonths(1).ToString("yyyy") + dDXYM.AddMonths(1).ToString("MM");
+                string strDXYM2 = dDXYM.AddMonths(2).ToString("yyyy") + dDXYM.AddMonths(2).ToString("MM");
 
-                DataTable dt = fs0405_Logic.exportSearch(strCLYM, strInOutFlag, strDXYM1, strDXYM2, strDXYM3);
+                DataTable dt = fs0405_Logic.exportSearch(strDXYM, strInOutFlag, strDXYM1, strDXYM2);
 
                 string[] ExcelHeader = { "PartsNo", "发注工厂", "订货频度", "CFC", "OrdLot", "N Units"
                 ,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"

@@ -2,8 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.ServiceModel;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -13,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G11
 {
@@ -134,7 +138,7 @@ namespace SPPSApi.Controllers.G11
                 {
                     for (int i = 0; i < listInfoData.Count; i++)
                     {
-                        string strLind = listInfoData[i]["LinId"] == null ? "" : listInfoData[i]["LinId"].ToString();
+                        //string strLind = listInfoData[i]["LinId"] == null ? "" : listInfoData[i]["LinId"].ToString();
                         string strPackMaterNo = listInfoData[i]["vcPackMaterNo"] == null ? "" : listInfoData[i]["vcPackMaterNo"].ToString();
                         if (strPackMaterNo == "")
                         {
@@ -143,49 +147,84 @@ namespace SPPSApi.Controllers.G11
                             dtMessage.Rows.Add(dataRow);
                         }
                     }
-                        if (dtMessage.Rows.Count != 0)
+                    if (dtMessage.Rows.Count != 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    bool bResult = fS1101_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage);
+                    if (!bResult)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    DataSet dsPrintInfo = fS1101_Logic.getPrintInfo(loginInfo.UserId);
+                    if (dsPrintInfo.Tables[0].Rows.Count != 0)
+                    {
+                        string strPrinterName = fS0603_Logic.getPrinterName("FS1101", loginInfo.UserId);
+                        for (int i = 0; i < dsPrintInfo.Tables[0].Rows.Count; i++)
                         {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.type = "list";
-                            apiResult.data = dtMessage;
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            string strLotid = dsPrintInfo.Tables[0].Rows[i]["vcLotid"].ToString();
+                            DataTable dtExport = dsPrintInfo.Tables[1].Clone();
+                            DataRow[] drPrintInfo = dsPrintInfo.Tables[1].Select("vcLotid='" + strLotid + "'");
+                            for (int j = 0; j < drPrintInfo.Length; j++)
+                            {
+                                dtExport.ImportRow(drPrintInfo[j]);
+                            }
+                            //序号赋值
+                            for (int j = 0; j < dtExport.Rows.Count; j++)
+                            {
+                                dtExport.Rows[j]["LinId"] = j + 1;
+                            }
+                            //导出到excel中
+                            string[] fields = { "LinId", "vcPackingpartsno", "vcPackinggroup", "dQty", "vcPackingpartslocation", "vcCodemage" };
+                            string filepath = fS1101_Logic.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "FS1101_Print.xlsx", 0, 3, loginInfo.UserId, FunctionID);
+                            #region 调用webApi打印
+                            //创建 HTTP 绑定对象
+                            var binding = new BasicHttpBinding();
+                            //根据 WebService 的 URL 构建终端点对象
+                            var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                            //创建调用接口的工厂，注意这里泛型只能传入接口
+                            var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                            //从工厂获取具体的调用实例
+                            var callClient = factory.CreateChannel();
+                            setExcelPrintRequestBody Body = new setExcelPrintRequestBody();
+                            Body.strDiskFileName = filepath;
+                            Body.strOperID = loginInfo.UserId;
+                            Body.strPrinterName = strPrinterName;
+                            //调用具体的方法，这里是 HelloWorldAsync 方法
+                            Task<setExcelPrintResponse> responseTask = callClient.setExcelPrintAsync(new setExcelPrintRequest(Body));
+                            //获取结果
+                            setExcelPrintResponse response = responseTask.Result;
+                            if (response.Body.setExcelPrintResult != "打印成功")
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                                dtMessage.Rows.Add(dataRow);
+                            }
+                            #endregion
                         }
-                        bool bResult = fS1101_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage);
-                        if (!bResult)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.type = "list";
-                            apiResult.data = dtMessage;
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-
-                        string strPrintName = "";//打印机
-                        string strReportName = "fs1101_exl";//Excel报表模板
-                        string strPrintData = "";//数据表
-                        if (!bResult)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.type = "list";
-                            apiResult.data = dtMessage;
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
-                        apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = "打印成功";
-
-                        ////调用WEBSERVICE接口打印
-                        //bool bResult = true;
-                        //if(!bResult)
-                        //{
-                        //    DataRow dataRow = dtMessage.NewRow();
-                        //    dataRow["vcMessage"] = string.Format("断取指示书号{0}打印失败", strPackMaterNo);
-                        //    dtMessage.Rows.Add(dataRow);
-                        //}else
-                        //{
-                        //    DataRow dataRow = dtMessage.NewRow();
-                        //    dataRow["vcMessage"] = string.Format("断取指示书号{0}打印成功", strPackMaterNo);
-                        //    dtMessage.Rows.Add(dataRow);
-                        //}
-                    
+                    }
+                    else
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "断取指示书数据异常";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "打印成功";
                 }
                 else
                 {

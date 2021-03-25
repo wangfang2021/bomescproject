@@ -316,11 +316,11 @@ namespace SPPSApi.Controllers.G06
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工厂", "受入", "供应商代码", "工区", "出荷场代码", "车型编码", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注"},
+                    string[,] strField = new string[,] {{"订单处理日", "订单号", "品番", "内外", "号旧区分", "发注工场", "受入", "供应商代码", "工区", "出荷场", "车型", "订货数量", "预计纳期", "订单回数", "发注订单号", "备注"},
                                                 {"dOrderHandleDate", "vcOrderNo", "vcPartNo", "vcInsideOutsideType", "vcNewOldFlag", "vcInjectionFactory", "vcDock", "vcSupplier_id", "vcWorkArea", "vcCHCCode", "vcCarType", "vcOrderNum", "dExpectReceiveDate", "vcOderTimes", "vcInjectionOrderNo", "vcMemo"},
                                                 {"",FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,"","","","",FieldCheck.NumCharLLL,"","","",FieldCheck.Float,FieldCheck.Date,FieldCheck.Num,FieldCheck.NumCharLLL,"" },
                                                 {"0","50","12","100","20","100","20","4","50","50","50","20","0","20","50","500"},//最大长度设定,不校验最大长度用0
-                                                {"0","1","12","1","1","1","0","1","0","0","0","1","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"0","0","12","1","1","1","0","4","0","0","0","1","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段
@@ -571,7 +571,10 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = zipName;
                 } else
                 {
-                    apiResult.data = filepathList;
+                    foreach (KeyValuePair<string, byte[]> kv in filepathList)
+                    { 
+                        apiResult.data = kv.Key +".txt";
+                    }
                 }
                 
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -631,7 +634,7 @@ namespace SPPSApi.Controllers.G06
                     dtNewInjectionFactory.ImportRow(dr);
                 }
 
-                string filename = "紧急订单_"+ vcInjectionFactory + userId + "_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                string filename = vcInjectionFactory  + "_" + System.DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
                 String dir = getDir(filename); // /f/e/d/c/4/9/8/4
                 String path = realPath + dir; //D:\\products\3/f/e/d/c/4/9/8/4
 
@@ -707,6 +710,56 @@ namespace SPPSApi.Controllers.G06
                 result.ContentType = "text/html;charset=utf-8";
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2808", ex, "system");
                 return result;
+            }
+        }
+        #endregion
+
+        #region 一括赋予
+        [HttpPost]
+        [EnableCors("any")]
+        public string allInstallApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                //以下开始业务处理
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.parentFormSelectItem;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                string vcIntake = dataForm.allInstallForm.vcIntake == null ? "" : dataForm.allInstallForm.vcIntake;
+                if (vcIntake.Length == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "一括赋予订单回数不能为空！,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (listInfoData.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先选择数据，再进行一括赋予操作！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+               
+                fs0628_Logic.allInstall(listInfoData, vcIntake, loginInfo.UserId);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0409", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "一括赋予失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion

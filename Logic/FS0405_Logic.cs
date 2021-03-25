@@ -23,14 +23,17 @@ namespace Logic
         #region 检索
         public DataTable Search(string strDXDateMonth, string strInOutFlag, string strState)
         {
-            return fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag, strState);
+            DataTable dt = fs0405_DataAccess.Search(strDXDateMonth, strInOutFlag, strState);
+            dt.DefaultView.Sort="vcDXYM,vcInOutFlag";
+            dt = dt.DefaultView.ToTable();
+            return dt;
         }
         #endregion
 
         #region 导出
-        public DataTable exportSearch(string strCLYM,string strInOutFlag,string strDXYM1,string strDXYM2,string strDXYM3)
+        public DataTable exportSearch(string strDXYM,string strInOutFlag,string strDXYM1,string strDXYM2)
         {
-            return fs0405_DataAccess.exportSearch(strCLYM, strInOutFlag, strDXYM1, strDXYM2, strDXYM3);
+            return fs0405_DataAccess.exportSearch(strDXYM, strInOutFlag, strDXYM1, strDXYM2);
         }
         #endregion
 

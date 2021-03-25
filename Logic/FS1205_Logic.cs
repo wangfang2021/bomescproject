@@ -3035,7 +3035,7 @@ namespace Logic
                 sb.AppendLine(" select distinct vcPartsno ,vcCarType,vcDock from WeekPackPlanTbl ");//周度包装计划
                 sb.AppendFormat(" where montouch ='{0}' or (vcMonth ='{1}' and montouch is null)", mon, mon);
                 sb.AppendLine(" ) t1");
-                sb.AppendLine(" left join dbo.tPartInfoMaster t2");
+                sb.AppendLine(" left join tPartInfoMaster t2");
                 sb.AppendLine(" on t1.vcPartsno = t2.vcPartsNo  and t1.vcDock = t2.vcDock ");
                 sb.AppendFormat(" where t2.vcPartPlant ='{0}'  and t2.dTimeFrom <='{1}' and t2.dTimeTo>='{2}'", plant, tmpmon, tmpmon);
 

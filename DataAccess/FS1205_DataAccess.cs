@@ -74,14 +74,18 @@ namespace DataAccess
             sb.AppendLine("   t3.vcPartNameCN as vcPartsNameCHN, t4.vcProName1 as vcProject1,t3.vcProType+'-'+t3.vcZB as vcProjectName, t3.vcHJ as vcCurrentPastCode,t2.vcMonTotal as vcMonTotal ,");
             sb.AppendFormat(" {0},", tmpT);
             sb.AppendFormat(" {0}", tmpE);
-            sb.AppendFormat("  from ( select  * from   {0} where montouch is not null) t1 ", tablename);
+            sb.AppendFormat("  from ( select  * from {0} where montouch is not null) t1 ", tablename);
             sb.AppendFormat("  full join (select * from {0} where montouch is null) t2", tablename);
             sb.AppendLine("  on t1.montouch = t2.vcMonth and t1.vcPartsno=t2.vcPartsno and t1.vcDock=t2.vcDock and t1.vcCarType=t2.vcCarType");
-            sb.AppendLine("  left join (select distinct vcMonth,vcPartNameCN,vcZB,vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from dbo.tPlanPartInfo) t3");
+            sb.AppendLine("  left join (");
+            sb.AppendLine("             select distinct vcMonth,vcPartNameCN,vcZB,s2.vcName as vcHJ,vcDock,vcCarType,vcPartsNo,vcProType,vcPlant,vcEDFlag from tPlanPartInfo s1 ");
+            sb.AppendLine("             left join (select vcName, vcValue from tcode where vcCodeId='C004') s2 ");
+            sb.AppendLine("             on s1.vcHJ=s2.vcValue ");
+            sb.AppendLine("             ) t3 ");
             sb.AppendLine("  on t3.vcPartsNo=t2.vcPartsNo and t3.vcDock = t2.vcDock and t3.vcCarType = t2.vcCarType and  t3.vcMonth = '" + mon + "' ");
-            sb.AppendLine("  left join dbo.ProRuleMst t4");
+            sb.AppendLine("  left join ProRuleMst t4");
             sb.AppendLine("  on t4.vcPorType = t3.vcProType and t4.vcZB = t3.vcZB");
-            sb.AppendLine(" left join (select vcData1 ,vcData2  from dbo.ConstMst where vcDataId ='kbplant') t5");
+            sb.AppendLine(" left join (select vcData1 ,vcData2 from ConstMst where vcDataId ='kbplant') t5");
             sb.AppendLine(" on t3.vcPlant = t5.vcData1 ");
             sb.AppendFormat("  where t2.vcMonth ='{0}' and t3.vcPlant ='{1}' and t3.vcEDFlag ='S' ", mon, plant);
             try

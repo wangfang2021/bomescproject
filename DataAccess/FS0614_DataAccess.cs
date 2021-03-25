@@ -199,10 +199,15 @@ namespace DataAccess
                                 if (No == 1)
                                 {
                                     strInOutflag = inout;
+                                    if (inout == "0")
+                                    {
+                                        drArrayTmp = drArrayN;
+                                    }
                                     if (inout == "1")
                                     {
                                         drArrayTmp = drArrayW;
                                     }
+                                    No++;
                                 }
                                 else
                                 {
@@ -1180,7 +1185,7 @@ namespace DataAccess
             try
             {
                 DateTime timeFrom = DateTime.Parse(TargetYM.Substring(0, 4) + "-" + TargetYM.Substring(4, 2) + "-01");
-                DateTime timeTo = timeFrom.AddMonths(1).AddMilliseconds(-1);
+                DateTime timeTo = timeFrom;
                 StringBuilder sbr = new StringBuilder();
 
                 sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking FROM ");

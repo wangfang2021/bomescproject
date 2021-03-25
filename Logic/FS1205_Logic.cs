@@ -2333,6 +2333,9 @@ namespace Logic
         /// <param name="strPlant">工厂</param>
         public void TXTUpdateTableSchedule(DataTable dtSource, string strMonth, string strWeek, string strPlant)
         {
+            if (dtSource.Columns.Contains("iFlag")) dtSource.Columns.Remove("iFlag");
+            if (dtSource.Columns.Contains("vcModFlag")) dtSource.Columns.Remove("vcModFlag");
+            if (dtSource.Columns.Contains("vcAddFlag")) dtSource.Columns.Remove("vcAddFlag");
             string strSQLSearch = " select * from WeekLevelSchedule ";
             StringBuilder strSQL = new StringBuilder();
             //删周度订单平准化管理表

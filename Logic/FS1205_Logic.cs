@@ -4048,12 +4048,12 @@ namespace Logic
             sb.AppendFormat("  )) P where LEN(sigTotal)>0 and vcMonth ='{0}'", mon);
             sb.AppendLine("    ) t1");
             sb.AppendLine("    left join (");
-            sb.AppendFormat("    select daysig , dayN from sPlanConst unpivot ( daysig for dayN in( {0}", tmp);
+            sb.AppendFormat("    select daysig, dayN from sPlanConst unpivot (daysig for dayN in( {0}", tmp);
             sb.AppendLine("     )) P ) t2 ");
-            sb.AppendLine("     on t1.allTotal = t2.dayN");
+            sb.AppendLine("     on t1.allTotal=t2.dayN");
             sb.AppendLine(" ) tall ");
-            sb.AppendLine(" left join dbo.tPartInfoMaster tinfo on tall.vcPartsno = tinfo.vcPartsNo and tall.vcDock = tinfo.vcDock  and   tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
-            sb.AppendFormat(" where tinfo.vcPartPlant ='{0}' ", plant);
+            sb.AppendLine(" left join tPartInfoMaster tinfo on tall.vcPartsno=tinfo.vcPartsNo and tall.vcDock=tinfo.vcDock and tinfo.dTimeFrom<= '" + mon + "-01" + "' and tinfo.dTimeTo >= '" + mon + "-01" + "'");
+            sb.AppendFormat(" where tinfo.vcPartPlant='{0}' ", plant);
             sb.AppendLine("    order by vcMonth , allTotal");
             cmd.CommandText = sb.ToString();
             DataTable DayType = new DataTable();
@@ -4074,16 +4074,16 @@ namespace Logic
             DataTable pro4 = new DataTable();
             apt.Fill(pro4);
             //------------------优化start
-            cmd.CommandText = " select top(1)* from tKanbanPrintTbl ";
+            cmd.CommandText = " select top(1) * from tKanbanPrintTbl ";
             DataTable BulkInsert = new DataTable();
             apt.Fill(BulkInsert);
             BulkInsert = BulkInsert.Clone();
             BulkInsert.Columns.Add("bushu");
             BulkInsert.Columns.Add("dayin");
             BulkInsert.Columns.Add("shengchan");
-            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode ,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4  from dbo.tPartInfoMaster t1";
-            partsql += " left join dbo.ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB = t2.vcZB ";
-            partsql += "  where exists (select vcPartsno from WeekPackPlanTbl where (vcMonth='" + mon + "' or montouch ='" + mon + "') and vcPartsno = t1.vcPartsno  )  and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo >= '" + mon + "-01" + "'  ";
+            string partsql = " select vcPartsno,vcDock,vcCarFamilyCode,t1.iQuantityPerContainer,t1.vcPorType,t1.vcZB,t2.vcProName0,t2.vcProName1,t2.vcProName2,t2.vcProName3,t2.vcProName4,t2.vcCalendar0,t2.vcCalendar1,t2.vcCalendar2,t2.vcCalendar3,t2.vcCalendar4 from tPartInfoMaster t1";
+            partsql += " left join ProRuleMst t2 on t1.vcPorType=t2.vcPorType and t1.vcZB=t2.vcZB ";
+            partsql += "  where exists (select vcPartsno from WeekPackPlanTbl where (vcMonth='" + mon + "' or montouch='" + mon + "') and vcPartsno=t1.vcPartsno  )  and t1.dTimeFrom<= '" + mon + "-01" + "' and t1.dTimeTo>= '" + mon + "-01" + "' ";
             cmd.CommandText = partsql;
             DataTable dtcalendarname = new DataTable();
             apt.Fill(dtcalendarname);
@@ -4091,7 +4091,7 @@ namespace Logic
             //------------------优化end
             for (int i = 0; i < DayType.Rows.Count; i++)
             {
-                DataRow[] dr = pro4.Select(" vcMonth ='" + DayType.Rows[i]["vcMonth"].ToString() + "' and allTotal ='" + DayType.Rows[i]["allTotal"].ToString() + "' ");
+                DataRow[] dr = pro4.Select(" vcMonth='" + DayType.Rows[i]["vcMonth"].ToString() + "' and allTotal='" + DayType.Rows[i]["allTotal"].ToString() + "' ");
                 int OrderStart = 0000;
                 string tmp_part = "";
                 string tmp_dock = "";
@@ -4102,7 +4102,7 @@ namespace Logic
                     string vcCartype = dr[j]["vcCartype"].ToString();
                     string flag = dr[j]["flag"].ToString();
                     #region 生成看板打印数据
-                    dt_calendarname = dtcalendarname.Select("vcPartsno='" + vcPartsno + "'  and vcDock ='" + vcDock + "' and vcCarFamilyCode ='" + vcCartype + "'   ").CopyToDataTable();
+                    dt_calendarname = dtcalendarname.Select("vcPartsno='" + vcPartsno + "'  and vcDock ='" + vcDock + "' and vcCarFamilyCode='" + vcCartype + "' ").CopyToDataTable();
                     string srs = dt_calendarname.Rows[0]["iQuantityPerContainer"].ToString().Trim();
                     int k = Convert.ToInt32(dr[j]["sigTotal"]) / Convert.ToInt32(srs);
                     if (tmp_part != vcPartsno || tmp_dock != vcDock)

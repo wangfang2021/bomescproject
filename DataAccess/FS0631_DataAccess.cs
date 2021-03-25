@@ -37,14 +37,15 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select iAutoId,Part_No,Part_No+isnull(Part_Suffix,'')+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,'') as Part_No_Disp,     \n");
+                sql.Append("select iAutoId,Part_No,replace(Part_No+isnull(Part_Suffix,'')+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,''),' ','') as Part_No_Disp,     \n");
                 sql.Append("SUBSTRING(Process_YYYYMM,1,4)+'-'+SUBSTRING(Process_YYYYMM,5,2)+'-01' as Process_YYYYMM,    \n");
                 sql.Append("SUBSTRING(Start_date_for_daily_qty,1,4)+'-'+SUBSTRING(Start_date_for_daily_qty,5,2)+'-01' as Start_date_for_daily_qty, Process_Factory,   \n");
-                sql.Append("Daily_Qty_01,Daily_Qty_02,Daily_Qty_03,Daily_Qty_04,Daily_Qty_05,Daily_Qty_06,Daily_Qty_07,Daily_Qty_08,    \n");
+                sql.Append("cast(Daily_Qty_01 as int) as Daily_Qty_01,Daily_Qty_02,Daily_Qty_03,Daily_Qty_04,Daily_Qty_05,Daily_Qty_06,Daily_Qty_07,Daily_Qty_08,    \n");
                 sql.Append("Daily_Qty_09,Daily_Qty_10,Daily_Qty_11,Daily_Qty_12,Daily_Qty_13,Daily_Qty_14,Daily_Qty_15,Daily_Qty_16,    \n");
                 sql.Append("Daily_Qty_17,Daily_Qty_18,Daily_Qty_19,Daily_Qty_20,Daily_Qty_21,Daily_Qty_22,Daily_Qty_23,Daily_Qty_24,    \n");
                 sql.Append("Daily_Qty_25,Daily_Qty_26,Daily_Qty_27,Daily_Qty_28,Daily_Qty_29,Daily_Qty_30,Daily_Qty_31,    \n");
-                sql.Append("'0' as vcModFlag,'0' as vcAddFlag    \n");
+                sql.Append("'0' as vcModFlag,'0' as vcAddFlag,    \n");
+                sql.Append("Process_YYYYMM as vcCLYM,SUBSTRING(Start_date_for_daily_qty,1,6) as vcDXYM    \n");
                 sql.Append("from TNQCReceiveInfo where 1=1    \n");
                 if (strCLYM != null && strCLYM != "")
                     sql.Append("and isnull(Process_YYYYMM,'')='" + strCLYM + "'    \n");

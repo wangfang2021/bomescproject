@@ -55,22 +55,7 @@ namespace SPPSApi.Controllers.G03
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-                DataTable dt = new DataTable();
-                dt.Columns.Add("vcValue");
-                dt.Columns.Add("vcName");
-                DataRow dr = dt.NewRow();
-                dt.Rows.Clear();
-                dr = dt.NewRow();
-                dr["vcValue"] = "待发送";
-                dr["vcName"] = "待发送";
-                dt.Rows.Add(dr);
-                dr = dt.NewRow();
-                dr["vcValue"] = "可下载";
-                dr["vcName"] = "可下载";
-                dt.Rows.Add(dr);
-                List<Object> dataList_C002 = ComFunction.convertAllToResult(dt);//状态
                 res.Add("C003", dataList_C003);
-                res.Add("C002", dataList_C002);
                 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -103,11 +88,10 @@ namespace SPPSApi.Controllers.G03
 
             string strDXDataMonth = dataForm.strDXDataMonth;
             string strInOutFlag = dataForm.strInOutFlag;
-            string strState = dataForm.strState;
 
             try
             {
-                DataTable dt = fs0405_Logic.Search(strDXDataMonth, strInOutFlag, strState);
+                DataTable dt = fs0405_Logic.Search(strDXDataMonth, strInOutFlag);
 
                 DtConverter dtConverter = new DtConverter();
 
@@ -176,6 +160,17 @@ namespace SPPSApi.Controllers.G03
                 string strYearMonth_3 = Convert.ToDateTime(strDXYM).AddMonths(2).ToString("yyyyMM");
 
                 DataTable dt = fs0405_Logic.exportSearch(strYearMonth, strYearMonth_2, strYearMonth_3,strInOutFlag);
+
+                #region 对品番进行特殊处理，如果品番长度为12，并且后两位是“00”，则去掉“00”
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string strPartsNo = dt.Rows[i]["PartsNo"].ToString();
+                    if (strPartsNo.Length==12 && (strPartsNo.Substring(strPartsNo.Length-2)=="00"))
+                    {
+                        dt.Rows[i]["PartsNo"] = strPartsNo.Substring(0, strPartsNo.Length - 2);
+                    }
+                }
+                #endregion
 
                 string[] ExcelHeader = { "PartsNo", "发注工厂", "订货方式", "CFC", "OrdLot", "N Units"
                 ,"N PCS","iD1","iD2","iD3","iD4","iD5","iD6","iD7","iD8","iD9","iD10","iD11","iD12","iD13","iD14"

@@ -372,7 +372,7 @@ namespace DataAccess
                                     DataRow dataRow = dtMessage.NewRow();
                                     dataRow["vcOrder"] = fileName;
                                     dataRow["vcPartNo"] = vcPart_id;
-                                    dataRow["vcMessage"] = "选中的订单类型与"+fileName+"文件中品番" + vcPart_id + "的订单方式不匹配";
+                                    dataRow["vcMessage"] = "订货方式不匹配";
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
                                 }
@@ -456,7 +456,7 @@ namespace DataAccess
                                         DataRow dataRow = dtMessage.NewRow();
                                         dataRow["vcOrder"] = fileName;
                                         dataRow["vcPartNo"] = vcPart_id;
-                                        dataRow["vcMessage"] = fileName + "文件中的品番" + vcPart_id + "不属于Soq周度订单";
+                                        dataRow["vcMessage"] = "文件中的品番不属于Soq周度订单";
                                         dtMessage.Rows.Add(dataRow);
                                         bReault = false;
                                     }
@@ -471,7 +471,7 @@ namespace DataAccess
                                 DataRow dataRow = dtMessage.NewRow();
                                 dataRow["vcOrder"] = fileName;
                                 dataRow["vcPartNo"] = vcPart_id;
-                                dataRow["vcMessage"] = fileName+"文件中品番基础数据表不包含品番" + vcPart_id;
+                                dataRow["vcMessage"] = "文件中品番基础数据表不包含该品番";
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -581,7 +581,7 @@ namespace DataAccess
                                     DataRow dataRow = dtMessage.NewRow();
                                     dataRow["vcOrder"] = fileName;
                                     dataRow["vcPartNo"] = vcPart_id;
-                                    dataRow["vcMessage"] = "选中的订单类型与" + fileName + "文件中品番" + vcPart_id + "的订单方式不匹配";
+                                    dataRow["vcMessage"] = "订货方式不匹配";
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
                                 }
@@ -601,7 +601,7 @@ namespace DataAccess
                                         DataRow dataRow = dtMessage.NewRow();
                                         dataRow["vcOrder"] = fileName;
                                         dataRow["vcPartNo"] = vcPart_id;
-                                        dataRow["vcMessage"] = fileName + "文件中的品番" + vcPart_id + "与第一个品番的内外区分不一样";
+                                        dataRow["vcMessage"] = "文件中的其他品番与第一个品番的内外区分不一样";
                                         dtMessage.Rows.Add(dataRow);
                                         bReault = false;
                                     }
@@ -621,7 +621,7 @@ namespace DataAccess
                                     DataRow dataRow = dtMessage.NewRow();
                                     dataRow["vcOrder"] = fileName;
                                     dataRow["vcPartNo"] = vcPart_id;
-                                    dataRow["vcMessage"] = fileName + "文件中的品番" + vcPart_id + "解析的内外区分与主数据该品番的内外不对应";
+                                    dataRow["vcMessage"] = "与主数据该品番的内外不对应";
                                     dtMessage.Rows.Add(dataRow);
                                     bReault = false;
                                 }
@@ -647,7 +647,7 @@ namespace DataAccess
                                         DataRow dataRow = dtMessage.NewRow();
                                         dataRow["vcOrder"] = fileName;
                                         dataRow["vcPartNo"] = vcPart_id;
-                                        dataRow["vcMessage"] = fileName + "文件中的品番" + vcPart_id + "订单数量不正确";
+                                        dataRow["vcMessage"] = "订单数量不正确";
                                         dtMessage.Rows.Add(dataRow);
                                         bReault = false;
                                     }
@@ -667,7 +667,7 @@ namespace DataAccess
                                 DataRow dataRow = dtMessage.NewRow();
                                 dataRow["vcOrder"] = fileName;
                                 dataRow["vcPartNo"] = vcPart_id;
-                                dataRow["vcMessage"] = fileName + "文件中品番基础数据表不包含品番" + vcPart_id;
+                                dataRow["vcMessage"] = "文件中品番基础数据表不包含该品番" ;
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -677,7 +677,7 @@ namespace DataAccess
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcOrder"] = fileName;
                             dataRow["vcPartNo"] = "";
-                            dataRow["vcMessage"] = fileName + "文件的品番个数与月度replay的品番个数不一样";
+                            dataRow["vcMessage"] = "文件的品番个数与月度replay的品番个数不一样";
                             dtMessage.Rows.Add(dataRow);
                             bReault = false;
                         }
@@ -1030,7 +1030,7 @@ namespace DataAccess
                                 DataRow dataRow = dtMessage.NewRow();
                                 dataRow["vcOrder"] = fileName;
                                 dataRow["vcPartNo"] = vcPart_id;
-                                dataRow["vcMessage"] = "选中的订单类型与" + fileName + "文件中品番" + vcPart_id + "的订单方式不匹配";
+                                dataRow["vcMessage"] = "订货方式不匹配";
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -1103,7 +1103,7 @@ namespace DataAccess
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcOrder"] = fileName;
                             dataRow["vcPartNo"] = vcPart_id;
-                            dataRow["vcMessage"] = fileName+"文件中品番基础数据表不包含品番" + vcPart_id;
+                            dataRow["vcMessage"] = "文件中品番基础数据表不包含该品番";
                             dtMessage.Rows.Add(dataRow);
                             bReault = false;
                         }
@@ -1425,7 +1425,7 @@ namespace DataAccess
                                 DataRow dataRow = dtMessage.NewRow();
                                 dataRow["vcOrder"] = fileName;
                                 dataRow["vcPartNo"] = vcPart_id;
-                                dataRow["vcMessage"] = "选中的订单类型与" + fileName + "文件中品番" + vcPart_id + "的订单方式不匹配";
+                                dataRow["vcMessage"] = "订货方式不匹配";
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -1546,7 +1546,7 @@ namespace DataAccess
                             DataRow dataRow = dtMessage.NewRow();
                             dataRow["vcOrder"] = fileName;
                             dataRow["vcPartNo"] = vcPart_id;
-                            dataRow["vcMessage"] = fileName + "文件中品番基础数据表不包含品番" + vcPart_id;
+                            dataRow["vcMessage"] = "文件中品番基础数据表不包含该品番";
                             dtMessage.Rows.Add(dataRow);
                             bReault = false;
                         }

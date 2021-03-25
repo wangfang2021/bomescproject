@@ -48,11 +48,11 @@ namespace DataAccess
                 }
                 if (vcValue1.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcValue1  like '" + typeCode + "%' ");
+                    strSql.AppendLine("  and  vcValue1  like '" + vcValue1 + "%' ");
                 }
                 if (vcValue2.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcValue2  like '" + typeCode + "%' ");
+                    strSql.AppendLine("  and  vcValue2  like '" + vcValue2 + "%' ");
                 }
                 strSql.AppendLine("  order by  iAutoId desc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -153,17 +153,16 @@ namespace DataAccess
                         int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
 
                         sql.Append("  update TOutCode set    \r\n");
-                        sql.Append("  vcValue1=" + getSqlValue(listInfoData[i]["vcValue1"], true) + "   \r\n");
-                        sql.Append("  vcValue2=" + getSqlValue(listInfoData[i]["vcValue2"], true) + "   \r\n");
-                        sql.Append("  vcValue3=" + getSqlValue(listInfoData[i]["vcValue3"], true) + "   \r\n");
-                        sql.Append("  vcValue4=" + getSqlValue(listInfoData[i]["vcValue4"], true) + "   \r\n");
-                        sql.Append("  vcValue5=" + getSqlValue(listInfoData[i]["vcValue5"], true) + "   \r\n");
-                        sql.Append("  vcValue6=" + getSqlValue(listInfoData[i]["vcValue6"], true) + "   \r\n");
-                        sql.Append("  vcValue7=" + getSqlValue(listInfoData[i]["vcValue7"], true) + "   \r\n");
-                        sql.Append("  vcValue8=" + getSqlValue(listInfoData[i]["vcValue8"], true) + "   \r\n");
-                        sql.Append("  vcValue9=" + getSqlValue(listInfoData[i]["vcValue9"], true) + "   \r\n");
+                        sql.Append("  vcValue1=" + getSqlValue(listInfoData[i]["vcValue1"], true) + ",   \r\n");
+                        sql.Append("  vcValue2=" + getSqlValue(listInfoData[i]["vcValue2"], true) + " ,  \r\n");
+                        sql.Append("  vcValue3=" + getSqlValue(listInfoData[i]["vcValue3"], true) + " ,  \r\n");
+                        sql.Append("  vcValue4=" + getSqlValue(listInfoData[i]["vcValue4"], true) + "  , \r\n");
+                        sql.Append("  vcValue5=" + getSqlValue(listInfoData[i]["vcValue5"], true) + "  , \r\n");
+                        sql.Append("  vcValue6=" + getSqlValue(listInfoData[i]["vcValue6"], true) + "  , \r\n");
+                        sql.Append("  vcValue7=" + getSqlValue(listInfoData[i]["vcValue7"], true) + "  , \r\n");
+                        sql.Append("  vcValue8=" + getSqlValue(listInfoData[i]["vcValue8"], true) + "  , \r\n");
+                        sql.Append("  vcValue9=" + getSqlValue(listInfoData[i]["vcValue9"], true) + "  , \r\n");
                         sql.Append("  vcValue10=" + getSqlValue(listInfoData[i]["vcValue10"], true) + "   \r\n");
-                        sql.Append("  ,vcMeaning=" + getSqlValue(listInfoData[i]["vcMeaning"], true) + "   \r\n");
                         sql.Append("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() \r\n");
                         sql.Append(" where iAutoId=" + iAutoId + " ;  \n");
                         

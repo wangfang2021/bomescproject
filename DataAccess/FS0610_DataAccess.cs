@@ -543,7 +543,7 @@ namespace DataAccess
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("update t1 set t1.vcOperatorID='" + strUserId + "',t1.dOperatorTime=GETDATE(),t1.iBoxes=t2.iBoxes,iPartNums=t2.iQuantityPercontainer*t2.iBoxes,   \n");
+                sql.Append("update t1 set t1.vcOperatorID='" + strUserId + "',t1.dOperatorTime=GETDATE(),t1.iBoxes=t2.iBoxes,iPartNums=t2.iQuantityPercontainer*t2.iBoxes,vcZhanKaiID=null,dZhanKaiTime=null,   \n");
                 for (int j = 1; j < 32; j++)
                 {
                     sql.Append(" t1.iD" + j + "=t2.iD" + j);

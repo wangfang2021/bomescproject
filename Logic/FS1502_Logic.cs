@@ -249,5 +249,58 @@ namespace Logic
             }
         }
         #endregion
+
+        public decimal result(List<Dictionary<string, Object>> listInfoData, string radio, decimal iminute, ref string strMsg,ref decimal checkedvalue)
+        {
+            //找出基准时间
+            DataTable dtStandardTime = GetStandardTime();
+
+            int iday = 0;
+            int inight = 0;
+            int istandtime = 0;
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                string day = listInfoData[i]["iSSPlan_Day"] == null || listInfoData[i]["iSSPlan_Day"].ToString() == "" ? "0" : listInfoData[i]["iSSPlan_Day"].ToString();
+                string night = listInfoData[i]["iSSPlan_Night"] == null || listInfoData[i]["iSSPlan_Night"].ToString() == "" ? "0" : listInfoData[i]["iSSPlan_Night"].ToString();
+                string vcBigPM = listInfoData[i]["vcBigPM"].ToString();
+                string vcSmallPM = listInfoData[i]["vcSmallPM"].ToString();
+                DataRow[] drs = dtStandardTime.Select("vcBigPM='" + vcBigPM + "' and vcSmallPM='" + vcSmallPM + "' ");
+                if (drs.Length == 0)
+                {
+                    strMsg = "系统中没有基准时间：" + vcBigPM + "/" + vcSmallPM + "！";
+                    return -1;
+                }
+                else
+                {
+                    istandtime = Convert.ToInt32(drs[0]["vcStandardTime"].ToString());
+                }
+
+                if (radio == "day")
+                {
+                    iday += Convert.ToInt32(day) * istandtime;
+                }
+                else if (radio == "night")
+                {
+                    inight += Convert.ToInt32(night) * istandtime;
+                }
+            }
+            decimal result = 0;
+            if (radio == "day")
+            {
+                result = iday;
+                checkedvalue = iday;
+            }
+            else if (radio == "night")
+            {
+                result = inight;
+                checkedvalue = inight;
+            }
+            return result - iminute;
+        }
+
+        public DataTable GetStandardTime()
+        {
+            return fs1502_DataAccess.GetStandardTime();
+        }
     }
 }

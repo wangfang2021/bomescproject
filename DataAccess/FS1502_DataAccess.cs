@@ -28,7 +28,7 @@ namespace DataAccess
                 strSql.Append("union all    \n");
                 strSql.Append("select '外注品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),2 as id,'1' as bSelectFlag,0 as iAutoId,dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),2 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='外注'    \n");
                 strSql.Append("union all     \n");
                 strSql.Append("select vcBigPM,vcSmallPM,iBZPlan_Day,iBZPlan_Night,iBZPlan_Heji,iEmergencyOrder,iLJBZRemain,iPlanTZ,    \n");
@@ -39,12 +39,12 @@ namespace DataAccess
                 strSql.Append("union all    \n");
                 strSql.Append("select '内制品合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),4 as id,'1' as bSelectFlag,0 as iAutoId,dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),4 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "' and vcInOutType='内制'    \n");
                 strSql.Append("union all    \n");
                 strSql.Append("select '全体合计' as vcBigPM,null as vcSmallPM,null as iBZPlan_Day,null as iBZPlan_Night,null as iBZPlan_Heji,    \n");
                 strSql.Append("null as iEmergencyOrder,null as iLJBZRemain,null as iPlanTZ,    \n");
-                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),5 as id,'1' as bSelectFlag,0 as iAutoId,dPackDate    \n");
+                strSql.Append("sum(iSSPlan_Day),sum(iSSPlan_Night),sum(iSSPlan_Heji),5 as id,'1' as bSelectFlag,0 as iAutoId,'" + dBZDate + "' as dPackDate    \n");
                 strSql.Append("from TPackingPlan_Summary where dPackDate='" + dBZDate + "'     \n");
                 strSql.Append(")a    \n");
                 strSql.Append("order by id,vcBigPM,vcSmallPM      \n");
@@ -176,9 +176,9 @@ namespace DataAccess
                         sql.Append("vcOperatorID='" + strUserId + "',dOperatorTime=getdate() where iAutoId=" + iAutoId + "    \n");
 
                         sql.Append("update t1 set     \n");
-                        sql.Append("t1.iSSPlan_Day=case when vcBigPM='成型' then A+cast((D+F)/2.0 as decimal(18,1)) else cast((C+D+F)/2.0 as decimal(18,1)) end,    \n");
-                        sql.Append("t1.iSSPlan_Night=case when vcBigPM='成型' then B+ D+F-cast((D+F)/2.0 as decimal(18,1)) else C+D+F-cast((C+D+F)/2.0 as decimal(18,1)) end,    \n");
-                        sql.Append("t1.iSSPlan_Heji=case when vcBigPM='成型' then A+B+D+F else C+D+F end    \n");
+                        sql.Append("t1.iSSPlan_Day=case when vcBigPM='成型' then A+ceiling((D+F)/2.0) else ceiling((C+D+F)/2.0) end,    \n");
+                        sql.Append("t1.iSSPlan_Night=case when vcBigPM='成型' then C+ D+F-(A+ceiling((D+F)/2.0)) else C+D+F-ceiling((C+D+F)/2.0) end,    \n");
+                        sql.Append("t1.iSSPlan_Heji=C+D+F   \n");
                         sql.Append("from (    \n");
                         sql.Append("	select * from TPackingPlan_Summary where iAutoId=" + iAutoId + "    \n");
                         sql.Append(")t1    \n");
@@ -445,6 +445,20 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public DataTable GetStandardTime()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("select vcBigPM,vcSmallPM,vcStandardTime from TPMRelation");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region 计算 not use 
         public void Cal(string dBZDate, string strUserId, string strUnit)

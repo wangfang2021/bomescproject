@@ -314,17 +314,40 @@ namespace SPPSApi.Controllers.G15
             ApiResult apiResult = new ApiResult();
             try
             {
+                Dictionary<string, object> res = new Dictionary<string, object>();
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string radio = dataForm.radio == null ? "" : dataForm.radio;
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                #region 根据人&小时计算
                 string person = dataForm.person == null || dataForm.person == "" ? "0" : dataForm.person;
                 string hour = dataForm.hour == null || dataForm.hour == "" ? "0" : dataForm.hour;
 
                 decimal decperson = Convert.ToDecimal(person);
                 decimal dechour = Convert.ToDecimal(hour);
 
-                decimal result = decperson * 450 + decperson * (dechour * 60);
+                decimal min = decperson * 450 + decperson * (dechour * 60);
+                #endregion
+
+                #region 计算下面-上面的值
+                string strMsg = "";
+                decimal checkedvalue = 0;
+                decimal resultvalue = fs1502_Logic.result(listInfoData, radio, min, ref strMsg,ref checkedvalue);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
+                res.Add("min", min.ToString());
+                res.Add("resultvalue", resultvalue.ToString());
+                res.Add("checkedvalue", checkedvalue.ToString());
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = result;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -353,17 +376,90 @@ namespace SPPSApi.Controllers.G15
             ApiResult apiResult = new ApiResult();
             try
             {
+                Dictionary<string, object> res = new Dictionary<string, object>();
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string radio = dataForm.radio == null ? "" : dataForm.radio;
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                #region 根据人&小时计算
                 string person = dataForm.person == null || dataForm.person == "" ? "0" : dataForm.person;
                 string hour = dataForm.hour == null || dataForm.hour == "" ? "0" : dataForm.hour;
 
                 decimal decperson = Convert.ToDecimal(person);
                 decimal dechour = Convert.ToDecimal(hour);
 
-                decimal result = decperson * 450 + decperson * (dechour * 60);
+                decimal min = decperson * 450 + decperson * (dechour * 60);
+                #endregion
+
+                #region 计算下面-上面的值
+                string strMsg = "";
+                decimal checkedvalue = 0;
+                decimal resultvalue = fs1502_Logic.result(listInfoData, radio, min, ref strMsg,ref checkedvalue);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+
+                res.Add("min", min.ToString());
+                res.Add("resultvalue", resultvalue.ToString());
+                res.Add("checkedvalue", checkedvalue.ToString());
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = result;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 白夜变化
+        [HttpPost]
+        [EnableCors("any")]
+        public string radiochangeApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string radio = dataForm.radio == null ? "" : dataForm.radio;
+                string minute = (dataForm.min == null || dataForm.min == "" )? "0" :dataForm.min;
+                int iminute = Convert.ToInt32(minute);
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                string strMsg = "";
+                decimal checkedvalue = 0;
+                decimal resultvalue = fs1502_Logic.result(listInfoData, radio, iminute, ref strMsg,ref checkedvalue);
+                if (strMsg != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = strMsg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                res.Add("resultvalue", resultvalue);
+                res.Add("checkedvalue", checkedvalue);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

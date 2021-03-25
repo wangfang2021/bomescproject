@@ -176,9 +176,9 @@ namespace DataAccess
                         sql.Append("vcOperatorID='" + strUserId + "',dOperatorTime=getdate() where iAutoId=" + iAutoId + "    \n");
 
                         sql.Append("update t1 set     \n");
-                        sql.Append("t1.iSSPlan_Day=case when vcBigPM='成型' then A+cast((D+F)/2.0 as decimal(18,1)) else cast((C+D+F)/2.0 as decimal(18,1)) end,    \n");
-                        sql.Append("t1.iSSPlan_Night=case when vcBigPM='成型' then B+ D+F-cast((D+F)/2.0 as decimal(18,1)) else C+D+F-cast((C+D+F)/2.0 as decimal(18,1)) end,    \n");
-                        sql.Append("t1.iSSPlan_Heji=case when vcBigPM='成型' then A+B+D+F else C+D+F end    \n");
+                        sql.Append("t1.iSSPlan_Day=case when vcBigPM='成型' then A+ceiling((D+F)/2.0) else ceiling((C+D+F)/2.0) end,    \n");
+                        sql.Append("t1.iSSPlan_Night=case when vcBigPM='成型' then C+ D+F-(A+ceiling((D+F)/2.0)) else C+D+F-ceiling((C+D+F)/2.0) end,    \n");
+                        sql.Append("t1.iSSPlan_Heji=C+D+F   \n");
                         sql.Append("from (    \n");
                         sql.Append("	select * from TPackingPlan_Summary where iAutoId=" + iAutoId + "    \n");
                         sql.Append(")t1    \n");
@@ -445,6 +445,20 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public DataTable GetStandardTime()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.AppendLine("select vcBigPM,vcSmallPM,vcStandardTime from TPMRelation");
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #region 计算 not use 
         public void Cal(string dBZDate, string strUserId, string strUnit)

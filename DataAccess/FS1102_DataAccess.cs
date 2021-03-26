@@ -17,7 +17,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("SELECT distinct '' as LinId,T1.vcCpdcode as vcReceiver,SUBSTRING(T1.vcCaseno,1,5)+'-'+SUBSTRING(T1.vcCaseno,6,5) as vcCaseNo");
+                strSql.AppendLine("SELECT distinct '' as LinId,T1.vcCpdcode as vcReceiver,SUBSTRING(T1.vcCaseno,1,4)+'-'+SUBSTRING(T1.vcCaseno,5,4) as vcCaseNo");
                 //strSql.AppendLine("SELECT T1.iAutoId as LinId,T1.vcCpdcode as vcReceiver,SUBSTRING(T1.vcCaseno,1,5)+'-'+SUBSTRING(T1.vcCaseno,6,5) as vcCaseNo");
                 strSql.AppendLine(",'1' as bSelectFlag FROM");
                 //strSql.AppendLine(",T1.vcInno as vcInPutOrderNo,T1.vcPart_id as vcPartId,t2.vcPartsNameEN as vcPartENName,t1.iQty as iQty,'1' as bSelectFlag FROM");

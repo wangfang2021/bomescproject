@@ -34,11 +34,11 @@ namespace DataAccess
                 strSql.AppendLine("WHERE a.[dFirstPrintTime] IS NOT NULL   ");
                 if (strPackMaterNo != "")
                 {
-                    strSql.AppendLine("  AND a.vcLotid like '%" + strPackMaterNo + "%' ");
+                    strSql.AppendLine("  AND replace(a.vcLotid,'-','')= replace('" + strPackMaterNo + "','-','') ");
                 }
                 if (strPartId != "")
                 {
-                    strSql.AppendLine("  AND b.vcPart_id like '" + strPartId + "%' ");
+                    strSql.AppendLine("  AND b.vcPart_id = '" + strPartId + "' ");
                 }
                 if (strOrderNo != "")
                 {

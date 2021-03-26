@@ -140,9 +140,6 @@ namespace SPPSApi.Controllers.G12
                     }
                 }
 
-
-
-
                 string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
                                     "vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
                                     "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y",

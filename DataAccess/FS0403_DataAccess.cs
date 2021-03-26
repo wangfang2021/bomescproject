@@ -368,8 +368,10 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 for (int i = 0; i < list.Count; i++)
                 {
+                    sbr.AppendLine("DECLARE @now DATETIME");
+                    sbr.AppendLine("SET @now = GETDATE()");
                     sbr.AppendLine("INSERT INTO TSoqDayChange(vcDXDate,vcChangeNo, vcPart_Id, iQuantityBefore, iQuantityNow, dFileUpload, vcOperatorID, dOperatorTime)");
-                    sbr.AppendLine("VALUES('" + list[i].DXR + "','" + list[i].ChangeNo + "','" + list[i].partId + "'," + list[i].iQuantityBefore + "," + list[i].IQuantityNow + ",GETDATE(),'" + strUserId + "'  ,GETDATE());");
+                    sbr.AppendLine("VALUES('" + list[i].DXR + "','" + list[i].ChangeNo + "','" + list[i].partId + "'," + list[i].iQuantityBefore + "," + list[i].IQuantityNow + ",@now,'" + strUserId + "'  ,GETDATE());");
                     sbr.AppendLine("UPDATE TSoqReply SET iD" + Convert.ToInt32(list[i].DXR.Substring(6, 2)) + " = " + list[i].IQuantityNow + " ,vcOperatorID = '" + strUserId + "' ,dOperatorTime = GETDATE() WHERE vcDXYM = '" + list[i].DXR.Substring(0, 6) + "' AND vcPart_id = '" + list[i].partId + "';");
                     sbr.AppendLine("UPDATE TSoqReply SET iPartNums = ISNULL(iD1,0)+ISNULL(iD2,0)+ISNULL(iD3,0)+ISNULL(iD4,0)+ISNULL(iD5,0)+ISNULL(iD6,0)+ISNULL(iD7,0)+ISNULL(iD8,0)+ISNULL(iD9,0)+ISNULL(iD10,0)+ISNULL(iD11,0)+ISNULL(iD12,0)+ISNULL(iD13,0)+ISNULL(iD14,0)+ISNULL(iD15,0)+ISNULL(iD16,0)+ISNULL(iD17,0)+ISNULL(iD18,0)+ISNULL(iD19,0)+ISNULL(iD20,0)+ISNULL(iD21,0)+ISNULL(iD22,0)+ISNULL(iD23,0)+ISNULL(iD24,0)+ISNULL(iD25,0)+ISNULL(iD26,0)+ISNULL(iD27,0)+ISNULL(iD28,0)+ISNULL(iD29,0)+ISNULL(iD30,0)+ISNULL(iD31,0)");
                     sbr.AppendLine(",vcOperatorID = '" + strUserId + "' ,dOperatorTime = GETDATE() WHERE vcDXYM = '202103' AND vcPart_id = '" + list[i].partId + "';");

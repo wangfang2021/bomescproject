@@ -90,7 +90,7 @@ namespace DataAccess
                 }
                 if (vcReceiveFlag == "1")
                 {
-                    strSql.AppendLine(" and vcNoReceiveNumber=0 ");
+                    strSql.AppendLine(" and isnull(vcNoReceiveNumber,0)=0 ");
                 }
                 else if (vcReceiveFlag == "0")
                 {

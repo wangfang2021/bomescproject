@@ -19,7 +19,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select vcSupplier_id as vcValue,vcSupplier_id+':'+vcSupplier_name as vcName from TSupplier  \n");
+                strSql.Append("select vcSupplier_id as vcValue,vcSupplier_id as vcName from TSupplierInfo  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -35,12 +35,12 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("select t1.*,t3.vcName as vcSHFName,t2.vcName as vcGQName,  \n");
-                strSql.Append("t1.vcSupplier_id+':'+t4.vcSupplier_name as vcSupplier_name,'0' as vcModFlag,'0' as vcAddFlag   \n");
+                strSql.Append("select t1.*,t3.vcName as vcSHFName, \n");
+                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag   \n");
                 strSql.Append("from TEDTZPartsNoMaster t1  \n");
-                strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C017') t2 on t1.vcGQ=t2.vcValue  \n");
+                //strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C017') t2 on t1.vcGQ=t2.vcValue  \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C018') t3 on t1.vcSHF=t3.vcValue  \n");
-                strSql.Append("left join (select vcSupplier_id,vcSupplier_name from TSupplier) t4 on t1.vcSupplier_id=t4.vcSupplier_id  \n");
+                //strSql.Append("left join (select vcSupplier_id,vcSupplier_name from TSupplier) t4 on t1.vcSupplier_id=t4.vcSupplier_id  \n");
                 strSql.Append("where 1=1  \n");
                 if (vcGQ != "" && vcGQ!=null)
                     strSql.Append("and isnull(t1.vcGQ,'') like '%" + vcGQ + "%'   \n");
@@ -249,11 +249,11 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 if (kind == "gq")
-                    sql.Append("select vcValue,vcName from TCode where vcCodeId='C017'");
+                    sql.Append("select vcValue,vcValue as vcName from TCode where vcCodeId='C017'");
                 else if (kind == "shf")
                     sql.Append("select vcValue,vcMeaning as vcName  from TCode where vcCodeId='C018'");
                 else if (kind == "supplier")
-                    sql.Append("select vcSupplier_id as vcValue,vcSupplier_name as vcName from TSupplier");
+                    sql.Append("select vcSupplier_id as vcValue,vcSupplier_id as vcName from TSupplierInfo");
                 else if(kind=="bzplant")
                     sql.Append("select vcValue,vcMeaning as vcName from TCode where vcCodeId='C023'");
 

@@ -214,10 +214,12 @@ namespace Logic
                 decimal decInputPerson_sum = 0;//投入人数合计
                 for (int i = 0; i < dtImport.Rows.Count; i++)
                 {
-                    decimal decPlannedPerson = Convert.ToDecimal(dtImport.Rows[i]["decPlannedPerson"].ToString());
+                    decimal decPlannedTime = Convert.ToDecimal(dtImport.Rows[i]["decPlannedTime"].ToString());
+                    decimal decPlannedPerson = Convert.ToDecimal(decPlannedTime / (Convert.ToDecimal(strCycleTime) / 60));
+                    dtImport.Rows[i]["decPlannedPerson"] = decPlannedPerson.ToString("#0.00");
                     decimal decInputPerson = Convert.ToDecimal(dtImport.Rows[i]["decInputPerson"].ToString());
                     decimal decInputTime = decInputPerson * (Convert.ToDecimal(strCycleTime) / 60);
-                    decimal decPlannedTime = Convert.ToDecimal(dtImport.Rows[i]["decPlannedTime"].ToString());
+                    //decimal decPlannedTime = Convert.ToDecimal(dtImport.Rows[i]["decPlannedTime"].ToString());
                     decimal decOverFlowTime = decInputTime - decPlannedTime;
                     //decPeopleNum = decPeopleNum + decInputPerson;
                     decPlannedPerson_sum = decPlannedPerson_sum + decPlannedPerson;
@@ -234,6 +236,9 @@ namespace Logic
                 if (decPlannedPerson_sum > decPeopleNum)
                 {
                     decWorkOverTime = ((decPlannedPerson_sum - decInputPerson_sum) * (Convert.ToDecimal(strCycleTime)) / 60) / decPeopleNum;
+                    decWorkOverTime = decWorkOverTime + Convert.ToDecimal(0.009);
+
+                    //decWorkOverTime = GetN(2, decWorkOverTime);
                 }
                 strWorkOverTime = decWorkOverTime < 0 ? "0" : decWorkOverTime.ToString();
                 return dtImport;
@@ -243,7 +248,22 @@ namespace Logic
                 throw ex;
             }
         }
-
+        public decimal GetN(int n,decimal result)
+        {
+            if(n<=0)
+            {
+                result = decimal.Parse(result.ToString("0"));
+            }else
+            {
+                string End = "0.";
+                for (int i = 0; i < n; i++)
+                {
+                    End += "0";
+                }
+                result = decimal.Parse(result.ToString(End));
+            }
+           return result;
+        }
         public void queryData(string strPackPlant, string strHosDate, string strBanZhi, DataTable dtImport,
             string vcPeopleNum, string vcCycleTime, string vcWorkOverTime, string strOperId, ref DataTable dtMessage)
         {

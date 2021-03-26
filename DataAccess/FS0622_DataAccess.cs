@@ -254,7 +254,7 @@ namespace DataAccess
                     StringBuilder strSql = new StringBuilder();
                     string vcGroupName = dt.Rows[i]["vcGroupName"] == System.DBNull.Value ? "" : dt.Rows[i]["vcGroupName"].ToString();
                     string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString();
-                    string vcFluctuationRange = dt.Rows[i]["vcFluctuationRange"] == System.DBNull.Value ? "" : dt.Rows[i]["vcFluctuationRange"].ToString();
+                    //string vcFluctuationRange = dt.Rows[i]["vcFluctuationRange"] == System.DBNull.Value ? "" : dt.Rows[i]["vcFluctuationRange"].ToString();
 
                     strSql.AppendLine("  declare @isExist int =0;   ");
                     strSql.AppendLine("  select @isExist=COUNT(*) from TDaysChangeOrdersBaseData where vcPartNo='" + vcPartNo + "' ");
@@ -266,10 +266,10 @@ namespace DataAccess
                     strSql.AppendLine("  end   ");
                     strSql.AppendLine("  else   ");
                     strSql.AppendLine("  begin   ");
-                    strSql.AppendLine("  		insert into dbo.TDaysChangeOrdersBaseData ([vcGroupId], [vcPartNo], [vcFluctuationRange], ");
+                    strSql.AppendLine("  		insert into dbo.TDaysChangeOrdersBaseData ([vcGroupId], [vcPartNo],  ");
                     strSql.AppendLine("  		 vcOperatorID, dOperatorTime )    ");
                     strSql.AppendLine("  		values   ");
-                    strSql.AppendLine("  		((select iAutoId from [dbo].[TGroup] where vcGroupName='" + vcGroupName.Trim() + "' ),'" + vcPartNo + "','" + vcFluctuationRange + "','" + strUserId + "',GETDATE()) ;   ");
+                    strSql.AppendLine("  		((select iAutoId from [dbo].[TGroup] where vcGroupName='" + vcGroupName.Trim() + "' ),'" + vcPartNo + "','" + strUserId + "',GETDATE()) ;   ");
                     strSql.AppendLine("  end ;  ");
                     strSql.AppendLine("     ");
 

@@ -60,10 +60,10 @@ namespace SPPSApi.Controllers.G06
             string date = dataForm.date == null ? "" : dataForm.date;
             string flag = dataForm.flag == null ? "" : dataForm.flag;
             string vcColor = dataForm.vcColor == null ? "" : dataForm.vcColor;
-
+            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
             try
             {
-                String emailBody = fs0625_Logic.CreateEmailBody(date, vcColor,flag, loginInfo.UnitCode, loginInfo.UnitName);
+                String emailBody = fs0625_Logic.CreateEmailBody(date, vcColor,flag, loginInfo.UnitCode, loginInfo.UnitName, vcCarType);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = emailBody;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -105,6 +105,7 @@ namespace SPPSApi.Controllers.G06
                 string EmailBody = dataForm.parentFormSelectItem.emailBody.ToString();
                 string dExpectDeliveryDate = dataForm.date == null ? "" : dataForm.date;
                 string vcColor = dataForm.vcColor == null ? "" : dataForm.vcColor;
+                string vcCarTypeChuShi = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
                 if (EmailBody.Length==0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -247,7 +248,7 @@ namespace SPPSApi.Controllers.G06
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier"] = vcSupplier_id;
-                        dataRow["vcMessage"] = "供应商:" + vcSupplier_id + "没有维护邮箱，不能发送邮件";
+                        dataRow["vcMessage"] = "没有维护供应商，不能发送邮件";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                         continue;
@@ -303,7 +304,7 @@ namespace SPPSApi.Controllers.G06
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier"] = vcSupplier_id;
-                        dataRow["vcMessage"] = "供应商:" + vcSupplier_id + "维护的邮箱为空,不能发送邮件!";
+                        dataRow["vcMessage"] = "维护的邮箱为空,不能发送邮件!";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                         continue;
@@ -958,7 +959,7 @@ namespace SPPSApi.Controllers.G06
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier"] = vcSupplier_id;
-                        dataRow["vcMessage"] = "供应商：" + vcSupplier_id + "号试看板标签生成失败!";
+                        dataRow["vcMessage"] = "号试看板标签生成失败!";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                     }
@@ -1380,7 +1381,7 @@ namespace SPPSApi.Controllers.G06
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier"] = vcSupplier_id;
-                        dataRow["vcMessage"] = "供应商:" + vcSupplier_id + "号试货垛标签生成失败!";
+                        dataRow["vcMessage"] = "号试货垛标签生成失败!";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                     }
@@ -1392,7 +1393,7 @@ namespace SPPSApi.Controllers.G06
                     #region 第三个附件
                     string[] columnArray3 = { "vcCarType" };
                     DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
-                    DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray2);//去重后的dt 
+                    DataTable dtSelect3 = dtSelectView3.ToTable(true, columnArray3);//去重后的dt 
                     XSSFWorkbook hsorderworkbook = null;
 
                     string XltHSOrderPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0625_HSOrder.xlsx";
@@ -1549,7 +1550,7 @@ namespace SPPSApi.Controllers.G06
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier"] = vcSupplier_id;
-                        dataRow["vcMessage"] = "供应商:" + vcSupplier_id + "号试品订单生成失败!";
+                        dataRow["vcMessage"] = "号试品订单生成失败!";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                     }
@@ -1562,7 +1563,7 @@ namespace SPPSApi.Controllers.G06
                         cCDt = dtCCEmail;
                     }
                     //邮件主题
-                    string strSubject = "供应商:" + vcSupplier_id + "_" + loginInfo.UnitCode + "号试订单信息";
+                    string strSubject = vcCarTypeChuShi+ "车型 补给品 号试订单发注(重要！)";
                     //邮件内容
                     //strEmailBody += "  请在1个工作日内将是否可以供货的确认结果邮件回复，以下是各个仓库对应的邮箱：<br />";
                     string result = "Success";
@@ -1574,7 +1575,7 @@ namespace SPPSApi.Controllers.G06
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcSupplier"] = vcSupplier_id;
-                        dataRow["vcMessage"] = "供应商:" + vcSupplier_id + "邮箱发送失败，邮件发送公共方法未知原因！";
+                        dataRow["vcMessage"] = "邮件发送失败，邮件发送公共方法未知原因！";
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                     }

@@ -129,7 +129,7 @@ namespace SPPSApi.Controllers.G06
                 //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 //}
                 DataTable dtReceiver = ComFunction.getTCode("C018");
-                DataTable dtpackPlant = fs0620_Logic.getTCode("C025");
+                DataTable dtpackPlant = ComFunction.getTCode("C017");
                 DataTable dtfazhuPlant = fs0620_Logic.getTCode("C026");
                 ArrayList list = new ArrayList();
                 ArrayList listError = new ArrayList();
@@ -142,7 +142,7 @@ namespace SPPSApi.Controllers.G06
                 ArrayList packArrayLis = new ArrayList();
                 for (int i = 0; i < dtpackPlant.Rows.Count; i++)
                 {
-                    packArrayLis.Add(dtpackPlant.Rows[i]["vcName"]);
+                    packArrayLis.Add(dtpackPlant.Rows[i]["vcValue"]);
                 }
                 ArrayList fazhuArrayLis = new ArrayList();
                 for (int i = 0; i < dtfazhuPlant.Rows.Count; i++)

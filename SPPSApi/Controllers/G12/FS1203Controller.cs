@@ -53,7 +53,7 @@ namespace SPPSApi.Controllers.G12
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_PlanType = ComFunction.convertAllToResult(logic.getPlantype());
-                List<Object> dataList_Plant = ComFunction.convertAllToResult(logic.bindplant());
+                List<Object> dataList_Plant = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 res.Add("dataList_PlanType", dataList_PlanType);
                 res.Add("dataList_Plant", dataList_Plant);
                 apiResult.code = ComConstant.SUCCESS_CODE;

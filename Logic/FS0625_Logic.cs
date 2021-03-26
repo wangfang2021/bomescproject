@@ -52,13 +52,13 @@ namespace Logic
 
         #region 创建邮件体
 
-        public string CreateEmailBody(string date, string color, string flag, string UnitCode, string UnitName)
+        public string CreateEmailBody(string date, string color, string flag, string UnitCode, string UnitName,string vcCarType)
         {
             StringBuilder sbr = new StringBuilder();
             if (flag == "0")
             {
                 sbr.AppendLine("   <p>相关各位供应商：大家好</p><p>" + UnitCode + "补给资材企管" + UnitName + "</p><p>感谢大家一直以来对" + UnitCode + "补给业务的协力</p>   ");
-                sbr.AppendLine("   <p>按照大日程，<strong style=\"color: blue;\"><u>现发送****车型补给品号试订单&amp;看板&amp;货垛标签</u></strong></p>   ");
+                sbr.AppendLine("   <p>按照大日程，<strong style=\"color: blue;\"><u>现发送"+ vcCarType + "车型补给品号试订单&amp;看板&amp;货垛标签</u></strong></p>   ");
                 sbr.AppendLine("   <p><span style=\"color: blue;\">拜托各位确认附件的补给品号试订单是否可以对应（</span><strong style=\"color: rgb(31, 73, 125);\">"+date+"</strong>   ");
                 sbr.AppendLine("   <strong style=\"color: red;\">日前邮件回复给我</strong><span style=\"color: blue;\">）</span></p><p><br></p><p>以下几点进行说明如下：</p>   ");
                 sbr.AppendLine("   <p><span style=\"background-color: yellow;\">1.&nbsp;&nbsp;&nbsp;&nbsp;【供应商发货日】</span></p><p>与号口1A（总装）号试品同期同车发货</p>   ");

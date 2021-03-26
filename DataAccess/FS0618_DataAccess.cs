@@ -146,8 +146,8 @@ namespace DataAccess
                 {
                     strSql.AppendLine("  and   CONVERT(varchar(10),  dOrderExportDate,112) =  '" + dOrderExportDate.Replace("-", "").Replace("/", "") + "' ");
                 }
-
-                strSql.AppendLine("  order by  a.vcWorkArea desc,a.vcTargetYearMonth desc,a.vcDock desc,a.vcOrderType desc,a.vcOrderNo desc,a.vcSeqno desc,a.vcPartNo desc ");
+                //strSql.AppendLine("  order by  a.vcWorkArea desc,a.vcTargetYearMonth desc,a.vcDock desc,a.vcOrderType desc,a.vcOrderNo desc,a.vcSeqno asc,a.vcPartNo desc ");
+                strSql.AppendLine("  order by a.vcTargetYearMonth desc,a.vcSeqno asc ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

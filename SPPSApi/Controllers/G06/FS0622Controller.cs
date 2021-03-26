@@ -134,7 +134,7 @@ namespace SPPSApi.Controllers.G06
                 field = new string[] { "vcPartNo","vcGroupName",  "vcFluctuationRange", "vcDefinition" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
-                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0622_Data.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0622_Data.xlsx", 1, loginInfo.UserId, FunctionID,true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -47,7 +47,7 @@ namespace Logic
         }
 
         #region 发送
-        public void sendMail(List<Dictionary<string, Object>> listInfoData, string strUserId, string strUserName, ref string refMsg, string Email, string unit)
+        public void sendMail(List<Dictionary<string, Object>> listInfoData, string strUserId, string strUserName, ref string refMsg, string Email, string unit, string unitCode)
         {
             try
             {

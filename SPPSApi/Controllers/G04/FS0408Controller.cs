@@ -312,7 +312,7 @@ namespace SPPSApi.Controllers.G04
 
 
                 string strMsg = "";
-                fs0408_Logic.sendMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName);
+                fs0408_Logic.sendMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName, loginInfo.UnitCode);
 
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {

@@ -221,7 +221,7 @@ namespace DataAccess
                     {
                         time = time.AddDays(1);
                         string tmp = time.ToString("yyyyMMdd");
-                        string state = list[i].day[tmp].ToString();
+                        string state = ObjToString(list[i].day[tmp]);
                         if (!state.Equals("0") && !string.IsNullOrWhiteSpace(state))
                         {
                             count++;
@@ -245,7 +245,7 @@ namespace DataAccess
 
         #region 获取品番当月每天的订单数量
 
-        public Hashtable getCount(Hashtable ht)
+        public Hashtable getCount(Hashtable ht, string inOut)
         {
             try
             {
@@ -281,7 +281,7 @@ namespace DataAccess
 
                 //TODO 应修改日度订货次数
                 //sbr.AppendLine("SELECT * FROM TSoqReply WHERE vcMakingOrderType = '3' " + choose);
-                sbr.AppendLine("SELECT * FROM TSoqReply WHERE 1=1 and vcMakingOrderType = '3' " + choose);
+                sbr.AppendLine("SELECT * FROM TSoqReply WHERE 1=1 and vcMakingOrderType = '3' AND vcInOutFlag = '" + inOut + "' " + choose);
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
 
 
@@ -366,9 +366,9 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("DECLARE @now DATETIME");
                 for (int i = 0; i < list.Count; i++)
                 {
-                    sbr.AppendLine("DECLARE @now DATETIME");
                     sbr.AppendLine("SET @now = GETDATE()");
                     sbr.AppendLine("INSERT INTO TSoqDayChange(vcDXDate,vcChangeNo, vcPart_Id, iQuantityBefore, iQuantityNow, dFileUpload, vcOperatorID, dOperatorTime)");
                     sbr.AppendLine("VALUES('" + list[i].DXR + "','" + list[i].ChangeNo + "','" + list[i].partId + "'," + list[i].iQuantityBefore + "," + list[i].IQuantityNow + ",@now,'" + strUserId + "'  ,GETDATE());");
@@ -673,6 +673,18 @@ namespace DataAccess
             }
 
             return tmp;
+        }
+
+        public string ObjToString(Object obj)
+        {
+            try
+            {
+                return obj.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
         }
     }
 }

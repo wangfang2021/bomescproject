@@ -27,7 +27,7 @@ namespace DataAccess
                     strSql.Append("where isnull(vcBoxNo,'') = '" + vcBox_id + "' \n");
                 if (vcLabelId != "" && vcLabelId != null)
                     strSql.Append("and '"+vcLabelId+ "' between vcLabelStart and vcLabelEnd \n");
-                //strSql.Append("order by    \n");
+                strSql.Append("order by vcBoxNo,vcInstructionNo, vcPart_id  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

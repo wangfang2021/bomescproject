@@ -34,9 +34,9 @@ namespace Logic
 
         #region 检索NQC结果
 
-        public DataTable SearchNQCResult(string strCLYM, string strDXYM, string strPartNo)
+        public DataTable SearchNQCResult(string strCLYM, string strDXYM, string strPartNo,string strPlant)
         {
-            return fs0631_DataAccess.SearchNQCResult(strCLYM,strDXYM,strPartNo);
+            return fs0631_DataAccess.SearchNQCResult(strCLYM,strDXYM,strPartNo,strPlant);
         }
         #endregion
 

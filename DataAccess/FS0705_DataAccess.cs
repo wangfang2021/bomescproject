@@ -429,5 +429,140 @@ namespace DataAccess
         #endregion
 
 
+
+
+
+
+
+
+
+        #region 调整数据输入-检索
+        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType)
+        {
+            StringBuilder strSql = new StringBuilder();
+            try
+            {
+                strSql.AppendLine("        select *,'0' as selected,'0' as vcModFlag,'0' as AddFlag from  TPackCompute_Ajust         ");
+                strSql.AppendLine("        where 1=1         ");
+                if (!string.IsNullOrEmpty(strPackNo))
+                {
+                    strSql.AppendLine("        and vcPackNo = '" + strPackNo + "'         ");
+                }
+                if (!string.IsNullOrEmpty(strPackGPSNo))
+                {
+                    strSql.AppendLine("        and vcPackGPSNo = '" + strPackGPSNo + "'         ");
+                }
+                if (!string.IsNullOrEmpty(strFrom))
+                {
+                    strSql.AppendLine("        and '" + strFrom + "'<=dTime          ");
+                }
+                if (!string.IsNullOrEmpty(strTo))
+                {
+                    strSql.AppendLine("        and dTime<='" + strTo + "'         ");
+                }
+                if (!string.IsNullOrEmpty(strType) && strType != "0")
+                {
+                    strSql.AppendLine("        and vcType ='" + strType + "'         ");
+                }
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 调整数据输入-保存
+        public void save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            StringBuilder strSql = new StringBuilder();
+            try
+            {
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    strSql.AppendLine("      insert into TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
+                    strSql.AppendLine("      values       ");
+                    strSql.AppendLine("      (       ");
+                    strSql.AppendLine("       " + ComFunction.getSqlValue(listInfoData[i]["vcPackNo"], false) + "       ");
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], false) + "       ");
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(listInfoData[i]["iNumber"], true) + "       ");
+
+                    #region 调整类别：1:调增    2:调减
+                    int iNumber = Convert.ToInt32(listInfoData[i]["iNumber"].ToString());
+                    if (iNumber > 0)
+                    {
+                        strSql.AppendLine("      ,'1'       ");
+                    }
+                    else if (iNumber < 0)
+                    {
+                        strSql.AppendLine("      ,'2'       ");
+                    }
+                    #endregion
+
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(listInfoData[i]["dTime"], true) + "       ");
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(listInfoData[i]["vcReason"], false) + "       ");
+                    strSql.AppendLine("      ,'" + strUserId + "'       ");
+                    strSql.AppendLine("      ,GETDATE()       ");
+                    strSql.AppendLine("      )       ");
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 调整数据输入-导入后保存
+        public void importSave_Sub(DataTable dt, string strUserId)
+        {
+            StringBuilder strSql = new StringBuilder();
+            try
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    strSql.AppendLine("      insert into TPackCompute_Ajust(vcPackNo,vcPackGPSNo,iNumber,vcType,dTime,vcReason,vcOperatorID,dOperatorTime)       ");
+                    strSql.AppendLine("      values       ");
+                    strSql.AppendLine("      (       ");
+                    strSql.AppendLine("       " + ComFunction.getSqlValue(dt.Rows[i]["vcPackNo"], false) + "       ");
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcPackGPSNo"], false) + "       ");
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(dt.Rows[i]["iNumber"], true) + "       ");
+
+                    #region 调整类别：1:调增    2:调减
+                    int iNumber = Convert.ToInt32(dt.Rows[i]["iNumber"].ToString());
+                    if (iNumber > 0)
+                    {
+                        strSql.AppendLine("      ,'1'       ");
+                    }
+                    else if (iNumber < 0)
+                    {
+                        strSql.AppendLine("      ,'2'       ");
+                    }
+                    #endregion
+
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(dt.Rows[i]["dTime"], true) + "       ");
+                    strSql.AppendLine("      ," + ComFunction.getSqlValue(dt.Rows[i]["vcReason"], false) + "       ");
+                    strSql.AppendLine("      ,'" + strUserId + "'       ");
+                    strSql.AppendLine("      ,GETDATE()       ");
+                    strSql.AppendLine("      )       ");
+                    excute.ExcuteSqlWithStringOper(strSql.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
+
+
+
+
     }
 }

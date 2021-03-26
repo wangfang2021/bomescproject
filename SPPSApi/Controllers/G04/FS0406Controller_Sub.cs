@@ -123,7 +123,7 @@ namespace SPPSApi.Controllers.G04
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0601", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "年限抽取失败";
+                apiResult.data = "生成失败。";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

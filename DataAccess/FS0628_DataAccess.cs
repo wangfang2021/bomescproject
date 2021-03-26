@@ -393,6 +393,7 @@ namespace DataAccess
         {
             try
             {
+                DataTable dtPlant = ComFunction.getTCode("C000");
 
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -425,6 +426,15 @@ namespace DataAccess
                     else
                     { }
                     string vcInjectionFactory = dt.Rows[i]["vcInjectionFactory"] == System.DBNull.Value ? "" : dt.Rows[i]["vcInjectionFactory"].ToString();
+                    for (int j=0;j<dtPlant.Rows.Count;j++)
+                    {
+                        if (dtPlant.Rows[j]["vcName"].ToString()== vcInjectionFactory)
+                        {
+                            vcInjectionFactory = dtPlant.Rows[j]["vcValue"].ToString();
+                            break;
+                        }
+                    }
+
                     string vcDock = dt.Rows[i]["vcDock"] == System.DBNull.Value ? "" : dt.Rows[i]["vcDock"].ToString();
                     string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
                     string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
@@ -444,7 +454,7 @@ namespace DataAccess
                         strSql.AppendLine("  [vcInjectionFactory], [vcDock], [vcSupplier_id], [vcWorkArea], [vcCHCCode], [vcCarType], [vcOrderNum],   ");
                         strSql.AppendLine("  [dExpectReceiveDate], [vcOderTimes], [vcInjectionOrderNo], [vcMemo], [vcOperatorID], [dOperatorTime]) values(   ");
                         strSql.AppendLine("  " + getSqlValue(dOrderHandleDate, true) + "," + getSqlValue(vcOrderNo, true) + ",'" + vcPartNo + "','" + vcInsideOutsideType + "','" + vcNewOldFlag + "'  ");
-                        strSql.AppendLine("   ,'" + vcInjectionFactory + "','" + vcDock + "','" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCHCCode + "','" + vcCarType + "','" + vcOrderNum + "'  ");
+                        strSql.AppendLine("   ," + getSqlValue(vcInjectionFactory, true) +", '" + vcDock + "','" + vcSupplier_id + "','" + vcWorkArea + "','" + vcCHCCode + "','" + vcCarType + "','" + vcOrderNum + "'  ");
                         strSql.AppendLine("   ," + getSqlValue(dExpectReceiveDate, true) + "," + getSqlValue(vcOderTimes, true) + "," + getSqlValue(vcInjectionOrderNo, true) + "," + getSqlValue(vcMemo, true) + " ");
                         strSql.AppendLine("   ,'" + strUserId + "',GETDATE()) ;   ");
                     }
@@ -486,13 +496,15 @@ namespace DataAccess
         {
             try
             {
+                DataTable dtPlant = ComFunction.getTCode("C000");
+
                 StringBuilder sql = new StringBuilder();
 
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     //H	号口
                     //Q 旧型
-                    string vcNewOldFlag = listInfoData[i]["vcNewOldFlag"].ToString();
+                    string vcNewOldFlag = listInfoData[i]["vcNewOldFlag"]==null?null: listInfoData[i]["vcNewOldFlag"].ToString();
                     if (vcNewOldFlag == "号口")
                     {
                         vcNewOldFlag = "H";
@@ -503,6 +515,15 @@ namespace DataAccess
                     }
                     else
                     { }
+                    string vcInjectionFactory = listInfoData[i]["vcInjectionFactory"] == null ? null : listInfoData[i]["vcInjectionFactory"].ToString();
+                    for (int j = 0; j < dtPlant.Rows.Count; j++)
+                    {
+                        if (dtPlant.Rows[j]["vcName"].ToString() == vcInjectionFactory)
+                        {
+                            vcInjectionFactory = dtPlant.Rows[j]["vcValue"].ToString();
+                            break;
+                        }
+                    }
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     sql.AppendLine("   insert into TOutsidePurchaseManage    ");
                     sql.AppendLine("   ([vcPackPlant], [vcInjectionFactory], [vcTargetMonth], [vcSupplier_id], [vcWorkArea],    ");
@@ -510,7 +531,7 @@ namespace DataAccess
                     sql.AppendLine("   [vcOperatorID], [dOperatorTime])    ");
                     sql.AppendLine(" values (   ");
                     sql.AppendLine("  '"+ strUnitCode + "',  ");
-                    sql.AppendLine(getSqlValue(listInfoData[i]["vcInjectionFactory"], false) +" ,    ");
+                    sql.AppendLine(getSqlValue(vcInjectionFactory, false) +" ,    ");
                     sql.AppendLine("   convert(varchar(6), getdate(),112),    ");
                     sql.Append(getSqlValue(listInfoData[i]["vcSupplier_id"], false) + ",  \r\n");
                     sql.Append(getSqlValue(listInfoData[i]["vcWorkArea"], false) + ",  \r\n");

@@ -139,8 +139,7 @@ namespace SPPSApi.Controllers.G06
             {
                 DataTable dt = fs0626_Logic.Search(vcPackPlant, vcInjectionFactory, vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcReceiveFlag);
                 string[] fields = { "vcPackPlant", "vcInjectionFactory", "vcTargetMonth", "vcSupplier_id", "vcWorkArea", "vcDock",
-                                    "vcOrderNo", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason",
-                                    "vcExpectRedeemDate"
+                                    "vcOrderNo", "vcOrderDate", "vcPartNo", "vcNewOldFlag", "vcOrderNumber", "vcNoReceiveNumber", "vcNoReceiveReason", "vcExpectRedeemDate"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0626.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

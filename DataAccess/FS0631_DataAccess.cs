@@ -32,20 +32,30 @@ namespace DataAccess
         #endregion
 
         #region 检索NQC结果
-        public DataTable SearchNQCResult(string strCLYM, string strDXYM, string strPartNo)
+        public DataTable SearchNQCResult(string strCLYM, string strDXYM, string strPartNo,string strPlant)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select iAutoId,Part_No,Part_No+isnull(Part_Suffix,'')+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,'') as Part_No_Disp,     \n");
+                sql.Append("select iAutoId,Part_No,replace(Part_No+isnull(Part_Suffix,'')+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,''),' ','') as Part_No_Disp,     \n");
                 sql.Append("SUBSTRING(Process_YYYYMM,1,4)+'-'+SUBSTRING(Process_YYYYMM,5,2)+'-01' as Process_YYYYMM,    \n");
                 sql.Append("SUBSTRING(Start_date_for_daily_qty,1,4)+'-'+SUBSTRING(Start_date_for_daily_qty,5,2)+'-01' as Start_date_for_daily_qty, Process_Factory,   \n");
-                sql.Append("Daily_Qty_01,Daily_Qty_02,Daily_Qty_03,Daily_Qty_04,Daily_Qty_05,Daily_Qty_06,Daily_Qty_07,Daily_Qty_08,    \n");
-                sql.Append("Daily_Qty_09,Daily_Qty_10,Daily_Qty_11,Daily_Qty_12,Daily_Qty_13,Daily_Qty_14,Daily_Qty_15,Daily_Qty_16,    \n");
-                sql.Append("Daily_Qty_17,Daily_Qty_18,Daily_Qty_19,Daily_Qty_20,Daily_Qty_21,Daily_Qty_22,Daily_Qty_23,Daily_Qty_24,    \n");
-                sql.Append("Daily_Qty_25,Daily_Qty_26,Daily_Qty_27,Daily_Qty_28,Daily_Qty_29,Daily_Qty_30,Daily_Qty_31,    \n");
-                sql.Append("'0' as vcModFlag,'0' as vcAddFlag    \n");
+                sql.Append("cast(Daily_Qty_01 as int) as Daily_Qty_01,cast(Daily_Qty_02 as int) as Daily_Qty_02,cast(Daily_Qty_03 as int) as Daily_Qty_03,    \n");
+                sql.Append("cast(Daily_Qty_04 as int) as Daily_Qty_04,cast(Daily_Qty_05 as int) as Daily_Qty_05,cast(Daily_Qty_06 as int) as Daily_Qty_06,    \n");
+                sql.Append("cast(Daily_Qty_07 as int) as Daily_Qty_07,cast(Daily_Qty_08 as int) as Daily_Qty_08,cast(Daily_Qty_09 as int) as Daily_Qty_09,    \n");
+                sql.Append("cast(Daily_Qty_10 as int) as Daily_Qty_10,cast(Daily_Qty_11 as int) as Daily_Qty_11,cast(Daily_Qty_12 as int) as Daily_Qty_12,    \n");
+                sql.Append("cast(Daily_Qty_13 as int) as Daily_Qty_13,cast(Daily_Qty_14 as int) as Daily_Qty_14,cast(Daily_Qty_15 as int) as Daily_Qty_15,    \n");
+                sql.Append("cast(Daily_Qty_16 as int) as Daily_Qty_16,cast(Daily_Qty_17 as int) as Daily_Qty_17,cast(Daily_Qty_18 as int) as Daily_Qty_18,    \n");
+                sql.Append("cast(Daily_Qty_19 as int) as Daily_Qty_19,cast(Daily_Qty_20 as int) as Daily_Qty_20,cast(Daily_Qty_21 as int) as Daily_Qty_21,    \n");
+                sql.Append("cast(Daily_Qty_22 as int) as Daily_Qty_22,cast(Daily_Qty_23 as int) as Daily_Qty_23,cast(Daily_Qty_24 as int) as Daily_Qty_24,    \n");
+                sql.Append("cast(Daily_Qty_25 as int) as Daily_Qty_25,cast(Daily_Qty_26 as int) as Daily_Qty_26,cast(Daily_Qty_27 as int) as Daily_Qty_27,    \n");
+                sql.Append("cast(Daily_Qty_28 as int) as Daily_Qty_28,cast(Daily_Qty_29 as int) as Daily_Qty_29,cast(Daily_Qty_30 as int) as Daily_Qty_30,    \n");
+                sql.Append("cast(Daily_Qty_31 as int) as Daily_Qty_31,    \n");
+                sql.Append("'0' as vcModFlag,'0' as vcAddFlag,    \n");
+                sql.Append("Process_YYYYMM as vcCLYM,SUBSTRING(Start_date_for_daily_qty,1,6) as vcDXYM    \n");
                 sql.Append("from TNQCReceiveInfo where 1=1    \n");
+                if (strPlant != null && strPlant != "")
+                    sql.Append("and isnull(Process_Factory,'')='"+strPlant+"'    \n");
                 if (strCLYM != null && strCLYM != "")
                     sql.Append("and isnull(Process_YYYYMM,'')='" + strCLYM + "'    \n");
                 if (strDXYM != null && strDXYM != "")

@@ -185,10 +185,11 @@ namespace SPPSApi.Controllers.G04
                     int iCheck = 0;
                     for (int j = 1; j < 32; j++)
                     {
-                        string strIDTemp = importDt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : importDt.Rows[i]["iD" + j].ToString();
-                        string strSRS = importDt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : importDt.Rows[i]["iQuantityPercontainer"].ToString();//箱数*收容数
+                        string strIDTemp = importDt.Rows[i]["iD" + j] == System.DBNull.Value ? "" : importDt.Rows[i]["iD" + j].ToString();//PCS
+                        string strSRS = importDt.Rows[i]["iQuantityPercontainer"] == System.DBNull.Value ? "" : importDt.Rows[i]["iQuantityPercontainer"].ToString();//收容数
                         int iSRS = strSRS.Trim() == "" ? 1 : Convert.ToInt32(strSRS.Trim());//收容数
                         int iD = strIDTemp.Trim() == "" ? 0 : Convert.ToInt32(strIDTemp.Trim()) / iSRS;
+
                         if (strIDTemp.Trim() != "" && Convert.ToInt32(strIDTemp.Trim()) % iSRS != 0)//用户输入的不符合收容数要求
                         {
                             errPart_SRS.Append(strPart_id + ":D" + j + ",");

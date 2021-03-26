@@ -49,7 +49,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" select a.vcPackPlant, a.vcInjectionFactory, a.vcTargetMonth, a.vcSupplier_id, a.vcWorkArea, ");
-                strSql.AppendLine(" a.vcDock, a.vcOrderNo, a.vcPartNo, b.vcName as vcNewOldFlag, ");
+                strSql.AppendLine(" a.vcDock, a.vcOrderNo, substring(a.vcOrderNo,1,8) as vcOrderDate, a.vcPartNo, b.vcName as vcNewOldFlag, ");
                 strSql.AppendLine(" a.vcOrderNumber, a.vcNoReceiveNumber, ");
                 strSql.AppendLine(" a.vcNoReceiveReason, a.vcExpectRedeemDate, 1 as vcFlag, '0' as iflag,'0' as vcModFlag,'0' as vcAddFlag, a.iAutoId  ");
                 strSql.AppendLine(" from TOutsidePurchaseManage a ");
@@ -90,13 +90,13 @@ namespace DataAccess
                 }
                 if (vcReceiveFlag == "1")
                 {
-                    strSql.AppendLine(" and vcNoReceiveNumber=0 ");
+                    strSql.AppendLine(" and isnull(vcNoReceiveNumber,0)=0 ");
                 }
                 else if (vcReceiveFlag == "0")
                 {
                     strSql.AppendLine(" and a.vcNoReceiveNumber<>0 ");
                 }
-                strSql.AppendLine(" order by a.dOperatorTime desc ");
+                strSql.AppendLine(" order by vcOrderDate desc, a.vcOrderNo, a.vcPartNo");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

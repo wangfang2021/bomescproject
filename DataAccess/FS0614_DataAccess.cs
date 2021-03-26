@@ -71,6 +71,8 @@ namespace DataAccess
                 {
                     sbr.AppendLine("AND vcMemo LIKE '%" + memo + "%'");
                 }
+
+                sbr.AppendLine(" ORDER BY a.vcOrderState");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

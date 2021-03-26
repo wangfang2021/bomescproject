@@ -73,7 +73,7 @@ namespace SPPSApi.Controllers.G06
                                                 {"供应商代码","工区","受入","订单号","品番","订单数量"},
                                                 {"vcSupplier_id", "vcWorkArea", "vcDock", "vcOrderNo", "vcPartNo", "vcOrderNumber"},
                                                 {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Num},
-                                                {"4","2","10","12","12","8"},//最大长度设定,不校验最大长度用0
+                                                {"4","2","10","20","12","8"},//最大长度设定,不校验最大长度用0
                                                 {"4","1","1","10","10","1"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())

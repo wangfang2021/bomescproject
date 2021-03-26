@@ -79,7 +79,7 @@ namespace DataAccess
                 strSql.AppendLine("WHERE 1=1");
                 if (strOrderPlant != "")
                 {
-                    strSql.AppendLine("WHERE T5.vcOrderPlant='" + strOrderPlant + "'");
+                    strSql.AppendLine("AND T5.vcOrderPlant='" + strOrderPlant + "'");
                 }
                 strSql.AppendLine("ORDER BY T1.vcPackingPlant,T5.vcOrderPlant,T1.vcReceiver,T1.vcSupplierId,T1.vcPartId");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

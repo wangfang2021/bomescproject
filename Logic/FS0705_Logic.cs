@@ -269,6 +269,32 @@ namespace Logic
         #endregion
 
 
+
+
+        #region 调整数据输入-检索
+        public DataTable search_Sub(string strPackNo, string strPackGPSNo, string strFrom, string strTo, string strType)
+        {
+            return fs0705_DataAccess.search_Sub(strPackNo, strPackGPSNo, strFrom, strTo, strType);
+        }
+        #endregion
+
+        #region 调整数据输入-保存
+        public void Save_Sub(List<Dictionary<string, Object>> listInfoData, string strUserId)
+        {
+            fs0705_DataAccess.save_Sub(listInfoData, strUserId);
+        }
+        #endregion
+
+        #region 调整数据输入-导入后保存
+        public void importSave_Sub(DataTable dt, string strUserId)
+        {
+            fs0705_DataAccess.importSave_Sub(dt, strUserId);
+        }
+        #endregion
+
+
+
+
     }
     public class BcTask
     {

@@ -174,45 +174,45 @@ namespace SPPSApi.Controllers.G08
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     //工区内容校验
-                    DataRow[] drs = dt_gq.Select("vcName='" + importDt.Rows[i]["vcGQ"].ToString() + "' ");
-                    if (drs.Length == 0)
+                    DataRow[] drs = dt_gq.Select("vcValue='" + importDt.Rows[i]["vcGQ"].ToString() + "' ");
+                    if (importDt.Rows[i]["vcGQ"].ToString()!="" && drs.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "第" + (i + 2) + "行工区：" + importDt.Rows[i]["vcGQ"].ToString() + " 在系统中不存在。";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    else
-                        importDt.Rows[i]["vcGQ"] = drs[0]["vcValue"].ToString();
+                    //else
+                    //    importDt.Rows[i]["vcGQ"] = drs[0]["vcValue"].ToString();
                     //收货方内容校验
-                    drs = dt_shf.Select("vcName='" + importDt.Rows[i]["vcSHF"].ToString() + "' ");
+                    drs = dt_shf.Select("vcValue='" + importDt.Rows[i]["vcSHF"].ToString() + "' ");
                     if (drs.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "第" + (i + 2) + "行收货方：" + importDt.Rows[i]["vcSHF"].ToString() + " 在系统中不存在。";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    else
-                        importDt.Rows[i]["vcSHF"] = drs[0]["vcValue"].ToString();
+                    //else
+                    //    importDt.Rows[i]["vcSHF"] = drs[0]["vcValue"].ToString();
                     //供应商内容校验
-                    drs = dt_supplier.Select("vcName='" + importDt.Rows[i]["vcSupplier_id"].ToString() + "' ");
-                    if (drs.Length == 0)
+                    drs = dt_supplier.Select("vcValue='" + importDt.Rows[i]["vcSupplier_id"].ToString() + "' ");
+                    if (importDt.Rows[i]["vcSupplier_id"].ToString()!="" && drs.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "第" + (i + 2) + "行供应商：" + importDt.Rows[i]["vcSupplier_id"].ToString() + " 在系统中不存在。";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    else
-                        importDt.Rows[i]["vcSupplier_id"] = drs[0]["vcValue"].ToString();
+                    //else
+                    //    importDt.Rows[i]["vcSupplier_id"] = drs[0]["vcValue"].ToString();
                     //包装场内容校验
-                    drs = dt_bzplant.Select("vcName='" + importDt.Rows[i]["vcBZPlant"].ToString() + "' ");
-                    if (drs.Length == 0)
+                    drs = dt_bzplant.Select("vcValue='" + importDt.Rows[i]["vcBZPlant"].ToString() + "' ");
+                    if (importDt.Rows[i]["vcBZPlant"].ToString()!="" && drs.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "第" + (i + 2) + "行包装场：" + importDt.Rows[i]["vcBZPlant"].ToString() + " 在系统中不存在。";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    else
-                        importDt.Rows[i]["vcBZPlant"] = drs[0]["vcValue"].ToString();
+                    //else
+                    //    importDt.Rows[i]["vcBZPlant"] = drs[0]["vcValue"].ToString();
                     //判断时间区间先后关系
                     string strValue_start = importDt.Rows[i]["dTimeFrom"].ToString();
                     string strValue_end = importDt.Rows[i]["dTimeTo"].ToString();

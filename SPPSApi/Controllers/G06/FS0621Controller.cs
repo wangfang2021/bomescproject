@@ -171,16 +171,16 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
+            string vcConsignee = dataForm.vcConsignee == null ? "" : dataForm.vcConsignee;//收货方
+            string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;//内示年月
             string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
-            string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
-            string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
-            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
+            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;//车型编号
+            string vcInsideOutsideType = dataForm.vcInsideOutsideType == null ? "" : dataForm.vcInsideOutsideType;//内外
+            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;//供应商代码
+            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;//工区
             try
             {
-                DataTable dt = fs0621_Logic.Search(vcTargetYear, vcPartNo, vcInjectionFactory, vcInsideOutsideType, vcSupplier_id, vcWorkArea, vcCarType);
+                DataTable dt = fs0621_Logic.Search(vcConsignee, vcTargetMonth, vcPartNo, vcCarType, vcInsideOutsideType, vcSupplier_id, vcWorkArea);
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcPartNo], [dBeginDate], [dEndDate]

@@ -30,7 +30,7 @@ namespace DataAccess
                 sbr.AppendLine("(");
                 sbr.AppendLine("SELECT vcName,vcValue FROM TCode WHERE vcCodeId = 'C065'");
                 sbr.AppendLine(") c ON a.vcType = c.vcValue");
-                sbr.AppendLine("WHERE 1=1");
+                sbr.AppendLine("WHERE 1=1 AND a.vcState <> '0'");
                 if (!string.IsNullOrWhiteSpace(vcReceiver))
                 {
                     sbr.AppendLine("AND a.vcReceiver = '" + vcReceiver + "' ");
@@ -39,10 +39,7 @@ namespace DataAccess
                 {
                     sbr.AppendLine("AND a.vcType = '" + vcType + "' ");
                 }
-                if (!string.IsNullOrWhiteSpace(vcState))
-                {
-                    sbr.AppendLine("AND a.vcState = '" + vcState + "' ");
-                }
+
                 if (vcType == "0")
                 {
                     if (!string.IsNullOrWhiteSpace(start))
@@ -265,7 +262,8 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT  vcDiff, vcSellNo, vcSellShop, vcPart_id, vcPartName, dOutTime, iQuantity, decPrice, vcDepartment,vcOutType  FROM TIF_Out");
+                //sbr.AppendLine("SELECT  vcDiff, vcSellNo, vcSellShop, vcPart_id, vcPartName, dOutTime, iQuantity, decPrice, vcDepartment,vcOutType  FROM TIF_Out");
+                sbr.AppendLine("SELECT  vcDiff, vcSellNo, vcSellShop, CASE WHEN SUBSTRING(a.vcPart_id,11,2) = '00' THEN SUBSTRING(a.vcPart_id,1,5)+'-'+SUBSTRING(a.vcPart_id,6,5) ELSE SUBSTRING(a.vcPart_id,1,5)+'-'+SUBSTRING(a.vcPart_id,6,5)+'-'+SUBSTRING(a.vcPart_id,11,2) END  AS vcPart_id, vcPartName, CONVERT(VARCHAR(8),a.dOutTime,112) AS dOutTime, iQuantity, decPrice, vcDepartment,vcOutType  FROM TIF_Out a");
                 sbr.AppendLine("WHERE vcRelation = '" + relation + "'");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }

@@ -81,7 +81,7 @@ namespace SPPSApi.Controllers.G04
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string vcReceiver ="APC06";
+            string vcReceiver = "APC06";
             string vcType = "1";
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string start = dataForm.start == null ? "" : dataForm.start;
@@ -251,7 +251,7 @@ namespace SPPSApi.Controllers.G04
 
 
                 string strMsg = "";
-                fs0408_Logic.commitMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName);
+                fs0408_Logic.commitMail(listInfoData, loginInfo.UserId, loginInfo.UserName, ref strMsg, loginInfo.Email, loginInfo.UnitName, loginInfo.UnitCode);
 
                 if (!string.IsNullOrWhiteSpace(strMsg))
                 {

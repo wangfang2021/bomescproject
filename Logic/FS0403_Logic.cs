@@ -43,17 +43,17 @@ namespace Logic
                 Hashtable DayOUT = fs0403_dataAccess.getDay(CalendarOUT, time, count);
 
                 //品番的数量
-                Hashtable quantityIN = fs0403_dataAccess.getCount(DayIN);
-                Hashtable quantityOUT = fs0403_dataAccess.getCount(DayOUT);
+                Hashtable quantityIN = fs0403_dataAccess.getCount(DayIN, "0");
+                Hashtable quantityOUT = fs0403_dataAccess.getCount(DayOUT, "1");
 
                 Hashtable quantity = new Hashtable();
                 foreach (string key in quantityIN.Keys)
                 {
-                    quantity.Add(key, quantityIN[key].ToString());
+                    quantity.Add(key, quantityIN[key]);
                 }
                 foreach (string key in quantityOUT.Keys)
                 {
-                    quantity.Add(key, quantityOUT[key].ToString());
+                    quantity.Add(key, quantityOUT[key]);
                 }
 
                 //获取波动率

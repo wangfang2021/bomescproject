@@ -266,7 +266,7 @@ namespace DataAccess
                 //str += "	      and  iSRNum is  not null	\r\n";  //测试用
                 if (partsno != "")
                 {
-                    str += " and A.vcPartsNo='" + partsno + "' ";
+                    str += " and A.vcPartsNo like '" + partsno + "'%";
                 }
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
@@ -289,7 +289,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "	 AND t1.vcPartsNo ='" + partsno + "'									";
+                str += "	 AND t1.vcPartsNo  like '" + partsno + "%'									";
             }
             str += "order by vcMonth";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
@@ -431,7 +431,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "and t1.vcPartsNo='" + partsno + "' ";
+                str += "and t1.vcPartsNo like '" + partsno + "'% ";
             }
             str += " order by vcPartsNo ";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
@@ -452,7 +452,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "	 and t1.vcPartsNo='" + partsno + "'									\r\n";
+                str += "	 and t1.vcPartsNo like '" + partsno + "%'									\r\n";
             }
             str += "	 order by vcPartsNo ";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());

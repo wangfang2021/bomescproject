@@ -501,6 +501,18 @@ namespace SPPSApi.Controllers.G12
                     {
                         msg = "发注成功！";
                         exlName = exlName + ".xls";
+
+                        string filepath = logic.ExportFromTemplate(dtHeader, dtDetail, null, _webHostEnvironment.ContentRootPath, "FS1207_SSP_Export.xlsx", loginInfo.UserId, "", true);
+                        if (filepath == "")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导出生成文件失败";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        apiResult.code = ComConstant.SUCCESS_CODE;
+                        apiResult.data = filepath;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
                         //QMExcel oQMExcel = new QMExcel();
                         //string tmplatePath = System.Web.HttpContext.Current.Server.MapPath("~/Templates/FS1207_SSP.xlt");//模板路径
                         //string path = System.Web.HttpContext.Current.Server.MapPath("~/Temps/" + exlName);//文件路径

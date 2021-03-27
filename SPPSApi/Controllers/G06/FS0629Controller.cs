@@ -335,7 +335,7 @@ namespace SPPSApi.Controllers.G06
                 font.FontHeightInPoints = 18;
                 //font.FontName = "宋体";
                 style1.SetFont(font);
-                style1.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
+                style1.Alignment = HorizontalAlignment.Left;//两端自动对齐（自动换行）
                 style1.VerticalAlignment = VerticalAlignment.Center;
 
 
@@ -345,7 +345,7 @@ namespace SPPSApi.Controllers.G06
                 font2.FontHeightInPoints = 12;
                 //font.FontName = "宋体";
                 style2.SetFont(font2);
-                style2.Alignment = HorizontalAlignment.Center;
+                style2.Alignment = HorizontalAlignment.Right;
                 style2.VerticalAlignment = VerticalAlignment.Center;
 
 
@@ -457,8 +457,8 @@ namespace SPPSApi.Controllers.G06
 
                 #region  设置标题
                 ISheet sheetOrder = hssfworkbook.GetSheet("data");
-                sheetOrder.GetRow(0).GetCell(1).SetCellValue("【"+vcTargetMonth.Replace("/","").Substring(0,4)+"年"+ vcTargetMonth.Replace("/", "").Substring(4, 2) + "月】补给品纳入 & 出荷总结");//标题名称
-                sheetOrder.GetRow(0).GetCell(1).CellStyle = style1;
+                sheetOrder.GetRow(0).GetCell(0).SetCellValue("【"+vcTargetMonth.Replace("/","").Substring(0,4)+"年"+ vcTargetMonth.Replace("/", "").Substring(4, 2) + "月】补给品纳入 & 出荷总结");//标题名称
+                sheetOrder.GetRow(0).GetCell(0).CellStyle = style1;
 
                 string strDate = DateTime.Now.ToString("yyyy年MM月dd日");
                 sheetOrder.GetRow(0).GetCell(15).SetCellValue(strDate);//标题名称
@@ -786,6 +786,8 @@ namespace SPPSApi.Controllers.G06
                                 //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
                                 sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
                                 //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 9, 11));
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 13, 15));
                                 nextRowNum++;
                             }
                         }
@@ -809,6 +811,8 @@ namespace SPPSApi.Controllers.G06
                                 //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
                                 sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
                                 //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 9, 11));
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 13, 15));
                                 nextRowNum++;
                             }
                         }
@@ -825,6 +829,8 @@ namespace SPPSApi.Controllers.G06
                                 //sheetOrder.GetRow(nextRowNum).GetCell(6).CellStyle = style11;
                                 sheetOrder.GetRow(nextRowNum).GetCell(7).SetCellValue(Convert.ToDouble(dr["qianPinSum"].ToString()));
                                 //sheetOrder.GetRow(nextRowNum).GetCell(7).CellStyle = style11;
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 9, 11));
+                                sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 13, 15));
                                 nextRowNum++;
                             }
                         }

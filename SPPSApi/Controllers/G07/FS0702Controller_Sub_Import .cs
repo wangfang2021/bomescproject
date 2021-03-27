@@ -67,11 +67,11 @@ namespace SPPSApi.Controllers.G07
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"变更事项","包装场","收货方","品番","车型", "开始时间(部品)", "结束时间(部品)","包装材品番","GPS品番","开始时间","结束时间","包装材区分","必要在库天数"},
-                                                {"varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
-                                                {"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Num},
-                                                {"50","50","50","50","0","0","0","0","0","0","0","0","0"},
-                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0"}
+                string[,] headers = new string[,] {{"导入状态","对应标识", "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数"},
+                                                {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
+                                                {"",FieldCheck.Num,"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Num},
+                                                {"50","0","50","50","50","50","0","0","0","0","0","0","0","0","0"},
+                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -95,28 +95,15 @@ namespace SPPSApi.Controllers.G07
                     }
                     foreach (DataRow row in dt.Rows)
                     {
-                        importDt.ImportRow(row);
+
+                        if (row[0] != "")
+                        {
+                            importDt.ImportRow(row);
+
+                        }
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
-
-
-                var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPartsNo"), r3 = r.Field<string>("vcPackNo"), r4 = r.Field<string>("vcPackGPSNo") } into g
-                             where g.Count() > 1
-                             select g;
-                if (result.Count() > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
-                    {
-                        sbr.Append("品番:" + item.Key.r2 + " 包材品番:" + item.Key.r3 + " GPS品番:" + item.Key.r4 + "<br/>");
-                    }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
 
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
@@ -124,15 +111,54 @@ namespace SPPSApi.Controllers.G07
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 1) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "有误！";
+                        apiResult.data = "第" + (i + 1) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "不存在！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (importDt.Rows[i]["vcIsorNo"].ToString() == "修改")
+                    {
+                        string strAutoId = importDt.Rows[i]["iAutoId"].ToString() == "" ? "0" : importDt.Rows[i]["iAutoId"].ToString();
+                        int iAutoId = Convert.ToInt32(strAutoId);
+                        DataTable dtcheckTime = FS0702_Logic.searchcheckTime(importDt.Rows[i]["vcPackSpot"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString(),
+                            importDt.Rows[i]["vcPackNo"].ToString(), importDt.Rows[i]["dFrom"].ToString(),
+                            importDt.Rows[i]["dTo"].ToString(), iAutoId, importDt.Rows[i]["vcShouhuofangID"].ToString());
+                        if (dtcheckTime.Rows.Count > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "品番有维护重复有效时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        string sql = "vcPartsNo ='" + importDt.Rows[i]["vcPartsNo"].ToString() + "'  and iAutoId<>'" + iAutoId + "' ";
+                        if (!string.IsNullOrEmpty(importDt.Rows[i]["vcPackSpot"].ToString()))
+                        {
+                            sql = sql + "and vcPackSpot='" + importDt.Rows[i]["vcPackSpot"].ToString() + "'";
+                        }
+                        if (!string.IsNullOrEmpty(importDt.Rows[i]["vcPackSpot"].ToString()))
+                        {
+                            sql = sql + "and vcPackNo='" + importDt.Rows[i]["vcPackNo"].ToString() + "'";
+                        }
+                        if (!string.IsNullOrEmpty(importDt.Rows[i]["vcShouhuofangID"].ToString()))
+                        {
+                            sql = sql + "and vcShouhuofangID='" + importDt.Rows[i]["vcShouhuofangID"].ToString() + "'";
+                        }
+                        sql = sql + "and dFrom<='" + importDt.Rows[i]["dTo"].ToString() + "' and dTo>='"+ importDt.Rows[i]["dFrom"].ToString() + "'";
+                        DataRow[] dr = importDt.Select(sql);
+                        if (dr.Length >= 1)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导入文件品番有维护重复有效时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+
+
+
 
                 }
                 List<Object> strSupplierCode = new List<object>();
                 FS0701_Logic FS0701_Logic = new FS0701_Logic();
-                DataTable dtPackBase = FS0701_Logic.Search(new List<object>(), "","", strSupplierCode, "","","", "");
-                DataTable dtPackitem = FS0702_Logic.Search(new List<object>(), new List<object>(), "", "", "", "", "", "", "", "", "");
+                DataTable dtPackBase = FS0701_Logic.Search(new List<object>(), "", "", strSupplierCode, "", "", "", "");
+                DataTable dtPackitem = FS0702_Logic.Search(new List<object>(), new List<object>(), new List<object>(), "", "", "", "", "", "", "", "");
 
                 FS0702_Logic.importSave(importDt, loginInfo.UserId, dtPackBase, dtPackitem);
                 apiResult.code = ComConstant.SUCCESS_CODE;

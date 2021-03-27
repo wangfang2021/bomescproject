@@ -97,7 +97,7 @@ namespace SPPSApi.Controllers.G12
                     {
                         #region 
                         DataRow dr = dttmp.NewRow();
-                        dr["vcMonth"] = tb.Rows[i]["Process_YYYYMM"].ToString().Substring(0, 4) + '-' + tb.Rows[i]["Process_YYYYMM"].ToString().Substring(4, 2);
+                        dr["vcMonth"] = tb.Rows[i]["Start_date_for_daily_qty"].ToString().Substring(0, 4) + '-' + tb.Rows[i]["Start_date_for_daily_qty"].ToString().Substring(4, 2);
                         dr["vcPartsNo"] = tb.Rows[i]["Part_No"].ToString() + tb.Rows[i]["Part_Suffix"].ToString();
                         dr["vcSource"] = tb.Rows[i]["Source_Code"].ToString();
                         dr["vcDock"] = tb.Rows[i]["Parts_Master_Matching_Key"].ToString();

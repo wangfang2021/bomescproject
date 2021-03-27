@@ -8,6 +8,9 @@ using System.Net.Http.Headers;
 using System.Web;
 using DataAccess;
 using System.Collections;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
 
 namespace Logic
 {
@@ -378,6 +381,13 @@ namespace Logic
             return msg;
         }
 
+        public string updSSP(DataTable dt, string strUser)
+        {
+            return dataAccess.updSSP(dt, strUser);
+        }
+
+
+
         /// <summary>
         /// 导入文件
         /// </summary>
@@ -612,6 +622,9 @@ namespace Logic
             return msg;
         }
 
+
+
+
         /// <summary>
         /// 发注计算-导出
         /// </summary>
@@ -828,17 +841,147 @@ namespace Logic
         {
             return dataAccess.UpdateFZJSEdit(dt, user);
         }
-        public string checkExcel(string filepath, ref DataTable dtre, DataTable dtTmplate)
+
+        #region 导出带模板
+        public string ExportFromTemplate(DataTable dtHeader, DataTable dt, string rootPath, string xltName, string strUserId, string strFunctionName, bool isAlignCenter)
         {
-            string msg = "";
-            //QMCommon.OfficeCommon.QMExcel oQMExcel = new QMCommon.OfficeCommon.QMExcel();
-            //DataTable dt = oQMExcel.GetExcelContentByOleDb(filepath);//导入文件
-            //msg = checkExcelHeadpos(dt, dtTmplate);//校验模板
-            //if (msg.Length > 0) return msg;
-            //msg = checkExcelData(dt);//校验数据
-            //dtre = dt;
-            return msg;
+            try
+            {
+                string[] field = { "TASSCODE", "B", "C", "OrderDate", "E", "F", "OrderNo", "H", "I", "TYPE", "ItemNo", "L", "PartNo", "N", "O", "P", "OrderQty", "PToPCust" };
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                IDataFormat dataformat = hssfworkbook.CreateDataFormat();
+                ISheet sheet = hssfworkbook.GetSheetAt(0);
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.Alignment = HorizontalAlignment.Center;
+
+                #region 表头
+                sheet.GetRow(0).GetCell(11).SetCellValue(dtHeader.Rows[0]["vcDate"].ToString());//日期L1
+                sheet.GetRow(4).GetCell(1).SetCellValue(dtHeader.Rows[0]["vcSalerName"].ToString());//高新B5
+                sheet.GetRow(5).GetCell(1).SetCellValue(dtHeader.Rows[0]["vcSalerPhone"].ToString());//高新电话B6
+                sheet.GetRow(6).GetCell(2).SetCellValue(dtHeader.Rows[0]["vcSalerEMail"].ToString());//高新邮箱C7
+                sheet.GetRow(5).GetCell(8).SetCellValue(dtHeader.Rows[0]["vcChuanZhenSale"].ToString());
+                sheet.GetRow(10).GetCell(4).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(0, 1)));//订单编号（不带TM2）E11
+                sheet.GetRow(10).GetCell(5).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(1, 1)));//订单编号（不带TM2）F11
+                sheet.GetRow(10).GetCell(6).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(2, 1)));//订单编号（不带TM2）G11
+                sheet.GetRow(10).GetCell(7).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(3, 1)));//订单编号（不带TM2）H11
+                sheet.GetRow(10).GetCell(8).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderNo"].ToString().Substring(4, 1)));//订单编号（不带TM2）I11
+                sheet.GetRow(12).GetCell(4).SetCellValue(int.Parse(dtHeader.Rows[0]["vcItemTotal"].ToString()));//项目总数E13
+                sheet.GetRow(13).GetCell(4).SetCellValue(int.Parse(dtHeader.Rows[0]["vcOrderQtyTotal"].ToString()));//订货总件数E14
+                sheet.GetRow(5).GetCell(11).SetCellValue(dtHeader.Rows[0]["vcUserName"].ToString());//刘家成L6
+                sheet.GetRow(7).GetCell(11).SetCellValue(dtHeader.Rows[0]["vcUserPhone"].ToString());//刘家成电话L8
+                sheet.GetRow(8).GetCell(11).SetCellValue(dtHeader.Rows[0]["vcUserEMail"].ToString());//刘家成邮箱L9
+                sheet.GetRow(7).GetCell(15).SetCellValue(dtHeader.Rows[0]["vcChuanZhen"].ToString());//传真
+                switch (dtHeader.Rows[0]["vcOrderType"].ToString())
+                {
+                    case "S/O": sheet.GetRow(10).GetCell(11).SetCellValue("√"); break;//订单类别S:L11
+                    case "E/O": sheet.GetRow(10).GetCell(13).SetCellValue("√"); break;//订单类别E:N11
+                    case "F/O": sheet.GetRow(10).GetCell(15).SetCellValue("√"); break;//订单类别F:P11
+                }
+                #endregion
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sheet.GetRow(i + 18).GetCell(0).SetCellValue(dt.Rows[i]["TASSCODE"].ToString());
+                    sheet.GetRow(i + 18).GetCell(3).SetCellValue(int.Parse(dt.Rows[i]["OrderDate"].ToString()));
+                    sheet.GetRow(i + 18).GetCell(6).SetCellValue(dt.Rows[i]["OrderNo"].ToString());
+                    sheet.GetRow(i + 18).GetCell(9).SetCellValue(dt.Rows[i]["TYPE"].ToString());
+                    sheet.GetRow(i + 18).GetCell(10).SetCellValue(dt.Rows[i]["ItemNo"].ToString());
+                    sheet.GetRow(i + 18).GetCell(12).SetCellValue(dt.Rows[i]["PartNo"].ToString());
+                    sheet.GetRow(i + 18).GetCell(16).SetCellValue(int.Parse(dt.Rows[i]["OrderQty"].ToString()));
+                    sheet.GetRow(i + 18).GetCell(17).SetCellValue(dt.Rows[i]["PToPCust"].ToString());
+                }
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "";
+            }
         }
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
+        {
+            try
+            {
+                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
+
+                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
+                using (FileStream fs = File.OpenRead(XltPath))
+                {
+                    hssfworkbook = new XSSFWorkbook(fs);
+                    fs.Close();
+                }
+
+                ISheet sheet = hssfworkbook.GetSheetAt(sheetindex);
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    IRow row = sheet.CreateRow(startRow + i);
+                    for (int j = 0; j < field.Length; j++)
+                    {
+                        Type type = dt.Columns[field[j]].DataType;
+                        ICell cell = row.CreateCell(j);
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                    }
+                }
+                ISheet sheet1 = hssfworkbook.GetSheetAt(0);//刷新第一个sheet页的公式
+                sheet1.ForceFormulaRecalculation = true;
+                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
+                string path = fileSavePath + strFileName;
+                using (FileStream fs = File.OpenWrite(path))
+                {
+                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
+                    fs.Close();
+                }
+                return strFileName;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "";
+            }
+        }
+        #endregion
+
+
+
         public string checkExcelHeadpos(DataTable dt, DataTable dtTmplate)
         {
             string msg = "";

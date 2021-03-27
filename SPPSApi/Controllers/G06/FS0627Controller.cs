@@ -209,8 +209,15 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtNum = ds.Tables[0];
                 DataTable dtMonty = ds.Tables[1];
 
+
+                if (dtNum.Rows.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "生成报表的数据为空，无法导出的报表！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 #region 导出报表
-               
+
 
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();//用于创建xlsx
                 ISheet mysheetHSSF = hssfworkbook.CreateSheet("销售数据");//创建sheet名称 
@@ -296,24 +303,17 @@ namespace SPPSApi.Controllers.G06
                 ICellStyle style4 = hssfworkbook.CreateCellStyle();//9号字体不加粗 深蓝蓝
                 ICellStyle style5 = hssfworkbook.CreateCellStyle();//9号字体不加粗 紫色
                 ICellStyle style6 = hssfworkbook.CreateCellStyle();//9号字体不加粗 LIGHT_TURQUOISE
+                ICellStyle style7 = hssfworkbook.CreateCellStyle();//9号字体不加粗 LIGHT_TURQUOISE
                 IFont font = hssfworkbook.CreateFont();
                 font.Color = IndexedColors.Black.Index;
                 font.IsBold = true; ;
-                font.FontHeightInPoints = 15;
+                font.FontHeightInPoints = 9;
                 //font.FontName = "宋体";
                 style1.SetFont(font);
                 style1.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
                 style1.VerticalAlignment = VerticalAlignment.Center;
-                style1.BorderLeft = BorderStyle.Thin;
-                style1.BorderRight = BorderStyle.Thin;
-                style1.BorderTop = BorderStyle.Thin;
-
-                IFont font2 = hssfworkbook.CreateFont();
-                font2.Color = IndexedColors.Black.Index;
-                font2.IsBold = true; ;
-                font2.FontHeightInPoints = 9;
-                //font.FontName = "宋体";
-                style2.SetFont(font2);
+               
+                style2.SetFont(font);
                 style2.Alignment = HorizontalAlignment.Center;
                 style2.VerticalAlignment = VerticalAlignment.Center;
                 style2.BorderLeft = BorderStyle.Thin;
@@ -332,11 +332,15 @@ namespace SPPSApi.Controllers.G06
                 style3.BorderRight = BorderStyle.Thin;
                 style3.BorderTop = BorderStyle.Thin;
 
+                style7.SetFont(font3);
+                style7.Alignment = HorizontalAlignment.Center;
+                style7.VerticalAlignment = VerticalAlignment.Center;
+                style7.BorderTop = BorderStyle.Thin;
+
                 IFont font4 = hssfworkbook.CreateFont();
                 font4.Color = IndexedColors.Black.Index;
                 font4.IsBold = false; ;
                 font4.FontHeightInPoints = 9;
-                //font.FontName = "宋体";
                 style4.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Turquoise.Index;
                 style4.FillPattern = FillPattern.SolidForeground;
                 style4.SetFont(font4);
@@ -350,7 +354,6 @@ namespace SPPSApi.Controllers.G06
                 font5.Color = IndexedColors.Black.Index;
                 font5.IsBold = false; ;
                 font5.FontHeightInPoints = 9;
-                //font.FontName = "宋体";
                 style5.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.Lavender.Index;
                 style5.FillPattern = FillPattern.SolidForeground;
                 style5.SetFont(font5);
@@ -364,8 +367,7 @@ namespace SPPSApi.Controllers.G06
                 IFont font6 = hssfworkbook.CreateFont();
                 font6.Color = IndexedColors.Black.Index;
                 font6.IsBold = false; ;
-                font5.FontHeightInPoints = 9;
-                //font6.FontName = "宋体";
+                font6.FontHeightInPoints = 9;
                 style6.FillForegroundColor = NPOI.HSSF.Util.HSSFColor.LightTurquoise.Index;
                 style6.FillPattern = FillPattern.SolidForeground;
                 style6.SetFont(font6);
@@ -374,9 +376,10 @@ namespace SPPSApi.Controllers.G06
                 style6.BorderLeft = BorderStyle.Thin;
                 style6.BorderRight = BorderStyle.Thin;
                 style6.BorderTop = BorderStyle.Thin;
+
                 #region 设置列的宽度
-                mysheetHSSF.SetColumnWidth(0, 17 * 256); //设置第1列的列宽为17个字符
-                mysheetHSSF.SetColumnWidth(1, 5 * 256); //设置第2列的列宽为31个字符
+                mysheetHSSF.SetColumnWidth(0, 23 * 256); //设置第1列的列宽为17个字符
+                mysheetHSSF.SetColumnWidth(1, 13 * 256); //设置第2列的列宽为31个字符
                 mysheetHSSF.SetColumnWidth(2, 10 * 256); //设置第3列的列宽为10个字符
                 mysheetHSSF.SetColumnWidth(3, 10 * 256); //设置第4列的列宽为10个字符
                 mysheetHSSF.SetColumnWidth(4, 10 * 256); //设置第5列的列宽为10个字符
@@ -388,14 +391,15 @@ namespace SPPSApi.Controllers.G06
                 mysheetHSSF.SetColumnWidth(10, 10 * 256); //设置第11列的列宽为10个字符
                 mysheetHSSF.SetColumnWidth(11, 10 * 256); //设置第12列的列宽为10个字符
                 mysheetHSSF.SetColumnWidth(12, 10 * 256); //设置第13列的列宽为10个字符
-                mysheetHSSF.SetColumnWidth(13, 17 * 256); //设置第14列的列宽为17个字符
+                mysheetHSSF.SetColumnWidth(13, 10 * 256); //设置第14列的列宽为17个字符
+                mysheetHSSF.SetColumnWidth(14, 17 * 256); //设置第14列的列宽为17个字符
                 #endregion
 
                 #region //设置第一行
 
                 IRow FirstrowHSSF = mysheetHSSF.CreateRow(0);//创建row 行 从0开始
 
-                FirstrowHSSF.Height = 50 * 20; //设置高度为50个点
+                FirstrowHSSF.Height = 18 * 20; //设置高度为50个点
                 FirstrowHSSF.CreateCell(0).SetCellValue("销售数据用");
                 FirstrowHSSF.GetCell(0).CellStyle = style1;//将CellStyle应用于具体单元格 
                 #endregion
@@ -403,6 +407,7 @@ namespace SPPSApi.Controllers.G06
                 //设置第二行 统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
                 mysheetHSSF.AddMergedRegion(new CellRangeAddress(1, 1, 0, 1)); //合并单元格第二行从第1列到第2列
                 IRow SecondRowHSSF = mysheetHSSF.CreateRow(1); //添加第二行
+                SecondRowHSSF.Height = 18 * 20;
                 SecondRowHSSF.CreateCell(0).SetCellValue("统计项目");
                 SecondRowHSSF.GetCell(0).CellStyle = style3;//将CellStyle应用于具体单元格 
                 SecondRowHSSF.CreateCell(1).SetCellValue("");
@@ -451,6 +456,7 @@ namespace SPPSApi.Controllers.G06
                 #region //设置第三行 
                 //设置第二行 统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
                 IRow ThreeRowHSSF = mysheetHSSF.CreateRow(2); //添加第二行
+                ThreeRowHSSF.Height = 18 * 20;
                 ThreeRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
                 ThreeRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
 
@@ -468,6 +474,7 @@ namespace SPPSApi.Controllers.G06
                 #region //设置第四行 
                 //设置第四行  统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
                 IRow FourRowHSSF = mysheetHSSF.CreateRow(3); //添加第二行
+                FourRowHSSF.Height = 18 * 20;
                 FourRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
                 FourRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
 
@@ -485,14 +492,19 @@ namespace SPPSApi.Controllers.G06
 
                 #region 设置第五行
                 IRow FiveRowHSSF = mysheetHSSF.CreateRow(4);
+                FiveRowHSSF.Height = 18 * 20;
                 #endregion
                 #region 设置第六行
                 IRow SixRowHSSF = mysheetHSSF.CreateRow(5);
+                SixRowHSSF.Height = 18 * 20;
                 SixRowHSSF.CreateCell(0).SetCellValue("需求统计用");
+                SixRowHSSF.GetCell(0).CellStyle = style1;
                 #endregion
                 #region 设置第七行
                 IRow SevenRowHSSF = mysheetHSSF.CreateRow(6);
+                SevenRowHSSF.Height = 18 * 20;
                 SevenRowHSSF.CreateCell(0).SetCellValue("销售数量（件)");
+                SevenRowHSSF.GetCell(0).CellStyle = style1;
                 #endregion
                 #region 设置第八行 存在列的合并单元格
                 int heBingStartRow = 7;
@@ -515,6 +527,7 @@ namespace SPPSApi.Controllers.G06
                             {
                                 #region 追加列头
                                 IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                                EightRowHSSF.Height = 18 * 20;
                                 EightRowHSSF.CreateCell(0).SetCellValue(strPlantName);
                                 EightRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
                                 EightRowHSSF.CreateCell(1).SetCellValue("工程");
@@ -564,11 +577,17 @@ namespace SPPSApi.Controllers.G06
                             for ( ; j < i; j++)//行
                             {
                                 IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                if (heBingStartRow==nextRow)
+                                NextRowHSSF.Height = 18 * 20;
+                                if (heBingStartRow == nextRow)
                                 {
                                     NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
                                     NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
                                 }
+                                else
+                                {
+                                    NextRowHSSF.CreateCell(0).CellStyle = style6;
+                                }
+                                //NextRowHSSF.GetCell(0).CellStyle = style6;
                                 int colNum = 1;//用于计数
                                 for (var k = 1; k < dtNum.Columns.Count; k++)
                                 {
@@ -609,15 +628,16 @@ namespace SPPSApi.Controllers.G06
                     //创建销售数据最后一行
                     #region
                     IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
-                    NineRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
+                    NineRowHSSF.Height = 18 * 20;
+                    NineRowHSSF.CreateCell(0).SetCellValue("");
+                    NineRowHSSF.GetCell(0).CellStyle = style7;//将CellStyle应用于具体单元格 
 
-                    NineRowHSSF.CreateCell(1).SetCellValue("");
-                    NineRowHSSF.CreateCell(1).CellStyle = style2;
+                    NineRowHSSF.CreateCell(1).SetCellValue("合计");
+                    NineRowHSSF.CreateCell(1).CellStyle = style7;
                     for (var i = 3; i < dtNum.Columns.Count; i++)
                     {
                         NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
-                        NineRowHSSF.GetCell(i - 1).CellStyle = style2;
+                        NineRowHSSF.GetCell(i - 1).CellStyle = style7;
                     }
                     nextRow ++;
                     #endregion
@@ -626,6 +646,7 @@ namespace SPPSApi.Controllers.G06
                 {
                     #region  不存在数据 就只创建列头 
                     IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                    EightRowHSSF.Height = 18 * 20;
                     EightRowHSSF.CreateCell(0).SetCellValue("");
                     EightRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
 
@@ -673,8 +694,10 @@ namespace SPPSApi.Controllers.G06
                     nextRow++;
                     //下一行
                     IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
-                    NineRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
+                    NineRowHSSF.Height = 18 * 20;
+                    //NineRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
+                    //NineRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
+                    NineRowHSSF.CreateCell(1).SetCellValue("合计");
                     #endregion
                     nextRow ++;
                 }
@@ -682,8 +705,9 @@ namespace SPPSApi.Controllers.G06
                 // 写 销售额(万元）
                 #region 设置第十行
                 IRow MoneySellNameRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                MoneySellNameRowHSSF.Height = 18 * 20;
                 MoneySellNameRowHSSF.CreateCell(0).SetCellValue("销售额(万元）");
-                //MoneySellNameRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
+                MoneySellNameRowHSSF.GetCell(0).CellStyle = style1;//将CellStyle应用于具体单元格 
                 nextRow++;
                 #endregion
                 #region 销售万元明细
@@ -707,6 +731,7 @@ namespace SPPSApi.Controllers.G06
                             {
                                 #region 追加列头
                                 IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                                NextRowHSSF.Height = 18 * 20;
                                 NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
                                 NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
                                 NextRowHSSF.CreateCell(1).SetCellValue("工程");
@@ -757,10 +782,15 @@ namespace SPPSApi.Controllers.G06
                             for (; j < i; j++)//行
                             {
                                 IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                                NextRowHSSF.Height = 18 * 20;
                                 if (heBingStartRow == nextRow)
                                 {
                                     NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
                                     NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
+                                }
+                                else
+                                {
+                                    NextRowHSSF.CreateCell(0).CellStyle = style6;
                                 }
                                 int colNum = 1;//用于计数
                                 for (var k = 1; k < dtMonty.Columns.Count; k++)
@@ -802,15 +832,16 @@ namespace SPPSApi.Controllers.G06
                     //创建销售数据最后一行
                     #region
                     IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
-                    NineRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
+                    NineRowHSSF.Height = 18 * 20;
+                    NineRowHSSF.CreateCell(0).SetCellValue("");
+                    NineRowHSSF.GetCell(0).CellStyle = style7;//将CellStyle应用于具体单元格 
 
-                    NineRowHSSF.CreateCell(1).SetCellValue("");
-                    NineRowHSSF.CreateCell(1).CellStyle = style2;
+                    NineRowHSSF.CreateCell(1).SetCellValue("合计");
+                    NineRowHSSF.CreateCell(1).CellStyle = style7;
                     for (var i = 3; i < dtMonty.Columns.Count; i++)
                     {
                         NineRowHSSF.CreateCell(i - 1).SetCellValue(dtMonty.Rows[dtMonty.Rows.Count - 1][i].ToString());
-                        NineRowHSSF.GetCell(i - 1).CellStyle = style2;
+                        NineRowHSSF.GetCell(i - 1).CellStyle = style7;
                     }
                     nextRow++;
                     #endregion
@@ -819,6 +850,7 @@ namespace SPPSApi.Controllers.G06
                 {
                     #region  不存在数据 就只创建列头 
                     IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                    EightRowHSSF.Height = 18 * 20;
                     EightRowHSSF.CreateCell(0).SetCellValue("");
                     EightRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
 
@@ -866,8 +898,10 @@ namespace SPPSApi.Controllers.G06
                     nextRow++;
                     //下一行
                     IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
-                    NineRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
+                    NineRowHSSF.Height = 18 * 20;
+                    //NineRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
+                    //NineRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
+                    NineRowHSSF.CreateCell(1).SetCellValue("合计");
                     #endregion
                     nextRow++;
                 }

@@ -180,7 +180,7 @@ namespace SPPSApi.Controllers.G12
                     else
                     {
                         apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = "计算成功！";
+                        apiResult.data = "导入成功！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

@@ -378,6 +378,13 @@ namespace Logic
             return msg;
         }
 
+        public string updSSP(DataTable dt, string strUser)
+        {
+            return dataAccess.updSSP(dt, strUser);
+        }
+
+
+
         /// <summary>
         /// 导入文件
         /// </summary>
@@ -611,6 +618,9 @@ namespace Logic
             }
             return msg;
         }
+
+
+
 
         /// <summary>
         /// 发注计算-导出

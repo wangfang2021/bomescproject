@@ -843,10 +843,11 @@ namespace Logic
         }
 
         #region 导出带模板
-        public string ExportFromTemplate(DataTable dtHeader, DataTable dt, string[] field, string rootPath, string xltName, string strUserId, string strFunctionName, bool isAlignCenter)
+        public string ExportFromTemplate(DataTable dtHeader, DataTable dt, string rootPath, string xltName, string strUserId, string strFunctionName, bool isAlignCenter)
         {
             try
             {
+                string[] field = { "TASSCODE", "B", "C", "OrderDate", "E", "F", "OrderNo", "H", "I", "TYPE", "ItemNo", "L", "PartNo", "N", "O", "P", "OrderQty", "PToPCust" };
                 XSSFWorkbook hssfworkbook = new XSSFWorkbook();
                 string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
                 using (FileStream fs = File.OpenRead(XltPath))
@@ -883,44 +884,19 @@ namespace Logic
                     case "E/O": sheet.GetRow(10).GetCell(13).SetCellValue("√"); break;//订单类别E:N11
                     case "F/O": sheet.GetRow(10).GetCell(15).SetCellValue("√"); break;//订单类别F:P11
                 }
-
                 #endregion
 
-                //for (int i = 19; i < dt.Rows.Count; i++)
-                //{
-                //    IRow row = sheet.CreateRow(i);
-                //    for (int j = 0; j < field.Length; j++)
-                //    {
-                //        Type type = dt.Columns[field[j]].DataType;
-                //        ICell cell = row.CreateCell(j);
-                //        if (type == Type.GetType("System.Decimal"))
-                //        {
-                //            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                //                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
-                //        }
-                //        else if (type == Type.GetType("System.Int32"))
-                //        {
-                //            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                //                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
-                //        }
-                //        else if (type == Type.GetType("System.Int16"))
-                //        {
-                //            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                //                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
-                //        }
-                //        else if (type == Type.GetType("System.Int64"))
-                //        {
-                //            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                //                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
-                //        }
-                //        else
-                //        {
-                //            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
-                //        }
-                //        if (isAlignCenter)
-                //            cell.CellStyle = style;
-                //    }
-                //}
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    sheet.GetRow(i + 18).GetCell(0).SetCellValue(dt.Rows[i]["TASSCODE"].ToString());
+                    sheet.GetRow(i + 18).GetCell(3).SetCellValue(int.Parse(dt.Rows[i]["OrderDate"].ToString()));
+                    sheet.GetRow(i + 18).GetCell(6).SetCellValue(dt.Rows[i]["OrderNo"].ToString());
+                    sheet.GetRow(i + 18).GetCell(9).SetCellValue(dt.Rows[i]["TYPE"].ToString());
+                    sheet.GetRow(i + 18).GetCell(10).SetCellValue(dt.Rows[i]["ItemNo"].ToString());
+                    sheet.GetRow(i + 18).GetCell(12).SetCellValue(dt.Rows[i]["PartNo"].ToString());
+                    sheet.GetRow(i + 18).GetCell(16).SetCellValue(int.Parse(dt.Rows[i]["OrderQty"].ToString()));
+                    sheet.GetRow(i + 18).GetCell(17).SetCellValue(dt.Rows[i]["PToPCust"].ToString());
+                }
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
                 string path = fileSavePath + strFileName;

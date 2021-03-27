@@ -39,8 +39,21 @@ namespace Logic
 
                 //各工厂的指定日
                 int count = fs0403_dataAccess.getCountDay();
-                Hashtable DayIN = fs0403_dataAccess.getDay(CalendarIN, time, count);
-                Hashtable DayOUT = fs0403_dataAccess.getDay(CalendarOUT, time, count);
+                Hashtable DayINtmp = fs0403_dataAccess.getDay(CalendarIN, time, count);
+                Hashtable DayOUTtmp = fs0403_dataAccess.getDay(CalendarOUT, time, count);
+
+                //将时间归为一天外注(2厂)
+                Hashtable DayIN = new Hashtable();
+                Hashtable DayOUT = new Hashtable();
+                foreach (string dayOutKey in DayOUTtmp.Keys)
+                {
+                    DayOUT.Add(dayOutKey, DayOUTtmp["2"]);
+                    DayIN.Add(dayOutKey, DayOUTtmp["2"]);
+
+                }
+
+                //
+
 
                 //品番的数量
                 Hashtable quantityIN = fs0403_dataAccess.getCount(DayIN, "0");
@@ -59,12 +72,41 @@ namespace Logic
                 //获取波动率
                 Hashtable ht = fs0403_dataAccess.getFluctuate();
 
-
+                //检测
                 List<FS0403_DataAccess.PartIDNode> list = new List<FS0403_DataAccess.PartIDNode>();
                 string changeNo = DateTime.Now.ToString("yyyyMMdd");
 
                 List<string> partList = new List<string>();
 
+                List<string> listPart = new List<string>();
+                for (int i = 0; i < excelTable.Rows.Count; i++)
+                {
+                    string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    if (listPart.Contains(partId))
+                    {
+                        refMsg.Add(new MessageNode(partId, "变更中品番重复"));
+                    }
+                    else
+                    {
+                        listPart.Add(partId);
+                    }
+
+                }
+                for (int i = 0; i < excelTable.Rows.Count; i++)
+                {
+                    string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
+                    if (!quantity.Contains(partId))
+                    {
+                        refMsg.Add(new MessageNode(partId, "非日次订货品番"));
+                    }
+
+                }
+                if (refMsg.Count > 0)
+                {
+                    return;
+                }
+
+                //
                 for (int i = 0; i < excelTable.Rows.Count; i++)
                 {
 
@@ -92,36 +134,20 @@ namespace Logic
                     list.Add(new FS0403_DataAccess.PartIDNode(partId, excelquantity, soqQuantity, allowPercent, DXR, changeNo, iSRS));
 
                 }
-                List<string> listPart = new List<string>();
-                for (int i = 0; i < excelTable.Rows.Count; i++)
-                {
-                    string partId = excelTable.Rows[i]["vcPart_Id"].ToString();
-                    if (listPart.Contains(partId))
-                    {
-                        refMsg.Add(new MessageNode(partId, "变更中品番重复"));
-                    }
-                    else
-                    {
-                        listPart.Add(partId);
-                    }
-
-                }
-
-                foreach (FS0403_DataAccess.PartIDNode partIdNode in list)
-                {
-                    if (!partIdNode.flag)
-                    {
-                        refMsg.Add(new MessageNode(partIdNode.partId, partIdNode.message));
-                    }
-                }
-
                 foreach (string key in quantity.Keys)
                 {
 
                     if (!partList.Contains(key))
                     {
-                        refMsg.Add(new MessageNode(key, "导入日次订单该品番不存在"));
+                        refMsg.Add(new MessageNode(key, "缺少日次变更品番"));
 
+                    }
+                }
+                foreach (FS0403_DataAccess.PartIDNode partIdNode in list)
+                {
+                    if (!partIdNode.flag)
+                    {
+                        refMsg.Add(new MessageNode(partIdNode.partId, partIdNode.message));
                     }
                 }
 

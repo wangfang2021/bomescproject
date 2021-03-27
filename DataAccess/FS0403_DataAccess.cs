@@ -23,7 +23,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT * FROM");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT vcDXDate,vcOrderNo,vcChangeNo,MAX(dFileUpload) AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
+                sbr.AppendLine("SELECT CAST(vcDXDate AS DATETIME) AS vcDXDate,vcOrderNo,vcChangeNo,MAX(dFileUpload) AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("WHERE 1=1 ");
                 if (!string.IsNullOrWhiteSpace(state))
@@ -556,9 +556,18 @@ namespace DataAccess
                 DataTable dtIn = ToDataTable(rowIn);
                 DataTable dtOut = ToDataTable(rowOut);
 
-                Hashtable hsIn = getDay(dtIn, DXR, count);
-                Hashtable hsOut = getDay(dtOut, DXR, count);
+                Hashtable hsIntmp = getDay(dtIn, DXR, count);
+                Hashtable hsOuttmp = getDay(dtOut, DXR, count);
 
+                Hashtable hsIn = new Hashtable();
+                Hashtable hsOut = new Hashtable();
+
+                foreach (string dayOutKey in hsOuttmp.Keys)
+                {
+                    hsOut.Add(dayOutKey, hsOuttmp["2"]);
+                    hsIn.Add(dayOutKey, hsOuttmp["2"]);
+
+                }
                 StringBuilder sbr = new StringBuilder();
 
                 foreach (string key in hsIn.Keys)
@@ -582,6 +591,7 @@ namespace DataAccess
                     string YMD = hsOut[key].ToString();
                     string ym = YMD.Substring(0, 6);
                     string day = YMD.Substring(6, 2);
+                    string CLYMD = DateTime.Parse(ym.Substring(0, 4) + "-" + ym.Substring(4, 2) + "-01").AddMonths(-1).ToString("yyyyMM");
                     if (day[0] == '0')
                         day = day[1].ToString();
                     if (sbr.Length > 0)
@@ -590,7 +600,7 @@ namespace DataAccess
                     }
                     sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
                     sbr.AppendLine("WHERE vcInOutFlag = '1' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
-                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
+                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "' AND vcCLYM = '" + CLYMD + "'");
                 }
 
                 if (sbr.Length > 0)

@@ -312,9 +312,9 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string type = dataForm.vcType== null ? "" : dataForm.vcType;
-            string orderlb = dataForm.vcOrder== null ? "" : dataForm.vcOrder;
-            string vcSaleUser = dataForm.vcSaleUser== null ? "" : dataForm.vcSaleUser;
+            string type = dataForm.vcType == null ? "" : dataForm.vcType;
+            string orderlb = dataForm.vcOrder == null ? "" : dataForm.vcOrder;
+            string vcSaleUser = dataForm.vcSaleUser == null ? "" : dataForm.vcSaleUser;
             string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
             string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
             if (!string.IsNullOrEmpty(vcPartsNo))
@@ -333,208 +333,185 @@ namespace SPPSApi.Controllers.G12
             string msg = string.Empty;
             try
             {
-                string exlName;
-                //msg = logic.UpdateFZJSEditFZ(dt, vcType, vcOrder, loginInfo.UserId, out exlName);
-                //UpdateFZJSEditFZ(DataTable dtSSPtmp, string type, string orderlb, string UserId, out string exlName)
+                string exlName = "";
+                string date = DateTime.Now.ToString("yyyy年M月d日");
+                string date2 = DateTime.Now.ToString("yy-M");
 
-                exlName = "";
-                try
+                DataTable dtHeader = new DataTable();//表头信息
+                dtHeader.Columns.Add("vcDate");//日期
+                dtHeader.Columns.Add("vcSalerName");//高新
+                dtHeader.Columns.Add("vcSalerPhone");//高新电话
+                dtHeader.Columns.Add("vcSalerEMail");//高新邮箱
+                dtHeader.Columns.Add("vcOrderNo");//订单编号（不带TM2）
+                dtHeader.Columns.Add("vcItemTotal");//项目总数
+                dtHeader.Columns.Add("vcOrderQtyTotal");//订货总件数
+                dtHeader.Columns.Add("vcUserName");//刘家成
+                dtHeader.Columns.Add("vcUserPhone");//刘家成电话
+                dtHeader.Columns.Add("vcUserEMail");//刘家成邮箱
+                dtHeader.Columns.Add("vcOrderType");//订单类别
+                dtHeader.Columns.Add("vcChuanZhen");//丰田传真
+                dtHeader.Columns.Add("vcChuanZhenSale"); //销售公司传真
+
+                DataTable dtDetail = new DataTable();//数据信息
+                dtDetail.Columns.Add("TASSCODE");//经销商代码
+                dtDetail.Columns.Add("B");//B
+                dtDetail.Columns.Add("C");//C
+                dtDetail.Columns.Add("OrderDate");//订购日期
+                dtDetail.Columns.Add("E");//E
+                dtDetail.Columns.Add("F");//F
+                dtDetail.Columns.Add("OrderNo");//订单编号（带TM2）
+                dtDetail.Columns.Add("H");//H
+                dtDetail.Columns.Add("I");//I
+                dtDetail.Columns.Add("TYPE");//订单类型
+                dtDetail.Columns.Add("ItemNo");//项目号（0000）
+                dtDetail.Columns.Add("L");//L
+                dtDetail.Columns.Add("PartNo");//零件编号即发注品番
+                dtDetail.Columns.Add("N");//N
+                dtDetail.Columns.Add("O");//O
+                dtDetail.Columns.Add("P");//P
+                dtDetail.Columns.Add("OrderQty", typeof(int));//订购数量
+                dtDetail.Columns.Add("PToPCust");//代订客户
+
+                if (dtSSPtmp.Rows.Count == 0 || dtSSPtmp == null)
                 {
-                    string date = DateTime.Now.ToString("yyyy年M月d日");
-                    string date2 = DateTime.Now.ToString("yy-M");
-
-                    DataTable dtHeader = new DataTable();//表头信息
-                    dtHeader.Columns.Add("vcDate");//日期
-                    dtHeader.Columns.Add("vcSalerName");//高新
-                    dtHeader.Columns.Add("vcSalerPhone");//高新电话
-                    dtHeader.Columns.Add("vcSalerEMail");//高新邮箱
-                    dtHeader.Columns.Add("vcOrderNo");//订单编号（不带TM2）
-                    dtHeader.Columns.Add("vcItemTotal");//项目总数
-                    dtHeader.Columns.Add("vcOrderQtyTotal");//订货总件数
-                    dtHeader.Columns.Add("vcUserName");//刘家成
-                    dtHeader.Columns.Add("vcUserPhone");//刘家成电话
-                    dtHeader.Columns.Add("vcUserEMail");//刘家成邮箱
-                    dtHeader.Columns.Add("vcOrderType");//订单类别
-                    dtHeader.Columns.Add("vcChuanZhen");//丰田传真
-                    dtHeader.Columns.Add("vcChuanZhenSale"); //销售公司传真
-
-                    DataTable dtDetail = new DataTable();//数据信息
-                    dtDetail.Columns.Add("TASSCODE");//经销商代码
-                    dtDetail.Columns.Add("B");//B
-                    dtDetail.Columns.Add("C");//C
-                    dtDetail.Columns.Add("OrderDate");//订购日期
-                    dtDetail.Columns.Add("E");//E
-                    dtDetail.Columns.Add("F");//F
-                    dtDetail.Columns.Add("OrderNo");//订单编号（带TM2）
-                    dtDetail.Columns.Add("H");//H
-                    dtDetail.Columns.Add("I");//I
-                    dtDetail.Columns.Add("TYPE");//订单类型
-                    dtDetail.Columns.Add("ItemNo");//项目号（0000）
-                    dtDetail.Columns.Add("L");//L
-                    dtDetail.Columns.Add("PartNo");//零件编号即发注品番
-                    dtDetail.Columns.Add("N");//N
-                    dtDetail.Columns.Add("O");//O
-                    dtDetail.Columns.Add("P");//P
-                    dtDetail.Columns.Add("OrderQty", typeof(int));//订购数量
-                    dtDetail.Columns.Add("PToPCust");//代订客户
-
-                    if (dtSSPtmp.Rows.Count == 0 || dtSSPtmp == null)
+                    return "无发注数据，请进行检索检索数据！";
+                }
+                DataTable dtSSP = new DataTable();
+                dtSSP = dtSSPtmp.Clone();
+                DataRow[] rows = dtSSPtmp.Select("vcSource='" + type + "' and iFZNum>=0 ");
+                if (rows.Length > 0)
+                {
+                    foreach (DataRow row in rows)
                     {
-                        return "无发注数据，请进行检索检索数据！";
+                        dtSSP.ImportRow(row);
                     }
-                    DataTable dtSSP = new DataTable();
-                    dtSSP = dtSSPtmp.Clone();
-                    DataRow[] rows = dtSSPtmp.Select("vcSource='" + type + "' and iFZNum>=0 ");
-                    if (rows.Length > 0)
+                }
+                else
+                {
+                    return "无发注数据！";
+                }
+
+                //获取销售公司信息
+
+                DataTable dtSaleuser = logic.GetSaleuser(UserId);
+                //获取发注担当信息
+                DataTable dtUser = logic.GetUser(UserId);
+                if (dtUser.Rows.Count == 0)
+                {
+                    return "不是发注担当，不能进行发注！";
+                }
+
+                //订单号作成：
+                string Year = date2.Split('-')[0];
+                string Month = date2.Split('-')[1];
+                string OrderType = string.Empty;
+                string TYPE = string.Empty;
+                int OrderQtyTotal = 0;//订货总件数
+
+                if (Month == "10")
+                {
+                    Month = "J";
+                }
+                else if (Month == "11")
+                {
+                    Month = "Q";
+                }
+                else if (Month == "12")
+                {
+                    Month = "K";
+                }
+                switch (type)
+                {
+                    case "JSP": OrderType = "01"; break;
+                    case "MSP": OrderType = "02"; break;
+                }
+                switch (orderlb)
+                {
+                    case "S/O": TYPE = "S"; break;
+                    case "E/O": TYPE = "E"; break;
+                    case "F/O": TYPE = "F"; break;
+                }
+                string vcOrderNo = Year + Month + OrderType;//表头用
+                string OrderNo = "TM2" + vcOrderNo;//数据用
+
+                //将信息写到模板中 单元格必须留一行空行(dtSSP中已有发注品番、数量、类别）
+                //数据信息：
+
+                for (int i = 0; i < dtSSP.Rows.Count; i++)
+                {
+                    if (dtSSP.Rows[i]["iFZNum"].ToString() != "0")//去除发注数为0
                     {
-                        foreach (DataRow row in rows)
-                        {
-                            dtSSP.ImportRow(row);
-                        }
+                        int ItemNo = i + 1;
+                        DataRow drDetail = dtDetail.NewRow();
+                        drDetail["TASSCODE"] = "TFTM2";
+                        drDetail["OrderDate"] = DateTime.Now.ToString("yyyyMMdd");
+                        drDetail["OrderNo"] = OrderNo;
+                        drDetail["TYPE"] = TYPE;
+                        drDetail["ItemNo"] = ItemNo.ToString("0000");
+                        drDetail["PartNo"] = dtSSP.Rows[i]["vcPartsNoFZ"].ToString();
+                        drDetail["OrderQty"] = Convert.ToInt32(dtSSP.Rows[i]["iFZNum"].ToString());
+                        OrderQtyTotal = OrderQtyTotal + Convert.ToInt32(dtSSP.Rows[i]["iFZNum"].ToString());//总件数累加
+                        dtDetail.Rows.Add(drDetail);
+                    }
+                }
+
+                //排序
+                DataView dv = dtDetail.DefaultView;
+                dv.Sort = "ItemNo";
+                dtDetail = dv.ToTable();
+                //添加空行
+                //DataRow drDNull = dtDetail.NewRow();
+                //dtDetail.Rows.Add(drDNull);
+                //表头信息：
+
+                DataRow drHeader = dtHeader.NewRow();
+                drHeader["vcDate"] = date;
+                drHeader["vcSalerName"] = dtSaleuser.Rows[0]["name"].ToString();
+                drHeader["vcSalerPhone"] = dtSaleuser.Rows[0]["pphone"].ToString();
+                drHeader["vcSalerEMail"] = dtSaleuser.Rows[0]["email"].ToString();
+                drHeader["vcChuanZhenSale"] = dtSaleuser.Rows[0]["ChuanZhenSale"].ToString();
+                drHeader["vcOrderNo"] = vcOrderNo;
+                drHeader["vcItemTotal"] = (dtDetail.Rows.Count).ToString();//多一空行，算总项目数时要减掉
+                drHeader["vcOrderQtyTotal"] = OrderQtyTotal.ToString();
+                drHeader["vcUserName"] = dtUser.Rows[0]["Username"].ToString();
+                drHeader["vcUserPhone"] = dtUser.Rows[0]["UserPhone"].ToString();
+                drHeader["vcUserEMail"] = dtUser.Rows[0]["Useremail"].ToString();
+                drHeader["vcOrderType"] = orderlb;
+                drHeader["vcChuanZhen"] = dtUser.Rows[0]["ChuanZhen"].ToString();
+                dtHeader.Rows.Add(drHeader);
+                //更新tSSP表中 iFZFlg='1',iXZNum ,iFZNum,iCONum
+                //201903  修改发注数为0，更新余数
+                msg = logic.updSSP(dtSSP, UserId);
+                //end
+                if (msg.Length <= 0)
+                {
+                    if (type == "JSP")
+                    {
+                        exlName = "发注订货单" + System.DateTime.Now.ToString("yyyyMMdd") + "";
                     }
                     else
                     {
-                        return "无发注数据！";
+                        exlName = "发注订货单" + System.DateTime.Now.ToString("yyyyMMdd") + "B";
                     }
-
-                    //获取销售公司信息
-
-                    DataTable dtSaleuser = logic.GetSaleuser(UserId);
-                    //获取发注担当信息
-                    DataTable dtUser = logic.GetUser(UserId);
-                    if (dtUser.Rows.Count == 0)
+                    if (dtDetail.Rows.Count == 0)
                     {
-                        return "不是发注担当，不能进行发注！";
-                    }
-
-                    //订单号作成：
-                    string Year = date2.Split('-')[0];
-                    string Month = date2.Split('-')[1];
-                    string OrderType = string.Empty;
-                    string TYPE = string.Empty;
-                    int OrderQtyTotal = 0;//订货总件数
-
-                    if (Month == "10")
-                    {
-                        Month = "J";
-                    }
-                    else if (Month == "11")
-                    {
-                        Month = "Q";
-                    }
-                    else if (Month == "12")
-                    {
-                        Month = "K";
-                    }
-                    switch (type)
-                    {
-                        case "JSP": OrderType = "01"; break;
-                        case "MSP": OrderType = "02"; break;
-                    }
-                    switch (orderlb)
-                    {
-                        case "S/O": TYPE = "S"; break;
-                        case "E/O": TYPE = "E"; break;
-                        case "F/O": TYPE = "F"; break;
-                    }
-                    string vcOrderNo = Year + Month + OrderType;//表头用
-                    string OrderNo = "TM2" + vcOrderNo;//数据用
-
-                    //将信息写到模板中 单元格必须留一行空行(dtSSP中已有发注品番、数量、类别）
-                    //数据信息：
-
-                    for (int i = 0; i < dtSSP.Rows.Count; i++)
-                    {
-                        if (dtSSP.Rows[i]["iFZNum"].ToString() != "0")//去除发注数为0
-                        {
-                            int ItemNo = i + 1;
-                            DataRow drDetail = dtDetail.NewRow();
-                            drDetail["TASSCODE"] = "TFTM2";
-                            drDetail["OrderDate"] = DateTime.Now.ToString("yyyyMMdd");
-                            drDetail["OrderNo"] = OrderNo;
-                            drDetail["TYPE"] = TYPE;
-                            drDetail["ItemNo"] = ItemNo.ToString("0000");
-                            drDetail["PartNo"] = dtSSP.Rows[i]["vcPartsNoFZ"].ToString();
-                            drDetail["OrderQty"] = Convert.ToInt32(dtSSP.Rows[i]["iFZNum"].ToString());
-                            OrderQtyTotal = OrderQtyTotal + Convert.ToInt32(dtSSP.Rows[i]["iFZNum"].ToString());//总件数累加
-                            dtDetail.Rows.Add(drDetail);
-                        }
-                    }
-
-                    //排序
-                    DataView dv = dtDetail.DefaultView;
-                    dv.Sort = "ItemNo";
-                    dtDetail = dv.ToTable();
-                    //添加空行
-                    //DataRow drDNull = dtDetail.NewRow();
-                    //dtDetail.Rows.Add(drDNull);
-                    //表头信息：
-
-                    DataRow drHeader = dtHeader.NewRow();
-                    drHeader["vcDate"] = date;
-                    drHeader["vcSalerName"] = dtSaleuser.Rows[0]["name"].ToString();
-                    drHeader["vcSalerPhone"] = dtSaleuser.Rows[0]["pphone"].ToString();
-                    drHeader["vcSalerEMail"] = dtSaleuser.Rows[0]["email"].ToString();
-                    drHeader["vcChuanZhenSale"] = dtSaleuser.Rows[0]["ChuanZhenSale"].ToString();
-                    drHeader["vcOrderNo"] = vcOrderNo;
-                    drHeader["vcItemTotal"] = (dtDetail.Rows.Count).ToString();//多一空行，算总项目数时要减掉
-                    drHeader["vcOrderQtyTotal"] = OrderQtyTotal.ToString();
-                    drHeader["vcUserName"] = dtUser.Rows[0]["Username"].ToString();
-                    drHeader["vcUserPhone"] = dtUser.Rows[0]["UserPhone"].ToString();
-                    drHeader["vcUserEMail"] = dtUser.Rows[0]["Useremail"].ToString();
-                    drHeader["vcOrderType"] = orderlb;
-                    drHeader["vcChuanZhen"] = dtUser.Rows[0]["ChuanZhen"].ToString();
-                    dtHeader.Rows.Add(drHeader);
-                    //更新tSSP表中 iFZFlg='1',iXZNum ,iFZNum,iCONum
-                    //201903  修改发注数为0，更新余数
-                    msg = logic.updSSP(dtSSP, UserId);
-                    //end
-                    if (msg.Length <= 0)
-                    {
-                        if (type == "JSP")
-                        {
-                            exlName = "发注订货单" + System.DateTime.Now.ToString("yyyyMMdd") + "";
-                        }
-                        else
-                        {
-                            exlName = "发注订货单" + System.DateTime.Now.ToString("yyyyMMdd") + "B";
-                        }
-                        if (dtDetail.Rows.Count == 0)
-                        {
-                            msg = "无发注数据！";
-                        }
-                        else
-                        {
-                            msg = "发注成功！";
-                            exlName = exlName + ".xls";
-                            //QMExcel oQMExcel = new QMExcel();
-                            //string tmplatePath = System.Web.HttpContext.Current.Server.MapPath("~/Templates/FS1207_SSP.xlt");//模板路径
-                            //string path = System.Web.HttpContext.Current.Server.MapPath("~/Temps/" + exlName);//文件路径
-                            //oQMExcel.ExportFromTemplate(dtHeader, dtDetail, tmplatePath, path, 19, 1, false);
-                        }
-                        dtSSP.Dispose();
+                        msg = "无发注数据！";
                     }
                     else
                     {
-                        msg = "导出失败：";
+                        msg = "发注成功！";
+                        exlName = exlName + ".xls";
+                        //QMExcel oQMExcel = new QMExcel();
+                        //string tmplatePath = System.Web.HttpContext.Current.Server.MapPath("~/Templates/FS1207_SSP.xlt");//模板路径
+                        //string path = System.Web.HttpContext.Current.Server.MapPath("~/Temps/" + exlName);//文件路径
+                        //oQMExcel.ExportFromTemplate(dtHeader, dtDetail, tmplatePath, path, 19, 1, false);
                     }
+                    dtSSP.Dispose();
                 }
-                catch (Exception ex)
+                else
                 {
-                    //LogHelper.ErrorLog("发注异常：" + ex.Message);
-                    msg = ex.Message;
+                    msg = "导出失败：";
                 }
-                return msg;
-
-
-
-
-
-
-
-
-
-
                 if (msg == "")
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;

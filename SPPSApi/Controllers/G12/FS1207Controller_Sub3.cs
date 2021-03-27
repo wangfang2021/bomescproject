@@ -61,7 +61,7 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-        #region 计算
+        #region 导入
         [HttpPost]
         [EnableCors("any")]
         public string computeApi([FromBody] dynamic data)
@@ -174,7 +174,7 @@ namespace SPPSApi.Controllers.G12
                     if (msg.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "计算失败！";
+                        apiResult.data = "导入失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     else

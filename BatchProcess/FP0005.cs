@@ -118,8 +118,8 @@ namespace BatchProcess
                         sql.Append("  '" + dtPack.Rows[i]["vcPackGPSNo"].ToString() + "', \n");
                 }
 
-                sql.Append("  ) \n");
-                sql.Append("  )a inner join  \n");
+                sql.Append("  ) and DEL_FLAG='0' \n");
+                sql.Append("  )a left join  \n");
                 sql.Append("  (  \n");
                 sql.Append("  SELECT * from TB_M0100  \n");
                 sql.Append("  )b on a.SUPPLIER_CODE=b.SUPPLIER_CODE  \n");

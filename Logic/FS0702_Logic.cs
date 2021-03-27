@@ -34,7 +34,7 @@ namespace Logic
 
 
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
-        public DataTable Search(List<Object> Note, List<Object> PackSpot, string Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
+        public DataTable Search(List<Object> Note, List<Object> PackSpot, List<Object> Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
         {
             return FS0702_DataAccess.Search( Note,  PackSpot,  Shouhuofang,  Pinfan,  Car,  PackNO,  PackGPSNo,  dtFromBegin,  dtFromEnd,  dtToBegin,  dtToEnd);
         }
@@ -53,7 +53,7 @@ namespace Logic
         #region 形成纵向导出
 
 
-        public DataTable SearchEXZ(string iautoID, string strNote, string strPackSpot, string strShouhuofang, string strPartsNo, string strCar, string strPackNO, string strPackGPSNo, string strFromBegin, string strFromEnd, string strToBegin, string strToEnd)
+        public DataTable SearchEXZ(string iautoID, List<Object> strNote, List<Object> strPackSpot, List<Object> strShouhuofang, string strPartsNo, string strCar, string strPackNO, string strPackGPSNo, string strFromBegin, string strFromEnd, string strToBegin, string strToEnd)
         {
             return FS0702_DataAccess.SearchEXZ(iautoID, strNote, strPackSpot, strShouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strFromEnd, strToBegin);
         }
@@ -118,7 +118,13 @@ namespace Logic
         {
            return FS0702_DataAccess.CheckPartsNo(strShouhuofang, strPartsNo);
         }
+        #endregion
 
+        #region check时间有效性
+        public DataTable searchcheckTime(string vcPackSpot, string vcPartsNo, string vcPackNo, string dUsedFrom, string dUsedTo, int iAutoId,string vcShouhuofangID)
+        {
+            return FS0702_DataAccess.searchcheckTime(vcPackSpot, vcPartsNo, vcPackNo, dUsedFrom, dUsedTo, iAutoId, vcShouhuofangID);
+        }
         #endregion
 
     }

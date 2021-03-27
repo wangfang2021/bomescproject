@@ -52,9 +52,9 @@ namespace Logic
 
 
         #region checkTime
-        public DataTable searchcheckTime(string strPackNo,string dFrom,string dTo)
+        public DataTable searchcheckTime(string vcPackSpot,string strPackNo,string dFrom,string dTo,int iAutoId)
         {
-            return FS0701_DataAccess.searchcheckTime(strPackNo, dFrom, dTo);
+            return FS0701_DataAccess.searchcheckTime(vcPackSpot,strPackNo, dFrom, dTo, iAutoId);
         }
 
 

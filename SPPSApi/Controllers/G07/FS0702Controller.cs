@@ -61,6 +61,9 @@ namespace SPPSApi.Controllers.G07
                 List<Object> dataList_C069 = ComFunction.convertAllToResult(ComFunction.getTCode("C069"));//
                 res.Add("C069", dataList_C069);
 
+                List<Object> dataList_C098 = ComFunction.convertAllToResult(ComFunction.getTCode("C098"));//
+                res.Add("C098", dataList_C098);
+
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 res.Add("C018", dataList_C018);
 
@@ -159,7 +162,16 @@ namespace SPPSApi.Controllers.G07
             }
 
 
-            string Shouhuofang = dataForm.Shouhuofang;
+            List<Object> Shouhuofang = new List<object>();
+            if (dataForm.Shouhuofang.ToObject<List<Object>>() == null)
+            {
+                Shouhuofang = new List<object>();
+            }
+            else
+            {
+                Shouhuofang = dataForm.Shouhuofang.ToObject<List<Object>>();
+            }
+
             string Pinfan = dataForm.PartsNo;
             string Car = dataForm.Car;
             string PackNO = dataForm.PackNO;
@@ -206,30 +218,43 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-
-            //dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            //JArray listInfo = dataForm.multipleSelection;
-            //List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             string iautoID = "";
-            //if (listInfoData.Count == 0)
-            //{
-            //    apiResult.code = ComConstant.ERROR_CODE;
-            //    apiResult.data = "没有可导出数据！";
-            //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            //}
-            //for (int i = 0; i < listInfoData.Count; i++)
-            //{
-            //    if (i == listInfoData.Count - 1)
-            //    {
-            //        iautoID = iautoID + listInfoData[i]["iAutoId"].ToString();
+            //变更事项
+            List<Object> strNote = new List<object>();
 
-            //    }
-            //    else
-            //        iautoID = iautoID + listInfoData[i]["iAutoId"].ToString() + ",";
-            //}
-            string strNote = dataForm.Note;//变更事项
-            string strPackSpot = dataForm.dataForm;//包装厂
-            string strShouhuofang = dataForm.Shouhuofang;//收货方
+            if (dataForm.Note.ToObject<List<Object>>() == null)
+            {
+                strNote = new List<object>();
+            }
+            else
+            {
+                strNote = dataForm.Note.ToObject<List<Object>>();
+            }
+
+            List<Object> strPackSpot = new List<object>();//包装厂
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                strPackSpot = new List<object>();
+            }
+            else
+            {
+                strPackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+           // 收货方
+            List<Object> Shouhuofang = new List<object>();
+            if (dataForm.Shouhuofang.ToObject<List<Object>>() == null)
+            {
+                Shouhuofang = new List<object>();
+            }
+            else
+            {
+                Shouhuofang = dataForm.Shouhuofang.ToObject<List<Object>>();
+            }
+            
+
+
+
             string strPartsNo = dataForm.PartsNo;//品番
             string strCar = dataForm.Car;//车型
             string strPackNO = dataForm.PackNO;//包装材品番
@@ -241,11 +266,15 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, strShouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
-                string[] fields = { "varChangedItem","vcPackSpot","vcShouhuofang","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
+                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
+                string resMsg = "";
+                string[] head = { "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数"};
+
+                string[] fields = { "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
                     "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0702_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包材基础数据导出", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -265,6 +294,103 @@ namespace SPPSApi.Controllers.G07
             }
         }
         #endregion
+
+
+        #region 导出导入模板
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi_import([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+
+            //变更事项
+            List<Object> strNote = new List<object>();
+
+            if (dataForm.Note.ToObject<List<Object>>() == null)
+            {
+                strNote = new List<object>();
+            }
+            else
+            {
+                strNote = dataForm.Note.ToObject<List<Object>>();
+            }
+
+            List<Object> strPackSpot = new List<object>();//包装厂
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                strPackSpot = new List<object>();
+            }
+            else
+            {
+                strPackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+            // 收货方
+            List<Object> Shouhuofang = new List<object>();
+            if (dataForm.Shouhuofang.ToObject<List<Object>>() == null)
+            {
+                Shouhuofang = new List<object>();
+            }
+            else
+            {
+                Shouhuofang = dataForm.Shouhuofang.ToObject<List<Object>>();
+            }
+
+
+
+
+            string strPartsNo = dataForm.PartsNo;//品番
+            string strCar = dataForm.Car;//车型
+            string strPackNO = dataForm.PackNO;//包装材品番
+            string strPackGPSNo = dataForm.PackGPSNo;//GPS品番
+            string strFromBegin = dataForm.dFromBegin;//From开始
+            string strFromEnd = dataForm.dFromEnd;//From结束
+            string strToBegin = dataForm.dToBegin;//To开始
+            string strToEnd = dataForm.dToEnd;//To结束
+
+
+            try
+            {
+                DataTable dt = FS0702_Logic.SearchEXZ("", strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
+                string resMsg = "";
+                string[] head = {"导入状态","对应标识", "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
+
+                string[] fields = {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
+                    "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
+                };
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包材基础数据导出", ref resMsg);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+
+
+
 
         #region 导出横版
         [HttpPost]
@@ -301,9 +427,42 @@ namespace SPPSApi.Controllers.G07
             //    else
             //        iautoID = iautoID + listInfoData[i]["iAutoId"].ToString() + ",";
             //}
-            string strNote = dataForm.Note;//变更事项
-            string strPackSpot = dataForm.dataForm;//包装厂
-            string strShouhuofang = dataForm.Shouhuofang;//收货方
+            //变更事项
+            List<Object> strNote = new List<object>();
+
+            if (dataForm.Note.ToObject<List<Object>>() == null)
+            {
+                strNote = new List<object>();
+            }
+            else
+            {
+                strNote = dataForm.Note.ToObject<List<Object>>();
+            }
+
+            List<Object> strPackSpot = new List<object>();//包装厂
+
+            if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+            {
+                strPackSpot = new List<object>();
+            }
+            else
+            {
+                strPackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+            }
+            // 收货方
+            List<Object> Shouhuofang = new List<object>();
+            if (dataForm.Shouhuofang.ToObject<List<Object>>() == null)
+            {
+                Shouhuofang = new List<object>();
+            }
+            else
+            {
+                Shouhuofang = dataForm.Shouhuofang.ToObject<List<Object>>();
+            }
+
+
+
+
             string strPartsNo = dataForm.PartsNo;//品番
             string strCar = dataForm.Car;//车型
             string strPackNO = dataForm.PackNO;//包装材品番
@@ -315,7 +474,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, strShouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
+                DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
 
                 DataTable dtcope = dt.Copy();
                 dtcope.Clear();
@@ -442,11 +601,11 @@ namespace SPPSApi.Controllers.G07
                     }
                     //判断品番是否存在
 
-                    bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofang"].ToString(), listInfoData[i]["vcPartsNo"].ToString());
+                    bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofangID"].ToString(), listInfoData[i]["vcPartsNo"].ToString());
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "品番:" + listInfoData[i]["vcPartsNo"].ToString() + "有误！";
+                        apiResult.data = "品番:" + listInfoData[i]["vcPartsNo"].ToString() + "不存在！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (listInfoData[i]["dFrom"].ToString() == "" || listInfoData[i]["dTo"].ToString() == "")
@@ -456,6 +615,17 @@ namespace SPPSApi.Controllers.G07
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                     }
+                    int iAutoId = listInfoData[i]["iAutoId"] == "" ? 0 : Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    DataTable dtcheckTime = FS0702_Logic.searchcheckTime(listInfoData[i]["vcPackSpot"].ToString(), listInfoData[i]["vcPartsNo"].ToString(), 
+                        listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dFrom"].ToString(), 
+                        listInfoData[i]["dTo"].ToString(), iAutoId,listInfoData[i]["vcShouhuofangID"].ToString());
+                    if (dtcheckTime.Rows.Count > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "品番有维护重复有效时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                 }
                 if (!hasFind)
                 {
@@ -523,7 +693,7 @@ namespace SPPSApi.Controllers.G07
                 {
                     dtcheck = FS0702_Logic.checkSOQ(listInfoData[i]["vcPartsNo"].ToString());
 
-                    if (dtcheck.Rows.Count ==2)
+                    if (dtcheck.Rows.Count <2)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = dtcheck.Rows[i]["vcPart_id"] + "存在上游不可删除！";

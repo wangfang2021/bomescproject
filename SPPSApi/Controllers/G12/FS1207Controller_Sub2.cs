@@ -252,16 +252,16 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcType = dataForm.vcType;
-            string vcOrder = dataForm.vcOrder;
-            string vcSaleUser = dataForm.vcSaleUser;
+            string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
+            string vcOrder = dataForm.vcOrder==null ? "" : dataForm.vcOrder;
+            string vcSaleUser = dataForm.vcSaleUser== null ? "" : dataForm.vcSaleUser;
 
-            JArray listInfo = dataForm.temp;
-            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-            DataTable dt = ListToDataTable(listInfoData);
-            vcType = vcType == null ? "" : vcType;
-            vcOrder = vcOrder == null ? "" : vcOrder;
-            vcSaleUser = vcSaleUser == null ? "" : vcSaleUser;
+            string vcMon = dataForm.vcMon == null ? "" : dataForm.vcMon;
+            string vcPartsNo = dataForm.vcPartsNo == null ? "" : dataForm.vcPartsNo;
+            if (!string.IsNullOrEmpty(vcPartsNo))
+                vcPartsNo = vcPartsNo.Replace("-", "").ToString();
+            DataTable dt = logic.searchAddFZ(vcMon, vcPartsNo);
+
             string msg = string.Empty;
             try
             {

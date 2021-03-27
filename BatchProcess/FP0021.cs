@@ -139,8 +139,22 @@ namespace BatchProcess
                 DataTable dtIn = ToDataTable(rowIn);
                 DataTable dtOut = ToDataTable(rowOut);
 
-                Hashtable hsIn = getDay(dtIn, DXR, count);
-                Hashtable hsOut = getDay(dtOut, DXR, count);
+                //Hashtable hsIn = getDay(dtIn, DXR, count);
+                //Hashtable hsOut = getDay(dtOut, DXR, count);
+
+                Hashtable hsIntmp = getDay(dtIn, DXR, count);
+                Hashtable hsOuttmp = getDay(dtOut, DXR, count);
+
+                Hashtable hsIn = new Hashtable();
+                Hashtable hsOut = new Hashtable();
+
+                foreach (string dayOutKey in hsOuttmp.Keys)
+                {
+                    hsOut.Add(dayOutKey, hsOuttmp["2"]);
+                    hsIn.Add(dayOutKey, hsOuttmp["2"]);
+
+                }
+
                 StringBuilder sbr = new StringBuilder();
 
 

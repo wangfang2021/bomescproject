@@ -894,6 +894,10 @@ namespace Logic
     {
         public static decimal RoundFirstSignificantDigit(this decimal input)
         {
+            if (input==0)
+            {
+                return 0;
+            }
             int precision = 0;
             var val = input;
             while (Math.Abs(val) < 1)

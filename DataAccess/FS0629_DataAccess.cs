@@ -295,12 +295,23 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("   select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,   ");
-                strSql.AppendLine("   currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,   ");
-                strSql.AppendLine("   currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],currentMonth.[纳入率（B/A）],   ");
-                strSql.AppendLine("   isnull(lastMonth.[纳入率（B/A）],'0.00%') as 前月纳入率,currentMonth.月度订单出荷实绩,   ");
-                strSql.AppendLine("   currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],currentMonth.[出荷率(D/A)],   ");
-                strSql.AppendLine("   isnull(lastMonth.[出荷率(D/A)],'0.00%') as '前月出荷率' from (   ");
+                //strSql.AppendLine("   select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,   ");
+                //strSql.AppendLine("   currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,   ");
+                //strSql.AppendLine("   currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],currentMonth.纳入率(B/A),   ");
+                //strSql.AppendLine("   isnull(lastMonth.纳入率(B/A),'0.00%') as 前月纳入率,currentMonth.月度订单出荷实绩,   ");
+                //strSql.AppendLine("   currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],currentMonth.出荷率(D/A),   ");
+                //strSql.AppendLine("   isnull(lastMonth.出荷率(D/A),'0.00%') as '前月出荷率' from (   ");
+                strSql.AppendLine("   select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,      ");
+                strSql.AppendLine("     currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,      ");
+                strSql.AppendLine("     currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],   ");
+                strSql.AppendLine("     '' as  '纳入率(B/A)','' as 前月纳入率,   ");
+                strSql.AppendLine("     currentMonth.月度订单出荷实绩,      ");
+                strSql.AppendLine("     currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],     ");
+                strSql.AppendLine("      '' as  '出荷率(D/A)','' as 前月出荷率,   ");
+                strSql.AppendLine("   lastMonth.月度订单 as lastYuDuOrder,lastMonth.紧急订单 as lastJinJiOrder,   ");
+                strSql.AppendLine("   lastMonth.月度订单纳入实绩 as lastYuDuNRSJ,lastMonth.紧急订单纳入实绩 as lastJinJiNRSJ,	 ");
+                strSql.AppendLine("   lastMonth.月度订单出荷实绩 as lastYuDuCHSJ,lastMonth.紧急订单出荷实绩 as lastJinJiCHSJ   ");
+                strSql.AppendLine("    from (   ");
                 strSql.AppendLine("   select a.vcReceiver as '收货方',a.vcOrderPlant as '工厂',a.item as '工程',   ");
                 strSql.AppendLine("   isnull(b.月度订单,0) as '月度订单' ,isnull(c.紧急订单,0) as '紧急订单',   ");
                 strSql.AppendLine("   isnull(b.月度订单,0)+isnull(c.紧急订单,0) as '应纳合计(A)',   ");
@@ -316,6 +327,7 @@ namespace DataAccess
                 strSql.AppendLine("       else   ");
                 strSql.AppendLine("    convert(varchar(10),convert(decimal(18,2),(isnull(b.月度订单出荷实绩,0)+isnull(c.紧急订单出荷实绩,0))/(isnull(b.月度订单,0)+isnull(c.紧急订单,0))   ");
                 strSql.AppendLine("    ) *100)+'%'end as '出荷率(D/A)'   ");
+
                 strSql.AppendLine("    from (   ");
                 strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,Type as item from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "'     ");
                 if (vcConsignee.Length > 0)
@@ -412,31 +424,44 @@ namespace DataAccess
 
                 // 单个工厂合计的dt
                 #region
-                strSql.AppendLine("   select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,   ");
-                strSql.AppendLine("   currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,   ");
-                strSql.AppendLine("   currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],currentMonth.[纳入率（B/A）],   ");
-                strSql.AppendLine("   isnull(lastMonth.[纳入率（B/A）],'0.00%') as 前月纳入率,currentMonth.月度订单出荷实绩,   ");
-                strSql.AppendLine("   currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],currentMonth.[出荷率(D/A)],   ");
-                strSql.AppendLine("   isnull(lastMonth.[出荷率(D/A)],'0.00%') as '前月出荷率' from (   ");
-                strSql.AppendLine("      ");
-                strSql.AppendLine("   select [收货方],[工厂] as '工厂','合计' as '工程',   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),月度订单)) as 月度订单,   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),[紧急订单])) as 紧急订单,   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),[应纳合计(A)])) as '应纳合计(A)',   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),月度订单纳入实绩)) as '月度订单纳入实绩',   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),紧急订单纳入实绩)) as '紧急订单纳入实绩',   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),[纳入合计(B)])) as '纳入合计(B)',   ");
-                strSql.AppendLine("   case when isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0)=0  then  '0.00%'   ");
-                strSql.AppendLine("       else    ");
-                strSql.AppendLine("   convert(varchar(10),convert(decimal(18,2), (isnull(sum(convert(decimal(18,6),月度订单纳入实绩)),0)+isnull(sum(convert(decimal(18,6),紧急订单纳入实绩)),0))/(isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0))    ");
-                strSql.AppendLine("    ) *100)+'%' end  as '纳入率（B/A）',   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),月度订单出荷实绩)) as 月度订单出荷实绩,   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),紧急订单出荷实绩)) as 紧急订单出荷实绩,   ");
-                strSql.AppendLine("   sum(convert(decimal(18,6),[出荷合计(D)])) as '出荷合计(D)',   ");
-                strSql.AppendLine("   case when isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0)=0  then  '0.00%'   ");
-                strSql.AppendLine("       else    ");
-                strSql.AppendLine("   convert(varchar(10),convert(decimal(18,2), (isnull(sum(convert(decimal(18,6),月度订单出荷实绩)),0)+isnull(sum(convert(decimal(18,6),紧急订单出荷实绩)),0))/(isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0))    ");
-                strSql.AppendLine("    ) *100)+'%' end  as '出荷率(D/A)'   ");
+                /* strSql.AppendLine("   select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,   ");
+                 strSql.AppendLine("   currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,   ");
+                 strSql.AppendLine("   currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],currentMonth.纳入率(B/A),   ");
+                 strSql.AppendLine("   isnull(lastMonth.纳入率(B/A),'0.00%') as 前月纳入率,currentMonth.月度订单出荷实绩,   ");
+                 strSql.AppendLine("   currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],currentMonth.出荷率(D/A),   ");
+                 strSql.AppendLine("   isnull(lastMonth.出荷率(D/A),'0.00%') as '前月出荷率' from (   ");*/
+                strSql.AppendLine("     select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,       ");
+                strSql.AppendLine("     currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,       ");
+                strSql.AppendLine("     currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],    ");
+                strSql.AppendLine("         ");
+                strSql.AppendLine("     '' as  '纳入率(B/A)','' as 前月纳入率,    ");
+                strSql.AppendLine("     currentMonth.月度订单出荷实绩,       ");
+                strSql.AppendLine("     currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],      ");
+                strSql.AppendLine("     --currentMonth.出荷率(D/A), isnull(lastMonth.出荷率(D/A),'0.00%') as '前月出荷率'     ");
+                strSql.AppendLine("      '' as  '出荷率(D/A)','' as 前月出荷率,    ");
+                strSql.AppendLine("   lastMonth.月度订单 as lastYuDuOrder,lastMonth.紧急订单 as lastJinJiOrder,   ");
+                strSql.AppendLine("   lastMonth.月度订单纳入实绩 as lastYuDuNRSJ,lastMonth.紧急订单纳入实绩 as lastJinJiNRSJ,	 ");
+                strSql.AppendLine("   lastMonth.月度订单出荷实绩 as lastYuDuCHSJ,lastMonth.紧急订单出荷实绩 as lastJinJiCHSJ   ");
+                strSql.AppendLine("   from (   ");
+                 strSql.AppendLine("   select [收货方],[工厂] as '工厂','合计' as '工程',   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),月度订单)) as 月度订单,   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),[紧急订单])) as 紧急订单,   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),[应纳合计(A)])) as '应纳合计(A)',   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),月度订单纳入实绩)) as '月度订单纳入实绩',   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),紧急订单纳入实绩)) as '紧急订单纳入实绩',   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),[纳入合计(B)])) as '纳入合计(B)',   ");
+                 strSql.AppendLine("   case when isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0)=0  then  '0.00%'   ");
+                 strSql.AppendLine("       else    ");
+                 strSql.AppendLine("   convert(varchar(10),convert(decimal(18,2), (isnull(sum(convert(decimal(18,6),月度订单纳入实绩)),0)+isnull(sum(convert(decimal(18,6),紧急订单纳入实绩)),0))/(isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0))    ");
+                 strSql.AppendLine("    ) *100)+'%' end  as '纳入率（B/A）',   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),月度订单出荷实绩)) as 月度订单出荷实绩,   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),紧急订单出荷实绩)) as 紧急订单出荷实绩,   ");
+                 strSql.AppendLine("   sum(convert(decimal(18,6),[出荷合计(D)])) as '出荷合计(D)',   ");
+                 strSql.AppendLine("   case when isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0)=0  then  '0.00%'   ");
+                 strSql.AppendLine("       else    ");
+                 strSql.AppendLine("   convert(varchar(10),convert(decimal(18,2), (isnull(sum(convert(decimal(18,6),月度订单出荷实绩)),0)+isnull(sum(convert(decimal(18,6),紧急订单出荷实绩)),0))/(isnull(sum(convert(decimal(18,6),月度订单)),0)+isnull(sum(convert(decimal(18,6),[紧急订单])),0))    ");
+                 strSql.AppendLine("    ) *100)+'%' end  as '出荷率(D/A)'   ");
+               
                 strSql.AppendLine("    from(   ");
                 strSql.AppendLine("   select a.vcReceiver as '收货方',a.vcOrderPlant as '工厂',a.item as '工程',   ");
                 strSql.AppendLine("   isnull(b.月度订单,0) as '月度订单' ,isnull(c.紧急订单,0) as '紧急订单',   ");
@@ -569,13 +594,26 @@ namespace DataAccess
 
                 // 合计的dt
                 #region
-                strSql.AppendLine("   select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,   ");
+                /*strSql.AppendLine("   select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,   ");
                 strSql.AppendLine("   currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,   ");
-                strSql.AppendLine("   currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],currentMonth.[纳入率（B/A）],   ");
-                strSql.AppendLine("   isnull(lastMonth.[纳入率（B/A）],'0.00%') as 前月纳入率,currentMonth.月度订单出荷实绩,   ");
-                strSql.AppendLine("   currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],currentMonth.[出荷率(D/A)],   ");
-                strSql.AppendLine("   isnull(lastMonth.[出荷率(D/A)],'0.00%') as '前月出荷率' from (   ");
-                strSql.AppendLine("      ");
+                strSql.AppendLine("   currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],currentMonth.纳入率(B/A),   ");
+                strSql.AppendLine("   isnull(lastMonth.纳入率(B/A),'0.00%') as 前月纳入率,currentMonth.月度订单出荷实绩,   ");
+                strSql.AppendLine("   currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],currentMonth.出荷率(D/A),   ");
+                strSql.AppendLine("   isnull(lastMonth.出荷率(D/A),'0.00%') as '前月出荷率' from (   ");*/
+                strSql.AppendLine("    select currentMonth.收货方,currentMonth.工厂,currentMonth.工程,currentMonth.月度订单,      ");
+                strSql.AppendLine("    currentMonth.紧急订单,currentMonth.[应纳合计(A)],currentMonth.月度订单纳入实绩,      ");
+                strSql.AppendLine("    currentMonth.紧急订单纳入实绩,currentMonth.[纳入合计(B)],   ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("     --currentMonth.纳入率(B/A),   isnull(lastMonth.纳入率(B/A),'0.00%') as 前月纳入率,   ");
+                strSql.AppendLine("    '' as  '纳入率(B/A)','' as 前月纳入率,   ");
+                strSql.AppendLine("    currentMonth.月度订单出荷实绩,      ");
+                strSql.AppendLine("    currentMonth.紧急订单出荷实绩,currentMonth.[出荷合计(D)],     ");
+                strSql.AppendLine("    --currentMonth.出荷率(D/A), isnull(lastMonth.出荷率(D/A),'0.00%') as '前月出荷率'    ");
+                strSql.AppendLine("     '' as  '出荷率(D/A)','' as 前月出荷率,   ");
+                strSql.AppendLine("   lastMonth.月度订单 as lastYuDuOrder,lastMonth.紧急订单 as lastJinJiOrder,   ");
+                strSql.AppendLine("   lastMonth.月度订单纳入实绩 as lastYuDuNRSJ,lastMonth.紧急订单纳入实绩 as lastJinJiNRSJ,   ");
+                strSql.AppendLine("   lastMonth.月度订单出荷实绩 as lastYuDuCHSJ,lastMonth.紧急订单出荷实绩 as lastJinJiCHSJ   ");
+                strSql.AppendLine("   from (     ");
                 strSql.AppendLine("   select [收货方],'' as '工厂','' as '工程',   ");
                 strSql.AppendLine("   sum(convert(decimal(18,6),月度订单)) as 月度订单,   ");
                 strSql.AppendLine("   sum(convert(decimal(18,6),[紧急订单])) as 紧急订单,   ");

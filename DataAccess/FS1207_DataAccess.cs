@@ -251,7 +251,7 @@ namespace DataAccess
                 //str += "	      on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2 	\r\n";
                 //str += "	      left join ( \r\n";
                 str += "           select A1.vcPartsNo,A1.vcMonth,B.iCONum,A1.Total,A1.iXZNum, A1.iAutoId from \r\n";
-                str += "	        (select vcMonth,vcPartsNo,iCONum,Total ,iXZNum, iAutoId from tSSP where vcMonth='" + mon + "' and iFZFlg='0') A1 \r\n";
+                str += "	        (select vcMonth,vcPartsNo,iCONum,Total,iXZNum, iAutoId from tSSP where vcMonth='" + mon + "' and iFZFlg='0') A1 \r\n";
                 str += "           left join \r\n";
                 str += "           (select distinct C.vcPartsNo,C.iCONum from tSSP C \r\n";
                 str += "            inner join \r\n";
@@ -266,7 +266,7 @@ namespace DataAccess
                 //str += "	      and  iSRNum is  not null	\r\n";  //测试用
                 if (partsno != "")
                 {
-                    str += " and A.vcPartsNo like '" + partsno + "'%";
+                    str += " and A.vcPartsNo like '" + partsno + "%'";
                 }
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
@@ -279,7 +279,7 @@ namespace DataAccess
         {
             string str = "";
             str += "	select vcMonth,t1.vcPartsNo,iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag  from (															\r\n";
-            str += "	select *  from tSSP) t1															\r\n";
+            str += "	select * from tSSP) t1															\r\n";
             str += "	left join tSSPMaster t2															\r\n";
             str += "	on t1.vcPartsNo=t2.vcPartsNo 															\r\n";
             str += " where 1=1 \r\n";
@@ -289,7 +289,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "	 AND t1.vcPartsNo  like '" + partsno + "%'									";
+                str += "AND t1.vcPartsNo like '" + partsno + "%'									";
             }
             str += "order by vcMonth";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
@@ -431,7 +431,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "and t1.vcPartsNo like '" + partsno + "'% ";
+                str += "and t1.vcPartsNo like '" + partsno + "%' ";
             }
             str += " order by vcPartsNo ";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());

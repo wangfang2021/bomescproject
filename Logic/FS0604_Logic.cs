@@ -416,5 +416,10 @@ namespace Logic
                 }
             }
         }
+
+        public void getData(string userId)
+        {
+            fs0604_DataAccess.getData(userId);
+        }
     }
 }

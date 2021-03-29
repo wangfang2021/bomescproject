@@ -607,9 +607,7 @@ namespace DataAccess
 
                 #region SQL and Parameters
                 strSql_addinfo.AppendLine("INSERT INTO [dbo].[TSPMaster]");
-                strSql_addinfo.AppendLine("           ([dSyncTime]");
-                strSql_addinfo.AppendLine("           ,[vcChanges]");
-                strSql_addinfo.AppendLine("           ,[vcPackingPlant]");
+                strSql_addinfo.AppendLine("           ([vcPackingPlant]");
                 strSql_addinfo.AppendLine("           ,[vcPartId]");
                 strSql_addinfo.AppendLine("           ,[vcPartENName]");
                 strSql_addinfo.AppendLine("           ,[vcCarfamilyCode]");
@@ -646,9 +644,7 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("           ,[dSyncToSPTime]");
                 strSql_addinfo.AppendLine("           ,[iOrderBy])");
                 strSql_addinfo.AppendLine("     VALUES");
-                strSql_addinfo.AppendLine("           (case when @dSyncTime='' then null else @dSyncTime end");
-                strSql_addinfo.AppendLine("           ,case when @vcChanges='' then null else @vcChanges end");
-                strSql_addinfo.AppendLine("           ,case when @vcPackingPlant='' then null else @vcPackingPlant end");
+                strSql_addinfo.AppendLine("           (case when @vcPackingPlant='' then null else @vcPackingPlant end");
                 strSql_addinfo.AppendLine("           ,case when @vcPartId='' then null else @vcPartId end");
                 strSql_addinfo.AppendLine("           ,case when @vcPartENName='' then null else @vcPartENName end");
                 strSql_addinfo.AppendLine("           ,case when @vcCarfamilyCode='' then null else @vcCarfamilyCode end");
@@ -685,8 +681,8 @@ namespace DataAccess
                 strSql_addinfo.AppendLine("           ,null");
                 strSql_addinfo.AppendLine("           ,1)");
                 sqlCommand_addinfo.CommandText = strSql_addinfo.ToString();
-                sqlCommand_addinfo.Parameters.AddWithValue("@dSyncTime", "");
-                sqlCommand_addinfo.Parameters.AddWithValue("@vcChanges", "");
+                //sqlCommand_addinfo.Parameters.AddWithValue("@dSyncTime", "");
+                //sqlCommand_addinfo.Parameters.AddWithValue("@vcChanges", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcPartId", "");
                 sqlCommand_addinfo.Parameters.AddWithValue("@vcPartENName", "");
@@ -722,8 +718,8 @@ namespace DataAccess
                 foreach (DataRow item in dtAddInfo.Rows)
                 {
                     #region Value
-                    sqlCommand_addinfo.Parameters["@dSyncTime"].Value = item["dSyncTime"].ToString();
-                    sqlCommand_addinfo.Parameters["@vcChanges"].Value = item["vcChanges"].ToString();
+                    //sqlCommand_addinfo.Parameters["@dSyncTime"].Value = item["dSyncTime"].ToString();
+                    //sqlCommand_addinfo.Parameters["@vcChanges"].Value = item["vcChanges"].ToString();
                     sqlCommand_addinfo.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
                     sqlCommand_addinfo.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
                     sqlCommand_addinfo.Parameters["@vcPartENName"].Value = item["vcPartENName"].ToString();
@@ -767,8 +763,7 @@ namespace DataAccess
 
                 #region SQL and Parameters
                 strSql_modinfo.AppendLine("UPDATE [dbo].[TSPMaster]");
-                strSql_modinfo.AppendLine("   SET [vcChanges] = case when @vcChanges='' then null else @vcChanges end");
-                strSql_modinfo.AppendLine("      ,[vcPartENName] = case when @vcPartENName='' then null else @vcPartENName end");
+                strSql_modinfo.AppendLine("   SET [vcPartENName] = case when @vcPartENName='' then null else @vcPartENName end");
                 strSql_modinfo.AppendLine("      ,[vcCarfamilyCode] = case when @vcCarfamilyCode='' then null else @vcCarfamilyCode end");
                 strSql_modinfo.AppendLine("      ,[vcCarModel] = case when @vcCarfamilyCode='' then null else @vcCarfamilyCode end");
                 strSql_modinfo.AppendLine("      ,[dFromTime]=case when @dFromTime='' then null else @dFromTime end");
@@ -802,7 +797,7 @@ namespace DataAccess
                 strSql_modinfo.AppendLine("      AND [vcReceiver] = @vcReceiver");
                 strSql_modinfo.AppendLine("      AND [vcSupplierId] = @vcSupplierId");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
-                sqlCommand_modinfo.Parameters.AddWithValue("@vcChanges", "");
+                //sqlCommand_modinfo.Parameters.AddWithValue("@vcChanges", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPartId", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPartENName", "");
@@ -838,7 +833,7 @@ namespace DataAccess
                 foreach (DataRow item in dtModInfo.Rows)
                 {
                     #region Value
-                    sqlCommand_modinfo.Parameters["@vcChanges"].Value = item["vcChanges"].ToString();
+                    //sqlCommand_modinfo.Parameters["@vcChanges"].Value = item["vcChanges"].ToString();
                     sqlCommand_modinfo.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
                     sqlCommand_modinfo.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
                     sqlCommand_modinfo.Parameters["@vcPartENName"].Value = item["vcPartENName"].ToString();

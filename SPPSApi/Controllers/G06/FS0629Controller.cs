@@ -115,6 +115,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = "检索的对象年月没有数据!";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                
 
                 string[] columnConsigneeArray = { "收货方" };
                 DataView dtConsigneeSelectView = dt.DefaultView;
@@ -157,7 +158,47 @@ namespace SPPSApi.Controllers.G06
                         dtNew.ImportRow(dr);
                     }
                 }
+                for (int m = 0; m < dtNew.Rows.Count; m++)
+                {
+                    string strYuDuDD = dtNew.Rows[m]["月度订单"].ToString() == "" ? "0" : dtNew.Rows[m]["月度订单"].ToString();
+                    string strJinJiDD = dtNew.Rows[m]["紧急订单"].ToString() == "" ? "0" : dtNew.Rows[m]["紧急订单"].ToString();
+                    string strYuDuDDNRSJ = dtNew.Rows[m]["月度订单纳入实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["月度订单纳入实绩"].ToString();
+                    string strJinJiDDNRSJ = dtNew.Rows[m]["紧急订单纳入实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["紧急订单纳入实绩"].ToString();
+                    string strYuDuDDCHSJ = dtNew.Rows[m]["月度订单出荷实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["月度订单出荷实绩"].ToString();
+                    string strJinJiDDCHSJ = dtNew.Rows[m]["紧急订单出荷实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["紧急订单出荷实绩"].ToString();
 
+                    string strLastYuDuDD = dtNew.Rows[m]["lastYuDuOrder"].ToString() == "" ? "0" : dtNew.Rows[m]["lastYuDuOrder"].ToString();
+                    string strLastJinJiDD = dtNew.Rows[m]["lastJinJiOrder"].ToString() == "" ? "0" : dtNew.Rows[m]["lastJinJiOrder"].ToString();
+                    string strLastYuDuDDNRSJ = dtNew.Rows[m]["lastYuDuNRSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastYuDuNRSJ"].ToString();
+                    string strLastJinJiDDNRSJ = dtNew.Rows[m]["lastJinJiNRSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastJinJiNRSJ"].ToString();
+                    string strLastYuDuDDCHSJ = dtNew.Rows[m]["lastYuDuCHSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastYuDuCHSJ"].ToString();
+                    string strLastJinJiDDCHSJ = dtNew.Rows[m]["lastJinJiCHSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastJinJiCHSJ"].ToString();
+
+                    if (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD) ==0)
+                    {
+                        dtNew.Rows[m]["纳入率(B/A)"] = "0.00%";
+                        dtNew.Rows[m]["出荷率(D/A)"] = "0.00%";
+                    }
+                    else
+                    {
+                        decimal inputNR = ((Convert.ToDecimal(strYuDuDDNRSJ)+ Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD)))*100;
+                        dtNew.Rows[m]["纳入率(B/A)"] = inputNR==0? "0.00%" : inputNR.RoundFirstSignificantDigit().ToString()+"%";
+                        decimal inputCH = ((Convert.ToDecimal(strYuDuDDCHSJ) + Convert.ToDecimal(strJinJiDDCHSJ)) / (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD))) * 100;
+                        dtNew.Rows[m]["出荷率(D/A)"] = inputCH == 0 ? "0.00%" : inputCH.RoundFirstSignificantDigit().ToString() + "%";
+                    }
+                    if (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD) == 0)
+                    {
+                        dtNew.Rows[m]["前月纳入率"] = "0.00%";
+                        dtNew.Rows[m]["前月出荷率"] = "0.00%";
+                    }
+                    else
+                    {
+                        decimal inputLastNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        dtNew.Rows[m]["前月纳入率"] = inputLastNR == 0 ? "0.00%" : inputLastNR.RoundFirstSignificantDigit().ToString() + "%";
+                        decimal inputLastCH = ((Convert.ToDecimal(strLastYuDuDDCHSJ) + Convert.ToDecimal(strLastJinJiDDCHSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        dtNew.Rows[m]["前月出荷率"] = inputLastCH == 0 ? "0.00%" : inputLastCH.RoundFirstSignificantDigit().ToString() + "%";
+                    }
+                }
 
                 DtConverter dtConverter = new DtConverter();
                 
@@ -261,6 +302,89 @@ namespace SPPSApi.Controllers.G06
                     {
                         dr["收货方"] = "合计";
                         dtNew.ImportRow(dr);
+                    }
+                }
+                for (int m = 0; m < dtNew.Rows.Count; m++)
+                {
+                    string strYuDuDD = dtNew.Rows[m]["月度订单"].ToString() == "" ? "0" : dtNew.Rows[m]["月度订单"].ToString();
+                    string strJinJiDD = dtNew.Rows[m]["紧急订单"].ToString() == "" ? "0" : dtNew.Rows[m]["紧急订单"].ToString();
+                    string strYuDuDDNRSJ = dtNew.Rows[m]["月度订单纳入实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["月度订单纳入实绩"].ToString();
+                    string strJinJiDDNRSJ = dtNew.Rows[m]["紧急订单纳入实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["紧急订单纳入实绩"].ToString();
+                    string strYuDuDDCHSJ = dtNew.Rows[m]["月度订单出荷实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["月度订单出荷实绩"].ToString();
+                    string strJinJiDDCHSJ = dtNew.Rows[m]["紧急订单出荷实绩"].ToString() == "" ? "0" : dtNew.Rows[m]["紧急订单出荷实绩"].ToString();
+
+                    string strLastYuDuDD = dtNew.Rows[m]["lastYuDuOrder"].ToString() == "" ? "0" : dtNew.Rows[m]["lastYuDuOrder"].ToString();
+                    string strLastJinJiDD = dtNew.Rows[m]["lastJinJiOrder"].ToString() == "" ? "0" : dtNew.Rows[m]["lastJinJiOrder"].ToString();
+                    string strLastYuDuDDNRSJ = dtNew.Rows[m]["lastYuDuNRSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastYuDuNRSJ"].ToString();
+                    string strLastJinJiDDNRSJ = dtNew.Rows[m]["lastJinJiNRSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastJinJiNRSJ"].ToString();
+                    string strLastYuDuDDCHSJ = dtNew.Rows[m]["lastYuDuCHSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastYuDuCHSJ"].ToString();
+                    string strLastJinJiDDCHSJ = dtNew.Rows[m]["lastJinJiCHSJ"].ToString() == "" ? "0" : dtNew.Rows[m]["lastJinJiCHSJ"].ToString();
+
+                    if (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD) == 0)
+                    {
+                        dtNew.Rows[m]["纳入率(B/A)"] = "0.00%";
+                        dtNew.Rows[m]["出荷率(D/A)"] = "0.00%";
+                    }
+                    else
+                    {
+                        decimal inputNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD))) * 100;
+                        dtNew.Rows[m]["纳入率(B/A)"] = inputNR == 0 ? "0.00%" : inputNR.RoundFirstSignificantDigit().ToString() + "%";
+                        decimal inputCH = ((Convert.ToDecimal(strYuDuDDCHSJ) + Convert.ToDecimal(strJinJiDDCHSJ)) / (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD))) * 100;
+                        dtNew.Rows[m]["出荷率(D/A)"] = inputCH == 0 ? "0.00%" : inputCH.RoundFirstSignificantDigit().ToString() + "%";
+                    }
+                    if (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD) == 0)
+                    {
+                        dtNew.Rows[m]["前月纳入率"] = "0.00%";
+                        dtNew.Rows[m]["前月出荷率"] = "0.00%";
+                    }
+                    else
+                    {
+                        decimal inputLastNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        dtNew.Rows[m]["前月纳入率"] = inputLastNR == 0 ? "0.00%" : inputLastNR.RoundFirstSignificantDigit().ToString() + "%";
+                        decimal inputLastCH = ((Convert.ToDecimal(strLastYuDuDDCHSJ) + Convert.ToDecimal(strLastJinJiDDCHSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        dtNew.Rows[m]["前月出荷率"] = inputLastCH == 0 ? "0.00%" : inputLastCH.RoundFirstSignificantDigit().ToString() + "%";
+                    }
+                }
+
+                for (int m = 0; m < dtSumReport.Rows.Count; m++)
+                {
+                    string strYuDuDD = dtSumReport.Rows[m]["月度订单"].ToString() == "" ? "0" : dtSumReport.Rows[m]["月度订单"].ToString();
+                    string strJinJiDD = dtSumReport.Rows[m]["紧急订单"].ToString() == "" ? "0" : dtSumReport.Rows[m]["紧急订单"].ToString();
+                    string strYuDuDDNRSJ = dtSumReport.Rows[m]["月度订单纳入实绩"].ToString() == "" ? "0" : dtSumReport.Rows[m]["月度订单纳入实绩"].ToString();
+                    string strJinJiDDNRSJ = dtSumReport.Rows[m]["紧急订单纳入实绩"].ToString() == "" ? "0" : dtSumReport.Rows[m]["紧急订单纳入实绩"].ToString();
+                    string strYuDuDDCHSJ = dtSumReport.Rows[m]["月度订单出荷实绩"].ToString() == "" ? "0" : dtSumReport.Rows[m]["月度订单出荷实绩"].ToString();
+                    string strJinJiDDCHSJ = dtSumReport.Rows[m]["紧急订单出荷实绩"].ToString() == "" ? "0" : dtSumReport.Rows[m]["紧急订单出荷实绩"].ToString();
+
+                    string strLastYuDuDD = dtSumReport.Rows[m]["lastYuDuOrder"].ToString() == "" ? "0" : dtSumReport.Rows[m]["lastYuDuOrder"].ToString();
+                    string strLastJinJiDD = dtSumReport.Rows[m]["lastJinJiOrder"].ToString() == "" ? "0" : dtSumReport.Rows[m]["lastJinJiOrder"].ToString();
+                    string strLastYuDuDDNRSJ = dtSumReport.Rows[m]["lastYuDuNRSJ"].ToString() == "" ? "0" : dtSumReport.Rows[m]["lastYuDuNRSJ"].ToString();
+                    string strLastJinJiDDNRSJ = dtSumReport.Rows[m]["lastJinJiNRSJ"].ToString() == "" ? "0" : dtSumReport.Rows[m]["lastJinJiNRSJ"].ToString();
+                    string strLastYuDuDDCHSJ = dtSumReport.Rows[m]["lastYuDuCHSJ"].ToString() == "" ? "0" : dtSumReport.Rows[m]["lastYuDuCHSJ"].ToString();
+                    string strLastJinJiDDCHSJ = dtSumReport.Rows[m]["lastJinJiCHSJ"].ToString() == "" ? "0" : dtSumReport.Rows[m]["lastJinJiCHSJ"].ToString();
+
+                    if (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD) == 0)
+                    {
+                        dtSumReport.Rows[m]["纳入率(B/A)"] = "0.00%";
+                        dtSumReport.Rows[m]["出荷率(D/A)"] = "0.00%";
+                    }
+                    else
+                    {
+                        decimal inputNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD))) * 100;
+                        dtSumReport.Rows[m]["纳入率(B/A)"] = inputNR == 0 ? "0.00%" : inputNR.RoundFirstSignificantDigit().ToString() + "%";
+                        decimal inputCH = ((Convert.ToDecimal(strYuDuDDCHSJ) + Convert.ToDecimal(strJinJiDDCHSJ)) / (Convert.ToDecimal(strYuDuDD) + Convert.ToDecimal(strJinJiDD))) * 100;
+                        dtSumReport.Rows[m]["出荷率(D/A)"] = inputCH == 0 ? "0.00%" : inputCH.RoundFirstSignificantDigit().ToString() + "%";
+                    }
+                    if (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD) == 0)
+                    {
+                        dtSumReport.Rows[m]["前月纳入率"] = "0.00%";
+                        dtSumReport.Rows[m]["前月出荷率"] = "0.00%";
+                    }
+                    else
+                    {
+                        decimal inputLastNR = ((Convert.ToDecimal(strYuDuDDNRSJ) + Convert.ToDecimal(strJinJiDDNRSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        dtSumReport.Rows[m]["前月纳入率"] = inputLastNR == 0 ? "0.00%" : inputLastNR.RoundFirstSignificantDigit().ToString() + "%";
+                        decimal inputLastCH = ((Convert.ToDecimal(strLastYuDuDDCHSJ) + Convert.ToDecimal(strLastJinJiDDCHSJ)) / (Convert.ToDecimal(strLastYuDuDD) + Convert.ToDecimal(strLastJinJiDD))) * 100;
+                        dtSumReport.Rows[m]["前月出荷率"] = inputLastCH == 0 ? "0.00%" : inputLastCH.RoundFirstSignificantDigit().ToString() + "%";
                     }
                 }
 

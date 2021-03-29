@@ -51,6 +51,9 @@ namespace DataAccess
         #region 取soq数据(已合意)
         public DataTable GetSoqHy(string strPlant, string strYearMonth, string strType)
         {
+            DataTable temp = excute.ExcuteSqlWithSelectToDT("select top 1 vcValue from TCode where vcCodeId='C068'");
+            string vcReceiver = temp.Rows.Count == 1 ? temp.Rows[0][0].ToString() : "APC06";
+
             StringBuilder sql = new StringBuilder();
             string strhycolumn = "";
             if (strType == "dxym")
@@ -63,7 +66,7 @@ namespace DataAccess
             sql.Append("  left join   \n");
             sql.Append("  (   \n");
             sql.Append("  select * from TSPMaster   \n");
-            sql.Append("  )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId and b.vcReceiver='APC06'   \n");
+            sql.Append("  )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId and b.vcReceiver='"+ vcReceiver + "'   \n");
             sql.Append("  where a.vcYearMonth='" + strYearMonth + "' and a.vcFZGC='" + strPlant + "' and a.vcInOutFlag='0' and a.vcHyState='2'   order by a.iAutoId  \n");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
@@ -80,6 +83,9 @@ namespace DataAccess
             SqlTransaction st = conn.BeginTransaction();
             try
             {
+                DataTable temp = excute.ExcuteSqlWithSelectToDT("select top 1 vcValue from TCode where vcCodeId='C068'");
+                string vcReceiver = temp.Rows.Count == 1 ? temp.Rows[0][0].ToString() : "APC06";
+
                 StringBuilder sql = new StringBuilder();
                 sql.Append("delete from TSoqReply where vcCLYM='" + strCLYM + "' and vcDXYM in ('" + strDXYM + "','" + strNSYM + "','" + strNNSYM + "') " +
                     "and vcFZGC='" + strPlant + "' and vcInOutFlag='0'    \n");
@@ -173,7 +179,7 @@ namespace DataAccess
                     "and vcInOutFlag='0')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='APC06' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='"+ vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
                 sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id     \n");

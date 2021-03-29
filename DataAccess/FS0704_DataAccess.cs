@@ -71,7 +71,7 @@ namespace DataAccess
 
                 strSql.AppendLine($"      AND dFrom BETWEEN '{dFromB}' and '{dFromE}'");
                 strSql.AppendLine($"      AND dTo BETWEEN '{dToB}' and '{dToE}'");
-
+                strSql.AppendLine("      order by vcFaZhuID");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

@@ -224,6 +224,7 @@ namespace SPPSApi.Controllers.G00
                         }
                     }
                 }
+                
                 dtNewColum.Columns.Remove("iAutoId");
                 dtNewColum.Columns.Remove("vcIsColum");
                 dtNewColum.Columns.Remove("vcModFlag");
@@ -234,13 +235,18 @@ namespace SPPSApi.Controllers.G00
                 dtContentNew.Columns.Remove("vcAddFlag");
                 string[] head = new string[dtNewColum.Columns.Count];
                 string[] field = new string[dtNewColum.Columns.Count];
-                for (int i=0;i<dtNewColum.Columns.Count;i++)
+                for (int m=0;m< dtNewColum.Rows.Count;m++)
+                {
+                    dtNewColum.Rows[0][0] = "常量代码";
+                    dtNewColum.Rows[0][1] = "常量名称";
+                }
+                for (int i=0;i< dtNewColum.Columns.Count;i++)
                 {
                     head.SetValue(dtNewColum.Rows[0][i], i);
                 }
-                for (int i = 0; i < dtNewColum.Columns.Count; i++)
+                for (int i = 0; i < dtContentNew.Columns.Count; i++)
                 {
-                    field.SetValue(dtNewColum.Columns[i].ToString(), i);
+                    field.SetValue(dtContentNew.Columns[i].ToString(), i);
                 }
                 //head = new string[] { "常量区分代码", "常量区分名称", "Key键", "Key值", "备注" };
                 //field = new string[] { "vcCodeId", "vcCodeName", "vcValue", "vcName", "vcMeaning" };

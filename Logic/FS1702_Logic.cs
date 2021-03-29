@@ -356,6 +356,61 @@ namespace Logic
             else
                 return false;
         }
+
+        public DataTable createTable(string strSpSub)
+        {
+            DataTable dataTable = new DataTable();
+            if (strSpSub == "MES")
+            {
+                dataTable.Columns.Add("vcMessage");
+            }
+            return dataTable;
+        }
+
+        public bool getPrintInfo(List<Dictionary<string, Object>> listInfoData, string strOperId, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dataTable = fs1702_DataAccess.getPrintTemp("FS1702");
+                DataTable dtSub = dataTable.Clone();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string vcQueRenNo = listInfoData[0]["vcQueRenNo"] == null ? "" : listInfoData[0]["vcQueRenNo"].ToString(); 
+                    string vcProject = listInfoData[0]["vcProject"] == null ? "" : listInfoData[0]["vcProject"].ToString();
+                    string dChuHeDate = listInfoData[0]["dChuHeDate"] == null ? "" : listInfoData[0]["dChuHeDate"].ToString();
+                    DataTable dtSPInfo = fs1702_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
+                    string uuid = Guid.NewGuid().ToString("N");
+                    for (int j = 0; j < dtSPInfo.Rows.Count; j++)
+                    {
+                        DataRow dataRow = dtSub.NewRow();
+                        dataRow["UUID"] = uuid;
+                        dataRow["id"] = dtSPInfo.Rows[j]["id"].ToString();
+                        dataRow["vcPart_id"] = dtSPInfo.Rows[j]["vcPart_id"].ToString();
+                        dataRow["vcBackPart_id"] = dtSPInfo.Rows[j]["vcBackPart_id"].ToString();
+                        dataRow["iQuantity"] = dtSPInfo.Rows[j]["iQuantity"].ToString();
+                        dataRow["vcQueRenNo"] = vcQueRenNo;
+                        dtSub.Rows.Add(dataRow);
+                    }
+                }
+                if (dtSub.Rows.Count == 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "没有有效的装箱单数据，请确认后再操作。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                    return false;
+                fs1702_DataAccess.setPrintTemp(dtSub, strOperId, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                    return false;
+                else
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 }

@@ -322,7 +322,7 @@ namespace SPPSApi.Controllers.G06
             }
             try
             {
-                bool b = fs0626_Logic.updateData(strTargetMonth[0], strTargetMonth[1], loginInfo.UserId);
+                bool b = fs0626_Logic.updateData(strTargetMonth[0].Replace("-", ""), strTargetMonth[1].Replace("-", ""), loginInfo.UserId);
                 if (!b)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

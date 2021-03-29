@@ -333,8 +333,8 @@ namespace DataAccess
                     da.InsertCommand = new SqlCommand();
                     da.InsertCommand.Connection = conn;
                     da.InsertCommand.CommandType = CommandType.Text;
-                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, dOperatorTime, vcOperatorID) ";
-                    da.InsertCommand.CommandText += "values (SUBSTRING(@vcOrderNo,1,6), @vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, getdate(), '" + strUserId + "') ";
+                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, vcNoReceiveNumber, dOperatorTime, vcOperatorID) ";
+                    da.InsertCommand.CommandText += "values (SUBSTRING(@vcOrderNo,1,6), @vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, '0', getdate(), '" + strUserId + "') ";
                     da.InsertCommand.Parameters.Add("@vcSupplier_id", SqlDbType.VarChar, 4, "vcSupplier_id"); //供应商代码
                     da.InsertCommand.Parameters.Add("@vcWorkArea", SqlDbType.VarChar, 2, "vcWorkArea");//工区
                     da.InsertCommand.Parameters.Add("@vcDock", SqlDbType.VarChar, 6, "vcDock");//受入

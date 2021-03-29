@@ -108,6 +108,7 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ([UUID]");
                 strSql_sub.AppendLine("           ,[vcOperator]");
                 strSql_sub.AppendLine("           ,[dOperatorTime]");
+                strSql_sub.AppendLine("           ,[vcRows]");
                 strSql_sub.AppendLine("           ,[vcCpdcompany]");
                 strSql_sub.AppendLine("           ,[vcCompany]");
                 strSql_sub.AppendLine("           ,[vcPackingspot]");
@@ -128,6 +129,7 @@ namespace DataAccess
                 strSql_sub.AppendLine("           (@UUID");
                 strSql_sub.AppendLine("           ,'"+ strOperId + "'");
                 strSql_sub.AppendLine("           ,GETDATE()");
+                strSql_sub.AppendLine("           ,@vcRows");
                 strSql_sub.AppendLine("           ,@vcCpdcompany");
                 strSql_sub.AppendLine("           ,@vcCompany");
                 strSql_sub.AppendLine("           ,@vcPackingspot");
@@ -146,6 +148,7 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,@vcCodemage)");
                 sqlCommand_sub.CommandText = strSql_sub.ToString();
                 sqlCommand_sub.Parameters.AddWithValue("@UUID", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcRows", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcCpdcompany", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcCompany", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcPackingspot", "");
@@ -167,6 +170,7 @@ namespace DataAccess
                 {
                     #region Value
                     sqlCommand_sub.Parameters["@UUID"].Value = item["UUID"].ToString();
+                    sqlCommand_sub.Parameters["@vcRows"].Value = item["vcRows"];
                     sqlCommand_sub.Parameters["@vcCpdcompany"].Value = item["vcCpdcompany"];
                     sqlCommand_sub.Parameters["@vcCompany"].Value = item["vcCompany"];
                     sqlCommand_sub.Parameters["@vcPackingspot"].Value = item["vcPackingspot"];

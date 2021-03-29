@@ -81,9 +81,9 @@ namespace Logic
         }
 
         #region 欠品状态更新
-        public bool updateData(string vcTargetMonth, string userId)
+        public bool updateData(string vcTargetMonthFrom, string vcTargetMonthTo, string userId)
         {
-            return fs0626_DataAccess.updateData(vcTargetMonth, userId);
+            return fs0626_DataAccess.updateData(vcTargetMonthFrom, vcTargetMonthTo, userId);
         }
         #endregion
     }

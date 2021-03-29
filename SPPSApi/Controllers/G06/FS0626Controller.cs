@@ -311,10 +311,18 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
+            JArray vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
+            List<string> strTargetMonth = null;
             try
             {
-                bool b = fs0626_Logic.updateData(vcTargetMonth, loginInfo.UserId);
+                strTargetMonth = vcTargetMonth.ToObject<List<string>>();
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                bool b = fs0626_Logic.updateData(strTargetMonth[0], strTargetMonth[1], loginInfo.UserId);
                 if (!b)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -194,6 +194,14 @@ namespace DataAccess
                                         null,
                                         null
                                        );
+                        string vcDXYM = DateTime.Now.AddMonths(1).ToString("yyyy-MM");
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
+                        sb.Append("values ('" + vcDXYM + "','" + dt.Rows[i][0].ToString() + "',0,0," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0,'" + user + "','" + DateTime.Now.ToString() + "');");
+                        
+                        
+                        
+                        excute.ExecuteSQLNoQuery(sb.ToString());
                     }
                 }
                 SqlCommandBuilder cmdbuild = new SqlCommandBuilder(apt);

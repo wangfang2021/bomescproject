@@ -25,7 +25,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select [iAutoId],case when vcIsExportFlag ='1' then '已导入' else '未导入' end as vcIsExportFlag, convert(varchar(10), dOrderHandleDate,111) as [dOrderHandleDate], [vcOrderNo], [vcPartNo], c.vcName as [vcInsideOutsideType], d.vcName as [vcNewOldFlag],    ");
-                strSql.AppendLine("  b.vcName as [vcInjectionFactory], [vcDock], [vcSupplier_id], [vcWorkArea], [vcCHCCode], [vcCarType], [vcOrderNum],     ");
+                strSql.AppendLine("  b.vcName as [vcInjectionFactory], [vcDock], [vcSupplier_id], [vcWorkArea], [vcCHCCode], [vcCarType], cast(isnull(vcOrderNum,0) as int) as [vcOrderNum],     ");
                 strSql.AppendLine("   convert(varchar(10), dExpectReceiveDate,111) as [dExpectReceiveDate], [vcOderTimes],[vcInjectionOrderNo], [vcMemo],      ");
                 strSql.AppendLine("   [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag  from TEmergentOrderManage a   ");
                 strSql.AppendLine("   left join (select vcValue,vcName from TCode where vcCodeId='C000') b on a.vcInjectionFactory = b.vcValue   ");

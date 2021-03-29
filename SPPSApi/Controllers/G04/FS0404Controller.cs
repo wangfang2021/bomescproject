@@ -145,12 +145,13 @@ namespace SPPSApi.Controllers.G04
                 string[] head = new string[] { };
                 string[] field = new string[] { };
                 //[vcOrderNo], [dTargetDate], [vcOrderType] ,vcOrderState,[dUploadDate],[vcMemo]
-                head = new string[] { "订单编号", "对象年月日", "订单类型","内外", "状态", "备注", "上传时间" };
+                head = new string[] { "订单编号", "对象年月日", "订单类型", "状态", "备注", "上传时间" };
 
-                field = new string[] { "vcOrderNo", "dTargetDate", "vcOrderType", "vcInOutFlag", "vcOrderState", "vcMemo", "dUploadDate" };
+                field = new string[] { "vcOrderNo", "dTargetDate", "vcOrderType", "vcOrderState", "vcMemo", "dUploadDate" };
                 string msg = string.Empty;
+                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0404_Data.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
-                string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
+                //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

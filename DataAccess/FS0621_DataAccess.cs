@@ -126,7 +126,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  SELECT  [iAutoId], [CPDCOMPANY],convert(varchar(10), dInputDate,111) as [dInputDate],left([TARGETMONTH],4)+'/'+right([TARGETMONTH],2) as [TARGETMONTH], [PARTSNO], [CARFAMCODE],c.vcName as [INOUTFLAG], [SUPPLIERCODE],   ");
-                strSql.AppendLine("  [iSupplierPlant], [DOCK], [RESULTQTYTOTAL], [varInputUser] ,'0' as vcModFlag,'0' as vcAddFlagFROM from [TNeiShi] a   ");
+                strSql.AppendLine("  [iSupplierPlant], [DOCK],cast(isnull(RESULTQTYTOTAL,0) as decimal(18,2)) as RESULTQTYTOTAL, [varInputUser] ,'0' as vcModFlag,'0' as vcAddFlagFROM from [TNeiShi] a   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C018') b on a.[CPDCOMPANY] = b.vcValue   ");
                 strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C003') c on a.[INOUTFLAG] = c.vcValue  where 1=1  ");
 

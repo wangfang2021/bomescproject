@@ -102,13 +102,13 @@ namespace SPPSApi.Controllers.G06
 
             string strState = dataForm.State;
             List<Object> listOrderNo = dataForm.OrderNoList.ToObject<List<Object>>();
-            string strPartId = dataForm.PartId;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strOrderPlant = dataForm.OrderPlant;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strReplyOverDate = dataForm.ReplyOverDate;
-            string strOutPutDate = dataForm.OutPutDate;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant.ToString();
+            string strReplyOverDate = dataForm.ReplyOverDate == null ? "" : dataForm.ReplyOverDate.ToString();
+            string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
 
             try
             {
@@ -173,13 +173,13 @@ namespace SPPSApi.Controllers.G06
 
             string strState = dataForm.State;
             List<Object> listOrderNo = dataForm.OrderNoList.ToObject<List<Object>>();
-            string strPartId = dataForm.PartId;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strOrderPlant = dataForm.OrderPlant;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strReplyOverDate = dataForm.ReplyOverDate;
-            string strOutPutDate = dataForm.OutPutDate;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant.ToString();
+            string strReplyOverDate = dataForm.ReplyOverDate == null ? "" : dataForm.ReplyOverDate.ToString();
+            string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
             try
             {
                 DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
@@ -225,6 +225,7 @@ namespace SPPSApi.Controllers.G06
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            Dictionary<string, object> res = new Dictionary<string, object>();
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
@@ -232,6 +233,8 @@ namespace SPPSApi.Controllers.G06
                 List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
                 JArray listInfo = dataForm.alltemp.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                int icurrentPage = Convert.ToInt32(dataForm.currentPage == null ? "1" : dataForm.currentPage);
+                int iorderby = 0;
                 bool hasFind = false;//是否找到需要新增或者修改的数据
                 for (int i = 0; i < listMultipleData.Count; i++)
                 {
@@ -266,8 +269,10 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                res.Add("icurrentPage", icurrentPage);
+                res.Add("iorderby", iorderby);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -303,14 +308,13 @@ namespace SPPSApi.Controllers.G06
 
                 string strState = dataForm.searchform.State;
                 List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
-                string strPartId = dataForm.searchform.PartId;
-                string strHaoJiu = dataForm.searchform.HaoJiu;
-                string strOrderPlant = dataForm.searchform.OrderPlant;
-                string strSupplierId = dataForm.searchform.SupplierId;
-                string strSupplierPlant = dataForm.searchform.SupplierPlant;
-                string strReplyOverDate = dataForm.searchform.ReplyOverDate;
-                string strOutPutDate = dataForm.searchform.OutPutDate;
-
+                string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+                string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
+                string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
+                string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
+                string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant.ToString();
+                string strReplyOverDate = dataForm.ReplyOverDate == null ? "" : dataForm.ReplyOverDate.ToString();
+                string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
 
                 JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
                 List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
@@ -375,13 +379,13 @@ namespace SPPSApi.Controllers.G06
 
                 string strState = dataForm.searchform.State;
                 List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
-                string strPartId = dataForm.searchform.PartId;
-                string strHaoJiu = dataForm.searchform.HaoJiu;
-                string strOrderPlant = dataForm.searchform.OrderPlant;
-                string strSupplierId = dataForm.searchform.SupplierId;
-                string strSupplierPlant = dataForm.searchform.SupplierPlant;
-                string strReplyOverDate = dataForm.searchform.ReplyOverDate;
-                string strOutPutDate = dataForm.searchform.OutPutDate;
+                string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+                string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
+                string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
+                string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
+                string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant.ToString();
+                string strReplyOverDate = dataForm.ReplyOverDate == null ? "" : dataForm.ReplyOverDate.ToString();
+                string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
                 string dOutPutDate = dataForm.info;
 
                 JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
@@ -503,13 +507,13 @@ namespace SPPSApi.Controllers.G06
 
                 string strState = dataForm.searchform.State;
                 List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
-                string strPartId = dataForm.searchform.PartId;
-                string strHaoJiu = dataForm.searchform.HaoJiu;
-                string strOrderPlant = dataForm.searchform.OrderPlant;
-                string strSupplierId = dataForm.searchform.SupplierId;
-                string strSupplierPlant = dataForm.searchform.SupplierPlant;
-                string strReplyOverDate = dataForm.searchform.ReplyOverDate;
-                string strOutPutDate = dataForm.searchform.OutPutDate;
+                string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+                string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
+                string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
+                string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
+                string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant.ToString();
+                string strReplyOverDate = dataForm.ReplyOverDate == null ? "" : dataForm.ReplyOverDate.ToString();
+                string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
                 string dReplyOverDate = dataForm.info;//期望回复日
                 string strEmailBody = dataForm.mailboy;//邮件体
                 JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
@@ -695,8 +699,10 @@ namespace SPPSApi.Controllers.G06
                 bool bIsInteger = true;
                 for (int i = 0; i < dtImport.Rows.Count; i++)
                 {
-                    decimal decBoxQuantity = Convert.ToDecimal(dtImport.Rows[i]["decBoxQuantity"].ToString());
-                    if (!((decBoxQuantity % 1) == 0))
+                    string decBoxQuantity = dtImport.Rows[i]["decBoxQuantity"].ToString();
+                    string strBoxColor = fS0616_logic.IsInteger(decBoxQuantity);
+                    //decimal decBoxQuantity = Convert.ToDecimal(dtImport.Rows[i]["decBoxQuantity"].ToString());
+                    if (strBoxColor=="1")
                     {
                         bIsInteger = false;
                         break;

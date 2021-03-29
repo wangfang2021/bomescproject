@@ -14,7 +14,7 @@ namespace DataAccess
 
         public DataTable getSearchInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
                   string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                  string strDyInfo, string strHyInfo)
+                  string strDyInfo, string strHyInfo, string strOverDue)
         {
             try
             {
@@ -41,27 +41,27 @@ namespace DataAccess
                 strSql.AppendLine("		T1.vcSupplier_id AS vcSupplierId,");
                 strSql.AppendLine("		T1.vcSupplierPlant AS vcSupplierPlant,");
                 strSql.AppendLine("		T1.iQuantityPercontainer AS iPackingQty,");
-                strSql.AppendLine("		T1.iCbSOQN AS iCbSOQN,");
+                strSql.AppendLine("		CAST(T1.iCbSOQN AS INT) AS iCbSOQN,");
                 strSql.AppendLine("		case when isnull( cast(T1.decCbBdl as varchar(10)),'')='' then ''");
                 strSql.AppendLine("			else case when T1.decCbBdl>999 then '>999%'");
                 strSql.AppendLine("					  when (T1.decCbBdl*(-1))>999 then '<-999%'");
                 strSql.AppendLine("					  else cast(T1.decCbBdl as varchar(10))+'%' end");
                 strSql.AppendLine("			 end AS decCbBdl,");
-                strSql.AppendLine("		T1.iCbSOQN1 AS iCbSOQN1,");
-                strSql.AppendLine("		T1.iCbSOQN2 AS iCbSOQN2,");
-                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,ISNULL(T1.iCbSOQN,0)) ELSE ISNULL(T1.iTzhSOQN,0) END AS iTzhSOQN,");
-                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN1 IS NULL THEN ISNULL(T8.iTzhSOQN1,ISNULL(T1.iCbSOQN1,0)) ELSE ISNULL(T1.iTzhSOQN1,0) END AS iTzhSOQN1,");
-                strSql.AppendLine("		CASE WHEN T1.iTzhSOQN2 IS NULL THEN ISNULL(T8.iTzhSOQN2,ISNULL(T1.iCbSOQN2,0)) ELSE ISNULL(T1.iTzhSOQN2,0) END AS iTzhSOQN2,");
-                strSql.AppendLine("		T1.iHySOQN AS iHySOQN,");
-                strSql.AppendLine("		T1.iHySOQN1 AS iHySOQN1,");
-                strSql.AppendLine("		T1.iHySOQN2 AS iHySOQN2,");
-                strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dExpectTime,23) END AS dExpectTime,");
-                strSql.AppendLine("		CASE WHEN T1.dSReplyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dSReplyTime,120) END AS dSReplyTime,");
+                strSql.AppendLine("		CAST(T1.iCbSOQN1 AS INT) AS iCbSOQN1,");
+                strSql.AppendLine("		CAST(T1.iCbSOQN2 AS INT) AS iCbSOQN2,");
+                strSql.AppendLine("		CAST(CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,ISNULL(T1.iCbSOQN,0)) ELSE ISNULL(T1.iTzhSOQN,0) END AS INT) AS iTzhSOQN,");
+                strSql.AppendLine("		CAST(CASE WHEN T1.iTzhSOQN1 IS NULL THEN ISNULL(T8.iTzhSOQN1,ISNULL(T1.iCbSOQN1,0)) ELSE ISNULL(T1.iTzhSOQN1,0) END AS INT) AS iTzhSOQN1,");
+                strSql.AppendLine("		CAST(CASE WHEN T1.iTzhSOQN2 IS NULL THEN ISNULL(T8.iTzhSOQN2,ISNULL(T1.iCbSOQN2,0)) ELSE ISNULL(T1.iTzhSOQN2,0) END AS INT) AS iTzhSOQN2,");
+                strSql.AppendLine("		CASE WHEN T1.iHySOQN IS NOT NULL THEN CAST(T1.iHySOQN AS INT) ELSE '' END AS iHySOQN,");
+                strSql.AppendLine("		CASE WHEN T1.iHySOQN1 IS NOT NULL THEN CAST(T1.iHySOQN1 AS INT) ELSE '' END AS iHySOQN1,");
+                strSql.AppendLine("		CASE WHEN T1.iHySOQN2 IS NOT NULL THEN CAST(T1.iHySOQN2 AS INT) ELSE '' END AS iHySOQN2,");
+                strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dExpectTime,111) END AS dExpectTime,");
+                strSql.AppendLine("		CASE WHEN T1.dSReplyTime IS NULL THEN '' ELSE replace(CONVERT(VARCHAR(20),T1.dSReplyTime,120),'-','/') END AS dSReplyTime,");
                 strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE (");
                 strSql.AppendLine("			CASE WHEN T1.dSReplyTime IS NULL THEN (CASE WHEN CONVERT(VARCHAR(10),T1.dExpectTime,23)>=CONVERT(VARCHAR(10),GETDATE(),23) THEN '' ELSE '逾期' END) ");
                 strSql.AppendLine("				ELSE (CASE WHEN CONVERT(VARCHAR(10),T1.dSReplyTime,23)<=CONVERT(VARCHAR(10),T1.dExpectTime,23) THEN '' ELSE '逾期' END) END ");
                 strSql.AppendLine("		) END AS vcOverDue,		");
-                strSql.AppendLine("		CASE WHEN T1.dHyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dHyTime,120) END AS dHyTime");
+                strSql.AppendLine("		CASE WHEN T1.dHyTime IS NULL THEN '' ELSE replace(CONVERT(VARCHAR(20),T1.dHyTime,120),'-','/')  END AS dHyTime");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("(select * from TSoq ");
                 strSql.AppendLine("where 1=1 and vcDyState in (" + strDyInfo + ") and vcHyState in (" + strHyInfo + ") ");
@@ -140,6 +140,14 @@ namespace DataAccess
                 strSql.AppendLine(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id  and a.dOperatorTime=b.dOperatorTime)T8 ");
                 strSql.AppendLine("on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id");
                 strSql.AppendLine(")TT");
+                if (strOverDue == "1")
+                {
+                    strSql.AppendLine("WHERE vcOverDue='逾期'");
+                }
+                if (strOverDue == "2")
+                {
+                    strSql.AppendLine("WHERE vcOverDue<>'逾期'");
+                }
                 strSql.AppendLine("order by TT.LinId");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -150,7 +158,7 @@ namespace DataAccess
         }
         public DataTable getHeJiInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
                string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-               string strDyInfo, string strHyInfo)
+               string strDyInfo, string strHyInfo, string strOverDue)
         {
             try
             {
@@ -166,22 +174,22 @@ namespace DataAccess
                 strSql.AppendLine("	'0' as bModFlag,'0' as bAddFlag,'0'  as bSelectFlag");
                 strSql.AppendLine("FROM (");
                 strSql.AppendLine("select T1.iAutoId AS LinId,");
-                strSql.AppendLine("		T1.vcYearMonth AS vcYearMonth,");
-                strSql.AppendLine("		T1.vcDyState,");
-                strSql.AppendLine("		T6.vcName AS vcDyState_Name,");
-                strSql.AppendLine("		T1.vcHyState,");
-                strSql.AppendLine("		T7.vcName AS vcHyState_Name,");
-                strSql.AppendLine("		T1.vcPart_id AS vcPart_id,");
-                strSql.AppendLine("		T1.vcCarFamilyCode AS vcCarfamilyCode,");
-                strSql.AppendLine("		T3.vcName AS vcHaoJiu,");
-                strSql.AppendLine("		T4.vcName AS vcOrderingMethod,");
-                strSql.AppendLine("		T5.vcName AS vcOrderPlant,");
-                strSql.AppendLine("		T2.vcName AS vcInOut,");
-                strSql.AppendLine("		T1.vcSupplier_id AS vcSupplierId,");
-                strSql.AppendLine("		T1.vcSupplierPlant AS vcSupplierPlant,");
-                strSql.AppendLine("		T1.iQuantityPercontainer AS iPackingQty,");
+                //strSql.AppendLine("		T1.vcYearMonth AS vcYearMonth,");
+                //strSql.AppendLine("		T1.vcDyState,");
+                //strSql.AppendLine("		T6.vcName AS vcDyState_Name,");
+                //strSql.AppendLine("		T1.vcHyState,");
+                //strSql.AppendLine("		T7.vcName AS vcHyState_Name,");
+                //strSql.AppendLine("		T1.vcPart_id AS vcPart_id,");
+                //strSql.AppendLine("		T1.vcCarFamilyCode AS vcCarfamilyCode,");
+                //strSql.AppendLine("		T3.vcName AS vcHaoJiu,");
+                //strSql.AppendLine("		T4.vcName AS vcOrderingMethod,");
+                //strSql.AppendLine("		T5.vcName AS vcOrderPlant,");
+                //strSql.AppendLine("		T2.vcName AS vcInOut,");
+                //strSql.AppendLine("		T1.vcSupplier_id AS vcSupplierId,");
+                //strSql.AppendLine("		T1.vcSupplierPlant AS vcSupplierPlant,");
+                //strSql.AppendLine("		T1.iQuantityPercontainer AS iPackingQty,");
                 strSql.AppendLine("		T1.iCbSOQN AS iCbSOQN,");
-                strSql.AppendLine("		case when isnull( cast(T1.decCbBdl as varchar(10)),'')='' then '' else cast(T1.decCbBdl as varchar(10))+'%' end AS decCbBdl,");
+                //strSql.AppendLine("		case when isnull( cast(T1.decCbBdl as varchar(10)),'')='' then '' else cast(T1.decCbBdl as varchar(10))+'%' end AS decCbBdl,");
                 strSql.AppendLine("		T1.iCbSOQN1 AS iCbSOQN1,");
                 strSql.AppendLine("		T1.iCbSOQN2 AS iCbSOQN2,");
                 strSql.AppendLine("		CASE WHEN T1.iTzhSOQN IS NULL THEN ISNULL(T8.iTzhSOQN,ISNULL(T1.iCbSOQN,0)) ELSE ISNULL(T1.iTzhSOQN,0) END AS iTzhSOQN,");
@@ -190,13 +198,13 @@ namespace DataAccess
                 strSql.AppendLine("		T1.iHySOQN AS iHySOQN,");
                 strSql.AppendLine("		T1.iHySOQN1 AS iHySOQN1,");
                 strSql.AppendLine("		T1.iHySOQN2 AS iHySOQN2,");
-                strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dExpectTime,23) END AS dExpectTime,");
-                strSql.AppendLine("		CASE WHEN T1.dSReplyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dSReplyTime,120) END AS dSReplyTime,");
+                //strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dExpectTime,23) END AS dExpectTime,");
+                //strSql.AppendLine("		CASE WHEN T1.dSReplyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dSReplyTime,120) END AS dSReplyTime,");
                 strSql.AppendLine("		CASE WHEN T1.dExpectTime IS NULL THEN '' ELSE (");
                 strSql.AppendLine("			CASE WHEN T1.dSReplyTime IS NULL THEN (CASE WHEN CONVERT(VARCHAR(10),T1.dExpectTime,23)>=CONVERT(VARCHAR(10),GETDATE(),23) THEN '' ELSE '逾期' END) ");
                 strSql.AppendLine("				ELSE (CASE WHEN CONVERT(VARCHAR(10),T1.dSReplyTime,23)<=CONVERT(VARCHAR(10),T1.dExpectTime,23) THEN '' ELSE '逾期' END) END ");
-                strSql.AppendLine("		) END AS vcOverDue,		");
-                strSql.AppendLine("		CASE WHEN T1.dHyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dHyTime,120) END AS dHyTime");
+                strSql.AppendLine("		) END AS vcOverDue");
+                //strSql.AppendLine("		CASE WHEN T1.dHyTime IS NULL THEN '' ELSE CONVERT(VARCHAR(10),T1.dHyTime,120) END AS dHyTime");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("(select * from TSoq ");
                 strSql.AppendLine("where 1=1 and vcDyState in (" + strDyInfo + ") and vcHyState in (" + strHyInfo + ") ");
@@ -245,24 +253,24 @@ namespace DataAccess
                     strSql.AppendLine("and vcSupplierPlant='" + strSupplierPlant + "'");
                 }
                 strSql.AppendLine(")T1 ");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T2--内外区分 ");
-                strSql.AppendLine("on T1.vcInOutFlag=T2.vcValue ");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T3--号旧区分 ");
-                strSql.AppendLine("on T1.vcCurrentPastcode=T3.vcValue ");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T4--订货方式 ");
-                strSql.AppendLine("on T1.vcMakingOrderType=T4.vcValue ");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T5--发注工厂 ");
-                strSql.AppendLine("on T1.vcFZGC=T5.vcValue ");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C036')T6--对应状态 ");
-                strSql.AppendLine("on T1.vcDyState=T6.vcValue ");
-                strSql.AppendLine("left join ");
-                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C037')T7--合意状态 ");
-                strSql.AppendLine("on T1.vcHyState=T7.vcValue ");
+                //strSql.AppendLine("left join ");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T2--内外区分 ");
+                //strSql.AppendLine("on T1.vcInOutFlag=T2.vcValue ");
+                //strSql.AppendLine("left join ");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T3--号旧区分 ");
+                //strSql.AppendLine("on T1.vcCurrentPastcode=T3.vcValue ");
+                //strSql.AppendLine("left join ");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T4--订货方式 ");
+                //strSql.AppendLine("on T1.vcMakingOrderType=T4.vcValue ");
+                //strSql.AppendLine("left join ");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T5--发注工厂 ");
+                //strSql.AppendLine("on T1.vcFZGC=T5.vcValue ");
+                //strSql.AppendLine("left join ");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C036')T6--对应状态 ");
+                //strSql.AppendLine("on T1.vcDyState=T6.vcValue ");
+                //strSql.AppendLine("left join ");
+                //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C037')T7--合意状态 ");
+                //strSql.AppendLine("on T1.vcHyState=T7.vcValue ");
                 strSql.AppendLine("left join ");
                 strSql.AppendLine("(select a.vcYearMonth,a.vcPart_id,a.iTzhSOQN,a.iTzhSOQN1,a.iTzhSOQN2      ");
                 strSql.AppendLine("from  ");
@@ -275,6 +283,14 @@ namespace DataAccess
                 strSql.AppendLine(")b on a.vcYearMonth=b.vcYearMonth and a.vcPart_id=b.vcPart_id  and a.dOperatorTime=b.dOperatorTime)T8 ");
                 strSql.AppendLine("on T1.vcYearMonth=t8.vcYearMonth and t1.vcPart_id=t8.vcPart_id");
                 strSql.AppendLine(")TT");
+                if (strOverDue == "1")
+                {
+                    strSql.AppendLine("WHERE vcOverDue='逾期'");
+                }
+                if (strOverDue == "2")
+                {
+                    strSql.AppendLine("WHERE vcOverDue<>'逾期'");
+                }
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -1135,7 +1151,7 @@ namespace DataAccess
                 sqlCommand_modinfo.CommandType = CommandType.Text;
                 StringBuilder strSql_modinfo = new StringBuilder();
                 strSql_modinfo.AppendLine("update T1 SET");
-                strSql_modinfo.AppendLine("	 T1.[vcHyState]='" + strHyState + "'");
+                strSql_modinfo.AppendLine("	 T1.[vcHyState]=@vcHy4");
                 strSql_modinfo.AppendLine("	 ,T1.vcDyState=(case when (ISNULL(T2.iTzhSOQN,0)<>ISNULL(T1.iCbSOQN,0) or ");
                 strSql_modinfo.AppendLine("	 						   ISNULL(T2.iTzhSOQN1,0)<>ISNULL(T1.iCbSOQN1,0) or");
                 strSql_modinfo.AppendLine("	 						   ISNULL(T2.iTzhSOQN2,0)<>ISNULL(T1.iCbSOQN2,0))");
@@ -1158,10 +1174,12 @@ namespace DataAccess
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcYearMonth", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcPart_id", "");
+                sqlCommand_modinfo.Parameters.AddWithValue("@vcHy4", "");
                 foreach (DataRow item in dtImport.Rows)
                 {
                     sqlCommand_modinfo.Parameters["@vcYearMonth"].Value = item["vcYearMonth"].ToString();
                     sqlCommand_modinfo.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
+                    sqlCommand_modinfo.Parameters["@vcHy4"].Value = item["vcHy4"].ToString();
                     sqlCommand_modinfo.ExecuteNonQuery();
                 }
                 //提交事务
@@ -1221,12 +1239,12 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("select * from ( ");
-                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcLinkMan1 as vcLXR1,vcEmail1 as vcEmail1 FROM TSupplierInfo ");
+                sbr.AppendLine("select distinct * from ( ");
+                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcWorkArea as vcSupplierPlant,vcLinkMan1 as vcLXR1,vcEmail1 as vcEmail1 FROM TSupplierInfo ");
                 sbr.AppendLine("union  ");
-                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcLinkMan2 as vcLXR1,vcEmail2 as vcEmail1 FROM TSupplierInfo ");
+                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcWorkArea as vcSupplierPlant,vcLinkMan2 as vcLXR1,vcEmail2 as vcEmail1 FROM TSupplierInfo ");
                 sbr.AppendLine("union ");
-                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcLinkMan3 as vcLXR1,vcEmail3 as vcEmail1 FROM TSupplierInfo)a ");
+                sbr.AppendLine("SELECT vcSupplier_id as vcSupplier_id,vcWorkArea as vcSupplierPlant,vcLinkMan3 as vcLXR1,vcEmail3 as vcEmail1 FROM TSupplierInfo)a ");
                 sbr.AppendLine("where isnull(a.vcLXR1,'')<>'' and isnull(a.vcEmail1,'')<>'' ");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }

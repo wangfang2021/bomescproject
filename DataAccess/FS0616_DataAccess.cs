@@ -33,7 +33,7 @@ namespace DataAccess
                 strSql.AppendLine("		,isnull(CONVERT(VARCHAR(10),t2.dOutPutDate,111),'--') as vcOutPutDate_Name");
                 strSql.AppendLine("		from ");
                 strSql.AppendLine("(select * from TUrgentOrder");
-                strSql.AppendLine("where vcShowFlag='1'");
+                strSql.AppendLine("where vcShowFlag='1' and vcStatus<>'3'");
                 strSql.AppendLine(")t1");
                 strSql.AppendLine("left join");
                 strSql.AppendLine("(select * from VI_UrgentOrder_OperHistory where cast(isnull(iDuiYingQuantity,0) as decimal(16,2))<>0)t2");
@@ -82,8 +82,9 @@ namespace DataAccess
                 strSql.AppendLine("		,CONVERT(VARCHAR(10),t2.dDeliveryDate,111) as dDeliveryDate");
                 strSql.AppendLine("		,CONVERT(VARCHAR(10),t2.dOutPutDate,111) as dOutPutDate");
                 strSql.AppendLine("		,CONVERT(VARCHAR(10),t1.dReplyOverDate,111) as dReplyOverDate");
-                strSql.AppendLine("		,CONVERT(VARCHAR(10),t1.dSupReplyTime,111) as dSupReplyTime ");
-                strSql.AppendLine("		,CASE WHEN t2.decBoxQuantity IS NULL THEN '0' ELSE CASE WHEN CAST(t2.decBoxQuantity AS INT)=t2.decBoxQuantity THEN '0' ELSE '1' END END AS vcBoxColor");
+                strSql.AppendLine("		,CASE WHEN T1.dSupReplyTime IS NULL THEN '' ELSE replace(CONVERT(VARCHAR(20),T1.dSupReplyTime,120),'-','/')  END AS dSupReplyTime ");
+                //strSql.AppendLine("		,CASE WHEN t2.decBoxQuantity IS NULL THEN '0' ELSE CASE WHEN CAST(t2.decBoxQuantity AS INT)=t2.decBoxQuantity THEN '0' ELSE '1' END END AS vcBoxColor");
+                strSql.AppendLine("		,'0' AS vcBoxColor");
                 strSql.AppendLine("		,CASE WHEN t7.iDuiYingSum IS NULL THEN '0' ELSE CASE WHEN CAST(t7.iDuiYingSum AS INT)=CAST(t1.iOrderQuantity as int) THEN '0' ELSE '1' END END AS vcDuiYingColor");
                 strSql.AppendLine("		,'' as vcBgColor,'0' as bModFlag,'0' as bAddFlag");
                 strSql.AppendLine("		,CASE WHEN t1.vcStatus='3' THEN '0' ELSE '1' END as bSelectFlag");
@@ -188,7 +189,7 @@ namespace DataAccess
                         strSql.AppendLine("AND CONVERT(VARCHAR(10),t2.dOutPutDate,111)='" + strOutPutDate + "'");
                     }
                 }
-                strSql.AppendLine("ORDER BY T1.vcOrderNo,t1.iAutoId,t2.iAutoId");
+                strSql.AppendLine("ORDER BY t1.iAutoId desc,t1.vcPart_id");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -485,8 +486,9 @@ namespace DataAccess
                 strSql.AppendLine("		,CONVERT(VARCHAR(10),t2.dDeliveryDate,111) as dDeliveryDate");
                 strSql.AppendLine("		,CONVERT(VARCHAR(10),t2.dOutPutDate,111) as dOutPutDate");
                 strSql.AppendLine("		,CONVERT(VARCHAR(10),t1.dReplyOverDate,111) as dReplyOverDate");
-                strSql.AppendLine("		,CONVERT(VARCHAR(10),t1.dSupReplyTime,111) as dSupReplyTime ");
-                strSql.AppendLine("		,CASE WHEN t2.decBoxQuantity IS NULL THEN '0' ELSE CASE WHEN CAST(t2.decBoxQuantity AS INT)=t2.decBoxQuantity THEN '0' ELSE '1' END END AS vcBoxColor");
+                strSql.AppendLine("		,CASE WHEN T1.dSupReplyTime IS NULL THEN '' ELSE replace(CONVERT(VARCHAR(20),T1.dSupReplyTime,120),'-','/')  END AS dSupReplyTime");
+                strSql.AppendLine("		, '0' AS vcBoxColor");
+                //strSql.AppendLine("		,CASE WHEN t2.decBoxQuantity IS NULL THEN '0' ELSE CASE WHEN CAST(t2.decBoxQuantity AS INT)=t2.decBoxQuantity THEN '0' ELSE '1' END END AS vcBoxColor");
                 strSql.AppendLine("		,CASE WHEN t7.iDuiYingSum IS NULL THEN '0' ELSE CASE WHEN CAST(t7.iDuiYingSum AS INT)=CAST(t1.iOrderQuantity as int) THEN '0' ELSE '1' END END AS vcDuiYingColor");
                 strSql.AppendLine("		,'' as vcBgColor");
                 strSql.AppendLine("		,CASE WHEN t1.vcStatus='3' THEN '0' ELSE '1' END as bModFlag");

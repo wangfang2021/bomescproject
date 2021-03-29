@@ -52,6 +52,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("UPDATE [TSPMaster] SET vcMandOrder='0' WHERE vcMandOrder IS NULL");
                 strSql.AppendLine("SELECT distinct ISNULL(T1.vcChanges,'--') AS vcChanges_Value,");
                 strSql.AppendLine("		ISNULL(T6.vcName,'--') AS vcChanges_Name,");
                 strSql.AppendLine("		ISNULL(T1.vcPackingPlant,'--') AS vcPackingPlant_Value,");
@@ -85,7 +86,11 @@ namespace DataAccess
                 strSql.AppendLine("		ISNULL(T1.vcOldProduction,'--') AS vcOldProduction_Value,");
                 strSql.AppendLine("		ISNULL(T1.vcOldProduction,'--') AS vcOldProduction_Name,");
                 strSql.AppendLine("		ISNULL(CONVERT(VARCHAR(7),T1.dDebugTime,111),'--') AS vcDebugTime_Value,");
-                strSql.AppendLine("		ISNULL(CONVERT(VARCHAR(7),T1.dDebugTime,111),'--') AS vcDebugTime_Name");
+                strSql.AppendLine("		ISNULL(CONVERT(VARCHAR(7),T1.dDebugTime,111),'--') AS vcDebugTime_Name,");
+                strSql.AppendLine("		ISNULL(T1.vcOrderingMethod,'--') AS vcOrderingMethod_Value,");
+                strSql.AppendLine("		ISNULL(T12.vcName,'--') AS vcOrderingMethod_Name,");
+                strSql.AppendLine("		ISNULL(T1.vcMandOrder,'--') AS vcMandOrder_Value,");
+                strSql.AppendLine("		ISNULL(T13.vcName,'--') AS vcMandOrder_Name");
                 strSql.AppendLine("		FROM ");
                 strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE isnull(vcDelete, '') <> '1'");
                 if (strInOut != "")
@@ -127,6 +132,12 @@ namespace DataAccess
                 //strSql.AppendLine("LEFT JOIN");
                 //strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C024')T12--旧型年限生产区分");
                 //strSql.AppendLine("ON T1.vcOldProduction=T12.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T12--订货方式");
+                strSql.AppendLine("ON T1.vcOrderingMethod=T12.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C048')T13--强制订货");
+                strSql.AppendLine("ON isnull(T1.vcMandOrder,'0')=T13.vcValue");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
 
             }
@@ -136,7 +147,7 @@ namespace DataAccess
             }
         }
         public DataTable getSearchInfo(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby)
+                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, string strOrderingMethod, string strMandOrder, string strSPChild)
         {
             try
             {
@@ -348,6 +359,28 @@ namespace DataAccess
                         strSql.AppendLine("    AND CONVERT(varchar(7),[dDebugTime],111)='" + strDebugTime + "'");
                     }
                 }
+                if (strOrderingMethod != "")
+                {
+                    if (strOrderingMethod == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOrderingMethod,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOrderingMethod]='" + strOrderingMethod + "'");
+                    }
+                }
+                if (strMandOrder != "")
+                {
+                    if (strMandOrder == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcMandOrder,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcMandOrder]='" + strMandOrder + "'");
+                    }
+                }
                 strSql.AppendLine("  )T1");
                 //strSql.AppendLine("LEFT JOIN");
                 //strSql.AppendLine("(SELECT *  FROM [TSPMaster_SupplierPlant] WHERE [vcOperatorType]='1' AND [dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T2");
@@ -472,6 +505,29 @@ namespace DataAccess
                         strSql.AppendLine("AND T3.vcBoxType like '" + strBoxType + "%'");
                     }
                 }
+                if (strSPChild != "")
+                {
+                    if (strSPChild == "0")//全部
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='' OR ISNULL(T3.iPackingQty,0)=0 OR ISNULL(T4.vcSufferIn,'')='' OR ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                    if (strSPChild == "1")//工区
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='')");
+                    }
+                    if (strSPChild == "2")//收容数
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T3.iPackingQty,0)=0)");
+                    }
+                    if (strSPChild == "3")//受入
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T4.vcSufferIn,'')='')");
+                    }
+                    if (strSPChild == "4")//发注工场
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                }
                 //strSql.AppendLine("ORDER BY T5.vcOrderPlant,T1.vcReceiver,T1.vcPartId, T1.dFromTime, T1.vcPackingPlant");
                 if (strOrderby == "1")
                 {
@@ -502,16 +558,17 @@ namespace DataAccess
                     string strSupplierId = listInfoData[i]["vcSupplierId"].ToString();
                     stringBuilder.AppendLine("UPDATE TSPMaster SET vcDelete='1' WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
                     stringBuilder.AppendLine("DELETE FROM TSPMaster_Box WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
-                    //stringBuilder.AppendLine("DELETE FROM TSPMaster_OrderPlant WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
                     stringBuilder.AppendLine("DELETE FROM TSPMaster_SufferIn WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
                     stringBuilder.AppendLine("DELETE FROM TSPMaster_SupplierPlant WHERE [vcPackingPlant]='" + strPackingPlant + "' AND [vcPartId]='" + strPartId + "' AND [vcReceiver]='" + strReceiver + "' AND [vcSupplierId]='" + strSupplierId + "'");
-                    string strAction = "删除手配情报=>  包装厂:" + strPackingPlant + "；品番:" + strPartId + "；收货方:" + strReceiver + "；供应商:" + strSupplierId;
+                    string strAction = "包装工场:" + strPackingPlant + "；品番:" + strPartId + "；收货方:" + strReceiver + "；供应商:" + strSupplierId;
                     stringBuilder.AppendLine("INSERT INTO [dbo].[TSPMaster_OperHistory]");
                     stringBuilder.AppendLine("           ([vcPackingPlant]");
                     stringBuilder.AppendLine("           ,[vcPartId]");
                     stringBuilder.AppendLine("           ,[vcReceiver]");
                     stringBuilder.AppendLine("           ,[vcSupplierId]");
+                    stringBuilder.AppendLine("           ,[vcChangeItem]");
                     stringBuilder.AppendLine("           ,[vcAction]");
+                    stringBuilder.AppendLine("           ,[vcActionTime]");
                     stringBuilder.AppendLine("           ,[vcOperatorID]");
                     stringBuilder.AppendLine("           ,[dOperatorTime])");
                     stringBuilder.AppendLine("     VALUES");
@@ -519,7 +576,9 @@ namespace DataAccess
                     stringBuilder.AppendLine("           ,'" + strPartId + "'");
                     stringBuilder.AppendLine("           ,'" + strReceiver + "'");
                     stringBuilder.AppendLine("           ,'" + strSupplierId + "'");
+                    stringBuilder.AppendLine("           ,'情报删除'");
                     stringBuilder.AppendLine("           ,'" + strAction + "'");
+                    stringBuilder.AppendLine("           ,''");
                     stringBuilder.AppendLine("           ,'" + strOperId + "'");
                     stringBuilder.AppendLine("           ,GETDATE())");
                 }
@@ -530,7 +589,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public void setSPInfo(DataTable dtAddInfo, DataTable dtModInfo, DataTable dtDelInfo, DataTable dtModInfo_SP, DataTable dtModInfo_PQ, DataTable dtModInfo_SI, DataTable dtModInfo_OP, DataTable dtOperHistory,
+        public void setSPInfo(DataTable dtAddInfo, DataTable dtModInfo, DataTable dtDelInfo, DataTable dtModInfo_SP, DataTable dtModInfo_PQ, DataTable dtModInfo_SI, DataTable dtModInfo_OP, DataTable dtOperHistory, DataTable dtSPChild,
             string strOperId, ref DataTable dtMessage)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
@@ -1126,7 +1185,9 @@ namespace DataAccess
                 strSql_operhistory.AppendLine("           ,[vcPartId]");
                 strSql_operhistory.AppendLine("           ,[vcReceiver]");
                 strSql_operhistory.AppendLine("           ,[vcSupplierId]");
+                strSql_operhistory.AppendLine("           ,[vcChangeItem]");
                 strSql_operhistory.AppendLine("           ,[vcAction]");
+                strSql_operhistory.AppendLine("           ,[vcActionTime]");
                 strSql_operhistory.AppendLine("           ,[vcOperatorID]");
                 strSql_operhistory.AppendLine("           ,[dOperatorTime])");
                 strSql_operhistory.AppendLine("     VALUES");
@@ -1134,7 +1195,9 @@ namespace DataAccess
                 strSql_operhistory.AppendLine("           ,@vcPartId");
                 strSql_operhistory.AppendLine("           ,@vcReceiver");
                 strSql_operhistory.AppendLine("           ,@vcSupplierId");
+                strSql_operhistory.AppendLine("           ,@vcChangeItem");
                 strSql_operhistory.AppendLine("           ,@vcAction");
+                strSql_operhistory.AppendLine("           ,@vcActionTime");
                 strSql_operhistory.AppendLine("           ,'" + strOperId + "'");
                 strSql_operhistory.AppendLine("           ,GETDATE())");
                 sqlCommand_operhistory.CommandText = strSql_operhistory.ToString();
@@ -1142,7 +1205,9 @@ namespace DataAccess
                 sqlCommand_operhistory.Parameters.AddWithValue("@vcPartId", "");
                 sqlCommand_operhistory.Parameters.AddWithValue("@vcReceiver", "");
                 sqlCommand_operhistory.Parameters.AddWithValue("@vcSupplierId", "");
+                sqlCommand_operhistory.Parameters.AddWithValue("@vcChangeItem", "");
                 sqlCommand_operhistory.Parameters.AddWithValue("@vcAction", "");
+                sqlCommand_operhistory.Parameters.AddWithValue("@vcActionTime", "");
                 #endregion
                 foreach (DataRow item in dtOperHistory.Rows)
                 {
@@ -1153,7 +1218,9 @@ namespace DataAccess
                         sqlCommand_operhistory.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
                         sqlCommand_operhistory.Parameters["@vcReceiver"].Value = item["vcReceiver"].ToString();
                         sqlCommand_operhistory.Parameters["@vcSupplierId"].Value = item["vcSupplierId"].ToString();
+                        sqlCommand_operhistory.Parameters["@vcChangeItem"].Value = item["vcChangeItem"].ToString();
                         sqlCommand_operhistory.Parameters["@vcAction"].Value = item["vcAction"].ToString();
+                        sqlCommand_operhistory.Parameters["@vcActionTime"].Value = item["vcActionTime"].ToString();
                         #endregion
                         sqlCommand_operhistory.ExecuteNonQuery();
                     }
@@ -1178,9 +1245,94 @@ namespace DataAccess
                 strSql_updateinfo.AppendLine("end");
                 strSql_updateinfo.AppendLine("where isnull(vcBillType,'')='' ");
                 strSql_updateinfo.AppendLine("update TSPMaster set vcOrderingMethod='0' where isnull(vcOrderingMethod,'')='' ");
+                strSql_updateinfo.AppendLine("DELETE FROM [TSPMaster_OperHistory] WHERE [dOperatorTime]<=DATEADD(MONTH,-6,GETDATE()) ");
                 sqlCommand_updateinfo.CommandText = strSql_updateinfo.ToString();
                 #endregion
                 sqlCommand_updateinfo.ExecuteNonQuery();
+                #endregion
+
+                #region sqlCommand_modinfo_child_from
+                SqlCommand sqlCommand_modinfo_child_from = sqlConnection.CreateCommand();
+                sqlCommand_modinfo_child_from.Transaction = sqlTransaction;
+                sqlCommand_modinfo_child_from.CommandType = CommandType.Text;
+                StringBuilder strSql_modinfo_child_from = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_modinfo_child_from.AppendLine("DELETE FROM TSPMaster_SupplierPlant WHERE dToTime<@dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_from.AppendLine("DELETE FROM TSPMaster_Box WHERE dToTime<@dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_from.AppendLine("DELETE FROM TSPMaster_SufferIn WHERE dToTime<@dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_from.AppendLine("UPDATE A SET A.dFromTime=@dFromTime FROM ");
+                strSql_modinfo_child_from.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql_modinfo_child_from.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime");
+                strSql_modinfo_child_from.AppendLine("FROM [TSPMaster_SupplierPlant] WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId)A ");
+                strSql_modinfo_child_from.AppendLine("WHERE A.rank='1'");
+                strSql_modinfo_child_from.AppendLine("UPDATE A SET A.dFromTime=@dFromTime FROM ");
+                strSql_modinfo_child_from.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql_modinfo_child_from.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime");
+                strSql_modinfo_child_from.AppendLine("FROM [TSPMaster_Box] WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId)A ");
+                strSql_modinfo_child_from.AppendLine("WHERE A.rank='1'");
+                strSql_modinfo_child_from.AppendLine("UPDATE A SET A.dFromTime=@dFromTime FROM ");
+                strSql_modinfo_child_from.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql_modinfo_child_from.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime");
+                strSql_modinfo_child_from.AppendLine("FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId)A ");
+                strSql_modinfo_child_from.AppendLine("WHERE A.rank='1'");
+                sqlCommand_modinfo_child_from.CommandText = strSql_modinfo_child_from.ToString();
+                sqlCommand_modinfo_child_from.Parameters.AddWithValue("@vcPackingPlant", "");
+                sqlCommand_modinfo_child_from.Parameters.AddWithValue("@vcPartId", "");
+                sqlCommand_modinfo_child_from.Parameters.AddWithValue("@vcReceiver", "");
+                sqlCommand_modinfo_child_from.Parameters.AddWithValue("@vcSupplierId", "");
+                sqlCommand_modinfo_child_from.Parameters.AddWithValue("@dFromTime", "");
+                #endregion
+                foreach (DataRow item in dtSPChild.Rows)
+                {
+                    if (item["vcFlag"].ToString() == "from")
+                    {
+                        #region Value
+                        sqlCommand_modinfo_child_from.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
+                        sqlCommand_modinfo_child_from.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
+                        sqlCommand_modinfo_child_from.Parameters["@vcReceiver"].Value = item["vcReceiver"].ToString();
+                        sqlCommand_modinfo_child_from.Parameters["@vcSupplierId"].Value = item["vcSupplierId"].ToString();
+                        sqlCommand_modinfo_child_from.Parameters["@dFromTime"].Value = item["dFromTime"].ToString();
+                        #endregion
+                        sqlCommand_modinfo_child_from.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region sqlCommand_modinfo_child_to
+                SqlCommand sqlCommand_modinfo_child_to = sqlConnection.CreateCommand();
+                sqlCommand_modinfo_child_to.Transaction = sqlTransaction;
+                sqlCommand_modinfo_child_to.CommandType = CommandType.Text;
+                StringBuilder strSql_modinfo_child_to = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_modinfo_child_to.AppendLine("UPDATE [TSPMaster_SupplierPlant] SET dToTime=@dToTime WHERE dToTime>@dToTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine("UPDATE [TSPMaster_Box] SET dToTime=@dToTime WHERE dToTime>@dToTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine("UPDATE [TSPMaster_SufferIn] SET dToTime=@dToTime WHERE dToTime>@dToTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_SupplierPlant] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_Box] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_SufferIn] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                sqlCommand_modinfo_child_to.CommandText = strSql_modinfo_child_to.ToString();
+                sqlCommand_modinfo_child_to.Parameters.AddWithValue("@vcPackingPlant", "");
+                sqlCommand_modinfo_child_to.Parameters.AddWithValue("@vcPartId", "");
+                sqlCommand_modinfo_child_to.Parameters.AddWithValue("@vcReceiver", "");
+                sqlCommand_modinfo_child_to.Parameters.AddWithValue("@vcSupplierId", "");
+                sqlCommand_modinfo_child_to.Parameters.AddWithValue("@dToTime", "");
+                #endregion
+                foreach (DataRow item in dtSPChild.Rows)
+                {
+                    if (item["vcFlag"].ToString() == "to")
+                    {
+                        #region Value
+                        sqlCommand_modinfo_child_to.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
+                        sqlCommand_modinfo_child_to.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
+                        sqlCommand_modinfo_child_to.Parameters["@vcReceiver"].Value = item["vcReceiver"].ToString();
+                        sqlCommand_modinfo_child_to.Parameters["@vcSupplierId"].Value = item["vcSupplierId"].ToString();
+                        sqlCommand_modinfo_child_to.Parameters["@dToTime"].Value = item["dToTime"].ToString();
+                        #endregion
+                        sqlCommand_modinfo_child_to.ExecuteNonQuery();
+                    }
+                }
                 #endregion
                 //提交事务
                 sqlTransaction.Commit();
@@ -1425,32 +1577,44 @@ namespace DataAccess
         public DataTable gettaskNum()
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("SELECT *  FROM  ");
+            strSql.AppendLine("SELECT distinct T1.vcPackingPlant,T1.vcPartId,T1.vcReceiver,T1.vcSupplierId,t1.vcInOut  FROM  ");
             strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE isnull(vcDelete, '') <> '1' ");
             strSql.AppendLine("AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))  ");
             strSql.AppendLine("OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))) ");
             strSql.AppendLine("  )T1 ");
             strSql.AppendLine("LEFT JOIN ");
-            strSql.AppendLine("(SELECT *  FROM [TSPMaster_SupplierPlant] WHERE [vcOperatorType]='1'  ");
-            strSql.AppendLine("AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))  ");
-            strSql.AppendLine("OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))))T2 ");
-            strSql.AppendLine("ON T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId] ");
+            strSql.AppendLine("(SELECT ");
+            strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+            strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+            strSql.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+            strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+            strSql.AppendLine(")T2");
+            strSql.AppendLine("ON T2.rank='1' AND T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId] ");
             strSql.AppendLine("LEFT JOIN ");
-            strSql.AppendLine("(SELECT *  FROM [TSPMaster_Box] WHERE [vcOperatorType]='1'  ");
-            strSql.AppendLine("AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))  ");
-            strSql.AppendLine("OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))))T3 ");
-            strSql.AppendLine("ON T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId] ");
+            strSql.AppendLine("(SELECT ");
+            strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+            strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
+            strSql.AppendLine("FROM [TSPMaster_Box] ");
+            strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+            strSql.AppendLine(")T3");
+            strSql.AppendLine("ON T3.rank='1' AND T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId] ");
             strSql.AppendLine("LEFT JOIN ");
-            strSql.AppendLine("(SELECT *  FROM [TSPMaster_SufferIn] WHERE [vcOperatorType]='1'  ");
-            strSql.AppendLine("AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))  ");
-            strSql.AppendLine("OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))))T4 ");
-            strSql.AppendLine("ON T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
+            strSql.AppendLine("(SELECT ");
+            strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+            strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn");
+            strSql.AppendLine("FROM [TSPMaster_SufferIn] ");
+            strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+            strSql.AppendLine(")T4");
+            strSql.AppendLine("ON T4.rank='1' AND T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
             strSql.AppendLine("LEFT JOIN ");
-            strSql.AppendLine("(select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' ");
-            strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))T5 ");
-            strSql.AppendLine("ON T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant ");
-            strSql.AppendLine("WHERE 1=1 ");
-            strSql.AppendLine("AND (ISNULL(T2.vcSupplierPlant,'')='' OR ISNULL(T3.iPackingQty,0)=0 OR ISNULL(T4.vcSufferIn,'')='' OR ISNULL(T5.vcOrderPlant,'')='') ");
+            strSql.AppendLine("(SELECT ");
+            strSql.AppendLine("ROW_NUMBER() OVER(partition by vcSupplierId,vcSupplierPlant order by dFromTime) [rank],");
+            strSql.AppendLine("vcSupplierId,vcSupplierPlant,dFromTime,dToTime,vcOrderPlant");
+            strSql.AppendLine("FROM (select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+            strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))a ");
+            strSql.AppendLine("WHERE [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+            strSql.AppendLine("ON t5.[rank]='1' AND T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant ");
+            strSql.AppendLine("WHERE (ISNULL(T2.vcSupplierPlant,'')='' OR ISNULL(T3.iPackingQty,0)=0 OR ISNULL(T4.vcSufferIn,'')='' OR ISNULL(T5.vcOrderPlant,'')='') ");
             DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             return dataTable;
         }
@@ -1625,10 +1789,10 @@ namespace DataAccess
             }
         }
 
-        public string getPrinterName(string strPageId,string strOperId)
+        public string getPrinterName(string strPageId, string strOperId)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendLine("select vcPrintName from TPrinterName where vcOperator='"+ strOperId + "' and vcPageId='"+ strPageId+ "' order by LinId desc");
+            strSql.AppendLine("select vcPrintName from TPrinterName where vcOperator='" + strOperId + "' and vcPageId='" + strPageId + "' order by LinId desc");
             DataTable dataTable = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             if (dataTable.Rows.Count != 0)
                 return dataTable.Rows[0]["vcPrintName"].ToString();

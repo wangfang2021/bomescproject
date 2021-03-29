@@ -69,6 +69,8 @@ namespace SPPSApi.Controllers.G06
                 List<Object> OldProductionForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOldProduction_Name", "vcOldProduction_Value"));//旧型年限生产区分选项
                 List<Object> DebugTimeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcDebugTime_Name", "vcDebugTime_Value"));//实施年月选项
                 List<Object> BoxTypeForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcBoxType_Name", "vcBoxType_Value"));//箱种
+                List<Object> OrderingMethodForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderingMethod_Name", "vcOrderingMethod_Value"));//订货方式
+                List<Object> MandOrderForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcMandOrder_Name", "vcMandOrder_Value"));//强制订货
 
                 List<Object> ChangesList = ComFunction.convertAllToResult(ComFunction.getTCode("C002"));//变更事项
                 List<Object> PackingPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C017"));//包装工厂
@@ -98,6 +100,8 @@ namespace SPPSApi.Controllers.G06
                 res.Add("OldProductionForForm", OldProductionForForm);
                 res.Add("DebugTimeForForm", DebugTimeForForm);
                 res.Add("BoxTypeForForm", BoxTypeForForm);
+                res.Add("OrderingMethodForForm", OrderingMethodForForm);
+                res.Add("MandOrderForForm", MandOrderForForm);
 
                 res.Add("ChangesList", ChangesList);
                 res.Add("PackingPlantList", PackingPlantList);
@@ -179,10 +183,13 @@ namespace SPPSApi.Controllers.G06
             string strOldProduction = dataForm.OldProduction == null ? "" : dataForm.OldProduction;
             string strDebugTime = dataForm.DebugTime == null ? "" : dataForm.DebugTime;
             string strOrderby = dataForm.orderby == null ? "" : dataForm.orderby;//只有等于1的时候才会重新排序规则
+            string strOrderingMethod = dataForm.OrderingMethod == null ? "" : dataForm.OrderingMethod;
+            string strMandOrder = dataForm.MandOrder == null ? "" : dataForm.MandOrder;
+            string strSPChild = dataForm.SPChild == null ? "" : dataForm.SPChild;
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, strOrderby);
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, strOrderby, strOrderingMethod, strMandOrder, strSPChild);
 
                 DataTable dttaskNum = fs0603_Logic.gettaskNum();
                 string taskoutNum = "0";
@@ -260,27 +267,30 @@ namespace SPPSApi.Controllers.G06
                 strSyncTime_from = listSyncTime[0].ToString();
                 strSyncTime_to = listSyncTime[1].ToString();
             }
-            string strChanges = dataForm.Changes;
-            string strPartId = dataForm.PartId;
-            string strCarModel = dataForm.CarModel;
-            string strReceiver = dataForm.Receiver;
-            string strInOut = dataForm.InOut;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strOrderPlant = dataForm.OrderPlant;
-            string strFromTime = dataForm.FromTime;
-            string strToTime = dataForm.ToTime;
-            string strBoxType = dataForm.BoxType;
-            string strSufferIn = dataForm.SufferIn;
-            string strSupplierPacking = dataForm.SupplierPacking;
-            string strOldProduction = dataForm.OldProduction;
-            string strDebugTime = dataForm.DebugTime;
+            string strChanges = dataForm.Changes == null ? "" : dataForm.Changes;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strFromTime = dataForm.FromTime == null ? "" : dataForm.FromTime;
+            string strToTime = dataForm.ToTime == null ? "" : dataForm.ToTime;
+            string strBoxType = dataForm.BoxType == null ? "" : dataForm.BoxType;
+            string strSufferIn = dataForm.SufferIn == null ? "" : dataForm.SufferIn;
+            string strSupplierPacking = dataForm.SupplierPacking == null ? "" : dataForm.SupplierPacking;
+            string strOldProduction = dataForm.OldProduction == null ? "" : dataForm.OldProduction;
+            string strDebugTime = dataForm.DebugTime == null ? "" : dataForm.DebugTime;
+            string strOrderingMethod = dataForm.OrderingMethod == null ? "" : dataForm.OrderingMethod;
+            string strMandOrder = dataForm.MandOrder == null ? "" : dataForm.MandOrder;
+            string strSPChild = dataForm.SPChild == null ? "" : dataForm.SPChild;
             try
             {
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dtMainInfo = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "");
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "", strOrderingMethod, strMandOrder, strSPChild);
                 DataTable dtSPInfo = fs0603_Logic.getSubInfo("SupplierPlantEdit", "", strPartId, strReceiver, strSupplierId, "");
                 DataTable dtPQInfo = fs0603_Logic.getSubInfo("PackingQtyEdit", "", strPartId, strReceiver, strSupplierId, "");
                 DataTable dtSIInfo = fs0603_Logic.getSubInfo("SufferInEdit", "", strPartId, strReceiver, strSupplierId, "");
@@ -297,7 +307,7 @@ namespace SPPSApi.Controllers.G06
                     "vcInteriorProject","vcPassProject","vcFrontProject","dFrontProjectTime","dShipmentTime",
                     "vcPartImage","vcBillType_name","vcOrderingMethod_name","vcMandOrder_name","vcSupplierPacking_name",
                     "vcRemark1","vcRemark2"};
-
+                dtExport = dtExport.DefaultView.ToTable(true, fields);
                 string filepath = ComFunction.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "FS0603_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -511,7 +521,7 @@ namespace SPPSApi.Controllers.G06
                 bool bAddFlag = (bool)dRowinfo.bAddFlag;//true可编辑,false不可编辑
                 if (bAddFlag == true)
                 {
-                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", "", "", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant, true, "");
+                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", "", "", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant, true, "", "", "", "");
                     if (dtSPInfo.Rows.Count != 0)
                     {
                         DataRow dataRow = dtMessage.NewRow();
@@ -1183,7 +1193,7 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                string[] fields = { "vcPackingPlant", "vcPartId", "vcReceiver", "vcSupplierId", "vcAction", "dOperatorTime" };
+                string[] fields = { "vcPackingPlant", "vcPartId", "vcReceiver", "vcSupplierId", "vcChangeItem", "vcAction", "vcActionTime", "dOperatorTime" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0603_OperHistory.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
@@ -1230,26 +1240,30 @@ namespace SPPSApi.Controllers.G06
                 strSyncTime_from = listSyncTime[0].ToString();
                 strSyncTime_to = listSyncTime[1].ToString();
             }
-            string strChanges = dataForm.Changes;
-            string strPartId = dataForm.PartId;
-            string strCarModel = dataForm.CarModel;
-            string strReceiver = dataForm.Receiver;
-            string strInOut = dataForm.InOut;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strOrderPlant = dataForm.OrderPlant;
-            string strFromTime = dataForm.FromTime;
-            string strToTime = dataForm.ToTime;
-            string strBoxType = dataForm.BoxType;
-            string strSufferIn = dataForm.SufferIn;
-            string strSupplierPacking = dataForm.SupplierPacking;
-            string strOldProduction = dataForm.OldProduction;
-            string strDebugTime = dataForm.DebugTime;
+            string strChanges = dataForm.Changes == null ? "" : dataForm.Changes;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strFromTime = dataForm.FromTime == null ? "" : dataForm.FromTime;
+            string strToTime = dataForm.ToTime == null ? "" : dataForm.ToTime;
+            string strBoxType = dataForm.BoxType == null ? "" : dataForm.BoxType;
+            string strSufferIn = dataForm.SufferIn == null ? "" : dataForm.SufferIn;
+            string strSupplierPacking = dataForm.SupplierPacking == null ? "" : dataForm.SupplierPacking;
+            string strOldProduction = dataForm.OldProduction == null ? "" : dataForm.OldProduction;
+            string strDebugTime = dataForm.DebugTime == null ? "" : dataForm.DebugTime;
+            string strOrderingMethod = dataForm.OrderingMethod == null ? "" : dataForm.OrderingMethod;
+            string strMandOrder = dataForm.MandOrder == null ? "" : dataForm.MandOrder;
+            string strSPChild = dataForm.SPChild == null ? "" : dataForm.SPChild;
+
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "");
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "", strOrderingMethod, strMandOrder, strSPChild);
                 dataTable.Columns.Add("vcType");
                 string[] fields = {"vcType",
                     "dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",

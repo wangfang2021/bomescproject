@@ -68,9 +68,9 @@ namespace Logic
         }
         #endregion
 
-        public void importSave(DataTable importDt, string vcDateFrom, string vcDateTo, string strUserId)
+        public void importSave(DataTable importDt, string strUserId)
         {
-            fs0626_DataAccess.importSave(importDt, vcDateFrom, vcDateTo, strUserId);
+            fs0626_DataAccess.importSave(importDt, strUserId);
         }
 
         #region 欠品状态更新

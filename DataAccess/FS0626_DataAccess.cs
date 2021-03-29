@@ -48,9 +48,9 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine(" select a.vcPackPlant, a.vcInjectionFactory, a.vcTargetMonth, a.vcSupplier_id, a.vcWorkArea, ");
-                strSql.AppendLine(" a.vcDock, a.vcOrderNo, substring(a.vcOrderNo,1,8) as vcOrderDate, a.vcPartNo, b.vcName as vcNewOldFlag, ");
-                strSql.AppendLine(" a.vcOrderNumber, a.vcNoReceiveNumber, ");
+                strSql.AppendLine(" select a.vcPackPlant, '#'+a.vcInjectionFactory as vcInjectionFactory, convert(int,a.vcTargetMonth) as vcTargetMonth, a.vcSupplier_id, a.vcWorkArea, ");
+                strSql.AppendLine(" a.vcDock, convert(int,a.vcOrderNo) as vcOrderNo, convert(int,substring(a.vcOrderNo,1,8)) as vcOrderDate, a.vcPartNo, b.vcName as vcNewOldFlag, ");
+                strSql.AppendLine(" convert(int,a.vcOrderNumber) as vcOrderNumber, a.vcNoReceiveNumber, ");
                 strSql.AppendLine(" a.vcNoReceiveReason, a.vcExpectRedeemDate, 1 as vcFlag, '0' as iflag,'0' as vcModFlag,'0' as vcAddFlag, a.iAutoId  ");
                 strSql.AppendLine(" from TOutsidePurchaseManage a ");
                 strSql.AppendLine(" left join (select vcName,vcValue from TCode where vcCodeId='C004') b ");
@@ -62,7 +62,7 @@ namespace DataAccess
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcInjectionFactory='#" + vcInjectionFactory + "' ");
+                    strSql.AppendLine(" and a.vcInjectionFactory='" + vcInjectionFactory + "' ");
                 }
                 if (vcTargetMonth.Length > 0)
                 {
@@ -70,7 +70,7 @@ namespace DataAccess
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine(" and a.vcSupplier_id like '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
@@ -82,11 +82,11 @@ namespace DataAccess
                 }
                 if (vcOrderNo.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcOrderNo like '%" + vcOrderNo + "%' ");
+                    strSql.AppendLine(" and a.vcOrderNo like '" + vcOrderNo + "%' ");
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcPartNo like '%" + vcPartNo + "%' ");
+                    strSql.AppendLine(" and a.vcPartNo like '" + vcPartNo + "%' ");
                 }
                 if (vcReceiveFlag == "1")
                 {
@@ -273,6 +273,20 @@ namespace DataAccess
             }
         }
 
+        #region 受入
+        public DataTable getDock()
+        {
+            try
+            {
+                string sql = "select distinct vcsufferin as vcValue from TSPMaster_SufferIn order by vcsufferin";
+                return excute.ExcuteSqlWithSelectToDT(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
         public DataTable getPackPlant()
         {
@@ -281,7 +295,7 @@ namespace DataAccess
         }
 
         #region 导入后保存
-        public bool importSave(DataTable dt, string vcDateFrom, string vcDateTo, string strUserId)
+        public bool importSave(DataTable dt, string strUserId)
         {
             using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
             {
@@ -294,7 +308,7 @@ namespace DataAccess
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        sb.Append("delete from TOutsidePurchaseManage where vcTargetMonth>='" + vcDateFrom + "' and vcTargetMonth<='" + vcDateTo + "' and vcOrderNo='" + dt.Rows[i]["vcOrderNo"].ToString() + "' and vcPartNo='" + dt.Rows[i]["vcPartNo"].ToString() + "'; \r\n");
+                        sb.Append("delete from TOutsidePurchaseManage where vcOrderNo='" + dt.Rows[i]["vcOrderNo"].ToString() + "' and vcPartNo='" + dt.Rows[i]["vcPartNo"].ToString() + "'; \r\n");
                     }
                     SqlCommand cmdDel = new SqlCommand(sb.ToString(), conn);
                     cmdDel.Transaction = trans;
@@ -319,8 +333,8 @@ namespace DataAccess
                     da.InsertCommand = new SqlCommand();
                     da.InsertCommand.Connection = conn;
                     da.InsertCommand.CommandType = CommandType.Text;
-                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, dOperatorTime, vcOperatorID) ";
-                    da.InsertCommand.CommandText += "values (SUBSTRING(@vcOrderNo,1,6), @vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, getdate(), '" + strUserId + "') ";
+                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, vcNoReceiveNumber, dOperatorTime, vcOperatorID) ";
+                    da.InsertCommand.CommandText += "values (SUBSTRING(@vcOrderNo,1,6), @vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, '0', getdate(), '" + strUserId + "') ";
                     da.InsertCommand.Parameters.Add("@vcSupplier_id", SqlDbType.VarChar, 4, "vcSupplier_id"); //供应商代码
                     da.InsertCommand.Parameters.Add("@vcWorkArea", SqlDbType.VarChar, 2, "vcWorkArea");//工区
                     da.InsertCommand.Parameters.Add("@vcDock", SqlDbType.VarChar, 6, "vcDock");//受入
@@ -339,7 +353,7 @@ namespace DataAccess
                     cmdUpdate.CommandText += "      group by vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant) b ";
                     cmdUpdate.CommandText += "where TOutsidePurchaseManage.vcOrderNo=b.vcKBOrderNo and TOutsidePurchaseManage.vcPartNo=b.vcPart_id ";
                     cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcDock=b.vcSR and TOutsidePurchaseManage.vcSupplier_id=b.vcSupplier_id ";
-                    cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
+                    //cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
                     cmdUpdate.Transaction = trans;
                     cmdUpdate.ExecuteNonQuery();
 
@@ -350,7 +364,7 @@ namespace DataAccess
                     cmdUpdate1.CommandText += "from (select vcPackingPlant,vcHaoJiu,vcPartId,vcSupplierId from TSPMaster ";
                     cmdUpdate1.CommandText += "      where vcInOut='1' and dFromTime<=GETDATE() and dToTime>=GETDATE()) c ";
                     cmdUpdate1.CommandText += "where TOutsidePurchaseManage.vcPartNo=c.vcPartId and TOutsidePurchaseManage.vcSupplier_id=c.vcSupplierId ";
-                    cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
+                    //cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
                     cmdUpdate1.Transaction = trans;
                     cmdUpdate1.ExecuteNonQuery();
 
@@ -361,9 +375,10 @@ namespace DataAccess
                     cmdUpdate2.CommandText += "from (select vcValue1,vcValue2,vcValue5 from TOutCode ";
                     cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE() and vcIsColum='0') d ";
                     cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcSupplier_id=d.vcValue1 and TOutsidePurchaseManage.vcWorkArea=d.vcValue2 ";
-                    cmdUpdate2.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
+                    //cmdUpdate2.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcDateFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcDateTo + "' ";
                     cmdUpdate2.Transaction = trans;
                     cmdUpdate2.ExecuteNonQuery();
+
 
                     trans.Commit();
                     b = true;
@@ -384,7 +399,7 @@ namespace DataAccess
         #endregion
 
         #region 欠品状态更新
-        public bool updateData(string vcTargetMonth, string userId)
+        public bool updateData(string vcTargetMonthFrom, string vcTargetMonthTo, string userId)
         {
             using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
             {
@@ -403,7 +418,7 @@ namespace DataAccess
                     cmdUpdate.CommandText += "      group by vcKBOrderNo,vcPart_id,vcSupplier_id,vcSR,vcBZPlant) b ";
                     cmdUpdate.CommandText += "where TOutsidePurchaseManage.vcOrderNo=b.vcKBOrderNo and TOutsidePurchaseManage.vcPartNo=b.vcPart_id ";
                     cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcDock=b.vcSR and TOutsidePurchaseManage.vcSupplier_id=b.vcSupplier_id ";
-                    cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcTargetMonth='" + vcTargetMonth + "'";
+                    cmdUpdate.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcTargetMonthFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcTargetMonthTo + "';";
                     cmdUpdate.Transaction = trans;
                     cmdUpdate.ExecuteNonQuery();
 
@@ -414,7 +429,7 @@ namespace DataAccess
                     cmdUpdate1.CommandText += "from (select vcPackingPlant,vcHaoJiu,vcPartId,vcSupplierId from TSPMaster ";
                     cmdUpdate1.CommandText += "      where vcInOut='1' and dFromTime<=GETDATE() and dToTime>=GETDATE()) c ";
                     cmdUpdate1.CommandText += "where TOutsidePurchaseManage.vcPartNo=c.vcPartId and TOutsidePurchaseManage.vcSupplier_id=c.vcSupplierId ";
-                    cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcTargetMonth='" + vcTargetMonth + "' ";
+                    cmdUpdate1.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcTargetMonthFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcTargetMonthTo + "'; ";
                     cmdUpdate1.Transaction = trans;
                     cmdUpdate1.ExecuteNonQuery();
 
@@ -425,7 +440,7 @@ namespace DataAccess
                     cmdUpdate2.CommandText += "from (select vcValue1,vcValue2,vcValue5 from TOutCode ";
                     cmdUpdate2.CommandText += "      where vcCodeId='C010' and convert(date,vcValue3)<=GETDATE() and convert(date,vcValue4)>=GETDATE() and vcIsColum='0') d ";
                     cmdUpdate2.CommandText += "where TOutsidePurchaseManage.vcSupplier_id=d.vcValue1 and TOutsidePurchaseManage.vcWorkArea=d.vcValue2 ";
-                    cmdUpdate2.CommandText += "and TOutsidePurchaseManage.vcTargetMonth='" + vcTargetMonth + "' ";
+                    cmdUpdate2.CommandText += "and TOutsidePurchaseManage.vcTargetMonth>='" + vcTargetMonthFrom + "' and TOutsidePurchaseManage.vcTargetMonth<='" + vcTargetMonthTo + "';";
                     cmdUpdate2.Transaction = trans;
                     cmdUpdate2.ExecuteNonQuery();
 

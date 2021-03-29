@@ -1162,7 +1162,7 @@ namespace DataAccess
             {
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine(
-                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C015'AND vcIsColum = '0' ");
+                    "SELECT vcValue3,vcValue4 FROM dbo.TOutCode WHERE vcCodeId = 'C015'AND vcIsColum = '0' ");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

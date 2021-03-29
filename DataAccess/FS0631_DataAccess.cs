@@ -61,7 +61,7 @@ namespace DataAccess
                 if (strDXYM != null && strDXYM != "")
                     sql.Append("and isnull(Start_date_for_daily_qty,'') like '" + strDXYM + "%'    \n");
                 if (strPartNo != null && strPartNo != "")
-                    sql.Append("and Part_No+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,'') like '%" + strPartNo + "%'    \n");
+                    sql.Append("and replace(Part_No+isnull(Part_Suffix,'')+isnull(Source_Code,'')+isnull(Parts_Master_Matching_Key,''),' ','') like '%" + strPartNo + "%'    \n");
                 sql.Append("order by Part_No,Start_date_for_daily_qty    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }

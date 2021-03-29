@@ -143,7 +143,8 @@ namespace Logic
             DataTable dterrMessage = new DataTable();
             dterrMessage.Columns.Add("vcPart_id");
             dterrMessage.Columns.Add("vcMsg");
-            string strReceiver = "APC06";
+            DataTable temp =fs0501_DataAccess.GetReceiver();
+            string strReceiver = temp.Rows.Count == 1 ? temp.Rows[0][0].ToString() : "APC06";
             FS0603_Logic fs0603_Logic = new FS0603_Logic();
             FS0603_DataAccess fs0603_DataAccess = new FS0603_DataAccess();
             DataTable dtMultiple = fs0603_Logic.createTable("SOQ602");

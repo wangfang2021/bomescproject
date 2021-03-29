@@ -250,7 +250,6 @@ namespace SPPSApi.Controllers.G08
                     }
                     #endregion
                 }
-                //校验 数量>0、数量<上一层数量
                 for (int i = 0; i < listInfo.Count; i++)
                 {
                     int iQuantity_input = Convert.ToInt32(listInfo[i]["iQuantity"].ToString());
@@ -271,6 +270,13 @@ namespace SPPSApi.Controllers.G08
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "不能大于上一层数量！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    //校验 出荷和检查的不能修改
+                    if(vcZYType=="S1" || vcZYType=="S4")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "检查和出荷的不能修改！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -314,6 +320,17 @@ namespace SPPSApi.Controllers.G08
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "最少选择一行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                for(int i=0;i<checkedInfoData.Count;i++)
+                {
+                    string vcZYType = checkedInfoData[i]["vcZYType"].ToString();
+                    //校验 出荷的不能删除
+                    if (vcZYType == "S4")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "出荷的不能删除！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                 }
                 fs0806_Logic.Del(checkedInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

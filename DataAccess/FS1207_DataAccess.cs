@@ -184,7 +184,7 @@ namespace DataAccess
                 SqlCommandBuilder sb = new SqlCommandBuilder(apt);
                 apt.Update(dtupdate);
                 //插入数据到tSSP表
-                deletetSSP(cmd, mon);
+                //deletetSSP(cmd, mon);
                 InsertSSP(cmd, mon, user);
                 sb.Dispose();
                 cmd.Transaction.Commit();
@@ -234,8 +234,8 @@ namespace DataAccess
         {
             try
             {
-                string str = "	select A.vcMonth, A.vcPartsNo, iSRNum, Total, iXZNum, Total+iXZNum as iBYNum,\r\n";
-                str += "	 CASE WHEN  syco-iXZNum- Total >0 THEN 0 \r\n";
+                string str = "select A.vcMonth, A.vcPartsNo, iSRNum, Total, iXZNum, Total+iXZNum as iBYNum,\r\n";
+                str += "	 CASE WHEN syco-iXZNum-Total>0 THEN 0 \r\n";
                 str += "	 else CEILING( ABS(convert(numeric(5,0),syco-iXZNum- Total ))/CONVERT(numeric(5,0),iSRNum ))*iSRNum \r\n";
                 str += "	 END AS iFZNum ,\r\n";
                 str += "	 syco,\r\n";
@@ -251,7 +251,7 @@ namespace DataAccess
                 //str += "	      on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2 	\r\n";
                 //str += "	      left join ( \r\n";
                 str += "           select A1.vcPartsNo,A1.vcMonth,B.iCONum,A1.Total,A1.iXZNum, A1.iAutoId from \r\n";
-                str += "	        (select vcMonth,vcPartsNo,iCONum,Total,iXZNum, iAutoId from tSSP where vcMonth='" + mon + "' and iFZFlg='0') A1 \r\n";
+                str += "	       (select vcMonth,vcPartsNo,iCONum,Total,iXZNum, iAutoId from tSSP where vcMonth='" + mon + "' and iFZFlg='0') A1 \r\n";
                 str += "           left join \r\n";
                 str += "           (select distinct C.vcPartsNo,C.iCONum from tSSP C \r\n";
                 str += "            inner join \r\n";
@@ -266,8 +266,9 @@ namespace DataAccess
                 //str += "	      and  iSRNum is  not null	\r\n";  //测试用
                 if (partsno != "")
                 {
-                    str += " and A.vcPartsNo like '" + partsno + "%'";
+                    str += " and A.vcPartsNo like '" + partsno + "%' ";
                 }
+                str += "order by A.vcMonth,A.vcPartsNo";
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
             catch (Exception ex)
@@ -291,7 +292,7 @@ namespace DataAccess
             {
                 str += "AND t1.vcPartsNo like '" + partsno + "%'									";
             }
-            str += "order by vcMonth";
+            str += "order by vcMonth,t1.vcPartsNo";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
         }
         //发注品番Master中不存在的品番
@@ -420,14 +421,14 @@ namespace DataAccess
         #region  追加发注
         public DataTable searchAddFZ(string mon, string partsno)
         {
-            string str = "	select  vcMonth,t1.vcPartsNo,t1.iFZNum ,vcPartsNoFZ,vcSource ,'0' as iFlag, t1.iAutoId,'0' as vcModFlag,'0' as vcAddFlag from \r\n";
-            str += "	(select vcMonth,vcPartsNo,iFZNum,iAutoId from tAddSSP where iFZFlag='0' ) t1						\r\n";
-            str += "	left join tSSPMaster t2						\r\n";
-            str += "	on t1.vcPartsNo =t2.vcPartsNo 						\r\n";
+            string str = " select vcMonth,t1.vcPartsNo,t1.iFZNum,vcPartsNoFZ,vcSource,'0' as iFlag, t1.iAutoId,'0' as vcModFlag,'0' as vcAddFlag from \r\n";
+            str += " (select vcMonth,vcPartsNo,iFZNum,iAutoId from tAddSSP where iFZFlag='0') t1						\r\n";
+            str += " left join tSSPMaster t2						\r\n";
+            str += " on t1.vcPartsNo=t2.vcPartsNo 						\r\n";
             str += " where 1=1 ";
             if (mon != "")
             {
-                str += "and  vcMonth='" + mon + "' ";
+                str += "and vcMonth='" + mon + "' ";
             }
             if (partsno != "")
             {

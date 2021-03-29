@@ -54,6 +54,13 @@ namespace Logic
             return fs0626_DataAccess.getPackPlant();
         }
 
+        #region 受入
+        public DataTable getDock()
+        {
+            return fs0626_DataAccess.getDock();
+        }
+        #endregion
+
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {

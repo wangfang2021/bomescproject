@@ -62,7 +62,7 @@ namespace DataAccess
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcInjectionFactory='#" + vcInjectionFactory + "' ");
+                    strSql.AppendLine(" and a.vcInjectionFactory='" + vcInjectionFactory + "' ");
                 }
                 if (vcTargetMonth.Length > 0)
                 {
@@ -70,7 +70,7 @@ namespace DataAccess
                 }
                 if (vcSupplier_id.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcSupplier_id like '%" + vcSupplier_id + "%' ");
+                    strSql.AppendLine(" and a.vcSupplier_id like '" + vcSupplier_id + "%' ");
                 }
                 if (vcWorkArea.Length > 0)
                 {
@@ -82,11 +82,11 @@ namespace DataAccess
                 }
                 if (vcOrderNo.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcOrderNo like '%" + vcOrderNo + "%' ");
+                    strSql.AppendLine(" and a.vcOrderNo like '" + vcOrderNo + "%' ");
                 }
                 if (vcPartNo.Length > 0)
                 {
-                    strSql.AppendLine(" and a.vcPartNo like '%" + vcPartNo + "%' ");
+                    strSql.AppendLine(" and a.vcPartNo like '" + vcPartNo + "%' ");
                 }
                 if (vcReceiveFlag == "1")
                 {
@@ -273,6 +273,20 @@ namespace DataAccess
             }
         }
 
+        #region 受入
+        public DataTable getDock()
+        {
+            try
+            {
+                string sql = "select distinct vcsufferin as vcValue from TSPMaster_SufferIn order by vcsufferin";
+                return excute.ExcuteSqlWithSelectToDT(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
 
         public DataTable getPackPlant()
         {

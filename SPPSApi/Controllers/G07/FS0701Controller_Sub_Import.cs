@@ -68,12 +68,12 @@ namespace SPPSApi.Controllers.G07
                 }
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 string strMsg = "";
-                string[,] headers = new string[,] {{"包装场","包装材品番","GPS品番","开始时间", "结束时间", "品名","供应商","供应商代码","发注收容数","资材订购批量","循环","段取区分","场所","规格","发注逻辑"},
-                                                {"vcPackSpot","vcPackNo","vcPackGPSNo","dPackFrom","dPackTo","vcParstName","vcSupplierName",
+                string[,] headers = new string[,] {{"是否修改","指定标识","包装场","包装材品番","GPS品番","开始时间", "结束时间", "品名","供应商","供应商代码","发注收容数","资材订购批量","循环","段取区分","场所","规格","发注逻辑"},
+                                                {"vcIsorNo","iAutoId","vcPackSpot","vcPackNo","vcPackGPSNo","dPackFrom","dPackTo","vcParstName","vcSupplierName",
                                                  "vcSupplierCode","iRelease","iZCRelease","vcCycle","vcDistinguish","vcPackLocation","vcFormat","vcReleaseName"},
-                                                {FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","","","",FieldCheck.Num,"","","","",""},
-                                                {"50","50","50","0","0","0","0","0","0","0","0","0","0","0","0" },
-                                                {"1","1","1","0","0","0","0","0","0","0","0","0","0","0","0" }
+                                                {"",FieldCheck.Num,FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,"","","","",FieldCheck.Num,"","","","",""},
+                                                {"50","0","50","50","50","0","0","0","0","0","0","0","0","0","0","0","0" },
+                                                {"0","0","1","1","1","0","0","0","0","0","0","0","0","0","0","0","0" }
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -97,10 +97,18 @@ namespace SPPSApi.Controllers.G07
                     }
                     foreach (DataRow row in dt.Rows)
                     {
-                        importDt.ImportRow(row);
+                        if (row[0] != "")
+                        {
+                            importDt.ImportRow(row);
+
+                        }
+
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
+
+
+
 
                 #region 导入限制
                 //查找包装厂
@@ -140,28 +148,56 @@ namespace SPPSApi.Controllers.G07
                     if (!b)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入失败:第" + i + "行,发注收容数维护错误！"; 
+                        apiResult.data = "请填写正常的发住收容数格式！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (Convert.ToInt32(importDt.Rows[i]["iRelease"]) % Convert.ToInt32(importDt.Rows[i]["iZCRelease"]) != 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "收容数不是订购批量的整数倍！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                   
+                    if (importDt.Rows[i]["vcIsorNo"].ToString() == "修改")
+                    {
+                        int iAutoId = importDt.Rows[i]["iAutoId"] == "" ? 0 : Convert.ToInt32(importDt.Rows[i]["iAutoId"]);
+                        DataTable dtcheckTime = fs0701_Logic.searchcheckTime(importDt.Rows[i]["vcPackSpot"].ToString(), importDt.Rows[i]["vcPackNo"].ToString(), importDt.Rows[i]["dPackFrom"].ToString().Split(' ')[0], importDt.Rows[i]["dPackTo"].ToString().Split(' ')[0], iAutoId);
+                        if (dtcheckTime.Rows.Count > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "品番有维护重复有效时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        DataRow[] dr = importDt.Select("vcPackNo='" + importDt.Rows[i]["vcPackNo"].ToString() + "'and iAutoId<>'" + iAutoId.ToString() + "' and  dPackFrom<='"+ importDt.Rows[i]["dPackTo"].ToString().Split(' ')[0] + "' and  dPackTo>='"+ importDt.Rows[i]["dPackFrom"].ToString().Split(' ')[0] + "'");
+                        
+                        if (dr.Length >= 1)
+                        {
+
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导入文件品番有维护重复有效时间！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+
                 }
                 #endregion
 
-                var result = from r in importDt.AsEnumerable()
-                             group r by new { r2 = r.Field<string>("vcPackSpot"), r3 = r.Field<string>("vcPackNo"), r4 = r.Field<string>("vcPackGPSNo") } into g
-                             where g.Count() > 1
-                             select g;
-                if (result.Count() > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
-                    {
-                        sbr.Append("品番:" + item.Key.r2 + " 使用开始:" + item.Key.r3 + " 使用结束:" + item.Key.r4 + "<br/>");
-                    }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                //var result = from r in importDt.AsEnumerable()
+                //             group r by new { r2 = r.Field<string>("vcPackSpot"), r3 = r.Field<string>("vcPackNo"), r4 = r.Field<string>("vcPackGPSNo") } into g
+                //             where g.Count() > 1
+                //             select g;
+                //if (result.Count() > 0)
+                //{
+                //    StringBuilder sbr = new StringBuilder();
+                //    sbr.Append("导入数据重复:<br/>");
+                //    foreach (var item in result)
+                //    {
+                //        sbr.Append("包装场:" + item.Key.r2 + " 品番:" + item.Key.r3 + " GPS品番:" + item.Key.r4 + "<br/>");
+                //    }
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = sbr.ToString();
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
 
 

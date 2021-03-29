@@ -86,11 +86,71 @@ namespace DataAccess
 
                 if (inFlag)
                 {
+                    string Relation = "IN" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
                     inTime = inTime.Replace("-", "");
                     bool flag = isHasData("0", inTime, "", "", Receiver);
                     if (flag)
                     {
-                        string Relation = "IN" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                        string newinTime = inTime.Substring(0, 6);
+                        //sbr.AppendLine("INSERT INTO TIF_IN(vcDiff, vcNo, vcPart_id, dInTime, iQuantity,vcPartName, vcRelation, vcOperatorId, dOperatorTime)");
+                        sbr.AppendLine("SELECT b.vcBillType,a.vcInputNo,a.vcPart_id,CONVERT(VARCHAR(8),a.dStart,112) AS DATEHT, a.dStart, a.iQuantity,vcPartNameCn,'" + Relation + "' AS vcRelation,'" + userId + "' AS vcOperatorId,GETDATE() AS dOperatorTime FROM (");
+                        sbr.AppendLine("SELECT vcPart_id,vcInputNo,dStart,iQuantity,vcSupplier_id,vcSHF ");
+                        sbr.AppendLine("FROM TOperateSJ ");
+                        sbr.AppendLine("WHERE vcZYType = 'S0' AND CONVERT(VARCHAR(6),dStart,112)  = '" + newinTime + "' AND vcSHF = '" + Receiver + "'");
+                        sbr.AppendLine(") a");
+                        sbr.AppendLine("LEFT JOIN(");
+                        sbr.AppendLine("SELECT vcBillType,vcPartId,vcSupplierId,vcReceiver,vcPartNameCn,dFromTime,dToTime FROM TSPMaster ");
+                        sbr.AppendLine(") b ON a.vcPart_id = b.vcPartId AND a.vcSupplier_id = b.vcSupplierId AND a.vcSHF = b.vcReceiver AND a.dStart >= b.dFromTime AND a.dStart <= b.dToTime");
+                        sbr.AppendLine("ORDER BY a.dStart,a.vcPart_id,a.vcSHF,a.vcInputNo");
+                        DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                        sbr.Length = 0;
+                        if (dt.Rows.Count != 0)
+                        {
+                            string strJHNO = "";
+                            string strLast4 = "";
+                            for (int i = 0; i < dt.Rows.Count; i++)
+                            {
+                                if (i == 0)
+                                {
+                                    strJHNO = "JH" + dt.Rows[i]["DATEHT"].ToString().Trim() + "0001";
+                                }
+                                else
+                                {
+                                    if (dt.Rows[i]["DATEHT"].ToString().Trim() == dt.Rows[i - 1]["DATEHT"].ToString().Trim())
+                                    {
+                                        strLast4 = Convert.ToString(Convert.ToInt32(strJHNO.Substring(10, 4)) + 1);
+                                        switch (strLast4.Length.ToString())
+                                        {
+                                            //这不是工厂代码！！！！！！！！！！！
+                                            case "1": strLast4 = "000" + strLast4; break;
+                                            case "2": strLast4 = "00" + strLast4; break;
+                                            case "3": strLast4 = "0" + strLast4; break;
+                                        }
+                                        strJHNO = "JH" + dt.Rows[i - 1]["DATEHT"].ToString().Trim() + strLast4;
+                                    }
+                                    else
+                                    {
+                                        strJHNO = "JH" + dt.Rows[i]["DATEHT"].ToString().Trim() + "0001";
+                                    }
+                                }
+
+                                sbr.AppendLine("INSERT INTO TIF_IN(vcDiff, vcNo, vcPart_id, dInTime, iQuantity,vcPartName, vcRelation, vcOperatorId, dOperatorTime) values (");
+                                sbr.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcBillType"], false) + ",");
+                                sbr.AppendLine(ComFunction.getSqlValue(strJHNO, false) + ",");
+                                sbr.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPart_id"], false) + ",");
+                                sbr.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["dStart"], true) + ",");
+                                sbr.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["iQuantity"], true) + ",");
+                                sbr.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcPartNameCn"], false) + ",");
+                                sbr.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcRelation"], false) + ",");
+                                sbr.AppendLine(ComFunction.getSqlValue(dt.Rows[i]["vcOperatorId"], false) + ",");
+                                sbr.AppendLine("GETDATE())");
+
+                            }
+
+                        }
+
+
                         sbr.AppendLine("INSERT INTO dbo.TIF_Master(vcReceiver, vcType, dRangeStart, vcState, vcOperatorId, dOperatorTime, vcRelation)");
                         sbr.AppendLine("VALUES('" + Receiver + "',");
                         sbr.AppendLine("'0',");
@@ -101,17 +161,7 @@ namespace DataAccess
                         sbr.AppendLine("'" + Relation + "'");
                         sbr.AppendLine(")");
 
-                        inTime = inTime.Substring(0, 6);
-                        sbr.AppendLine("INSERT INTO TIF_IN(vcDiff, vcNo, vcPart_id, dInTime, iQuantity,vcPartName, vcRelation, vcOperatorId, dOperatorTime)");
-                        sbr.AppendLine("SELECT b.vcBillType,a.vcInputNo,a.vcPart_id, a.dStart, a.iQuantity,vcPartNameCn,'" + Relation + "' AS vcRelation,'" + userId + "' AS vcOperatorId,GETDATE() AS dOperatorTime FROM (");
-                        sbr.AppendLine("SELECT vcPart_id,vcInputNo,dStart,iQuantity,vcSupplier_id,vcSHF ");
-                        sbr.AppendLine("FROM TOperateSJ ");
-                        sbr.AppendLine("WHERE vcZYType = 'S0' AND CONVERT(VARCHAR(6),dStart,112)  = '" + inTime + "' AND vcSHF = '" + Receiver + "'");
-                        sbr.AppendLine(") a");
-                        sbr.AppendLine("LEFT JOIN(");
-                        sbr.AppendLine("SELECT vcBillType,vcPartId,vcSupplierId,vcReceiver,vcPartNameCn,dFromTime,dToTime FROM TSPMaster ");
-                        sbr.AppendLine(") b ON a.vcPart_id = b.vcPartId AND a.vcSupplier_id = b.vcSupplierId AND a.vcSHF = b.vcReceiver AND a.dStart >= b.dFromTime AND a.dStart <= b.dToTime");
-                        sbr.AppendLine("ORDER BY a.dStart,a.vcPart_id,a.vcSHF,a.vcInputNo");
+
                     }
                     else
                     {
@@ -250,7 +300,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT  vcDiff, vcNo, vcPart_id, vcPartName, dInTime, iQuantity FROM TIF_IN");
+                sbr.AppendLine("SELECT  vcDiff, vcNo, CASE WHEN SUBSTRING(a.vcPart_id,11,2) = '00' THEN SUBSTRING(a.vcPart_id,1,5)+'-'+SUBSTRING(a.vcPart_id,6,5) ELSE SUBSTRING(a.vcPart_id,1,5)+'-'+SUBSTRING(a.vcPart_id,6,5)+'-'+SUBSTRING(a.vcPart_id,11,2) END  AS vcPart_id, vcPartName, CONVERT(VARCHAR(8),a.dInTime,112) AS dInTime, iQuantity FROM TIF_IN a");
                 sbr.AppendLine("WHERE vcRelation = '" + relation + "'");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
@@ -265,7 +315,8 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT  vcDiff, vcSellNo, vcSellShop, vcPart_id, vcPartName, dOutTime, iQuantity, decPrice, vcDepartment,vcOutType  FROM TIF_Out");
+                //sbr.AppendLine("SELECT  vcDiff, vcSellNo, vcSellShop, vcPart_id, vcPartName, dOutTime, iQuantity, decPrice, vcDepartment,vcOutType  FROM TIF_Out");
+                sbr.AppendLine("SELECT  vcDiff, vcSellNo, vcSellShop, CASE WHEN SUBSTRING(a.vcPart_id,11,2) = '00' THEN SUBSTRING(a.vcPart_id,1,5)+'-'+SUBSTRING(a.vcPart_id,6,5) ELSE SUBSTRING(a.vcPart_id,1,5)+'-'+SUBSTRING(a.vcPart_id,6,5)+'-'+SUBSTRING(a.vcPart_id,11,2) END  AS vcPart_id, vcPartName, CONVERT(VARCHAR(8),a.dOutTime,112) AS dOutTime, iQuantity, decPrice, vcDepartment,vcOutType  FROM TIF_Out a");
                 sbr.AppendLine("WHERE vcRelation = '" + relation + "'");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }

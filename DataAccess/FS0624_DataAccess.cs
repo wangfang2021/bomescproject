@@ -101,7 +101,7 @@ namespace DataAccess
                 }
                 if (strState != null && strState != "")//状态
                 {
-
+                    strSql.Append("      and vcState like '%"+ strState + "%'       \n");
                 }
                 if (strOrderNo != null && strOrderNo != "")//订单号
                 {

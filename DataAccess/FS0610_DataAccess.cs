@@ -941,7 +941,7 @@ namespace DataAccess
                 //deleteTMP(cmd, mon, plant);//删除临时计划
                 deleteTMPplan(cmd, mon, plant);//删除多余计划
 
-                //UpdatePlanMST(cmd, mon, plant);//更新到计划品番数据表
+                UpdatePlanMST(cmd, mon, plant);//更新到计划品番数据表
                 updateSoqReply(cmd, mon, apt, user, plant);//更新SOQREPLY表
                 #endregion
                 #region 生成打印数据

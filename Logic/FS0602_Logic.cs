@@ -26,7 +26,7 @@ namespace Logic
         FS0625_Logic fs0625_Logic = new FS0625_Logic();
 
         public DataTable getSearchInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
-                  string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant, string strDataState)
+                  string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant, string strDataState, string strOverDue)
         {
             string strDyInfo = "";
             string strHyInfo = "";
@@ -38,20 +38,20 @@ namespace Logic
             else
             {
                 strDyInfo = "'0','1','2','3'";//对应状态全部
-                strHyInfo = "'1','2'";//合意状态 待确认和已合意
+                strHyInfo = "'1','2','4'";//合意状态 待确认和已合意答复销售不可订货
             }
             if (strDataState == "")
             {
                 strDyInfo = "'0','1','2','3'";//对应状态全部
-                strHyInfo = "'0','1','2','3'";//合意状态 -和退回
+                strHyInfo = "'0','1','2','3','4'";//合意状态全部
             }
             DataTable dataTable = fs0602_DataAccess.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDyInfo, strHyInfo);
+                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDyInfo, strHyInfo, strOverDue);
             return dataTable;
         }
 
         public DataTable getHeJiInfo(string strYearMonth, string strDyState, string strHyState, string strPartId, string strCarModel,
-             string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant, string strDataState)
+             string strInOut, string strOrderingMethod, string strOrderPlant, string strHaoJiu, string strSupplierId, string strSupplierPlant, string strDataState, string strOverDue)
         {
             string strDyInfo = "";
             string strHyInfo = "";
@@ -63,15 +63,15 @@ namespace Logic
             else
             {
                 strDyInfo = "'0','1','2','3'";//对应状态全部
-                strHyInfo = "'1','2'";//合意状态 待确认和已合意
+                strHyInfo = "'1','2','4'";//合意状态 待确认和已合意答复销售不可订货
             }
             if (strDataState == "")
             {
                 strDyInfo = "'0','1','2','3'";//对应状态全部
-                strHyInfo = "'0','1','2','3'";//合意状态 -和退回
+                strHyInfo = "'0','1','2','3','4'";//合意状态全部
             }
             DataTable dataTable = fs0602_DataAccess.getHeJiInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDyInfo, strHyInfo);
+                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDyInfo, strHyInfo, strOverDue);
             return dataTable;
         }
 
@@ -89,6 +89,8 @@ namespace Logic
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.Alignment = HorizontalAlignment.Center;
 
 
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -96,8 +98,33 @@ namespace Logic
                     IRow row = sheet.CreateRow(startRow + i);
                     for (int j = 0; j < field.Length; j++)
                     {
+                        Type type = dt.Columns[field[j]].DataType;
                         ICell cell = row.CreateCell(j);
-                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                        cell.CellStyle = style;
                     }
                 }
 
@@ -151,6 +178,7 @@ namespace Logic
                     string strTzhSOQN1 = fs0603_DataAccess.setNullValue(listMultipleData[i]["iTzhSOQN1"], "", "0");
                     string strTzhSOQN2 = fs0603_DataAccess.setNullValue(listMultipleData[i]["iTzhSOQN2"], "", "0");
                     string strSupplierId = fs0603_DataAccess.setNullValue(listMultipleData[i]["vcSupplierId"], "", "");
+                    string strSupplierPlant = fs0603_DataAccess.setNullValue(listMultipleData[i]["vcSupplierPlant"], "", "");
                     string strExpectTime = fs0603_DataAccess.setNullValue(dExpectTime, "", "");
                     string strInputType = "company";
                     DataRow drMultiple = dtMultiple.NewRow();
@@ -165,6 +193,7 @@ namespace Logic
                     drMultiple["iTzhSOQN1"] = strTzhSOQN1;
                     drMultiple["iTzhSOQN2"] = strTzhSOQN2;
                     drMultiple["vcSupplierId"] = strSupplierId;
+                    drMultiple["vcSupplierPlant"] = strSupplierPlant;
                     drMultiple["dExpectTime"] = strExpectTime;
                     drMultiple["vcInputType"] = strInputType;
                     dtMultiple.Rows.Add(drMultiple);
@@ -182,6 +211,7 @@ namespace Logic
         {
             try
             {
+                dtMultiple.Columns.Add("vcHy4");
                 DataTable dterrMessage = new DataTable();
                 dterrMessage.Columns.Add("vcPart_id");
                 dterrMessage.Columns.Add("vcMsg");
@@ -191,8 +221,15 @@ namespace Logic
                 for (int i = 0; i < dterrMessage.Rows.Count; i++)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = dterrMessage.Rows[i]["vcPart_id"].ToString()+"     "+ dterrMessage.Rows[i]["vcMsg"].ToString();
+                    dataRow["vcMessage"] = dterrMessage.Rows[i]["vcPart_id"].ToString() + "     " + dterrMessage.Rows[i]["vcMsg"].ToString();
                     dtMessage.Rows.Add(dataRow);
+                    for (int j = 0; j < dtMultiple.Rows.Count; j++)
+                    {
+                        if (dtMultiple.Rows[j]["vcPart_id"].ToString() == dterrMessage.Rows[i]["vcPart_id"].ToString())
+                        {
+                            dtMultiple.Rows[j]["vcHy4"] = "4";
+                        }
+                    }
                 }
                 return dtMultiple;
             }
@@ -224,6 +261,7 @@ namespace Logic
                         string strYearMonth = dtInfo.Rows[i]["vcYearMonth"] == null ? "" : dtInfo.Rows[i]["vcYearMonth"].ToString();
                         string strPart_id = dtInfo.Rows[i]["vcPart_id"] == null ? "" : dtInfo.Rows[i]["vcPart_id"].ToString();
                         string strSupplierId = dtInfo.Rows[i]["vcSupplierId"] == null ? "" : dtInfo.Rows[i]["vcSupplierId"].ToString();
+                        string strSupplierPlant = dtInfo.Rows[i]["vcSupplierPlant"] == null ? "" : dtInfo.Rows[i]["vcSupplierPlant"].ToString();
                         string strDyState = dtInfo.Rows[i]["vcDyState"] == null ? "" : dtInfo.Rows[i]["vcDyState"].ToString();
                         string strHyState = dtInfo.Rows[i]["vcHyState"] == null ? "" : dtInfo.Rows[i]["vcHyState"].ToString();
                         string strCbSOQN = dtInfo.Rows[i]["iCbSOQN"].ToString() == "" ? "0" : dtInfo.Rows[i]["iCbSOQN"].ToString();
@@ -249,6 +287,7 @@ namespace Logic
                             drImport["iTzhSOQN1"] = strTzhSOQN1;
                             drImport["iTzhSOQN2"] = strTzhSOQN2;
                             drImport["vcSupplierId"] = strSupplierId;
+                            drImport["vcSupplierPlant"] = strSupplierPlant;
                             drImport["dExpectTime"] = strExpectTime;
                             drImport["vcInputType"] = strInputType;
                             dtImport.Rows.Add(drImport);
@@ -331,8 +370,9 @@ namespace Logic
                 for (int i = 0; i < dtToList.Rows.Count; i++)
                 {
                     string strSupplierId = dtToList.Rows[i]["vcSupplierId"].ToString();
+                    string strSupplierPlant = dtToList.Rows[i]["vcSupplierPlant"].ToString();
                     DataTable dtToInfo = fs0603_Logic.createTable("mailaddress");
-                    DataRow[] drEmail = dtEmail.Select("vcSupplier_id = '" + strSupplierId + "'");
+                    DataRow[] drEmail = dtEmail.Select("vcSupplier_id = '" + strSupplierId + "' and vcSupplierPlant = '" + strSupplierPlant + "'");
                     for (int j = 0; j < drEmail.Length; j++)
                     {
                         DataRow drToInfo = dtToInfo.NewRow();
@@ -345,7 +385,7 @@ namespace Logic
                     if (result != "Success")
                     {
                         DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = strSupplierId + "邮件发送失败，请采取其他形式联络。";
+                        dataRow["vcMessage"] = "供应商代码：" + strSupplierId + "工区：" + strSupplierPlant + "邮件发送失败，请采取其他形式联络。";
                         dtMessage.Rows.Add(dataRow);
                     }
                 }
@@ -363,12 +403,15 @@ namespace Logic
                 //根据供应商及纳期进行分组
                 DataTable dtb = new DataTable("dtb");
                 DataColumn dc1 = new DataColumn("vcSupplierId", Type.GetType("System.String"));
+                DataColumn dc2 = new DataColumn("vcSupplierPlant", Type.GetType("System.String"));
                 dtb.Columns.Add(dc1);
+                dtb.Columns.Add(dc2);
                 var query = from t in dataTable.AsEnumerable()
-                            group t by new { t1 = t.Field<string>("vcSupplierId") } into m
+                            group t by new { t1 = t.Field<string>("vcSupplierId"), t2 = t.Field<string>("vcSupplierPlant") } into m
                             select new
                             {
                                 SupplierId = m.Key.t1,
+                                SupplierPlant = m.Key.t2,
                                 rowcount = m.Count()
                             };
                 if (query.ToList().Count > 0)
@@ -377,6 +420,7 @@ namespace Logic
                     {
                         DataRow dr = dtb.NewRow();
                         dr["vcSupplierId"] = q.SupplierId;
+                        dr["vcSupplierPlant"] = q.SupplierPlant;
                         dtb.Rows.Add(dr);
                     });
                 }
@@ -400,6 +444,7 @@ namespace Logic
                         string strYearMonth = dataTable.Rows[i]["vcYearMonth"] == null ? "" : dataTable.Rows[i]["vcYearMonth"].ToString();
                         string strPart_id = dataTable.Rows[i]["vcPart_id"] == null ? "" : dataTable.Rows[i]["vcPart_id"].ToString();
                         string strSupplierId = dataTable.Rows[i]["vcSupplierId"] == null ? "" : dataTable.Rows[i]["vcSupplierId"].ToString();
+                        string strSupplierPlant = dataTable.Rows[i]["vcSupplierPlant"] == null ? "" : dataTable.Rows[i]["vcSupplierPlant"].ToString();
                         string strDyState = dataTable.Rows[i]["vcDyState"] == null ? "" : dataTable.Rows[i]["vcDyState"].ToString();
                         string strHyState = dataTable.Rows[i]["vcHyState"] == null ? "" : dataTable.Rows[i]["vcHyState"].ToString();
                         string strCbSOQN = dataTable.Rows[i]["iCbSOQN"].ToString() == "" ? "0" : dataTable.Rows[i]["iCbSOQN"].ToString();
@@ -424,6 +469,7 @@ namespace Logic
                             drImport["iTzhSOQN1"] = strTzhSOQN1;
                             drImport["iTzhSOQN2"] = strTzhSOQN2;
                             drImport["vcSupplierId"] = strSupplierId;
+                            drImport["vcSupplierPlant"] = strSupplierPlant;
                             drImport["dExpectTime"] = strExpectTime;
                             drImport["vcInputType"] = strInputType;
                             dtImport.Rows.Add(drImport);
@@ -445,6 +491,7 @@ namespace Logic
                     DataRow dataRow = dtMessage.NewRow();
                     dataRow["vcMessage"] = "没有可供内示回复的数据";
                     dtMessage.Rows.Add(dataRow);
+                    return null;
                 }
 
                 string sYearMonth = "";
@@ -471,6 +518,13 @@ namespace Logic
             {
                 string strDyState = "";
                 string strHyState = "1";
+                for (int i = 0; i < dtImport.Rows.Count; i++)
+                {
+                    if(dtImport.Rows[i]["vcHy4"].ToString()=="")
+                    {
+                        dtImport.Rows[i]["vcHy4"] = "1";
+                    }
+                }
                 fs0602_DataAccess.setSaveInfo_rp(dtImport, strDyState, strHyState, strOperId, ref dtMessage);
             }
             catch (Exception ex)
@@ -489,6 +543,7 @@ namespace Logic
                     string strYearMonth = dataTable.Rows[i]["vcYearMonth"] == null ? "" : dataTable.Rows[i]["vcYearMonth"].ToString();
                     string strPart_id = dataTable.Rows[i]["vcPart_id"] == null ? "" : dataTable.Rows[i]["vcPart_id"].ToString();
                     string strSupplierId = dataTable.Rows[i]["vcSupplierId"] == null ? "" : dataTable.Rows[i]["vcSupplierId"].ToString();
+                    string strSupplierPlant = dataTable.Rows[i]["vcSupplierPlant"] == null ? "" : dataTable.Rows[i]["vcSupplierPlant"].ToString();
                     string strDyState = dataTable.Rows[i]["vcDyState"] == null ? "" : dataTable.Rows[i]["vcDyState"].ToString();
                     string strHyState = dataTable.Rows[i]["vcHyState"] == null ? "" : dataTable.Rows[i]["vcHyState"].ToString();
                     string strCbSOQN = dataTable.Rows[i]["iCbSOQN"].ToString() == "" ? "0" : dataTable.Rows[i]["iCbSOQN"].ToString();
@@ -513,6 +568,7 @@ namespace Logic
                         drImport["iTzhSOQN1"] = strTzhSOQN1;
                         drImport["iTzhSOQN2"] = strTzhSOQN2;
                         drImport["vcSupplierId"] = strSupplierId;
+                        drImport["vcSupplierPlant"] = strSupplierPlant;
                         drImport["dExpectTime"] = strExpectTime;
                         drImport["vcInputType"] = strInputType;
                         dtImport.Rows.Add(drImport);
@@ -554,6 +610,7 @@ namespace Logic
         public string setEmailBody(string strExpectTime, string strFlag)
         {
             StringBuilder sbr = new StringBuilder();
+            sbr.AppendLine(" <p><strong class=\"ql - size - huge\" style = \"background - color: rgb(102, 185, 102); color: rgb(230, 0, 0); \"><em>请用户尽快提供符合用户标准的邮件样式！</em></strong></p><p><br></p>");
             sbr.AppendLine("<p>各位供应商殿&nbsp;（请转发给贵司社内相关人员）</p>");
             sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
             sbr.AppendLine("<p><br></p>");
@@ -561,7 +618,7 @@ namespace Logic
             sbr.AppendLine("<p>内示情报确认情况展开。 </p>");
             sbr.AppendLine("<p>请查收。</p>");
             sbr.AppendLine("<p>回复纳期：<u style=\"color: rgb(230, 0, 0);\">" + strExpectTime + "</u>下班前</p><p><br></p><p>请在补给系统上进行调整回复</p>");
-            sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666-xxxx）。</p><p><br></p>");
+            sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666）。</p><p><br></p>");
             sbr.AppendLine("<p>以上。</p><p><br></p>");
 
             return sbr.ToString();

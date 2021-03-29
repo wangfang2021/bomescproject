@@ -23,7 +23,7 @@ namespace DataAccess
                 StringBuilder sbr = new StringBuilder();
                 sbr.AppendLine("SELECT * FROM");
                 sbr.AppendLine("(");
-                sbr.AppendLine("SELECT vcDXDate,vcOrderNo,vcChangeNo,MAX(dFileUpload) AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
+                sbr.AppendLine("SELECT CAST(vcDXDate AS DATETIME) AS vcDXDate,vcOrderNo,vcChangeNo,MAX(dFileUpload) AS dFileUpload,CASE ISNULL(vcOrderNo,'') WHEN '' THEN '订单待上传' ELSE '订单已上传' END AS state  FROM TSoqDayChange GROUP BY vcDXDate,vcOrderNo,vcChangeNo");
                 sbr.AppendLine(") a");
                 sbr.AppendLine("WHERE 1=1 ");
                 if (!string.IsNullOrWhiteSpace(state))
@@ -221,7 +221,7 @@ namespace DataAccess
                     {
                         time = time.AddDays(1);
                         string tmp = time.ToString("yyyyMMdd");
-                        string state = list[i].day[tmp].ToString();
+                        string state = ObjToString(list[i].day[tmp]);
                         if (!state.Equals("0") && !string.IsNullOrWhiteSpace(state))
                         {
                             count++;
@@ -245,7 +245,7 @@ namespace DataAccess
 
         #region 获取品番当月每天的订单数量
 
-        public Hashtable getCount(Hashtable ht)
+        public Hashtable getCount(Hashtable ht, string inOut)
         {
             try
             {
@@ -281,7 +281,7 @@ namespace DataAccess
 
                 //TODO 应修改日度订货次数
                 //sbr.AppendLine("SELECT * FROM TSoqReply WHERE vcMakingOrderType = '3' " + choose);
-                sbr.AppendLine("SELECT * FROM TSoqReply WHERE 1=1 and vcMakingOrderType = '3' " + choose);
+                sbr.AppendLine("SELECT * FROM TSoqReply WHERE 1=1 and vcMakingOrderType = '3' AND vcInOutFlag = '" + inOut + "' " + choose);
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
 
 
@@ -366,10 +366,12 @@ namespace DataAccess
             try
             {
                 StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("DECLARE @now DATETIME");
                 for (int i = 0; i < list.Count; i++)
                 {
+                    sbr.AppendLine("SET @now = GETDATE()");
                     sbr.AppendLine("INSERT INTO TSoqDayChange(vcDXDate,vcChangeNo, vcPart_Id, iQuantityBefore, iQuantityNow, dFileUpload, vcOperatorID, dOperatorTime)");
-                    sbr.AppendLine("VALUES('" + list[i].DXR + "','" + list[i].ChangeNo + "','" + list[i].partId + "'," + list[i].iQuantityBefore + "," + list[i].IQuantityNow + ",GETDATE(),'" + strUserId + "'  ,GETDATE());");
+                    sbr.AppendLine("VALUES('" + list[i].DXR + "','" + list[i].ChangeNo + "','" + list[i].partId + "'," + list[i].iQuantityBefore + "," + list[i].IQuantityNow + ",@now,'" + strUserId + "'  ,GETDATE());");
                     sbr.AppendLine("UPDATE TSoqReply SET iD" + Convert.ToInt32(list[i].DXR.Substring(6, 2)) + " = " + list[i].IQuantityNow + " ,vcOperatorID = '" + strUserId + "' ,dOperatorTime = GETDATE() WHERE vcDXYM = '" + list[i].DXR.Substring(0, 6) + "' AND vcPart_id = '" + list[i].partId + "';");
                     sbr.AppendLine("UPDATE TSoqReply SET iPartNums = ISNULL(iD1,0)+ISNULL(iD2,0)+ISNULL(iD3,0)+ISNULL(iD4,0)+ISNULL(iD5,0)+ISNULL(iD6,0)+ISNULL(iD7,0)+ISNULL(iD8,0)+ISNULL(iD9,0)+ISNULL(iD10,0)+ISNULL(iD11,0)+ISNULL(iD12,0)+ISNULL(iD13,0)+ISNULL(iD14,0)+ISNULL(iD15,0)+ISNULL(iD16,0)+ISNULL(iD17,0)+ISNULL(iD18,0)+ISNULL(iD19,0)+ISNULL(iD20,0)+ISNULL(iD21,0)+ISNULL(iD22,0)+ISNULL(iD23,0)+ISNULL(iD24,0)+ISNULL(iD25,0)+ISNULL(iD26,0)+ISNULL(iD27,0)+ISNULL(iD28,0)+ISNULL(iD29,0)+ISNULL(iD30,0)+ISNULL(iD31,0)");
                     sbr.AppendLine(",vcOperatorID = '" + strUserId + "' ,dOperatorTime = GETDATE() WHERE vcDXYM = '202103' AND vcPart_id = '" + list[i].partId + "';");
@@ -554,9 +556,18 @@ namespace DataAccess
                 DataTable dtIn = ToDataTable(rowIn);
                 DataTable dtOut = ToDataTable(rowOut);
 
-                Hashtable hsIn = getDay(dtIn, DXR, count);
-                Hashtable hsOut = getDay(dtOut, DXR, count);
+                Hashtable hsIntmp = getDay(dtIn, DXR, count);
+                Hashtable hsOuttmp = getDay(dtOut, DXR, count);
 
+                Hashtable hsIn = new Hashtable();
+                Hashtable hsOut = new Hashtable();
+
+                foreach (string dayOutKey in hsOuttmp.Keys)
+                {
+                    hsOut.Add(dayOutKey, hsOuttmp["2"]);
+                    hsIn.Add(dayOutKey, hsOuttmp["2"]);
+
+                }
                 StringBuilder sbr = new StringBuilder();
 
                 foreach (string key in hsIn.Keys)
@@ -580,6 +591,7 @@ namespace DataAccess
                     string YMD = hsOut[key].ToString();
                     string ym = YMD.Substring(0, 6);
                     string day = YMD.Substring(6, 2);
+                    string CLYMD = DateTime.Parse(ym.Substring(0, 4) + "-" + ym.Substring(4, 2) + "-01").AddMonths(-1).ToString("yyyyMM");
                     if (day[0] == '0')
                         day = day[1].ToString();
                     if (sbr.Length > 0)
@@ -588,7 +600,7 @@ namespace DataAccess
                     }
                     sbr.AppendLine("SELECT vcPart_id,vcDXYM,iD" + day + " AS DayNum,'" + day + "' as DXR  FROM TSoqReply");
                     sbr.AppendLine("WHERE vcInOutFlag = '1' AND vcMakingOrderType in (" + getTypeMethod("D") + ")");
-                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "'");
+                    sbr.AppendLine("AND vcDXYM = '" + ym + "' AND vcFZGC = '" + key + "' AND vcCLYM = '" + CLYMD + "'");
                 }
 
                 if (sbr.Length > 0)
@@ -671,6 +683,18 @@ namespace DataAccess
             }
 
             return tmp;
+        }
+
+        public string ObjToString(Object obj)
+        {
+            try
+            {
+                return obj.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
         }
     }
 }

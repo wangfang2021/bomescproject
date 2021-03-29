@@ -53,7 +53,7 @@ namespace SPPSApi.Controllers.G12
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_PlanType = ComFunction.convertAllToResult(logic.getPlantype());
-                List<Object> dataList_Plant = ComFunction.convertAllToResult(logic.bindplant());
+                List<Object> dataList_Plant = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 res.Add("dataList_PlanType", dataList_PlanType);
                 res.Add("dataList_Plant", dataList_Plant);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -131,8 +131,17 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 DataTable dt = logic.serchData(strMon, strPlanType, strType, strPlant, strPlant);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if(dt.Rows[i]["vcPartsno"].ToString().Substring(12,2) == "00")
+                    {
+                        dt.Rows[i]["vcPartsno"] = dt.Rows[i]["vcPartsno"].ToString().Substring(0, 11);
+                    }
+                }
+
                 string[] fields = { "vcMonth","vcPlant","vcPartsno","vcDock","vcCarType","vcEDflag","vcCalendar1","vcCalendar2","vcCalendar3","vcCalendar4",
-                                    "vcPartsNameCHN","vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
+                                    "vcProject1","vcProjectName","vcCurrentPastCode","vcMonTotal",
                                     "TD1b","TD1y","TD2b","TD2y","TD3b","TD3y","TD4b","TD4y","TD5b","TD5y","TD6b","TD6y",
                                     "TD7b","TD7y","TD8b","TD8y","TD9b","TD9y","TD10b","TD10y","TD11b","TD11y","TD12b","TD12y",
                                     "TD13b","TD13y","TD14b","TD14y","TD15b","TD15y","TD16b","TD16y","TD17b","TD17y","TD18b","TD18y",

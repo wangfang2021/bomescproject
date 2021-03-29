@@ -61,7 +61,7 @@ namespace SPPSApi.Controllers.G12
         }
         #endregion
 
-        #region 计算
+        #region 导入
         [HttpPost]
         [EnableCors("any")]
         public string computeApi([FromBody] dynamic data)
@@ -97,7 +97,7 @@ namespace SPPSApi.Controllers.G12
                     {
                         #region 
                         DataRow dr = dttmp.NewRow();
-                        dr["vcMonth"] = tb.Rows[i]["Process_YYYYMM"].ToString().Substring(0, 4) + '-' + tb.Rows[i]["Process_YYYYMM"].ToString().Substring(4, 2);
+                        dr["vcMonth"] = tb.Rows[i]["Start_date_for_daily_qty"].ToString().Substring(0, 4) + '-' + tb.Rows[i]["Start_date_for_daily_qty"].ToString().Substring(4, 2);
                         dr["vcPartsNo"] = tb.Rows[i]["Part_No"].ToString() + tb.Rows[i]["Part_Suffix"].ToString();
                         dr["vcSource"] = tb.Rows[i]["Source_Code"].ToString();
                         dr["vcDock"] = tb.Rows[i]["Parts_Master_Matching_Key"].ToString();
@@ -174,13 +174,13 @@ namespace SPPSApi.Controllers.G12
                     if (msg.Length > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "计算失败！";
+                        apiResult.data = "导入失败！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     else
                     {
                         apiResult.code = ComConstant.SUCCESS_CODE;
-                        apiResult.data = "计算成功！";
+                        apiResult.data = "导入成功！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

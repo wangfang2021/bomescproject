@@ -31,7 +31,7 @@ namespace Logic
         {
             try
             {
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "0", "", "", "", "", "", "", "", "", "", "", "", "", false, "");
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "0", "", "", "", "", "", "", "", "", "", "", "", "", false, "", "", "", "");
                 DataTable dataTable = fs0617_DataAccess.getPrintTemp("FS0617");
                 DataTable dtSub = dataTable.Clone();
                 DataTable dtMain = fS0603_Logic.createTable("mainFs0617");
@@ -184,7 +184,7 @@ namespace Logic
                 stream.Close();
                 return bufferPhoto;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

@@ -173,7 +173,7 @@ namespace SPPSApi.Controllers.G06
                                      "vcResultQtyDaily30", "vcPlantQtyDaily31", "vcInputQtyDaily31", "vcResultQtyDaily31","vcPlantQtyDailySum","vcInputQtyDailySum",
                                      "vcResultQtyDailySum", "vcCarType", "vcLastPartNo", "vcPackingSpot","vcTargetMonthFlag", "vcTargetMonthLast"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0618_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0618_Export.xlsx", 2, loginInfo.UserId, FunctionID,true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

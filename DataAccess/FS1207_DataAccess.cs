@@ -52,7 +52,8 @@ namespace DataAccess
         #region 获取NQCReceiveInfo数据
         public DataTable getNQCReceiveInfo(string vcDXYM, string vcPlant)
         {
-            string str = "select * from TNQCReceiveInfo where right(Process_Factory,1)='" + vcPlant + "' and Process_YYYYMM='" + vcDXYM.Replace("-","") + "'";
+            string vcCLYM = DateTime.Now.ToString("yyyyMM");
+            string str = "select * from TNQCReceiveInfo where right(Process_Factory,1)='" + vcPlant + "' and Process_YYYYMM='" + vcCLYM + "' and substring(Start_date_for_daily_qty,1,6)='" + vcDXYM.Replace("-", "") + "'";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
         }
         #endregion
@@ -189,7 +190,7 @@ namespace DataAccess
                 cmd.Transaction.Commit();
                 cmd.Connection.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 cmd.Transaction.Rollback();
                 cmd.Connection.Close();
@@ -265,7 +266,7 @@ namespace DataAccess
                 //str += "	      and  iSRNum is  not null	\r\n";  //测试用
                 if (partsno != "")
                 {
-                    str += " and A.vcPartsNo='" + partsno + "' ";
+                    str += " and A.vcPartsNo like '" + partsno + "'%";
                 }
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
@@ -288,7 +289,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "	 AND t1.vcPartsNo ='" + partsno + "'									";
+                str += "	 AND t1.vcPartsNo  like '" + partsno + "%'									";
             }
             str += "order by vcMonth";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
@@ -430,7 +431,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "and t1.vcPartsNo='" + partsno + "' ";
+                str += "and t1.vcPartsNo like '" + partsno + "'% ";
             }
             str += " order by vcPartsNo ";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
@@ -451,7 +452,7 @@ namespace DataAccess
             }
             if (partsno != "")
             {
-                str += "	 and t1.vcPartsNo='" + partsno + "'									\r\n";
+                str += "	 and t1.vcPartsNo like '" + partsno + "%'									\r\n";
             }
             str += "	 order by vcPartsNo ";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());

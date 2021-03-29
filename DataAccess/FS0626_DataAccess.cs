@@ -38,7 +38,7 @@ namespace DataAccess
                 return dt.Rows.Count > 0;
             }
             catch (Exception ex)
-            { 
+            {
                 throw ex;
             }
         }
@@ -49,7 +49,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" select a.vcPackPlant, a.vcInjectionFactory, a.vcTargetMonth, a.vcSupplier_id, a.vcWorkArea, ");
-                strSql.AppendLine(" a.vcDock, a.vcOrderNo, a.vcPartNo, b.vcName as vcNewOldFlag, ");
+                strSql.AppendLine(" a.vcDock, a.vcOrderNo, substring(a.vcOrderNo,1,8) as vcOrderDate, a.vcPartNo, b.vcName as vcNewOldFlag, ");
                 strSql.AppendLine(" a.vcOrderNumber, a.vcNoReceiveNumber, ");
                 strSql.AppendLine(" a.vcNoReceiveReason, a.vcExpectRedeemDate, 1 as vcFlag, '0' as iflag,'0' as vcModFlag,'0' as vcAddFlag, a.iAutoId  ");
                 strSql.AppendLine(" from TOutsidePurchaseManage a ");
@@ -59,7 +59,7 @@ namespace DataAccess
                 if (vcPackPlant.Length > 0)
                 {
                     strSql.AppendLine(" and a.vcPackPlant= '" + vcPackPlant + "' ");
-                } 
+                }
                 if (vcInjectionFactory.Length > 0)
                 {
                     strSql.AppendLine(" and a.vcInjectionFactory='#" + vcInjectionFactory + "' ");
@@ -90,13 +90,13 @@ namespace DataAccess
                 }
                 if (vcReceiveFlag == "1")
                 {
-                    strSql.AppendLine(" and vcNoReceiveNumber=0 ");
+                    strSql.AppendLine(" and isnull(vcNoReceiveNumber,0)=0 ");
                 }
                 else if (vcReceiveFlag == "0")
                 {
                     strSql.AppendLine(" and a.vcNoReceiveNumber<>0 ");
                 }
-                strSql.AppendLine(" order by a.dOperatorTime desc ");
+                strSql.AppendLine(" order by vcOrderDate desc, a.vcOrderNo, a.vcPartNo");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -291,7 +291,12 @@ namespace DataAccess
                 bool b = false;
                 try
                 {
-                    SqlCommand cmdDel = new SqlCommand("delete from TOutsidePurchaseManage where vcTargetMonth>='" + vcDateFrom + "' and vcTargetMonth<='" + vcDateTo + "';", conn);
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        sb.Append("delete from TOutsidePurchaseManage where vcTargetMonth>='" + vcDateFrom + "' and vcTargetMonth<='" + vcDateTo + "' and vcOrderNo='" + dt.Rows[i]["vcOrderNo"].ToString() + "' and vcPartNo='" + dt.Rows[i]["vcPartNo"].ToString() + "'; \r\n");
+                    }
+                    SqlCommand cmdDel = new SqlCommand(sb.ToString(), conn);
                     cmdDel.Transaction = trans;
                     cmdDel.ExecuteNonQuery();
 
@@ -314,13 +319,13 @@ namespace DataAccess
                     da.InsertCommand = new SqlCommand();
                     da.InsertCommand.Connection = conn;
                     da.InsertCommand.CommandType = CommandType.Text;
-                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcYear, vcTargetMonth, vcDate, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, dOperatorTime, vcOperatorID) ";
-                    da.InsertCommand.CommandText += "values (SUBSTRING(@vcOrderNo,1,4), SUBSTRING(@vcOrderNo,1,6), SUBSTRING(@vcOrderNo,1,8), @vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, getdate(), '" + strUserId + "') ";
+                    da.InsertCommand.CommandText += "insert into TOutsidePurchaseManage(vcTargetMonth, vcSupplier_id, vcWorkArea, vcDock, vcOrderNo, vcPartNo, vcOrderNumber, dOperatorTime, vcOperatorID) ";
+                    da.InsertCommand.CommandText += "values (SUBSTRING(@vcOrderNo,1,6), @vcSupplier_id, @vcWorkArea, @vcDock, @vcOrderNo, @vcPartNo, @vcOrderNumber, getdate(), '" + strUserId + "') ";
                     da.InsertCommand.Parameters.Add("@vcSupplier_id", SqlDbType.VarChar, 4, "vcSupplier_id"); //供应商代码
                     da.InsertCommand.Parameters.Add("@vcWorkArea", SqlDbType.VarChar, 2, "vcWorkArea");//工区
                     da.InsertCommand.Parameters.Add("@vcDock", SqlDbType.VarChar, 6, "vcDock");//受入
-                    da.InsertCommand.Parameters.Add("@vcOrderNo", SqlDbType.VarChar, 12, "vcOrderNo");//订单号
-                    da.InsertCommand.Parameters.Add("@vcPartNo", SqlDbType.VarChar, 12, "vcPartNo");//品番
+                    da.InsertCommand.Parameters.Add("@vcOrderNo", SqlDbType.VarChar, 20, "vcOrderNo");//订单号
+                    da.InsertCommand.Parameters.Add("@vcPartNo", SqlDbType.VarChar, 16, "vcPartNo");//品番
                     da.InsertCommand.Parameters.Add("@vcOrderNumber", SqlDbType.Int, 4, "vcOrderNumber");//订单数量
                     da.InsertCommand.Transaction = trans;
                     da.Update(dt1);

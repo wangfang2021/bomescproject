@@ -1180,6 +1180,7 @@ namespace DataAccess
                         strSql.AppendLine("  begin   ");
                         strSql.AppendLine("   UPDATE [dbo].[THeZiManage]   ");
                         strSql.AppendLine("      SET [vcExpectIntake] = " + getSqlValue(listInfoData[i]["vcExpectIntake"], false) + "   ");
+                        strSql.AppendLine("         ,[vcWorkArea] = " + getSqlValue(vcWorkArea, true) + "   ");
                         strSql.AppendLine("         ,[dExpectDeliveryDate] = " + getSqlValue(listInfoData[i]["dExpectDeliveryDate"], true) + "   ");
                         strSql.AppendLine("         ,[vcIntake] = " + getSqlValue(listInfoData[i]["vcIntake"], true) + "   ");
                         strSql.AppendLine("         ,[vcBoxMaxIntake] = " + getSqlValue(listInfoData[i]["vcBoxMaxIntake"], true) + "   ");

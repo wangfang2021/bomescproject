@@ -123,7 +123,7 @@ namespace DataAccess
                     string strPlant = dtPlant.Rows[i]["vcFZGC"].ToString();
                     string strMaxTimes = GetMaxTimes(strPlant, vcCLYM);
                     sql.Append("insert into TNQCStatus_HS_FORECAST (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime) values     \n");
-                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",getdate(),'" + strUserId + "','"+ strdate + "')    \n");
+                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','"+ strdate + "')    \n");
                 }
                 SqlCommand cd0 = new SqlCommand(sql.ToString(), conn_sql, st);
                 cd0.CommandType = System.Data.CommandType.Text;
@@ -153,7 +153,7 @@ namespace DataAccess
                     string strPlant = plantList[i];
                     string strMaxTimes = GetMaxTimes2(strPlant, vcCLYM);
                     sql.Append("insert into TNQCStatus_HS_EKANBAN (vcCLYM,vcPlant,vcStatus,iTimes,dRequestTime,vcOperatorID,dOperatorTime) values     \n");
-                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",getdate(),'" + strUserId + "','" + strdate + "')    \n");
+                    sql.Append("('" + vcCLYM + "','" + strPlant + "','已请求'," + strMaxTimes + ",'" + strdate + "','" + strUserId + "','" + strdate + "')    \n");
                 }
                 SqlCommand cd0 = new SqlCommand(sql.ToString(), conn_sql, st);
                 cd0.CommandType = System.Data.CommandType.Text;

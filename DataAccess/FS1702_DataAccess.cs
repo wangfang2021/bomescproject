@@ -291,7 +291,7 @@ namespace DataAccess
                 sql.Append("	select * from TChuHe_Detail where vcProject='" + vcProject + "' and dChuHeDate='" + dChuHeDate + "' and iQuantity>0    \n");
                 sql.Append(")t1    \n");
                 sql.Append("left join TSSPManagement t2 on t1.vcPart_id=t2.vcChuHePart_id    \n");
-
+                sql.Append("order by id ");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -545,6 +545,105 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public DataTable getPrintTemp(string strPage)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select top(1)* from [tPrintTemp_" + strPage + "]");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setPrintTemp(DataTable dtSub, string strOperId, ref DataTable dtMessage)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            try
+            {
+                #region 写入数据库
+                #region sqlCommand_deleteinfo
+                SqlCommand sqlCommand_deleteinfo = sqlConnection.CreateCommand();
+                sqlCommand_deleteinfo.Transaction = sqlTransaction;
+                sqlCommand_deleteinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_deleteinfo = new StringBuilder();
+                #region SQL and Parameters
+                strSql_deleteinfo.AppendLine("DELETE from tPrintTemp_FS1702 where vcOperator='" + strOperId + "'");
+                sqlCommand_deleteinfo.CommandText = strSql_deleteinfo.ToString();
+                #endregion
+                sqlCommand_deleteinfo.ExecuteNonQuery();
+                #endregion
+
+                #region sqlCommand_sub
+                SqlCommand sqlCommand_sub = sqlConnection.CreateCommand();
+                sqlCommand_sub.Transaction = sqlTransaction;
+                sqlCommand_sub.CommandType = CommandType.Text;
+                StringBuilder strSql_sub = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_sub.AppendLine("INSERT INTO [tPrintTemp_FS1702]");
+                strSql_sub.AppendLine("           ([UUID]");
+                strSql_sub.AppendLine("           ,[vcOperator]");
+                strSql_sub.AppendLine("           ,[dOperatorTime]");
+                strSql_sub.AppendLine("           ,[vcQueRenNo]");
+                strSql_sub.AppendLine("           ,[id]");
+                strSql_sub.AppendLine("           ,[vcPart_id]");
+                strSql_sub.AppendLine("           ,[vcBackPart_id]");
+                strSql_sub.AppendLine("           ,[iQuantity])");
+                strSql_sub.AppendLine("     VALUES");
+                strSql_sub.AppendLine("           (@UUID");
+                strSql_sub.AppendLine("           ,'" + strOperId + "'");
+                strSql_sub.AppendLine("           ,GETDATE()");
+                strSql_sub.AppendLine("           ,@vcQueRenNo");
+                strSql_sub.AppendLine("           ,@id");
+                strSql_sub.AppendLine("           ,@vcPart_id");
+                strSql_sub.AppendLine("           ,@vcBackPart_id");
+                strSql_sub.AppendLine("           ,@iQuantity)");
+                sqlCommand_sub.CommandText = strSql_sub.ToString();
+                sqlCommand_sub.Parameters.AddWithValue("@UUID", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcQueRenNo", "");
+                sqlCommand_sub.Parameters.AddWithValue("@id", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcPart_id", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcBackPart_id", "");
+                sqlCommand_sub.Parameters.AddWithValue("@iQuantity", "");
+                #endregion
+                foreach (DataRow item in dtSub.Rows)
+                {
+                    #region Value
+                    sqlCommand_sub.Parameters["@UUID"].Value = item["UUID"].ToString();
+                    sqlCommand_sub.Parameters["@vcQueRenNo"].Value = item["vcQueRenNo"];
+                    sqlCommand_sub.Parameters["@id"].Value = item["id"];
+                    sqlCommand_sub.Parameters["@vcPart_id"].Value = item["vcPart_id"];
+                    sqlCommand_sub.Parameters["@vcBackPart_id"].Value = item["vcBackPart_id"];
+                    sqlCommand_sub.Parameters["@iQuantity"].Value = item["iQuantity"];
+                    #endregion
+                    sqlCommand_sub.ExecuteNonQuery();
+                }
+                #endregion
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据写入打印数据失败！";
+                dtMessage.Rows.Add(dataRow);
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
             }
         }
     }

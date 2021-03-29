@@ -221,7 +221,7 @@ namespace SPPSApi.Controllers.G07
 
                 }
                 string resMsg = "";
-                string[] head = { "包装场", "包装材品番", "GPS品番", "开始时间,", "结束时间", "品名", "供应商", "供应商代码", "发注收容数", "资材订购批量", "循环", "段取区分", "场所", "规格", "发注逻辑" };
+                string[] head = { "包装场", "包装材品番", "GPS品番", "开始时间", "结束时间", "品名", "供应商", "供应商代码", "发注收容数", "资材订购批量", "循环", "段取区分", "场所", "规格", "发注逻辑" };
                 string[] fields = { "vcPackSpot","vcPackNo","vcPackGPSNo","dPackFrom","dPackTo","vcParstName","vcSupplierName",
                     "vcSupplierCode","iRelease","iZCRelease","vcCycle","vcDistinguish","vcPackLocation","vcFormat","vcReleaseName"
                 };

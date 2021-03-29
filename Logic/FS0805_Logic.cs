@@ -30,12 +30,13 @@ namespace Logic
             {
                 DataTable dataTable = fs0805_DataAccess.getPrintTemp("FS0805");
                 DataTable dtSub = dataTable.Clone();
-                DataTable dtSPInfo = fs0805_DataAccess.getSearchInfo(strSellNo,"List");
+                DataTable dtSPInfo = fs0805_DataAccess.getSearchInfo(strSellNo, "List");
                 string uuid = Guid.NewGuid().ToString("N");
                 for (int j = 0; j < dtSPInfo.Rows.Count; j++)
                 {
                     DataRow dataRow = dtSub.NewRow();
                     dataRow["UUID"] = uuid;
+                    dataRow["vcRows"] = (j + 1).ToString();
                     dataRow["vcCpdcompany"] = dtSPInfo.Rows[j]["vcCpdcompany"].ToString();
                     dataRow["vcCompany"] = dtSPInfo.Rows[j]["vcCompany"].ToString();
                     dataRow["vcPackingspot"] = dtSPInfo.Rows[j]["vcPackingspot"].ToString();
@@ -47,7 +48,9 @@ namespace Logic
                     dataRow["vcPartsnamechn"] = dtSPInfo.Rows[j]["vcPartsnamechn"].ToString();
                     dataRow["vcPartsnameen"] = dtSPInfo.Rows[j]["vcPartsnameen"].ToString();
                     dataRow["vcShippingqty"] = dtSPInfo.Rows[j]["vcShippingqty"].ToString();
-                    dataRow["vcCaseno"] = dtSPInfo.Rows[j]["vcCaseno"].ToString();
+                    dataRow["vcCaseno"] = dtSPInfo.Rows[j]["vcCaseno"].ToString().Length == 8 ?
+                        dtSPInfo.Rows[j]["vcCaseno"].ToString().Substring(0, 4) + "-" + dtSPInfo.Rows[j]["vcCaseno"].ToString().Substring(4, 4) :
+                        dtSPInfo.Rows[j]["vcCaseno"].ToString();
                     dataRow["vcCostwithtaxes"] = dtSPInfo.Rows[j]["vcCostwithtaxes"].ToString();
                     dataRow["vcPrice"] = dtSPInfo.Rows[j]["vcPrice"].ToString();
                     dataRow["dPrintDate"] = dtSPInfo.Rows[j]["dPrintDate"].ToString();

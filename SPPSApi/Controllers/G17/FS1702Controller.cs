@@ -2,8 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.ServiceModel;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -13,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G17
 {
@@ -108,9 +112,66 @@ namespace SPPSApi.Controllers.G17
         #endregion
 
         #region 确认单打印
+        //[HttpPost]
+        //[EnableCors("any")]
+        //[Obsolete]
+        //public string qrdPrintApi([FromBody]dynamic data)
+        //{
+        //    //验证是否登录
+        //    string strToken = Request.Headers["X-Token"];
+        //    if (!isLogin(strToken))
+        //    {
+        //        return error_login();
+        //    }
+        //    LoginInfo loginInfo = getLoginByToken(strToken);
+        //    //以下开始业务处理
+        //    ApiResult apiResult = new ApiResult();
+        //    try
+        //    {
+        //        dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+        //        JArray checkedInfo = dataForm.multipleSelection;
+        //        List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
+        //        if (checkedInfoData.Count == 0)
+        //        {
+        //            apiResult.code = ComConstant.ERROR_CODE;
+        //            apiResult.data = "最少选择一行！";
+        //            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //        }
+        //        //取出生成确认单的数据
+        //        string[] fields = { "id", "vcPart_id", "vcBackPart_id", "iQuantity", "vcRemark"};
+        //        string vcQueRenNo = checkedInfoData[0]["vcQueRenNo"].ToString();
+        //        string vcProject = checkedInfoData[0]["vcProject"].ToString();
+        //        string dChuHeDate = checkedInfoData[0]["dChuHeDate"].ToString();
+        //        DataTable dt = fs1702_Logic.GetqrdInfo(vcProject, dChuHeDate);
+        //        string strMsg = "";
+        //        //生成excel
+        //        string filepath = fs1702_Logic.generateExcelWithXlt(vcQueRenNo,dt, fields, _webHostEnvironment.ContentRootPath, "FS1702.xlsx", 0, 3, loginInfo.UserId, FunctionID);
+        //        if (strMsg != "")
+        //        {
+        //            apiResult.code = ComConstant.ERROR_CODE;
+        //            apiResult.data = strMsg;
+        //            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //        }
+        //        //调打印方法（没做呢）
+
+        //        //更新打印时间
+        //        fs1702_Logic.qrdPrint(checkedInfoData, loginInfo.UserId);
+        //        apiResult.code = ComConstant.SUCCESS_CODE;
+        //        apiResult.data = null;
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+        //        apiResult.code = ComConstant.ERROR_CODE;
+        //        apiResult.data = "删除失败";
+        //        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+        //    }
+        //}
+        #endregion
+
         [HttpPost]
         [EnableCors("any")]
-        [Obsolete]
         public string qrdPrintApi([FromBody]dynamic data)
         {
             //验证是否登录
@@ -122,49 +183,106 @@ namespace SPPSApi.Controllers.G17
             LoginInfo loginInfo = getLoginByToken(strToken);
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            JArray listInfo = dataForm.multipleSelection;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             try
             {
-                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray checkedInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> checkedInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
-                if (checkedInfoData.Count == 0)
+                DataTable dtMessage = fs1702_Logic.createTable("MES");
+                if (listInfoData.Count != 0)
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一行！";
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        string vcProject = listInfoData[0]["vcProject"] == null ? "" : listInfoData[0]["vcProject"].ToString();
+                        string dChuHeDate = listInfoData[0]["dChuHeDate"] == null ? "" : listInfoData[0]["dChuHeDate"].ToString();
+                        if (vcProject == "" || dChuHeDate == "")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("工程{0}或出荷日期{1}为空，无法打印", vcProject, dChuHeDate);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    if (dtMessage.Rows.Count != 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    bool bResult = fs1702_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage);
+                    if (!bResult)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #region 调用webApi打印
+                    FS0603_Logic fS0603_Logic = new FS0603_Logic();
+                    string strPrinterName = fS0603_Logic.getPrinterName("FS1702", loginInfo.UserId);
+                    //创建 HTTP 绑定对象
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    var binding = new BasicHttpBinding();
+                    //根据 WebService 的 URL 构建终端点对象
+                    var endpoint = new EndpointAddress(@"http://172.23.238.171/WebAPI/WebServiceAPI.asmx");
+                    //创建调用接口的工厂，注意这里泛型只能传入接口
+                    var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                    //从工厂获取具体的调用实例
+                    var callClient = factory.CreateChannel();
+                    setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                    Body.strCRVName = file_crv + "crv_FS1702_qrd.rpt";
+                    Body.strScrpit = "select * from tPrintTemp_FS1702 where vcOperator='" + loginInfo.UserId + "' ORDER BY CAST(id AS INT)";
+                    Body.strPrinterName = strPrinterName;
+                    Body.sqlUserID = "sa";
+                    Body.sqlPassword = "SPPS_Server2019";
+                    Body.sqlCatalog = "SPPSdb";
+                    Body.sqlSource = "172.23.180.116";
+                    //调用具体的方法，这里是 HelloWorldAsync 方法
+                    Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                    //获取结果
+                    setCRVPrintResponse response = responseTask.Result;
+                    if (response.Body.setCRVPrintResult != "打印成功")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "打印成功";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //取出生成确认单的数据
-                string[] fields = { "id", "vcPart_id", "vcBackPart_id", "iQuantity", "vcRemark"};
-                string vcQueRenNo = checkedInfoData[0]["vcQueRenNo"].ToString();
-                string vcProject = checkedInfoData[0]["vcProject"].ToString();
-                string dChuHeDate = checkedInfoData[0]["dChuHeDate"].ToString();
-                DataTable dt = fs1702_Logic.GetqrdInfo(vcProject, dChuHeDate);
-                string strMsg = "";
-                //生成excel
-                string filepath = fs1702_Logic.generateExcelWithXlt(vcQueRenNo,dt, fields, _webHostEnvironment.ContentRootPath, "FS1702.xlsx", 0, 3, loginInfo.UserId, FunctionID);
-                if (strMsg != "")
+                else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = strMsg;
+                    apiResult.data = "未选择有效的打印数据";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //调打印方法（没做呢）
-
-                //更新打印时间
-                fs1702_Logic.qrdPrint(checkedInfoData, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE1004", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "删除失败";
+                apiResult.data = "生成印刷文件失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
-        #endregion
 
         #region 出荷看板打印
         [HttpPost]

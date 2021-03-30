@@ -57,7 +57,7 @@ namespace DataAccess
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
                 //sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() AND ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
-                sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
+                sbr.Append(" SELECT vcPart_id,CAST(COUNT(*) AS VARCHAR(20)) AS num FROM TUnit WHERE ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
 
                 sbr.Append(" ) f ON a.vcPart_Id_old = f.vcPart_id OR a.vcPart_Id_new = f.vcPart_id \r\n");
                 //sbr.Append(" LEFT JOIN  \r\n");

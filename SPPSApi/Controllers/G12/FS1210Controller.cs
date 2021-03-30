@@ -69,8 +69,9 @@ namespace SPPSApi.Controllers.G12
 
                 if (logic_09.KanBIfPrint(dtportype))
                 {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "NG";
+                    res.Add("noPrint", "Y");
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = res;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

@@ -52,7 +52,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.dllPorPlant());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 string RolePorType = logic.getRoleTip(loginInfo.UserId);
                 DataTable dtportype = logic.dllPorType(RolePorType.Split('*'));
                 List<Object> dataList_PorTypeSource = ComFunction.convertAllToResult(dtportype);

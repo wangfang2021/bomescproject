@@ -40,7 +40,8 @@ namespace DataAccess
                 strSql.AppendLine("		T2.vcSupplierPlant as SupplierPlant_ed,");
                 strSql.AppendLine("		Convert(varchar(10),T2.dFromTime,111) as SupplierPlantFromTime_ed,");
                 strSql.AppendLine("		Convert(varchar(10),t2.dToTime,111) as SupplierPlantToTime_ed,		");
-                strSql.AppendLine("		CAST(T3.iPackingQty AS varchar(10)) AS iPackingQty,");
+                strSql.AppendLine("		T3.iPackingQty AS iPackingQty,");
+                //strSql.AppendLine("		CAST(T3.iPackingQty AS varchar(10)) AS iPackingQty,");
                 strSql.AppendLine("		T1.vcSupplierPlace as vcSupplierPlace,");
                 strSql.AppendLine("		T3.vcBoxType,T3.iLength,T3.iWidth,T3.iHeight,T3.iVolume,");
                 strSql.AppendLine("		T3.LinId as BoxLinId_ed,");

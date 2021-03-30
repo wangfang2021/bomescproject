@@ -53,15 +53,16 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray lists = dataForm.temp.list;
+
+                JArray lists = dataForm;
                 List<Dictionary<string, object>> listInfoData = lists.ToObject<List<Dictionary<string, object>>>();
                 if (listInfoData.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "最少选择一条数据！";
+                    apiResult.data = "没有数据，无法删除！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                logic.Del_Plan(listInfoData, loginInfo.UserId);
+                logic.Del_KanbanPrintTbl(listInfoData);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -64,7 +64,7 @@ namespace DataAccess
                         sbr.AppendLine("AND CONVERT(VARCHAR(8),a.dRangeEnd,112) <= '" + end + "'");
                     }
                 }
-
+                sbr.AppendLine(" ORDER BY dOperatorTime desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

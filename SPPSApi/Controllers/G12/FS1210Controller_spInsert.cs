@@ -194,7 +194,7 @@ namespace SPPSApi.Controllers.G12
                                                  "完成日01","班值01","完成日02","班值02","完成日03","班值03","完成日04","班值04" },
                                                 {"vcPartsNo", "vcDock", "vcPorType", "vcQuantityPerContainer", "vcCarType", "vcEDflag","vcKBorderno","vcKBSerial","vcTips",
                                                  "vcComDate01","vcBanZhi01","vcComDate02","vcBanZhi02","vcComDate03","vcBanZhi03","vcComDate04","vcBanZhi04" },
-                                                {"","","","","","","","","","","","","","","","","" },
+                                                {"","","",FieldCheck.Num,"","","",FieldCheck.Num,"","","","","","","","","" },
                                                 {"10","2","6","8","4","2","12","4","100","10","1","10","1","10","1","10","1"},//最大长度设定,不校验最大长度用0
                                                 {"10","2","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17"}//前台显示列号，从0开始计算,注意有选择框的是0
@@ -256,7 +256,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 return tb;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

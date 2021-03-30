@@ -97,16 +97,8 @@ namespace SPPSApi.Controllers.G07
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dNaRuTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -165,7 +157,8 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "发注成功";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                else {
+                else
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = strErrorPartId;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -200,7 +193,7 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             try
             {
-               
+
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
@@ -243,9 +236,9 @@ namespace SPPSApi.Controllers.G07
                 }
 
                 string strErrorPartId = "";
-             
 
-                
+
+
                 FS0719_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
@@ -293,6 +286,16 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["VCFaBuType"].ToString() == "0")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "不可删除自动计算数据！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
                 FS0719_Logic.Del(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

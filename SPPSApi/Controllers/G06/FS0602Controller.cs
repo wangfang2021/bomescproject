@@ -56,29 +56,30 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                DataTable dtOptionsList = fs0603_Logic.getFormOptions("");
-                List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商编码选项
-                List<Object> SupplierPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierPlant_Name", "vcSupplierPlant_Value"));//工区
-
                 List<Object> DyStateList = ComFunction.convertAllToResult(ComFunction.getTCode("C036"));//对应状态
                 List<Object> HyStateList = ComFunction.convertAllToResult(ComFunction.getTCode("C037"));//合意状态
-                List<Object> InOutList = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
-                List<Object> OrderingMethodList = ComFunction.convertAllToResult(ComFunction.getTCode("C047"));//订货方式
-                List<Object> OrderPlantList = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
-                List<Object> HaoJiuList = ComFunction.convertAllToResult(ComFunction.getTCode("C004"));//号旧区分
+                DataTable dtOptionsList = fs0603_Logic.getFormOptions("");
+                List<Object> CarModelForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcCarModel_Name", "vcCarModel_Value"));//车种选项
+                List<Object> HaoJiuForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcHaoJiu_Name", "vcHaoJiu_Value"));//号旧区分选项
+                List<Object> OrderingMethodForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderingMethod_Name", "vcOrderingMethod_Value"));//订货方式
+                List<Object> OrderPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderPlant_Name", "vcOrderPlant_Value"));//发注工厂选项
+                List<Object> InOutForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcInOut_Name", "vcInOut_Value"));//内外区分选项
+                List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商编码选项
+                List<Object> SupplierPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierPlant_Name", "vcSupplierPlant_Value"));//工区
                 DateTime dNow = DateTime.Now.AddMonths(1);
 
                 res.Add("DyStateList", DyStateList);
                 res.Add("HyStateList", HyStateList);
-                res.Add("InOutList", InOutList);
-                res.Add("OrderingMethodList", OrderingMethodList);
-                res.Add("OrderPlantList", OrderPlantList);
-                res.Add("HaoJiuList", HaoJiuList);
+                res.Add("CarModelForForm", CarModelForForm);
+                res.Add("HaoJiuForForm", HaoJiuForForm);
+                res.Add("OrderingMethodForForm", OrderingMethodForForm);
+                res.Add("OrderPlantForForm", OrderPlantForForm);
+                res.Add("InOutForForm", InOutForForm);
                 res.Add("SupplierIdForForm", SupplierIdForForm);
                 res.Add("SupplierPlantForForm", SupplierPlantForForm);
                 res.Add("yearMonth", dNow.ToString("yyyy/MM"));
 
-                DataTable dtTask = fs0602_Logic.getSearchInfo(dNow.ToString("yyyyMM"), "", "", "", "", "", "", "", "", "", "", "");
+                DataTable dtTask = fs0602_Logic.getSearchInfo(dNow.ToString("yyyyMM"), "", "", "", "", "", "", "", "", "", "", "", "");
                 res.Add("tasknum", dtTask.Rows.Count);
                 res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
                 res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
@@ -113,33 +114,34 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
 
             string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
-            string strDyState = dataForm.DyState;
-            string strHyState = dataForm.HyState;
-            string strPartId = dataForm.PartId;
-            string strCarModel = dataForm.CarModel;
-            string strInOut = dataForm.InOut;
-            string strOrderingMethod = dataForm.OrderingMethod;
-            string strOrderPlant = dataForm.OrderPlant;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strDataState = dataForm.DataState;
+            string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
+            string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strOrderingMethod = dataForm.OrderingMethod == null ? "" : dataForm.OrderingMethod;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strOverDue = dataForm.OverDue == null ? "" : dataForm.OverDue;
+            string strDataState = dataForm.DataState == null ? "" : dataForm.DataState;
 
             try
             {
-                Dictionary<string, object> res = new Dictionary<string, object>();
-                DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
+                DataTable dtInfo = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
+                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState, strOverDue);
                 DataTable dtHJ = fs0602_Logic.getHeJiInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
+                    strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState, strOverDue);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
-                DataTable dtTask = fs0602_Logic.getSearchInfo(strYearMonth, "", "", "", "", "", "", "", "", "", "", "");
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(dtInfo, dtConverter);
+                DataTable dtTask = fs0602_Logic.getSearchInfo(strYearMonth, "", "", "", "", "", "", "", "", "", "", "", "");
                 res.Add("tasknum", dtTask.Rows.Count);
                 res.Add("taskok", dtTask.Select("vcHyState='2'").Length);
                 res.Add("taskng", dtTask.Select("vcHyState='3'").Length);
@@ -176,24 +178,25 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string strDyState = dataForm.DyState;
-            string strHyState = dataForm.HyState;
-            string strPartId = dataForm.PartId;
-            string strCarModel = dataForm.CarModel;
-            string strInOut = dataForm.InOut;
-            string strOrderingMethod = dataForm.OrderingMethod;
-            string strOrderPlant = dataForm.OrderPlant;
-            string strHaoJiu = dataForm.HaoJiu;
-            string strSupplierId = dataForm.SupplierId;
-            string strSupplierPlant = dataForm.SupplierPlant;
-            string strDataState = dataForm.DataState;
+            string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth + "/01").ToString("yyyyMM");
+            string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
+            string strHyState = dataForm.HyState == null ? "" : dataForm.HyState;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strOrderingMethod = dataForm.OrderingMethod == null ? "" : dataForm.OrderingMethod;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strOverDue = dataForm.OverDue == null ? "" : dataForm.OverDue;
+            string strDataState = dataForm.DataState == null ? "" : dataForm.DataState;
             try
             {
-                string strYearMonth = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).ToString("yyyyMM");
                 string strYearMonth_2 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(1).ToString("yyyyMM");
                 string strYearMonth_3 = dataForm.YearMonth == null ? "" : Convert.ToDateTime(dataForm.YearMonth).AddMonths(2).ToString("yyyyMM");
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
+                     strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState, strOverDue);
 
                 string[] fields = {"vcYearMonth","vcDyState_Name","vcHyState_Name","vcPart_id","vcCarfamilyCode","vcHaoJiu","vcOrderingMethod",
                     "vcOrderPlant","vcInOut",
@@ -204,7 +207,6 @@ namespace SPPSApi.Controllers.G06
                     "dExpectTime","dSReplyTime","vcOverDue","dHyTime"
                 };
 
-                //string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0602_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 string filepath = fs0602_Logic.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0602_Export.xlsx", 2, loginInfo.UserId, FunctionID, strYearMonth, strYearMonth_2, strYearMonth_3);
                 if (filepath == "")
                 {
@@ -392,6 +394,7 @@ namespace SPPSApi.Controllers.G06
                 string strSupplierId = dataForm.searchform.SupplierId == null ? "" : dataForm.searchform.SupplierId.ToString();
                 string strSupplierPlant = dataForm.searchform.SupplierPlant == null ? "" : dataForm.searchform.SupplierPlant.ToString();
                 string strDataState = dataForm.searchform.DataState == null ? "" : dataForm.searchform.DataState.ToString();
+                string strOverDue = dataForm.searchform.OverDue == null ? "" : dataForm.searchform.OverDue;
                 string strExpectTime = dataForm.info;//期望回复日
                 string strEmailBody = dataForm.mailboy;//邮件体
                 string strReceiver = "APC06";
@@ -433,7 +436,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtInfo = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
+                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState, strOverDue);
                 DataTable dtImport = fs0602_Logic.checkopenplanInfo(multipleInfoData, dtInfo, strExpectTime,
                     loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref dtMessage);
                 if (dtMessage != null && dtMessage.Rows.Count != 0)
@@ -501,17 +504,18 @@ namespace SPPSApi.Controllers.G06
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string strYearMonth = dataForm.searchform.YearMonth == null ? "" : Convert.ToDateTime(dataForm.searchform.YearMonth + "/01").ToString("yyyyMM");
-                string strDyState = dataForm.searchform.DyState;
-                string strHyState = dataForm.searchform.HyState;
-                string strPartId = dataForm.searchform.PartId;
-                string strCarModel = dataForm.searchform.CarModel;
-                string strInOut = dataForm.searchform.InOut;
-                string strOrderingMethod = dataForm.searchform.OrderingMethod;
-                string strOrderPlant = dataForm.searchform.OrderPlant;
-                string strHaoJiu = dataForm.searchform.HaoJiu;
-                string strSupplierId = dataForm.searchform.SupplierId;
-                string strSupplierPlant = dataForm.searchform.SupplierPlant;
-                string strDataState = dataForm.searchform.DataState;
+                string strDyState = dataForm.searchform.DyState == null ? "" : dataForm.searchform.DyState.ToString();
+                string strHyState = dataForm.searchform.HyState == null ? "" : dataForm.searchform.HyState.ToString();
+                string strPartId = dataForm.searchform.PartId == null ? "" : dataForm.searchform.PartId.ToString();
+                string strCarModel = dataForm.searchform.CarModel == null ? "" : dataForm.searchform.CarModel.ToString();
+                string strInOut = dataForm.searchform.InOut == null ? "" : dataForm.searchform.InOut.ToString();
+                string strOrderingMethod = dataForm.searchform.OrderingMethod == null ? "" : dataForm.searchform.OrderingMethod.ToString();
+                string strOrderPlant = dataForm.searchform.OrderPlant == null ? "" : dataForm.searchform.OrderPlant.ToString();
+                string strHaoJiu = dataForm.searchform.HaoJiu == null ? "" : dataForm.searchform.HaoJiu.ToString();
+                string strSupplierId = dataForm.searchform.SupplierId == null ? "" : dataForm.searchform.SupplierId.ToString();
+                string strSupplierPlant = dataForm.searchform.SupplierPlant == null ? "" : dataForm.searchform.SupplierPlant.ToString();
+                string strDataState = dataForm.searchform.DataState == null ? "" : dataForm.searchform.DataState.ToString();
+                string strOverDue = dataForm.searchform.OverDue == null ? "" : dataForm.searchform.OverDue;
 
                 string strExpectTime = dataForm.info;//期望回复日
                 JArray checkedInfo = dataForm.searchform.multipleSelection;
@@ -519,11 +523,11 @@ namespace SPPSApi.Controllers.G06
 
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, strDyState, strHyState, strPartId, strCarModel,
-                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState);
+                   strInOut, strOrderingMethod, strOrderPlant, strHaoJiu, strSupplierId, strSupplierPlant, strDataState, strOverDue);
                 string strReceiver = "APC06";
                 DataTable dtImport = fs0602_Logic.checkreplyplanInfo(listInfoData, dataTable, strExpectTime,
                     loginInfo.UserId, loginInfo.UnitCode, strReceiver, ref dtMessage);
-                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                if (dtImport == null && dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -531,10 +535,24 @@ namespace SPPSApi.Controllers.G06
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0602_Logic.replyPlan(dtImport, loginInfo.UserId, ref dtMessage);
-                if (dtMessage.Rows.Count != 0)
+                DataTable dtMessage1 = fs0603_Logic.createTable("MES");
+                fs0602_Logic.replyPlan(dtImport, loginInfo.UserId, ref dtMessage1);
+                if (dtMessage1 != null && dtMessage1.Rows.Count != 0)
                 {
                     //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage1;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "内士回复成功。";
+                    dtMessage.Rows.InsertAt(dataRow, 0);
+                    DataRow dataRow1 = dtMessage.NewRow();
+                    dataRow1["vcMessage"] = "以下品番不能进行订购（原因请查看列表）";
+                    dtMessage.Rows.InsertAt(dataRow1, 1);
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "list";
                     apiResult.data = dtMessage;
@@ -576,17 +594,18 @@ namespace SPPSApi.Controllers.G06
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 string strYearMonth = dataForm.searchform.YearMonth == null ? "" : Convert.ToDateTime(dataForm.searchform.YearMonth + "/01").ToString("yyyyMM");
-                string strDyState = dataForm.searchform.DyState;
-                string strHyState = dataForm.searchform.HyState;
-                string strPartId = dataForm.searchform.PartId;
-                string strCarModel = dataForm.searchform.CarModel;
-                string strInOut = dataForm.searchform.InOut;
-                string strOrderingMethod = dataForm.searchform.OrderingMethod;
-                string strOrderPlant = dataForm.searchform.OrderPlant;
-                string strHaoJiu = dataForm.searchform.HaoJiu;
-                string strSupplierId = dataForm.searchform.SupplierId;
-                string strSupplierPlant = dataForm.searchform.SupplierPlant;
-                string strDataState = dataForm.searchform.DataState;
+                string strDyState = dataForm.searchform.DyState == null ? "" : dataForm.searchform.DyState.ToString();
+                string strHyState = dataForm.searchform.HyState == null ? "" : dataForm.searchform.HyState.ToString();
+                string strPartId = dataForm.searchform.PartId == null ? "" : dataForm.searchform.PartId.ToString();
+                string strCarModel = dataForm.searchform.CarModel == null ? "" : dataForm.searchform.CarModel.ToString();
+                string strInOut = dataForm.searchform.InOut == null ? "" : dataForm.searchform.InOut.ToString();
+                string strOrderingMethod = dataForm.searchform.OrderingMethod == null ? "" : dataForm.searchform.OrderingMethod.ToString();
+                string strOrderPlant = dataForm.searchform.OrderPlant == null ? "" : dataForm.searchform.OrderPlant.ToString();
+                string strHaoJiu = dataForm.searchform.HaoJiu == null ? "" : dataForm.searchform.HaoJiu.ToString();
+                string strSupplierId = dataForm.searchform.SupplierId == null ? "" : dataForm.searchform.SupplierId.ToString();
+                string strSupplierPlant = dataForm.searchform.SupplierPlant == null ? "" : dataForm.searchform.SupplierPlant.ToString();
+                string strDataState = dataForm.searchform.DataState == null ? "" : dataForm.searchform.DataState.ToString();
+                string strOverDue = dataForm.searchform.OverDue == null ? "" : dataForm.searchform.OverDue;
 
                 string strExpectTime = dataForm.info;//期望回复日
                 JArray checkedInfo = dataForm.searchform.multipleSelection;
@@ -599,8 +618,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
-                DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, "", "", "", "",
-                   "", "", "", "", "", "", "");
+                DataTable dataTable = fs0602_Logic.getSearchInfo(strYearMonth, "", "", "", "", "", "", "", "", "", "", "", "");
                 if (dataTable.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

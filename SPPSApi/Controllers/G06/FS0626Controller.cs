@@ -49,8 +49,22 @@ namespace SPPSApi.Controllers.G06
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<object> dataList_InjectionPlant = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 List<object> dataList_PackPlant = ComFunction.convertAllToResult(fs0626_Logic.getPackPlant());
+
+                DataTable dt_Dock = fs0626_Logic.getDock();//受入
+                List<object> dataList_Dock = ComFunction.convertToResult(dt_Dock, new string[] { "vcValue", "vcValue" });
+
+                FS0621_Logic fs0621_Logic = new FS0621_Logic();
+                DataTable dtSupplier = fs0621_Logic.GetSupplier();
+                DataTable dtWorkArea = fs0621_Logic.GetWorkArea();
+                List<object> dataList_Supplier = ComFunction.convertToResult(dtSupplier, new string[] { "vcValue", "vcName" });
+                List<object> dataList_WorkArea = ComFunction.convertToResult(dtWorkArea, new string[] { "vcValue", "vcName" });
+
+
                 res.Add("dataList_PackPlant", dataList_PackPlant);
                 res.Add("dataList_InjectionPlant", dataList_InjectionPlant);
+                res.Add("Dock", dataList_Dock);
+                res.Add("Supplier", dataList_Supplier);
+                res.Add("WorkArea", dataList_WorkArea);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -297,10 +311,18 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
+            JArray vcTargetMonth = dataForm.vcTargetMonth == null ? "" : dataForm.vcTargetMonth;
+            List<string> strTargetMonth = null;
             try
             {
-                bool b = fs0626_Logic.updateData(vcTargetMonth, loginInfo.UserId);
+                strTargetMonth = vcTargetMonth.ToObject<List<string>>();
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                bool b = fs0626_Logic.updateData(strTargetMonth[0].Replace("-", ""), strTargetMonth[1].Replace("-", ""), loginInfo.UserId);
                 if (!b)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

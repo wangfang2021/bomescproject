@@ -54,8 +54,8 @@ namespace SPPSApi.Controllers.G06
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             JArray fileNameList = dataForm.fileNameList;
             string hashCode = dataForm.hashCode;
-            string vcDate = dataForm.vcDate == null ? "" : JsonConvert.SerializeObject(dataForm.vcDate);
-            string[] vcDates = vcDate.Replace("\"", "").Replace("[", "").Replace("]", "").Replace("-","").Split(",");
+            //string vcDate = dataForm.vcDate == null ? "" : JsonConvert.SerializeObject(dataForm.vcDate);
+            //string[] vcDates = vcDate.Replace("\"", "").Replace("[", "").Replace("]", "").Replace("-","").Split(",");
 
             string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
             try
@@ -104,10 +104,8 @@ namespace SPPSApi.Controllers.G06
                 var result = from r in importDt.AsEnumerable()
                              group r by new
                              {
-                                 r2 = r.Field<string>("vcSupplier_id"),
-                                 r3 = r.Field<string>("vcDock"),
-                                 r4 = r.Field<string>("vcOrderNo"),
-                                 r5 = r.Field<string>("vcPartNo")
+                                 r2 = r.Field<string>("vcOrderNo"),
+                                 r3 = r.Field<string>("vcPartNo")
                              } into g
                              where g.Count() > 1
                              select g;
@@ -117,13 +115,15 @@ namespace SPPSApi.Controllers.G06
                     sbr.Append("导入数据重复:<br/>");
                     foreach (var item in result)
                     {
-                        sbr.Append("供应商:" + item.Key.r2 + " 受入:" + item.Key.r3 + " 订单号:" + item.Key.r4 + " 品番:" + item.Key.r5 + "<br/>");
+                        sbr.Append(" 订单号:" + item.Key.r2 + " 品番:" + item.Key.r3 + "<br/>");
                     }
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = sbr.ToString();
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                fs0626_Logic.importSave(importDt, vcDates[0], vcDates[1], loginInfo.UserId);
+                //fs0626_Logic.importSave(importDt, vcDates[0], vcDates[1], loginInfo.UserId);
+                fs0626_Logic.importSave(importDt, loginInfo.UserId);
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

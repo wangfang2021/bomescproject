@@ -196,196 +196,10 @@ namespace Logic
         //    return "";
         //}
 
-        public string UpdateZJFZEditFZ(DataTable dtSSPtmp, string type, string orderlb, string UserId, out string exlName)
-        {
-            string msg = "";
-            exlName = "";
-            try
-            {
-                string date = DateTime.Now.ToString("yyyy年M月d日");
-                string date2 = DateTime.Now.ToString("yy-M");
-
-                DataTable dtHeader = new DataTable();//表头信息
-                dtHeader.Columns.Add("vcDate");//日期
-                dtHeader.Columns.Add("vcSalerName");//高新
-                dtHeader.Columns.Add("vcSalerPhone");//高新电话
-                dtHeader.Columns.Add("vcSalerEMail");//高新邮箱
-                dtHeader.Columns.Add("vcOrderNo");//订单编号（不带TM2）
-                dtHeader.Columns.Add("vcItemTotal");//项目总数
-                dtHeader.Columns.Add("vcOrderQtyTotal");//订货总件数
-                dtHeader.Columns.Add("vcUserName");//刘家成
-                dtHeader.Columns.Add("vcUserPhone");//刘家成电话
-                dtHeader.Columns.Add("vcUserEMail");//刘家成邮箱
-                dtHeader.Columns.Add("vcOrderType");//订单类别
-                dtHeader.Columns.Add("vcChuanZhen");//传真
-                dtHeader.Columns.Add("vcChuanZhenSale"); //销售公司传真
-
-                DataTable dtDetail = new DataTable();//数据信息
-                dtDetail.Columns.Add("TASSCODE");//经销商代码
-                dtDetail.Columns.Add("B");//B
-                dtDetail.Columns.Add("C");//C
-                dtDetail.Columns.Add("OrderDate");//订购日期
-                dtDetail.Columns.Add("E");//E
-                dtDetail.Columns.Add("F");//F
-                dtDetail.Columns.Add("OrderNo");//订单编号（带TM2）
-                dtDetail.Columns.Add("H");//H
-                dtDetail.Columns.Add("I");//I
-                dtDetail.Columns.Add("TYPE");//订单类型
-                dtDetail.Columns.Add("ItemNo");//项目号（0000）
-                dtDetail.Columns.Add("L");//L
-                dtDetail.Columns.Add("PartNo");//零件编号即发注品番
-                dtDetail.Columns.Add("N");//N
-                dtDetail.Columns.Add("O");//O
-                dtDetail.Columns.Add("P");//P
-                dtDetail.Columns.Add("OrderQty", typeof(int));//订购数量
-                dtDetail.Columns.Add("PToPCust");//代订客户
-
-                if (dtSSPtmp.Rows.Count == 0 || dtSSPtmp == null)
-                {
-                    return "无发注数据，请进行检索检索数据！";
-                }
-
-                DataTable dtSSP = new DataTable();
-                dtSSP = dtSSPtmp.Clone();
-                DataRow[] rows = dtSSPtmp.Select("vcSource='" + type + "' and iFZNum>=0 ");
-                if (rows.Length > 0)
-                {
-                    foreach (DataRow row in rows)
-                    {
-                        dtSSP.ImportRow(row);
-                    }
-                }
-                else
-                {
-                    return "无发注数据！";
-                }
-                //获取销售公司信息
-
-                DataTable dtSaleuser = dataAccess.GetSaleuser(UserId);
-                //获取发注担当信息
-                DataTable dtUser = dataAccess.GetUser(UserId);
-                if (dtUser.Rows.Count == 0)
-                {
-                    return "不是发注担当，不能进行发注！";
-                }
-                //订单号作成：
-                string Year = date2.Split('-')[0];
-                string Month = date2.Split('-')[1];
-                string OrderType = string.Empty;
-                string TYPE = string.Empty;
-                int OrderQtyTotal = 0;//订货总件数
-
-                if (Month == "10")
-                {
-                    Month = "J";
-                }
-                else if (Month == "11")
-                {
-                    Month = "Q";
-                }
-                else if (Month == "12")
-                {
-                    Month = "K";
-                }
-                switch (type)
-                {
-                    case "JSP": OrderType = "03"; break;
-                    case "MSP": OrderType = "04"; break;
-                }
-                switch (orderlb)
-                {
-                    case "S/O": TYPE = "S"; break;
-                    case "E/O": TYPE = "E"; break;
-                    case "F/O": TYPE = "F"; break;
-                }
-                string vcOrderNo = Year + Month + OrderType;//表头用
-                string OrderNo = "TM2" + vcOrderNo;//数据用
-
-                //将信息写到模板中 单元格必须留一行空行(dtSSP中已有发注品番、数量、类别）
-                //数据信息：
-
-                for (int i = 0; i < dtSSP.Rows.Count; i++)
-                {
-                    int ItemNo = i + 1;
-                    DataRow drDetail = dtDetail.NewRow();
-                    drDetail["TASSCODE"] = "TFTM2";
-                    drDetail["OrderDate"] = DateTime.Now.ToString("yyyyMMdd");
-                    drDetail["OrderNo"] = OrderNo;
-                    drDetail["TYPE"] = TYPE;
-                    drDetail["ItemNo"] = ItemNo.ToString("0000");
-                    drDetail["PartNo"] = dtSSP.Rows[i]["vcPartsNoFZ"].ToString();
-                    drDetail["OrderQty"] = Convert.ToInt32(dtSSP.Rows[i]["iFZNum"].ToString());//改成数字试试
-                    OrderQtyTotal = OrderQtyTotal + Convert.ToInt32(dtSSP.Rows[i]["iFZNum"].ToString());//总件数累加
-                    dtDetail.Rows.Add(drDetail);
-                }
-                //排序
-                DataView dv = dtDetail.DefaultView;
-                dv.Sort = "ItemNo";
-                dtDetail = dv.ToTable();
-                //添加空行
-                //DataRow drDNull = dtDetail.NewRow();
-                //dtDetail.Rows.Add(drDNull);
-                //表头信息：
-
-                DataRow drHeader = dtHeader.NewRow();
-                drHeader["vcDate"] = date;
-                drHeader["vcSalerName"] = dtSaleuser.Rows[0]["name"].ToString();
-                drHeader["vcSalerPhone"] = dtSaleuser.Rows[0]["pphone"].ToString();
-                drHeader["vcSalerEMail"] = dtSaleuser.Rows[0]["email"].ToString();
-                drHeader["vcChuanZhenSale"] = dtSaleuser.Rows[0]["ChuanZhenSale"].ToString();
-                drHeader["vcOrderNo"] = vcOrderNo;
-                drHeader["vcItemTotal"] = (dtDetail.Rows.Count).ToString();//多一空行，算总项目数时要减掉
-                drHeader["vcOrderQtyTotal"] = OrderQtyTotal.ToString();
-                drHeader["vcUserName"] = dtUser.Rows[0]["Username"].ToString();
-                drHeader["vcUserPhone"] = dtUser.Rows[0]["UserPhone"].ToString();
-                drHeader["vcUserEMail"] = dtUser.Rows[0]["Useremail"].ToString();
-                drHeader["vcOrderType"] = orderlb;
-                drHeader["vcChuanZhen"] = dtUser.Rows[0]["ChuanZhen"].ToString();
-                dtHeader.Rows.Add(drHeader);
-                //追加发注是tAddSSP 中iFZFlag='1',iFZNum
-                msg = UpdateAddSSP(dtSSP, UserId);
-                //end
-                if (msg.Length <= 0)
-                {
-                    if (type == "JSP")
-                    {
-                        exlName = "追加发注订货单" + System.DateTime.Now.ToString("yyyyMMdd") + "";
-                    }
-                    else
-                    {
-                        exlName = "追加发注订货单" + System.DateTime.Now.ToString("yyyyMMdd") + "B";
-                    }
-                    if (dtDetail.Rows.Count == 0)
-                    {
-                        msg = "无发注数据！";
-                    }
-                    else
-                    {
-                        exlName = exlName + ".xls";
-                        //QMExcel oQMExcel = new QMExcel();
-                        //string tmplatePath = System.Web.HttpContext.Current.Server.MapPath("~/Templates/FS1207_SSP.xlt");//模板路径
-                        //string path = System.Web.HttpContext.Current.Server.MapPath("~/Temps/" + exlName);//文件路径
-                        //oQMExcel.ExportFromTemplate(dtHeader, dtDetail, tmplatePath, path, 19, 1, false);
-                    }
-                    dtSSP.Dispose();
-                }
-                else
-                {
-                    msg = "导出失败：";
-                }
-            }
-            catch (WebException ex)
-            {
-                msg = "发注异常：" + ex.Message;
-            }
-            return msg;
-        }
-
         public string updSSP(DataTable dt, string strUser)
         {
             return dataAccess.updSSP(dt, strUser);
         }
-
 
 
         /// <summary>
@@ -843,7 +657,7 @@ namespace Logic
         }
 
         #region 导出带模板
-        public string ExportFromTemplate(DataTable dtHeader, DataTable dt, string rootPath, string xltName, string strUserId, string strFunctionName, bool isAlignCenter)
+        public string ExportFrom_1207(DataTable dtHeader, DataTable dt, string rootPath, string xltName, string strUserId, string strFileName, bool isAlignCenter)
         {
             try
             {
@@ -897,72 +711,7 @@ namespace Logic
                     sheet.GetRow(i + 18).GetCell(16).SetCellValue(int.Parse(dt.Rows[i]["OrderQty"].ToString()));
                     sheet.GetRow(i + 18).GetCell(17).SetCellValue(dt.Rows[i]["PToPCust"].ToString());
                 }
-                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
-                string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
-                string path = fileSavePath + strFileName;
-                using (FileStream fs = File.OpenWrite(path))
-                {
-                    hssfworkbook.Write(fs);//向打开的这个xls文件中写入数据  
-                    fs.Close();
-                }
-                return strFileName;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return "";
-            }
-        }
-        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int sheetindex, int startRow, string strUserId, string strFunctionName)
-        {
-            try
-            {
-                XSSFWorkbook hssfworkbook = new XSSFWorkbook();
-
-                string XltPath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + xltName;
-                using (FileStream fs = File.OpenRead(XltPath))
-                {
-                    hssfworkbook = new XSSFWorkbook(fs);
-                    fs.Close();
-                }
-
-                ISheet sheet = hssfworkbook.GetSheetAt(sheetindex);
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    IRow row = sheet.CreateRow(startRow + i);
-                    for (int j = 0; j < field.Length; j++)
-                    {
-                        Type type = dt.Columns[field[j]].DataType;
-                        ICell cell = row.CreateCell(j);
-                        if (type == Type.GetType("System.Decimal"))
-                        {
-                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
-                        }
-                        else if (type == Type.GetType("System.Int32"))
-                        {
-                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
-                        }
-                        else if (type == Type.GetType("System.Int16"))
-                        {
-                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
-                        }
-                        else if (type == Type.GetType("System.Int64"))
-                        {
-                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
-                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
-                        }
-                        else
-                        {
-                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
-                        }
-                    }
-                }
-                ISheet sheet1 = hssfworkbook.GetSheetAt(0);//刷新第一个sheet页的公式
-                sheet1.ForceFormulaRecalculation = true;
-                string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + strUserId + ".xlsx";
+                strFileName = strFileName + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
                 string path = fileSavePath + strFileName;
                 using (FileStream fs = File.OpenWrite(path))
@@ -979,7 +728,6 @@ namespace Logic
             }
         }
         #endregion
-
 
 
         public string checkExcelHeadpos(DataTable dt, DataTable dtTmplate)
@@ -1099,58 +847,6 @@ namespace Logic
         {
             return dataAccess.UpdateAddFZIM(dt, user);
         }
-        public string checkExcel1(string filepath, ref DataTable dtre, DataTable dtTmplate)
-        {
-            string msg = "";
-            //QMCommon.OfficeCommon.QMExcel oQMExcel = new QMCommon.OfficeCommon.QMExcel();
-            //DataTable dt = oQMExcel.GetExcelContentByOleDb(filepath);//导入文件
-            //msg = checkExcelHeadpos(dt, dtTmplate);//校验模板
-            //if (msg.Length > 0) return msg;
-            //msg = checkExcelData1(dt);//校验数据
-            //dtre = dt;
-            return msg;
-        }
-        public string checkExcelData1(DataTable dt)
-        {
-            string msg = "";
-
-
-            //for (int i = 0; i < dt.Rows.Count; i++)
-            //{
-            //    //if (dt.Rows[i][0].ToString() == "") break;
-            //    string vcMonth = dt.Rows[i][0].ToString();
-            //    string partsno = dt.Rows[i][1].ToString().Trim();
-            //    //int SRNum = Convert.ToInt32(dt.Rows[i][2]);
-            //    //int NQC = Convert.ToInt32(dt.Rows[i][3]);
-            //    //int XZNum = Convert.ToInt32(dt.Rows[i][4]);
-            //    int FZNum = Convert.ToInt32(dt.Rows[i][2]);
-            //    if (vcMonth.Length <= 0)
-            //    {
-            //        msg = "第" + (i + 2) + "行，对象月不能为空。";
-            //    }
-            //    if (partsno.Length != 10 && partsno.Length != 12)
-            //    {
-            //        msg = "第" + (i + 2) + "行，PartsNo输入格式错误。";
-            //        return msg;
-            //    }
-            //    DataTable dttmp = dataAccess.getSSPMaster(partsno);
-            //    if (dttmp.Rows.Count == 0)
-            //    {
-            //        msg = "品番：" + partsno + "信息在发注基础信息中不存在，请维护。";
-            //        return msg;
-            //    }
-            //    int SRNum = Convert.ToInt32(dttmp.Rows[0]["iSRNum"]);
-            //    if (FZNum % SRNum != 0)
-            //    {
-            //        msg = "对象月：" + vcMonth + ",品番：" + partsno + "数量应为收容数的倍数。";
-            //        return msg;
-            //    }
-            //}
-
-            return msg;
-        }
-
-
 
         public string UpdateSSP(DataTable dt, string strUser)
         {

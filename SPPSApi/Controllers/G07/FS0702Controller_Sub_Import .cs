@@ -69,7 +69,7 @@ namespace SPPSApi.Controllers.G07
                 string strMsg = "";
                 string[,] headers = new string[,] {{"导入状态","对应标识", "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数"},
                                                 {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
-                                                {"",FieldCheck.Num,"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Num},
+                                                {"",FieldCheck.Num,"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Decimal},
                                                 {"50","0","50","50","50","50","0","0","0","0","0","0","0","0","0"},
                                                 {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}
                                                };//最小长度设定,可以为空用0
@@ -105,13 +105,15 @@ namespace SPPSApi.Controllers.G07
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
+                DataTable dtisok = FS0702_Logic.CheckPartsNo_1();
+
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
-                    bool isok = FS0702_Logic.CheckPartsNo(importDt.Rows[i]["vcShouhuofangID"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString());
-                    if (!isok)
+                    DataRow[] dr1 = dtisok.Select("vcPartsNo='" + importDt.Rows[i]["vcPartsNo"].ToString() + "'");
+                    if (dr1.Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "第" + (i + 1) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "不存在！";
+                        apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "不存在！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (importDt.Rows[i]["vcIsorNo"].ToString() == "修改")
@@ -124,7 +126,7 @@ namespace SPPSApi.Controllers.G07
                         if (dtcheckTime.Rows.Count > 0)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "品番有维护重复有效时间！";
+                            apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "品番有维护重复有效时间！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                         string sql = "vcPartsNo ='" + importDt.Rows[i]["vcPartsNo"].ToString() + "'  and iAutoId<>'" + iAutoId + "' ";
@@ -140,13 +142,13 @@ namespace SPPSApi.Controllers.G07
                         {
                             sql = sql + "and vcShouhuofangID='" + importDt.Rows[i]["vcShouhuofangID"].ToString() + "'";
                         }
-                        sql = sql + "and dFrom<='" + importDt.Rows[i]["dTo"].ToString() + "' and dTo>='"+ importDt.Rows[i]["dFrom"].ToString() + "'";
+                        sql = sql + "and dFrom<='" + importDt.Rows[i]["dTo"].ToString() + "' and dTo>='" + importDt.Rows[i]["dFrom"].ToString() + "'";
                         DataRow[] dr = importDt.Select(sql);
                         if (dr.Length >= 1)
                         {
 
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "导入文件品番有维护重复有效时间！";
+                            apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "导入文件品番有维护重复有效时间！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }

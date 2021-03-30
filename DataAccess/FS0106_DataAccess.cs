@@ -40,7 +40,7 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("   select  iAutoId, vcCodeId, vcCodeName, vcIsColum, vcValue1, vcValue2, vcValue3, vcValue4, vcValue5, vcValue6, vcValue7, vcValue8, vcValue9, vcValue10, vcOperatorID, dOperatorTime,'0' as vcModFlag,'0' as vcAddFlag From [dbo].[TOutCode] where vcCodeId='" + vcCodeId + "'   ");
+                strSql.AppendLine("   select  iAutoId, vcCodeId, vcCodeName, vcIsColum, vcValue1, vcValue2, vcValue3, vcValue4, vcValue5, vcValue6, vcValue7, vcValue8, vcValue9, vcValue10, vcOperatorID, dOperatorTime,'0' as vcModFlag,'0' as vcAddFlag From [dbo].[TOutCode] where vcCodeId='" + vcCodeId + "' order by  iAutoId desc  ");
                 strSql.AppendLine("   select top(1) '常量代码' as vcCodeId, '常量名称' as vcCodeName, vcValue1, vcValue2, vcValue3, vcValue4, vcValue5, vcValue6, vcValue7, vcValue8, vcValue9, vcValue10 From [dbo].[TOutCode] where vcIsColum=1 and vcCodeId='" + vcCodeId + "' order by  iAutoId desc  ");
                 return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }

@@ -500,9 +500,7 @@ namespace SPPSApi.Controllers.G12
                     else
                     {
                         msg = "发注成功！";
-                        exlName = exlName + ".xls";
-
-                        string filepath = logic.ExportFromTemplate(dtHeader, dtDetail, _webHostEnvironment.ContentRootPath, "FS1207_SSP_Export.xlsx", loginInfo.UserId, "", true);
+                        string filepath = logic.ExportFrom_1207(dtHeader, dtDetail, _webHostEnvironment.ContentRootPath, "FS1207_SSP_Export.xlsx", loginInfo.UserId, exlName, true);
                         if (filepath == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;

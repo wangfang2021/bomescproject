@@ -632,8 +632,8 @@ namespace Logic
                 strErr += "给财务发送邮件标题、内容在常量中没有维护!\n";
                 return;
             }
-            string strSubject = dtSetting.Rows[0]["vcValue1"] == System.DBNull.Value ? "" : dtSetting.Rows[0]["vcValue1"].ToString();
-            string strEmailBody = dtSetting.Rows[0]["vcValue2"] == System.DBNull.Value ? "" : dtSetting.Rows[0]["vcValue2"].ToString();
+            string strSubject = dtSetting.Rows[0]["vcValue3"] == System.DBNull.Value ? "" : dtSetting.Rows[0]["vcValue3"].ToString();
+            string strEmailBody = dtSetting.Rows[0]["vcValue4"] == System.DBNull.Value ? "" : dtSetting.Rows[0]["vcValue4"].ToString();
             if (strSubject.Trim()=="")
             {
                 strErr += "给财务发送邮件标题在常量中不能维护空!\n";

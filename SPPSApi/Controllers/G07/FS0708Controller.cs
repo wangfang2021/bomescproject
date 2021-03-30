@@ -151,16 +151,9 @@ namespace SPPSApi.Controllers.G07
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFaZhuTime", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+                dtConverter.addField("dNaRuYuDing", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
+                dtConverter.addField("dNaRuShiJi", ConvertFieldType.DateType, "yyyy-MM-dd HH:mm:ss");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -369,6 +362,16 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcType"].ToString() == "0"|| listInfoData[i]["dFaZhuTime"]!=null)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "不可删除此数据！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
                 FS0708_Logic.Del(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = null;

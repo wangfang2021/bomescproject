@@ -10,6 +10,7 @@ using Common;
 using DataAccess;
 using DataEntity;
 using Newtonsoft.Json.Linq;
+using NPOI.HSSF.Record;
 using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -49,9 +50,31 @@ namespace Logic
                 }
             }
             DataTable dataTable = fs0616_DataAccess.getSearchInfo(strState, strOrderNoList, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+
+            for (int i = 0; i < dataTable.Rows.Count; i++)
+            {
+                string decBoxQuantity = dataTable.Rows[i]["decBoxQuantity"].ToString();
+                if (decBoxQuantity != "")
+                {
+                    string strBoxColor = IsInteger(decBoxQuantity);
+                    dataTable.Rows[i]["vcBoxColor"] = strBoxColor;
+                }
+            }
+
             return dataTable;
         }
 
+        public string IsInteger(string s)
+        {
+            int i;
+            double d;
+            if (int.TryParse(s, out i))
+                return "0";
+            else if (double.TryParse(s, out d))
+                return (d == Math.Truncate(d) ? "0" : "1");
+            else
+                return "0";
+        }
         public DataTable setMultipleData(List<Dictionary<string, Object>> listMultipleData, ref DataTable dtMessage)
         {
             try
@@ -124,7 +147,7 @@ namespace Logic
                 throw ex;
             }
         }
-        public DataTable checksubSaveInfo(List<Dictionary<string, Object>> listInfoData,  ref DataTable dtMessage)
+        public DataTable checksubSaveInfo(List<Dictionary<string, Object>> listInfoData, ref DataTable dtMessage)
         {
             try
             {
@@ -144,20 +167,20 @@ namespace Logic
                     string strInputType = "company";
                     //if (dtMultiple.Select("vcOrderNo='" + strOrderNo + "' and vcPart_id='" + strPart_id + "' and vcSupplierId='" + strSupplierId + "'").Length != 0)
                     //{
-                        if (strDuiYingQuantity != "0")
-                        {
-                            DataRow drInfo = dtInfo.NewRow();
-                            drInfo["vcOrderNo"] = strOrderNo;
-                            drInfo["vcPart_id"] = strPart_id;
-                            drInfo["vcSupplierId"] = strSupplierId;
-                            drInfo["iPackingQty"] = Convert.ToInt32(strPackingQty);
-                            drInfo["iOrderQuantity"] = Convert.ToInt32(strOrderQuantity);
-                            drInfo["iDuiYingQuantity"] = Convert.ToInt32(strDuiYingQuantity);
-                            drInfo["dDeliveryDate"] = strDeliveryDate;
-                            drInfo["dOutPutDate"] = strOutPutDate;
-                            drInfo["vcInputType"] = strInputType;
-                            dtInfo.Rows.Add(drInfo);
-                        }
+                    if (strDuiYingQuantity != "0")
+                    {
+                        DataRow drInfo = dtInfo.NewRow();
+                        drInfo["vcOrderNo"] = strOrderNo;
+                        drInfo["vcPart_id"] = strPart_id;
+                        drInfo["vcSupplierId"] = strSupplierId;
+                        drInfo["iPackingQty"] = Convert.ToInt32(strPackingQty);
+                        drInfo["iOrderQuantity"] = Convert.ToInt32(strOrderQuantity);
+                        drInfo["iDuiYingQuantity"] = Convert.ToInt32(strDuiYingQuantity);
+                        drInfo["dDeliveryDate"] = strDeliveryDate;
+                        drInfo["dOutPutDate"] = strOutPutDate;
+                        drInfo["vcInputType"] = strInputType;
+                        dtInfo.Rows.Add(drInfo);
+                    }
                     //}
                 }
                 dtImport = checkJude("Save", dtInfo, dtImport, dtCheck, ref dtMessage);
@@ -240,7 +263,8 @@ namespace Logic
                     }
                     else
                     {
-                        dtImport.Rows[i]["decBoxQuantity"] = (Convert.ToInt32(strDuiYingQuantity) / (Convert.ToInt32(strPackingQty) * 1.0)).ToString("#.0");
+                        decimal input = (Convert.ToDecimal(strDuiYingQuantity) / (Convert.ToDecimal(strPackingQty)));
+                        dtImport.Rows[i]["decBoxQuantity"] = input.RoundFirstSignificantDigit().ToString();
                     }
                 }
                 #region //校验数据和值
@@ -302,6 +326,18 @@ namespace Logic
                         string strSupplierId = dtImport.Rows[i]["vcSupplierId"] == null ? "" : dtImport.Rows[i]["vcSupplierId"].ToString();
                         string strDeliveryDate = dtImport.Rows[i]["dDeliveryDate"].ToString();
                         string strOutPutDate = dtImport.Rows[i]["dOutPutDate"].ToString();
+
+                        if (strDeliveryDate == "" && strOutPutDate != "")
+                        {
+                            strDeliveryDate = getAddDate1(Convert.ToDateTime(strOutPutDate), iValue * -1, false).ToString("yyyy-MM-dd");
+                            dtImport.Rows[i]["dDeliveryDate"] = strDeliveryDate;
+                        }
+                        if (strDeliveryDate != "" && strOutPutDate == "")
+                        {
+                            strOutPutDate = getAddDate1(Convert.ToDateTime(strDeliveryDate), iValue * 1, false).ToString("yyyy-MM-dd");
+                            dtImport.Rows[i]["dOutPutDate"] = strOutPutDate;
+                        }
+
                         if (strOutPutDate == "")
                         {
                             DataRow dataRow = dtMessage.NewRow();
@@ -385,7 +421,7 @@ namespace Logic
                         string strOutPutDate = dataTable.Rows[i]["dOutPutDate"] == null ? "" : dataTable.Rows[i]["dOutPutDate"].ToString();
                         string strInputType = "company";
                         string strState = dataTable.Rows[i]["vcState"] == null ? "" : dataTable.Rows[i]["vcState"].ToString();
-                        if (strState == "1" || strState == "2")
+                        if (strState == "0" || strState == "1" || strState == "2")
                         {
                             DataRow drInfo = dtInfo.NewRow();
                             drInfo["vcOrderNo"] = strOrderNo;
@@ -415,7 +451,7 @@ namespace Logic
                         string strOutPutDate = listInfoData[i]["dOutPutDate"] == null ? "" : listInfoData[i]["dOutPutDate"].ToString();
                         string strInputType = "company";
                         string strState = listInfoData[i]["vcState"] == null ? "" : listInfoData[i]["vcState"].ToString();
-                        if (strState == "1" || strState == "2")
+                        if (strState == "0" || strState == "1" || strState == "2")
                         {
                             if (dtMultiple.Select("vcOrderNo='" + strOrderNo + "' and vcPart_id='" + strPart_id + "' and vcSupplierId='" + strSupplierId + "'").Length != 0)
                             {
@@ -489,6 +525,7 @@ namespace Logic
                         string strOrderNo = dataTable.Rows[i]["vcOrderNo"] == null ? "" : dataTable.Rows[i]["vcOrderNo"].ToString();
                         string strPart_id = dataTable.Rows[i]["vcPart_id"] == null ? "" : dataTable.Rows[i]["vcPart_id"].ToString();
                         string strSupplierId = dataTable.Rows[i]["vcSupplierId"] == null ? "" : dataTable.Rows[i]["vcSupplierId"].ToString();
+                        string strSupplierPlant = dataTable.Rows[i]["vcSupplierPlant"] == null ? "" : dataTable.Rows[i]["vcSupplierPlant"].ToString();
                         string strState = dataTable.Rows[i]["vcState"] == null ? "" : dataTable.Rows[i]["vcState"].ToString();
                         if (strState == "0")
                         {
@@ -498,6 +535,7 @@ namespace Logic
                                 drImport["vcOrderNo"] = strOrderNo;
                                 drImport["vcPart_id"] = strPart_id;
                                 drImport["vcSupplierId"] = strSupplierId;
+                                drImport["vcSupplierPlant"] = strSupplierPlant;
                                 drImport["dReplyOverDate"] = strReplyOverDate;
                                 dtImport.Rows.Add(drImport);
                             }
@@ -511,6 +549,7 @@ namespace Logic
                         string strOrderNo = listInfoData[i]["vcOrderNo"] == null ? "" : listInfoData[i]["vcOrderNo"].ToString();
                         string strPart_id = listInfoData[i]["vcPart_id"] == null ? "" : listInfoData[i]["vcPart_id"].ToString();
                         string strSupplierId = listInfoData[i]["vcSupplierId"] == null ? "" : listInfoData[i]["vcSupplierId"].ToString();
+                        string strSupplierPlant = listInfoData[i]["vcSupplierPlant"] == null ? "" : listInfoData[i]["vcSupplierPlant"].ToString();
                         string strState = listInfoData[i]["vcState"] == null ? "" : listInfoData[i]["vcState"].ToString();
                         if (strState == "0")
                         {
@@ -520,6 +559,7 @@ namespace Logic
                                 drImport["vcOrderNo"] = strOrderNo;
                                 drImport["vcPart_id"] = strPart_id;
                                 drImport["vcSupplierId"] = strSupplierId;
+                                drImport["vcSupplierPlant"] = strSupplierPlant;
                                 drImport["dReplyOverDate"] = strReplyOverDate;
                                 dtImport.Rows.Add(drImport);
                             }
@@ -836,12 +876,36 @@ namespace Logic
 
         public DataTable getSearchSubInfo(string strOrderNo, string strPart_id, string strSupplierId)
         {
-            return fs0616_DataAccess.getSearchSubInfo(strOrderNo, strPart_id, strSupplierId);
+            DataTable dataTable = fs0616_DataAccess.getSearchSubInfo(strOrderNo, strPart_id, strSupplierId);
+            for (int i = 0; i < dataTable.Rows.Count; i++)
+            {
+                string decBoxQuantity = dataTable.Rows[i]["decBoxQuantity"].ToString();
+                if (decBoxQuantity != "")
+                {
+                    string strBoxColor = IsInteger(decBoxQuantity);
+                    dataTable.Rows[i]["vcBoxColor"] = strBoxColor;
+                }
+            }
+
+            return dataTable;
         }
-        public bool IsInteger(string s)
+    }
+    public static class FloatExtension
+    {
+        public static decimal RoundFirstSignificantDigit(this decimal input)
         {
-            string pattern = @"^\d*$";
-            return Regex.IsMatch(s, pattern);
+            if (input==0)
+            {
+                return 0;
+            }
+            int precision = 0;
+            var val = input;
+            while (Math.Abs(val) < 1)
+            {
+                val *= 10;
+                precision++;
+            }
+            return Math.Round(input, precision);
         }
     }
 }

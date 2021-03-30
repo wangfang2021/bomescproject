@@ -1183,5 +1183,10 @@ namespace DataAccess
             }
         }
         #endregion
+
+        public DataTable GetReceiver() 
+        {
+            return excute.ExcuteSqlWithSelectToDT("select top 1 vcValue from TCode where vcCodeId='C068'");
+        }
     }
 }

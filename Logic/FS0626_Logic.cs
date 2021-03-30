@@ -54,6 +54,13 @@ namespace Logic
             return fs0626_DataAccess.getPackPlant();
         }
 
+        #region 受入
+        public DataTable getDock()
+        {
+            return fs0626_DataAccess.getDock();
+        }
+        #endregion
+
         #region 删除
         public void Del(List<Dictionary<string, Object>> listInfoData, string strUserId)
         {
@@ -68,15 +75,15 @@ namespace Logic
         }
         #endregion
 
-        public void importSave(DataTable importDt, string vcDateFrom, string vcDateTo, string strUserId)
+        public void importSave(DataTable importDt, string strUserId)
         {
-            fs0626_DataAccess.importSave(importDt, vcDateFrom, vcDateTo, strUserId);
+            fs0626_DataAccess.importSave(importDt, strUserId);
         }
 
         #region 欠品状态更新
-        public bool updateData(string vcTargetMonth, string userId)
+        public bool updateData(string vcTargetMonthFrom, string vcTargetMonthTo, string userId)
         {
-            return fs0626_DataAccess.updateData(vcTargetMonth, userId);
+            return fs0626_DataAccess.updateData(vcTargetMonthFrom, vcTargetMonthTo, userId);
         }
         #endregion
     }

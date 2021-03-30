@@ -23,10 +23,10 @@ namespace DataAccess
                 ssql.AppendLine("isnull(t2.iCONum,0) as iCONum, '0' as iFlag,'0' as vcModFlag,'0' as vcAddFlag,iAutoId from tSSPMaster t1");
                 ssql.AppendLine(" left join (");
                 ssql.AppendLine("		select distinct C.vcPartsNo,C.iCONum from tSSP C");
-                ssql.AppendLine("		inner join 	(				");
-                ssql.AppendLine("			select vcPartsNo,MAX(vcMonth) as vcMonth from tSSP where vcMonth<='" + mon + "'");
-                ssql.AppendLine("			group by vcPartsNo	");
-                ssql.AppendLine("		)D on C.vcPartsNo=D.vcPartsNo and C.vcMonth=D.vcMonth");
+                ssql.AppendLine("		inner join (	");
+                ssql.AppendLine("			select vcPartsNo,MAX(iAutoId) as iAutoId from tSSP where vcMonth<='" + mon + "'");
+                ssql.AppendLine("			group by vcPartsNo");
+                ssql.AppendLine("		)D on C.vcPartsNo=D.vcPartsNo and C.iAutoId=D.iAutoId");
                 ssql.AppendLine(") t2");
                 ssql.AppendLine("on t1.vcPartsNo=t2.vcPartsNo");
                 if (!string.IsNullOrEmpty(strPartsNo))
@@ -154,12 +154,14 @@ namespace DataAccess
             SqlCommand cmd = new SqlCommand();
             try
             {
+                string vcCLYM = DateTime.Now.ToString("yyyy-MM");
                 DataTable dttmp = new DataTable();
                 cmd.Connection = new SqlConnection(ComConnectionHelper.GetConnectionString());
                 cmd.CommandTimeout = 0;
                 cmd.Connection.Open();
                 //cmd.Connection.BeginTransaction();
                 cmd.CommandText = "select vcPartsNo,vcPartsNoFZ,vcSource,vcFactory,vcBF,iSRNum,vcCreateUser,dCreateTime,vcUpdateUser,dUpdateTime from tSSPMaster";
+
                 SqlDataAdapter apt = new SqlDataAdapter(cmd);
                 apt.Fill(dttmp);
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -175,9 +177,13 @@ namespace DataAccess
                         dr[0]["vcUpdateUser"] = user;
                         dr[0]["dUpdateTime"] = DateTime.Now.ToString();
 
+                        string sql1 = "select iAutoId, vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg from TSSP where iAutoId in ";
+                        sql1 += "(select iAutoId from (select max(iAutoId) iAutoId, vcPartsNo from tSSP group by vcPartsNo) a) and vcPartsNo='" + dt.Rows[i][0].ToString() + "';";
+                        DataTable dt1 = excute.ExcuteSqlWithSelectToDT(sql1);
+
                         StringBuilder sb = new StringBuilder();
-                        sb.Append("update TSSP set iCONum=" + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()));
-                        sb.Append(" where iAutoId =(select top 1 iAutoId from TSSP where vcPartsNo='" + dt.Rows[i][0].ToString() + "' order by vcMonth desc) ");
+                        sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
+                        sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "',0,0,0," + Convert.ToInt32(dt1.Rows[i]["iCONum"].ToString()) + "," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0,'" + user + "','" + DateTime.Now.ToString() + "');");
                         excute.ExecuteSQLNoQuery(sb.ToString());
                     }
                     else
@@ -194,6 +200,10 @@ namespace DataAccess
                                         null,
                                         null
                                        );
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
+                        sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "',0,0,0,0," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0,'" + user + "','" + DateTime.Now.ToString() + "');");
+                        excute.ExecuteSQLNoQuery(sb.ToString());
                     }
                 }
                 SqlCommandBuilder cmdbuild = new SqlCommandBuilder(apt);

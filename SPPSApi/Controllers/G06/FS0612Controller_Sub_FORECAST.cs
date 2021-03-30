@@ -142,7 +142,7 @@ namespace SPPSApi.Controllers.G06
                 DataTable dtSOQReply = fs0630_Logic.GetSOQReply(vcCLYM,"1");
                 for (int i = 0; i < dtPlant.Rows.Count; i++)
                 {
-                    string strPlant = dtPlant.Rows[i]["vcValue"].ToString();
+                    string strPlant = dtPlant.Rows[i]["vcFZGC"].ToString();
                     DataRow[] drs_dxny = dtSOQReply.Select("vcFZGC='" + strPlant + "' and vcDXYM='" + vcDXYM + "'  ");
                     DataRow[] drs_nsny = dtSOQReply.Select("vcFZGC='" + strPlant + "' and vcDXYM='" + vcNSYM + "'  ");
                     DataRow[] drs_nnsny = dtSOQReply.Select("vcFZGC='" + strPlant + "' and vcDXYM='" + vcNNSYM + "'  ");

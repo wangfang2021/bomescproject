@@ -45,7 +45,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("   select [iAutoId],convert(varchar(10), dExportDate,111) as [dExportDate], [vcCarType], [vcPartNo], [vcPartName],c.vcName as [vcInsideOutsideType],   ");
-                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea],case when vcIsNewRulesFlag='1' then '√' else ' ' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock], [vcNumber],e.vcName as [vcPurposes],   ");
+                strSql.AppendLine("    a.[vcSupplier_id], [vcWorkArea],case when vcIsNewRulesFlag='1' then '√' else ' ' end as [vcIsNewRulesFlag], d.vcName as [vcOEOrSP], [vcDock],cast(isnull(vcNumber,0) as int) as [vcNumber],e.vcName as [vcPurposes],   ");
                 strSql.AppendLine("   convert(varchar(10), dOrderPurposesDate,111) as [dOrderPurposesDate], [dOrderReceiveDate], [vcReceiveTimes],[vcActualNum],convert(varchar(10), dActualReceiveDate,111) as [dActualReceiveDate], [vcAccountOrderNo],    ");
                 strSql.AppendLine("   convert(varchar(10), dAccountOrderReceiveDate,111) as [dAccountOrderReceiveDate], convert(varchar(10), dOrderSendDate,111) as [dOrderSendDate], [vcMemo],'' as vcSupplier_name, [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag   ");
                 strSql.AppendLine("   from TOralTestManage a    ");

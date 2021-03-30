@@ -37,7 +37,18 @@ namespace DataAccess
             {
                
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
+                strSql.AppendLine("      select '0' as vcModFlag,'0' as vcAddFlag,iAutoId, ");
+                strSql.AppendLine("    vcOrderNo,vcPackNo,vcPackGPSNo,vcPartName,iOrderNumber,iSJNumber,   ");
+                strSql.AppendLine("    case when vcType='1' then '手动发注' else '自动发注' end as vcType ,   ");
+                strSql.AppendLine("    dFaZhuTime,dNaRuYuDing,vcNaRuBianCi,dNaRuShiJi,vcNaRuUnit,   ");
+                strSql.AppendLine("    case when vcState='0'then '未发注'  ");
+                strSql.AppendLine("    when vcState='1' then '已发注'  ");
+                strSql.AppendLine("    when vcState='2' then '纳期内纳入'  ");
+                strSql.AppendLine("    when vcState='3' then '纳期内未纳'  ");
+                strSql.AppendLine("    when vcState='4' then '超期未纳入'  ");
+                strSql.AppendLine("    when vcState='5' then '超期纳入'  ");
+                strSql.AppendLine("    else '资材系统删除' end as vcState,  ");
+                strSql.AppendLine("    vcPackSupplierID,vcFeiYongID,vcPackSpot,vcCangKuID   ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPack_FaZhu_ShiJi");
                 strSql.AppendLine("      WHERE");
@@ -252,7 +263,18 @@ namespace DataAccess
                     int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
                     sql.Append(iAutoId);
                 }
+                sql.Append("  );  \r\n ");
+
+
+                sql.Append("  delete TPackOrderFaZhu where vcOrderNo in(   \r\n ");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (i != 0)
+                        sql.Append(",");
+                    sql.Append("'" + listInfoData[i]["vcOrderNo"] + "'");
+                }
                 sql.Append("  )   \r\n ");
+
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)

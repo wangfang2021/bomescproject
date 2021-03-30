@@ -64,13 +64,6 @@ namespace SPPSApi.Controllers.G12
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 res.Add("dataList_PorPlant", dataList_PorPlant);
                 res.Add("dataList_PorType", dataList_PorType);
-                if (logic_09.KanBIfPrint(dtportype))
-                {
-                    res.Add("noPrint", "Y");
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = res;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

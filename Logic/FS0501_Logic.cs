@@ -17,20 +17,20 @@ namespace Logic
         FS0501_DataAccess fs0501_DataAccess = new FS0501_DataAccess();
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea,ref int num)
+        public DataTable Search(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,ref int num)
         {
-            return fs0501_DataAccess.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea,ref num);
+            return fs0501_DataAccess.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,ref num);
         }
-        public DataTable Search_heji(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, string strWorkArea, ref int num)
+        public DataTable Search_heji(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, ref int num)
         {
-            return fs0501_DataAccess.Search_heji(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea, ref num);
+            return fs0501_DataAccess.Search_heji(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, ref num);
         }
         #endregion
 
         #region 是否可操作-按检索条件
-        public bool IsDQR(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea, ref string strMsg)
+        public bool IsDQR(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, ref string strMsg)
         {
-            DataTable dt = fs0501_DataAccess.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea);
+            DataTable dt = fs0501_DataAccess.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState);
             if (dt.Rows.Count == 0)
                 return true;
             else
@@ -65,9 +65,9 @@ namespace Logic
         #endregion
 
         #region 提交-按检索条件
-        public int ok(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState,string strWorkArea, string strUserId)
+        public int ok(string strYearMonth, string strSupplier_id, string strPart_id, string strDyState, string strOperState, string strUserId)
         {
-            return fs0501_DataAccess.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea, strUserId);
+            return fs0501_DataAccess.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strUserId);
         }
         #endregion
 
@@ -93,15 +93,41 @@ namespace Logic
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
-
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.Alignment = HorizontalAlignment.Center;
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     IRow row = sheet.CreateRow(startRow + i);
                     for (int j = 0; j < field.Length; j++)
                     {
+                        Type type = dt.Columns[field[j]].DataType;
                         ICell cell = row.CreateCell(j);
-                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                        cell.CellStyle = style;
                     }
                 }
 

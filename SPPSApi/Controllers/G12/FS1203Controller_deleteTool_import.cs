@@ -112,8 +112,11 @@ namespace SPPSApi.Controllers.G12
                 }
 
                 //fs1207_Logic.UpdateFZJS(importDt, loginInfo.UserId);
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                List<object> dt1 = ComFunction.convertAllToResult(importDt);
+                res.Add("dt1", dt1);
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功";
+                apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

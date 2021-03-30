@@ -25,7 +25,7 @@ namespace SoqCompute
         /// <param name="dtSpecialSupplier">某月特殊厂家，没有给null</param>
         /// <param name="dtSpecialPart">某月特殊品番，没有给null</param>
         /// <returns></returns>
-        public ArrayList getPinZhunList(DataTable dtSoq, DataTable dtCalendar, DataTable dtSpecialSupplier, DataTable dtSpecialPart,string strYearMonth,int iSub)
+        public ArrayList getPinZhunList(DataTable dtSoq, DataTable dtCalendar, DataTable dtSpecialSupplier, DataTable dtSpecialPart,string strYearMonth,int iSub,string strType)
         {
             decimal decTotalWorkDays = 0;//可能会有小数0.5出现													
             decTotalWorkDays = Convert.ToDecimal(dtCalendar.Rows[0]["TOTALWORKDAYS"]);
@@ -60,7 +60,8 @@ namespace SoqCompute
             if (dtSpecialPart != null && dtSpecialPart.Rows.Count > 0)
                 compute_SpecialPart.pinZhun_SpecialPart(ref result, dtCalendar, dtSpecialPart);//特殊品番处理
 
-            compute_Old_New.pinZhun_Old_New(ref result, dtCalendar, strYearMonth, iSub);//新品番、废止品番处理
+            if(strType== "DXYM")//只有对象月才处理+3-3逻辑
+                compute_Old_New.pinZhun_Old_New(ref result, dtCalendar, strYearMonth, iSub);//新品番、废止品番处理
 
             return result;
         }

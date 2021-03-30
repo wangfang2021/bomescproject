@@ -58,15 +58,12 @@ namespace SPPSApi.Controllers.G12
             {
                 FS1209_Logic logic_1 = new FS1209_Logic();
                 List<Object> dataList_PorPlant = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
-
                 string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
                 DataTable dtportype = logic_1.dllPorType(RolePorType.Split('*'));
                 List<Object> dataList_PorType = ComFunction.convertAllToResult(dtportype);
-
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 res.Add("dataList_PorPlant", dataList_PorPlant);
                 res.Add("dataList_PorType", dataList_PorType);
-
                 if (logic_09.KanBIfPrint(dtportype))
                 {
                     res.Add("noPrint", "Y");

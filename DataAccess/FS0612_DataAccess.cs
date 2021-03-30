@@ -21,13 +21,13 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select distinct t1.vcCLYM,LEFT(vcCLYM,4)+'/'+RIGHT(vcCLYM,2) as vcCLYMFormat,t1.iTimes,    \n");
                 strSql.Append("t1.dRequestTime,case when t1.vcStatus='C' then t1.dWCTime else null end as dWCTime,t1.vcStatus,     \n");
-                strSql.Append("case t1.vcStatus when 'C' then '处理完成' when 'P' then '处理中' when 'E' then '处理失败' else t1.vcStatus end as vcStatusName    \n");
+                strSql.Append("case t1.vcStatus when 'C' then 'P-F送信完' when 'P' then 'P-F送信中' when 'E' then 'P-F送信失败' else t1.vcStatus end as vcStatusName    \n");
                 strSql.Append("from (    \n");
                 strSql.Append("	select * from VI_NQCStatus_HS_FORECAST where 1=1     \n");
                 if (vcCLYM != "" && vcCLYM != null)
-                    strSql.Append("and vcCLYM= '" + vcCLYM + "'   \n");
+                    strSql.Append("and vcCLYM= '" + vcCLYM.Replace("/","") + "'   \n");
                 strSql.Append(")t1    \n");
-                strSql.Append("order by t1.vcCLYM,t1.iTimes    \n");
+                strSql.Append("order by t1.vcCLYM desc,(case when t1.vcStatus='C' then t1.dWCTime else null end) desc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -45,14 +45,14 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select distinct t1.vcCLYM,LEFT(vcCLYM,4)+'/'+RIGHT(vcCLYM,2) as vcCLYMFormat,t1.vcPlant,t2.vcName as vcPlantName,    \n");
                 strSql.Append("t1.iTimes,t1.dRequestTime,case when t1.vcStatus='C' then t1.dWCTime else null end as dWCTime,t1.vcStatus,         \n");
-                strSql.Append("case t1.vcStatus when 'C' then '处理完成' when 'P' then '处理中' when 'E' then '处理失败' else t1.vcStatus end as vcStatusName    \n");
+                strSql.Append("case t1.vcStatus when 'C' then 'E-KBN送信完' when 'P' then 'E-KBN送信中' when 'E' then 'E-KBN送信失败' else t1.vcStatus end as vcStatusName    \n");
                 strSql.Append("from (        \n");
                 strSql.Append("	select * from VI_NQCStatus_HS_EKANBAN where 1=1         \n");
                 if (vcCLYM != "" && vcCLYM != null)
                     strSql.Append("and vcCLYM = '" + vcCLYM + "'   \n");
                 strSql.Append(")t1        \n");
                 strSql.Append("left join (select vcValue,vcName from tcode where vcCodeId='C000')t2 on t1.vcPlant=t2.vcValue    \n");
-                strSql.Append("order by t1.vcCLYM,t1.vcPlant,t1.iTimes        \n");
+                strSql.Append("order by t1.vcCLYM desc,(case when t1.vcStatus='C' then t1.dWCTime else null end) desc        \n");
                
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

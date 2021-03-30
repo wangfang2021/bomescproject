@@ -180,11 +180,30 @@ namespace DataAccess
                         string sql1 = "select iAutoId, vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg from TSSP where iAutoId in ";
                         sql1 += "(select iAutoId from (select max(iAutoId) iAutoId, vcPartsNo from tSSP group by vcPartsNo) a) and vcPartsNo='" + dt.Rows[i][0].ToString() + "';";
                         DataTable dt1 = excute.ExcuteSqlWithSelectToDT(sql1);
-
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
-                        sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "',0,0,0," + Convert.ToInt32(dt1.Rows[i]["iCONum"].ToString()) + "," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0,'" + user + "','" + DateTime.Now.ToString() + "');");
-                        excute.ExecuteSQLNoQuery(sb.ToString());
+                        if (dt1 != null && dt1.Rows.Count > 0)
+                        {
+                            decimal xz = Convert.ToDecimal(dt1.Rows[0]["iXZNum"].ToString());
+                            decimal co = Convert.ToDecimal(dt.Rows[0]["iCONum"].ToString());
+                            decimal nqc = Convert.ToDecimal(dt1.Rows[0]["Total"]);
+                            decimal sr = Convert.ToDecimal(dr[0]["iSRNum"]);
+                            decimal by = xz + nqc;
+                            decimal xzco = 0;
+                            decimal fz = 0;
+                            if (co - nqc - xz > 0) //不发注
+                            {
+                                xzco = co - by;
+                            }
+                            else
+                            {
+                                fz = Math.Ceiling(Math.Abs((co - nqc - xz)) / sr) * sr;
+                                xzco = co + fz - by;
+                            }
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
+                            sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "'," + nqc + "," + xz + "," + fz + ", " + Convert.ToInt32(dt1.Rows[0]["iCONum"]) + "," + xzco + ",");
+                            sb.Append(" 0, '" + user + "', '" + DateTime.Now.ToString() + "'); ");
+                            excute.ExecuteSQLNoQuery(sb.ToString());
+                        }
                     }
                     else
                     {

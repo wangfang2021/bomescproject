@@ -52,15 +52,21 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.dllPorPlant());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 string RolePorType = logic.getRoleTip(loginInfo.UserId);
                 DataTable dtportype = logic.dllPorType(RolePorType.Split('*'));
                 List<Object> dataList_PorTypeSource = ComFunction.convertAllToResult(dtportype);
-
                 string printerName = logic.PrintMess(loginInfo.UserId);
                 res.Add("dataList_PlantSource", dataList_PlantSource);
                 res.Add("dataList_PorTypeSource", dataList_PorTypeSource);
                 res.Add("printerName", printerName);
+                if (logic.KanBIfPrint(dtportype))
+                {
+                    res.Add("noPrint", "Y");
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -750,7 +756,7 @@ namespace SPPSApi.Controllers.G12
             StringBuilder strSQL = new StringBuilder();
             if (str2.Length != 0)
             {
-                if (str2[0] != "admin")
+                if (str2[0] != "000000")
                 {
                     string ProType = "";
                     if (str2.Length != 0)
@@ -769,13 +775,13 @@ namespace SPPSApi.Controllers.G12
                             }
                         }
                     }
-                    strSQL.AppendLine("select '' as [Text],'0' as [Value]   ");
+                    strSQL.AppendLine("select '' as [Text],'' as [Value]   ");
                     strSQL.AppendLine(" union all ");
                     strSQL.AppendLine(" select distinct [vcData1] as [Text],[vcData1] as [Value]  from [ConstMst] where [vcDataId]='ProType' and [vcData1] in(" + ProType + ") ");
                 }
                 else
                 {
-                    strSQL.AppendLine("select '' as [Text],'0' as [Value]   ");
+                    strSQL.AppendLine("select '' as [Text],'' as [Value]   ");
                     strSQL.AppendLine(" union all ");
                     strSQL.AppendLine(" select distinct [vcData1] as [Text],[vcData1] as [Value]  from [ConstMst] where [vcDataId]='ProType'");
                 }
@@ -915,7 +921,7 @@ namespace SPPSApi.Controllers.G12
             {
                 strSQL.AppendLine(" and A.vcKBSerial = '" + vcLianFan + "'");
             }
-            if (vcPorType != "0")
+            if (vcPorType != "")
             {
                 strSQL.AppendLine(" and B.vcProType = '" + vcPorType + "'");
             }
@@ -943,7 +949,7 @@ namespace SPPSApi.Controllers.G12
                     strSQL.AppendLine(" and B.vcProType in( " + flag + ")");
                 }
             }
-            if (vcPlant != "0")
+            if (vcPlant != "")
             {
                 strSQL.AppendLine(" and B.vcPlant = '" + vcPlant + "'");
             }
@@ -1008,7 +1014,7 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine(" left join ");
             strSQL.AppendLine(" (select * from tPartInfoMaster) B");
             strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock)");
-            strSQL.AppendLine("      where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial)=any(" + KBorderno + ")");
+            strSQL.AppendLine(" where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial)=any(" + KBorderno + ")");
             //strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
             if (vcPrintPartNo.Length != 0)
             {
@@ -1016,15 +1022,15 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcKbOrderId.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBorderno = '" + vcKbOrderId + "'");
+                strSQL.AppendLine(" and A.vcKBorderno='" + vcKbOrderId + "'");
             }
             if (vcLianFan.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBSerial = '" + vcLianFan + "'");
+                strSQL.AppendLine(" and A.vcKBSerial='" + vcLianFan + "'");
             }
             if (vcPorType != "0")
             {
-                strSQL.AppendLine(" and B.vcPorType = '" + vcPorType + "'");
+                strSQL.AppendLine(" and B.vcPorType='" + vcPorType + "'");
             }
             else
             {
@@ -1049,9 +1055,9 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcPlant != "0")
             {
-                strSQL.AppendLine(" and B.vcPartPlant = '" + vcPlant + "'");
+                strSQL.AppendLine(" and B.vcPartPlant='" + vcPlant + "'");
             }
-            strSQL.AppendLine("order by  vcPorType,vcKBorderno,A.vcKBSerial");
+            strSQL.AppendLine("order by vcPorType,vcKBorderno,A.vcKBSerial");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
         #endregion
@@ -1068,7 +1074,7 @@ namespace SPPSApi.Controllers.G12
         public string searchMasterED(string PartNo, string vcDock)
         {
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select vcPartsNo from tPartInfoMaster where  substring(vcPartsNo,0,11)='" + PartNo.Substring(0, 10) + "' and substring(vcPartsNo,11,2)<>'ED'");
+            strSQL.AppendLine("select vcPartsNo from tPartInfoMaster where substring(vcPartsNo,0,11)='" + PartNo.Substring(0, 10) + "' and substring(vcPartsNo,11,2)<>'ED'");
             DataTable dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             if (dt.Rows.Count != 0)
             {
@@ -1529,11 +1535,11 @@ namespace SPPSApi.Controllers.G12
         {
             try
             {
-                string strplsql = "select t1.PARTSNO,t1.DOCK,t1.KANBANORDERNO,t1.KANBANSERIAL from ";
-                strplsql += " (select PARTSNO,DOCK,TRIM(KANBANORDERNO) as KANBANORDERNO,TRIM(KANBANSERIAL) as KANBANSERIAL from sp_m_opr  where dataid='S0' and  substr(partsno,-2,2)='ED' and kanbanorderno is not null)t1 ";
+                string strplsql = "select t1.vcPart_id as PARTSNO, t1.vcSR as DOCK, t1.vcKBOrderNo as KANBANORDERNO, t1.vcKBLFNo as KANBANSERIAL from ";
+                strplsql += " (select vcPart_id,vcSR,vcKBOrderNo,vcKBLFNo from TOperateSJ where vcZYType='S0' and substring(vcPart_id,-2,2)='ED' and vcKBOrderNo is not null) t1 ";
                 strplsql += " left join ";
-                strplsql += " (select  PARTSNO,DOCK,KBORDERNO,KBSERIAL from nz_m_inv)t2 ";
-                strplsql += " on t1.PARTSNO=t2.PARTSNO and t1.DOCK=t2.DOCK and t1.KANBANORDERNO=t2.KBORDERNO and t1.KANBANSERIAL=t2.KBSERIAL ";
+                strplsql += " (select PARTSNO,DOCK,KBORDERNO,KBSERIAL from TNZ_M_INV)t2 ";
+                strplsql += " on t1.vcPart_id=t2.PARTSNO and t1.vcSR=t2.DOCK and t1.vcKBOrderNo=t2.KBORDERNO and t1.vcKBLFNo=t2.KBSERIAL ";
                 strplsql += " where t2.PARTSNO is null ";
 
                 SqlDataReader or = ExecuteReader(CommandType.Text, strplsql);
@@ -1620,7 +1626,7 @@ namespace SPPSApi.Controllers.G12
                     string vcKBSerial = dt.Rows[i]["vcKBSerial"].ToString();
                     string vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString().Substring(0, 10) + "ED"; ;
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
-                    string StrOrl = "insert into   nz_m_inv(partsno,dock,kborderno,kbserial,printflag) values ('" + vcPartsNo + "','" + vcDock + "','" + vcKBorderno + "','" + vcKBSerial + "','1')";
+                    string StrOrl = "insert into TNZ_M_INV(partsno,dock,kborderno,kbserial,printflag) values ('" + vcPartsNo + "','" + vcDock + "','" + vcKBorderno + "','" + vcKBSerial + "','1')";
                     ExecuteNonQuery(trans, CommandType.Text, StrOrl, null);
                 }
                 trans.Commit();

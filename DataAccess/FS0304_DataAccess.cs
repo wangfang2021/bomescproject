@@ -1159,7 +1159,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("    select vcValue3 as 'vcTitle',vcValue4 as 'vcContent' from TOutCode where vcCodeId = 'C016' and vcIsColum = '0' and vcValue1 = 'FS0303' and vcValue2 = '"+strUserId+"'  \n");
+                strSql.Append("    select vcValue3 as 'vcTitle',vcValue4 as 'vcContent' from TOutCode where vcCodeId = 'C016' and vcIsColum = '0' and vcValue1 = 'FS0304' and vcValue2 = '"+strUserId+"'  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

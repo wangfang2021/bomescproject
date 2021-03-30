@@ -45,7 +45,7 @@ namespace BatchProcess
                 #endregion
 
                 #region 邮件内容
-                string strEmailBody = getEmailBody(strUserId, "FP0019");
+                string strEmailBody = getEmailBody();
                 if (string.IsNullOrEmpty(strEmailBody))
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1903", null, strUserId);
@@ -59,7 +59,7 @@ namespace BatchProcess
                 DataTable receiverDt = getReceiverDt();
                 if (receiverDt==null || receiverDt.Rows.Count<=0)
                 {
-                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1904", null, strUserId);
+                    ComMessage.GetInstance().ProcessMessage(PageId, "M00PI1903", null, strUserId);
                     return true;
                 } 
                 #endregion
@@ -72,7 +72,7 @@ namespace BatchProcess
                 #endregion
 
                 #region 邮件主题
-                string strSubject = getSubject(strUserId,"FP0019");
+                string strSubject = getSubject();
                 if (string.IsNullOrEmpty(strSubject))
                 {
                     ComMessage.GetInstance().ProcessMessage(PageId, "M00PE1905", null, strUserId);
@@ -82,7 +82,7 @@ namespace BatchProcess
 
                 #region 附件
                 /*
-                 * 有附件给地址，无给null
+                 * 有附件给地址，无给空字符
                  */
                 string strFilePath = "";
                 #endregion
@@ -127,8 +127,8 @@ namespace BatchProcess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("         select vcName from TCode where vcCodeId = 'C009'        ");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
+                strSql.AppendLine("         select vcName from TCode where vcCodeId = 'C009'   ");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
@@ -153,7 +153,7 @@ namespace BatchProcess
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("         select vcValue from TCode where vcCodeId = 'C009'        ");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(strSql.ToString());
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
@@ -171,13 +171,13 @@ namespace BatchProcess
         #endregion
 
         #region 获取邮件内容
-        public string getEmailBody(string strUserId, string strChildFunID)
+        public string getEmailBody()
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" select vcContent from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
-                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString(),"TK");
+                sql.Append(" select vcValue4 from TOutCode where vcCodeId = 'C016' and vcValue1 = 'FP0019'    \n");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 if (dt.Rows.Count>0)
                 {
                     return dt.Rows[0][0].ToString();
@@ -260,12 +260,12 @@ namespace BatchProcess
         #endregion
 
         #region 获取邮件主题
-        public string getSubject(string strUserId, string strChildFunID)
+        public string getSubject()
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append(" select vcTitle from TMailMessageSetting where vcChildFunID = '" + strChildFunID + "' and vcUserId = '" + strUserId + "'    \n");
+                sql.Append(" select vcValue3 from TOutCode where vcCodeId = 'C016' and vcValue1 = 'FP0019'    \n");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sql.ToString(),"TK");
                 if (dt.Rows.Count>0)
                 {

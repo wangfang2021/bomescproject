@@ -272,8 +272,8 @@ namespace SPPSApi.Controllers.G02
 
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    fileSavePath = fileSavePath + info.Name;
-                    System.IO.File.Copy(filePath + info.Name, fileSavePath, true);
+                    string newfileSavePath = fileSavePath + info.Name;
+                    System.IO.File.Copy(filePath + info.Name, newfileSavePath, true);
                 }
             }
             catch (Exception ex)

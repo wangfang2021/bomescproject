@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -27,7 +28,8 @@ namespace SPPSApi
                     // {
                     //     option.ConfigureHttpsDefaults(i =>
                     //     {
-                    //         i.ServerCertificate = new System.Security.Cryptography.X509Certificates.X509Certificate2("C:\\tmp\\SPPS.pfx", "huj123432");
+                    //         string strDir = AppDomain.CurrentDomain.BaseDirectory;
+                    //         i.ServerCertificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(strDir+"SPPS.pfx", "huj123432");
                     //     });
                     // })
                     //;//注意这块接口配置，才能让外网访问

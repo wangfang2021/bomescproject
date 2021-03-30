@@ -58,14 +58,14 @@ namespace SPPSApi.Controllers.G07
                 DToptionC001.Columns.Add("vcName");
                 DToptionC001.Columns.Add("vcValue");
                 DataRow dr = DToptionC001.NewRow();
-                dr["vcName"] = "月度内示";
-                dr["vcValue"] = "0";
+                dr["vcName"] = "已下载";
+                dr["vcValue"] = "is not null";
                 DToptionC001.Rows.Add(dr);
                 dr = DToptionC001.NewRow();
-                dr["vcName"] = "周度内示";
-                dr["vcValue"] = "1";
+                dr["vcName"] = "未下载";
+                dr["vcValue"] = "is null";
                 DToptionC001.Rows.Add(dr);
-                List<Object> dataList_C001 = ComFunction.convertAllToResult(DToptionC001);//包装场
+                List<Object> dataList_C001 = ComFunction.convertAllToResult(DToptionC001);
                 res.Add("C001", dataList_C001);
                 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -99,34 +99,11 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                string strNSDiff = dataForm.strNSDiff;
-                string strDXYM = dataForm.strDXYM;
-                if (string.IsNullOrEmpty(strNSDiff))
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请选择内示类别";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                if (!string.IsNullOrEmpty(strNSDiff) && string.IsNullOrEmpty(strDXYM))
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "请选择对象年月";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                DataTable dt = FS0718_Logic.Search();
+                string strDownloadDiff = dataForm.strDownloadDiff;
+                DataTable dt = FS0718_Logic.Search(strDownloadDiff,loginInfo.UserId);
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dUseBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dUseEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dProjectEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dJiuBeginSustain", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceStateDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPricebegin", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dPriceEnd", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFaBuTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFirstDownload", ConvertFieldType.DateType, "yyyy/MM/dd");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -138,6 +115,68 @@ namespace SPPSApi.Controllers.G07
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            try
+            {
+                JArray listInfo = dataForm.multipleSelection;
+                if (listInfo.Count<=0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "至少选择一条数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                string strSupplier = dataForm.strSupplier;
+                string strYearMonth = dataForm.strYearMonth;
+                string strNSDiff = dataForm.strNSDiff;
+                string strNSQJ = dataForm.strNSQJ;
+                string strNSState = dataForm.strNSState;
+                string dFaBuTime = dataForm.strFaBuTime;
+                string dFirstDownload = dataForm.dFirstDownload;
+
+                DataTable dt = FS0718_Logic.Search();
+                string[] fields = { "iAutoId","vcChange_Name", "vcPart_id", "dUseBeginStr", "dUseEndStr", "vcProjectType_Name", "vcSupplier_id"
+                ,"vcSupplier_Name","dProjectBeginStr","dProjectEndStr","vcHaoJiu_Name","dJiuBeginStr","dJiuEndStr","dJiuBeginSustainStr","vcPriceChangeInfo_Name"
+                ,"vcPriceState_Name","dPriceStateDateStr","vcPriceGS_Name","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebeginStr","dPriceEndStr"
+                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
+                ,"vcOriginCompany_Name"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

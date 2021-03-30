@@ -206,9 +206,20 @@ namespace DataAccess
                 #region 更新生确表中的数据
                 sql.Append("          update TSQJD set           \n");
                 sql.Append("           dTFTM_BJ = b.dTFTM_BJ          \n");
+                sql.Append("          ,vcSYTCode = b.vcSYTCode          \n");
                 sql.Append("          ,vcOperatorId = '" + strUserId+"'          \n");
                 sql.Append("          ,dOperatorTime = GETDATE()          \n");
                 sql.Append("          from TSQJD a           \n");
+                sql.Append("          inner join #TSQJD_temp b          \n");
+                sql.Append("          on a.[GUID] = b.[GUID]          \n");
+                #endregion
+
+                #region 更新供应商生确表的包装工场
+                sql.Append("          update TSQJD_Supplier set           \n");
+                sql.Append("           vcSYTCode = b.vcSYTCode          \n");
+                sql.Append("          ,vcOperatorId = '" + strUserId + "'          \n");
+                sql.Append("          ,dOperatorTime = GETDATE()          \n");
+                sql.Append("          from TSQJD_Supplier a           \n");
                 sql.Append("          inner join #TSQJD_temp b          \n");
                 sql.Append("          on a.[GUID] = b.[GUID]          \n");
                 #endregion

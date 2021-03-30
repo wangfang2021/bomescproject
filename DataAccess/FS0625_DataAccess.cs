@@ -124,9 +124,9 @@ namespace DataAccess
             {
                 StringBuilder strSql = new StringBuilder();
 
-                strSql.AppendLine("  select   vcCarfamilyCode as vcValue,vcCarfamilyCode as vcName  from (   ");
-                strSql.AppendLine("  select distinct isnull (vcCarfamilyCode,'无') as    vcCarfamilyCode from [dbo].[TSPMaster] where vcCarfamilyCode<>''   ");
-                strSql.AppendLine("  ) a order by a.vcCarfamilyCode asc   ");
+                strSql.AppendLine("  select   vcCarType as vcValue,vcCarType as vcName  from (   ");
+                strSql.AppendLine("  select distinct isnull (vcCarType,'无') as    vcCarType from [dbo].TOralTestManage   ");
+                strSql.AppendLine("  ) a order by a.vcCarType asc   ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

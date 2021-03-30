@@ -49,7 +49,7 @@ namespace Common
             switch (strUnitCode)
             {
                 case "TFTM":
-                    return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
+                    return "Persist Security Info = False; User ID = sa; Password = SPPS_Server2019; Initial Catalog = SPPSdb; Data Source =172.23.180.116";
                 case "SFTM":
                     return "Persist Security Info = False; User ID = sa; Password = Sa123; Initial Catalog = xxx; Data Source =xxx";
                 case "SFTMCF":

@@ -22,17 +22,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G07
 {
-    [Route("api/FS0705_Sub_Import/[action]")]
+    [Route("api/FS0705_Sub2_Import/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0705Controller_Sub_Import : BaseController
+    public class FS0705Controller_Sub2_Import : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0705_Logic fs0705_Logic = new FS0705_Logic();
         private readonly string FunctionID = "FS0705";
 
-        public FS0705Controller_Sub_Import(IWebHostEnvironment webHostEnvironment)
+        public FS0705Controller_Sub2_Import(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }

@@ -639,7 +639,6 @@ namespace DataAccess
                 sqlStr.Append("         ,vcSCPlace_Province = b.vcSCPlace_Province       \r\n");
                 sqlStr.Append("         ,vcCHPlace_City = b.vcCHPlace_City       \r\n");
                 sqlStr.Append("         ,vcCHPlace_Province = b.vcCHPlace_Province       \r\n");
-                sqlStr.Append("         ,vcSYTCode = b.vcSYTCode       \r\n");
                 sqlStr.Append("         ,vcSCSName = b.vcSCSName       \r\n");
                 sqlStr.Append("         ,vcSCSPlace = b.vcSCSPlace       \r\n");
                 sqlStr.Append("         ,dSupplier_BJ = b.dSupplier_BJ       \r\n");

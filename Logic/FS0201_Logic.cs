@@ -31,6 +31,10 @@ namespace Logic
             {
                 dt = RulesCheck(dt);
             }
+            else
+            {
+                return dt;
+            }
 
             if (!string.IsNullOrWhiteSpace(State))
             {

@@ -33,6 +33,43 @@ namespace SPPSApi.Controllers.G06
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+
+                DateTime dNow = DateTime.Now;
+                res.Add("yearMonth", dNow.ToString("yyyy/MM"));
+
+                List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//工厂
+                res.Add("C000", dataList_C000);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索_FORECAST
         [HttpPost]
         [EnableCors("any")]
@@ -51,7 +88,7 @@ namespace SPPSApi.Controllers.G06
             string vcCLYM = dataForm.vcCLYM;
             try
             {
-                DataTable dt = fs0612_Logic.Search(vcCLYM);
+                DataTable dt = fs0612_Logic.Search(vcCLYM.Replace("/",""));
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -91,7 +128,7 @@ namespace SPPSApi.Controllers.G06
             string vcCLYM = dataForm.vcCLYM;
             try
             {
-                DataTable dt = fs0612_Logic.Search(vcCLYM);
+                DataTable dt = fs0612_Logic.Search(vcCLYM.Replace("/",""));
                 string[] heads = { "处理年月", "回数", "PARTS FORECAST状态", "请求时间", "合算时间" };
                 string[] fields = { "vcCLYMFormat", "iTimes", "vcStatusName", "dRequestTime", "dWCTime" };
                 string strMsg = "";
@@ -134,7 +171,7 @@ namespace SPPSApi.Controllers.G06
             string vcCLYM = dataForm.vcCLYM;
             try
             {
-                DataTable dt = fs0612_Logic.Search2(vcCLYM);
+                DataTable dt = fs0612_Logic.Search2(vcCLYM.Replace("/",""));
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -174,7 +211,7 @@ namespace SPPSApi.Controllers.G06
             string vcCLYM = dataForm.vcCLYM;
             try
             {
-                DataTable dt = fs0612_Logic.Search2(vcCLYM);
+                DataTable dt = fs0612_Logic.Search2(vcCLYM.Replace("/", ""));
                 string[] heads = { "处理年月", "工厂", "回数", "EKANBAN状态", "请求时间", "合算时间" };
                 string[] fields = { "vcCLYMFormat", "vcPlantName", "iTimes", "vcStatusName", "dRequestTime", "dWCTime" };
                 string strMsg = "";

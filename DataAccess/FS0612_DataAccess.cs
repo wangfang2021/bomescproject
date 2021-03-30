@@ -21,7 +21,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select distinct t1.vcCLYM,LEFT(vcCLYM,4)+'/'+RIGHT(vcCLYM,2) as vcCLYMFormat,t1.iTimes,    \n");
                 strSql.Append("t1.dRequestTime,case when t1.vcStatus='C' then t1.dWCTime else null end as dWCTime,t1.vcStatus,     \n");
-                strSql.Append("case t1.vcStatus when 'C' then '处理完成' when 'P' then '处理中' when 'E' then '处理失败' else t1.vcStatus end as vcStatusName    \n");
+                strSql.Append("case t1.vcStatus when 'C' then '送信完' when 'P' then '送信中' when 'E' then '送信失败' else t1.vcStatus end as vcStatusName    \n");
                 strSql.Append("from (    \n");
                 strSql.Append("	select * from VI_NQCStatus_HS_FORECAST where 1=1     \n");
                 if (vcCLYM != "" && vcCLYM != null)
@@ -45,7 +45,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select distinct t1.vcCLYM,LEFT(vcCLYM,4)+'/'+RIGHT(vcCLYM,2) as vcCLYMFormat,t1.vcPlant,t2.vcName as vcPlantName,    \n");
                 strSql.Append("t1.iTimes,t1.dRequestTime,case when t1.vcStatus='C' then t1.dWCTime else null end as dWCTime,t1.vcStatus,         \n");
-                strSql.Append("case t1.vcStatus when 'C' then '处理完成' when 'P' then '处理中' when 'E' then '处理失败' else t1.vcStatus end as vcStatusName    \n");
+                strSql.Append("case t1.vcStatus when 'C' then 'E-KBN送信完' when 'P' then 'E-KBN送信中' when 'E' then 'E-KBN送信失败' else t1.vcStatus end as vcStatusName    \n");
                 strSql.Append("from (        \n");
                 strSql.Append("	select * from VI_NQCStatus_HS_EKANBAN where 1=1         \n");
                 if (vcCLYM != "" && vcCLYM != null)

@@ -207,6 +207,7 @@ namespace SPPSApi.Controllers.G06
                     dt.Rows.Add(dr);
                 }
                 #endregion
+                Console.WriteLine("FS0625 Data获取成功");
                 string[] columnArray = { "vcSupplier_id", "vcSupplier_name" };
                 DataView dtSelectView = dt.DefaultView;
                 DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt 
@@ -228,6 +229,7 @@ namespace SPPSApi.Controllers.G06
                 bool bReault = true;
                 for (int i = 0; i < dtSelect.Rows.Count; i++)
                 {
+                    Console.WriteLine("FS0625 开始查找邮箱");
                     //组织制定供应商和工区的数据
                     string[] strFilePathArray = new string[3];
                     string vcSupplier_id = dtSelect.Rows[i]["vcSupplier_id"].ToString();
@@ -236,11 +238,12 @@ namespace SPPSApi.Controllers.G06
                     DataRow[] drArray = dt.Select("vcSupplier_id='" + vcSupplier_id + "'  ");//and vcWorkArea='" + vcWorkArea + "'
                     DataTable dtNewSupplierandWorkArea = drArray[0].Table.Clone(); // 复制DataRow的表结构
                     string msg = string.Empty;
+                    Console.WriteLine(vcSupplier_id+":"+ vcSupplier_name);
                     foreach (DataRow dr in drArray)
                     {
                         dtNewSupplierandWorkArea.ImportRow(dr);
                     }
-
+                    Console.WriteLine("已经组织好当前供应商数据");
                     //获取供应商 工区的邮箱
                     //DataTable dtEmail = fs0625_Logic.getEmail(vcSupplier_id, vcWorkArea);
                     DataTable dtEmail = fs0625_Logic.getEmail(vcSupplier_id);
@@ -253,6 +256,7 @@ namespace SPPSApi.Controllers.G06
                         bReault = false;
                         continue;
                     }
+                    Console.WriteLine(vcSupplier_id+ "没有维护供应商，不能发送邮件");
                     DataTable receiverDt = new DataTable();
                     receiverDt.Columns.Add("address");
                     receiverDt.Columns.Add("displayName");
@@ -300,6 +304,7 @@ namespace SPPSApi.Controllers.G06
                             receiverDt.Rows.Add(dr);
                         }
                     }
+                    Console.WriteLine(vcSupplier_id + "三个邮箱联系人");
                     if (receiverDt.Rows.Count == 0)
                     {
                         DataRow dataRow = dtMessage.NewRow();
@@ -309,7 +314,8 @@ namespace SPPSApi.Controllers.G06
                         bReault = false;
                         continue;
                     }
-
+                    Console.WriteLine(vcSupplier_id + "判断是否有人");
+                    Console.WriteLine(vcSupplier_id + "第一个附件开始");
                     #region 第一个附件 号试看板标签
                     XSSFWorkbook hssfworkbook = new XSSFWorkbook();//用于创建xlsx
                     string XltPath = "." + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Template" + Path.DirectorySeparatorChar + "FS0625_HSKanBanBiaoQian.xlsx";
@@ -965,7 +971,8 @@ namespace SPPSApi.Controllers.G06
                     }
                     #endregion
                     #endregion
-
+                    Console.WriteLine(vcSupplier_id + "第一个附件结束");
+                    Console.WriteLine(vcSupplier_id + "第二个附件开始");
                     #region  第二个附件
                     string[] columnArray2 = { "vcCarType", "vcDock" };
                     DataView dtSelectView2 = dtNewSupplierandWorkArea.DefaultView;
@@ -1389,7 +1396,8 @@ namespace SPPSApi.Controllers.G06
                     #endregion
 
                     #endregion
-
+                    Console.WriteLine(vcSupplier_id + "第二个附件结束");
+                    Console.WriteLine(vcSupplier_id + "第三个附件开始");
                     #region 第三个附件
                     string[] columnArray3 = { "vcCarType" };
                     DataView dtSelectView3 = dtNewSupplierandWorkArea.DefaultView;
@@ -1555,6 +1563,8 @@ namespace SPPSApi.Controllers.G06
                         bReault = false;
                     }
                     #endregion
+                    Console.WriteLine(vcSupplier_id + "第三个附件结束");
+                    Console.WriteLine(vcSupplier_id + "第三个附件结束");
                     //抄送人dt 通过Tcode 自己定义cCDt
                     DataTable cCDt = null;
                     DataTable dtCCEmail = fs0625_Logic.getCCEmail("C054");
@@ -1562,11 +1572,13 @@ namespace SPPSApi.Controllers.G06
                     {
                         cCDt = dtCCEmail;
                     }
+                    Console.WriteLine(vcSupplier_id + "获取抄送者");
                     //邮件主题
                     string strSubject = vcCarTypeChuShi+ "车型 补给品 号试订单发注(重要！)";
                     //邮件内容
                     //strEmailBody += "  请在1个工作日内将是否可以供货的确认结果邮件回复，以下是各个仓库对应的邮箱：<br />";
                     string result = "Success";
+                    Console.WriteLine(vcSupplier_id + "邮件发送开始");
                     result = ComFunction.SendEmailInfo(loginInfo.Email, loginInfo.UnitName, EmailBody, receiverDt, cCDt, strSubject, strFilePathArray, false);
                     if (result == "Success")
                     {
@@ -1579,6 +1591,8 @@ namespace SPPSApi.Controllers.G06
                         dtMessage.Rows.Add(dataRow);
                         bReault = false;
                     }
+                    Console.WriteLine(vcSupplier_id + "邮件发送结束");
+                    Console.WriteLine(vcSupplier_id + "下一轮开始");
                 }
                 if (!bReault)
                 {
@@ -1594,6 +1608,7 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
+                Console.WriteLine("catch报错"+ex);
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0409", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "邮件发送失败";

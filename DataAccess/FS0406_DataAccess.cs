@@ -68,6 +68,7 @@ namespace DataAccess
                     }
                 }
 
+                sbr.AppendLine(" ORDER BY dOperatorTime desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)
@@ -100,7 +101,7 @@ namespace DataAccess
                         sbr.AppendLine("WHERE vcZYType = 'S0' AND CONVERT(VARCHAR(6),dStart,112)  = '" + newinTime + "' AND vcSHF = '" + Receiver + "'");
                         sbr.AppendLine(") a");
                         sbr.AppendLine("LEFT JOIN(");
-                        sbr.AppendLine("SELECT vcBillType,vcPartId,vcSupplierId,vcReceiver,vcPartNameCn,dFromTime,dToTime FROM TSPMaster ");
+                        sbr.AppendLine("SELECT vcBillType,vcPartId,vcSupplierId,vcReceiver,vcPartNameCn,dFromTime,dToTime FROM TSPMaster where isnull(vcDelete, '') <> '1'   ");
                         sbr.AppendLine(") b ON a.vcPart_id = b.vcPartId AND a.vcSupplier_id = b.vcSupplierId AND a.vcSHF = b.vcReceiver AND a.dStart >= b.dFromTime AND a.dStart <= b.dToTime");
                         sbr.AppendLine("ORDER BY a.dStart,a.vcPart_id,a.vcSHF,a.vcInputNo");
                         DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
@@ -193,7 +194,7 @@ namespace DataAccess
                         sbr.AppendLine("WHERE '" + outStart + "'<=CONVERT(VARCHAR(8),dOperatorTime,112) AND '" + outEnd + "'>=CONVERT(VARCHAR(8),dOperatorTime,112) AND vcSHF = '" + Receiver + "' ");
                         sbr.AppendLine(") a");
                         sbr.AppendLine("LEFT JOIN(");
-                        sbr.AppendLine("SELECT vcBillType,vcPartId,vcSupplierId,vcReceiver,vcPartNameCn,dFromTime,dToTime FROM TSPMaster");
+                        sbr.AppendLine("SELECT vcBillType,vcPartId,vcSupplierId,vcReceiver,vcPartNameCn,dFromTime,dToTime FROM TSPMaster where isnull(vcDelete, '') <> '1'  ");
                         sbr.AppendLine(") b ON a.vcPart_id = b.vcPartId AND a.vcSupplier_id = b.vcSupplierId AND a.vcSHF = b.vcReceiver AND a.dOperatorTime >= b.dFromTime AND a.dOperatorTime <= b.dToTime");
                         sbr.AppendLine("ORDER BY a.vcSellNo,a.vcSHF,a.vcPart_id,SUBSTRING( a.vcSellNo,3,8) DESC ");
                     }

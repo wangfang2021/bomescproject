@@ -113,7 +113,7 @@ namespace SPPSApi.Controllers.G04
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
+                        apiResult.data = strMsg;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (importDt.Columns.Count == 0)
@@ -122,7 +122,7 @@ namespace SPPSApi.Controllers.G04
                     {
                         ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入终止，文件" + info.Name + "没有要导入的数据";
+                        apiResult.data = "没有要导入的数据";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
 
@@ -137,15 +137,27 @@ namespace SPPSApi.Controllers.G04
 
                     if (iMonth != Convert.ToInt32(strMonth_import))
                     {
-                        errMessageDict.Add("", "文件中的对象月" + strMonth_import + "与页面输入的对象年月" + iMonth + "不相符！");
+                        //errMessageDict.Add("", "文件中的对象月" + strMonth_import + "与页面输入的对象年月" + iMonth + "不相符！");
+                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "B列标题行不正确，应该是" + iMonth + "月";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (iMonth_2 != Convert.ToInt32(strMonth_import_2))
                     {
-                        errMessageDict.Add("","文件中的内示月" + strMonth_import_2 + "与页面输入的对象年月" + iMonth_2 + "不相符！");
+                        //errMessageDict.Add("","文件中的内示月" + strMonth_import_2 + "与页面输入的对象年月" + iMonth_2 + "不相符！");
+                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "C列标题行不正确，应该是" + iMonth_2 + "月";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (iMonth_3 != Convert.ToInt32(strMonth_import_3))
                     {
-                        errMessageDict.Add("","文件中的内内示月" + strMonth_import_3 + "与页面输入的对象年月" + iMonth_3 + "不相符！");
+                        //errMessageDict.Add("","文件中的内内示月" + strMonth_import_3 + "与页面输入的对象年月" + iMonth_3 + "不相符！");
+                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "D列标题行不正确，应该是" + iMonth_3 + "月";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     for (int i = 1; i < dt.Rows.Count; i++)//跳过列头
                     {

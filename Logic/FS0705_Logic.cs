@@ -118,6 +118,7 @@ namespace Logic
                             {
                                 BcTask task = new BcTask();
                                 task.strBCName = dEnd_Index.ToString("yyyy-MM-dd") + " " + strBianCi;
+                                task.strFaZhuID = strFaZhuID;
                                 result.Add(task);
                             }
                         }
@@ -154,8 +155,90 @@ namespace Logic
         }
         #endregion
 
+        #region 发注数量计算
+        public void computer(string strFaZhuID)
+        {
+            fs0705_DataAccess.computer(strFaZhuID);
+        }
+        #endregion
 
+        #region 检索计算结果
+        public DataTable searchComputeJG()
+        {
+            return fs0705_DataAccess.searchComputeJG();
+        }
+        #endregion
 
+        #region 检索计算结果
+        public DataTable searchComputeJGAll()
+        {
+            return fs0705_DataAccess.searchComputeJGAll();
+        }
+        #endregion
+
+        #region 生成订单数据
+        public void SCFZData(DataTable dt,string strOrderNo)
+        {
+            fs0705_DataAccess.SCFZData(dt,strOrderNo);
+        }
+        #endregion
+
+        #region 获取新订单号
+        public string getNewOrderNo()
+        {
+            DataTable dt = fs0705_DataAccess.getMAXOrderNo();
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                return "AA00000";
+            }
+            else
+            {
+                if (dt.Rows[0][0] == DBNull.Value || dt.Rows[0][0].ToString() == "")
+                    return "AA00000";
+                else
+                {
+                    return getNewOrderNo(dt.Rows[0][0].ToString());
+                }
+            }
+        }
+        #endregion
+
+        #region 获取新订单号
+        public string getNewOrderNo(string strOrderNo)
+        {
+
+            string strOrderNoMAx = "";
+            string strOrderNo_1 = strOrderNo.Substring(0, 1);
+            string strOrderNo_2 = strOrderNo.Substring(1, 1);
+            string strOrderNo_3 = strOrderNo.Substring(2, 5);
+            if (strOrderNo_3 == "99999")
+            {
+                int iOrderNo_2 = (int)Convert.ToByte(strOrderNo_2[0]);
+
+                if (strOrderNo_2 == "Z")
+                {
+                    int iOrderNo_1 = (int)Convert.ToByte(strOrderNo_1[0]);
+                    strOrderNo_1 = Convert.ToChar(iOrderNo_1 + 1).ToString();
+                    strOrderNo_2 = "A";
+                    strOrderNo_3 = "00001";
+                }
+                else
+                {
+                    strOrderNo_3 = "00001";
+                    strOrderNo_2 = Convert.ToChar(iOrderNo_2 + 1).ToString();
+                }
+            }
+            else
+            {
+                int iOrderNo_3 = (int)Convert.ToInt32(strOrderNo_3) + 1;
+                strOrderNo_3 = iOrderNo_3.ToString().PadLeft(5, '0');
+            }
+            strOrderNoMAx = strOrderNo_1 + strOrderNo_2 + strOrderNo_3;
+
+            return strOrderNoMAx;
+
+        }
+        #endregion
 
         #region 返回某个日期是否应该是稼动
         public bool isJiaDong (string strPackPlant, DateTime dT,ref string strBaiYeType)
@@ -298,6 +381,7 @@ namespace Logic
     }
     public class BcTask
     {
+        public string strFaZhuID;//发注逻辑
         public string strBCName;//便次名称
         public DateTime dDate;//便次对应的稼动日，注意不是自然日，比如2021-3-24 2:00:00的夜班，dDate算2021-3-23
     }

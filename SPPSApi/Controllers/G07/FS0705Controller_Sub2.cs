@@ -22,17 +22,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G07
 {
-    [Route("api/FS0705_Sub/[action]")]
+    [Route("api/FS0705_Sub2/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0705Controller_Sub : BaseController
+    public class FS0705Controller_Sub2 : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0705_Logic fs0705_Logic = new FS0705_Logic();
         private readonly string FunctionID = "FS0705";
 
-        public FS0705Controller_Sub(IWebHostEnvironment webHostEnvironment)
+        public FS0705Controller_Sub2(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -160,7 +160,7 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = fs0705_Logic.search_Sub(strPackNo,strPackGPSNo,strTimeFrom,strTimeTo,strType);
                 string[] fields = { "vcPackNo", "vcPackGPSNo", "iNumber", "vcType", "dTime", "vcReason"};
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export_Sub2.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

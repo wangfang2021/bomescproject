@@ -842,6 +842,24 @@ namespace DataAccess
             }
         }
         #endregion
+        #region 检查品番
+        public DataTable CheckPartsNo_1()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                DataTable dt = new DataTable();
+                //and vcReceiver='" + strShouhuofang + "'
+                sql.Append("  select distinct vcPartsNo from TPackItem \r\n ");
 
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

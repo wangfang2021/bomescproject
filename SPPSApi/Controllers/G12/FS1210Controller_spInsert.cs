@@ -36,6 +36,41 @@ namespace SPPSApi.Controllers.G12
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, Object> res = new Dictionary<string, Object>();
+                FS1209_Logic logic_1 = new FS1209_Logic();
+                string RolePorType = logic_1.getRoleTip(loginInfo.UserId);
+                DataTable dt1 = logic_1.dllPorType(RolePorType.Split('*'));
+                List<Object> dataList_PorType = ComFunction.convertAllToResult(dt1);
+                res.Add("PorTypeSource", dataList_PorType);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -159,9 +194,9 @@ namespace SPPSApi.Controllers.G12
                                                  "完成日01","班值01","完成日02","班值02","完成日03","班值03","完成日04","班值04" },
                                                 {"vcPartsNo", "vcDock", "vcPorType", "vcQuantityPerContainer", "vcCarType", "vcEDflag","vcKBorderno","vcKBSerial","vcTips",
                                                  "vcComDate01","vcBanZhi01","vcComDate02","vcBanZhi02","vcComDate03","vcBanZhi03","vcComDate04","vcBanZhi04" },
-                                                {"","","","","","","","","","","","","","","","","" },
-                                                {"12","2","4","8","4","2","12","4","100","10","1","10","1","10","1","10","1"},//最大长度设定,不校验最大长度用0
-                                                {"12","2","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"","","",FieldCheck.Num,"","","",FieldCheck.Num,"","","","","","","","","" },
+                                                {"10","2","6","8","4","2","12","4","100","10","1","10","1","10","1","10","1"},//最大长度设定,不校验最大长度用0
+                                                {"10","2","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS1210_spInsert");
@@ -221,7 +256,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 return tb;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

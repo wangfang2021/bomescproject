@@ -120,6 +120,14 @@ namespace Logic
         }
         #endregion
 
+
+        #region 检查品番是否含有
+        public DataTable CheckPartsNo_1()
+        {
+            return FS0702_DataAccess.CheckPartsNo_1();
+        }
+        #endregion
+
         #region check时间有效性
         public DataTable searchcheckTime(string vcPackSpot, string vcPartsNo, string vcPackNo, string dUsedFrom, string dUsedTo, int iAutoId,string vcShouhuofangID)
         {

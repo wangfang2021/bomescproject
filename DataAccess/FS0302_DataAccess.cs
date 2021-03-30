@@ -56,7 +56,9 @@ namespace DataAccess
                 //sbr.Append(" ) e ON a.vcOriginCompany = e.vcValue \r\n");
                 sbr.Append(" LEFT JOIN  \r\n");
                 sbr.Append(" ( \r\n");
-                sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() AND ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
+                //sbr.Append(" SELECT vcPart_id,COUNT(*) AS num FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() AND ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
+                sbr.Append(" SELECT vcPart_id,CAST(COUNT(*) AS VARCHAR(20)) AS num FROM TUnit WHERE ISNULL(vcPart_id,'') <> '' GROUP BY vcPart_id \r\n");
+
                 sbr.Append(" ) f ON a.vcPart_Id_old = f.vcPart_id OR a.vcPart_Id_new = f.vcPart_id \r\n");
                 //sbr.Append(" LEFT JOIN  \r\n");
                 //sbr.Append(" (SELECT vcPart_id,MAX(vcDiff) AS vcDiff FROM TUnit WHERE dTimeFrom<=GETDATE() AND dTimeTo >= GETDATE() GROUP BY vcPart_id) f \r\n");
@@ -261,6 +263,10 @@ namespace DataAccess
                         if (change.Equals("1") || change.Equals("2"))//新设
                         {
                             vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
+                            if (string.IsNullOrWhiteSpace(vcPart_Id))
+                            {
+                                vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_old"]).Trim();
+                            }
                             if (!getFlag(partList, vcPart_Id))
                             {
                                 string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();

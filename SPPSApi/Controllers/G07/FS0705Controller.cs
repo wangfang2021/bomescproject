@@ -119,10 +119,32 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
+                JArray listInfo = dataForm.multipleSelection;
+                if (listInfo == null || listInfo.Count <= 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请先选择发注便次";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
+                List<string> lists = new List<string>();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    lists.Add(listInfoData[i]["strFaZhuID"].ToString());
+                }
+                string strFaZhuID = lists.Distinct().ToList()[0];
+                fs0705_Logic.computer(strFaZhuID);
+
+                #region 计算完毕检索计算结果
+                DataTable computeJGDT = fs0705_Logic.searchComputeJG();
+                DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("dTimeStr", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");
+                List<Object> dataList = ComFunction.convertAllToResultByConverter(computeJGDT, dtConverter);
+                #endregion
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "发注数量计算成功";
+                apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -149,6 +171,14 @@ namespace SPPSApi.Controllers.G07
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             try
             {
+                //获取最新的订单号
+                string strOrderNo = fs0705_Logic.getNewOrderNo();
+                //生成发注数据
+                /*
+                 * 查询出计算结果中订单号未空的数据
+                 */
+                DataTable JGDT = fs0705_Logic.searchComputeJG();
+                fs0705_Logic.SCFZData(JGDT,strOrderNo);
 
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -165,6 +195,89 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
+        #region 导出
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            try
+            {
+                DataTable dt = fs0705_Logic.searchComputeJG();
+                string[] fields = { "vcFaZhuID","vcPackNo" , "vcPackGPSNo", "iA_SRS", "iB_LastShengYu", "iC_LiLun"
+                ,"iD_TiaoZheng","iE_JinJi","iF_DingGou","iG_ShengYu","dTimeStr"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export.xlsx", 2, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 计算过程检索
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportJSGCApi([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            try
+            {
+                DataTable dt = fs0705_Logic.searchComputeJGAll();
+                string[] fields = { "vcPackNo", "vcPackGPSNo", "iA_SRS", "iB_LastShengYu", "iC_LiLun", "iD_TiaoZheng"
+                ,"iE_JinJi","iF_DingGou","iG_ShengYu","dTimeStr"
+                };
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export2.xlsx", 2, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
 
     }
 }

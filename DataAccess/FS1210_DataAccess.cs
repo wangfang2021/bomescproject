@@ -1003,7 +1003,7 @@ namespace DataAccess
             {
                 strSQL.Append("        and vcPlanPrintDate = '" + PlanPrintDate + "' ");
             }
-            if (PlanPrintBZ.Trim() != "2")
+            if (PlanPrintBZ.Trim() != "")
             {
                 strSQL.Append("        and vcPlanPrintBZ = '" + PlanPrintBZ + "'");
             }
@@ -1011,7 +1011,7 @@ namespace DataAccess
             {
                 strSQL.Append("        and  vcPlanProcDate = '" + PlanProcDate + "' ");
             }
-            if (PlanProcBZ.Trim() != "2")
+            if (PlanProcBZ.Trim() != "")
             {
                 strSQL.Append("        and  vcPlanProcBZ = '" + PlanProcBZ + "' ");
             }

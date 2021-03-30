@@ -54,7 +54,7 @@ namespace SPPSApi.Controllers.G06
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 
-                List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工厂
+                List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//发注工场
                 List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
 
                 res.Add("C000", dataList_C000);
@@ -131,21 +131,21 @@ namespace SPPSApi.Controllers.G06
                         dt1.ImportRow(dr);
                     }
 
-                    string[] columnArray = { "收货方", "工厂" };
+                    string[] columnArray = { "收货方", "工场" };
                     DataView dtSelectView = dt1.DefaultView;
                     DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt1 
                     
                     for (int i = 0; i < dtSelect.Rows.Count; i++)
                     {
                         string strConsigneeChild = dtSelect.Rows[i]["收货方"].ToString();
-                        string strPlantChild = dtSelect.Rows[i]["工厂"].ToString();
-                        DataRow[] drArrayChild = dt.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        string strPlantChild = dtSelect.Rows[i]["工场"].ToString();
+                        DataRow[] drArrayChild = dt.Select("收货方='" + strConsigneeChild + "' and 工场='" + strPlantChild + "' ");
                         string msg = string.Empty;
                         foreach (DataRow dr in drArrayChild)
                         {
                             dtNew.ImportRow(dr);
                         }
-                        DataRow[] drArrayPlantSum = dtPlantSum.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        DataRow[] drArrayPlantSum = dtPlantSum.Select("收货方='" + strConsigneeChild + "' and 工场='" + strPlantChild + "' ");
                         foreach (DataRow dr in drArrayPlantSum)
                         {
                             dtNew.ImportRow(dr);
@@ -277,21 +277,21 @@ namespace SPPSApi.Controllers.G06
                         dt1.ImportRow(dr);
                     }
 
-                    string[] columnArray = { "收货方", "工厂" };
+                    string[] columnArray = { "收货方", "工场" };
                     DataView dtSelectView = dt1.DefaultView;
                     DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt1 
 
                     for (int i = 0; i < dtSelect.Rows.Count; i++)
                     {
                         string strConsigneeChild = dtSelect.Rows[i]["收货方"].ToString();
-                        string strPlantChild = dtSelect.Rows[i]["工厂"].ToString();
-                        DataRow[] drArrayChild = dt.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        string strPlantChild = dtSelect.Rows[i]["工场"].ToString();
+                        DataRow[] drArrayChild = dt.Select("收货方='" + strConsigneeChild + "' and 工场='" + strPlantChild + "' ");
                         string msg = string.Empty;
                         foreach (DataRow dr in drArrayChild)
                         {
                             dtNew.ImportRow(dr);
                         }
-                        DataRow[] drArrayPlantSum = dtPlantSum.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        DataRow[] drArrayPlantSum = dtPlantSum.Select("收货方='" + strConsigneeChild + "' and 工场='" + strPlantChild + "' ");
                         foreach (DataRow dr in drArrayPlantSum)
                         {
                             dtNew.ImportRow(dr);
@@ -669,23 +669,23 @@ namespace SPPSApi.Controllers.G06
                     sheetOrder.GetRow(nextRowNum).GetCell(0).SetCellValue(strConsignee);//收货方
                     //sheetOrder.GetRow(nextRowNum).GetCell(0).CellStyle = style8;
 
-                    string[] columnArray = { "收货方", "工厂" };
+                    string[] columnArray = { "收货方", "工场" };
                     DataView dtSelectView = dt1.DefaultView;
                     DataTable dtSelect = dtSelectView.ToTable(true, columnArray);//去重后的dt1 
 
                     for (int i = 0; i < dtSelect.Rows.Count; i++)
                     {
                         string strConsigneeChild = dtSelect.Rows[i]["收货方"].ToString();
-                        string strPlantChild = dtSelect.Rows[i]["工厂"].ToString();
-                        DataRow[] drArrayChild = dtNew.Select("收货方='" + strConsigneeChild + "' and 工厂='" + strPlantChild + "' ");
+                        string strPlantChild = dtSelect.Rows[i]["工场"].ToString();
+                        DataRow[] drArrayChild = dtNew.Select("收货方='" + strConsigneeChild + "' and 工场='" + strPlantChild + "' ");
                         DataTable dt4plant = drArrayChild[0].Table.Clone();
                         foreach (DataRow dr in drArrayChild)
                         {
                             dt4plant.ImportRow(dr);
                         }
-                        //工厂
+                        //工场
                         sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChild.Length-1, 1, 1)); //合并单元格第二行从第1列到第2列
-                        sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue(strPlantChild);//工厂
+                        sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue(strPlantChild);//工场
                         //sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style8;
 
                         DataRow[] drArrayChild4NeiZhi = dt4plant.Select("工程<>'外注' and 工程<>'合计' ");
@@ -695,12 +695,12 @@ namespace SPPSApi.Controllers.G06
                             {
                                 sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChild4NeiZhi.Length - 1, 2, 2)); //合并单元格第二行从第1列到第2列
                             }
-                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("內制");//工厂
+                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("內制");//工场
                             //sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style8;
                             foreach (DataRow dr in drArrayChild4NeiZhi)
                             {
                                 //行赋值
-                                sheetOrder.GetRow(nextRowNum).GetCell(3).SetCellValue(dr["工程"].ToString());//工厂
+                                sheetOrder.GetRow(nextRowNum).GetCell(3).SetCellValue(dr["工程"].ToString());//工场
                                 //sheetOrder.GetRow(nextRowNum).GetCell(3).CellStyle = style8;
                                 sheetOrder.GetRow(nextRowNum).GetCell(4).SetCellValue(Convert.ToDouble(dr["月度订单"].ToString()));
                                 //sheetOrder.GetRow(nextRowNum).GetCell(4).CellStyle = style8;
@@ -736,7 +736,7 @@ namespace SPPSApi.Controllers.G06
                         if (drArrayChild4WaiZhu.Length > 0)
                         {
                             sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 2, 3)); //合并单元格第二行从第1列到第2列
-                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("外注");//工厂
+                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("外注");//工场
                             //sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style8;
                             foreach (DataRow dr in drArrayChild4WaiZhu)
                             {
@@ -775,7 +775,7 @@ namespace SPPSApi.Controllers.G06
                         if (drArrayChild4HeJi.Length > 0)
                         {
                             sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 2, 3)); //合并单元格第二行从第1列到第2列
-                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("合计");//工厂
+                            sheetOrder.GetRow(nextRowNum).GetCell(2).SetCellValue("合计");//工场
                             //sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style8;
                             foreach (DataRow dr in drArrayChild4HeJi)
                             {
@@ -816,7 +816,7 @@ namespace SPPSApi.Controllers.G06
                         sheetOrder.GetRow(nextRowNum).GetCell(0).SetCellValue("");
                         sheetOrder.GetRow(nextRowNum).GetCell(0).CellStyle = style10;
                         sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum, 1, 3)); //合并单元格第二行从第1列到第2列
-                        sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue("合计");//工厂
+                        sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue("合计");//工场
                         sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style11;
                         sheetOrder.GetRow(nextRowNum).GetCell(2).CellStyle = style13;
                         sheetOrder.GetRow(nextRowNum).GetCell(3).CellStyle = style13;
@@ -878,7 +878,7 @@ namespace SPPSApi.Controllers.G06
                         DataRow[] drArrayChildQianPin = dtNewQianPin.Select("vcReceiver='" + strConsigneeChildQianPin + "' and vcOrderPlant='" + strPlantChildQianPin + "' ");
 
                         DataTable dtChildQianPin4Class = drArrayChildQianPin[0].Table.Clone();
-                        //发注工厂
+                        //发注工场
                         sheetOrder.AddMergedRegion(new CellRangeAddress(nextRowNum, nextRowNum + drArrayChildQianPin.Length-2, 1, 2)); //合并单元格第二行从第1列到第2列
                         sheetOrder.GetRow(nextRowNum).GetCell(1).SetCellValue(strPlantChildQianPin);
                         //sheetOrder.GetRow(nextRowNum).GetCell(1).CellStyle = style8;

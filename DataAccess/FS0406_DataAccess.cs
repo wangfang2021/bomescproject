@@ -68,6 +68,7 @@ namespace DataAccess
                     }
                 }
 
+                sbr.AppendLine(" ORDER BY dOperatorTime desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

@@ -258,6 +258,7 @@ namespace DataAccess
                 sql.AppendLine("on t1.vcPart_id=t2.vcPartId ");
                 sql.AppendLine("and t1.vcYM between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)");
                 sql.AppendLine("where cast(t1.iCbSOQN as int) <>0 and t2.vcPartId is null");
+                sql.AppendLine("order by t1.vcPart_id,t1.vcYM");
                 DataTable dt2 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 errMessageDict = ErrorMsg(errMessageDict, dtc, dt2, "不满足{0}月有效性",true);
                 #endregion
@@ -290,6 +291,7 @@ namespace DataAccess
                 sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd from TPrice     ");
                 sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
                 sql.AppendLine("where item=1 and cast(t1.iCbSOQN as int) <>0 and t3.vcPart_id is null and isnull(t2.vcMandOrder,'')<>'1' --vcMandOrder='1' 是强制订货");
+                sql.AppendLine("order by t1.vcPart_id,t1.vcYM");
                 DataTable dt5 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 errMessageDict = ErrorMsg(errMessageDict, dtc, dt5, "{0}月没有价格", true);
                 #endregion
@@ -343,6 +345,7 @@ namespace DataAccess
                 sql.AppendLine(")t6 on t2.vcPartId=t6.vcPartId and t2.vcPackingPlant=t6.vcPackingPlant and t2.vcReceiver=t6.vcReceiver and t2.vcSupplierId=t6.vcSupplierId      ");
                 sql.AppendLine("and t1.vcYM between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)    ");
                 sql.AppendLine("where cast(t1.iCbSOQN as int) <>0 and (fzgc.供应商编号 is null or t5.vcPartId is null or t6.vcPartId is null)    ");
+                sql.AppendLine("order by t1.vcPart_id,t1.vcYM");
                 DataTable dt6 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 errMessageDict = ErrorMsg(errMessageDict, dtc, dt6, "{0}月无手配信息",true);
                 #endregion
@@ -418,6 +421,7 @@ namespace DataAccess
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("and t1.vcYM>=convert(varchar(6),t2.dDebugTime,112)");
                 sql.AppendLine("where cast(t1.iCbSOQN as int) <>0 and t2.vcPartId is not null");
+                sql.AppendLine("order by t1.vcPart_id,t1.vcYM");
                 DataTable dt10 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 errMessageDict = ErrorMsg(errMessageDict, dtc, dt10, "在{0}月以后不能订货", true);
                 #endregion
@@ -446,6 +450,7 @@ namespace DataAccess
                 sql.AppendLine("	from TSPMaster where vcPackingPlant='"+strUnit+ "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime  and vcOrderingMethod='1'");
                 sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
                 sql.AppendLine("where cast(t1.iCbSOQN as int) <>0 and t2.vcPartId is not null");
+                sql.AppendLine("order by t1.vcPart_id,t1.vcYM");
                 DataTable dt11 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
                 errMessageDict = ErrorMsg(errMessageDict, dtc, dt11, "{0}月特殊品番不能订货", true);
                 #endregion

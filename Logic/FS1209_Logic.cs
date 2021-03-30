@@ -1348,11 +1348,11 @@ namespace Logic
         {
             try
             {
-                string strplsql = "select t1.PARTSNO,t1.DOCK,t1.KANBANORDERNO,t1.KANBANSERIAL from ";
-                strplsql += " (select PARTSNO,DOCK,TRIM(KANBANORDERNO) as KANBANORDERNO,TRIM(KANBANSERIAL) as KANBANSERIAL from sp_m_opr  where dataid='S0' and  substr(partsno,-2,2)='ED' and kanbanorderno is not null)t1 ";
+                string strplsql = "select t1.vcPart_id as PARTSNO, t1.vcSR as DOCK, t1.vcKBOrderNo as KANBANORDERNO, t1.vcKBLFNo as KANBANSERIAL from ";
+                strplsql += " (select vcPart_id,vcSR,vcKBOrderNo,vcKBLFNo from TOperateSJ where vcZYType='S0' and substring(vcPart_id,-2,2)='ED' and vcKBOrderNo is not null) t1 ";
                 strplsql += " left join ";
-                strplsql += " (select  PARTSNO,DOCK,KBORDERNO,KBSERIAL from nz_m_inv)t2 ";
-                strplsql += " on t1.PARTSNO=t2.PARTSNO and t1.DOCK=t2.DOCK and t1.KANBANORDERNO=t2.KBORDERNO and t1.KANBANSERIAL=t2.KBSERIAL ";
+                strplsql += " (select PARTSNO,DOCK,KBORDERNO,KBSERIAL from TNZ_M_INV)t2 ";
+                strplsql += " on t1.vcPart_id=t2.PARTSNO and t1.vcSR=t2.DOCK and t1.vcKBOrderNo=t2.KBORDERNO and t1.vcKBLFNo=t2.KBSERIAL ";
                 strplsql += " where t2.PARTSNO is null ";
 
                 SqlDataReader or = ExecuteReader(CommandType.Text, strplsql);
@@ -1439,7 +1439,7 @@ namespace Logic
                     string vcKBSerial = dt.Rows[i]["vcKBSerial"].ToString();
                     string vcPartsNo = dt.Rows[i]["vcPartsNo"].ToString().Substring(0, 10) + "ED"; ;
                     string vcDock = dt.Rows[i]["vcDock"].ToString();
-                    string StrOrl = "insert into   nz_m_inv(partsno,dock,kborderno,kbserial,printflag) values ('" + vcPartsNo + "','" + vcDock + "','" + vcKBorderno + "','" + vcKBSerial + "','1')";
+                    string StrOrl = "insert into TNZ_M_INV(partsno,dock,kborderno,kbserial,printflag) values ('" + vcPartsNo + "','" + vcDock + "','" + vcKBorderno + "','" + vcKBSerial + "','1')";
                     ExecuteNonQuery(trans, CommandType.Text, StrOrl, null);
                 }
                 trans.Commit();

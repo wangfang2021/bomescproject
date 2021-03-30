@@ -86,14 +86,14 @@ namespace SPPSApi.Controllers.G05
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
             string strDyState = dataForm.DyState == null?"": dataForm.DyState;
             string strOperState= dataForm.OperateState == null ? "" : dataForm.OperateState;
-            string strWorkArea= dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+            //string strWorkArea= dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
 
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 int num = 0;
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea,ref num);
-                DataTable dt_heji = fs0501_Logic.Search_heji(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea, ref num);
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,ref num);
+                DataTable dt_heji = fs0501_Logic.Search_heji(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, ref num);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dExpectTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dOpenTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
@@ -143,7 +143,7 @@ namespace SPPSApi.Controllers.G05
                 string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
                 string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
                 string strOperState = dataForm.OperateState == null ? "" : dataForm.OperateState;
-                string strWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+                //string strWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
@@ -171,10 +171,10 @@ namespace SPPSApi.Controllers.G05
                 }
                 else//按检索条件
                 {
-                    if (fs0501_Logic.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea, ref strMsg))
+                    if (fs0501_Logic.IsDQR(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, ref strMsg))
                     {//全是可操作的数据
                         //执行提交操作：按检索条件提交
-                        fs0501_Logic.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,strWorkArea, loginInfo.UserId);
+                        fs0501_Logic.ok(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, loginInfo.UserId);
                     }
                     else
                     {//有不可以操作的数据
@@ -221,12 +221,12 @@ namespace SPPSApi.Controllers.G05
             string strPart_id = dataForm.Part_id == null ? "" : dataForm.Part_id;
             string strDyState = dataForm.DyState == null ? "" : dataForm.DyState;
             string strOperState = dataForm.OperateState == null ? "" : dataForm.OperateState;
-            string strWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
+            //string strWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
 
             try
             {
                 int num = 0;
-                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState, strWorkArea,ref num);
+                DataTable dt = fs0501_Logic.Search(strYearMonth, strSupplier_id, strPart_id, strDyState, strOperState,ref num);
                 string[] fields = { "vcYearMonth", "dExpectTime", "vcDyState_Name", "vcPart_id", "iQuantityPercontainer", "iCbSOQN"
                 ,"iCbSOQN1","iCbSOQN2","iTzhSOQN","iTzhSOQN1","iTzhSOQN2","dOpenTime","dSReplyTime"
                 };

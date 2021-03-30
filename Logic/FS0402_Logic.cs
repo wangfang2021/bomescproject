@@ -59,7 +59,7 @@ namespace Logic
         #endregion
 
         #region 是否为待确认
-        public bool IsDQR(string strYearMonth, string strDyState, string strHyState, string strPart_id, ref string strMsg)
+        public bool IsDQR(string strYearMonth, string strDyState, string strHyState, string strPart_id, ref string strMsg, ref DataTable dtMessage)
         {
             DataTable dt = fs0402_DataAccess.IsDQR(strYearMonth, strDyState, strHyState, strPart_id);
             if (dt.Rows.Count == 0)
@@ -69,6 +69,9 @@ namespace Logic
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = dt.Rows[i]["vcPart_id"].ToString() + "      不是待确认状态" ;
+                    dtMessage.Rows.Add(dataRow);
                 }
                 strMsg = strMsg.Substring(0, strMsg.Length - 1);
                 return false;
@@ -78,7 +81,7 @@ namespace Logic
         #endregion
 
         #region 是否为待确认
-        public bool IsDQR(string strYearMonth, List<Dictionary<string, Object>> listInfoData, ref string strMsg)
+        public bool IsDQR(string strYearMonth, List<Dictionary<string, Object>> listInfoData, ref string strMsg, ref DataTable dtMessage)
         {
             DataTable dt = fs0402_DataAccess.IsDQR(strYearMonth, listInfoData);
             if (dt.Rows.Count == 0)
@@ -88,6 +91,9 @@ namespace Logic
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     strMsg += dt.Rows[i]["vcPart_id"].ToString() + "/";
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = dt.Rows[i]["vcPart_id"].ToString() + "      不是待确认状态";
+                    dtMessage.Rows.Add(dataRow);
                 }
                 strMsg = strMsg.Substring(0, strMsg.Length - 1);
                 return false;
@@ -173,10 +179,22 @@ namespace Logic
                     sheet = workbook.GetSheetAt(0);
                 }
 
+                if (workbook.NumberOfSheets != 1)
+                {
+                    RetMsg = "只能存在一个sheet";
+                    return null;
+                }
+
                 if (sheet != null)
                 {
                     IRow firstRow = sheet.GetRow(0);
                     int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+
+                    if(cellCount!=4)
+                    {
+                        RetMsg = "只能有4列";
+                        return null;
+                    }
 
                     //对应索引
                     for (int i = 0; i < Header.GetLength(1); i++)
@@ -350,15 +368,41 @@ namespace Logic
                 }
 
                 ISheet sheet = hssfworkbook.GetSheetAt(0);
-
+                ICellStyle style = hssfworkbook.CreateCellStyle();
+                style.Alignment = HorizontalAlignment.Center;
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     IRow row = sheet.CreateRow(startRow + i);
                     for (int j = 0; j < field.Length; j++)
                     {
+                        Type type = dt.Columns[field[j]].DataType;
                         ICell cell = row.CreateCell(j);
-                        cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        if (type == Type.GetType("System.Decimal"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToDouble(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int32"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt32(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int16"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt16(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else if (type == Type.GetType("System.Int64"))
+                        {
+                            if (dt.Rows[i][field[j]].ToString().Trim() != "")
+                                cell.SetCellValue(Convert.ToInt64(dt.Rows[i][field[j]].ToString()));
+                        }
+                        else
+                        {
+                            cell.SetCellValue(dt.Rows[i][field[j]].ToString());
+                        }
+                        cell.CellStyle = style;
                     }
                 }
 

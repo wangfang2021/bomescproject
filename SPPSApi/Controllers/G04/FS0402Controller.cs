@@ -19,7 +19,7 @@ namespace SPPSApi.Controllers.G04
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly string FunctionID = "FS0402";
         FS0402_Logic fs0402_Logic = new FS0402_Logic();
-
+        FS0603_Logic fs0603_Logic = new FS0603_Logic();
         public FS0402Controller(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
@@ -180,29 +180,32 @@ namespace SPPSApi.Controllers.G04
                 }
                 int count = 0;//影响行数，没啥用
                 string strMsg = "";
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
                 if (listInfoData.Count != 0)//选中了数据操作
                 {
-                    if(fs0402_Logic.IsDQR(strYearMonth, listInfoData,ref strMsg))
+                    if(fs0402_Logic.IsDQR(strYearMonth, listInfoData,ref strMsg, ref dtMessage))
                     {//全是待确认的
                         count = fs0402_Logic.ok(strYearMonth, listInfoData, loginInfo.UserId);
                     }
                     else
                     {//有不是待确认的数据
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不是待确认状态："+strMsg;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
                 else//按检索条件
                 {
-                    if (fs0402_Logic.IsDQR(strYearMonth, strDyState, strHyState, strPart_id, ref strMsg))
+                    if (fs0402_Logic.IsDQR(strYearMonth, strDyState, strHyState, strPart_id, ref strMsg, ref dtMessage))
                     {//全是待确认的
                         count = fs0402_Logic.ok(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
                     }
                     else 
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不是待确认状态：" + strMsg;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
@@ -257,29 +260,32 @@ namespace SPPSApi.Controllers.G04
 
                 int count = 0;//影响行数，没啥用
                 string strMsg = "";
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
                 if (listInfoData.Count != 0)//选中了数据操作
                 {
-                    if (fs0402_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg))
+                    if (fs0402_Logic.IsDQR(strYearMonth, listInfoData, ref strMsg, ref dtMessage))
                     {//全是待确认的
                         count = fs0402_Logic.ng(strYearMonth, listInfoData, loginInfo.UserId);
                     }
                     else
                     {//有不是待确认的数据
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不是待确认状态：" + strMsg;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
                 else//按检索条件
                 {
-                    if (fs0402_Logic.IsDQR(strYearMonth, strDyState, strHyState, strPart_id, ref strMsg))
+                    if (fs0402_Logic.IsDQR(strYearMonth, strDyState, strHyState, strPart_id, ref strMsg, ref dtMessage))
                     {//全是待确认的
                         count = fs0402_Logic.ng(strYearMonth, strDyState, strHyState, strPart_id, loginInfo.UserId);
                     }
                     else
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "以下品番不是待确认状态：" + strMsg;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

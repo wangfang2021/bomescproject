@@ -643,12 +643,12 @@ namespace DataAccess
                 //tKanbanPrintTbl增加了vcAB01列，对应参数vcPlanProductionAB(Fron/To) - 20181007 李兴旺
                 sbSQL.AppendLine("SELECT t1.vcPlanMonth as vcMonth, ");//对象月
                 sbSQL.AppendLine("       t2.vcPorType as vcGC, ");//部署
-                sbSQL.AppendLine("       t2.vcPartPlant as vcPlant, ");//工厂
-                sbSQL.AppendLine("       t2.iQuantityPerContainer as vcQuantityPerContainer, ");//收容数
+                sbSQL.AppendLine("       convert(int,t2.vcPartPlant) as vcPlant, ");//工厂
+                sbSQL.AppendLine("       convert(int,t2.iQuantityPerContainer) as vcQuantityPerContainer, ");//收容数
                 sbSQL.AppendLine("       t1.iNo as iNo, ");//ino
                 sbSQL.AppendLine("       t1.vcPartsNo as vcPartNo, ");//品番
                 sbSQL.AppendLine("       t1.vcDock as vcDock, ");//受入（有检索但没显示）
-                sbSQL.AppendLine("       t1.vcKBorderno as vcOrderNo, ");//订单号
+                sbSQL.AppendLine("       convert(int,t1.vcKBorderno) as vcOrderNo, ");//订单号
                 sbSQL.AppendLine("       t1.vcKBSerial as vcSerial, ");//连番
                 sbSQL.AppendLine("       t1.vcComDate00 as vcPlanPrintDate, ");//计划打印日期
                 //sbSQL.AppendLine("       t1.vcBanZhi00 as vcPlanPrintBZ, ");//打印班值

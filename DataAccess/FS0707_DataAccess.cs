@@ -319,7 +319,7 @@ namespace DataAccess
                         break;
                 }
 
-                string Name = strBegin + "-" + strFromBeginBZ + " " + strEnd + "-" + strFromEndBZ + " " + strKind;
+                string Name = strBegin + "/" + strFromBeginBZ + " " + strEnd + "/" + strFromEndBZ + " " + strKind;
                 sql.AppendLine("     delete from  TPackWeekInfo     \n");
                 sql.AppendLine("     INSERT INTO [dbo].[TPackSearch]       \n");
                 sql.AppendLine("                ([vcSupplier]       \n");

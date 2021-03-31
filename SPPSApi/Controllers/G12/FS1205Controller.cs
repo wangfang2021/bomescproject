@@ -617,7 +617,7 @@ namespace SPPSApi.Controllers.G12
                             case "3": name = "8"; break;
                         }
                         string CSVName = "EMERGENCY_" + name + "_" + vcMonth.Replace("-", "") + "_" + vcWeek + "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                        string path = System.IO.Directory.GetCurrentDirectory() + "\\Doc\\Export\\" + CSVName + ".csv";
+                        string path = Directory.GetCurrentDirectory() + "\\Doc\\Export\\" + CSVName + ".csv";
                         string pathupdate = CSVName + ".csv";
                         //生成CSV文件
                         System.IO.File.WriteAllText(path, sb.ToString());

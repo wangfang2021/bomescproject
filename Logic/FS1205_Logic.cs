@@ -432,7 +432,8 @@ namespace Logic
                 InitCSVDataTable(dtCSV);//初始化CSV信息表
                 DataTable dtPercentage = fs0610_DataAccess.getWeekLevelPercentage(strMonth, strWeek, strPlant);//获取周计划变动幅度管理表信息
                 DataTable dtSchedule = fs0610_DataAccess.getWeekLevelSchedule(strMonth, strWeek, strPlant);//获取周度订单平准化管理表信息
-                DataTable dtWeekPackPlan = fs0610_DataAccess.getWeekPackPlan(strMonth, strPlant);//获取周度包装计划管理表信息
+                //DataTable dtWeekPackPlan = fs0610_DataAccess.getWeekPackPlan(strMonth, strPlant);//获取周度包装计划管理表信息 （弃用）
+                DataTable dtWeekPackPlan = fs0610_DataAccess.getWeekPackPlan_Sum(strMonth, strPlant);//获取周度包装计划管理表信息
                 if (dtPercentage.Rows.Count <= 0)
                 {
                     msg = "对象月为" + strMonth + "，第" + strWeek + "周的厂区为" + strPlant + "的周计划变动幅度管理表信息不存在！";
@@ -492,24 +493,49 @@ namespace Logic
                         //添加行信息
 
                         DataRow dr = dtCSV.NewRow();
-                        //更新日别部分
-                        for (int k = 0; k < _Week.Length; k = k + 2)
+                        List<string> li = new List<string>();
+                        for (int k = 0; k < _Week.Length; k++)
                         {
-                            //空数据置0（白班夜班都要算）
-
-                            if (dtRow.Rows[0][_Week[k]].ToString() == string.Empty)//白班
+                            if (!li.Contains(_Week[k].Substring(0, _Week[k].Length - 1)))
                             {
-                                dtRow.Rows[0][_Week[k]] = "0";
+                                li.Add(_Week[k].Substring(0, _Week[k].Length - 1));
                             }
-                            if (dtRow.Rows[0][_Week[k + 1]].ToString() == string.Empty)//夜班
-                            {
-                                dtRow.Rows[0][_Week[k + 1]] = "0";
-                            }
-                            string Item = (Convert.ToInt32(dtRow.Rows[0][_Week[k]].ToString()) + Convert.ToInt32(dtRow.Rows[0][_Week[k + 1]].ToString())).ToString();//日别的数值是白班与夜班的和
+                        }
 
-                            string ItemName = _Week[k].Substring(0, _Week[k].Length - 1);
+                        //更新日别部分
+                        for (int k = 0; k < li.Count; k++)
+                        {
+                            string Item = (Convert.ToInt32(dtRow.Rows[0][li[k]].ToString())).ToString();
+                            string ItemName = li[k];
                             dr[ItemName] = Item;
                         }
+
+                        #region 老逻辑
+                        //for (int k = 0; k < _Week.Length; k = k + 2)
+                        //{
+                        //    //空数据置0（白班夜班都要算）
+                        //    if (dtRow.Rows[0][_Week[k]].ToString() == string.Empty)//白班
+                        //    {
+                        //        dtRow.Rows[0][_Week[k]] = "0";
+                        //    }
+                        //    if (k + 1 == _Week.Length)
+                        //    {
+                        //        string Item = Convert.ToInt32(dtRow.Rows[0][_Week[k]]).ToString();//日别的数值是白班与夜班的和
+                        //        string ItemName = _Week[k].Substring(0, _Week[k].Length - 1);
+                        //        dr[ItemName] = Item;
+                        //    }
+                        //    else
+                        //    {
+                        //        if (dtRow.Rows[0][_Week[k + 1]].ToString() == string.Empty)//夜班
+                        //        {
+                        //            dtRow.Rows[0][_Week[k + 1]] = "0";
+                        //        }
+                        //        string Item = (Convert.ToInt32(dtRow.Rows[0][_Week[k]].ToString()) + Convert.ToInt32(dtRow.Rows[0][_Week[k + 1]].ToString())).ToString();//日别的数值是白班与夜班的和
+                        //        string ItemName = _Week[k].Substring(0, _Week[k].Length - 1);
+                        //        dr[ItemName] = Item;
+                        //    }
+                        //}
+                        #endregion
                         //日别部分数据格式化
 
                         for (int j = 8; j < dr.ItemArray.Length; j++)
@@ -4134,7 +4160,7 @@ namespace Logic
                     string zhi01 = vcBanZhi01 == "白" ? "0" : "1";
                     //2018-2-26 Malcolm.L 刘刚 获取工程1的A/B班值
 
-                    string vcAB01 =  ICalendar2.getABClass(vcComDate01, zhi01, plant, dt_calendarname.Rows[0]["vcCalendar1"].ToString().Trim());
+                    string vcAB01 = ICalendar2.getABClass(vcComDate01, zhi01, plant, dt_calendarname.Rows[0]["vcCalendar1"].ToString().Trim());
                     string by1 = vcBanZhi01 == "白" ? "01" : "02";
                     string vcProject01 = dt_calendarname.Rows[0]["vcProName1"].ToString();
                     //pro2
@@ -4155,7 +4181,7 @@ namespace Logic
                         zhi02 = vcBanZhi02 == "白" ? "0" : "1";
                         //2018-2-26 Malcolm.L 刘刚 获取工程2的A/B班值
 
-                        vcAB02 =  ICalendar2.getABClass(vcComDate02, zhi02, plant, dt_calendarname.Rows[0]["vcCalendar2"].ToString().Trim());
+                        vcAB02 = ICalendar2.getABClass(vcComDate02, zhi02, plant, dt_calendarname.Rows[0]["vcCalendar2"].ToString().Trim());
                         by2 = vcBanZhi02 == "白" ? "01" : "02";
                         vcProject02 = dt_calendarname.Rows[0]["vcProName2"].ToString();
                     }
@@ -4188,7 +4214,7 @@ namespace Logic
                     string zhi04 = vcBanZhi04 == "白" ? "0" : "1";
                     //2018-2-26 Malcolm.L 刘刚 获取工程0的A/B班值
 
-                    string vcAB04 =  ICalendar2.getABClass(vcComDate04, zhi04, plant, dt_calendarname.Rows[0]["vcCalendar4"].ToString().Trim());
+                    string vcAB04 = ICalendar2.getABClass(vcComDate04, zhi04, plant, dt_calendarname.Rows[0]["vcCalendar4"].ToString().Trim());
                     string by04 = vcBanZhi04 == "白" ? "01" : "02";
                     string vcProject04 = dt_calendarname.Rows[0]["vcProName4"].ToString();
                     for (int n = 0; n < k; n++)

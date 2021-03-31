@@ -222,6 +222,51 @@ namespace DataAccess
             }
             return dt;
         }
+
+        public DataTable getWeekPackPlan_Sum(string strMonth, string strPlant) //wlw
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
+            sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
+            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD3b,0)+isnull(vcD6y,0) as vcD6, \r\n");
+            sb.Append("isnull(vcD7b,0)+isnull(vcD7y,0) as vcD7,isnull(vcD8b,0)+isnull(vcD8y,0) as vcD8,isnull(vcD9b,0)+isnull(vcD9y,0) as vcD9, \r\n");
+            sb.Append("isnull(vcD10b,0)+isnull(vcD10y,0) as vcD10,isnull(vcD11b,0)+isnull(vcD11y,0) as vcD11,isnull(vcD12b,0)+isnull(vcD12y,0) as vcD12, \r\n");
+            sb.Append("isnull(vcD13b,0)+isnull(vcD13y,0) as vcD13,isnull(vcD14b,0)+isnull(vcD14y,0) as vcD14,isnull(vcD15b,0)+isnull(vcD15y,0) as vcD15, \r\n");
+            sb.Append("isnull(vcD16b,0)+isnull(vcD16y,0) as vcD16,isnull(vcD17b,0)+isnull(vcD17y,0) as vcD17,isnull(vcD18b,0)+isnull(vcD18y,0) as vcD18, \r\n");
+            sb.Append("isnull(vcD19b,0)+isnull(vcD19y,0) as vcD19,isnull(vcD20b,0)+isnull(vcD20y,0) as vcD20,isnull(vcD21b,0)+isnull(vcD21y,0) as vcD21, \r\n");
+            sb.Append("isnull(vcD22b,0)+isnull(vcD22y,0) as vcD22,isnull(vcD23b,0)+isnull(vcD23y,0) as vcD23,isnull(vcD24b,0)+isnull(vcD24y,0) as vcD24, \r\n");
+            sb.Append("isnull(vcD25b,0)+isnull(vcD25y,0) as vcD25,isnull(vcD26b,0)+isnull(vcD26y,0) as vcD26,isnull(vcD27b,0)+isnull(vcD27y,0) as vcD27, \r\n");
+            sb.Append("isnull(vcD28b,0)+isnull(vcD28y,0) as vcD28,isnull(vcD29b,0)+isnull(vcD29y,0) as vcD29,isnull(vcD30b,0)+isnull(vcD30y,0) as vcD30, \r\n");
+            sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
+            sb.Append("where vcMonth='" + strMonth + "' and (vcMonTotal<>'' or vcMonTotal is not null) and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
+            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')   \r\n");
+            sb.Append("union all  \r\n");
+            sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
+            sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
+            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD3b,0)+isnull(vcD6y,0) as vcD6, \r\n");
+            sb.Append("isnull(vcD7b,0)+isnull(vcD7y,0) as vcD7,isnull(vcD8b,0)+isnull(vcD8y,0) as vcD8,isnull(vcD9b,0)+isnull(vcD9y,0) as vcD9, \r\n");
+            sb.Append("isnull(vcD10b,0)+isnull(vcD10y,0) as vcD10,isnull(vcD11b,0)+isnull(vcD11y,0) as vcD11,isnull(vcD12b,0)+isnull(vcD12y,0) as vcD12, \r\n");
+            sb.Append("isnull(vcD13b,0)+isnull(vcD13y,0) as vcD13,isnull(vcD14b,0)+isnull(vcD14y,0) as vcD14,isnull(vcD15b,0)+isnull(vcD15y,0) as vcD15, \r\n");
+            sb.Append("isnull(vcD16b,0)+isnull(vcD16y,0) as vcD16,isnull(vcD17b,0)+isnull(vcD17y,0) as vcD17,isnull(vcD18b,0)+isnull(vcD18y,0) as vcD18, \r\n");
+            sb.Append("isnull(vcD19b,0)+isnull(vcD19y,0) as vcD19,isnull(vcD20b,0)+isnull(vcD20y,0) as vcD20,isnull(vcD21b,0)+isnull(vcD21y,0) as vcD21, \r\n");
+            sb.Append("isnull(vcD22b,0)+isnull(vcD22y,0) as vcD22,isnull(vcD23b,0)+isnull(vcD23y,0) as vcD23,isnull(vcD24b,0)+isnull(vcD24y,0) as vcD24, \r\n");
+            sb.Append("isnull(vcD25b,0)+isnull(vcD25y,0) as vcD25,isnull(vcD26b,0)+isnull(vcD26y,0) as vcD26,isnull(vcD27b,0)+isnull(vcD27y,0) as vcD27, \r\n");
+            sb.Append("isnull(vcD28b,0)+isnull(vcD28y,0) as vcD28,isnull(vcD29b,0)+isnull(vcD29y,0) as vcD29,isnull(vcD30b,0)+isnull(vcD30y,0) as vcD30, \r\n");
+            sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
+            sb.Append("where montouch='" + strMonth + "' and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
+            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno  and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')  \r\n");
+            DataTable dt;
+            try
+            {
+               dt = excute.ExcuteSqlWithSelectToDT(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+
         #endregion
 
         #region 日程别更新

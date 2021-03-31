@@ -387,15 +387,22 @@ namespace DataAccess
                     sb.Append("vcPlantQtyDaily14, vcPlantQtyDaily15, vcPlantQtyDaily16, vcPlantQtyDaily17, vcPlantQtyDaily18, vcPlantQtyDaily19, \r\n");
                     sb.Append("vcPlantQtyDaily20, vcPlantQtyDaily21, vcPlantQtyDaily22, vcPlantQtyDaily23, vcPlantQtyDaily24, vcPlantQtyDaily25,  \r\n");
                     sb.Append("vcPlantQtyDaily26, vcPlantQtyDaily27, vcPlantQtyDaily28, vcPlantQtyDaily29, vcPlantQtyDaily30, vcPlantQtyDaily31,  \r\n");
-                    sb.Append("vcTargetMonthFlag, vcOperatorID, dOperatorTime) \r\n");
+                    sb.Append("vcTargetMonthFlag, vcTargetMonthLast,  \r\n");
+                    sb.Append("vcPlantQtyDailySum, vcInputQtyDailySum, vcResultQtyDailySum, vcOperatorID, dOperatorTime) \r\n");
                     sb.Append("values('" + vcPackPlant + "','" + dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "','" + dt.Rows[i]["vcDock"].ToString() + "','" + dt.Rows[i]["vcCSVCpdCompany"].ToString() + "','W','" + dt.Rows[i]["vcOrderNo"].ToString() + "','" + dt.Rows[i]["vcCSVItemNo"].ToString() + "', \r\n");
-                    sb.Append("'" + dt.Rows[i]["vcCSVOrderDate"].ToString() + "','','" + dt.Rows[i]["vcPartsno"].ToString() + "','0','" + dt.Rows[i]["vcCSVCarFamilyCode"].ToString() + "','','','" + dt.Rows[i]["vcSupplier_id"].ToString() + "','', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcCSVOrderDate"].ToString() + "',getdate(),'" + dt.Rows[i]["vcPartsno"].ToString() + "','0','" + dt.Rows[i]["vcCSVCarFamilyCode"].ToString() + "','','" + getPackSpot(dt.Rows[i]["vcPartsno"].ToString(), dt.Rows[i]["vcCSVCpdCompany"].ToString(), dt.Rows[i]["vcSupplier_id"].ToString(), vcPackPlant) + "','" + dt.Rows[i]["vcSupplier_id"].ToString() + "','', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD1"] + "','" + dt.Rows[i]["vcD2"] + "','" + dt.Rows[i]["vcD3"] + "','" + dt.Rows[i]["vcD4"] + "','" + dt.Rows[i]["vcD5"] + "','" + dt.Rows[i]["vcD6"] + "','" + dt.Rows[i]["vcD7"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD8"] + "','" + dt.Rows[i]["vcD9"] + "','" + dt.Rows[i]["vcD10"] + "','" + dt.Rows[i]["vcD11"] + "','" + dt.Rows[i]["vcD12"] + "','" + dt.Rows[i]["vcD13"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD14"] + "','" + dt.Rows[i]["vcD15"] + "','" + dt.Rows[i]["vcD16"] + "','" + dt.Rows[i]["vcD17"] + "','" + dt.Rows[i]["vcD18"] + "','" + dt.Rows[i]["vcD19"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD20"] + "','" + dt.Rows[i]["vcD21"] + "','" + dt.Rows[i]["vcD22"] + "','" + dt.Rows[i]["vcD23"] + "','" + dt.Rows[i]["vcD24"] + "','" + dt.Rows[i]["vcD25"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD26"] + "','" + dt.Rows[i]["vcD27"] + "','" + dt.Rows[i]["vcD28"] + "','" + dt.Rows[i]["vcD29"] + "','" + dt.Rows[i]["vcD30"] + "','" + dt.Rows[i]["vcD31"] + "', \r\n");
-                    sb.Append("'0','" + vcUserId + "',getdate()); \r\n");
+                    sb.Append("'',DATEADD(MS,-3,DATEADD(MM, DATEDIFF(m,0,GETDATE())+1, 0)), \r\n");
+                    int iInputQtyDailySum = 0;
+                    for (int j = 1; j <= 31; j++)
+                    {
+                        iInputQtyDailySum += int.Parse(dt.Rows[i]["vcD" + j].ToString());
+                    }
+                    sb.Append("" + iInputQtyDailySum + ",0,0,'" + vcUserId + "',getdate()); \r\n");
                 }
                 SqlCommand cmd = new SqlCommand(sb.ToString(), conn, trans);
                 try
@@ -404,7 +411,7 @@ namespace DataAccess
                     trans.Commit();
                     return "";
                 }
-                catch
+                catch (Exception ex)
                 {
                     trans.Rollback();
                     return "订单生成失败！";
@@ -451,5 +458,25 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+        #region 获取包装厂
+        public string getPackSpot(string vcPart_id, string vcReceiver, string vcSupplierId, string vcPackingPlant)
+        {
+            try
+            {
+                string sql = "SELECT vcBZPlant FROM TPackageMaster where vcPart_id='" + vcPart_id + "' and vcReceiver='" + vcReceiver + "' and vcSupplierId='" + vcSupplierId + "' and vcPackingPlant='" + vcPackingPlant + "';";
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sql);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0][0].ToString();
+                }
+                return "";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
     }
 }

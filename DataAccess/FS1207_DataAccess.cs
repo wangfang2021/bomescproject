@@ -213,20 +213,82 @@ namespace DataAccess
         }
         public void InsertSSP(SqlCommand cmd, string mon, string user)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Length = 0;
-            sb.AppendLine(" insert into tSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate) ");
-            sb.AppendFormat(" 	 select '{0}' as vcMonth,vcPartsNo,SUM(Total) AS Total, 0 as iXZNum,0 as iFZNum,0 as iCO,0 as iCONum, '0' as iFZFlg,\r\n", mon);
-            sb.AppendFormat(" 	 '{0}' as Creater, GETDATE() as dCreateDate from (SELECT * FROM \r\n", user);//201903插入者修改为导入者，之前写为admin了
-            sb.AppendFormat(" 	(select vcPartsNo,Total,vcSource,vcDock from tResult where vcMonth='{0}')t1\r\n", mon);
-            sb.AppendLine("	 inner join \r\n");
-            sb.AppendLine("	(select vcData1,vcData2 from ConstMst where vcDataId='vcDockPj' and vcData6='0' and vcData3='SSP构成')t2\r\n");
-            sb.AppendLine("	on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2\r\n");
-            sb.AppendLine("	)A\r\n");
-            sb.AppendLine("	group by vcPartsNo ");
-            cmd.CommandText = sb.ToString();
-            cmd.ExecuteNonQuery();
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                //sb.AppendLine(" insert into tSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate) ");
+                sb.AppendFormat("select '{0}' as vcMonth, vcPartsNo, SUM(Total) AS Total, 0 as iXZNum, 0 as iFZNum,0 as iCO, 0 as iCONum, '0' as iFZFlg, \r\n", mon);
+                sb.AppendFormat(" 	 '{0}' as Creater, GETDATE() as dCreateDate from (SELECT * FROM \r\n", user);//201903插入者修改为导入者，之前写为admin了
+                sb.AppendFormat(" 	(select vcPartsNo, Total, vcSource, vcDock from tResult where vcMonth='{0}') t1 \r\n", mon);
+                sb.AppendLine("	 inner join \r\n");
+                sb.AppendLine("	(select vcData1, vcData2 from ConstMst where vcDataId='vcDockPj' and vcData6='0' and vcData3='SSP构成') t2 \r\n");
+                sb.AppendLine("	on t1.vcSource=t2.vcData1 and t1.vcDock=t2.vcData2 \r\n");
+                sb.AppendLine("	) A \r\n");
+                sb.AppendLine("	group by vcPartsNo \r\n");
+                cmd.CommandText = sb.ToString();
+                SqlDataAdapter da1 = new SqlDataAdapter();
+                da1.SelectCommand = cmd;
+                DataTable dt = new DataTable();
+                da1.Fill(dt);
+
+                StringBuilder ssql = new StringBuilder();
+                ssql.AppendLine(" select t1.vcPartsNo, vcPartsNoFZ, vcSource, vcFactory, vcBF, convert(int,iSRNum) iSRNum, \r\n");
+                ssql.AppendLine("isnull(t2.iCO,0) as iCO, isnull(t2.iCONum,0) as iCONum, '0' as iFlag, '0' as vcModFlag, '0' as vcAddFlag, iAutoId from tSSPMaster t1 \r\n");
+                ssql.AppendLine(" left join ( \r\n");
+                ssql.AppendLine("		select C.vcPartsNo, C.iCO, C.iCONum from tSSP C \r\n");
+                ssql.AppendLine("		inner join (	\r\n");
+                ssql.AppendLine("			select vcPartsNo, MAX(iAutoId) as iAutoId from tSSP where vcMonth<='" + mon + "' \r\n");
+                ssql.AppendLine("			group by vcPartsNo \r\n");
+                ssql.AppendLine("		) D on C.vcPartsNo=D.vcPartsNo and C.iAutoId=D.iAutoId \r\n");
+                ssql.AppendLine(") t2 \r\n");
+                ssql.AppendLine("on t1.vcPartsNo=t2.vcPartsNo \r\n");
+                cmd.CommandText = ssql.ToString();
+                SqlDataAdapter da2 = new SqlDataAdapter();
+                da2.SelectCommand = cmd;
+                DataTable dt_SSPMaster = new DataTable();
+                da2.Fill(dt_SSPMaster);
+
+
+                StringBuilder sb_insert = new StringBuilder();
+                foreach (DataRow r1 in dt.Rows)
+                {
+                    int iCO = 0;
+                    int iCONum = 0;
+                    int iFZNum = 0;
+                    foreach (DataRow r2 in dt_SSPMaster.Rows)
+                    {
+                        if (r1["vcPartsNo"].ToString() == r2["vcPartsNo"].ToString())
+                        {
+                            if (Convert.ToInt32(r1["Total"]) - Convert.ToInt32(r2["iCONum"]) > 0)
+                            {
+                                int shengyu = (Convert.ToInt32(r1["Total"]) - Convert.ToInt32(r2["iCONum"])) % Convert.ToInt32(r2["iSRNum"]);
+                                if (shengyu > 0)
+                                {
+                                    iFZNum = ((Convert.ToInt32(r1["Total"]) - Convert.ToInt32(r2["iCONum"])) / Convert.ToInt32(r2["iSRNum"]) + 1) * Convert.ToInt32(r2["iSRNum"]);
+                                }
+                                else
+                                {
+                                    iFZNum = (Convert.ToInt32(r1["Total"]) - Convert.ToInt32(r2["iCONum"])) / Convert.ToInt32(r2["iSRNum"]) * Convert.ToInt32(r2["iSRNum"]);
+                                }
+                            }
+                            iCO = int.Parse(r2["iCONum"].ToString());
+                            iCONum = iCO + iFZNum - Convert.ToInt32(r1["Total"]);
+                        }
+
+                    }
+                    sb_insert.Append("insert into tSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate) ");
+                    sb_insert.Append("values( ");
+                    sb_insert.Append("'" + r1["vcMonth"] + "', '" + r1["vcPartsNo"] + "', " + r1["Total"] + ", 0, " + iFZNum + ", " + iCO + "," + iCONum + ",'0','" + user + "',getdate());");
+                }
+                cmd.CommandText = sb_insert.ToString();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
 
         #region  发注计算 检索
         //检索
@@ -268,7 +330,7 @@ namespace DataAccess
                 {
                     str += " and A.vcPartsNo like '" + partsno + "%' ";
                 }
-                str += "order by A.vcMonth,A.vcPartsNo";
+                str += "order by A.vcPartsNo, iAutoId";
                 return excute.ExcuteSqlWithSelectToDT(str.ToString());
             }
             catch (Exception ex)
@@ -292,7 +354,7 @@ namespace DataAccess
             {
                 str += "AND t1.vcPartsNo like '" + partsno + "%'									";
             }
-            str += "order by vcMonth,t1.vcPartsNo";
+            str += "order by t1.vcPartsNo,t1.iAutoId";
             return excute.ExcuteSqlWithSelectToDT(str.ToString());
         }
         //发注品番Master中不存在的品番

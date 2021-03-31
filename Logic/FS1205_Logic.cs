@@ -528,7 +528,8 @@ namespace Logic
                         dr["vcPartsno"] = dtPercentage.Rows[i]["vcPartsno"];
                         dr["vcCSVCarFamilyCode"] = dtPercentage.Rows[i]["vcCSVCarFamilyCode"];
                         dr["vcCSVCpdCompany"] = dtPercentage.Rows[i]["vcCSVCpdCompany"];
-                        dr["vcSupplier_id"] = dtRow.Rows[0]["vcSupplier_id"];           
+                        dr["vcSupplier_id"] = dtRow.Rows[0]["vcSupplier_id"];
+                        dr["vcDock"] = dtRow.Rows[0]["vcDock"];
                         dtCSV.Rows.Add(dr);
                         #endregion
                     }
@@ -593,6 +594,7 @@ namespace Logic
             dt.Columns.Add("vcD30");
             dt.Columns.Add("vcD31");
             dt.Columns.Add("vcSupplier_id");
+            dt.Columns.Add("vcDock");
         }
         #endregion
 
@@ -5074,9 +5076,9 @@ namespace Logic
         #endregion
 
         #region 生成订单，插入订单表
-        public string InsertOrder(DataTable dt, string vcUserId)
+        public string InsertOrder(DataTable dt, string vcUserId, string vcPackPlant)
         {
-            return fs0610_DataAccess.InsertOrder(dt, vcUserId);
+            return fs0610_DataAccess.InsertOrder(dt, vcUserId, vcPackPlant);
         }
         #endregion
 

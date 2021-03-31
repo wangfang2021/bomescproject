@@ -366,7 +366,7 @@ namespace DataAccess
 
 
         #region 生成订单，插入订单表
-        public string InsertOrder(DataTable dt, string vcUserId)
+        public string InsertOrder(DataTable dt, string vcUserId, string vcPackPlant)
         {
             using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
             {
@@ -388,7 +388,7 @@ namespace DataAccess
                     sb.Append("vcPlantQtyDaily20, vcPlantQtyDaily21, vcPlantQtyDaily22, vcPlantQtyDaily23, vcPlantQtyDaily24, vcPlantQtyDaily25,  \r\n");
                     sb.Append("vcPlantQtyDaily26, vcPlantQtyDaily27, vcPlantQtyDaily28, vcPlantQtyDaily29, vcPlantQtyDaily30, vcPlantQtyDaily31,  \r\n");
                     sb.Append("vcTargetMonthFlag, vcOperatorID, dOperatorTime) \r\n");
-                    sb.Append("values('','" + dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "','','" + dt.Rows[i]["vcCSVCpdCompany"].ToString() + "','W','" + dt.Rows[i]["vcOrderNo"].ToString() + "','" + dt.Rows[i]["vcCSVItemNo"].ToString() + "', \r\n");
+                    sb.Append("values('" + vcPackPlant + "','" + dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "','" + dt.Rows[i]["vcDock"].ToString() + "','" + dt.Rows[i]["vcCSVCpdCompany"].ToString() + "','W','" + dt.Rows[i]["vcOrderNo"].ToString() + "','" + dt.Rows[i]["vcCSVItemNo"].ToString() + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcCSVOrderDate"].ToString() + "','','" + dt.Rows[i]["vcPartsno"].ToString() + "','0','" + dt.Rows[i]["vcCSVCarFamilyCode"].ToString() + "','','','" + dt.Rows[i]["vcSupplier_id"].ToString() + "','', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD1"] + "','" + dt.Rows[i]["vcD2"] + "','" + dt.Rows[i]["vcD3"] + "','" + dt.Rows[i]["vcD4"] + "','" + dt.Rows[i]["vcD5"] + "','" + dt.Rows[i]["vcD6"] + "','" + dt.Rows[i]["vcD7"] + "', \r\n");
                     sb.Append("'" + dt.Rows[i]["vcD8"] + "','" + dt.Rows[i]["vcD9"] + "','" + dt.Rows[i]["vcD10"] + "','" + dt.Rows[i]["vcD11"] + "','" + dt.Rows[i]["vcD12"] + "','" + dt.Rows[i]["vcD13"] + "', \r\n");
@@ -406,7 +406,7 @@ namespace DataAccess
                 }
                 catch
                 {
-                    trans.Rollback(); 
+                    trans.Rollback();
                     return "订单生成失败！";
                 }
             }

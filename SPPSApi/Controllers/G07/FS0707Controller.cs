@@ -177,6 +177,9 @@ namespace SPPSApi.Controllers.G07
                 #region 计算开始生成结果
                 DataTable dt = FS0707_Logic.SearchCalculation(strBegin, strEnd, strProject, strKind, OrderState, OrderPartPlant);
 
+
+
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     //是否在一个月内
@@ -245,6 +248,18 @@ namespace SPPSApi.Controllers.G07
                 #endregion
                 //插入导出表
                 string strErrorName = "";
+
+                for (int s = 0; s < dt.Rows.Count; s++)
+                {
+                    if (string.IsNullOrEmpty(dt.Rows[s]["vcPackNo"].ToString())) {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = dt.Rows[s]["vcPartsno"].ToString()+ "没有维护完整！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+
                 FS0707_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorName, strBegin, strEnd);
 
                 DataTable dt2 = FS0707_Logic.Search();
@@ -316,7 +331,7 @@ namespace SPPSApi.Controllers.G07
                     {
                         count--;
                     }
-                    else if (strFromBeginBZ == "0")
+                    else if (strFromEndBZ == "0")
                     {
                         count--;
                     }
@@ -371,8 +386,8 @@ namespace SPPSApi.Controllers.G07
                 {
 
                     DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
-                    int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1)*2;
-                    int cs = Convert.ToInt32(strEnd.Split("-")[2])*2;
+                    int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
+                    int cs = Convert.ToInt32(strEnd.Split("-")[2]) * 2;
                     if (strFromBeginBZ == "1")
                     {
                         ss--;
@@ -544,7 +559,7 @@ namespace SPPSApi.Controllers.G07
                 //List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 string strErrorPartId = "";
-                FS0707_Logic.Save( loginInfo.UserId, ref strErrorPartId);
+                FS0707_Logic.Save(loginInfo.UserId, ref strErrorPartId);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

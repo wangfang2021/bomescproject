@@ -115,6 +115,7 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,[dOperatorTime]");
                 strSql_sub.AppendLine("           ,[vcTrolleyNo]");
                 strSql_sub.AppendLine("           ,[vcLotid]");
+                strSql_sub.AppendLine("           ,[vcRows]");
                 strSql_sub.AppendLine("           ,[vcPackingpartsno]");
                 strSql_sub.AppendLine("           ,[vcPackinggroup]");
                 strSql_sub.AppendLine("           ,[dQty]");
@@ -127,6 +128,7 @@ namespace DataAccess
                 strSql_sub.AppendLine("           ,GETDATE()");
                 strSql_sub.AppendLine("           ,@vcTrolleyNo");
                 strSql_sub.AppendLine("           ,@vcLotid");
+                strSql_sub.AppendLine("           ,@vcRows");
                 strSql_sub.AppendLine("           ,@vcPackingpartsno");
                 strSql_sub.AppendLine("           ,@vcPackinggroup");
                 strSql_sub.AppendLine("           ,@dQty");
@@ -137,6 +139,7 @@ namespace DataAccess
                 sqlCommand_sub.Parameters.AddWithValue("@UUID", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcTrolleyNo", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcLotid", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcRows", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcPackingpartsno", "");
                 sqlCommand_sub.Parameters.AddWithValue("@vcPackinggroup", "");
                 sqlCommand_sub.Parameters.AddWithValue("@dQty", "");
@@ -150,6 +153,7 @@ namespace DataAccess
                     sqlCommand_sub.Parameters["@UUID"].Value = item["UUID"].ToString();
                     sqlCommand_sub.Parameters["@vcTrolleyNo"].Value = item["vcTrolleyNo"].ToString();
                     sqlCommand_sub.Parameters["@vcLotid"].Value = item["vcLotid"].ToString();
+                    sqlCommand_sub.Parameters["@vcRows"].Value = item["vcRows"].ToString();
                     sqlCommand_sub.Parameters["@vcPackingpartsno"].Value = item["vcPackingpartsno"].ToString();
                     sqlCommand_sub.Parameters["@vcPackinggroup"].Value = item["vcPackinggroup"].ToString();
                     sqlCommand_sub.Parameters["@dQty"].Value = item["dQty"].ToString();

@@ -96,7 +96,7 @@ namespace DataAccess
                 strSql.AppendLine("  ,T_1.vcPart_id          ");
                 strSql.AppendLine(" ,T_2.vcPackSpot,T_2.vcSupplierCode,       ");
                 strSql.AppendLine("  T_2.vcSupplierPlant,T_2.vcSupplierName,       ");
-                strSql.AppendLine(" '' as vcSupplierPack ---供应商包装        ");
+                strSql.AppendLine("  T_2.vcPackGPSNo       ");
                 strSql.AppendLine(" ,T_2.vcPackNo ,T_2.dUsedFrom,T_2.dUsedTo           ");
                 strSql.AppendLine(" ,T_2.vcCycle,T_2.iRelease,T_1.iHySOQN,T_1.iHySOQN1,T_1.iHySOQN2,       ");
                 strSql.AppendLine("  T_1.iD1*T_1.iQuantityPercontainer as iD1,       ");
@@ -179,7 +179,7 @@ namespace DataAccess
                 strSql.AppendLine("   left join      ");
                 strSql.AppendLine("   (          ");
                 strSql.AppendLine("      select vcPartsNo,ss.vcPackSpot,ss.vcSupplierCode,ss.vcSupplierPlant,ss.vcSupplierName,      ");
-                strSql.AppendLine("  	 ss.vcPackNo,ss.vcCycle,ss.iRelease,dUsedFrom,dUsedTo        ");
+                strSql.AppendLine("  	 ss.vcPackNo,ss.vcCycle,ss.iRelease,dUsedFrom,dUsedTo,s.vcPackGPSNo       ");
                 strSql.AppendLine("  	  from       ");
                 strSql.AppendLine("  	 (      ");
                 strSql.AppendLine("       select * from TPackItem        ");
@@ -296,10 +296,10 @@ namespace DataAccess
             try
             {
                 DateTime dtn1 = DateTime.ParseExact(PackFrom.Substring(0, 7), "yyyy-MM", System.Globalization.CultureInfo.CurrentCulture);
-                string strN = dtn1.AddMonths(1).ToString("yyyyMM");
+                string strN = dtn1.AddMonths(0).ToString("yyyyMM");
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("      select         \n");
-                strSql.Append("    vcYearMonth, vcPackNo,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease         \n");
+                strSql.Append("    vcYearMonth, vcPackNo,vcPackSpot,vcPackGPSNo,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease         \n");
                 strSql.Append("    ,sum(iDayNNum)as iDayNNum,         \n");
                 strSql.Append("    sum(iDayN1Num)as iDayN1Num,         \n");
                 strSql.Append("    sum(iDayN2Num)as iDayN2Num,         \n");
@@ -342,7 +342,7 @@ namespace DataAccess
                             strSql.AppendLine("  '" + strSupplierCode[i] + "' ,   \n");
                     }
                     strSql.Append("   )       \n");
-                    strSql.Append("     group by vcPackNo, vcYearMonth, vcPackNo,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease,dZYTime        \n");
+                    strSql.Append("     group by vcPackNo, vcYearMonth, vcPackNo,vcPackGPSNo,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease,dZYTime        \n");
                 }
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -360,22 +360,21 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                for (int i = 0; i < listInfoData.Rows.Count; i++)
-                {
-                    sql.AppendLine("  delete from TPackNSCalculation where vcpart_id='" + listInfoData.Rows[i]["vcpart_id"].ToString() + "' and vcYearMonth='" + listInfoData.Rows[i]["vcYearMonth"].ToString() + "' and vcPackNo='" + listInfoData.Rows[i]["vcPackNo"].ToString() + "'  \n");
-                }
+                //for (int i = 0; i < listInfoData.Rows.Count; i++)
+                //{
+                //    sql.AppendLine("  delete from TPackNSCalculation where vcpart_id='" + listInfoData.Rows[i]["vcpart_id"].ToString() + "' and vcYearMonth='" + listInfoData.Rows[i]["vcYearMonth"].ToString() + "' and vcPackNo='" + listInfoData.Rows[i]["vcPackNo"].ToString() + "'  \n");
+                //}
                 for (int i = 0; i < listInfoData.Rows.Count; i++)
                 {
                     sql.AppendLine("  INSERT INTO [dbo].[TPackNSCalculation]    \n");
                     sql.AppendLine("             (   \n");
                     sql.AppendLine("              [vcYearMonth]    \n");
-                    sql.AppendLine("             ,[vcPackNo]    \n");
+                    sql.AppendLine("             ,[vcPackNo] ,vcPackGPSNo   \n");
                     sql.AppendLine("             ,[vcpart_id]    \n");
                     sql.AppendLine("             ,[vcPackSpot]    \n");
                     sql.AppendLine("             ,[vcSupplierCode]    \n");
                     sql.AppendLine("             ,[vcSupplierWork]    \n");
                     sql.AppendLine("             ,[vcSupplierName]    \n");
-                    sql.AppendLine("             ,[vcSupplierPack]    \n");
                     sql.AppendLine("             ,[vcCycle]    \n");
                     sql.AppendLine("             ,[iRelease]    \n");
                     sql.AppendLine("             ,[iDayNNum]    \n");
@@ -421,12 +420,12 @@ namespace DataAccess
                     sql.AppendLine("    (  \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcYearMonth"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcPackNo"].ToString() + "',    \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcPackGPSNo"].ToString() + "',    \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcPart_id"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcPackSpot"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierCode"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierPlant"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierName"].ToString() + "',   \n");
-                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierPack"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["vcCycle"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iRelease"].ToString() + "',   \n");
                     sql.AppendLine("   '" + listInfoData.Rows[i]["iHySOQN"].ToString() + "',   \n");
@@ -529,9 +528,10 @@ namespace DataAccess
 
                     }
                 }
-                else { 
-                
-                
+                else
+                {
+
+
                 }
 
 

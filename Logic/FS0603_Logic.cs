@@ -1372,6 +1372,15 @@ namespace Logic
                     dataRow_History["error"] = "";
                     dtOperHistory.Rows.Add(dataRow_History);
                     #endregion
+
+                    #region 判断是否有变更
+                    if (dtOperHistory.Select("vcPackingPlant='"+ strPackingPlant + "' and vcPartId='"+ strPartId + "' and vcReceiver='"+ strReceiver + "' and vcSupplierId='"+ strSupplierId + "'").Length==0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报品番没有变更情报", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    #endregion
                 }
                 if (strType == "修改")
                 {
@@ -2133,6 +2142,15 @@ namespace Logic
                         #endregion
                     }
                     #endregion
+
+                    #region 判断是否有变更
+                    if (dtOperHistory.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'").Length == 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报品番没有变更情报", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    #endregion
                 }
                 if (strType == "删除")
                 {
@@ -2148,6 +2166,7 @@ namespace Logic
                     dataRow_del["vcSupplierId"] = strSupplierId;
                     dtDelInfo.Rows.Add(dataRow_del);
                     #endregion
+
                     #region HistoryNewRow
                     DataRow dataRow_History = dtOperHistory.NewRow();
                     dataRow_History["vcPackingPlant"] = dtImport.Rows[i]["vcPackingPlant"].ToString();
@@ -2163,6 +2182,15 @@ namespace Logic
                     dataRow_History["vcActionTime"] = "";
                     dataRow_History["error"] = "";
                     dtOperHistory.Rows.Add(dataRow_History);
+                    #endregion
+
+                    #region 判断是否有变更
+                    if (dtOperHistory.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'").Length == 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报品番没有变更情报", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                    }
                     #endregion
                 }
 

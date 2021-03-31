@@ -162,59 +162,97 @@ namespace SPPSApi.Controllers.G11
                         apiResult.data = dtMessage;
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    DataSet dsPrintInfo = fS1101_Logic.getPrintInfo(loginInfo.UserId);
-                    if (dsPrintInfo.Tables[0].Rows.Count != 0)
-                    {
-                        string strPrinterName = fS0603_Logic.getPrinterName("FS1101", loginInfo.UserId);
-                        for (int i = 0; i < dsPrintInfo.Tables[0].Rows.Count; i++)
-                        {
-                            string strLotid = dsPrintInfo.Tables[0].Rows[i]["vcLotid"].ToString();
-                            DataTable dtExport = dsPrintInfo.Tables[1].Clone();
-                            DataRow[] drPrintInfo = dsPrintInfo.Tables[1].Select("vcLotid='" + strLotid + "'");
-                            for (int j = 0; j < drPrintInfo.Length; j++)
-                            {
-                                dtExport.ImportRow(drPrintInfo[j]);
-                            }
-                            //序号赋值
-                            for (int j = 0; j < dtExport.Rows.Count; j++)
-                            {
-                                dtExport.Rows[j]["LinId"] = j + 1;
-                            }
-                            //导出到excel中
-                            string[] fields = { "LinId", "vcPackingpartsno", "vcPackinggroup", "dQty", "vcPackingpartslocation", "vcCodemage" };
-                            string filepath = fS1101_Logic.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "FS1101_Print.xlsx", 0, 3, loginInfo.UserId, FunctionID);
-                            #region 调用webApi打印
-                            //创建 HTTP 绑定对象
-                            var binding = new BasicHttpBinding();
-                            //根据 WebService 的 URL 构建终端点对象
-                            var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
-                            //创建调用接口的工厂，注意这里泛型只能传入接口
-                            var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
-                            //从工厂获取具体的调用实例
-                            var callClient = factory.CreateChannel();
-                            setExcelPrintRequestBody Body = new setExcelPrintRequestBody();
-                            Body.strDiskFileName = filepath;
-                            Body.strOperID = loginInfo.UserId;
-                            Body.strPrinterName = strPrinterName;
-                            //调用具体的方法，这里是 HelloWorldAsync 方法
-                            Task<setExcelPrintResponse> responseTask = callClient.setExcelPrintAsync(new setExcelPrintRequest(Body));
-                            //获取结果
-                            setExcelPrintResponse response = responseTask.Result;
-                            if (response.Body.setExcelPrintResult != "打印成功")
-                            {
-                                DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
-                                dtMessage.Rows.Add(dataRow);
-                            }
-                            #endregion
-                        }
-                    }
-                    else
+                    //DataSet dsPrintInfo = fS1101_Logic.getPrintInfo(loginInfo.UserId);
+                    //if (dsPrintInfo.Tables[0].Rows.Count != 0)
+                    //{
+                    //    string strPrinterName = fS0603_Logic.getPrinterName("FS1101", loginInfo.UserId);
+                    //    for (int i = 0; i < dsPrintInfo.Tables[0].Rows.Count; i++)
+                    //    {
+                    //        string strLotid = dsPrintInfo.Tables[0].Rows[i]["vcLotid"].ToString();
+                    //        DataTable dtExport = dsPrintInfo.Tables[1].Clone();
+                    //        DataRow[] drPrintInfo = dsPrintInfo.Tables[1].Select("vcLotid='" + strLotid + "'");
+                    //        for (int j = 0; j < drPrintInfo.Length; j++)
+                    //        {
+                    //            dtExport.ImportRow(drPrintInfo[j]);
+                    //        }
+                    //        //序号赋值
+                    //        for (int j = 0; j < dtExport.Rows.Count; j++)
+                    //        {
+                    //            dtExport.Rows[j]["LinId"] = j + 1;
+                    //        }
+                    //        //导出到excel中
+                    //        string[] fields = { "LinId", "vcPackingpartsno", "vcPackinggroup", "dQty", "vcPackingpartslocation", "vcCodemage" };
+                    //        string filepath = fS1101_Logic.generateExcelWithXlt(dtExport, fields, _webHostEnvironment.ContentRootPath, "FS1101_Print.xlsx", 0, 3, loginInfo.UserId, FunctionID);
+                    //        #region 调用webApi打印
+                    //        //创建 HTTP 绑定对象
+                    //        var binding = new BasicHttpBinding();
+                    //        //根据 WebService 的 URL 构建终端点对象
+                    //        var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                    //        //创建调用接口的工厂，注意这里泛型只能传入接口
+                    //        var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                    //        //从工厂获取具体的调用实例
+                    //        var callClient = factory.CreateChannel();
+                    //        setExcelPrintRequestBody Body = new setExcelPrintRequestBody();
+                    //        Body.strDiskFileName = filepath;
+                    //        Body.strOperID = loginInfo.UserId;
+                    //        Body.strPrinterName = strPrinterName;
+                    //        //调用具体的方法，这里是 HelloWorldAsync 方法
+                    //        Task<setExcelPrintResponse> responseTask = callClient.setExcelPrintAsync(new setExcelPrintRequest(Body));
+                    //        //获取结果
+                    //        setExcelPrintResponse response = responseTask.Result;
+                    //        if (response.Body.setExcelPrintResult != "打印成功")
+                    //        {
+                    //            DataRow dataRow = dtMessage.NewRow();
+                    //            dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                    //            dtMessage.Rows.Add(dataRow);
+                    //        }
+                    //        #endregion
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    DataRow dataRow = dtMessage.NewRow();
+                    //    dataRow["vcMessage"] = "断取指示书数据异常";
+                    //    dtMessage.Rows.Add(dataRow);
+                    //}
+                    #region 调用webApi打印
+                    string strPrinterName = fS0603_Logic.getPrinterName("FS1101", loginInfo.UserId);
+                    //创建 HTTP 绑定对象
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    var binding = new BasicHttpBinding();
+                    //根据 WebService 的 URL 构建终端点对象
+                    var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                    //创建调用接口的工厂，注意这里泛型只能传入接口
+                    var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                    //从工厂获取具体的调用实例
+                    var callClient = factory.CreateChannel();
+                    setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                    Body.strCRVName = file_crv + "crv_FS1101.rpt";
+                    Body.strScrpit = "select * from tPrintTemp_FS1101 where vcOperator='" + loginInfo.UserId + "' ORDER BY CAST(vcRows AS INT)";
+                    Body.strPrinterName = strPrinterName;
+                    Body.sqlUserID = "sa";
+                    Body.sqlPassword = "SPPS_Server2019";
+                    Body.sqlCatalog = "SPPSdb";
+                    Body.sqlSource = "172.23.180.116";
+                    //调用具体的方法，这里是 HelloWorldAsync 方法
+                    Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                    //获取结果
+                    setCRVPrintResponse response = responseTask.Result;
+                    if (response.Body.setCRVPrintResult != "打印成功")
                     {
                         DataRow dataRow = dtMessage.NewRow();
-                        dataRow["vcMessage"] = "断取指示书数据异常";
+                        dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
                         dtMessage.Rows.Add(dataRow);
                     }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
                     if (dtMessage != null && dtMessage.Rows.Count != 0)
                     {
                         //弹出错误dtMessage

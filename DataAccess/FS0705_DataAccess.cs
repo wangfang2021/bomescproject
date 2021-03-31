@@ -259,7 +259,7 @@ namespace DataAccess
             StringBuilder strSql = new StringBuilder();
             try
             {
-                strSql.AppendLine("        select vcPackNo,vcPackGPSNo,iA_SRS,iB_LastShengYu,iC_LiLun,iD_TiaoZheng,iE_JinJi,iF_DingGou,iG_ShengYu,dTimeStr from TPackCompute         ");
+                strSql.AppendLine("        select * from TPackCompute         ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -403,6 +403,7 @@ namespace DataAccess
                 strSql.AppendLine("            select * from TPackBase         ");
                 strSql.AppendLine("        )c on b.vcPackNo = b.vcPackNo         ");
                 #endregion
+
                 excute.ExcuteSqlWithStringOper(strSql.ToString());
             }
             catch (Exception ex)

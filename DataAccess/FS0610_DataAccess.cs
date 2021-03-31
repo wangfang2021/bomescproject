@@ -51,9 +51,6 @@ namespace DataAccess
         #region 取soq数据(已合意)
         public DataTable GetSoqHy(string strPlant, string strYearMonth, string strType)
         {
-            DataTable temp = excute.ExcuteSqlWithSelectToDT("select top 1 vcValue from TCode where vcCodeId='C068'");
-            string vcReceiver = temp.Rows.Count == 1 ? temp.Rows[0][0].ToString() : "APC06";
-
             StringBuilder sql = new StringBuilder();
             string strhycolumn = "";
             if (strType == "dxym")
@@ -62,11 +59,11 @@ namespace DataAccess
                 strhycolumn = "iHySOQN1";
             else if (strType == "nnsym")
                 strhycolumn = "iHySOQN2";
-            sql.Append("  select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer,b.dFromTime,b.dToTime from TSoq a     \n");
+            sql.Append("  select vcPart_id, " + strhycolumn + " as iHyNum,iQuantityPercontainer,b.dFromTime,b.dToTime,a.vcReceiver from TSoq a     \n");
             sql.Append("  left join   \n");
             sql.Append("  (   \n");
             sql.Append("  select * from TSPMaster   \n");
-            sql.Append("  )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId and b.vcReceiver='"+ vcReceiver + "'   \n");
+            sql.Append("  )b on a.vcPart_id=b.vcPartId and a.vcSupplier_id=b.vcSupplierId  and a.vcReceiver=b.vcReceiver    \n");
             sql.Append("  where a.vcYearMonth='" + strYearMonth + "' and a.vcFZGC='" + strPlant + "' and a.vcInOutFlag='0' and a.vcHyState='2'   order by a.iAutoId  \n");
             return excute.ExcuteSqlWithSelectToDT(sql.ToString());
         }
@@ -291,6 +288,7 @@ namespace DataAccess
             sql.Append("           ,[iD29]    \n");
             sql.Append("           ,[iD30]    \n");
             sql.Append("           ,[iD31]    \n");
+            sql.Append("           ,[vcReceiver]    \n");
             sql.Append("           ,[vcOperatorID]    \n");
             sql.Append("           ,[dOperatorTime])    \n");
             sql.Append("     VALUES    \n");
@@ -335,6 +333,7 @@ namespace DataAccess
             sql.Append("           ,nullif(" + arr[32] + "*" + arr[2] + ",'')    \n");//D29
             sql.Append("           ,nullif(" + arr[33] + "*" + arr[2] + ",'')    \n");//D30
             sql.Append("           ,nullif(" + arr[34] + "*" + arr[2] + ",'')    \n");//D31
+            sql.Append("           ,'" + arr[39] + "'    \n");//vcReceiver
             sql.Append("           ,'" + strUserId + "'    \n");//操作者
             sql.Append("           ,getdate())    \n");//操作时间
             #endregion

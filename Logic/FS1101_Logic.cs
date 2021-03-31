@@ -47,6 +47,7 @@ namespace Logic
                     {
                         DataRow dataRow = dtSub.NewRow();
                         dataRow["UUID"] = uuid;
+                        dataRow["vcRows"] = (j + 1).ToString();
                         dataRow["vcTrolleyNo"] = dtSPInfo.Rows[j]["vcTrolleyNo"].ToString();
                         dataRow["vcLotid"] = dtSPInfo.Rows[j]["vcLotid"].ToString();
                         dataRow["vcPackingpartsno"] = dtSPInfo.Rows[j]["vcPackingpartsno"].ToString();

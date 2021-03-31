@@ -390,14 +390,26 @@ namespace DataAccess
                     string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString();
                     string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
                     string vcIsNewRulesFlag = dt.Rows[i]["vcIsNewRulesFlag"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIsNewRulesFlag"].ToString();
-                    if (vcIsNewRulesFlag=="是")
+                    if (vcIsNewRulesFlag == "是" || vcIsNewRulesFlag == "√")
                     {
                         vcIsNewRulesFlag = "1";
-                    } else if (vcIsNewRulesFlag == "否")
+                    }
+                    else if (vcIsNewRulesFlag == "否" || vcIsNewRulesFlag == "" || vcIsNewRulesFlag == " ")
                     {
                         vcIsNewRulesFlag = "0";
-                    } else
+                    }
+                    else
                     { }
+                    /*   if (vcIsNewRulesFlag == "是")
+                    {
+                        vcIsNewRulesFlag = "1";
+                    }
+                    else if (vcIsNewRulesFlag == "否")
+                    {
+                        vcIsNewRulesFlag = "0";
+                    }
+                    else
+                    { }*/
                     string vcOEOrSP = dt.Rows[i]["vcOEOrSP"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOEOrSP"].ToString();
                     if (vcOEOrSP == "×")
                     {

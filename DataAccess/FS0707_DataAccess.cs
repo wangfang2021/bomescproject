@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("     select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -169,7 +169,7 @@ namespace DataAccess
                     case "0":
                         strSql.AppendLine("    select * from MonthProdPlanTbl where vcMonth='" + dFtime + "'       ");
                         strSql.AppendLine("    union all                                                    ");
-                        strSql.AppendLine("    select *,'' as vcSupplier_id from WeekProdPlanTbl	where vcMonth='" + dFtime + "'      ");
+                        strSql.AppendLine("    select * from WeekProdPlanTbl	where vcMonth='" + dFtime + "'      ");
                         strSql.AppendLine("    )a                                                           ");
                         if (dFtime.Split("-")[1] != dTtime.Split("-")[1])
                         {
@@ -177,7 +177,7 @@ namespace DataAccess
                             strSql.AppendLine("    (                                                            ");
                             strSql.AppendLine("    select * from MonthProdPlanTbl where vcMonth='" + dTtime + "'       ");
                             strSql.AppendLine("    union all                                                    ");
-                            strSql.AppendLine("    select *,'' as vcSupplier_id from WeekProdPlanTbl	where vcMonth='" + dTtime + "'     ");
+                            strSql.AppendLine("    select * from WeekProdPlanTbl	where vcMonth='" + dTtime + "'     ");
                             strSql.AppendLine("    )c on a.vcPartsno=c.vcPartsno                                ");
                         }
                         break;
@@ -282,16 +282,752 @@ namespace DataAccess
         #endregion
 
         #region 发送
-        public void Save(string strUserId, ref string strErrorPartId)
+        public void Save(DataTable listInfoData, string strUserId, ref string strErrorPartId, string strBegin, string strEnd, string strFromBeginBZ, string strFromEndBZ, string strKind, List<Object> OrderState)
         {
             try
             {
 
                 StringBuilder sql = new StringBuilder();
+                string SupplierCode = "";
 
-                sql.AppendLine("  UPDATE TPackWeekInfo");
-                sql.AppendLine("  SET ");
-                sql.AppendLine($"   vcIsorNoSend = '1',");
+                string dt1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                if (OrderState.Count > 0)
+                {
+                    for (int j = 0; j < OrderState.Count; j++)
+                    {
+                        if (j != 0)
+                        {
+                            SupplierCode = SupplierCode + "," + OrderState[j].ToString();
+                        }
+                        else
+                        {
+                            SupplierCode = SupplierCode + OrderState[j].ToString();
+
+                        }
+
+                    }
+                }
+                switch (strKind) {
+                    case "0":
+                        strKind = "生产计划";
+                        break;
+                    case "1":
+                        strKind = "包装计划";
+                        break;
+                    case "2":
+                        strKind = "看板2计划";
+                        break;
+                }
+
+                string Name = strBegin + "-" + strFromBeginBZ + " " + strEnd + "-" + strFromEndBZ + " " + strKind;
+                sql.AppendLine("     delete from  TPackWeekInfo     \n");
+                sql.AppendLine("     INSERT INTO [dbo].[TPackSearch]       \n");
+                sql.AppendLine("                ([vcSupplier]       \n");
+                sql.AppendLine("                ,[vcYearMonth]       \n");
+                sql.AppendLine("                ,[vcNSDiff]       \n");
+                sql.AppendLine("                ,[vcNSQJ]       \n");
+                sql.AppendLine("                ,[vcNSState]       \n");
+                sql.AppendLine("                ,[dFaBuTime]       \n");
+                sql.AppendLine("                ,[dFirstDownload]       \n");
+                sql.AppendLine("                ,[vcOperatorID]       \n");
+                sql.AppendLine("                ,[dOperatorTime])       \n");
+                sql.AppendLine("          VALUES       \n");
+                sql.AppendLine("         (   \n");
+                sql.AppendLine("         '" + SupplierCode + "',   \n");
+                sql.AppendLine("         NULL,   \n");
+                sql.AppendLine("         '周度内示',   \n");
+                sql.AppendLine("         '" + Name + "',   \n");
+                sql.AppendLine("         '0',   \n");
+                sql.AppendLine("         '" + dt1 + "',   \n");
+                sql.AppendLine("         NULL,   \n");
+                sql.AppendLine("   '" + strUserId + "',   \n");
+                sql.AppendLine("   getdate()  \n");
+                sql.AppendLine("         )   \n");
+
+                for (int i = 0; i < listInfoData.Rows.Count; i++)
+                {
+                    sql.Append("  INSERT INTO [dbo].[TPackWeekInfoCV]    \r\n");
+                    sql.Append("             (    \r\n");
+                    sql.Append("             [vcPackNo]    \r\n");
+                    sql.Append("             ,[vcPackGPSNo]    \r\n");
+                    sql.Append("             ,[vcSupplierCode]    \r\n");
+                    sql.Append("             ,[vcSupplierName]    \r\n");
+                    sql.Append("             ,[iRelease]        \r\n");
+                    sql.Append("             ,[vcD1yF]        \r\n");
+                    sql.Append("             ,[vcD1yFShow]        \r\n");
+                    sql.Append("             ,[vcD1bF]        \r\n");
+                    sql.Append("             ,[vcD1bFShow]        \r\n");
+                    sql.Append("             ,[vcD2yF]        \r\n");
+                    sql.Append("             ,[vcD2yFShow]        \r\n");
+                    sql.Append("             ,[vcD2bF]        \r\n");
+                    sql.Append("             ,[vcD2bFShow]        \r\n");
+                    sql.Append("             ,[vcD3yF]        \r\n");
+                    sql.Append("             ,[vcD3yFShow]        \r\n");
+                    sql.Append("             ,[vcD3bF]        \r\n");
+                    sql.Append("             ,[vcD3bFShow]        \r\n");
+                    sql.Append("             ,[vcD4yF]        \r\n");
+                    sql.Append("             ,[vcD4yFShow]        \r\n");
+                    sql.Append("             ,[vcD4bF]        \r\n");
+                    sql.Append("             ,[vcD4bFShow]        \r\n");
+                    sql.Append("             ,[vcD5yF]        \r\n");
+                    sql.Append("             ,[vcD5yFShow]        \r\n");
+                    sql.Append("             ,[vcD5bF]        \r\n");
+                    sql.Append("             ,[vcD5bFShow]       \r\n");
+                    sql.Append("             ,[vcD6yF]         \r\n");
+                    sql.Append("             ,[vcD6yFShow]       \r\n");
+                    sql.Append("             ,[vcD6bF]         \r\n");
+                    sql.Append("             ,[vcD6bFShow]     \r\n");
+                    sql.Append("             ,[vcD7yF]         \r\n");
+                    sql.Append("             ,[vcD7yFShow]   \r\n");
+                    sql.Append("             ,[vcD7bF]        \r\n");
+                    sql.Append("             ,[vcD7bFShow]   \r\n");
+                    sql.Append("             ,[vcD8yF]       \r\n");
+                    sql.Append("             ,[vcD8yFShow]   \r\n");
+                    sql.Append("             ,[vcD8bF]       \r\n");
+                    sql.Append("             ,[vcD8bFShow]   \r\n");
+                    sql.Append("             ,[vcD9yF]      \r\n");
+                    sql.Append("             ,[vcD9yFShow]   \r\n");
+                    sql.Append("             ,[vcD9bF]       \r\n");
+                    sql.Append("             ,[vcD9bFShow]   \r\n");
+                    sql.Append("             ,[vcD10yF]      \r\n");
+                    sql.Append("             ,[vcD10yFShow]   \r\n");
+                    sql.Append("             ,[vcD10bF]       \r\n");
+                    sql.Append("             ,[vcD10bFShow]   \r\n");
+                    sql.Append("             ,[vcD11yF]       \r\n");
+                    sql.Append("             ,[vcD11yFShow]   \r\n");
+                    sql.Append("         ,[vcD11bF]      \r\n");
+                    sql.Append("         ,[vcD11bFShow]      \r\n");
+                    sql.Append("         ,[vcD12yF]      \r\n");
+                    sql.Append("         ,[vcD12yFShow]      \r\n");
+                    sql.Append("         ,[vcD12bF]      \r\n");
+                    sql.Append("         ,[vcD12bFShow]      \r\n");
+                    sql.Append("         ,[vcD13yF]      \r\n");
+                    sql.Append("         ,[vcD13yFShow]      \r\n");
+                    sql.Append("         ,[vcD13bF]      \r\n");
+                    sql.Append("         ,[vcD13bFShow]      \r\n");
+                    sql.Append("         ,[vcD14yF]      \r\n");
+                    sql.Append("         ,[vcD14yFShow]      \r\n");
+                    sql.Append("         ,[vcD14bF]      \r\n");
+                    sql.Append("         ,[vcD14bFShow]      \r\n");
+                    sql.Append("         ,[vcD15yF]      \r\n");
+                    sql.Append("         ,[vcD15yFShow]      \r\n");
+                    sql.Append("         ,[vcD15bF]      \r\n");
+                    sql.Append("         ,[vcD15bFShow]      \r\n");
+                    sql.Append("         ,[vcD16yF]      \r\n");
+                    sql.Append("         ,[vcD16yFShow]      \r\n");
+                    sql.Append("         ,[vcD16bF]      \r\n");
+                    sql.Append("         ,[vcD16bFShow]      \r\n");
+                    sql.Append("         ,[vcD17yF]      \r\n");
+                    sql.Append("         ,[vcD17yFShow]      \r\n");
+                    sql.Append("       ,[vcD17bF]                      \r\n");
+                    sql.Append("       ,[vcD17bFShow]                      \r\n");
+                    sql.Append("       ,[vcD18yF]                      \r\n");
+                    sql.Append("       ,[vcD18yFShow]                      \r\n");
+                    sql.Append("       ,[vcD18bF]                      \r\n");
+                    sql.Append("       ,[vcD18bFShow]                      \r\n");
+                    sql.Append("       ,[vcD19yF]                      \r\n");
+                    sql.Append("       ,[vcD19yFShow]                      \r\n");
+                    sql.Append("       ,[vcD19bF]                      \r\n");
+                    sql.Append("       ,[vcD19bFShow]                      \r\n");
+                    sql.Append("       ,[vcD20yF]                      \r\n");
+                    sql.Append("       ,[vcD20yFShow]                      \r\n");
+                    sql.Append("       ,[vcD20bF]                      \r\n");
+                    sql.Append("       ,[vcD20bFShow]                      \r\n");
+                    sql.Append("       ,[vcD21yF]                      \r\n");
+                    sql.Append("       ,[vcD21yFShow]                      \r\n");
+                    sql.Append("       ,[vcD21bF]                      \r\n");
+                    sql.Append("       ,[vcD21bFShow]                      \r\n");
+                    sql.Append("       ,[vcD22yF]                      \r\n");
+                    sql.Append("       ,[vcD22yFShow]                      \r\n");
+                    sql.Append("       ,[vcD22bF]                      \r\n");
+                    sql.Append("       ,[vcD22bFShow]                      \r\n");
+                    sql.Append("       ,[vcD23yF]                      \r\n");
+                    sql.Append("       ,[vcD23yFShow]                      \r\n");
+                    sql.Append("       ,[vcD23bF]                      \r\n");
+                    sql.Append("       ,[vcD23bFShow]                      \r\n");
+                    sql.Append("       ,[vcD24yF]                      \r\n");
+                    sql.Append("       ,[vcD24yFShow]                      \r\n");
+                    sql.Append("       ,[vcD24bF]                      \r\n");
+                    sql.Append("       ,[vcD24bFShow]                      \r\n");
+                    sql.Append("       ,[vcD25yF]                      \r\n");
+                    sql.Append("       ,[vcD25yFShow]                      \r\n");
+                    sql.Append("       ,[vcD25bF]                      \r\n");
+                    sql.Append("       ,[vcD25bFShow]                      \r\n");
+                    sql.Append("       ,[vcD26yF]                      \r\n");
+                    sql.Append("       ,[vcD26yFShow]                       \r\n");
+                    sql.Append("       ,[vcD26bF]                       \r\n");
+                    sql.Append("       ,[vcD26bFShow]                       \r\n");
+                    sql.Append("       ,[vcD27yF]                       \r\n");
+                    sql.Append("       ,[vcD27yFShow]                       \r\n");
+                    sql.Append("       ,[vcD27bF]                       \r\n");
+                    sql.Append("       ,[vcD27bFShow]                       \r\n");
+                    sql.Append("       ,[vcD28yF]                       \r\n");
+                    sql.Append("       ,[vcD28yFShow]                       \r\n");
+                    sql.Append("       ,[vcD28bF]                       \r\n");
+                    sql.Append("       ,[vcD28bFShow]                       \r\n");
+                    sql.Append("       ,[vcD29yF]                       \r\n");
+                    sql.Append("       ,[vcD29yFShow]                       \r\n");
+                    sql.Append("       ,[vcD29bF]                       \r\n");
+                    sql.Append("       ,[vcD29bFShow]                       \r\n");
+                    sql.Append("       ,[vcD30yF]                       \r\n");
+                    sql.Append("       ,[vcD30yFShow]                       \r\n");
+                    sql.Append("       ,[vcD30bF]                       \r\n");
+                    sql.Append("       ,[vcD30bFShow]                       \r\n");
+                    sql.Append("       ,[vcD31yF]                       \r\n");
+                    sql.Append("       ,[vcD31yFShow]                       \r\n");
+                    sql.Append("       ,[vcD31bF]                       \r\n");
+                    sql.Append("       ,[vcD31bFShow]                       \r\n");
+                    sql.Append("       ,[vcD1yT]                       \r\n");
+                    sql.Append("       ,[vcD1yTShow]                       \r\n");
+                    sql.Append("       ,[vcD1bT]                       \r\n");
+                    sql.Append("       ,[vcD1bTShow]                       \r\n");
+                    sql.Append("       ,[vcD2yT]                       \r\n");
+                    sql.Append("       ,[vcD2yTShow]                       \r\n");
+                    sql.Append("       ,[vcD2bT]                       \r\n");
+                    sql.Append("       ,[vcD2bTShow]                       \r\n");
+                    sql.Append("       ,[vcD3yT]                       \r\n");
+                    sql.Append("       ,[vcD3yTShow]                       \r\n");
+                    sql.Append("       ,[vcD3bT]                       \r\n");
+                    sql.Append("       ,[vcD3bTShow]                       \r\n");
+                    sql.Append("       ,[vcD4yT]                       \r\n");
+                    sql.Append("       ,[vcD4yTShow]                       \r\n");
+                    sql.Append("       ,[vcD4bT]                       \r\n");
+                    sql.Append("       ,[vcD4bTShow]                       \r\n");
+                    sql.Append("       ,[vcD5yT]                       \r\n");
+                    sql.Append("       ,[vcD5yTShow]                       \r\n");
+                    sql.Append("       ,[vcD5bT]                       \r\n");
+                    sql.Append("       ,[vcD5bTShow]                       \r\n");
+                    sql.Append("       ,[vcD6yT]                       \r\n");
+                    sql.Append("       ,[vcD6yTShow]                       \r\n");
+                    sql.Append("       ,[vcD6bT]                       \r\n");
+                    sql.Append("       ,[vcD6bTShow]                       \r\n");
+                    sql.Append("       ,[vcD7yT]                       \r\n");
+                    sql.Append("       ,[vcD7yTShow]                       \r\n");
+                    sql.Append("       ,[vcD7bT]                       \r\n");
+                    sql.Append("       ,[vcD7bTShow]                       \r\n");
+                    sql.Append("       ,[vcD8yT]                       \r\n");
+                    sql.Append("       ,[vcD8yTShow]                       \r\n");
+                    sql.Append("       ,[vcD8bT]                       \r\n");
+                    sql.Append("       ,[vcD8bTShow]                       \r\n");
+                    sql.Append("       ,[vcD9yT]                       \r\n");
+                    sql.Append("       ,[vcD9yTShow]                       \r\n");
+                    sql.Append("       ,[vcD9bT]                       \r\n");
+                    sql.Append("       ,[vcD9bTShow]                       \r\n");
+                    sql.Append("       ,[vcD10yT]                       \r\n");
+                    sql.Append("       ,[vcD10yTShow]                       \r\n");
+                    sql.Append("       ,[vcD10bT]                       \r\n");
+                    sql.Append("       ,[vcD10bTShow]                       \r\n");
+                    sql.Append("       ,[vcD11yT]                       \r\n");
+                    sql.Append("       ,[vcD11yTShow]                       \r\n");
+                    sql.Append("       ,[vcD11bT]                       \r\n");
+                    sql.Append("       ,[vcD11bTShow]                       \r\n");
+                    sql.Append("       ,[vcD12yT]                       \r\n");
+                    sql.Append("       ,[vcD12yTShow]                       \r\n");
+                    sql.Append("       ,[vcD12bT]                       \r\n");
+                    sql.Append("       ,[vcD12bTShow]                       \r\n");
+                    sql.Append("       ,[vcD13yT]                       \r\n");
+                    sql.Append("       ,[vcD13yTShow]                       \r\n");
+                    sql.Append("       ,[vcD13bT]                       \r\n");
+                    sql.Append("       ,[vcD13bTShow]                       \r\n");
+                    sql.Append("       ,[vcD14yT]                       \r\n");
+                    sql.Append("       ,[vcD14yTShow]                       \r\n");
+                    sql.Append("       ,[vcD14bT]                       \r\n");
+                    sql.Append("       ,[vcD14bTShow]                       \r\n");
+                    sql.Append("       ,[vcD15yT]                       \r\n");
+                    sql.Append("       ,[vcD15yTShow]                       \r\n");
+                    sql.Append("       ,[vcD15bT]                       \r\n");
+                    sql.Append("       ,[vcD15bTShow]                       \r\n");
+                    sql.Append("       ,[vcD16yT]                       \r\n");
+                    sql.Append("       ,[vcD16yTShow]                       \r\n");
+                    sql.Append("       ,[vcD16bT]                       \r\n");
+                    sql.Append("       ,[vcD16bTShow]                       \r\n");
+                    sql.Append("       ,[vcD17yT]                       \r\n");
+                    sql.Append("       ,[vcD17yTShow]                       \r\n");
+                    sql.Append("       ,[vcD17bT]                       \r\n");
+                    sql.Append("       ,[vcD17bTShow]                       \r\n");
+                    sql.Append("       ,[vcD18yT]                       \r\n");
+                    sql.Append("       ,[vcD18yTShow]                       \r\n");
+                    sql.Append("       ,[vcD18bT]                       \r\n");
+                    sql.Append("       ,[vcD18bTShow]                       \r\n");
+                    sql.Append("       ,[vcD19yT]                       \r\n");
+                    sql.Append("       ,[vcD19yTShow]                       \r\n");
+                    sql.Append("       ,[vcD19bT]                       \r\n");
+                    sql.Append("       ,[vcD19bTShow]                       \r\n");
+                    sql.Append("       ,[vcD20yT]                       \r\n");
+                    sql.Append("       ,[vcD20yTShow]                       \r\n");
+                    sql.Append("       ,[vcD20bT]                       \r\n");
+                    sql.Append("       ,[vcD20bTShow]                       \r\n");
+                    sql.Append("       ,[vcD21yT]                       \r\n");
+                    sql.Append("       ,[vcD21yTShow]                       \r\n");
+                    sql.Append("       ,[vcD21bT]                       \r\n");
+                    sql.Append("       ,[vcD21bTShow]                       \r\n");
+                    sql.Append("       ,[vcD22yT]                       \r\n");
+                    sql.Append("       ,[vcD22yTShow]                       \r\n");
+                    sql.Append("       ,[vcD22bT]                       \r\n");
+                    sql.Append("       ,[vcD22bTShow]                       \r\n");
+                    sql.Append("       ,[vcD23yT]                       \r\n");
+                    sql.Append("       ,[vcD23yTShow]                       \r\n");
+                    sql.Append("       ,[vcD23bT]                       \r\n");
+                    sql.Append("       ,[vcD23bTShow]                       \r\n");
+                    sql.Append("       ,[vcD24yT]                       \r\n");
+                    sql.Append("       ,[vcD24yTShow]                       \r\n");
+                    sql.Append("       ,[vcD24bT]                       \r\n");
+                    sql.Append("       ,[vcD24bTShow]                       \r\n");
+                    sql.Append("       ,[vcD25yT]                       \r\n");
+                    sql.Append("       ,[vcD25yTShow]                       \r\n");
+                    sql.Append("       ,[vcD25bT]                       \r\n");
+                    sql.Append("       ,[vcD25bTShow]                       \r\n");
+                    sql.Append("       ,[vcD26yT]                       \r\n");
+                    sql.Append("       ,[vcD26yTShow]                       \r\n");
+                    sql.Append("       ,[vcD26bT]                       \r\n");
+                    sql.Append("       ,[vcD26bTShow]                       \r\n");
+                    sql.Append("       ,[vcD27yT]                       \r\n");
+                    sql.Append("       ,[vcD27yTShow]                       \r\n");
+                    sql.Append("       ,[vcD27bT]                       \r\n");
+                    sql.Append("       ,[vcD27bTShow]                       \r\n");
+                    sql.Append("       ,[vcD28yT]                       \r\n");
+                    sql.Append("       ,[vcD28yTShow]                       \r\n");
+                    sql.Append("       ,[vcD28bT]                       \r\n");
+                    sql.Append("       ,[vcD28bTShow]                       \r\n");
+                    sql.Append("       ,[vcD29yT]                       \r\n");
+                    sql.Append("       ,[vcD29yTShow]                       \r\n");
+                    sql.Append("       ,[vcD29bT]                       \r\n");
+                    sql.Append("       ,[vcD29bTShow]                       \r\n");
+                    sql.Append("       ,[vcD30yT]                       \r\n");
+                    sql.Append("       ,[vcD30yTShow]                       \r\n");
+                    sql.Append("       ,[vcD30bT]                       \r\n");
+                    sql.Append("       ,[vcD30bTShow]                       \r\n");
+                    sql.Append("       ,[vcD31yT]                       \r\n");
+                    sql.Append("       ,[vcD31yTShow]                       \r\n");
+                    sql.Append("       ,[vcD31bT]                       \r\n");
+                    sql.Append("       ,[vcD31bTShow]                       \r\n");
+                    sql.AppendLine("           ,[vcIsorNoSend]    \n");
+                    sql.AppendLine("           ,[vcIsorNoPrint]    \n");
+
+                    sql.AppendLine("           ,[vcNSQJ]    \n");
+                    sql.AppendLine("           ,[vcNSDiff]    \n");
+                    sql.AppendLine("           ,[dSendTime]    \n");
+                    sql.AppendLine("           ,[vcPlanDiff]    \n");
+
+
+
+                    sql.Append("       ,[vcOperatorID]                       \r\n");
+                    sql.Append("       ,[dOperatorTime])                       \r\n");
+                    sql.Append("       VALUES                       \r\n");
+                    sql.Append("       (         \r\n");
+                   // sql.Append("       '" + listInfoData.Rows[i]["vcPartsNo"].ToString() + "',         \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcPackNo"].ToString() + "',            \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcPackGPSNo"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcSupplierCode"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcSupplierName"].ToString() + "',              \r\n");
+
+                    sql.Append("       '" + listInfoData.Rows[i]["iRelease"].ToString() + "',          \r\n");
+
+                    #region
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD1yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD1yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD1bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD1bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD2yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD2yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD2bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD2bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD3yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD3yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD3bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD3bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD4yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD4yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD4bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD4bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD5yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD5yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD5bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD5bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD6yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD6yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD6bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD6bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD7yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD7yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD7bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD7bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD8yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD8yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD8bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD8bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD9yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD9yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD9bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD9bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD10yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD10yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD10bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD10bFShow"].ToString() + "',          \r\n");
+
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD11yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD11yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD11bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD11bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD12yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD12yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD12bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD12bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD13yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD13yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD13bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD13bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD14yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD14yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD14bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD14bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD15yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD15yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD15bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD15bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD16yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD16yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD16bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD16bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD17yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD17yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD17bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD17bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD18yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD18yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD18bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD18bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD19yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD19yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD19bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD19bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD20yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD20yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD20bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD20bFShow"].ToString() + "',          \r\n");
+
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD21yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD21yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD21bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD21bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD22yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD22yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD22bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD22bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD23yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD23yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD23bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD23bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD24yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD24yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD24bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD24bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD25yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD25yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD25bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD25bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD26yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD26yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD26bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD26bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD27yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD27yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD27bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD27bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD28yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD28yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD28bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD28bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD29yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD29yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD29bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD29bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD30yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD30yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD30bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD30bFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD31yF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD31yFShow"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcD31bF"].ToString() + "',              \r\n");
+                    sql.Append("       '" + listInfoData.Rows[0]["vcD31bFShow"].ToString() + "',          \r\n");
+                    #endregion
+
+                    if (strBegin.Split("-")[1] != strEnd.Split("-")[1])
+                    {
+                        #region
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD1yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD1yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD1bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD1bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD2yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD2yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD2bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD2bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD3yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD3yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD3bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD3bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD4yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD4yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD4bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD4bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD5yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD5yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD5bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD5bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD6yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD6yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD6bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD6bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD7yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD7yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD7bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD7bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD8yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD8yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD8bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD8bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD9yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD9yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD9bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD9bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD10yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD10yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD10bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD10bTShow"].ToString() + "',          \r\n");
+
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD11yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD11yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD11bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD11bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD12yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD12yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD12bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD12bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD13yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD13yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD13bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD13bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD14yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD14yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD14bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD14bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD15yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD15yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD15bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD15bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD16yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD16yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD16bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD16bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD17yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD17yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD17bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD17bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD18yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD18yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD18bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD18bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD19yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD19yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD19bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD19bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD20yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD20yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD20bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD20bTShow"].ToString() + "',          \r\n");
+
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD21yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD21yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD21bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD21bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD22yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD22yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD22bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD22bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD23yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD23yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD23bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD23bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD24yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD24yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD24bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD24bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD25yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD25yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD25bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD25bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD26yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD26yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD26bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD26bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD27yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD27yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD27bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD27bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD28yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD28yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD28bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD28bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD29yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD29yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD29bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD29bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD30yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD30yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD30bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD30bTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD31yT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD31yTShow"].ToString() + "',          \r\n");
+                        sql.Append("       '" + listInfoData.Rows[i]["vcD31bT"].ToString() + "',              \r\n");
+                        sql.Append("       '" + listInfoData.Rows[0]["vcD31bTShow"].ToString() + "',          \r\n");
+                        #endregion
+                    }
+                    else
+                    {
+                        #region
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',         \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        sql.Append("       '',          \r\n");
+                        #endregion
+
+                    }
+
+                    sql.Append("       '1' ,                 \r\n");
+                    sql.Append("      '0' ,                 \r\n");
+                    sql.Append("      '"+ Name + "' ,                 \r\n");
+                    sql.Append("       '周度内饰' ,                 \r\n");
+                    sql.Append("       '"+dt1+"' ,                 \r\n");
+                    sql.Append("      '"+strKind+"' ,                 \r\n");
+                    sql.Append("    '" + strUserId + "'   ,                 \r\n");
+                    sql.Append("      getdate()                   \r\n");
+                    sql.Append("   )                       \r\n");
+
+
+                }
 
 
 
@@ -1165,7 +1901,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select ''as vcNum, vcPackNo,vcPackGPSNo,vcSupplierName,           \n");
+                strSql.Append("   select ''as vcNum, vcPackNo,vcPackGPSNo,vcSupplierName,vcSupplierCode,         \n");
                 strSql.Append("                         \n");
                 strSql.Append("    vcD1bFShow,vcD1yFShow,vcD2bFShow,vcD2yFShow,vcD3bFShow,vcD3yFShow,vcD4bFShow, vcD4yFShow,vcD5bFShow, vcD5yFShow,vcD6bFShow ,vcD6yFShow  \n");
                 strSql.Append("    ,vcD7bFShow,vcD7yFShow,vcD8bFShow,vcD8yFShow,vcD9bFShow, vcD9yFShow,vcD10bFShow,  vcD10yFShow,                       \n");
@@ -1255,7 +1991,7 @@ namespace DataAccess
                 strSql.Append("  sum(vcD29bT) as vcD29bT,sum(vcD30bT) as vcD30bT,sum(vcD31bT) as vcD31bT            \n");
                 strSql.Append("              \n");
                 strSql.Append("   from TPackWeekInfo            \n");
-                strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName,            \n");
+                strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName, vcSupplierCode,           \n");
 
                 strSql.Append("   vcD1yFShow,vcD2yFShow,vcD3yFShow,vcD4yFShow,vcD5yFShow,vcD6yFShow                  \n");
                 strSql.Append("    ,vcD7yFShow,vcD8yFShow,vcD9yFShow,vcD10yFShow,                    \n");

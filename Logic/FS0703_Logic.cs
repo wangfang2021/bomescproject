@@ -94,9 +94,9 @@ namespace Logic
 
 
         #region 发送
-        public void Save(DataTable listInfoData, string userId, ref string strErrorPartId,string PackFrom, List<Object> SupplierCodeList)
+        public void Save(DataTable listInfoData, string userId, ref string strErrorPartId,string PackFrom, List<Object> SupplierCodeList, List<Object> PackSpot)
         {
-            FS0703_DataAccess.Save(listInfoData, userId, ref strErrorPartId,PackFrom,SupplierCodeList);
+            FS0703_DataAccess.Save(listInfoData, userId, ref strErrorPartId,PackFrom,SupplierCodeList, PackSpot);
         }
         #endregion
     }

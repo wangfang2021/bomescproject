@@ -2553,8 +2553,6 @@ namespace Logic
             DataTable dtWeekTZPlan = TXTCloneWeekPlanTbl();//周度涂装计划表
             DataTable dtWeekP3Plan = TXTCloneWeekPlanTbl();//周度P3计划表
 
-            DataTable dtDock = fs0610_DataAccess.getDockTable(strMonth);
-
             //先在数据库的周度包装计划管理表中找相应对象月、厂区的数据（有没有都要找）
             //string strSQL4 = "select * from WeekPackPlanTbl where vcMonth='" + strMonth + "' and (montouch='' or montouch is null) and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = WeekPackPlanTbl.vcPartsno and dTimeFrom <= '" + strMonth + "-01' and dTimeTo >= '" + strMonth + "-01'); ";
             string strSQL4 = "select * from WeekPackPlanTbl where vcMonth='" + strMonth + "' and (vcMonTotal <> '' or vcMonTotal is not null) ";

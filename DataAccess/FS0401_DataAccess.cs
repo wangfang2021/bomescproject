@@ -20,7 +20,7 @@ namespace DataAccess
                 strSql.AppendLine("		T1.vcChanges as vcChanges,T6.vcName as vcChanges_name,");
                 strSql.AppendLine("		T1.vcPackingPlant,T7.vcName as vcPackingPlant_name,");
                 strSql.AppendLine("		T1.vcPartId,");
-                strSql.AppendLine("		SUBSTRING(T1.vcPartId,1,10) as vcPartIdDC,");
+                strSql.AppendLine("		CASE SUBSTRING(T1.vcPartId,11,2) WHEN '00' THEN SUBSTRING(T1.vcPartId,1,10) ELSE T1.vcPartId END AS vcPartIdDC,");
                 strSql.AppendLine("		T1.vcPartENName,");
                 strSql.AppendLine("		T1.vcCarfamilyCode,");
                 strSql.AppendLine("		T1.vcReceiver,");

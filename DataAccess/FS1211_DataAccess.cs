@@ -122,14 +122,10 @@ namespace DataAccess
             ocmd.Dispose();
             return ds;
         }
-        public DataTable getPlantSource()
-        {
-            string ssql = " select '' as value,'' as text union all select vcData1 as value,vcData2 as text from ConstMst where vcDataId='KBPlant'";
-            return excute.ExcuteSqlWithSelectToDT(ssql);
-        }
+
         public DataTable getProtypeSource()
         {
-            string ssql = " select '' as value union all select distinct vcData1 as value from ConstMst where vcDataId='ProType'";
+            string ssql = "select distinct vcData1 as value from ConstMst where vcDataId='ProType'";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 
@@ -648,7 +644,7 @@ namespace DataAccess
                 sbSQL.AppendLine("       t1.iNo as iNo, ");//ino
                 sbSQL.AppendLine("       t1.vcPartsNo as vcPartNo, ");//品番
                 sbSQL.AppendLine("       t1.vcDock as vcDock, ");//受入（有检索但没显示）
-                sbSQL.AppendLine("       convert(int,t1.vcKBorderno) as vcOrderNo, ");//订单号
+                sbSQL.AppendLine("       t1.vcKBorderno as vcOrderNo, ");//订单号
                 sbSQL.AppendLine("       t1.vcKBSerial as vcSerial, ");//连番
                 sbSQL.AppendLine("       t1.vcComDate00 as vcPlanPrintDate, ");//计划打印日期
                 //sbSQL.AppendLine("       t1.vcBanZhi00 as vcPlanPrintBZ, ");//打印班值

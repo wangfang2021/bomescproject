@@ -480,58 +480,17 @@ namespace SPPSApi.Controllers.G07
                 dtcope.Clear();
 
                 #region 处理导出数据
-                int maxcolumn = 0;
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    for (int j = 1; j < dt.Rows.Count; j++)
-                    {
-                        if (dt.Rows[i]["vcPartsNo"].ToString() == dt.Rows[j]["vcPartsNo"].ToString())
-                        {
-                            if (maxcolumn < j)
-                            {
-                                dt.Columns.Add("vcPackNo" + j, typeof(System.String));
-                                dt.Columns.Add("vcPackGPSNo" + j, typeof(System.String));
-                                dt.Columns.Add("dFrom" + j, typeof(System.String));
-                                dt.Columns.Add("dTo" + j, typeof(System.String));
-                                dt.Columns.Add("vcDistinguish" + j, typeof(System.String));
-                                dt.Columns.Add("iBiYao" + j, typeof(System.String));
-                                dtcope.Columns.Add("vcPackNo" + j, typeof(System.String));
-                                dtcope.Columns.Add("vcPackGPSNo" + j, typeof(System.String));
-                                dtcope.Columns.Add("dFrom" + j, typeof(System.String));
-                                dtcope.Columns.Add("dTo" + j, typeof(System.String));
-                                dtcope.Columns.Add("vcDistinguish" + j, typeof(System.String));
-                                dtcope.Columns.Add("iBiYao" + j, typeof(System.String));
-                                dt.Rows[i]["vcPackNo" + j] = dt.Rows[j]["vcPackNo"].ToString();
-                                dt.Rows[i]["vcPackGPSNo" + j] = dt.Rows[j]["vcPackGPSNo"].ToString();
-                                dt.Rows[i]["dFrom" + j] = dt.Rows[j]["dFrom"].ToString();
-                                dt.Rows[i]["dTo" + j] = dt.Rows[j]["dTo"].ToString();
-                                dt.Rows[i]["vcDistinguish" + j] = dt.Rows[j]["vcDistinguish"].ToString();
-                                dt.Rows[i]["iBiYao" + j] = dt.Rows[j]["iBiYao"].ToString();
-                                dtcope.Rows.Add(dt.Rows[i]);
-                                maxcolumn++;
-                            }
-                            else
-                            {
-                                dt.Rows[i]["vcPackNo" + j] = dt.Rows[j]["vcPackNo"].ToString();
-                                dt.Rows[i]["vcPackGPSNo" + j] = dt.Rows[j]["vcPackGPSNo"].ToString();
-                                dt.Rows[i]["dFrom" + j] = dt.Rows[j]["dFrom"].ToString();
-                                dt.Rows[i]["dTo" + j] = dt.Rows[j]["dTo"].ToString();
-                                dt.Rows[i]["vcDistinguish" + j] = dt.Rows[j]["vcDistinguish"].ToString();
-                                dt.Rows[i]["iBiYao" + j] = dt.Rows[j]["iBiYao"].ToString();
-                                dtcope.Rows.Add(dt.Rows[i]);
-                            }
-                        }
-                        else
-                        {
-                            dtcope.Rows.Add(dt.Rows[i]);
-                            for (int z = 0; z < j; z++)
-                            {
-                                dt.Rows.RemoveAt(z);
-                            }
-                            break;
-                        }
-                    }
-                }
+                DataTable dt_EX = new DataTable();
+                dt_EX.Columns.Add("varChangedItem", Type.GetType("System.String"));
+                dt_EX.Columns.Add("vcPackSpot", Type.GetType("System.String"));
+                dt_EX.Columns.Add("vcPackSpot", Type.GetType("System.String"));
+
+
+
+
+
+
+
                 #endregion
 
                 string[] fields = { "varChangedItem","vcPackSpot","vcShouhuofang","vcPartsNo","vcCar","dUsedFrom","dUsedTo",

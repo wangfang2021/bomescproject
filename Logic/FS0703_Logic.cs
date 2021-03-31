@@ -45,9 +45,9 @@ namespace Logic
 
 
         #region 插入品番错误
-        public void InsertCheck(string vcpart_id,string strUserId,string EX)
+        public void InsertCheck(DataTable drImport, string strUserId)
         {
-            FS0703_DataAccess.InsertCheck(vcpart_id,strUserId, EX);
+            FS0703_DataAccess.InsertCheck(drImport, strUserId);
         }
         #endregion
 
@@ -94,9 +94,9 @@ namespace Logic
 
 
         #region 发送
-        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
+        public void Save(DataTable listInfoData, string userId, ref string strErrorPartId,string PackFrom, List<Object> SupplierCodeList)
         {
-            FS0703_DataAccess.Save(listInfoData, userId, ref strErrorPartId);
+            FS0703_DataAccess.Save(listInfoData, userId, ref strErrorPartId,PackFrom,SupplierCodeList);
         }
         #endregion
     }

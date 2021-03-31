@@ -36,7 +36,7 @@ namespace Logic
         #region 按检索条件检索,返回dt,注意这个dt返回的时候convert了
         public DataTable Search(List<Object> Note, List<Object> PackSpot, List<Object> Shouhuofang, string Pinfan, string Car, string PackNO, string PackGPSNo, string dtFromBegin, string dtFromEnd, string dtToBegin, string dtToEnd)
         {
-            return FS0702_DataAccess.Search( Note,  PackSpot,  Shouhuofang,  Pinfan,  Car,  PackNO,  PackGPSNo,  dtFromBegin,  dtFromEnd,  dtToBegin,  dtToEnd);
+            return FS0702_DataAccess.Search(Note, PackSpot, Shouhuofang, Pinfan, Car, PackNO, PackGPSNo, dtFromBegin, dtFromEnd, dtToBegin, dtToEnd);
         }
         #endregion
 
@@ -64,14 +64,14 @@ namespace Logic
 
 
         #region 保存
-        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId,ref string strErrorPartId,DataTable dt,DataTable dt1)
+        public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, DataTable dt, DataTable dt1)
         {
-            FS0702_DataAccess.Save(listInfoData, strUserId,ref strErrorPartId,dt,dt1);
+            FS0702_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId, dt, dt1);
         }
         #endregion
 
         #region 导入后保存
-        public void importSave(DataTable dt, string strUserId,DataTable dtPackBase,DataTable dtPackitem)
+        public void importSave(DataTable dt, string strUserId, DataTable dtPackBase, DataTable dtPackitem)
         {
             FS0702_DataAccess.importSave(dt, strUserId, dtPackBase, dtPackitem);
         }
@@ -88,7 +88,7 @@ namespace Logic
         #region 检查
         public DataTable checkSOQ(string vcPartsNo)
         {
-          return  FS0702_DataAccess.checkSOQ(vcPartsNo);
+            return FS0702_DataAccess.checkSOQ(vcPartsNo);
         }
         #endregion
 
@@ -100,9 +100,9 @@ namespace Logic
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search_GS(string strBegin, string strEnd )
+        public DataTable Search_GS(string strBegin, string strEnd)
         {
-            return FS0702_DataAccess.Search_GS(strBegin, strEnd );
+            return FS0702_DataAccess.Search_GS(strBegin, strEnd);
         }
         #endregion
 
@@ -116,7 +116,7 @@ namespace Logic
         #region 检查品番是否含有
         public bool CheckPartsNo(string strShouhuofang, string strPartsNo)
         {
-           return FS0702_DataAccess.CheckPartsNo(strShouhuofang, strPartsNo);
+            return FS0702_DataAccess.CheckPartsNo(strShouhuofang, strPartsNo);
         }
         #endregion
 
@@ -129,9 +129,16 @@ namespace Logic
         #endregion
 
         #region check时间有效性
-        public DataTable searchcheckTime(string vcPackSpot, string vcPartsNo, string vcPackNo, string dUsedFrom, string dUsedTo, int iAutoId,string vcShouhuofangID)
+        public DataTable searchcheckTime(string vcPackSpot, string vcPartsNo, string vcPackNo, string dUsedFrom, string dUsedTo, int iAutoId, string vcShouhuofangID)
         {
             return FS0702_DataAccess.searchcheckTime(vcPackSpot, vcPartsNo, vcPackNo, dUsedFrom, dUsedTo, iAutoId, vcShouhuofangID);
+        }
+        #endregion
+
+        #region 导入删除数据
+        public void DeleteALL(string strPartNoAll, string userId)
+        {
+            FS0702_DataAccess.DeleteALL(strPartNoAll, userId);
         }
         #endregion
 

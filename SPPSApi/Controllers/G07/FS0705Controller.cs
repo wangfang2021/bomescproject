@@ -138,7 +138,9 @@ namespace SPPSApi.Controllers.G07
 
                 #region 计算完毕检索计算结果
                 DataTable computeJGDT = fs0705_Logic.searchComputeJG();
+
                 DtConverter dtConverter = new DtConverter();
+
                 dtConverter.addField("dTimeStr", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(computeJGDT, dtConverter);
                 #endregion

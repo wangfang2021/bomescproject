@@ -130,6 +130,9 @@ namespace SPPSApi.Controllers.G07
                 //DataTable dtcheck = FS0703_Logic.SearchCheck();
 
                 DataTable dtcope = dt.Copy();
+                DataTable dtException = new DataTable();
+                dtException.Columns.Add("vcpart_id", Type.GetType("System.String"));
+                dtException.Columns.Add("vcException", Type.GetType("System.String"));
 
                 dtcope.TableName = "123";
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -137,20 +140,27 @@ namespace SPPSApi.Controllers.G07
                     if (string.IsNullOrEmpty(dt.Rows[i]["vcPackNo"].ToString()))
                     {
                         dtcope = new DataTable();
-                        FS0703_Logic.InsertCheck(dt.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dt.Rows[i]["vcPackNo"].ToString() + "没有维护包材品番信息！");
+                        DataRow drImport = dtException.NewRow();
+                        drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
+                        drImport["vcException"] = "没有维护包材品番信息！";
                     }
                     if (string.IsNullOrEmpty(dt.Rows[i]["dUsedFrom"].ToString())|| string.IsNullOrEmpty(dt.Rows[i]["dUsedTo"].ToString()))
                     {
                         dtcope = new DataTable();
-                        FS0703_Logic.InsertCheck(dt.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dt.Rows[i]["vcpart_id"].ToString() + "没有维护时间！");
+                        DataRow drImport = dtException.NewRow();
+                        drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
+                        drImport["vcException"] = "没有维护包材有效周期！";
                     }
                     else if (!(Convert.ToDateTime(dt.Rows[i]["dUsedFrom"]) < DateTime.Now) && !(DateTime.Now < Convert.ToDateTime(dt.Rows[i]["dUsedTo"])))
                     {
                         dtcope = new DataTable();
-                        FS0703_Logic.InsertCheck(dt.Rows[i]["vcpart_id"].ToString(), loginInfo.UserId, dt.Rows[i]["vcpart_id"].ToString() + "不在有效期内！");
-
+                        DataRow drImport = dtException.NewRow();
+                        drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
+                        drImport["vcException"] = "此包材失效！";
                     }
                 }
+                FS0703_Logic.InsertCheck(dtException, loginInfo.UserId);
+
                 //放入缓存
                 initSearchCash(strSearchKey, dtcope);
                 DataTable dtE = FS0703_Logic.SearchExceptionCK();
@@ -339,9 +349,50 @@ namespace SPPSApi.Controllers.G07
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-               
+
+                List<Object> PackSpot = new List<object>();
+
+                if (dataForm.PackSpot.ToObject<List<Object>>() == null)
+                {
+                    PackSpot = new List<object>();
+                }
+                else
+                {
+                    PackSpot = dataForm.PackSpot.ToObject<List<Object>>();
+                }
+                //包装厂
+
+
+                string PackFrom = dataForm.dFrom;//对象年月
+                List<Object> SupplierCodeList = new List<object>();
+
+                SupplierCodeList = dataForm.vcSupplierCode.ToObject<List<Object>>();
+
+
                 string strErrorPartId = "";
-                FS0703_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId);
+                DataTable dt = new DataTable();
+                string strSearchKey = FunctionID + loginInfo.UserId;
+                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                {
+                    dt = getResultCashByKey(strSearchKey);
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可发送数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
+                if (dt.Rows.Count == 0)
+                {
+
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可发送数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+
+                }
+
+                FS0703_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId,PackFrom, SupplierCodeList);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

@@ -24,16 +24,6 @@ namespace DataAccess
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 
-
-
-        public DataTable existDT(string vcMon, string vcPartsNo, string vcCarType, string vcPlant)
-        {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendLine(" select * from dbo.tSOQREPExport where vcMonth='" + vcMon + "' and PartsNo='" + vcPartsNo + "'");
-            sql.AppendLine(" and CFC='" + vcCarType + "' and updateFlag='0' and vcPlant not in " + StrToList(vcPlant));
-            return excute.ExcuteSqlWithSelectToDT(sql.ToString());
-        }
-
         private string StrToList(string aa)
         {
             string instr = "(";

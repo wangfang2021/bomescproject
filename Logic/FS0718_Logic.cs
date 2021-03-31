@@ -18,9 +18,41 @@ namespace Logic
         }
 
         #region 按检索条件检索,返回dt
+        public DataTable Search(string strDownloadDiff,string strSupplier)
+        {
+            
+            DataTable dt_All = fs0718_DataAccess.Search(strDownloadDiff);
+            DataTable returnDT = dt_All.Clone();
+            if (dt_All!=null && dt_All.Rows.Count>0)
+            {
+                for (int i = 0; i < dt_All.Rows.Count; i++)
+                {
+                    //获取dt的供应商字段的值
+                    string vcSupplier = dt_All.Rows[i]["vcSupplier"].ToString();
+                    //判断供应商是否时多个
+                    //获取供应商数组
+                    string[] suppliers = vcSupplier.Split(',');
+                    if (suppliers.Count()>0)
+                    {
+                        for (int j = 0; j < suppliers.Count(); j++)
+                        {
+                            if (suppliers[j]==strSupplier)
+                            {
+                                returnDT.ImportRow(dt_All.Rows[i]);
+                            }
+                        }
+                    }
+                }
+            }
+            return returnDT;
+        }
+        #endregion
+
+        #region 检索需要导出的内容
         public DataTable Search()
         {
-            return fs0718_DataAccess.Search();
+            //return fs0718_DataAccess.Search();
+            return null;
         }
         #endregion
 

@@ -180,14 +180,14 @@ namespace DataAccess
             strSql.Append("       set @dBegin=(select max(dEnd) from TPackCompute_Time where vcFaZhuID = '"+strFaZhuID+"');      \r\n");
             strSql.Append("       set @dEnd = (select MAX(cast(convert(varchar(10),getdate(),120)+' '+convert(varchar(50),druHeToTime) as datetime)) from TPackFaZhuTime where dFaZhuFromTime<=CONVERT(char(8),GETDATE(),108) and CONVERT(char(8),GETDATE(),108)<=dFaZhuToTime);      \r\n");
             strSql.Append("             \r\n");
-            strSql.Append("       insert into TPackCompute(vcFaZhuID,dTimeStr,vcPackNo,iA_SRS,iB_LastShengYu,iC_LiLun,iD_TiaoZheng,iE_JinJi,iF_DingGou,iG_ShengYu,vcOperatorID,dOperatorTime,vcFlag)      \r\n");
+            strSql.Append("       insert into TPackCompute(vcFaZhuID,dTimeStr,vcPackNo,vcPackGPSNo,iA_SRS,iB_LastShengYu,iC_LiLun,iD_TiaoZheng,iE_JinJi,iF_DingGou,iG_ShengYu,vcOperatorID,dOperatorTime,vcFlag)      \r\n");
             strSql.Append("       select a.*,(a.B+a.E+a.F-a.[C ]-a.D) as 'G','000000',GETDATE(),'"+ strFlag + "' from      \r\n");
             strSql.Append("       (      \r\n");
-            strSql.Append("       	select '"+strFaZhuID+"' as vcFaZhuID,GETDATE() as vcTimeStr,a.vcPackNo as '包材品番',a.iRelease as 'A',b.iG_ShengYu as'B'       \r\n");
+            strSql.Append("       	select '"+strFaZhuID+"' as vcFaZhuID,GETDATE() as vcTimeStr,a.vcPackNo as '包材品番',a.vcPackGPSNo,a.iRelease as 'A',b.iG_ShengYu as'B'       \r\n");
             strSql.Append("       	,c.iBiYao as 'C ',d.iNumber as 'D',e.iSJNumber as 'E',case when (b.iG_ShengYu+e.iSJNumber-c.iBiYao-d.iNumber)>=0 then 0 else (CEILING(c.iBiYao+d.iNumber-b.iG_ShengYu-e.iSJNumber)/a.iRelease)*a.iRelease end as 'F'      \r\n");
             strSql.Append("       	from      \r\n");
             strSql.Append("       	(      \r\n");
-            strSql.Append("       		select vcPackSpot,vcPackNo,iRelease from TPackBase where dPackFrom <= GETDATE() and dPackTo >= GETDATE()      \r\n");
+            strSql.Append("       		select vcPackSpot,vcPackNo,iRelease,vcPackGPSNo from TPackBase where dPackFrom <= GETDATE() and dPackTo >= GETDATE()      \r\n");
             strSql.Append("       	) a      \r\n");
             strSql.Append("       	left join      \r\n");
             strSql.Append("       	(      \r\n");
@@ -243,7 +243,7 @@ namespace DataAccess
             StringBuilder strSql = new StringBuilder();
             try
             {
-                strSql.AppendLine("        select * from TPackCompute where vcOrderNo is null         ");
+                strSql.AppendLine("            select * from TPackCompute where vcOrderNo is null         ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

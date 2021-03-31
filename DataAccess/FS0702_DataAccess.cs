@@ -20,7 +20,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("       select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -167,6 +167,27 @@ namespace DataAccess
         }
         #endregion
 
+
+
+
+        #region 导入删除数据
+        public void DeleteALL(string strPartNoAll, string userId)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("  select * from TPackItem where vcPartsNo in ('"+ strPartNoAll + "') and isnull(vcPackNo,'')<>'' and isnull(iBiYao,'')<>''and isnull(vcDistinguish,'')<>''  \r\n ");
+                
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+
         #region check时间有效性
         public DataTable searchcheckTime(string vcPackSpot, string vcPartsNo, string vcPackNo, string dUsedFrom, string dUsedTo, int iAutoId,string vcShouhuofangID)
         {
@@ -190,7 +211,7 @@ namespace DataAccess
                     strSql.AppendLine("and vcPackNo='" + vcPackNo + "'  ");
                 }
                 strSql.AppendLine("and dFrom<='"+ dUsedTo + "' and dTo>='"+ dUsedFrom + "' ");
-
+                strSql.AppendLine("and isnull(vcPackNo,'')<>'' and isnull(iBiYao,'')<>''and isnull(vcDistinguish,'')<>'' ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

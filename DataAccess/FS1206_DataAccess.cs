@@ -24,9 +24,9 @@ namespace DataAccess
                 ssql.AppendLine(" left join (");
                 ssql.AppendLine("		select distinct C.vcPartsNo,C.iCONum from tSSP C");
                 ssql.AppendLine("		inner join (	");
-                ssql.AppendLine("			select vcPartsNo,MAX(iAutoId) as iAutoId from tSSP where vcMonth<='" + mon + "'");
+                ssql.AppendLine("			select vcPartsNo,MAX(iAutoId) as iAutoId from tSSP");
                 ssql.AppendLine("			group by vcPartsNo");
-                ssql.AppendLine("		)D on C.vcPartsNo=D.vcPartsNo and C.iAutoId=D.iAutoId");
+                ssql.AppendLine("		) D on C.vcPartsNo=D.vcPartsNo and C.iAutoId=D.iAutoId");
                 ssql.AppendLine(") t2");
                 ssql.AppendLine("on t1.vcPartsNo=t2.vcPartsNo");
                 if (!string.IsNullOrEmpty(strPartsNo))
@@ -166,64 +166,22 @@ namespace DataAccess
                 apt.Fill(dttmp);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    DataRow[] dr = dttmp.Select("vcPartsNo='" + dt.Rows[i][0].ToString() + "' ");
-                    if (dr.Length > 0)
-                    {
-                        dr[0]["vcPartsNoFZ"] = dt.Rows[i][1].ToString();
-                        dr[0]["vcSource"] = dt.Rows[i][2].ToString().ToUpper();
-                        dr[0]["vcFactory"] = dt.Rows[i][3].ToString().ToUpper();
-                        dr[0]["vcBF"] = dt.Rows[i][4].ToString();
-                        dr[0]["iSRNum"] = dt.Rows[i][5].ToString();
-                        dr[0]["vcUpdateUser"] = user;
-                        dr[0]["dUpdateTime"] = DateTime.Now.ToString();
-
-                        string sql1 = "select iAutoId, vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg from TSSP where iAutoId in ";
-                        sql1 += "(select iAutoId from (select max(iAutoId) iAutoId, vcPartsNo from tSSP group by vcPartsNo) a) and vcPartsNo='" + dt.Rows[i][0].ToString() + "';";
-                        DataTable dt1 = excute.ExcuteSqlWithSelectToDT(sql1);
-                        if (dt1 != null && dt1.Rows.Count > 0)
-                        {
-                            decimal xz = Convert.ToDecimal(dt1.Rows[0]["iXZNum"].ToString());
-                            decimal co = Convert.ToDecimal(dt.Rows[0]["iCONum"].ToString());
-                            decimal nqc = Convert.ToDecimal(dt1.Rows[0]["Total"]);
-                            decimal sr = Convert.ToDecimal(dr[0]["iSRNum"]);
-                            decimal by = xz + nqc;
-                            decimal xzco = 0;
-                            decimal fz = 0;
-                            if (co - nqc - xz > 0) //不发注
-                            {
-                                xzco = co - by;
-                            }
-                            else
-                            {
-                                fz = Math.Ceiling(Math.Abs((co - nqc - xz)) / sr) * sr;
-                                xzco = co + fz - by;
-                            }
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
-                            sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "'," + nqc + "," + xz + "," + fz + ", " + Convert.ToInt32(dt1.Rows[0]["iCONum"]) + "," + xzco + ",");
-                            sb.Append(" 0, '" + user + "', '" + DateTime.Now.ToString() + "'); ");
-                            excute.ExecuteSQLNoQuery(sb.ToString());
-                        }
-                    }
-                    else
-                    {
-                        dttmp.Rows.Add(
-                                        dt.Rows[i][0].ToString(),
-                                        dt.Rows[i][1].ToString(),
-                                        dt.Rows[i][2].ToString().ToUpper(),
-                                        dt.Rows[i][3].ToString().ToUpper(),
-                                        dt.Rows[i][4].ToString(),
-                                        dt.Rows[i][5].ToString(),
-                                        user,
-                                        DateTime.Now,
-                                        null,
-                                        null
-                                       );
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
-                        sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "',0,0,0,0," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0,'" + user + "','" + DateTime.Now.ToString() + "');");
-                        excute.ExecuteSQLNoQuery(sb.ToString());
-                    }
+                    dttmp.Rows.Add(
+                                    dt.Rows[i][0].ToString(),
+                                    dt.Rows[i][1].ToString(),
+                                    dt.Rows[i][2].ToString().ToUpper(),
+                                    dt.Rows[i][3].ToString().ToUpper(),
+                                    dt.Rows[i][4].ToString(),
+                                    dt.Rows[i][5].ToString(),
+                                    user,
+                                    DateTime.Now,
+                                    null,
+                                    null
+                                   );
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
+                    sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "',0,0,0,0," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0,'" + user + "','" + DateTime.Now.ToString() + "');");
+                    excute.ExecuteSQLNoQuery(sb.ToString());
                 }
                 SqlCommandBuilder cmdbuild = new SqlCommandBuilder(apt);
                 //apt.UpdateCommand = cmdbuild.GetUpdateCommand();

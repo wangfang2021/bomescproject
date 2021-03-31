@@ -211,6 +211,12 @@ namespace DataAccess
             cmd.CommandText = "delete from tSSP where vcMonth='" + mon + "'";
             cmd.ExecuteNonQuery();
         }
+        /// <summary>
+        /// 更新发注数（王立伟）
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="mon"></param>
+        /// <param name="user"></param>
         public void InsertSSP(SqlCommand cmd, string mon, string user)
         {
             try
@@ -247,7 +253,6 @@ namespace DataAccess
                 da2.SelectCommand = cmd;
                 DataTable dt_SSPMaster = new DataTable();
                 da2.Fill(dt_SSPMaster);
-
 
                 StringBuilder sb_insert = new StringBuilder();
                 foreach (DataRow r1 in dt.Rows)

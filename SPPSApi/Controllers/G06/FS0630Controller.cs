@@ -56,6 +56,8 @@ namespace SPPSApi.Controllers.G06
 
                 List<Object> dataList_C000 = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));//工厂
                 res.Add("C000", dataList_C000);
+                DateTime dNow = DateTime.Now;
+                res.Add("yearMonth", dNow.ToString("yyyy/MM"));
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -87,13 +89,13 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            string vcCLYM = dataForm.vcCLYM;
+            string vcCLYM = dataForm.vcCLYM==null?"": dataForm.vcCLYM;
             string vcPlant = dataForm.vcPlant;
             string vcDXYM = dataForm.vcDXYM;
 
             try
             {
-                DataTable dt = fs0630_Logic.Search(vcDXYM, vcPlant, vcCLYM);
+                DataTable dt = fs0630_Logic.Search(vcDXYM, vcPlant, vcCLYM.Replace("/", ""));
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);

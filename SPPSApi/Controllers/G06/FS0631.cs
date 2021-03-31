@@ -56,6 +56,8 @@ namespace SPPSApi.Controllers.G06
 
                 List<Object> dataList_C000 = ComFunction.convertAllToResult(fs0631_Logic.getTCode("C000",loginInfo.UnitCode));//工厂
                 res.Add("C000", dataList_C000);
+                DateTime dNow = DateTime.Now;
+                res.Add("yearMonth", dNow.ToString("yyyy/MM"));
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -86,13 +88,13 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strCLYM = dataForm.Process_YYYYMM;
+            string strCLYM = dataForm.Process_YYYYMM==null?"": dataForm.Process_YYYYMM;
             string strDXYM = dataForm.Start_date_for_daily_qty;
             string strPartNo = dataForm.Part_No;
             string strPlant = dataForm.vcPlant;
             try
             {
-                DataTable dt = fs0631_Logic.SearchNQCResult(strCLYM, strDXYM, strPartNo,strPlant);
+                DataTable dt = fs0631_Logic.SearchNQCResult(strCLYM.Replace("/", ""), strDXYM, strPartNo,strPlant);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
@@ -128,13 +130,13 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strCLYM = dataForm.Process_YYYYMM;
+            string strCLYM = dataForm.Process_YYYYMM==null?"": dataForm.Process_YYYYMM;
             string strDXYM = dataForm.Start_date_for_daily_qty;
             string strPartNo = dataForm.Part_No;
             string strPlant = dataForm.vcPlant;
             try
             {
-                DataTable dt = fs0631_Logic.SearchNQCResult(strCLYM, strDXYM, strPartNo,strPlant);
+                DataTable dt = fs0631_Logic.SearchNQCResult(strCLYM.Replace("/", ""), strDXYM, strPartNo,strPlant);
                 string[] heads = { "品番", "处理年月", "对象年月","工厂","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12",
                     "D13","D14","D15","D16" ,"D17","D18","D19","D20","D21","D22","D23","D24","D25","D26","D27","D28","D29","D30","D31"
                 };

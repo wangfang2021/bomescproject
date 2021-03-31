@@ -225,7 +225,7 @@ namespace DataAccess
                 sql.Append("	where vcPackingPlant='"+strUnit+ "' and vcReceiver='APC06' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
-                sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id     \n");
+                sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id,t1.vcSR=t6.vcSufferIn     \n");
                 sql.Append("from (    \n");
                 sql.Append("	select * from TSoqReply where vcCLYM='" + strCLYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1'   \n");
                 sql.Append(")t1    \n");
@@ -233,6 +233,18 @@ namespace DataAccess
                 sql.Append("	select * from TSoq    \n");
                 sql.Append("	where vcYearMonth='" + strDXYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='1'   \n");
                 sql.Append(") t2 on t1.vcPart_id=t2.vcPart_id     \n");
+                sql.Append("left join        \n");
+                sql.Append("(--手配主表        \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='TFTM' and vcReceiver='APC06' and dFromTime<>dToTime     \n");
+                sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and t1.vcDXYM between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
+                sql.Append("left join             \n");
+                sql.Append("(    --//受入 N        \n");
+                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn,dFromTime,dToTime        \n");
+                sql.Append("	from TSPMaster_SufferIn            \n");
+                sql.Append("	where vcOperatorType='1'            \n");
+                sql.Append(")t6 on t3.vcPartId=t6.vcPartId and t3.vcPackingPlant=t6.vcPackingPlant and t3.vcReceiver=t6.vcReceiver and t3.vcSupplierId=t6.vcSupplierId         \n");
+                sql.Append("and t1.vcDXYM between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)      \n");
 
                 cmd.Connection = conn;
                 cmd.Transaction = st;
@@ -511,7 +523,7 @@ namespace DataAccess
                     sql.Append("      );      \n");
                 }
 
-                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),iBoxes=b.iBoxes,iPartNums=b.iQuantityPercontainer*b.iBoxes,vcZhanKaiID=null,dZhanKaiTime=null,      \n");
+                sql.Append("      update TSOQReply set vcOperatorID='"+ strUserId + "',dOperatorTime=getdate(),iBoxes=b.iBoxes,iPartNums=b.iQuantityPercontainer*b.iBoxes,      \n");
                 for (int j = 1; j < 32; j++)
                 {
                     sql.Append(" iD" + j + "=b.iD" + j  );
@@ -526,6 +538,16 @@ namespace DataAccess
                 sql.Append("      and  a.vcDXYM='" + strYearMonth + "'; \n  ");
 
                 string vcCLYM = System.DateTime.Now.ToString("yyyyMM");
+
+                //清空3个月展开人和展开时间
+                sql.Append("update t1 set vcZhanKaiID=null,dZhanKaiTime=null   \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply    \n");
+                sql.Append("	where vcCLYM='" + vcCLYM + "' and vcInOutFlag='1'     \n");
+                sql.Append(")t1    \n");
+                sql.Append("inner join (    \n");
+                sql.Append("	select * from #TSOQReply    \n");
+                sql.Append(")t2 on t1.vcPart_id=t2.vcPart_id    \n");
 
                 sql.Append("delete t1    \n");
                 sql.Append("from (    \n");

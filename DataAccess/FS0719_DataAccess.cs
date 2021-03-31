@@ -116,7 +116,7 @@ namespace DataAccess
             }
             else
             {
-                int iOrderNo_3 = (int)Convert.ToByte(strOrderNo_3) + 1;
+                int iOrderNo_3 = (int)Convert.ToInt32(strOrderNo_3) + 1;
                 strOrderNo_3 = iOrderNo_3.ToString().PadLeft(5, '0');
             }
             strOrderNoMAx = strOrderNo_1 + strOrderNo_2 + strOrderNo_3;

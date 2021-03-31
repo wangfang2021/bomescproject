@@ -71,7 +71,7 @@ namespace SPPSApi.Controllers.G07
                                                 {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo","vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"},
                                                 {"",FieldCheck.Num,"","","","","",FieldCheck.Date,FieldCheck.Date,"","",FieldCheck.Date,FieldCheck.Date,"",FieldCheck.Decimal},
                                                 {"50","0","50","50","50","50","0","0","0","0","0","0","0","0","0"},
-                                                {"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}
+                                                {"0","0","0","0","0","0","0","0","0","1","0","0","0","1","1"}
                                                };//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
@@ -106,7 +106,7 @@ namespace SPPSApi.Controllers.G07
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
                 DataTable dtisok = FS0702_Logic.CheckPartsNo_1();
-
+                string strPartNoAll = "";
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     DataRow[] dr1 = dtisok.Select("vcPartsNo='" + importDt.Rows[i]["vcPartsNo"].ToString() + "'");
@@ -116,19 +116,22 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "不存在！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+
+                    string strAutoId = importDt.Rows[i]["iAutoId"].ToString() == "" ? "0" : importDt.Rows[i]["iAutoId"].ToString();
+                    int iAutoId = Convert.ToInt32(strAutoId);
+                    DataTable dtcheckTime = FS0702_Logic.searchcheckTime(importDt.Rows[i]["vcPackSpot"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString(),
+                        importDt.Rows[i]["vcPackNo"].ToString(), importDt.Rows[i]["dFrom"].ToString(),
+                        importDt.Rows[i]["dTo"].ToString(), iAutoId, importDt.Rows[i]["vcShouhuofangID"].ToString());
+                    if (dtcheckTime.Rows.Count > 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "品番有维护重复有效时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+
                     if (importDt.Rows[i]["vcIsorNo"].ToString() == "修改")
                     {
-                        string strAutoId = importDt.Rows[i]["iAutoId"].ToString() == "" ? "0" : importDt.Rows[i]["iAutoId"].ToString();
-                        int iAutoId = Convert.ToInt32(strAutoId);
-                        DataTable dtcheckTime = FS0702_Logic.searchcheckTime(importDt.Rows[i]["vcPackSpot"].ToString(), importDt.Rows[i]["vcPartsNo"].ToString(),
-                            importDt.Rows[i]["vcPackNo"].ToString(), importDt.Rows[i]["dFrom"].ToString(),
-                            importDt.Rows[i]["dTo"].ToString(), iAutoId, importDt.Rows[i]["vcShouhuofangID"].ToString());
-                        if (dtcheckTime.Rows.Count > 0)
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "第" + (i + 2) + "行的" + "品番:" + importDt.Rows[i]["vcPartsNo"].ToString() + "品番有维护重复有效时间！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
                         string sql = "vcPartsNo ='" + importDt.Rows[i]["vcPartsNo"].ToString() + "'  and iAutoId<>'" + iAutoId + "' ";
                         if (!string.IsNullOrEmpty(importDt.Rows[i]["vcPackSpot"].ToString()))
                         {
@@ -152,16 +155,30 @@ namespace SPPSApi.Controllers.G07
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }
+                    else if (importDt.Rows[i]["vcIsorNo"].ToString() == "新增")
+                    {
+                        if (i != 0)
+                        {
+                            strPartNoAll = strPartNoAll + ",'" + importDt.Rows[i]["vcPartsNo"].ToString() + "'";
+                        }
+                        else if (i == importDt.Rows.Count)
+                        {
 
+                            strPartNoAll = strPartNoAll + ",'" + importDt.Rows[i]["vcPartsNo"].ToString();
+                        }
+                        else
+                        {
 
-
-
+                            strPartNoAll = importDt.Rows[i]["vcPartsNo"].ToString() + "'";
+                        }
+                    }
                 }
                 List<Object> strSupplierCode = new List<object>();
                 FS0701_Logic FS0701_Logic = new FS0701_Logic();
                 DataTable dtPackBase = FS0701_Logic.Search(new List<object>(), "", "", strSupplierCode, "", "", "", "");
                 DataTable dtPackitem = FS0702_Logic.Search(new List<object>(), new List<object>(), new List<object>(), "", "", "", "", "", "", "", "");
-
+                //删除导入含有的部品品番的包材为空的数据
+                FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);
                 FS0702_Logic.importSave(importDt, loginInfo.UserId, dtPackBase, dtPackitem);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

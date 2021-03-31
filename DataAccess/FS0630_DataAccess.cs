@@ -34,7 +34,7 @@ namespace DataAccess
                     strSql.Append("and vcDXYM = '" + vcDXYM + "'   \n");
                 strSql.Append(")t1    \n");
                 strSql.Append("left join (select vcValue,vcName from TCode where vcCodeId='C000') t2 on t1.vcPlant=t2.vcValue    \n");
-                strSql.Append("order by t1.vcCLYM,t1.vcPlant,t1.vcDXYM,t1.iTimes    \n");
+                strSql.Append("order by t1.vcCLYM desc,t1.vcPlant,t1.vcDXYM,t1.iTimes    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

@@ -75,7 +75,12 @@ namespace BatchProcess
                 sql.Append("           \n");
                 sql.Append("   from         \n");
                 sql.Append("  (         \n");
-                sql.Append("  select *from TPackItem         \n");
+                sql.Append("   select ss.[vcPartsNo],ss.[vcPackNo],sss.[vcPackGPSNo],ss.[dFrom]     \n");
+                sql.Append("   ,ss.[dTo],ss.[vcDistinguish],ss.[iBiYao],ss.[vcOperatorID],ss.[dOperatorTime]     \n");
+                sql.Append("   from(     \n");
+                sql.Append("   select *from TPackItem      \n");
+                sql.Append("   )ss left join     \n");
+                sql.Append("   (select * from TPackBase)sss on ss.vcPackNo=sss.vcPackNo     \n");
                 sql.Append("  )temp          \n");
                 sql.Append("  left join         \n");
                 sql.Append("  (         \n");

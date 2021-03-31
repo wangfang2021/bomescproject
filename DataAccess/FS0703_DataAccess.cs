@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("      select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -82,7 +82,7 @@ namespace DataAccess
             try
             {
                 DateTime dtn1 = DateTime.Parse(PackFrom.Substring(0, 7));
-                   // DateTime.ParseExact(PackFrom.Substring(0, 7), "yyyy-MM", System.Globalization.CultureInfo.CurrentCulture);
+                // DateTime.ParseExact(PackFrom.Substring(0, 7), "yyyy-MM", System.Globalization.CultureInfo.CurrentCulture);
                 string strN = dtn1.ToString("yyyyMM");
                 string strN_1 = dtn1.AddMonths(1).ToString("yyyyMM");
                 string strN_2 = dtn1.AddMonths(2).ToString("yyyyMM");
@@ -200,7 +200,7 @@ namespace DataAccess
                 strSql.AppendLine("  	  )ss on s.vcPackNo=ss.vcPackNo      ");
                 strSql.AppendLine("        ");
                 strSql.AppendLine("   )T_2 on T_1.vcPart_id=T_2.vcPartsNo          ");
-         
+
 
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -214,27 +214,31 @@ namespace DataAccess
 
 
         #region 插入品番错误信息
-        public void InsertCheck(string vcpart_id, string strUserId, string eX)
+        public void InsertCheck(DataTable drImport, string strUserId)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.AppendLine("     INSERT INTO [TPackJSException]           \n");
-                sql.AppendLine("                ([vcPart_id]           \n");
-                sql.AppendLine("                ,[vcException]           \n");
-                sql.AppendLine("                ,[vcOperatorID]           \n");
-                sql.AppendLine("                ,[dOperatorTime])           \n");
-                sql.AppendLine("          VALUES           \n");
-                sql.AppendLine("            (    \n");
-                sql.AppendLine("             '"+ vcpart_id + "',   \n");
-                sql.AppendLine("             '"+ eX + "',   \n");
-                sql.AppendLine("             '"+ strUserId + "',   \n");
-                sql.AppendLine("             getdate())   \n");
+                for (int i = 0; i < drImport.Rows.Count; i++)
+                {
+                    sql.AppendLine("     INSERT INTO [TPackJSException]           \n");
+                    sql.AppendLine("                ([vcPart_id]           \n");
+                    sql.AppendLine("                ,[vcException]           \n");
+                    sql.AppendLine("                ,[vcOperatorID]           \n");
+                    sql.AppendLine("                ,[dOperatorTime])           \n");
+                    sql.AppendLine("          VALUES           \n");
+                    sql.AppendLine("            (    \n");
+                    sql.AppendLine("             '" + drImport.Rows[i]["vcPart_id"].ToString() + "',   \n");
+                    sql.AppendLine("             '" + drImport.Rows[i]["vcException"].ToString() + "',   \n");
+                    sql.AppendLine("             '" + strUserId + "',   \n");
+                    sql.AppendLine("             getdate())   \n");
+                }
+
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
-                    throw ex;
+                throw ex;
             }
         }
 
@@ -247,7 +251,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode,vcPackSupplierName from TPackSupplier;");
+                strSql.AppendLine("       select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -297,7 +301,7 @@ namespace DataAccess
                 strSql.Append("      select         \n");
                 strSql.Append("    vcYearMonth, vcPackNo,vcPackSpot,vcSupplierCode,vcSupplierWork,vcSupplierName,vcSupplierPack ,vcCycle,iRelease         \n");
                 strSql.Append("    ,sum(iDayNNum)as iDayNNum,         \n");
-                strSql.Append("    sum(iDayN1Num)as iDayN1Num,         \n"); 
+                strSql.Append("    sum(iDayN1Num)as iDayN1Num,         \n");
                 strSql.Append("    sum(iDayN2Num)as iDayN2Num,         \n");
                 strSql.Append("    sum(iDay1)as iDay1,sum(iDay2)as iDay2,sum(iDay3)as iDay3,sum(iDay4)as iDay4,sum(iDay5)as iDay5,sum(iDay6)as iDay6,sum(iDay7)as iDay7         \n");
                 strSql.Append("   ,sum(iDay8)as iDay8,sum(iDay9)as iDay9,sum(iDay10)as iDay10,         \n");
@@ -503,16 +507,38 @@ namespace DataAccess
         #endregion
 
         #region 发送
-        public void Save(List<Dictionary<string, object>> listInfoData, string userId, ref string strErrorPartId)
+        public void Save(DataTable listInfoData, string userId, ref string strErrorPartId, string PackFrom, List<Object> SupplierCodeList)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-             
-                for (int i = 0; i < listInfoData.Count; i++)
+                string SupplierCode = "";
+                if (SupplierCodeList.Count > 0)
                 {
-                    sql.AppendLine(" update [dbo].[TPackNSCalculation] set   \n");
-                    sql.AppendLine(" vcIsorNoSend='1'            \n");
+                    for (int j = 0; j < SupplierCodeList.Count; j++)
+                    {
+                        if (j != 0)
+                        {
+                            SupplierCode = "," + SupplierCode + SupplierCodeList[j].ToString();
+                        }
+                        else
+                        {
+                            SupplierCode = SupplierCode + SupplierCodeList[j].ToString();
+
+                        }
+
+                    }
+                }
+                else { 
+                
+                
+                }
+
+
+                for (int i = 0; i < listInfoData.Rows.Count; i++)
+                {
+                    sql.AppendLine("            \n");
+                    sql.AppendLine("            \n");
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());
 

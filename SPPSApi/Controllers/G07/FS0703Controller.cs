@@ -144,7 +144,7 @@ namespace SPPSApi.Controllers.G07
                         drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
                         drImport["vcException"] = "没有维护包材品番信息！";
                     }
-                    if (string.IsNullOrEmpty(dt.Rows[i]["dUsedFrom"].ToString())|| string.IsNullOrEmpty(dt.Rows[i]["dUsedTo"].ToString()))
+                    if (string.IsNullOrEmpty(dt.Rows[i]["dUsedFrom"].ToString()) || string.IsNullOrEmpty(dt.Rows[i]["dUsedTo"].ToString()))
                     {
                         dtcope = new DataTable();
                         DataRow drImport = dtException.NewRow();
@@ -159,14 +159,19 @@ namespace SPPSApi.Controllers.G07
                         drImport["vcException"] = "此包材失效！";
                     }
                 }
-                FS0703_Logic.InsertCheck(dtException, loginInfo.UserId);
+                if (dtException.Rows.Count > 0)
+                {
+                    FS0703_Logic.InsertCheck(dtException, loginInfo.UserId);
+                }
+
 
                 //放入缓存
                 initSearchCash(strSearchKey, dtcope);
                 DataTable dtE = FS0703_Logic.SearchExceptionCK();
                 //List<Object> dataList = ComFunction.convertAllToResult(dtE);
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                if (dtE.Rows.Count>0) {
+                if (dtE.Rows.Count > 0)
+                {
 
                     initSearchCash("Exception", dtE);
                 }
@@ -224,17 +229,17 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = new DataTable();
-                //dt = FS0703_Logic.Search(PackSpot, PackFrom, SupplierCodeList);
-                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
-                {
-                    dt = getResultCashByKey(strSearchKey);
-                }
-                else
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "没有可导出数据！";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
+                dt = FS0703_Logic.Search(PackSpot, PackFrom, SupplierCodeList);
+                //if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                //{
+                //    dt = getResultCashByKey(strSearchKey);
+                //}
+                //else
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "没有可导出数据！";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
 
                 if (dt.Rows.Count == 0)
                 {
@@ -244,14 +249,22 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
-                string[] fields = { "vcYearMonth","vcPackNo","vcPackSpot","vcSupplierCode","vcSupplierWork","vcSupplierName","vcSupplierPack",
+                string resMsg = "";
+                string[] head = { "对象月", "包装场",  "包装材品番",  "GPS品番", "供货商代码",   "供货商工区",   "供货商名称（中文）",   "纳入周期",    "纳入单位",    "当月合计必要数", "+1月合计必要数" ,   "+2月合计必要数",
+                    "1日" , "2日",  "3日",  "4日",  "5日",  "6日",  "7日",  "8日",  "9日",  "10日", "11日", "12日", "13日", "14日", "15日",
+                    "16日", "17日" ,"18日" ,"19日", "20日", "21日", "22日", "23日", "24日", "25日", "26日", "27日", "28日", "29日", "30日" ,"31日", "作成时间"};
+
+                string[] fields = { "vcYearMonth","vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierCode","vcSupplierWork","vcSupplierName",
                     "vcCycle","iRelease","iDayNNum","iDayN1Num","iDayN2Num",
                     "iDay1","iDay2","iDay3","iDay4","iDay5","iDay6","iDay7","iDay8","iDay9","iDay10",
                     "iDay11","iDay12","iDay13","iDay14","iDay15","iDay16","iDay17","iDay18","iDay19","iDay20",
                     "iDay21","iDay22","iDay23","iDay24","iDay25","iDay26","iDay27","iDay28","iDay29","iDay30",
                     "iDay31","dZYTime"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0703_Export.xlsx", 1, loginInfo.UserId, "内示书计算导出");
+
+
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内饰书导出", ref resMsg);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -392,7 +405,7 @@ namespace SPPSApi.Controllers.G07
 
                 }
 
-                FS0703_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId,PackFrom, SupplierCodeList);
+                FS0703_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId, PackFrom, SupplierCodeList);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

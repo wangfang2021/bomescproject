@@ -97,7 +97,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine("    delete from   TPackWeekInfo;    ");
 
-                strSql.AppendLine("    select a.vcPartsno,d.vcPackNo,d.vcPackGPSNo,d.vcSupplierName,d.iRelease,        ");
+                strSql.AppendLine("    select a.vcPartsno,d.vcPackNo,d.vcPackGPSNo,d.vcSupplierName,d.vcSupplierCode,d.iRelease,        ");
                 strSql.AppendLine("  a.vcD1b as vcD1bF,'' as vcD1bFShow ,a.vcD1y as vcD1yF, '' as vcD1yFShow,              ");
                 strSql.AppendLine("  a.vcD2b as vcD2bF,'' as vcD2bFShow ,a.vcD2y as vcD2yF, '' as vcD2yFShow,              ");
                 strSql.AppendLine("  a.vcD3b as vcD3bF,'' as vcD3bFShow ,a.vcD3y as vcD3yF, '' as vcD3yFShow,              ");
@@ -247,7 +247,7 @@ namespace DataAccess
                 strSql.AppendLine("    )b on a.vcPartsno=b.vcPartsNo                                                                    ");
                 strSql.AppendLine("    left join                                                                                       ");
                 strSql.AppendLine("    (                                                                                                ");
-                strSql.AppendLine("        select t.vcPartsNo,t.vcPackNo,t.vcPackGPSNo,y.iRelease,y.vcSupplierName from(                ");
+                strSql.AppendLine("        select t.vcPartsNo,t.vcPackNo,t.vcPackGPSNo,y.iRelease,y.vcSupplierName,y.vcSupplierCode from(                ");
                 strSql.AppendLine("       select * from TPackItem                                                                       ");
                 strSql.AppendLine("       )t left join                                                                                 ");
                 strSql.AppendLine("       (                                                                                             ");
@@ -462,6 +462,7 @@ namespace DataAccess
                     sql.Append("             ([vcPartsNo]    \r\n");
                     sql.Append("             ,[vcPackNo]    \r\n");
                     sql.Append("             ,[vcPackGPSNo]    \r\n");
+                    sql.Append("             ,[vcSupplierCode]    \r\n");
                     sql.Append("             ,[vcSupplierName]    \r\n");
                     sql.Append("             ,[iRelease]        \r\n");
                     sql.Append("             ,[vcD1yF]        \r\n");
@@ -721,7 +722,9 @@ namespace DataAccess
                     sql.Append("       '" + listInfoData.Rows[i]["vcPartsNo"].ToString() + "',         \r\n");
                     sql.Append("       '" + listInfoData.Rows[i]["vcPackNo"].ToString() + "',            \r\n");
                     sql.Append("       '" + listInfoData.Rows[i]["vcPackGPSNo"].ToString() + "',          \r\n");
+                    sql.Append("       '" + listInfoData.Rows[i]["vcSupplierCode"].ToString() + "',              \r\n");
                     sql.Append("       '" + listInfoData.Rows[i]["vcSupplierName"].ToString() + "',              \r\n");
+
                     sql.Append("       '" + listInfoData.Rows[i]["iRelease"].ToString() + "',          \r\n");
 
                     #region

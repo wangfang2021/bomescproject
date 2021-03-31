@@ -56,7 +56,7 @@ namespace SPPSApi.Controllers.G12
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
                 List<Object> dataList_ProTypeSource = ComFunction.convertAllToResult(logic.dllPorType(""));
                 List<Object> dataList_ZBSource = ComFunction.convertAllToResult(logic.dllZB(""));
-                List<Object> dataList_LBSource = ComFunction.convertAllToResult(logic.dllLB1(""));
+                List<Object> dataList_LBSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 List<Object> dataList_PartFrequenceSource = ComFunction.convertAllToResult(logic.ddlPartFrequence());
                 res.Add("ProTypeSource", dataList_ProTypeSource);
                 res.Add("ZBSource", dataList_ZBSource);

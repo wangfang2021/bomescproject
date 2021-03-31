@@ -110,11 +110,11 @@ namespace DataAccess
             strSQL.Append("where vcInOutFlag='0' ");
             if (!string.IsNullOrEmpty(vcPartsNo))
             {
-                strSQL.AppendLine(" and vcPartsNo like '%" + vcPartsNo + "%'");
+                strSQL.AppendLine(" and vcPartsNo like '" + vcPartsNo + "%'");
             }
             if (!string.IsNullOrEmpty(vcCarFamilyCode))
             {
-                strSQL.AppendLine(" and vcCarFamilyCode like '%" + vcCarFamilyCode + "%'");
+                strSQL.AppendLine(" and vcCarFamilyCode like '" + vcCarFamilyCode + "%'");
             }
             if (vcPorType != "")
             {
@@ -122,11 +122,11 @@ namespace DataAccess
             }
             if (vcZB != "")
             {
-                strSQL.AppendLine(" and vcZB like '%" + vcZB + "%'");
+                strSQL.AppendLine(" and vcZB like '" + vcZB + "%'");
             }
             if (vcPartPlant != "")
             {
-                strSQL.AppendLine(" and vcPartPlant like '%" + vcPartPlant + "%'");
+                strSQL.AppendLine(" and vcPartPlant like '" + vcPartPlant + "%'");
             }
             if (vcPartFrequence != "")
             {
@@ -215,17 +215,14 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-
-            strSQL.AppendLine(" select distinct [vcData1] as [vcName],[vcData1] as [vcValue]  from [ConstMst] where [vcDataId]='ProType'");
             if (vcZB == "")
             {
-                strSQL.AppendLine("  union all select '' as [Text],'' as [Value]  ");
+                strSQL.AppendLine("select distinct [vcData1] as [vcName],[vcData1] as [vcValue] from [ConstMst] where [vcDataId]='ProType'");
             }
-            if (vcZB != "")
+            else
             {
-                strSQL.AppendLine(" and vcData3 = '" + vcZB + "'");
-                strSQL.AppendLine("  union all select '' as [Text],'' as [Value]  ");
-            }
+                strSQL.AppendLine("select distinct [vcData1] as [vcName],[vcData1] as [vcValue] from [ConstMst] where [vcDataId]='ProType' and vcData3='" + vcZB + "'");
+            }  
             return SearchPartData(strSQL.ToString());
         }
 
@@ -238,16 +235,13 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-
-            strSQL.AppendLine("select distinct [vcData3] as [vcName],[vcData3] as [vcValue]  from [ConstMst] where [vcDataId]='ProType'");
             if (vcPorType == "")
             {
-                strSQL.AppendLine("  union all    select '' as [Text],'' as [Value]  ");
+                strSQL.AppendLine("select distinct [vcData3] as [vcName],[vcData3] as [vcValue] from [ConstMst] where [vcDataId]='ProType'");
             }
-            if (vcPorType != "")
+            else
             {
-                strSQL.AppendLine(" and  vcData1 = '" + vcPorType + "'");
-                strSQL.AppendLine("  union all    select '' as [Text],'' as [Value]  ");
+                strSQL.AppendLine("select distinct [vcData3] as [vcName],[vcData3] as [vcValue] from [ConstMst] where [vcDataId]='ProType' and vcData1='" + vcPorType + "'");
             }
             return SearchPartData(strSQL.ToString());
         }
@@ -278,7 +272,7 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select '' as vcName, '' as vcValue union all select vcName, vcValue from TCode where vcCodeId='C047' and vcValue in ('0','2')");
+            strSQL.AppendLine("select vcName, vcValue from TCode where vcCodeId='C047' and vcValue in ('0','2')");
             return SearchPartData(strSQL.ToString());
         }
 

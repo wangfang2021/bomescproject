@@ -432,7 +432,6 @@ namespace Logic
                 InitCSVDataTable(dtCSV);//初始化CSV信息表
                 DataTable dtPercentage = fs0610_DataAccess.getWeekLevelPercentage(strMonth, strWeek, strPlant);//获取周计划变动幅度管理表信息
                 DataTable dtSchedule = fs0610_DataAccess.getWeekLevelSchedule(strMonth, strWeek, strPlant);//获取周度订单平准化管理表信息
-                //DataTable dtWeekPackPlan = fs0610_DataAccess.getWeekPackPlan(strMonth, strPlant);//获取周度包装计划管理表信息 （弃用）
                 DataTable dtWeekPackPlan = fs0610_DataAccess.getWeekPackPlan_Sum(strMonth, strPlant);//获取周度包装计划管理表信息
                 if (dtPercentage.Rows.Count <= 0)
                 {
@@ -2549,14 +2548,12 @@ namespace Logic
         {
             string _msg = string.Empty;
             DataTable dtWeekPackPlan = TXTCloneWeekPlanTbl();//周度包装计划表
-
             DataTable dtWeekKanBanPlan = TXTCloneWeekPlanTbl();//周度看板打印计划表
-
             DataTable dtWeekProdPlan = TXTCloneWeekPlanTbl();//周度生产计划表
-
             DataTable dtWeekTZPlan = TXTCloneWeekPlanTbl();//周度涂装计划表
-
             DataTable dtWeekP3Plan = TXTCloneWeekPlanTbl();//周度P3计划表
+
+            DataTable dtDock = fs0610_DataAccess.getDockTable(strMonth);
 
             //先在数据库的周度包装计划管理表中找相应对象月、厂区的数据（有没有都要找）
             //string strSQL4 = "select * from WeekPackPlanTbl where vcMonth='" + strMonth + "' and (montouch='' or montouch is null) and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant ='" + strPlant + "' and vcPartsNo = WeekPackPlanTbl.vcPartsno and dTimeFrom <= '" + strMonth + "-01' and dTimeTo >= '" + strMonth + "-01'); ";
@@ -2585,50 +2582,35 @@ namespace Logic
                 string _strPlanColumnName = TXTWeekColumnName(_strPlant, strMonth, _vcCalendar1, strWeek, ref _iWeekDays).Replace("D", "vcD");//计划管理表对象周列名
                 string[] _PlanColumnName = _strPlanColumnName.Split(',');//计划管理表对象周列名清单
                 string _strLevelWeekColumnName = TXTWeekColumnName(_strPlant, strMonth, _vcCalendar1, strWeek, ref _iWeekDays).Replace("D", "vcLevelD");//对应平准化部分的对象周列名
-
                 string[] _ColumnName = _strLevelWeekColumnName.Split(',');//对象周对应的平准化部分的列名清单
                 string strSQLMonthPackPlan = "select * from MonthPackPlanTbl where vcMonth='" + strMonth + "' and vcPartsno='" + _strPartsNo + "' and vcProject1='" + _vcCalendar1 + "' and (vcMonTotal <> '' or vcMonTotal is not null) ";
                 DataTable dtTMPMonthPackPlan = excute.ExcuteSqlWithSelectToDT(strSQLMonthPackPlan);
-                //在月度包装计划中数据不存在的情况取消了
-
-                //if (dtTMPMonthPackPlan.Rows.Count <= 0)
-                //{
-                //    _msg = "品番：" + _strPartsNo + "在月度包装计划中不存在！";
-                //    break;
-                //}
                 if (dtTMPMonthPackPlan.Rows.Count > 1)
                 {
                     _msg = "品番：" + _strPartsNo + "在月度包装计划中数据不唯一！";
                     break;
                 }
                 //周度包装计划数据不存在时，用生成表格方式生成包装计划。。
-
                 if (dtTMP4.Rows.Count <= 0)
                 {
                     //_msg = "品番：" + _strPartsNo + "在第一周还没有数据，请先维护第一周的数据！";
                     //break;
                     DataRow dr = dtWeekPackPlan.NewRow();//新建行
-
                     dr["vcMonth"] = strMonth;//对象月
-
                     dr["vcPartsno"] = _strPartsNo;//品番
                     dr["vcDock"] = TXTFindDock(_strPartsNo, strMonth);//受入：单独方法检索
-
                     dr["vcCarType"] = TXTFindCarType(_strPartsNo, strMonth);//车型：单独方法检索
-
                     dr["vcProject1"] = _vcCalendar1;//工程1
                     dr["vcProjectName"] = _vcProName1;//工程1名称：部署组别检索
-
                     dr["vcMonTotal"] = dt.Rows[i]["vcLevelWeekTotal"];//总数为第一周订单总数
                     dr["montouch"] = DBNull.Value;//空值
-
                     dr["DADDTIME"] = DateTime.Now;
                     dr["DUPDTIME"] = DateTime.Now;
                     dr["CUPDUSER"] = strUser;
+                    dr["vcSupplier_id"] = dtTMPMonthPackPlan.Rows[0]["vcSupplier_id"];
                     for (int k = 0; k < _iWeekDays; k++)
                     {
                         dr[_PlanColumnName[k]] = dt.Rows[i][_ColumnName[k]];//将周度订单平准化管理表中平准化部分的数据复制到周度包装计划表中
-
                     }
                     dtWeekPackPlan.Rows.Add(dr);
                 }
@@ -2645,47 +2627,37 @@ namespace Logic
                     else if (dtRow4.Length == 1)
                     {
                         //开始给这一行更新数据
-
                         //int _Total1 = Convert.ToInt32(dtRow4[0]["vcMonTotal"].ToString());//周度包装计划表里的总数
                         //int _Total2 = Convert.ToInt32(dt.Rows[i]["vcLevelWeekTotal"].ToString());//周度订单平准化管理表中平准化部分的订单总数
                         //dtRow4[0]["vcMonTotal"] = _Total1 + _Total2;//总数为累加的和
-
                         dtRow4[0]["DUPDTIME"] = DateTime.Now;//添加时间不用改，只改更新时间
                         dtRow4[0]["CUPDUSER"] = strUser;
                         for (int k = 0; k < _iWeekDays; k++)
                         {
                             dtRow4[0][_PlanColumnName[k]] = dt.Rows[i][_ColumnName[k]];//将周度订单平准化管理表中平准化部分的数据复制到周度包装计划表中
-
                         }
                         //更新完主体数据之后再求和
                         dtRow4[0]["vcMonTotal"] = TXTWeekPackPlanMonTotal(dtRow4[0]);
                         dtWeekPackPlan.Rows.Add(dtRow4[0].ItemArray);//把更新好的数据行放到结果表中
                     }
                     else if (dtRow4.Length == 0)//行为0，即本周有此品番订单，而上周没有，需要新建一行
-
                     {
                         DataRow dr = dtWeekPackPlan.NewRow();//新建行
-
                         dr["vcMonth"] = strMonth;//对象月
-
                         dr["vcPartsno"] = _strPartsNo;//品番
                         dr["vcDock"] = TXTFindDock(_strPartsNo, strMonth);//受入：单独方法检索
-
                         dr["vcCarType"] = TXTFindCarType(_strPartsNo, strMonth);//车型：单独方法检索
-
                         dr["vcProject1"] = _vcCalendar1;//工程1
                         dr["vcProjectName"] = _vcProName1;//工程1名称：部署组别检索
-
                         dr["vcMonTotal"] = dt.Rows[i]["vcLevelWeekTotal"];//总数为第一周订单总数
                         dr["montouch"] = DBNull.Value;//空值
-
                         dr["DADDTIME"] = DateTime.Now;
                         dr["DUPDTIME"] = DateTime.Now;
                         dr["CUPDUSER"] = strUser;
+                        dr["vcSupplier_id"] = dtTMPMonthPackPlan.Rows[0]["vcSupplier_id"];
                         for (int k = 0; k < _iWeekDays; k++)
                         {
                             dr[_PlanColumnName[k]] = dt.Rows[i][_ColumnName[k]];//将周度订单平准化管理表中平准化部分的数据复制到周度包装计划表中
-
                         }
                         dtWeekPackPlan.Rows.Add(dr);
                     }
@@ -5117,5 +5089,10 @@ namespace Logic
             return fs0610_DataAccess.InsertOrder(dt, vcUserId);
         }
         #endregion
+
+        public DataTable getDockTable(string TargetYM)
+        {
+            return fs0610_DataAccess.getDockTable(TargetYM);
+        }
     }
 }

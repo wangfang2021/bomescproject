@@ -614,7 +614,7 @@ namespace Logic
         #endregion
 
         #region 给财务发提醒邮件
-        public void  sendEmailToCaiWu(string strUserEmail,string strUserName,ref string strErr)
+        public void  sendEmailToCaiWu(string strUserEmail,string strUserName,ref string strErr, List<string> carTypeListDistinct)
         {
             if (string.IsNullOrEmpty(strUserEmail))
             {
@@ -636,37 +636,57 @@ namespace Logic
             string strEmailBody = dtSetting.Rows[0]["vcValue4"] == System.DBNull.Value ? "" : dtSetting.Rows[0]["vcValue4"].ToString();
             if (strSubject.Trim()=="")
             {
-                strErr += "给财务发送邮件标题在常量中不能维护空!\n";
+                strErr += "给财务发送邮件标题模板在常量中不能维护空!\n";
                 return;
             }
             if (strEmailBody.Trim() == "")
             {
-                strErr += "给财务发送邮件内容在常量中不能维护空!\n";
+                strErr += "给财务发送邮件内容模板在常量中不能维护空!\n";
                 return;
             }
 
-            DataTable receiverDt = new DataTable();
-            receiverDt.Columns.Add("displayName");
-            receiverDt.Columns.Add("address");
-            DataTable dt = getCaiWuEmailAddRess();
+           
+            DataTable dt = getCaiWuEmailAddRess(carTypeListDistinct);
             for (int i = 0; i < dt.Rows.Count; i++)
             {
-                DataRow dr = receiverDt.NewRow();
-                dr["address"] = dt.Rows[i]["vcValue2"].ToString();
-                dr["displayName"] = dt.Rows[i]["vcValue1"].ToString();
-                receiverDt.Rows.Add(dr);
+                string strCarTypedev = dt.Rows[i]["vcValue1"].ToString();
+                carTypeListDistinct.Remove(strCarTypedev);
             }
-            if (receiverDt.Rows.Count <= 0)
+            if (carTypeListDistinct.Count > 0)
             {
-                strErr += "所选择用户为配置任何邮箱！\n";
+                strErr += " 以下车型开发收件人没维护!\n";
+                for (int i = 0; i < carTypeListDistinct.Count; i++)
+                {
+                    string strCarType = carTypeListDistinct[i].ToString();
+                    strErr += strCarType + ",";
+                }
+                return;
             }
-            ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDt, null, strSubject, "", false);
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataTable receiverDt = new DataTable();
+                receiverDt.Columns.Add("displayName");
+                receiverDt.Columns.Add("address");
+
+                DataRow dr = receiverDt.NewRow();
+                dr["displayName"] = dt.Rows[i]["vcValue2"].ToString();
+                dr["address"] = dt.Rows[i]["vcValue3"].ToString();
+                receiverDt.Rows.Add(dr);
+
+                DataRow dr2 = receiverDt.NewRow();
+                dr2["displayName"] = strUserName;
+                dr2["address"] = strUserEmail;
+
+                receiverDt.Rows.Add(dr2);
+                ComFunction.SendEmailInfo(strUserEmail, strUserName, strEmailBody, receiverDt, null, strSubject, "", false);
+            }
         }
         #endregion
         #region 获取价格Master财务接收邮箱
-        public DataTable getCaiWuEmailAddRess()
+        public DataTable getCaiWuEmailAddRess(List<string> carTypeListDistinct)
         {
-            return fs0309_DataAccess.getCaiWuEmailAddRess();
+            return fs0309_DataAccess.getCaiWuEmailAddRess(carTypeListDistinct);
         }
         #endregion
 

@@ -354,7 +354,7 @@ namespace SPPSApi.Controllers.G06
                     //}
                 }
                 // 追加新增品番的是否存在基础信息
-                for (int i = 0; i < listInfoData.Count; i++)
+               /* for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
                     bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
@@ -374,7 +374,7 @@ namespace SPPSApi.Controllers.G06
                              }
                         }
                     }
-                }
+                }*/
                 if (!bReault)
                 {
                     //弹出错误dtMessage

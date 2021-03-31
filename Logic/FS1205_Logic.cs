@@ -458,7 +458,6 @@ namespace Logic
                     for (int i = 0; i < dtPercentage.Rows.Count; i++)//以周计划变动幅度管理表信息为基准
                     {
                         #region 生成CSV数据循环体
-
                         //数据准备
                         string _vcMonth = dtPercentage.Rows[i]["vcMonth"].ToString();
                         string _vcPartsno = dtPercentage.Rows[i]["vcPartsno"].ToString();
@@ -510,47 +509,19 @@ namespace Logic
                             dr[ItemName] = Item;
                         }
 
-                        #region 老逻辑
-                        //for (int k = 0; k < _Week.Length; k = k + 2)
-                        //{
-                        //    //空数据置0（白班夜班都要算）
-                        //    if (dtRow.Rows[0][_Week[k]].ToString() == string.Empty)//白班
-                        //    {
-                        //        dtRow.Rows[0][_Week[k]] = "0";
-                        //    }
-                        //    if (k + 1 == _Week.Length)
-                        //    {
-                        //        string Item = Convert.ToInt32(dtRow.Rows[0][_Week[k]]).ToString();//日别的数值是白班与夜班的和
-                        //        string ItemName = _Week[k].Substring(0, _Week[k].Length - 1);
-                        //        dr[ItemName] = Item;
-                        //    }
-                        //    else
-                        //    {
-                        //        if (dtRow.Rows[0][_Week[k + 1]].ToString() == string.Empty)//夜班
-                        //        {
-                        //            dtRow.Rows[0][_Week[k + 1]] = "0";
-                        //        }
-                        //        string Item = (Convert.ToInt32(dtRow.Rows[0][_Week[k]].ToString()) + Convert.ToInt32(dtRow.Rows[0][_Week[k + 1]].ToString())).ToString();//日别的数值是白班与夜班的和
-                        //        string ItemName = _Week[k].Substring(0, _Week[k].Length - 1);
-                        //        dr[ItemName] = Item;
-                        //    }
-                        //}
-                        #endregion
                         //日别部分数据格式化
-
                         for (int j = 8; j < dr.ItemArray.Length; j++)
                         {
                             if (dr[j].ToString() == string.Empty)
                             {
-                                dr[j] = "000000";
+                                dr[j] = "0";
                             }
                             else
                             {
-                                dr[j] = Convert.ToInt32(dr[j].ToString()).ToString("000000");//六位数字
+                                dr[j] = Convert.ToInt32(dr[j].ToString());
                             }
                         }
                         dr["vcMonth"] = dtPercentage.Rows[i]["vcMonth"].ToString().Replace("-", "");//CSV文件中的对象月没有横线
-
                         dr["vcCSVFlag"] = dtPercentage.Rows[i]["vcCSVFlag"];
                         dr["vcOrderNo"] = dtPercentage.Rows[i]["vcOrderNo"];
                         dr["vcCSVItemNo"] = dtPercentage.Rows[i]["vcCSVItemNo"];
@@ -5132,10 +5103,18 @@ namespace Logic
         #endregion
 
 
+
         #region 日程别更新
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId)
         {
             fs0610_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId);
+        }
+        #endregion
+
+        #region 生成订单，插入订单表
+        public string InsertOrder(DataTable dt, string vcUserId)
+        {
+            return fs0610_DataAccess.InsertOrder(dt, vcUserId);
         }
         #endregion
     }

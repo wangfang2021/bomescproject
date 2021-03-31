@@ -22,17 +22,17 @@ using Newtonsoft.Json.Linq;
 
 namespace SPPSApi.Controllers.G07
 {
-    [Route("api/FS0705_Sub2/[action]")]
+    [Route("api/FS0705_Sub/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0705Controller_Sub2 : BaseController
+    public class FS0705Controller_Sub : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0705_Logic fs0705_Logic = new FS0705_Logic();
         private readonly string FunctionID = "FS0705";
 
-        public FS0705Controller_Sub2(IWebHostEnvironment webHostEnvironment)
+        public FS0705Controller_Sub(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -159,8 +159,23 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = fs0705_Logic.search_Sub(strPackNo,strPackGPSNo,strTimeFrom,strTimeTo,strType);
-                string[] fields = { "vcPackNo", "vcPackGPSNo", "iNumber", "vcType", "dTime", "vcReason"};
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export_Sub2.xlsx", 2, loginInfo.UserId, FunctionID);
+                #region 根据调整类型的Value生成调整类型的Name列，导出使用调整类型Name列
+                dt.Columns.Add("vcType_Name");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcType"].ToString()=="1")
+                    {
+                        dt.Rows[i]["vcType_Name"] = "调增";
+                    }
+                    if (dt.Rows[i]["vcType"].ToString()=="2")
+                    {
+                        dt.Rows[i]["vcType_Name"] = "调减";
+                    }
+                }
+                #endregion
+
+                string[] fields = { "vcPackNo", "vcPackGPSNo", "iNumber", "vcType_Name", "dTime", "vcReason"};
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export_Sub.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

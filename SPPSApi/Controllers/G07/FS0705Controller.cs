@@ -215,8 +215,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = fs0705_Logic.searchComputeJG();
-                string[] fields = { "vcFaZhuID","vcPackNo" , "vcPackGPSNo", "iA_SRS", "iB_LastShengYu", "iC_LiLun"
-                ,"iD_TiaoZheng","iE_JinJi","iF_DingGou","iG_ShengYu","dTimeStr"
+                string[] fields = { "vcFaZhuID","dTimeStr","vcPackNo","vcPackGPSNo", "iA_SRS", "iB_LastShengYu", "iC_LiLun"
+                ,"iD_TiaoZheng","iE_JinJi","iF_DingGou","iG_ShengYu"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -257,8 +257,8 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = fs0705_Logic.searchComputeJGAll();
-                string[] fields = { "vcPackNo", "vcPackGPSNo", "iA_SRS", "iB_LastShengYu", "iC_LiLun", "iD_TiaoZheng"
-                ,"iE_JinJi","iF_DingGou","iG_ShengYu","dTimeStr"
+                string[] fields = { "vcPackNo", "vcPackGPSNo","dTimeStr", "iA_SRS", "iB_LastShengYu", "iC_LiLun", "iD_TiaoZheng"
+                ,"iE_JinJi","iF_DingGou","iG_ShengYu"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0705_Export2.xlsx", 2, loginInfo.UserId, FunctionID);
                 if (filepath == "")

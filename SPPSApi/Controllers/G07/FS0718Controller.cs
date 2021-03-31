@@ -146,13 +146,50 @@ namespace SPPSApi.Controllers.G07
                 }
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                string strSupplier = dataForm.strSupplier;
-                string strYearMonth = dataForm.strYearMonth;
-                string strNSDiff = dataForm.strNSDiff;
-                string strNSQJ = dataForm.strNSQJ;
-                string strNSState = dataForm.strNSState;
-                string dFaBuTime = dataForm.strFaBuTime;
-                string dFirstDownload = dataForm.dFirstDownload;
+                #region 定义两个List分别记录月度和周度的内饰数据
+                List<Dictionary<string, Object>> list_NSMonth = new List<Dictionary<string, object>>();
+                List<Dictionary<string, Object>> list_NSWeek = new List<Dictionary<string, object>>();
+                #endregion
+
+                #region 定义两个DataTable,用来接收月度和周度的查询结果
+
+                #endregion
+                #region 筛选用户所选数据
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcType"] != null)
+                    {
+                        if (listInfoData[i]["vcType"].ToString() == "月度内饰")
+                        {
+                            list_NSMonth.Add(listInfoData[i]);
+                        }
+                        if (listInfoData[i]["vcType"].ToString() == "周度内饰")
+                        {
+                            list_NSWeek.Add(listInfoData[i]);
+                        }
+                    }
+                }
+                #endregion
+
+                #region 对所选月度内饰进行处理
+                if (list_NSMonth.Count > 0)
+                {
+                    for (int i = 0; i < list_NSMonth.Count; i++)
+                    {
+
+                    }
+                }
+                #endregion
+
+                #region 对所选周度内饰进行处理
+                if (list_NSWeek.Count>0)
+                {
+                    for (int i = 0; i < list_NSWeek.Count; i++)
+                    {
+
+                    }
+                }
+                #endregion
 
                 DataTable dt = FS0718_Logic.Search();
                 string[] fields = { "iAutoId","vcChange_Name", "vcPart_id", "dUseBeginStr", "dUseEndStr", "vcProjectType_Name", "vcSupplier_id"

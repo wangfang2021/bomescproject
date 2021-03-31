@@ -790,6 +790,14 @@ namespace DataAccess
                 #endregion
 
                 #region 两表相同的数据进行更新操作（这里的状态加限定：对应可否确认结果为可对应）
+                /*
+                 * 修改时间：2021/03/31
+                 * 修改人：董镇
+                 * 修改内容：生确单织入原单位的时候，如果变更事项为新设，根据品番和供应商代码将包装工场织入原单位，其他变更事项不处理包装工场
+                 * 修改说明：只有新设的品番，生确单没有包装工场信息、生产地、出荷地信息，
+                 *           此时TFTM生确担当可以填写包装工场，供应商生确担当可以填写生产地、出荷地信息，
+                 *           所以织入的时候需要将包装工场信息织回去。
+                 */
                 #region 新设
                 #region 根据品番织入TFTM调整日期
                 sql.Append("        update TUnit set        \n");
@@ -816,6 +824,7 @@ namespace DataAccess
                 sql.Append("        ,vcSCPlace = b.vcSCPlace_City       \n");
                 sql.Append("        ,vcCHPlace = b.vcCHPlace_City       \n");
                 sql.Append("        ,vcZXBZNo = b.vcZXBZNo       \n");
+                sql.Append("        ,vcSYTCode = b.vcSYTCode       \n");
                 sql.Append("        from TUnit a       \n");
                 sql.Append("        inner join       \n");
                 sql.Append("        (       \n");

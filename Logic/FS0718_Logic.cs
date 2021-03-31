@@ -38,6 +38,7 @@ namespace Logic
                         {
                             if (suppliers[j]==strSupplier)
                             {
+                                dt_All.Rows[i]["vcSupplier"] = strSupplier;
                                 returnDT.ImportRow(dt_All.Rows[i]);
                             }
                         }

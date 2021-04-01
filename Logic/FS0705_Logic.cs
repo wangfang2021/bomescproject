@@ -165,7 +165,14 @@ namespace Logic
         #region 检索计算结果
         public DataTable searchComputeJG()
         {
-            return fs0705_DataAccess.searchComputeJG();
+            DataTable dt = fs0705_DataAccess.searchComputeJG();
+            DataTable returnDT = dt.Clone();
+            DataRow[]  drs = dt.Select("iF_DingGou > 0");
+            for (int i = 0; i < drs.Length; i++)
+            {
+                returnDT.ImportRow(drs[i]);
+            }
+            return returnDT;
         }
         #endregion
 

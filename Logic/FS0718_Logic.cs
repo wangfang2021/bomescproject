@@ -49,10 +49,17 @@ namespace Logic
         }
         #endregion
 
-        #region 检索需要导出的内容
-        public DataTable Search()
+        #region 检索需要导出月度内饰
+        public DataTable Search_Month(string strSupplier, string strYearMonth, string dFaBuTime)
         {
-            //return fs0718_DataAccess.Search();
+            return fs0718_DataAccess.Search_Month(strSupplier, strYearMonth, dFaBuTime);
+        }
+        #endregion
+
+        #region 检索需要导出的周度内饰
+        public DataTable Search_Week() 
+        {
+            fs0718_DataAccess.Search_Week();
             return null;
         }
         #endregion

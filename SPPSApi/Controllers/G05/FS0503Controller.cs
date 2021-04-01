@@ -212,7 +212,8 @@ namespace SPPSApi.Controllers.G05
                 field = new string[] { "vcState", "dSendDate","dExpectDeliveryDate", "vcPackingPlant", "vcReceiver", "vcPartNo",  "vcPartName", "vcCarType","dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea", "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight",  "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
-                string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
+                //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID, ref msg);
+                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0503_Data.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -491,22 +492,122 @@ namespace SPPSApi.Controllers.G05
                     apiResult.data = "请先选中数据，再进行回复操作！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                DataTable dataTable = fs0503_Logic.createTable("fs0503");
+                bool bReault = true;
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (listInfoData[i]["vcState"].ToString() != "待回复" && listInfoData[i]["vcState"].ToString() != "退回"&& listInfoData[i]["vcState"].ToString() != "待回复(已填写)" && listInfoData[i]["vcState"].ToString() != "退回(已填写)")
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是待回复(已填写)或退回(已填写)，才能进行回复操作！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "状态不正确,必须是待回复(已填写)或退回(已填写)，才能进行回复操作！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                        //apiResult.code = ComConstant.ERROR_CODE;
+                        //apiResult.data = listInfoData[i]["vcPartNo"] + "状态不正确,必须是待回复(已填写)或退回(已填写)，才能进行回复操作！";
+                        //return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     string vcImageRoutes = listInfoData[i]["vcImageRoutes"] == null ? "" : listInfoData[i]["vcImageRoutes"].ToString();
                     if (vcImageRoutes.Length==0)
                     {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = listInfoData[i]["vcPartNo"] + "尚未编辑上传图片,不能回复！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "尚未编辑上传图片,不能回复！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                        //apiResult.code = ComConstant.ERROR_CODE;
+                        //apiResult.data = listInfoData[i]["vcPartNo"] + "尚未编辑上传图片,不能回复！";
+                        //return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    
+                    string vcWorkArea = listInfoData[i]["vcWorkArea"] == null ? "" : listInfoData[i]["vcWorkArea"].ToString();
+                    if (vcWorkArea.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "工区不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcIntake = listInfoData[i]["vcIntake"] == null ? "" : listInfoData[i]["vcIntake"].ToString();
+                    if (vcIntake.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "收容数不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcBoxMaxIntake = listInfoData[i]["vcBoxMaxIntake"] == null ? "" : listInfoData[i]["vcBoxMaxIntake"].ToString();
+                    if (vcBoxMaxIntake.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "箱最大收容数不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcBoxType = listInfoData[i]["vcBoxType"] == null ? "" : listInfoData[i]["vcBoxType"].ToString();
+                    if (vcBoxType.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "箱种不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcLength = listInfoData[i]["vcLength"] == null ? "" : listInfoData[i]["vcLength"].ToString();
+                    if (vcLength.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "长(mm)不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcWide = listInfoData[i]["vcWide"] == null ? "" : listInfoData[i]["vcWide"].ToString();
+                    if (vcWide.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "宽(mm)不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcHeight = listInfoData[i]["vcHeight"] == null ? "" : listInfoData[i]["vcHeight"].ToString();
+                    if (vcHeight.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "高(mm)不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcEmptyWeight = listInfoData[i]["vcEmptyWeight"] == null ? "" : listInfoData[i]["vcEmptyWeight"].ToString();
+                    if (vcEmptyWeight.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "空箱重量(g)不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                    string vcUnitNetWeight = listInfoData[i]["vcUnitNetWeight"] == null ? "" : listInfoData[i]["vcUnitNetWeight"].ToString();
+                    if (vcUnitNetWeight.Length == 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                        dataRow["vcMessage"] = "单品净重(g)不能为空！";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                }
+                if (!bReault)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dataTable;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 fs0503_Logic.reply(listInfoData, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -518,6 +619,61 @@ namespace SPPSApi.Controllers.G05
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0405", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "回复失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+
+
+        /// <summary>
+        /// 导出消息信息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string exportmessageApi([FromBody] dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                List<Dictionary<string, Object>> listInfoData = dataForm.ToObject<List<Dictionary<string, Object>>>();
+                //DataTable dataTable = fs0603_Logic.createTable("MES");
+                //FS0404_Logic fs0404_Logic = new FS0404_Logic();
+                DataTable dataTable = fs0503_Logic.createTable("fs0503");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    DataRow dataRow = dataTable.NewRow();
+                    dataRow["vcPartNo"] = listInfoData[i]["vcPartNo"].ToString();
+                    dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
+                    dataTable.Rows.Add(dataRow);
+                }
+
+                string[] fields = { "vcPartNo", "vcMessage" };
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0503_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

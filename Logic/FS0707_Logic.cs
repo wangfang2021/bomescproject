@@ -46,9 +46,9 @@ namespace Logic
         #endregion
 
         #region 保存
-        public void Save(string strUserId,ref string strErrorPartId)
+        public void Save(DataTable dt, string strUserId,ref string strErrorPartId,string  strBegin,string strEnd,string strFromBeginBZ,string strFromEndBZ,string strKind, List<Object> OrderState)
         {
-            FS0707_DataAccess.Save( strUserId,ref strErrorPartId);
+            FS0707_DataAccess.Save(dt, strUserId,ref strErrorPartId, strBegin, strEnd, strFromBeginBZ, strFromEndBZ, strKind, OrderState);
         }
         #endregion
 

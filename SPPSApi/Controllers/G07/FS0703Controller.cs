@@ -168,7 +168,7 @@ namespace SPPSApi.Controllers.G07
                 //放入缓存
                 initSearchCash(strSearchKey, dtcope);
                 DataTable dtE = FS0703_Logic.SearchExceptionCK();
-                //List<Object> dataList = ComFunction.convertAllToResult(dtE);
+                //List<Object> dataList = ComFunction.convertAllToResult(dtE);s
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 if (dtE.Rows.Count > 0)
                 {
@@ -230,16 +230,12 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = new DataTable();
                 dt = FS0703_Logic.Search(PackSpot, PackFrom, SupplierCodeList);
-                //if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
-                //{
-                //    dt = getResultCashByKey(strSearchKey);
-                //}
-                //else
-                //{
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = "没有可导出数据！";
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //}
+                if (!isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "没有可发送数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 if (dt.Rows.Count == 0)
                 {
@@ -360,8 +356,6 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-                JArray listInfo = dataForm.multipleSelection;
-                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 List<Object> PackSpot = new List<object>();
 
@@ -384,12 +378,9 @@ namespace SPPSApi.Controllers.G07
 
                 string strErrorPartId = "";
                 DataTable dt = new DataTable();
+                dt = FS0703_Logic.Search(PackSpot, PackFrom, SupplierCodeList);
                 string strSearchKey = FunctionID + loginInfo.UserId;
-                if (isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
-                {
-                    dt = getResultCashByKey(strSearchKey);
-                }
-                else
+                if (!isExistSearchCash(strSearchKey))//缓存已经存在，则从缓存中获取
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "没有可发送数据！";
@@ -405,7 +396,7 @@ namespace SPPSApi.Controllers.G07
 
                 }
 
-                FS0703_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId, PackFrom, SupplierCodeList);
+                FS0703_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId, PackFrom, SupplierCodeList, PackSpot);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -414,7 +405,7 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "发送成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

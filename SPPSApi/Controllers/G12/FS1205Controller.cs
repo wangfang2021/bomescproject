@@ -588,7 +588,7 @@ namespace SPPSApi.Controllers.G12
                     DataTable dtCol = dtSource.Clone();
                     if (dtSource.Rows.Count > 0)
                     {
-                        msg = fS1205_Logic.InsertOrder(dtSource, loginInfo.UserId);
+                        msg = fS1205_Logic.InsertOrder(dtSource, loginInfo.UserId, loginInfo.UnitCode);
                         if (msg == "")
                         {
                             apiResult.code = ComConstant.SUCCESS_CODE;

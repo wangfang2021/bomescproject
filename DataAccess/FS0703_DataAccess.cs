@@ -86,7 +86,7 @@ namespace DataAccess
                 string strN = dtn1.ToString("yyyyMM");
                 string strN_1 = dtn1.AddMonths(1).ToString("yyyyMM");
                 string strN_2 = dtn1.AddMonths(2).ToString("yyyyMM");
-
+                string strN_CL = dtn1.AddMonths(-1).ToString("yyyyMM");
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" delete from TPackJSException   ;      ");
@@ -99,37 +99,37 @@ namespace DataAccess
                 strSql.AppendLine("  T_2.vcPackGPSNo       ");
                 strSql.AppendLine(" ,T_2.vcPackNo ,T_2.dUsedFrom,T_2.dUsedTo           ");
                 strSql.AppendLine(" ,T_2.vcCycle,T_2.iRelease,T_1.iHySOQN,T_1.iHySOQN1,T_1.iHySOQN2,       ");
-                strSql.AppendLine("  T_1.iD1*T_1.iQuantityPercontainer as iD1,       ");
-                strSql.AppendLine("  T_1.iD2*T_1.iQuantityPercontainer as iD2,       ");
-                strSql.AppendLine("  T_1.iD3*T_1.iQuantityPercontainer as iD3,       ");
-                strSql.AppendLine("  T_1.iD4*T_1.iQuantityPercontainer as iD4,       ");
-                strSql.AppendLine("  T_1.iD5*T_1.iQuantityPercontainer as iD5,       ");
-                strSql.AppendLine("  T_1.iD6*T_1.iQuantityPercontainer as iD6,       ");
-                strSql.AppendLine("  T_1.iD7*T_1.iQuantityPercontainer as iD7,       ");
-                strSql.AppendLine("  T_1.iD8*T_1.iQuantityPercontainer as iD8,       ");
-                strSql.AppendLine("  T_1.iD9*T_1.iQuantityPercontainer as iD9,            ");
-                strSql.AppendLine("  T_1.iD10*T_1.iQuantityPercontainer as iD10,       ");
-                strSql.AppendLine("  T_1.iD11*T_1.iQuantityPercontainer as iD11,       ");
-                strSql.AppendLine("  T_1.iD12*T_1.iQuantityPercontainer as iD12,       ");
-                strSql.AppendLine("  T_1.iD13*T_1.iQuantityPercontainer as iD13,       ");
-                strSql.AppendLine("  T_1.iD14*T_1.iQuantityPercontainer as iD14,       ");
-                strSql.AppendLine("  T_1.iD15*T_1.iQuantityPercontainer as iD15,       ");
-                strSql.AppendLine("  T_1.iD16*T_1.iQuantityPercontainer as iD16,       ");
-                strSql.AppendLine("  T_1.iD17*T_1.iQuantityPercontainer as iD17,       ");
-                strSql.AppendLine("  T_1.iD18*T_1.iQuantityPercontainer as iD18,       ");
-                strSql.AppendLine("  T_1.iD19*T_1.iQuantityPercontainer as iD19,       ");
-                strSql.AppendLine("  T_1.iD20*T_1.iQuantityPercontainer as iD20,       ");
-                strSql.AppendLine("  T_1.iD21*T_1.iQuantityPercontainer as iD21,       ");
-                strSql.AppendLine("  T_1.iD22*T_1.iQuantityPercontainer as iD22,        ");
-                strSql.AppendLine("  T_1.iD23*T_1.iQuantityPercontainer as iD23,        ");
-                strSql.AppendLine("  T_1.iD24*T_1.iQuantityPercontainer as iD24,        ");
-                strSql.AppendLine("  T_1.iD25*T_1.iQuantityPercontainer as iD25,        ");
-                strSql.AppendLine("  T_1.iD26*T_1.iQuantityPercontainer as iD26,        ");
-                strSql.AppendLine("  T_1.iD27*T_1.iQuantityPercontainer as iD27,        ");
-                strSql.AppendLine("  T_1.iD28*T_1.iQuantityPercontainer as iD28,        ");
-                strSql.AppendLine("  T_1.iD29*T_1.iQuantityPercontainer as iD29,        ");
-                strSql.AppendLine("  T_1.iD30*T_1.iQuantityPercontainer as iD30,        ");
-                strSql.AppendLine("  T_1.iD31*T_1.iQuantityPercontainer as iD31,        ");
+                strSql.AppendLine("  T_1.iD1 as iD1,       ");
+                strSql.AppendLine("  T_1.iD2 as iD2,       ");
+                strSql.AppendLine("  T_1.iD3 as iD3,       ");
+                strSql.AppendLine("  T_1.iD4 as iD4,       ");
+                strSql.AppendLine("  T_1.iD5 as iD5,       ");
+                strSql.AppendLine("  T_1.iD6 as iD6,       ");
+                strSql.AppendLine("  T_1.iD7 as iD7,       ");
+                strSql.AppendLine("  T_1.iD8 as iD8,       ");
+                strSql.AppendLine("  T_1.iD9 as iD9,            ");
+                strSql.AppendLine("  T_1.iD10 as iD10,       ");
+                strSql.AppendLine("  T_1.iD11 as iD11,       ");
+                strSql.AppendLine("  T_1.iD12 as iD12,       ");
+                strSql.AppendLine("  T_1.iD13 as iD13,       ");
+                strSql.AppendLine("  T_1.iD14 as iD14,       ");
+                strSql.AppendLine("  T_1.iD15 as iD15,       ");
+                strSql.AppendLine("  T_1.iD16 as iD16,       ");
+                strSql.AppendLine("  T_1.iD17 as iD17,       ");
+                strSql.AppendLine("  T_1.iD18 as iD18,       ");
+                strSql.AppendLine("  T_1.iD19 as iD19,       ");
+                strSql.AppendLine("  T_1.iD20 as iD20,       ");
+                strSql.AppendLine("  T_1.iD21 as iD21,       ");
+                strSql.AppendLine("  T_1.iD22 as iD22,        ");
+                strSql.AppendLine("  T_1.iD23 as iD23,        ");
+                strSql.AppendLine("  T_1.iD24 as iD24,        ");
+                strSql.AppendLine("  T_1.iD25 as iD25,        ");
+                strSql.AppendLine("  T_1.iD26 as iD26,        ");
+                strSql.AppendLine("  T_1.iD27 as iD27,        ");
+                strSql.AppendLine("  T_1.iD28 as iD28,        ");
+                strSql.AppendLine("  T_1.iD29 as iD29,        ");
+                strSql.AppendLine("  T_1.iD30 as iD30,        ");
+                strSql.AppendLine("  T_1.iD31 as iD31,        ");
                 strSql.AppendLine("  GETDATE() as dZCTime --作成时间         ");
                 strSql.AppendLine(" from          ");
                 strSql.AppendLine("  (        ");
@@ -146,15 +146,15 @@ namespace DataAccess
                 strSql.AppendLine("  )a         ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("  (         ");
-                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "'       ");
+                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN + "' and vcCLYM='"+ strN_CL + "'      ");
                 strSql.AppendLine("  )b on a.vcPart_id=b.vcPart_id       ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("  (         ");
-                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN_1 + "'      ");
+                strSql.AppendLine("  select * from TSoqReply where vcDXYM='" + strN_1 + "'  and vcCLYM='" + strN_CL + "'      ");
                 strSql.AppendLine("  )c on a.vcPart_id=c.vcPart_id        ");
                 strSql.AppendLine("  left join       ");
                 strSql.AppendLine("   (          ");
-                strSql.AppendLine("   select * from TSoqReply where vcDXYM='" + strN_2 + "'       ");
+                strSql.AppendLine("   select * from TSoqReply where vcDXYM='" + strN_2 + "' and vcCLYM='" + strN_CL + "'        ");
                 strSql.AppendLine("   )d on a.vcPart_id=d.vcPart_id      ");
                 strSql.AppendLine("   left join      ");
                 strSql.AppendLine("   (      ");
@@ -360,10 +360,6 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                //for (int i = 0; i < listInfoData.Rows.Count; i++)
-                //{
-                //    sql.AppendLine("  delete from TPackNSCalculation where vcpart_id='" + listInfoData.Rows[i]["vcpart_id"].ToString() + "' and vcYearMonth='" + listInfoData.Rows[i]["vcYearMonth"].ToString() + "' and vcPackNo='" + listInfoData.Rows[i]["vcPackNo"].ToString() + "'  \n");
-                //}
                 for (int i = 0; i < listInfoData.Rows.Count; i++)
                 {
                     sql.AppendLine("  INSERT INTO [dbo].[TPackNSCalculation]    \n");
@@ -486,7 +482,11 @@ namespace DataAccess
                 else
                     throw ex;
             }
+
         }
+
+             
+   
         #endregion
 
         #region 查找工厂
@@ -506,39 +506,168 @@ namespace DataAccess
         #endregion
 
         #region 发送
-        public void Save(DataTable listInfoData, string userId, ref string strErrorPartId, string PackFrom, List<Object> SupplierCodeList)
+        public void Save(DataTable listInfoData, string userId, ref string strErrorPartId, string PackFrom, List<Object> SupplierCodeList, List<Object> PackSpot)
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
                 string SupplierCode = "";
+
+                string dt1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 if (SupplierCodeList.Count > 0)
                 {
                     for (int j = 0; j < SupplierCodeList.Count; j++)
                     {
                         if (j != 0)
                         {
-                            SupplierCode = "," + SupplierCode + SupplierCodeList[j].ToString();
+                            SupplierCode = SupplierCode+ "," + SupplierCodeList[j].ToString();
                         }
                         else
                         {
-                            SupplierCode = SupplierCode + SupplierCodeList[j].ToString();
+                            SupplierCode = SupplierCode+ SupplierCodeList[j].ToString();
 
                         }
 
                     }
                 }
-                else
-                {
+
+                sql.AppendLine("     delete  from  TPackNSCalculation         \n");
 
 
-                }
 
+                sql.AppendLine("     INSERT INTO [dbo].[TPackSearch]       \n");
+                sql.AppendLine("                ([vcSupplier]       \n");
+                sql.AppendLine("                ,[vcYearMonth]       \n");
+                sql.AppendLine("                ,[vcNSDiff]       \n");
+                sql.AppendLine("                ,[vcNSQJ]       \n");
+                sql.AppendLine("                ,[vcNSState]       \n");
+                sql.AppendLine("                ,[dFaBuTime]       \n");
+                sql.AppendLine("                ,[dFirstDownload]       \n");
+                sql.AppendLine("                ,[vcOperatorID]       \n");
+                sql.AppendLine("                ,[dOperatorTime])       \n");
+                sql.AppendLine("          VALUES       \n");
+                sql.AppendLine("         (   \n");
+                sql.AppendLine("         '"+ SupplierCode + "',   \n");
+                sql.AppendLine("         '"+ PackFrom + "',   \n");
+                sql.AppendLine("         '月度内示',   \n");
+                sql.AppendLine("         NULL,   \n");
+                sql.AppendLine("         '0',   \n");
+                sql.AppendLine("         '"+ dt1 + "',   \n");
+                sql.AppendLine("         NULL,   \n");
+                sql.AppendLine("   '" + userId + "',   \n");
+                sql.AppendLine("   getdate()  \n");
+                sql.AppendLine("         )   \n");
 
                 for (int i = 0; i < listInfoData.Rows.Count; i++)
                 {
-                    sql.AppendLine("            \n");
-                    sql.AppendLine("            \n");
+                    sql.AppendLine("  INSERT INTO [dbo].[TPackNSCalculationCV]    \n");
+                    sql.AppendLine("             (   \n");
+                    sql.AppendLine("              [vcYearMonth]    \n");
+                    sql.AppendLine("             ,[vcPackNo] ,vcPackGPSNo   \n");
+                    //sql.AppendLine("             ,[vcpart_id]    \n");
+                    sql.AppendLine("             ,[vcPackSpot]    \n");
+                    sql.AppendLine("             ,[vcSupplierCode]    \n");
+                    sql.AppendLine("             ,[vcSupplierWork]    \n");
+                    sql.AppendLine("             ,[vcSupplierName]    \n");
+                    sql.AppendLine("             ,[vcCycle]    \n");
+                    sql.AppendLine("             ,[iRelease]    \n");
+                    sql.AppendLine("             ,[iDayNNum]    \n");
+                    sql.AppendLine("             ,[iDayN1Num]    \n");
+                    sql.AppendLine("             ,[iDayN2Num]    \n");
+                    sql.AppendLine("             ,[iDay1]    \n");
+                    sql.AppendLine("             ,[iDay2]    \n");
+                    sql.AppendLine("             ,[iDay3]    \n");
+                    sql.AppendLine("             ,[iDay4]    \n");
+                    sql.AppendLine("             ,[iDay5]    \n");
+                    sql.AppendLine("             ,[iDay6]    \n");
+                    sql.AppendLine("             ,[iDay7]    \n");
+                    sql.AppendLine("             ,[iDay8]    \n");
+                    sql.AppendLine("             ,[iDay9]    \n");
+                    sql.AppendLine("             ,[iDay10]    \n");
+                    sql.AppendLine("             ,[iDay11]    \n");
+                    sql.AppendLine("           ,[iDay12]    \n");
+                    sql.AppendLine("           ,[iDay13]    \n");
+                    sql.AppendLine("           ,[iDay14]    \n");
+                    sql.AppendLine("           ,[iDay15]    \n");
+                    sql.AppendLine("           ,[iDay16]    \n");
+                    sql.AppendLine("           ,[iDay17]    \n");
+                    sql.AppendLine("           ,[iDay18]    \n");
+                    sql.AppendLine("           ,[iDay19]    \n");
+                    sql.AppendLine("           ,[iDay20]    \n");
+                    sql.AppendLine("           ,[iDay21]    \n");
+                    sql.AppendLine("           ,[iDay22]    \n");
+                    sql.AppendLine("           ,[iDay23]    \n");
+                    sql.AppendLine("           ,[iDay24]    \n");
+                    sql.AppendLine("           ,[iDay25]    \n");
+                    sql.AppendLine("           ,[iDay26]    \n");
+                    sql.AppendLine("           ,[iDay27]    \n");
+                    sql.AppendLine("           ,[iDay28]    \n");
+                    sql.AppendLine("           ,[iDay29]    \n");
+                    sql.AppendLine("           ,[iDay30]    \n");
+                    sql.AppendLine("           ,[iDay31]    \n");
+                    sql.AppendLine("           ,[dZYTime]    \n");
+                    sql.AppendLine("           ,[vcIsorNoSend]    \n");
+                    sql.AppendLine("           ,[vcIsorNoPrint]    \n");
+
+                    sql.AppendLine("           ,[vcNSDiff]    \n");
+                    sql.AppendLine("           ,[dSendTime]    \n");
+
+                    sql.AppendLine("           ,[vcOperatorID]    \n");
+                    sql.AppendLine("           ,[dOperatorTime])    \n");
+                    sql.AppendLine("     VALUES    \n");
+                    sql.AppendLine("    (  \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcYearMonth"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcPackNo"].ToString() + "',    \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcPackGPSNo"].ToString() + "',    \n");
+                    //sql.AppendLine("   '" + listInfoData.Rows[i]["vcPart_id"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcPackSpot"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierCode"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierWork"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcSupplierName"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["vcCycle"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iRelease"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDayNNum"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDayN1Num"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDayN2Num"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay1"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay2"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay3"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay4"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay5"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay6"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay7"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay8"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay9"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay10"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay11"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay12"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay13"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay14"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay15"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay16"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay17"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay18"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay19"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay20"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay21"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay22"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay23"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay24"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay25"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay26"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay27"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay28"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay29"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay30"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["iDay31"].ToString() + "',   \n");
+                    sql.AppendLine("   '" + listInfoData.Rows[i]["dZYTime"].ToString() + "',   \n");
+                    sql.AppendLine("   '1', \n");
+                    sql.AppendLine("   '0', \n");
+                    sql.AppendLine("   '月度内示', \n");
+                    sql.AppendLine("   '"+ dt1 + "', \n");
+                    sql.AppendLine("   '" + userId + "',   \n");
+                    sql.AppendLine("   getdate()  \n");
+                    sql.AppendLine("    )  \n");
                 }
                 excute.ExcuteSqlWithStringOper(sql.ToString());
 

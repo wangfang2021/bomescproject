@@ -144,7 +144,7 @@ namespace Logic
                     msg = "行：" + (i + 2) + "，组别数据在常量中不存在！";
                     break;
                 }
-                if (dt_pt.Select(" vcData2='" + pt + "' ").Length == 0 && pt.Trim() != "")
+                if (dt_pt.Select(" vcName='" + pt + "' ").Length == 0 && pt.Trim() != "")
                 {
                     msg = "行：" + (i + 2) + "，品番类别数据在常量中不存在！";
                     break;
@@ -173,7 +173,7 @@ namespace Logic
                             msg = "行：" + (i + 2) + "，工程0 LT格式输入错误";
                             break;
                         }
-                        if (dt_sa.Select(" state='" + sa0 + "' ").Length == 0)
+                        if (dt_sa.Select(" vcName='" + sa0 + "' ").Length == 0)
                         {
                             msg = "行：" + (i + 2) + "，工程0 稼动形态格式输入错误";
                             break;
@@ -207,7 +207,7 @@ namespace Logic
                             msg = "行：" + (i + 2) + "，工程1 LT格式输入错误";
                             break;
                         }
-                        if (dt_sa.Select(" state='" + sa1 + "' ").Length == 0)
+                        if (dt_sa.Select(" vcName='" + sa1 + "' ").Length == 0)
                         {
                             msg = "行：" + (i + 2) + "，工程1 稼动形态格式输入错误";
                             break;
@@ -241,7 +241,7 @@ namespace Logic
                                 msg = "行：" + (i + 2) + "，工程2 LT格式输入错误";
                                 break;
                             }
-                            if (dt_sa.Select(" state='" + sa2 + "' ").Length == 0)
+                            if (dt_sa.Select(" vcName='" + sa2 + "' ").Length == 0)
                             {
                                 msg = "行：" + (i + 2) + "，工程2 稼动形态格式输入错误";
                                 break;
@@ -275,7 +275,7 @@ namespace Logic
                                 msg = "行：" + (i + 2) + "，工程3 LT格式输入错误";
                                 break;
                             }
-                            if (dt_sa.Select(" state='" + sa3 + "' ").Length == 0)
+                            if (dt_sa.Select(" vcName='" + sa3 + "' ").Length == 0)
                             {
                                 msg = "行：" + (i + 2) + "，工程3 稼动形态格式输入错误";
                                 break;
@@ -310,7 +310,7 @@ namespace Logic
                             msg = "行：" + (i + 2) + "，工程4 LT格式输入错误";
                             break;
                         }
-                        if (dt_sa.Select(" state='" + sa4 + "' ").Length == 0)
+                        if (dt_sa.Select(" vcName='" + sa4 + "' ").Length == 0)
                         {
                             msg = "行：" + (i + 2) + "，工程4 稼动形态格式输入错误";
                             break;

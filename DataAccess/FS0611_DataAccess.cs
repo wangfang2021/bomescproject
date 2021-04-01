@@ -167,6 +167,9 @@ namespace DataAccess
             SqlTransaction st = conn.BeginTransaction();
             try
             {
+                DataTable temp = excute.ExcuteSqlWithSelectToDT("select top 1 vcValue from TCode where vcCodeId='C068'");
+                string vcReceiver = temp.Rows.Count == 1 ? temp.Rows[0][0].ToString() : "APC06";
+
                 StringBuilder sql = new StringBuilder();
                 sql.Append("delete from TSoqReply where vcCLYM='" + strCLYM + "' and vcDXYM in ('" + strDXYM + "','" + strNSYM + "','" + strNNSYM + "') " +
                     "and vcFZGC='" + strPlant + "' and vcInOutFlag='1'    \n");
@@ -260,7 +263,7 @@ namespace DataAccess
                     "and vcInOutFlag='1')t1    \n");
                 sql.Append("left join(    \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
-                sql.Append("	where vcPackingPlant='"+strUnit+ "' and vcReceiver='APC06' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append("	where vcPackingPlant='"+strUnit+ "' and vcReceiver='" + vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
 
                 sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id,t1.vcSR=t6.vcSufferIn     \n");
@@ -274,7 +277,7 @@ namespace DataAccess
                 sql.Append("left join        \n");
                 sql.Append("(--手配主表        \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
-                sql.Append("	from TSPMaster where vcPackingPlant='TFTM' and vcReceiver='APC06' and dFromTime<>dToTime     \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='"+strUnit+"' and vcReceiver='"+ vcReceiver + "' and dFromTime<>dToTime     \n");
                 sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and t1.vcDXYM between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
                 sql.Append("left join             \n");
                 sql.Append("(    --//受入 N        \n");

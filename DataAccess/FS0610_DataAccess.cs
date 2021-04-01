@@ -229,7 +229,7 @@ namespace DataAccess
                 sql.Append("left join        \n");
                 sql.Append("(--手配主表        \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
-                sql.Append("	from TSPMaster where vcPackingPlant='TFTM' and vcReceiver='APC06' and dFromTime<>dToTime     \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='"+strUnit+"' and vcReceiver='"+ vcReceiver + "' and dFromTime<>dToTime     \n");
                 sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and t1.vcDXYM between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
                 sql.Append("left join             \n");
                 sql.Append("(    --//受入 N        \n");

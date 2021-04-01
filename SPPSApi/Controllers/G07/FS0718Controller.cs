@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Common;
+using ICSharpCode.SharpZipLib.Zip;
 using Logic;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
@@ -101,6 +102,49 @@ namespace SPPSApi.Controllers.G07
             {
                 string strDownloadDiff = dataForm.strDownloadDiff;
                 DataTable dt = FS0718_Logic.Search(strDownloadDiff,loginInfo.UserId);
+
+                #region 周度内饰期间特殊处理
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["vcNSDiff"]!=null && dt.Rows[i]["vcNSDiff"].ToString() =="周度内饰")
+                    {
+                        string strNSQJ = dt.Rows[i]["vcNSQJ"].ToString();
+                        string strBefore = strNSQJ.Split(' ')[0];
+                        string strAfter = strNSQJ.Split(' ')[strNSQJ.Split(' ').Length - 1];
+
+                        #region 开始时间和班值
+                        string strBeforeTime = strBefore.Split('/')[0];
+                        string strBeforeBZ = strBefore.Split('/')[strBefore.Split('/').Length - 1];
+                        if (strBeforeBZ == "0")
+                        {
+                            strBeforeBZ = "白值";
+                        }
+                        else if (strBeforeBZ == "1")
+                        {
+                            strBeforeBZ = "夜值";
+                        }
+                        strBefore = strBeforeTime + strBeforeBZ;
+                        #endregion
+
+                        #region 结束时间班值
+                        string strAfterTime = strAfter.Split('/')[0];
+                        string strAfterBZ = strAfter.Split('/')[strAfter.Split('/').Length - 1];
+                        if (strAfterBZ == "0")
+                        {
+                            strAfterBZ = "白班";
+                        }
+                        else if (strAfterBZ == "1") 
+                        {
+                            strAfterBZ = "夜值";
+                        }
+                        strAfter = strAfterTime + strAfterBZ;
+                        #endregion
+
+                        dt.Rows[i]["vcNSQJ"] = strBefore + " - " + strAfter;
+                    }
+                }
+                #endregion
+
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dFaBuTime", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dFirstDownload", ConvertFieldType.DateType, "yyyy/MM/dd");
@@ -176,6 +220,23 @@ namespace SPPSApi.Controllers.G07
                 {
                     for (int i = 0; i < list_NSMonth.Count; i++)
                     {
+                        string strSupplier = list_NSMonth[i]["vcSupplier"].ToString();
+                        string strYearMonth = list_NSMonth[i]["vcYearMonth"].ToString();
+                        string strFaBuTime = list_NSMonth[i]["dFaBuTime"].ToString();
+                        DataTable dt_Month = FS0718_Logic.Search_Month(strSupplier, strYearMonth, strFaBuTime);
+
+                        string resMsg = "";
+                        string[] head = { "对象月", "包装场",  "包装材品番",  "GPS品番", "供货商代码",   "供货商工区",   "供货商名称（中文）",   "纳入周期",    "纳入单位",    "当月合计必要数", "+1月合计必要数" ,   "+2月合计必要数",
+                                          "1日" , "2日",  "3日",  "4日",  "5日",  "6日",  "7日",  "8日",  "9日",  "10日", "11日", "12日", "13日", "14日", "15日",
+                                          "16日", "17日" ,"18日" ,"19日", "20日", "21日", "22日", "23日", "24日", "25日", "26日", "27日", "28日", "29日", "30日" ,"31日", "作成时间"};
+
+                        string[] fields = { "vcYearMonth","vcPackSpot","vcPackNo","vcPackGPSNo","vcSupplierCode","vcSupplierWork","vcSupplierName",
+                                            "vcCycle","iRelease","iDayNNum","iDayN1Num","iDayN2Num",
+                                            "iDay1","iDay2","iDay3","iDay4","iDay5","iDay6","iDay7","iDay8","iDay9","iDay10",
+                                            "iDay11","iDay12","iDay13","iDay14","iDay15","iDay16","iDay17","iDay18","iDay19","iDay20",
+                                            "iDay21","iDay22","iDay23","iDay24","iDay25","iDay26","iDay27","iDay28","iDay29","iDay30",
+                                            "iDay31","dZYTime"};
+                        string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内饰书导出", ref resMsg);
 
                     }
                 }
@@ -186,27 +247,19 @@ namespace SPPSApi.Controllers.G07
                 {
                     for (int i = 0; i < list_NSWeek.Count; i++)
                     {
+                        string strNSQJ = list_NSWeek[i]["vcNSQJ"].ToString();
+                        string strBefore = strNSQJ.Split(' ')[0];
+                        string strAfter = strNSQJ.Split(' ')[strNSQJ.Split(' ').Length-1];
 
+                        string strBegin = dataForm.dFromBegin;
+                        string strEnd = dataForm.dFromEnd;
+                        string strFromBeginBZ = dataForm.vcFromBeginBZ;
+                        string strFromEndBZ = dataForm.vcFromEndBZ;
                     }
                 }
                 #endregion
-
-                DataTable dt = FS0718_Logic.Search();
-                string[] fields = { "iAutoId","vcChange_Name", "vcPart_id", "dUseBeginStr", "dUseEndStr", "vcProjectType_Name", "vcSupplier_id"
-                ,"vcSupplier_Name","dProjectBeginStr","dProjectEndStr","vcHaoJiu_Name","dJiuBeginStr","dJiuEndStr","dJiuBeginSustainStr","vcPriceChangeInfo_Name"
-                ,"vcPriceState_Name","dPriceStateDateStr","vcPriceGS_Name","decPriceOrigin","decPriceAfter","decPriceTNPWithTax","dPricebeginStr","dPriceEndStr"
-                ,"vcCarTypeDev","vcCarTypeDesign","vcPart_Name","vcOE_Name","vcPart_id_HK","vcStateFX","vcFXNO","vcSumLater","vcReceiver_Name"
-                ,"vcOriginCompany_Name"
-                };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
-                if (filepath == "")
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = filepath;
+                apiResult.data = "";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -218,5 +271,32 @@ namespace SPPSApi.Controllers.G07
             }
         }
         #endregion
+
+        /// <summary>
+        /// 创建压缩包
+        /// </summary>
+        /// <param name="zipName">压缩包名称（路径）</param>
+        /// <param name="files">要压缩的文件，key-文件名，value-文件字节数组</param>
+        private void CreateZipPackage(string zipName, Dictionary<string, byte[]> files)
+        {
+            using (FileStream zip = System.IO.File.Create(zipName))
+            {
+                using (ZipOutputStream zipStream = new ZipOutputStream(zip))
+                {
+                    foreach (KeyValuePair<string, byte[]> kv in files)
+                    {
+                        //压缩包内条目
+                        ZipEntry entry = new ZipEntry(kv.Key);
+                        //添加条目
+                        zipStream.PutNextEntry(entry);
+                        //设置压缩级别1~9
+                        zipStream.SetLevel(5);
+                        //写入
+                        zipStream.Write(kv.Value, 0, kv.Value.Length);
+                    }
+                }
+            }
+        }
+
     }
 }

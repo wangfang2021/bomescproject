@@ -20,6 +20,7 @@ namespace DataAccess
                 strSql.AppendLine("		T1.vcChanges as vcChanges,T6.vcName as vcChanges_name,");
                 strSql.AppendLine("		T1.vcPackingPlant,T7.vcName as vcPackingPlant_name,");
                 strSql.AppendLine("		T1.vcPartId,");
+                strSql.AppendLine("		SUBSTRING(T1.vcPartId,1,10) as vcPartIdDC,");
                 strSql.AppendLine("		T1.vcPartENName,");
                 strSql.AppendLine("		T1.vcCarfamilyCode,");
                 strSql.AppendLine("		T1.vcReceiver,");
@@ -92,12 +93,14 @@ namespace DataAccess
                 }
                 if (TimeFrom != "")
                 {
-                    strSql.AppendLine("    AND [dFromTime]<='" + TimeFrom + "'");
+                    //strSql.AppendLine("    AND [dFromTime]<='" + TimeFrom + "'");
+                    strSql.AppendLine("    AND [dFromTime]>='" + TimeFrom + "'");
 
                 }
                 if (TimeTo != "")
                 {
-                    strSql.AppendLine("    AND [dToTime]>='" + TimeTo + "'");
+                    //strSql.AppendLine("    AND [dToTime]>='" + TimeTo + "'");
+                    strSql.AppendLine("    AND [dToTime]<='" + TimeTo + "'");
 
                 }
                 strSql.AppendLine("  )T1");

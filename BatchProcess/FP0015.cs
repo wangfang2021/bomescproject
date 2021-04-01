@@ -387,7 +387,7 @@ namespace BatchProcess
                         sql.Append("       ,[vcPackNo] = '" + dr1[0]["vcPackNo"].ToString() + "'   \n");
                         sql.Append("       ,[vcPackGPSNo] = '" + dtb.Rows[j]["vcPackGPSNo"].ToString() + "'   \n");
                         sql.Append("       ,[vcSupplierID] = '" + dr1[0]["vcSupplierCode"].ToString() + "'   \n");
-                        sql.Append("       ,[iLiLun] ='" + dtb.Rows[j]["iSJNum"].ToString() + "'   \n");
+                        sql.Append("       ,[iLiLun] =iLiLun+'" + dtb.Rows[j]["iSJNum"].ToString() + "'   \n");
                         sql.Append("       ,[iAnQuan] = '" + SaveZK + "'   \n");
                         sql.Append("       ,[vcOperatorID] = '" + strUserId + "'   \n");
                         sql.Append("       ,[dOperatorTime] = getdate()   \n");

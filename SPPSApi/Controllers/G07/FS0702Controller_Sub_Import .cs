@@ -160,17 +160,12 @@ namespace SPPSApi.Controllers.G07
                     {
                         if (i != 0)
                         {
-                            strPartNoAll = strPartNoAll + ",'" + importDt.Rows[i]["vcPartsNo"].ToString() + "'";
-                        }
-                        else if (i == importDt.Rows.Count)
-                        {
-
-                            strPartNoAll = strPartNoAll + ",'" + importDt.Rows[i]["vcPartsNo"].ToString();
+                            strPartNoAll = strPartNoAll + "'," + importDt.Rows[i]["vcPartsNo"].ToString();
                         }
                         else
                         {
 
-                            strPartNoAll = importDt.Rows[i]["vcPartsNo"].ToString() + "'";
+                            strPartNoAll = importDt.Rows[i]["vcPartsNo"].ToString();
                         }
                     }
                 }

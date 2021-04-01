@@ -143,6 +143,7 @@ namespace SPPSApi.Controllers.G07
                         DataRow drImport = dtException.NewRow();
                         drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
                         drImport["vcException"] = "没有维护包材品番信息！";
+                        dtException.Rows.Add(drImport);
                     }
                     if (string.IsNullOrEmpty(dt.Rows[i]["dUsedFrom"].ToString()) || string.IsNullOrEmpty(dt.Rows[i]["dUsedTo"].ToString()))
                     {
@@ -150,6 +151,7 @@ namespace SPPSApi.Controllers.G07
                         DataRow drImport = dtException.NewRow();
                         drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
                         drImport["vcException"] = "没有维护包材有效周期！";
+                        dtException.Rows.Add(drImport);
                     }
                     else if (!(Convert.ToDateTime(dt.Rows[i]["dUsedFrom"]) < DateTime.Now) && !(DateTime.Now < Convert.ToDateTime(dt.Rows[i]["dUsedTo"])))
                     {
@@ -157,8 +159,10 @@ namespace SPPSApi.Controllers.G07
                         DataRow drImport = dtException.NewRow();
                         drImport["vcpart_id"] = dt.Rows[i]["vcpart_id"].ToString();
                         drImport["vcException"] = "此包材失效！";
+                        dtException.Rows.Add(drImport);
                     }
                 }
+                
                 if (dtException.Rows.Count > 0)
                 {
                     FS0703_Logic.InsertCheck(dtException, loginInfo.UserId);
@@ -404,8 +408,10 @@ namespace SPPSApi.Controllers.G07
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                res.Add("strException", "发送成功");
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "发送成功";
+                apiResult.data = null;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

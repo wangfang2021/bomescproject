@@ -2,8 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.ServiceModel;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -13,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using WebServiceAPI;
 
 namespace SPPSApi.Controllers.G11
 {
@@ -49,13 +53,10 @@ namespace SPPSApi.Controllers.G11
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                //处理初始化
-                List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Receiver"));//收货方
-                List<Object> SupplierIdList = ComFunction.convertAllToResult(fS0603_Logic.getCodeInfo("Supplier"));//供应商
+                DataTable dtOptionsList = fS0603_Logic.getFormOptions("");
+                List<Object> ReceiverList = ComFunction.convertAllToResult(fS0603_Logic.getSelectOptions(dtOptionsList, "vcReceiver_Name", "vcReceiver_Value"));//收货方选项
 
                 res.Add("ReceiverList", ReceiverList);
-                res.Add("SupplierIdList", SupplierIdList);
-
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -89,7 +90,7 @@ namespace SPPSApi.Controllers.G11
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
             string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
-            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierId = "";
             string strInPutOrderNo = dataForm.InPutOrderNo == null ? "" : dataForm.InPutOrderNo;
             string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
             string strLianFan = dataForm.LianFan == null ? "" : dataForm.LianFan;
@@ -145,24 +146,94 @@ namespace SPPSApi.Controllers.G11
                 {
 
                     //获取待打印的数据
-                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
-                    //执行打印操作
-                    //===========================================
-                    DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "错误测试";
-                    dtMessage.Rows.Add(dataRow);
-
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.type = "list";
-                    apiResult.data = dtMessage;
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
-
-                    //===========================================
+                    fS1103_Logic.getPrintInfo(listInfoData, loginInfo.UserId, ref dtMessage);
+                    if (dtMessage.Rows.Count != 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #region 调用webApi打印
+                    string strPrinterName = fS0603_Logic.getPrinterName("FS1103", loginInfo.UserId);
+                    //创建 HTTP 绑定对象
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    if (fS1103_Logic.getTempInfo(loginInfo.UserId, "input").Rows.Count != 0)
+                    {
+                        var binding = new BasicHttpBinding();
+                        //根据 WebService 的 URL 构建终端点对象
+                        var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                        //创建调用接口的工厂，注意这里泛型只能传入接口
+                        var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                        //从工厂获取具体的调用实例
+                        var callClient = factory.CreateChannel();
+                        setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                        Body.strCRVName = file_crv + "crv_FS1103_input.rpt";
+                        Body.strScrpit = "SELECT * from tPrintTemp_input_FS1103 where vcOperatorID='" + loginInfo.UserId + "' order by vcInno";
+                        Body.strPrinterName = strPrinterName;
+                        Body.sqlUserID = "sa";
+                        Body.sqlPassword = "SPPS_Server2019";
+                        Body.sqlCatalog = "SPPSdb";
+                        Body.sqlSource = "172.23.180.116";
+                        //调用具体的方法，这里是 HelloWorldAsync 方法
+                        Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                        //获取结果
+                        setCRVPrintResponse response = responseTask.Result;
+                        if (response.Body.setCRVPrintResult != "打印成功")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "入库指令书打印失败，请联系管理员进行打印接口故障检查。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    if (fS1103_Logic.getTempInfo(loginInfo.UserId, "tag").Rows.Count != 0)
+                    {
+                        var binding = new BasicHttpBinding();
+                        //根据 WebService 的 URL 构建终端点对象
+                        var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                        //创建调用接口的工厂，注意这里泛型只能传入接口
+                        var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                        //从工厂获取具体的调用实例
+                        var callClient = factory.CreateChannel();
+                        setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                        Body.strCRVName = file_crv + "crv_FS1103_tag.rpt";
+                        Body.strScrpit = "SELECT * from tPrintTemp_tag_FS1103 where vcOperatorID='" + loginInfo.UserId + "' order by vcInno,vcPrintcount";
+                        Body.strPrinterName = strPrinterName;
+                        Body.sqlUserID = "sa";
+                        Body.sqlPassword = "SPPS_Server2019";
+                        Body.sqlCatalog = "SPPSdb";
+                        Body.sqlSource = "172.23.180.116";
+                        //调用具体的方法，这里是 HelloWorldAsync 方法
+                        Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                        //获取结果
+                        setCRVPrintResponse response = responseTask.Result;
+                        if (response.Body.setCRVPrintResult != "打印成功")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "标签打印失败，请联系管理员进行打印接口故障检查。";
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     apiResult.code = ComConstant.SUCCESS_CODE;
                     apiResult.data = "打印成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else
                 {

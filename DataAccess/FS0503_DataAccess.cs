@@ -51,7 +51,7 @@ namespace DataAccess
                 //strSql.AppendLine("  [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a   ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C012') c on a.vcOEOrSP = c.vcValue    ");
                 //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue  where 1=1 and a.vcState in (select vcValue from TCode where vcCodeId='C034')   ");
-                strSql.AppendLine("    select a.[iAutoId],a.[vcPackingPlant] ,a.[vcReceiver],convert(varchar(10), a.[dSynchronizationDate],111) as [dSynchronizationDate], case when isnull(a.vcIsEdit,'0')='1' then e.vcName else b.vcName end  as [vcState],    ");
+                strSql.AppendLine("    select a.[iAutoId],a.[vcPackingPlant] ,a.[vcReceiver],convert(varchar(10), a.[dSynchronizationDate],111) as [dSynchronizationDate], case when isnull(a.vcIsEdit,'0')='1' then e.vcName else (case when b.vcName='已织入' then '已承认' else b.vcName end)  end  as [vcState],    ");
                 strSql.AppendLine("     a.[vcPartNo],convert(varchar(10), a.[dUseStartDate],111) as [dUseStartDate],convert(varchar(10), a.[dUserEndDate],111) as [dUserEndDate], a.[vcPartName],       "); 
                 strSql.AppendLine("     a.[vcCarType],c.vcName as [vcOEOrSP], a.[vcSupplier_id],     ");
                 strSql.AppendLine("     case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea else a.vcWorkArea end as [vcWorkArea],    ");
@@ -95,7 +95,14 @@ namespace DataAccess
                 }
                 if (vcState.Length > 0)
                 {
-                    strSql.AppendLine("  and  a.vcState = '" + vcState + "' ");
+                    if (vcState=="5"|| vcState=="6")
+                    {
+                        strSql.AppendLine("  and  d.vcState = '" + vcState + "' ");
+                    } else
+                    {
+                        strSql.AppendLine("  and  a.vcState = '" + vcState + "' ");
+                    }
+                    
                 }
                 if (vcPartNo.Length > 0)
                 {
@@ -113,6 +120,118 @@ namespace DataAccess
                         strSql.AppendLine("  and  a.vcCarType like '" + vcCarType + "%' ");
                     }
                     
+                }
+                if (dExpectDeliveryDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  a.dExpectDeliveryDate,112) = '" + dExpectDeliveryDate.Replace("-", "").Replace("/", "") + "' ");
+                }
+                if (dSendDate.Length > 0)
+                {
+                    strSql.AppendLine("  and  CONVERT(varchar(10),  a.dSendDate,112) = '" + dSendDate.Replace("-", "").Replace("/", "") + "' ");
+                }
+                if (dReplyDate.Length > 0)
+                {
+                    if (dReplyDate == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(a.dReplyDate,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  CONVERT(varchar(10),  a.dReplyDate,112) = '" + dReplyDate.Replace("-", "").Replace("/", "") + "' ");
+                    }
+                }
+
+                strSql.AppendLine("  order by a.vcState asc, a.vcPartNo desc ");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable SearchTmp(string vcSupplier_id, string vcWorkArea, string vcState, string vcPartNo, string vcCarType, string dExpectDeliveryDate, object userId, string dSendDate, string dReplyDate)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                //strSql.AppendLine("  select [iAutoId],[vcPackingPlant] ,[vcReceiver], [dSynchronizationDate], b.vcName as [vcState], [vcPartNo], [dUseStartDate],[dUserEndDate], [vcPartName],   ");
+                //strSql.AppendLine("  [vcCarType],c.vcName as [vcOEOrSP], [vcSupplier_id], [vcWorkArea], [dExpectDeliveryDate], [vcExpectIntake],   ");
+                //strSql.AppendLine("  [vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],    ");
+                //strSql.AppendLine("  [vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,    ");
+                //strSql.AppendLine("  [vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],   ");
+                //strSql.AppendLine("  [vcOperatorID], [dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a   ");
+                //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C012') c on a.vcOEOrSP = c.vcValue    ");
+                //strSql.AppendLine("  left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue  where 1=1 and a.vcState in (select vcValue from TCode where vcCodeId='C034')   ");
+                strSql.AppendLine("    select a.[iAutoId],a.[vcPackingPlant] ,a.[vcReceiver],convert(varchar(10), a.[dSynchronizationDate],111) as [dSynchronizationDate],  b.vcName  as [vcState],    ");
+                strSql.AppendLine("     a.[vcPartNo],convert(varchar(10), a.[dUseStartDate],111) as [dUseStartDate],convert(varchar(10), a.[dUserEndDate],111) as [dUserEndDate], a.[vcPartName],       ");
+                strSql.AppendLine("     a.[vcCarType],c.vcName as [vcOEOrSP], a.[vcSupplier_id],     ");
+                strSql.AppendLine("     case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea else a.vcWorkArea end as [vcWorkArea],    ");
+                strSql.AppendLine("     convert(varchar(10), a.[dExpectDeliveryDate],111) as [dExpectDeliveryDate], a.[vcExpectIntake],     ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcIntake else a.vcIntake end as [vcIntake],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcBoxMaxIntake else a.vcBoxMaxIntake end as [vcBoxMaxIntake],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcBoxType else a.vcBoxType end as [vcBoxType],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcLength else a.vcLength end as [vcLength],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcWide else a.vcWide end as [vcWide],     ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcHeight else a.vcHeight end as[vcHeight],    ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcEmptyWeight else a.vcEmptyWeight end as [vcEmptyWeight],       ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcUnitNetWeight else a.vcUnitNetWeight end as [vcUnitNetWeight],    ");
+                strSql.AppendLine("      convert(varchar(10), a.[dSendDate],111) as [dSendDate],convert(varchar(10), a.[dReplyDate],111) as  [dReplyDate],convert(varchar(10), a.[dAdmitDate],111) as  [dAdmitDate],convert(varchar(10), a.[dWeaveDate],111) as  [dWeaveDate], a.[vcMemo],     ");
+                strSql.AppendLine("      case when isnull(a.vcIsEdit,'0')='1' then d.vcImageRoutes else a.vcImageRoutes end as vcImageRoutes,        ");
+                strSql.AppendLine("     a.[vcInserter], a.[vcInserterDate],a.[vcFactoryOperatorID], a.[dFactoryOperatorTime],       ");
+                strSql.AppendLine("     a.[vcOperatorID], a.[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag from [dbo].[THeZiManage] a       ");
+                strSql.AppendLine("     left join (select vcValue,vcName from TCode where vcCodeId='C012') c on a.vcOEOrSP = c.vcValue        ");
+                strSql.AppendLine("     left join (select vcValue,vcName from TCode where vcCodeId='C033') b on a.vcState = b.vcValue     ");
+                strSql.AppendLine("     left join (select * from [THeZiManageTmp] where vcDelFlag='0') d on a.iAutoId =d.iAutoId    ");
+                strSql.AppendLine("     left join (select vcValue,vcName from TCode where vcCodeId='C034') e on d.vcState = e.vcValue     ");
+                strSql.AppendLine("   where 1=1 and a.vcState in ('1','3')     ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+                strSql.AppendLine("       ");
+
+
+                if (vcSupplier_id.Length > 0)
+                {
+                    strSql.AppendLine("  and  a.vcSupplier_id  =  '" + vcSupplier_id + "' ");
+                }
+                if (vcWorkArea.Length > 0)
+                {
+                    if (vcWorkArea == "无")
+                    {
+                        strSql.AppendLine("  and  (case when isnull(a.vcIsEdit,'0')='1' then isnull(d.vcWorkArea,'')   else isnull(a.vcWorkArea,'') end) = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  (case when isnull(a.vcIsEdit,'0')='1' then d.vcWorkArea   else a.vcWorkArea  end)  like  '" + vcWorkArea + "%' ");
+                    }
+                }
+                if (vcState.Length > 0)
+                {
+                    if (vcState=="1")
+                    {
+                        strSql.AppendLine("  and  a.vcState='1'  ");
+                    }
+                    if (vcState == "3")
+                    {
+                        strSql.AppendLine("  and  a.vcState='3'  ");
+                    }
+                }
+                if (vcPartNo.Length > 0)
+                {
+                    strSql.AppendLine("  and  a.vcPartNo like '" + vcPartNo + "%' ");
+                }
+
+                if (vcCarType.Length > 0)
+                {
+                    if (vcCarType == "无")
+                    {
+                        strSql.AppendLine("  and  isnull(a.vcCarType,'') = '' ");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("  and  a.vcCarType like '" + vcCarType + "%' ");
+                    }
+
                 }
                 if (dExpectDeliveryDate.Length > 0)
                 {
@@ -558,6 +677,139 @@ namespace DataAccess
         {
             try
             {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("DELETE FROM [dbo].[THeZiManageImportTmp4Supplier] where  vcOperatorID='" + strUserId + "' \n");
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    string vcState = dt.Rows[i]["vcState"] == System.DBNull.Value ? "" : dt.Rows[i]["vcState"].ToString().Trim();
+                    if (vcState == "待回复")
+                    {
+                        vcState = "1";
+                    }
+                    else if (vcState == "退回")
+                    {
+                        vcState = "3";
+                    }
+                    string vcPackingPlant = dt.Rows[i]["vcPackingPlant"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPackingPlant"].ToString().Trim();
+                    string vcReceiver = dt.Rows[i]["vcReceiver"] == System.DBNull.Value ? "" : dt.Rows[i]["vcReceiver"].ToString().Trim();
+                    //string dSynchronizationDate = dt.Rows[i]["dSynchronizationDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dSynchronizationDate"].ToString().Trim();
+                    
+                    string vcPartNo = dt.Rows[i]["vcPartNo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartNo"].ToString().Trim();
+                    string dUseStartDate = dt.Rows[i]["dUseStartDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dUseStartDate"].ToString().Trim();
+                    //string dUserEndDate = dt.Rows[i]["dUserEndDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dUserEndDate"].ToString();
+                    string vcPartName = dt.Rows[i]["vcPartName"] == System.DBNull.Value ? "" : dt.Rows[i]["vcPartName"].ToString().Trim();
+                    string vcCarType = dt.Rows[i]["vcCarType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcCarType"].ToString().Trim();
+                    string vcOEOrSP = dt.Rows[i]["vcOEOrSP"] == System.DBNull.Value ? "" : dt.Rows[i]["vcOEOrSP"].ToString().Trim();
+                    if (vcOEOrSP == "×")
+                    {
+                        vcOEOrSP = "1";
+                    }
+                    else if (vcOEOrSP == "⭕" || vcOEOrSP == "○")
+                    {
+                        vcOEOrSP = "0";
+                    }
+                    else
+                    { }
+                    string vcSupplier_id = dt.Rows[i]["vcSupplier_id"] == System.DBNull.Value ? "" : dt.Rows[i]["vcSupplier_id"].ToString().Trim();
+                    string vcWorkArea = dt.Rows[i]["vcWorkArea"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWorkArea"].ToString();
+                    string dExpectDeliveryDate = dt.Rows[i]["dExpectDeliveryDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dExpectDeliveryDate"].ToString().Trim();
+                    string vcExpectIntake = dt.Rows[i]["vcExpectIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcExpectIntake"].ToString().Trim();
+                    string vcIntake = dt.Rows[i]["vcIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcIntake"].ToString().Trim();
+                    string vcBoxMaxIntake = dt.Rows[i]["vcBoxMaxIntake"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxMaxIntake"].ToString().Trim();
+                    string vcBoxType = dt.Rows[i]["vcBoxType"] == System.DBNull.Value ? "" : dt.Rows[i]["vcBoxType"].ToString().Trim();
+                    string vcLength = dt.Rows[i]["vcLength"] == System.DBNull.Value ? "" : dt.Rows[i]["vcLength"].ToString().Trim();
+                    string vcWide = dt.Rows[i]["vcWide"] == System.DBNull.Value ? "" : dt.Rows[i]["vcWide"].ToString().Trim();
+                    string vcHeight = dt.Rows[i]["vcHeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcHeight"].ToString();
+                    string vcEmptyWeight = dt.Rows[i]["vcEmptyWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcEmptyWeight"].ToString().Trim();
+                    string vcUnitNetWeight = dt.Rows[i]["vcUnitNetWeight"] == System.DBNull.Value ? "" : dt.Rows[i]["vcUnitNetWeight"].ToString().Trim();
+                    string dSendDate = dt.Rows[i]["dSendDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dSendDate"].ToString().Trim();
+                    string dReplyDate = dt.Rows[i]["dReplyDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dReplyDate"].ToString().Trim();
+                    string dAdmitDate = dt.Rows[i]["dAdmitDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dAdmitDate"].ToString().Trim();
+                    string dWeaveDate = dt.Rows[i]["dWeaveDate"] == System.DBNull.Value ? "" : dt.Rows[i]["dWeaveDate"].ToString().Trim();
+                    string vcMemo = dt.Rows[i]["vcMemo"] == System.DBNull.Value ? "" : dt.Rows[i]["vcMemo"].ToString().Trim();
+                    string vcOperatorID = strUserId;
+
+
+                    sql.Append("   INSERT INTO [dbo].[THeZiManageImportTmp4Supplier]   \n");
+                    sql.Append("              ([vcPackingPlant],[vcReceiver]   \n");
+                    sql.Append("              ,[vcState] ,[vcPartNo]  ,[dUseStartDate]    \n");
+                    sql.Append("              ,[vcPartName]  ,[vcCarType],[vcOEOrSP] ,[vcSupplier_id]   \n");
+                    sql.Append("              ,[vcWorkArea] ,[dExpectDeliveryDate] ,[vcExpectIntake],[vcIntake]   \n");
+                    sql.Append("              ,[vcBoxMaxIntake] ,[vcBoxType] ,[vcLength],[vcWide] ,[vcHeight]   \n");
+                    sql.Append("              ,[vcEmptyWeight] ,[vcUnitNetWeight] ,[dSendDate] ,[dReplyDate]   \n");
+                    sql.Append("              ,[dAdmitDate] ,[dWeaveDate] ,[vcMemo],[vcOperatorID],[dOperatorTime]   \n");
+                    sql.Append("             ) values    \n");
+                    sql.Append("   		  ( " + getSqlValue(vcPackingPlant, true) + "," + getSqlValue(vcReceiver, true) + ",  \n");
+                    sql.Append("    " + getSqlValue(vcState, true) + "," + getSqlValue(vcPartNo, true) + "," + getSqlValue(dUseStartDate, true) + ",   \n");
+                    sql.Append("     " + getSqlValue(vcPartName, true) + "," + getSqlValue(vcCarType, true) + "," + getSqlValue(vcOEOrSP, true) + "," + getSqlValue(vcSupplier_id, true) + ",   \n");
+                    sql.Append("     " + getSqlValue(vcWorkArea, true) + "," + getSqlValue(dExpectDeliveryDate, true) + "," + getSqlValue(vcExpectIntake, true) + "," + getSqlValue(vcIntake, true) + ",   \n");
+                    sql.Append("   " + getSqlValue(vcBoxMaxIntake, true) + "," + getSqlValue(vcBoxType, true) + "," + getSqlValue(vcLength, true) + "," + getSqlValue(vcWide, true) + ", " + getSqlValue(vcHeight, true) + ",   \n");
+                    sql.Append("    " + getSqlValue(vcEmptyWeight, true) + "," + getSqlValue(vcUnitNetWeight, true) + "," + getSqlValue(dSendDate, true) + "," + getSqlValue(dReplyDate, true) + ",  \n");
+                    sql.Append("    " + getSqlValue(dAdmitDate, true) + "," + getSqlValue(dWeaveDate, true) + "," + getSqlValue(vcMemo, true) + ",  \n");
+                    sql.Append("   '" + strUserId + "' \n");
+                    sql.Append("     ,getdate())  \n");
+                }
+
+                //删除
+                sql.Append("   delete from  THeZiManageTmp where iAutoId in   \n");
+                sql.Append("   (   \n");
+                sql.Append("   select b.iAutoId   \n");
+                sql.Append("    from (   \n");
+                sql.Append("   select * from THeZiManageImportTmp4Supplier where vcOperatorID='" + strUserId + "'   \n");
+                sql.Append("   ) a left join   \n");
+                sql.Append("   (   \n");
+                sql.Append("   select * from THeZiManage where vcState in ('1','3')   \n");
+                sql.Append("   ) b on a.vcPartNo=b.vcPartNo and a.vcPackingPlant=b.vcPackingPlant   \n");
+                sql.Append("    and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.vcState =b.vcState   \n");
+                sql.Append("    where b.vcPartNo is not null   \n");
+                sql.Append("   )   \n");
+                
+                //更新
+                sql.Append("   insert into [THeZiManageTmp] (iAutoId,vcState,vcSupplier_id,vcWorkArea,vcIntake,   \n");
+                sql.Append("   vcBoxMaxIntake,vcBoxType,vcLength,vcWide ,vcHeight,vcEmptyWeight   \n");
+                sql.Append("   ,vcUnitNetWeight,vcDelFlag,[vcOperatorID], [dOperatorTime])    \n");
+                sql.Append("   select b.iAutoId,case when a.vcState='1' then '5' else '6' end as vcState,   \n");
+                sql.Append("   a.vcSupplier_id,a.vcWorkArea,a.vcIntake,a.vcBoxMaxIntake,   \n");
+                sql.Append("   a.vcBoxType,a.vcLength,a.vcWide ,a.vcHeight,a.vcEmptyWeight,a.vcUnitNetWeight,   \n");
+                sql.Append("   '0','" + strUserId + "',GETDATE()   \n");
+                sql.Append("    from (   \n");
+                sql.Append("   select * from THeZiManageImportTmp4Supplier where vcOperatorID='" + strUserId + "'   \n");
+                sql.Append("   ) a left join   \n");
+                sql.Append("   (   \n");
+                sql.Append("   select * from THeZiManage where vcState in ('1','3')   \n");
+                sql.Append("   ) b on a.vcPartNo=b.vcPartNo and a.vcPackingPlant=b.vcPackingPlant   \n");
+                sql.Append("    and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.vcState =b.vcState   \n");
+                sql.Append("    where b.vcPartNo is not null   \n");
+
+                //gengxin
+                sql.Append("    update [dbo].[THeZiManage] set vcIsEdit='1' where iAutoId in   \n");
+                sql.Append("   (   \n");
+                sql.Append("   select b.iAutoId   \n");
+                sql.Append("    from (   \n");
+                sql.Append("   select * from THeZiManageImportTmp4Supplier where vcOperatorID='" + strUserId + "'   \n");
+                sql.Append("   ) a left join   \n");
+                sql.Append("   (   \n");
+                sql.Append("   select * from THeZiManage where vcState in ('1','3')   \n");
+                sql.Append("   ) b on a.vcPartNo=b.vcPartNo and a.vcPackingPlant=b.vcPackingPlant   \n");
+                sql.Append("    and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.vcState =b.vcState  \n");
+                sql.Append("    where b.vcPartNo is not null   \n");
+                sql.Append("   )   \n");
+                sql.Append("      \n");
+               
+                if (sql.Length > 0)
+                {
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            #region
+
+            /*try
+            {
                 StringBuilder strSql = new StringBuilder();
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -597,7 +849,8 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
-            }
+            }*/
+            #endregion
         }
         #region 返回insert语句值
         /// <summary>

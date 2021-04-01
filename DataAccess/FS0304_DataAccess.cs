@@ -108,7 +108,7 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcSupplier_id like '"+ strSupplier_id + "%'   ");
                 }
-                strSql.Append("     order by vcPart_id,iAutoId asc    \n");
+                strSql.Append("     order by vcPart_id,dSSDate desc    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)
@@ -184,7 +184,7 @@ namespace DataAccess
                 strSql.Append("     )b10 on a.GUID = b10.GUID    \n");
                 strSql.Append("   where 1=1  \n");
                 strSql.Append("   and vcJD <> 4  \n");
-                strSql.Append("   order by vcPart_id,iAutoId asc    \n");
+                strSql.Append("   order by vcPart_id ,dSSDate desc    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK");
             }
@@ -383,17 +383,7 @@ namespace DataAccess
                     sql.Append("        (        \n");
                     sql.Append("        " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "        \n");
-                    /*
-                     * 品番还原
-                     */
-                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
-                    strPart_id = strPart_id.Insert(10, "-");
-                    strPart_id = strPart_id.Insert(5, "-");
-                    if (strPart_id.Substring(11, 3) == "-00")
-                    {
-                        strPart_id = strPart_id.Remove(11, 3);
-                    }
-                    sql.Append("        ,'" + strPart_id + "'        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "        \n");
@@ -500,17 +490,7 @@ namespace DataAccess
                         sql.Append("        (        \n");
                         sql.Append("        " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "        \n");
-                        /*
-                         * 品番还原
-                         */
-                        string strPart_id = listInfoData[i]["vcPart_id"].ToString();
-                        strPart_id = strPart_id.Insert(10, "-");
-                        strPart_id = strPart_id.Insert(5, "-");
-                        if (strPart_id.Substring(11, 3) == "-00")
-                        {
-                            strPart_id = strPart_id.Remove(11, 3);
-                        }
-                        sql.Append("        ,'" + strPart_id + "'        \n");
+                        sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "        \n");
@@ -619,17 +599,7 @@ namespace DataAccess
                         sql.Append("        (        \n");
                         sql.Append("        " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "        \n");
-                        /*
-                         * 品番还原
-                         */
-                        string strPart_id = listInfoData[i]["vcPart_id"].ToString();
-                        strPart_id = strPart_id.Insert(10, "-");
-                        strPart_id = strPart_id.Insert(5, "-");
-                        if (strPart_id.Substring(11, 3) == "-00")
-                        {
-                            strPart_id = strPart_id.Remove(11, 3);
-                        }
-                        sql.Append("        ,'" + strPart_id + "'        \n");
+                        sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "        \n");
                         sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "        \n");
@@ -733,17 +703,7 @@ namespace DataAccess
                     sql.Append("        (        \n");
                     sql.Append("        " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "        \n");
-                    /*
-                     * 品番还原
-                     */
-                    string strPart_id = listInfoData[i]["vcPart_id"].ToString();
-                    strPart_id = strPart_id.Insert(10, "-");
-                    strPart_id = strPart_id.Insert(5, "-");
-                    if (strPart_id.Substring(11, 3) == "-00")
-                    {
-                        strPart_id = strPart_id.Remove(11, 3);
-                    }
-                    sql.Append("        ,'"+strPart_id+"'        \n");
+                    sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "        \n");
                     sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcCarType"], false) + "        \n");
@@ -1231,9 +1191,6 @@ namespace DataAccess
                 sql.Append("        (        \n");
                 sql.Append("        " + ComFunction.getSqlValue(listInfoData[i]["dSSDate"], true) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcJD"], false) + "        \n");
-                #region 品番做特殊处理
-
-                #endregion
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "        \n");
                 sql.Append("        ," + ComFunction.getSqlValue(listInfoData[i]["vcChange"], false) + "        \n");

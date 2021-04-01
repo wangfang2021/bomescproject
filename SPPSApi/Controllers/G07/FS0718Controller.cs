@@ -32,6 +32,7 @@ namespace SPPSApi.Controllers.G07
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         FS0718_Logic FS0718_Logic = new FS0718_Logic();
+        ZIPHelper zIPHelper = new ZIPHelper();
         private readonly string FunctionID = "FS0718";
 
         public FS0718Controller(IWebHostEnvironment webHostEnvironment)
@@ -103,11 +104,20 @@ namespace SPPSApi.Controllers.G07
                 string strDownloadDiff = dataForm.strDownloadDiff;
                 DataTable dt = FS0718_Logic.Search(strDownloadDiff,loginInfo.UserId);
 
-                #region 周度内饰期间特殊处理
+                #region 格式化DataTable
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if (dt.Rows[i]["vcNSDiff"]!=null && dt.Rows[i]["vcNSDiff"].ToString() =="周度内饰")
+                    if (dt.Rows[i]["dFirstDownload"]!=null && dt.Rows[i]["dFirstDownload"].ToString().Trim()!="")
                     {
+                        dt.Rows[i]["vcNSState"] = "已下载";
+                    }
+                    else
+                    {
+                        dt.Rows[i]["vcNSState"] = "未下载";
+                    }
+                    if (dt.Rows[i]["vcNSDiff"]!=null && dt.Rows[i]["vcNSDiff"].ToString() =="周度内示")
+                    {
+                        dt.Rows[i]["vcYearMonth"] = "—";
                         string strNSQJ = dt.Rows[i]["vcNSQJ"].ToString();
                         string strBefore = strNSQJ.Split(' ')[0];
                         string strAfter = strNSQJ.Split(' ')[strNSQJ.Split(' ').Length - 1];
@@ -142,12 +152,16 @@ namespace SPPSApi.Controllers.G07
 
                         dt.Rows[i]["vcNSQJ"] = strBefore + " - " + strAfter;
                     }
+                    if (dt.Rows[i]["vcNSDiff"] != null && dt.Rows[i]["vcNSDiff"].ToString() == "月度内示")
+                    {
+                        dt.Rows[i]["vcNSQJ"] = "—";
+                    }
                 }
                 #endregion
 
                 DtConverter dtConverter = new DtConverter();
-                dtConverter.addField("dFaBuTime", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dFirstDownload", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dFaBuTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
+                dtConverter.addField("dFirstDownload", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
@@ -190,24 +204,21 @@ namespace SPPSApi.Controllers.G07
                 }
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
-                #region 定义两个List分别记录月度和周度的内饰数据
+                #region 定义两个List分别记录月度和周度的内示数据
                 List<Dictionary<string, Object>> list_NSMonth = new List<Dictionary<string, object>>();
                 List<Dictionary<string, Object>> list_NSWeek = new List<Dictionary<string, object>>();
                 #endregion
 
-                #region 定义两个DataTable,用来接收月度和周度的查询结果
-
-                #endregion
                 #region 筛选用户所选数据
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    if (listInfoData[i]["vcType"] != null)
+                    if (listInfoData[i]["vcNSDiff"] != null)
                     {
-                        if (listInfoData[i]["vcType"].ToString() == "月度内饰")
+                        if (listInfoData[i]["vcNSDiff"].ToString() == "月度内示")
                         {
                             list_NSMonth.Add(listInfoData[i]);
                         }
-                        if (listInfoData[i]["vcType"].ToString() == "周度内饰")
+                        if (listInfoData[i]["vcNSDiff"].ToString() == "周度内示")
                         {
                             list_NSWeek.Add(listInfoData[i]);
                         }
@@ -215,14 +226,14 @@ namespace SPPSApi.Controllers.G07
                 }
                 #endregion
 
-                #region 对所选月度内饰进行处理
+                #region 对所选月度内示进行处理
                 if (list_NSMonth.Count > 0)
                 {
                     for (int i = 0; i < list_NSMonth.Count; i++)
                     {
                         string strSupplier = list_NSMonth[i]["vcSupplier"].ToString();
-                        string strYearMonth = list_NSMonth[i]["vcYearMonth"].ToString();
-                        string strFaBuTime = list_NSMonth[i]["dFaBuTime"].ToString();
+                        string strYearMonth = list_NSMonth[i]["vcYearMonth"].ToString().Replace("-","");
+                        string strFaBuTime = Convert.ToDateTime(list_NSMonth[i]["dFaBuTime"].ToString()).ToString();
                         DataTable dt_Month = FS0718_Logic.Search_Month(strSupplier, strYearMonth, strFaBuTime);
 
                         string resMsg = "";
@@ -236,13 +247,14 @@ namespace SPPSApi.Controllers.G07
                                             "iDay11","iDay12","iDay13","iDay14","iDay15","iDay16","iDay17","iDay18","iDay19","iDay20",
                                             "iDay21","iDay22","iDay23","iDay24","iDay25","iDay26","iDay27","iDay28","iDay29","iDay30",
                                             "iDay31","dZYTime"};
-                        string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内饰书导出", ref resMsg);
-
+                        string strfileName = "月度内示书_"+strYearMonth+"_"+i+"_";
+                        string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+                        zIPHelper.addFiles(filepath, _webHostEnvironment.ContentRootPath+ Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar);
                     }
                 }
                 #endregion
 
-                #region 对所选周度内饰进行处理
+                #region 对所选周度内示进行处理
                 if (list_NSWeek.Count>0)
                 {
                     for (int i = 0; i < list_NSWeek.Count; i++)
@@ -258,8 +270,15 @@ namespace SPPSApi.Controllers.G07
                     }
                 }
                 #endregion
+
+
+                zIPHelper.strZIPFileName = "内示下载" + DateTime.Now.ToString("yyyyMMdd") + ".zip";
+                zIPHelper.strZIPFilePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;
+                
+                zIPHelper.createZIPFile();
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "";
+                apiResult.data = zIPHelper.strZIPFileName;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -272,14 +291,64 @@ namespace SPPSApi.Controllers.G07
         }
         #endregion
 
+    }
+
+    /// <summary>
+    /// 压缩包帮助类
+    /// </summary>
+    public class ZIPHelper
+    {
         /// <summary>
-        /// 创建压缩包
+        /// 压缩包文件名
         /// </summary>
-        /// <param name="zipName">压缩包名称（路径）</param>
-        /// <param name="files">要压缩的文件，key-文件名，value-文件字节数组</param>
-        private void CreateZipPackage(string zipName, Dictionary<string, byte[]> files)
+        public string strZIPFileName { get; set; }
+
+        /// <summary>
+        /// 压缩包文件路径
+        /// </summary>
+        public string strZIPFilePath { get; set; }
+
+        /// <summary>
+        /// 文件集合：文件名 — 文件二进制流
+        /// </summary>
+        public Dictionary<string, byte[]> files { get; set; }
+
+        /// <summary>
+        /// 实例化函数
+        /// </summary>
+        public ZIPHelper() 
         {
-            using (FileStream zip = System.IO.File.Create(zipName))
+            this.strZIPFileName = "";
+            this.strZIPFilePath = "";
+            this.files = new Dictionary<string, byte[]>();
+        }
+
+        /// <summary>
+        /// 设置文件对应文件二进制流List
+        /// </summary>
+        /// <param name="fileLists"></param>
+        public void setFiles(List<FileHelper> fileLists) 
+        {
+            foreach (var fileHelper in fileLists)
+            {
+                files.Add(fileHelper.strFileName, File.ReadAllBytes(fileHelper.strFilePath+ Path.DirectorySeparatorChar + fileHelper.strFileName));
+            }
+        }
+
+        public void addFiles(string strFileName,string strFilePath) 
+        {
+            string strFilePath_All = strFilePath + Path.DirectorySeparatorChar + strFileName;
+            files.Add(strFileName, File.ReadAllBytes(strFilePath_All));
+        }
+
+        /// <summary>
+        /// 创建压缩包文件
+        /// </summary>
+        /// <param name="strFileName">文件名</param>
+        /// <param name="strFilePath">文件路径</param>
+        public void createZIPFile() 
+        {
+            using (FileStream zip = File.Create(strZIPFilePath +Path.DirectorySeparatorChar+ strZIPFileName))
             {
                 using (ZipOutputStream zipStream = new ZipOutputStream(zip))
                 {
@@ -299,4 +368,21 @@ namespace SPPSApi.Controllers.G07
         }
 
     }
+
+    /// <summary>
+    /// 文件类
+    /// </summary>
+    public class FileHelper
+    {
+        /// <summary>
+        /// 文件名
+        /// </summary>
+        public string strFileName { get; set; }
+
+        /// <summary>
+        /// 文件路径
+        /// </summary>
+        public string strFilePath { get; set; }
+    }
+
 }

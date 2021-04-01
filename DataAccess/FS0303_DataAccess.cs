@@ -704,25 +704,7 @@ namespace DataAccess
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcSPINo"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcSQState"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcDiff"], false) + "       \r\n");
-
-                    #region 品番特殊处理
-                    string vcPart_id = listInfoData[i]["vcPart_id"].ToString();
-                    if (vcPart_id.Length == 11)
-                    {
-                        vcPart_id = vcPart_id.Replace("-", "") + "00";
-                        strSql.Append("      ,'" + vcPart_id + "'       \r\n");
-                    }
-                    else if (vcPart_id.Length == 14)
-                    {
-                        vcPart_id = vcPart_id.Replace("-", "");
-                        strSql.Append("      ,'" + vcPart_id + "'       \r\n");
-                    }
-                    else
-                    {
-                        vcPart_id = vcPart_id.Replace("-", "");
-                        strSql.Append("      ,'" + vcPart_id + "'       \r\n");
-                    }
-                    #endregion
+                    strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcPart_id"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDesign"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeDev"], false) + "       \r\n");
                     strSql.Append("      ," + ComFunction.getSqlValue(listInfoData[i]["vcCarTypeName"], false) + "       \r\n");

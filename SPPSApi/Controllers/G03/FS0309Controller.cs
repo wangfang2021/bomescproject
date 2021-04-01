@@ -140,10 +140,10 @@ namespace SPPSApi.Controllers.G03
                     , strProjectType, strPriceChangeInfo, strCarTypeDev, strSupplier_id
                     , strReceiver, strPriceState
                     );
-                if (dt != null && dt.Rows.Count >= 5000)
+                if (dt != null && dt.Rows.Count >= 10000)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "本次检索数据条数超过5000,为避免浏览器内存溢出，请调整检索条件或进行数据导出。";
+                    apiResult.data = "本次检索数据条数超过10000,为避免浏览器内存溢出，请调整检索条件或进行数据导出。";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DtConverter dtConverter = new DtConverter();

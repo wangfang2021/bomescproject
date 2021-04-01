@@ -365,7 +365,7 @@ namespace DataAccess
                                 sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(inout, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcCarType, false) + ",");
-                                sbr.Append(ComFunction.getSqlValue(vcPartId_Replace, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(packingSpot, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(rows[0]["iD1"], true) + ",");
@@ -571,7 +571,7 @@ namespace DataAccess
                                 sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(inout, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcCarType, false) + ",");
-                                sbr.Append(ComFunction.getSqlValue(vcPartId_Replace, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(packingSpot, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
                                 sbr.Append(value + "");
@@ -769,7 +769,7 @@ namespace DataAccess
                                 sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(inout, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcCarType, false) + ",");
-                                sbr.Append(ComFunction.getSqlValue(vcPartId_Replace, false) + ",");
+                                sbr.Append(ComFunction.getSqlValue(vcPart_id, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(packingSpot, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(vcSupplierId, false) + ",");
                                 sbr.Append(ComFunction.getSqlValue(QTY, true) + ",");

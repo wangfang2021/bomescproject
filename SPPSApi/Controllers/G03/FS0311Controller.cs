@@ -60,7 +60,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE1101", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -90,7 +90,7 @@ namespace SPPSApi.Controllers.G03
             {
                 DataTable dt = fs0311_logic.searchApi(PartId, Sale, allPartNo);
                 string resMsg = "";
-                string[] head = { "收货方", "补给品番","供应商编号", "车名", "中文品名", "执行标准", "生产商名称", "地址", "开始时间", "结束时间" };
+                string[] head = { "收货方", "补给品番", "供应商编号", "车名", "中文品名", "执行标准", "生产商名称", "地址", "开始时间", "结束时间" };
                 string[] fields = { "vcCPDCompany", "vcPart_Id", "vcSupplier_id", "vcCarTypeName", "vcPartNameCN", "vcZXBZNo", "vcSCSName", "vcSCSAdress", "dTimeFrom1", "dTimeTo1" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
@@ -106,7 +106,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE1102", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -184,7 +184,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0902", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE1103", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

@@ -498,7 +498,7 @@ namespace Logic
                 throw ex;
             }
         }
-        public string setEmailBody(string strInfo,string strflag)
+        public string setEmailBody(string strInfo, string strflag)
         {
             StringBuilder sbr = new StringBuilder();
             if (strflag == "0")
@@ -923,9 +923,9 @@ namespace Logic
         public static decimal RoundFirstSignificantDigit(this decimal input)
         {
             int zhengshu = (int)input;
-            input=input-(decimal)zhengshu;
+            input = input - (decimal)zhengshu;
 
-            if (input==0)
+            if (input == 0)
             {
                 return (decimal)zhengshu;
             }
@@ -940,4 +940,6 @@ namespace Logic
             return Math.Round(input, precision);
         }
     }
+
+
 }

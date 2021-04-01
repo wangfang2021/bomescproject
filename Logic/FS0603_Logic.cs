@@ -2892,6 +2892,17 @@ namespace Logic
                 dataTable.Columns.Add("UUID2", typeof(string));
                 dataTable.Columns.Add("UUID3", typeof(string));
             }
+            if (strSpSub == "print1103")
+            {
+                dataTable.Columns.Add("vcReceiver", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("vcInPutOrderNo", typeof(string));
+                dataTable.Columns.Add("vcLabelNum", typeof(string));
+                dataTable.Columns.Add("bInPutOrder", typeof(string));
+                dataTable.Columns.Add("bTag", typeof(string));
+                dataTable.Columns.Add("vcTagLianFFrom", typeof(string));
+                dataTable.Columns.Add("vcTagLianFTo", typeof(string));
+            }
             if (strSpSub == "updtFs1401")
             {
                 dataTable.Columns.Add("LinId", typeof(string));

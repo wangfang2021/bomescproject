@@ -429,8 +429,7 @@ namespace SPPSApi.Controllers.G06
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 string strTheme = "紧急订单纳期回复";
-                DataTable dtToList = fs0602_Logic.getToList(dtImport, ref dtMessage);
-                fs0602_Logic.sendEmailInfo(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, dtToList, ref dtMessage);
+                fs0602_Logic.sendEmailInfo_FTMS(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();

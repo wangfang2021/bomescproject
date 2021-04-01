@@ -716,6 +716,9 @@ namespace SPPSApi.Controllers.G03
                 result.Columns.Add("field2");//调达原价
                 result.Columns.Add("field3");//调达部回答日
 
+
+                List<string> carTypeList = new List<string>();//存放车型开发，根据车型给财务发邮件
+
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     string strProjectType = listInfoData[i]["vcProjectType"].ToString();
@@ -729,6 +732,8 @@ namespace SPPSApi.Controllers.G03
                     row["field3"] = "";
                     row["vcPart_id"] = listInfoData[i]["vcPart_id"];
                     row["vcCarTypeDev"] = listInfoData[i]["vcCarTypeDev"];
+                    string strCarTypeDev = listInfoData[i]["vcCarTypeDev"] == null ? "" : listInfoData[i]["vcCarTypeDev"].ToString();
+                    carTypeList.Add(strCarTypeDev);//存储车型开发
                     row["vcPart_Name"] = listInfoData[i]["vcPart_Name"];
                     row["vcSupplier_Name"] = listInfoData[i]["vcSupplier_Name"];
                     row["vcSupplier_id"] = listInfoData[i]["vcSupplier_id"];
@@ -828,7 +833,10 @@ namespace SPPSApi.Controllers.G03
                 }
                 string strErr = "";
                 #region 给财务发邮件
-                fs0309_Logic.sendEmailToCaiWu(loginInfo.Email, loginInfo.UnitName, ref strErr);
+
+                List<string> carTypeListDistinct= carTypeList.Distinct().ToList();
+
+                fs0309_Logic.sendEmailToCaiWu(loginInfo.Email, loginInfo.UnitName, ref strErr,carTypeListDistinct);
                 if (strErr != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

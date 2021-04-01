@@ -1139,13 +1139,22 @@ namespace DataAccess
 
 
         #region 获取价格Master财务接收邮箱
-        public DataTable getCaiWuEmailAddRess()
+        public DataTable getCaiWuEmailAddRess(List<string> carTypeListDistinct )
         {
             try
             {
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine(
-                    "SELECT vcValue1,vcValue2 FROM dbo.TOutCode WHERE vcCodeId = 'C014'AND vcIsColum = '0' ");
+                sbr.Append(
+                    "SELECT vcValue1,vcValue2,vcValue3 FROM dbo.TOutCode WHERE vcCodeId = 'C014'AND vcIsColum = '0' and vcValue1 in (  \r\n ");
+
+                for (int i = 0; i < carTypeListDistinct.Count; i++)
+                {
+                    if(i!=0)
+                        sbr.Append(",");
+                    string strCarType = carTypeListDistinct[i].ToString();
+                    sbr.Append("'" + strCarType + "'");
+                }
+                sbr.Append(")  \r\n ");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
             }
             catch (Exception ex)

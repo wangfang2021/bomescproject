@@ -19,7 +19,29 @@ namespace Logic
         #region 按检索条件检索,返回dt
         public DataTable Search(string vcSupplier_id, string vcStatus, string vcOrderNo, string vcPart_id)
         {
-            return fs0502_DataAccess.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
+            DataTable dataTable= fs0502_DataAccess.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
+            for (int i = 0; i < dataTable.Rows.Count; i++)
+            {
+                string decBoxQuantity = dataTable.Rows[i]["decBoxQuantity"].ToString();
+                if (decBoxQuantity != "")
+                {
+                    string strBoxColor = IsInteger(decBoxQuantity);
+                    dataTable.Rows[i]["boxColor"] = strBoxColor;
+                }
+            }
+
+            return dataTable;
+        }
+        public string IsInteger(string s)
+        {
+            int i;
+            double d;
+            if (int.TryParse(s, out i))
+                return "0";
+            else if (double.TryParse(s, out d))
+                return (d == Math.Truncate(d) ? "0" : "red");
+            else
+                return "0";
         }
         #endregion
 
@@ -51,9 +73,9 @@ namespace Logic
 
         #region 保存
         public void Save(List<Dictionary<string, Object>> listInfoData, string strUserId, ref string strErrorPartId, string strautoid_main, 
-            string vcPart_id, string vcOrderNo, string vcSupplier_id,ref string infopart)
+            string vcPart_id, string vcOrderNo, string vcSupplier_id,ref string infopart,string iPackingQty)
         {
-            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main,  vcPart_id, vcOrderNo, vcSupplier_id,ref infopart);
+            fs0502_DataAccess.Save(listInfoData, strUserId, ref strErrorPartId,strautoid_main,  vcPart_id, vcOrderNo, vcSupplier_id,ref infopart, iPackingQty);
         }
         #endregion
 

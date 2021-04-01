@@ -379,7 +379,7 @@ namespace DataAccess
                 sqlCommand_modinfo.Transaction = sqlTransaction;
                 sqlCommand_modinfo.CommandType = CommandType.Text;
                 StringBuilder strSql_modinfo = new StringBuilder();
-                strSql_modinfo.AppendLine("UPDATE [TUrgentOrder] SET  vcStatus='1',[dReplyOverDate]=@dReplyOverDate ,[vcSender]='" + strOperId + "',[dSendTime]=GETDATE() WHERE [vcOrderNo]=@vcOrderNo AND [vcPart_id]=@vcPart_id AND [vcSupplier_id]=@vcSupplier_id");
+                strSql_modinfo.AppendLine("UPDATE [TUrgentOrder] SET  vcStatus='1',[dReplyOverDate]=@dReplyOverDate ,[vcSender]='" + strOperId + "',[dSendTime]=GETDATE(),vcSupReplier=null,dSupReplyTime=null WHERE [vcOrderNo]=@vcOrderNo AND [vcPart_id]=@vcPart_id AND [vcSupplier_id]=@vcSupplier_id");
                 sqlCommand_modinfo.CommandText = strSql_modinfo.ToString();
                 sqlCommand_modinfo.Parameters.AddWithValue("@dReplyOverDate", "");
                 sqlCommand_modinfo.Parameters.AddWithValue("@vcOrderNo", "");

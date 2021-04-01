@@ -285,6 +285,77 @@ namespace SPPSApi.Controllers.G06
             }
         }
         /// <summary>
+        /// 回复纳期信息加载
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [EnableCors("any")]
+        public string replyOrderListApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                Dictionary<string, object> res = new Dictionary<string, object>();
+
+                string strState = dataForm.searchform.State;
+                List<Object> listOrderNo = dataForm.searchform.OrderNoList.ToObject<List<Object>>();
+                string strPartId = dataForm.PartId == null ? "" : dataForm.PartId.ToString();
+                string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu.ToString();
+                string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant.ToString();
+                string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId.ToString();
+                string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant.ToString();
+                string strReplyOverDate = dataForm.ReplyOverDate == null ? "" : dataForm.ReplyOverDate.ToString();
+                string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
+
+                JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
+                List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
+                JArray listInfo = dataForm.alltemp.list;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
+                DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
+
+                DataTable dtImport = fS0616_logic.checkReplyInfo(listInfoData, dtMultiple, dataTable, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                {
+                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strOrderList = "";
+                for (int i = 0; i < dtImport.Rows.Count; i++)
+                {
+                    string info = dtImport.Rows[i]["vcOrderNo"].ToString() + ",";
+                    if (!strOrderList.Contains(info))
+                        strOrderList = strOrderList + info;
+                }
+                res.Add("OrderListItem", strOrderList);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M04UE0203", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = null;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        /// <summary>
         /// 回复纳期
         /// </summary>
         /// <param name="data"></param>
@@ -315,13 +386,27 @@ namespace SPPSApi.Controllers.G06
                 string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant.ToString();
                 string strReplyOverDate = dataForm.ReplyOverDate == null ? "" : dataForm.ReplyOverDate.ToString();
                 string strOutPutDate = dataForm.OutPutDate == null ? "" : dataForm.OutPutDate.ToString();
-
+                string strEmailBody = dataForm.mailboy;//邮件体
                 JArray listMultiple = (dataForm.selectmultiple).multipleSelection;
                 List<Dictionary<string, Object>> listMultipleData = listMultiple.ToObject<List<Dictionary<string, Object>>>();
                 JArray listInfo = dataForm.alltemp.list;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
 
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
+                if (strEmailBody == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "邮件体不能为空(请点击邮件预览按钮)。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 DataTable dtMultiple = fS0616_logic.setMultipleData(listMultipleData, ref dtMessage);
                 DataTable dataTable = fS0616_logic.getSearchInfo(strState, listOrderNo, strPartId, strHaoJiu, strOrderPlant, strSupplierId, strSupplierPlant, strReplyOverDate, strOutPutDate);
 
@@ -337,6 +422,20 @@ namespace SPPSApi.Controllers.G06
                 fS0616_logic.setReplyInfo(dtImport, loginInfo.UserId, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                 {
+                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string strTheme = "紧急订单纳期回复";
+                DataTable dtToList = fs0602_Logic.getToList(dtImport, ref dtMessage);
+                fs0602_Logic.sendEmailInfo(loginInfo.UserId, loginInfo.UserName, loginInfo.Email, strTheme, strEmailBody, dtToList, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "紧急订单纳期回复成功。";
+                    dtMessage.Rows.InsertAt(dataRow, 0);
                     dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "list";
@@ -468,9 +567,21 @@ namespace SPPSApi.Controllers.G06
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string strReplyOverDate = dataForm.dReplyOverDate == null ? "" : dataForm.dReplyOverDate;
+            string strOrderList = dataForm.OrderList == null ? "" : dataForm.OrderList;
+            string strflag = dataForm.flag == null ? "" : dataForm.flag;
             try
             {
-                String emailBody = fS0616_logic.setEmailBody(strReplyOverDate);
+                string emailBody = "";
+                string strInfo = "";
+                if (strflag == "0")
+                {
+                    strInfo = strReplyOverDate;
+                }
+                if (strflag == "1")
+                {
+                    strInfo = strOrderList;
+                }
+                emailBody = fS0616_logic.setEmailBody(strInfo, strflag);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = emailBody;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -702,7 +813,7 @@ namespace SPPSApi.Controllers.G06
                     string decBoxQuantity = dtImport.Rows[i]["decBoxQuantity"].ToString();
                     string strBoxColor = fS0616_logic.IsInteger(decBoxQuantity);
                     //decimal decBoxQuantity = Convert.ToDecimal(dtImport.Rows[i]["decBoxQuantity"].ToString());
-                    if (strBoxColor=="1")
+                    if (strBoxColor == "1")
                     {
                         bIsInteger = false;
                         break;

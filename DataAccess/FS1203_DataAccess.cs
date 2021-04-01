@@ -2228,6 +2228,23 @@ namespace DataAccess
         }
         #endregion
 
+        public void Del_KanbanPrintTbl(List<Dictionary<string, Object>> listInfoData)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    sql.Append("delete from tKanbanPrintTbl where vcPartsNo+vcKBorderno+vcKBSerial='" + listInfoData[i]["vcPartsNo"].ToString() + listInfoData[i]["vcKBorderno"].ToString() + listInfoData[i]["vcKBSerial"].ToString() + "'; \r\n");
+                }
+                excute.ExcuteSqlWithStringOper(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region 保存
         public string UpdateCutPlanTMP(DataTable dt, string user)
         {

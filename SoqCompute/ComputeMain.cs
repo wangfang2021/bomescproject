@@ -75,8 +75,10 @@ namespace SoqCompute
                 int iQuantityPercontainer = Convert.ToInt32(dtSoq.Rows[i]["iQuantityPercontainer"].ToString());//收容数	
                 string strFromTime = "";
                 string strToTime = "";
+                string strReceiver = "";
                 try
                 {
+                    strReceiver= dtSoq.Rows[i]["vcReceiver"] == DBNull.Value ? "" : dtSoq.Rows[i]["vcReceiver"].ToString();//收货方
                     strFromTime = dtSoq.Rows[i]["dFromTime"]==DBNull.Value?"":Convert.ToDateTime(dtSoq.Rows[i]["dFromTime"].ToString()).ToString("yyyy-MM-dd");//品番有效期起
                     strToTime = dtSoq.Rows[i]["dToTime"] == DBNull.Value ? "" : Convert.ToDateTime(dtSoq.Rows[i]["dToTime"].ToString()).ToString("yyyy-MM-dd");//品番有效期止
                 }
@@ -87,7 +89,7 @@ namespace SoqCompute
 
                 int iBox = iHyNum / iQuantityPercontainer;//箱子数量													
                 string strPart_id = dtSoq.Rows[i]["vcPart_id"].ToString();
-                string[] temp = new string[39];//一行数据													
+                string[] temp = new string[40];//一行数据													
                 temp[0] = strPart_id;
                 temp[1] = iHyNum.ToString();
                 temp[2] = iQuantityPercontainer.ToString();
@@ -117,6 +119,7 @@ namespace SoqCompute
                 }
                 temp[37] = strFromTime;
                 temp[38] = strToTime;
+                temp[39] = strReceiver;
 
             }
         }

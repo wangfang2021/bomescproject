@@ -222,6 +222,51 @@ namespace DataAccess
             }
             return dt;
         }
+
+        public DataTable getWeekPackPlan_Sum(string strMonth, string strPlant) //wlw
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
+            sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
+            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD3b,0)+isnull(vcD6y,0) as vcD6, \r\n");
+            sb.Append("isnull(vcD7b,0)+isnull(vcD7y,0) as vcD7,isnull(vcD8b,0)+isnull(vcD8y,0) as vcD8,isnull(vcD9b,0)+isnull(vcD9y,0) as vcD9, \r\n");
+            sb.Append("isnull(vcD10b,0)+isnull(vcD10y,0) as vcD10,isnull(vcD11b,0)+isnull(vcD11y,0) as vcD11,isnull(vcD12b,0)+isnull(vcD12y,0) as vcD12, \r\n");
+            sb.Append("isnull(vcD13b,0)+isnull(vcD13y,0) as vcD13,isnull(vcD14b,0)+isnull(vcD14y,0) as vcD14,isnull(vcD15b,0)+isnull(vcD15y,0) as vcD15, \r\n");
+            sb.Append("isnull(vcD16b,0)+isnull(vcD16y,0) as vcD16,isnull(vcD17b,0)+isnull(vcD17y,0) as vcD17,isnull(vcD18b,0)+isnull(vcD18y,0) as vcD18, \r\n");
+            sb.Append("isnull(vcD19b,0)+isnull(vcD19y,0) as vcD19,isnull(vcD20b,0)+isnull(vcD20y,0) as vcD20,isnull(vcD21b,0)+isnull(vcD21y,0) as vcD21, \r\n");
+            sb.Append("isnull(vcD22b,0)+isnull(vcD22y,0) as vcD22,isnull(vcD23b,0)+isnull(vcD23y,0) as vcD23,isnull(vcD24b,0)+isnull(vcD24y,0) as vcD24, \r\n");
+            sb.Append("isnull(vcD25b,0)+isnull(vcD25y,0) as vcD25,isnull(vcD26b,0)+isnull(vcD26y,0) as vcD26,isnull(vcD27b,0)+isnull(vcD27y,0) as vcD27, \r\n");
+            sb.Append("isnull(vcD28b,0)+isnull(vcD28y,0) as vcD28,isnull(vcD29b,0)+isnull(vcD29y,0) as vcD29,isnull(vcD30b,0)+isnull(vcD30y,0) as vcD30, \r\n");
+            sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
+            sb.Append("where vcMonth='" + strMonth + "' and (vcMonTotal<>'' or vcMonTotal is not null) and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
+            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')   \r\n");
+            sb.Append("union all  \r\n");
+            sb.Append("select vcMonth, vcPartsno, vcDock, vcCarType, vcProject1, vcProjectName, vcMonTotal, \r\n");
+            sb.Append("isnull(vcD1b,0)+isnull(vcD1y,0) as vcD1,isnull(vcD2b,0)+isnull(vcD2y,0) as vcD2,isnull(vcD3b,0)+isnull(vcD3y,0) as vcD3, \r\n");
+            sb.Append("isnull(vcD4b,0)+isnull(vcD4y,0) as vcD4,isnull(vcD5b,0)+isnull(vcD5y,0) as vcD5,isnull(vcD3b,0)+isnull(vcD6y,0) as vcD6, \r\n");
+            sb.Append("isnull(vcD7b,0)+isnull(vcD7y,0) as vcD7,isnull(vcD8b,0)+isnull(vcD8y,0) as vcD8,isnull(vcD9b,0)+isnull(vcD9y,0) as vcD9, \r\n");
+            sb.Append("isnull(vcD10b,0)+isnull(vcD10y,0) as vcD10,isnull(vcD11b,0)+isnull(vcD11y,0) as vcD11,isnull(vcD12b,0)+isnull(vcD12y,0) as vcD12, \r\n");
+            sb.Append("isnull(vcD13b,0)+isnull(vcD13y,0) as vcD13,isnull(vcD14b,0)+isnull(vcD14y,0) as vcD14,isnull(vcD15b,0)+isnull(vcD15y,0) as vcD15, \r\n");
+            sb.Append("isnull(vcD16b,0)+isnull(vcD16y,0) as vcD16,isnull(vcD17b,0)+isnull(vcD17y,0) as vcD17,isnull(vcD18b,0)+isnull(vcD18y,0) as vcD18, \r\n");
+            sb.Append("isnull(vcD19b,0)+isnull(vcD19y,0) as vcD19,isnull(vcD20b,0)+isnull(vcD20y,0) as vcD20,isnull(vcD21b,0)+isnull(vcD21y,0) as vcD21, \r\n");
+            sb.Append("isnull(vcD22b,0)+isnull(vcD22y,0) as vcD22,isnull(vcD23b,0)+isnull(vcD23y,0) as vcD23,isnull(vcD24b,0)+isnull(vcD24y,0) as vcD24, \r\n");
+            sb.Append("isnull(vcD25b,0)+isnull(vcD25y,0) as vcD25,isnull(vcD26b,0)+isnull(vcD26y,0) as vcD26,isnull(vcD27b,0)+isnull(vcD27y,0) as vcD27, \r\n");
+            sb.Append("isnull(vcD28b,0)+isnull(vcD28y,0) as vcD28,isnull(vcD29b,0)+isnull(vcD29y,0) as vcD29,isnull(vcD30b,0)+isnull(vcD30y,0) as vcD30, \r\n");
+            sb.Append("isnull(vcD31b,0)+isnull(vcD31y,0) as vcD31,montouch,DADDTIME,DUPDTIME,CUPDUSER,vcSupplier_id from WeekPackPlanTbl  \r\n");
+            sb.Append("where montouch='" + strMonth + "' and exists (select vcPartsNo from tPartInfoMaster where vcPartPlant='" + strPlant + "'  \r\n");
+            sb.Append("and vcPartsNo=WeekPackPlanTbl.vcPartsno  and dTimeFrom<='" + strMonth + "' and dTimeTo>='" + strMonth + "')  \r\n");
+            DataTable dt;
+            try
+            {
+                dt = excute.ExcuteSqlWithSelectToDT(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return dt;
+        }
+
         #endregion
 
         #region 日程别更新
@@ -318,5 +363,93 @@ namespace DataAccess
             }
         }
         #endregion
+
+
+        #region 生成订单，插入订单表
+        public string InsertOrder(DataTable dt, string vcUserId, string vcPackPlant)
+        {
+            using (SqlConnection conn = new SqlConnection(ComConnectionHelper.GetConnectionString()))
+            {
+                if (conn.State != ConnectionState.Open)
+                    conn.Open();
+                SqlTransaction trans = conn.BeginTransaction();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (exsitOrders(dt.Rows[i]["vcMonth"].ToString(), dt.Rows[i]["vcOrderNo"].ToString()))
+                    {
+                        return "订单已存在，不能重复生成！";
+                    }
+                    sb.Append("insert into SP_M_ORD(vcPackingFactory, vcTargetYearMonth, vcDock, vcCpdcompany, vcOrderType, vcOrderNo, vcSeqno,  \r\n");
+                    sb.Append("dOrderDate, dOrderExportDate, vcPartNo, vcInsideOutsideType, vcCarType, vcLastPartNo, vcPackingSpot, vcSupplier_id, vcWorkArea, \r\n");
+                    sb.Append("vcPlantQtyDaily1, vcPlantQtyDaily2, vcPlantQtyDaily3, vcPlantQtyDaily4, vcPlantQtyDaily5, vcPlantQtyDaily6, vcPlantQtyDaily7, \r\n");
+                    sb.Append("vcPlantQtyDaily8, vcPlantQtyDaily9, vcPlantQtyDaily10, vcPlantQtyDaily11, vcPlantQtyDaily12, vcPlantQtyDaily13,  \r\n");
+                    sb.Append("vcPlantQtyDaily14, vcPlantQtyDaily15, vcPlantQtyDaily16, vcPlantQtyDaily17, vcPlantQtyDaily18, vcPlantQtyDaily19, \r\n");
+                    sb.Append("vcPlantQtyDaily20, vcPlantQtyDaily21, vcPlantQtyDaily22, vcPlantQtyDaily23, vcPlantQtyDaily24, vcPlantQtyDaily25,  \r\n");
+                    sb.Append("vcPlantQtyDaily26, vcPlantQtyDaily27, vcPlantQtyDaily28, vcPlantQtyDaily29, vcPlantQtyDaily30, vcPlantQtyDaily31,  \r\n");
+                    sb.Append("vcTargetMonthFlag, vcOperatorID, dOperatorTime) \r\n");
+                    sb.Append("values('" + vcPackPlant + "','" + dt.Rows[i]["vcMonth"].ToString().Replace("-", "") + "','" + dt.Rows[i]["vcDock"].ToString() + "','" + dt.Rows[i]["vcCSVCpdCompany"].ToString() + "','W','" + dt.Rows[i]["vcOrderNo"].ToString() + "','" + dt.Rows[i]["vcCSVItemNo"].ToString() + "', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcCSVOrderDate"].ToString() + "','','" + dt.Rows[i]["vcPartsno"].ToString() + "','0','" + dt.Rows[i]["vcCSVCarFamilyCode"].ToString() + "','','','" + dt.Rows[i]["vcSupplier_id"].ToString() + "','', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcD1"] + "','" + dt.Rows[i]["vcD2"] + "','" + dt.Rows[i]["vcD3"] + "','" + dt.Rows[i]["vcD4"] + "','" + dt.Rows[i]["vcD5"] + "','" + dt.Rows[i]["vcD6"] + "','" + dt.Rows[i]["vcD7"] + "', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcD8"] + "','" + dt.Rows[i]["vcD9"] + "','" + dt.Rows[i]["vcD10"] + "','" + dt.Rows[i]["vcD11"] + "','" + dt.Rows[i]["vcD12"] + "','" + dt.Rows[i]["vcD13"] + "', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcD14"] + "','" + dt.Rows[i]["vcD15"] + "','" + dt.Rows[i]["vcD16"] + "','" + dt.Rows[i]["vcD17"] + "','" + dt.Rows[i]["vcD18"] + "','" + dt.Rows[i]["vcD19"] + "', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcD20"] + "','" + dt.Rows[i]["vcD21"] + "','" + dt.Rows[i]["vcD22"] + "','" + dt.Rows[i]["vcD23"] + "','" + dt.Rows[i]["vcD24"] + "','" + dt.Rows[i]["vcD25"] + "', \r\n");
+                    sb.Append("'" + dt.Rows[i]["vcD26"] + "','" + dt.Rows[i]["vcD27"] + "','" + dt.Rows[i]["vcD28"] + "','" + dt.Rows[i]["vcD29"] + "','" + dt.Rows[i]["vcD30"] + "','" + dt.Rows[i]["vcD31"] + "', \r\n");
+                    sb.Append("'0','" + vcUserId + "',getdate()); \r\n");
+                }
+                SqlCommand cmd = new SqlCommand(sb.ToString(), conn, trans);
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                    trans.Commit();
+                    return "";
+                }
+                catch
+                {
+                    trans.Rollback();
+                    return "订单生成失败！";
+                }
+            }
+        }
+
+        private bool exsitOrders(string vcMonth, string vcOrderNo)
+        {
+            string sql = "select count(1) from SP_M_ORD where vcTargetYearMonth='" + vcMonth + "' and vcOrderNo='" + vcOrderNo + "' and vcOrderType='W'";
+            int i = excute.ExecuteScalar(sql);
+            return i > 0;
+        }
+        #endregion
+
+        public DataTable getDockTable(string TargetYM)
+        {
+            try
+            {
+                DateTime timeFrom = DateTime.Parse(TargetYM + "-01");
+                DateTime timeTo = timeFrom;
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT a.vcPartId,a.vcPartId_Replace,a.vcSupplierId,a.vcCarfamilyCode,a.vcReceiver,b.vcSufferIn,a.vcPackingPlant,a.vcInOut,a.vcOrderingMethod,c.vcSupplierPlant,vcHaoJiu,d.vcOrderPlant,vcSupplierPacking FROM ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("	SELECT vcSupplierId,vcCarfamilyCode,vcPackingPlant,vcPartId,vcReceiver,vcPartId_Replace,vcOrderingMethod,vcInOut,vcHaoJiu,vcSupplierPacking FROM TSPMaster WHERE ");
+                sbr.AppendLine("	dFromTime <= '" + timeFrom + "' AND dToTime >='" + timeTo + "' and isnull(vcDelete, '') <> '1'   ");
+                sbr.AppendLine(") a");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,vcSufferIn FROM TSPMaster_SufferIn WHERE dFromTime <= '" + timeFrom + "' AND dToTime >= '" + timeTo + "' AND vcOperatorType = '1' ");
+                sbr.AppendLine(") b ON a.vcPackingPlant = b.vcPackingPlant AND a.vcPartId = b.vcPartId AND a.vcReceiver = b.vcReceiver AND a.vcSupplierId = b.vcSupplierId");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT vcSupplierPlant,vcSupplierId,vcPartId,vcReceiver,vcPackingPlant FROM TSPMaster_SupplierPlant WHERE vcOperatorType = '1' AND dFromTime <= '" + timeFrom + "' AND dToTime >= '" + timeTo + "'");
+                sbr.AppendLine(") c ON a.vcSupplierId = b.vcSupplierId AND a.vcPartId = c.vcPartId AND a.vcReceiver = c.vcReceiver AND a.vcPackingPlant = c.vcPackingPlant");
+                sbr.AppendLine("LEFT JOIN");
+                sbr.AppendLine("(");
+                sbr.AppendLine("select vcValue1 as vcSupplierId,vcValue2 as vcSupplierPlant,vcValue3 as dFromTime,vcValue4 as dToTime,vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0' AND vcValue3<=CONVERT(VARCHAR(10),'" + timeFrom + "',23) AND vcValue4>=CONVERT(VARCHAR(10),'" + timeTo + "',23)");
+                sbr.AppendLine(") d ON a.vcSupplierId = d.vcSupplierId AND c.vcSupplierPlant = d.vcSupplierPlant");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

@@ -588,73 +588,84 @@ namespace SPPSApi.Controllers.G12
                     DataTable dtCol = dtSource.Clone();
                     if (dtSource.Rows.Count > 0)
                     {
-                        StringBuilder sb = new StringBuilder();
-                        //获取列名信息（不用）
-                        //string[] strColumnNames = dtSource.Columns.Cast<DataColumn>().Select(column => column.ColumnName).ToArray();
-                        //sb.AppendLine(string.Join(",", strColumnNames));
-                        //获取每行数据信息
-                        foreach (DataRow dtRow in dtSource.Rows)
+                        msg = fS1205_Logic.InsertOrder(dtSource, loginInfo.UserId, loginInfo.UnitCode);
+                        if (msg == "")
                         {
-                            for (int j = 0; j < dtCol.Columns.Count; j++)
-                            {
-                                if (j != dtCol.Columns.Count - 1)
-                                {
-                                    sb.Append(dtRow[j].ToString() + ",");
-                                }
-                                else
-                                {
-                                    sb.Append(dtRow[j].ToString());
-                                    sb.AppendLine();
-                                }
-                            }
-                        }
-                        //文件名：EMERGENCY_4_201810_20181025133627
-                        string name = "";
-                        switch (vcPlant)
-                        {
-                            case "1": name = "0"; break;
-                            case "2": name = "4"; break;
-                            case "3": name = "8"; break;
-                        }
-                        string CSVName = "EMERGENCY_" + name + "_" + vcMonth.Replace("-", "") + "_" + vcWeek + "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                        string path = System.IO.Directory.GetCurrentDirectory() + "\\Doc\\Export\\" + CSVName + ".csv";
-                        string pathupdate = CSVName + ".csv";
-                        //生成CSV文件
-                        System.IO.File.WriteAllText(path, sb.ToString());
-                        if (System.IO.File.Exists(path))
-                        {
-                            //string strtmp = this.gvMonPlan.Rows[0].Cells[0].Text;
-                            //if (strtmp == "初始化状态没有数据，请进行检索！")
-                            //{
-                            //}
-                            //下载窗口
-                            //ScriptManager.RegisterStartupScript(this.Page, this.Page.GetType(), "", "window.open('../tmp/" + pathupdate + "');", true);
-                            //ShowMessage("导出CSV文件成功: (" + CSVName + ")！", MessageType.Information);
                             apiResult.code = ComConstant.SUCCESS_CODE;
-                            apiResult.data = CSVName + ".csv";
+                            apiResult.data = "";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        else
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = msg;
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = msg;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        #region 弃用旧逻辑
+                        //StringBuilder sb = new StringBuilder();
+                        ////获取列名信息（不用）
+                        ////string[] strColumnNames = dtSource.Columns.Cast<DataColumn>().Select(column => column.ColumnName).ToArray();
+                        ////sb.AppendLine(string.Join(",", strColumnNames));
+                        ////获取每行数据信息
+                        //foreach (DataRow dtRow in dtSource.Rows)
+                        //{
+                        //    for (int j = 0; j < dtCol.Columns.Count; j++)
+                        //    {
+                        //        if (j != dtCol.Columns.Count - 1)
+                        //        {
+                        //            sb.Append(dtRow[j].ToString() + ",");
+                        //        }
+                        //        else
+                        //        {
+                        //            sb.Append(dtRow[j].ToString());
+                        //            sb.AppendLine();
+                        //        }
+                        //    }
+                        //}
+                        ////文件名：EMERGENCY_4_201810_20181025133627
+                        //string name = "";
+                        //switch (vcPlant)
+                        //{
+                        //    case "1": name = "0"; break;
+                        //    case "2": name = "4"; break;
+                        //    case "3": name = "8"; break;
+                        //}
+                        //string CSVName = "EMERGENCY_" + name + "_" + vcMonth.Replace("-", "") + "_" + vcWeek + "_" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                        //string path = Directory.GetCurrentDirectory() + "\\Doc\\Export\\" + CSVName + ".csv";
+                        //string pathupdate = CSVName + ".csv";
+                        ////生成CSV文件
+                        //System.IO.File.WriteAllText(path, sb.ToString());
+                        //if (System.IO.File.Exists(path))
+                        //{
+                        //    //string strtmp = this.gvMonPlan.Rows[0].Cells[0].Text;
+                        //    //if (strtmp == "初始化状态没有数据，请进行检索！")
+                        //    //{
+                        //    //}
+                        //    //下载窗口
+                        //    //ScriptManager.RegisterStartupScript(this.Page, this.Page.GetType(), "", "window.open('../tmp/" + pathupdate + "');", true);
+                        //    //ShowMessage("导出CSV文件成功: (" + CSVName + ")！", MessageType.Information);
+                        //    apiResult.code = ComConstant.SUCCESS_CODE;
+                        //    apiResult.data = CSVName + ".csv";
+                        //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        //}
+                        //else
+                        //{
+                        //    apiResult.code = ComConstant.ERROR_CODE;
+                        //    apiResult.data = msg;
+                        //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        //}
+                        #endregion
                     }
                     else
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "无可导出的数据！";
+                        apiResult.data = "无订单数据！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
-                return "";
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0901", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "生成计划失败！";
+                apiResult.data = "生成订单失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

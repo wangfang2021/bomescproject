@@ -152,6 +152,7 @@ namespace SPPSApi.Controllers.G07
             OrderState = dataForm.SupplierCode.ToObject<List<Object>>();
             List<Object> OrderPartPlant = new List<object>();
             OrderPartPlant = dataForm.PartPlant.ToObject<List<Object>>();
+
             try
             {
                 //判断当前时间不能超过31天
@@ -173,9 +174,19 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
                 }
+                if (OrderState.Count == 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择供应商！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+
                 //计算开始生成结果
                 #region 计算开始生成结果
                 DataTable dt = FS0707_Logic.SearchCalculation(strBegin, strEnd, strProject, strKind, OrderState, OrderPartPlant);
+
+
+
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -245,6 +256,18 @@ namespace SPPSApi.Controllers.G07
                 #endregion
                 //插入导出表
                 string strErrorName = "";
+
+                for (int s = 0; s < dt.Rows.Count; s++)
+                {
+                    if (string.IsNullOrEmpty(dt.Rows[s]["vcPackNo"].ToString())) {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = dt.Rows[s]["vcPartsno"].ToString()+ "没有维护完整！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+
+
                 FS0707_Logic.Save_GS(dt, loginInfo.UserId, ref strErrorName, strBegin, strEnd);
 
                 DataTable dt2 = FS0707_Logic.Search();
@@ -316,7 +339,7 @@ namespace SPPSApi.Controllers.G07
                     {
                         count--;
                     }
-                    else if (strFromBeginBZ == "0")
+                    else if (strFromEndBZ == "0")
                     {
                         count--;
                     }
@@ -371,8 +394,8 @@ namespace SPPSApi.Controllers.G07
                 {
 
                     DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
-                    int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1)*2;
-                    int cs = Convert.ToInt32(strEnd.Split("-")[2])*2;
+                    int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
+                    int cs = Convert.ToInt32(strEnd.Split("-")[2]) * 2;
                     if (strFromBeginBZ == "1")
                     {
                         ss--;
@@ -542,9 +565,38 @@ namespace SPPSApi.Controllers.G07
                 //dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 //JArray listInfo = dataForm.multipleSelection;
                 //List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                string strBegin = dataForm.dFromBegin;
+                string strEnd = dataForm.dFromEnd;
+                string strFromBeginBZ = dataForm.vcFromBeginBZ;
+                string strFromEndBZ = dataForm.vcFromEndBZ;
+
+
+                List<Object> strProject = new List<object>();
+                strProject = dataForm.Project.ToObject<List<Object>>();
+
+                string strKind = dataForm.Kind;
+
+                List<Object> OrderState = new List<object>();
+                OrderState = dataForm.SupplierCode.ToObject<List<Object>>();
+                List<Object> OrderPartPlant = new List<object>();
+                OrderPartPlant = dataForm.PartPlant.ToObject<List<Object>>();
+                if (OrderState.Count==0) {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请选择供应商！";
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
 
                 string strErrorPartId = "";
-                FS0707_Logic.Save( loginInfo.UserId, ref strErrorPartId);
+                OrderState = dataForm.SupplierCode.ToObject<List<Object>>();
+                DataTable dt = FS0707_Logic.Search();
+                for (int t = 0; t < dt.Rows.Count; t++)
+                {
+
+                    dt.Rows[t]["vcNum"] = (t + 1).ToString();
+                }
+                FS0707_Logic.Save(dt,loginInfo.UserId, ref strErrorPartId,strBegin, strEnd, strFromBeginBZ, strFromEndBZ, strKind, OrderState);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -553,7 +605,7 @@ namespace SPPSApi.Controllers.G07
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = null;
+                apiResult.data = "发送成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)

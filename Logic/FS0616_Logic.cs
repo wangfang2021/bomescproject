@@ -498,6 +498,34 @@ namespace Logic
                 throw ex;
             }
         }
+        public string setEmailBody(string strInfo,string strflag)
+        {
+            StringBuilder sbr = new StringBuilder();
+            if (strflag == "0")
+            {
+                sbr.AppendLine("<p>各位供应商殿&nbsp;（请转发给贵司社内相关人员）</p>");
+                sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
+                sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p>关于标题一事，</p>");
+                sbr.AppendLine("<p>紧急订单纳期确认。 </p>");
+                sbr.AppendLine("<p>请查收。</p>");
+                sbr.AppendLine("<p>回复纳期：<u style=\"color: rgb(230, 0, 0);\">" + strInfo + "</u>下班前</p><p><br></p><p>请在补给系统上进行调整回复</p>");
+                sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666-xxxx）。</p><p><br></p>");
+                sbr.AppendLine("<p>以上。</p><p><br></p>");
+            }
+            if (strflag == "1")
+            {
+                sbr.AppendLine("<p>相关各位：大家好</p>");
+                sbr.AppendLine("<p>TFTM补给资材企管课 ***</p>");
+                sbr.AppendLine("<p><br></p>");
+                sbr.AppendLine("<p>贵司发行的紧急订单<u style=\"color: rgb(230, 0, 0);\">" + strInfo + "</u>（FTMS订单号）纳期已确认，请在补给系统进行查收~</p>");
+                sbr.AppendLine("<p>请于<u style=\"color: rgb(230, 0, 0);\">本日内</u>进行订单修正并回传，谢谢</p>");
+                sbr.AppendLine("<p>请查收。</p>");
+                sbr.AppendLine("<p>以上。</p><p><br></p>");
+            }
+
+            return sbr.ToString();
+        }
         public string setEmailBody(string strReplyOverDate)
         {
             StringBuilder sbr = new StringBuilder();
@@ -894,9 +922,12 @@ namespace Logic
     {
         public static decimal RoundFirstSignificantDigit(this decimal input)
         {
+            int zhengshu = (int)input;
+            input=input-(decimal)zhengshu;
+
             if (input==0)
             {
-                return 0;
+                return (decimal)zhengshu;
             }
             int precision = 0;
             var val = input;
@@ -905,6 +936,7 @@ namespace Logic
                 val *= 10;
                 precision++;
             }
+            input = (decimal)zhengshu + input;
             return Math.Round(input, precision);
         }
     }

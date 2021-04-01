@@ -83,10 +83,6 @@ namespace Logic
         {
             return dataAccess.getPlantype();
         }
-        public DataTable bindplant()
-        {
-            return dataAccess.bindplant();
-        }
 
         public DataTable serchData(string mon, string plan, string type, string plant, string plantname)//检索方法
         {
@@ -213,6 +209,15 @@ namespace Logic
             dataAccess.Del_Plan(listInfoData, strUserId);
         }
         #endregion
+
+        /// <summary>
+        /// 删除小工具
+        /// </summary>
+        /// <param name="listInfoData"></param>
+        public void Del_KanbanPrintTbl(List<Dictionary<string, Object>> listInfoData)
+        {
+            dataAccess.Del_KanbanPrintTbl(listInfoData);
+        }
 
         #region 保存
         public string UpdateCutPlanTMP(DataTable dt, string user)

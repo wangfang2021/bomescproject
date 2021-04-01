@@ -99,7 +99,7 @@ namespace SPPSApi.Controllers.G03
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-                
+
                 fs0320_Logic.importSave(importDt, loginInfo.UserId, loginInfo.UnitCode);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功,但已填写中文品名的数据不进行更新。";
@@ -108,7 +108,7 @@ namespace SPPSApi.Controllers.G03
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE2004", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

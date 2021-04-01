@@ -6,6 +6,8 @@ using System.Text;
 using System.Data;
 using System.Data.SqlClient;
 using Logic;
+using NPOI.OpenXmlFormats.Dml;
+
 /// <summary>
 /// NQC内外合状态获取_EKANBAN
 /// </summary>
@@ -21,6 +23,11 @@ namespace BatchProcess
             string PageId = "FP0021";
             try
             {
+                if (!checkJD())
+                {
+                    return true;
+                }
+
                 //批处理开始
                 ComMessage.GetInstance().ProcessMessage(PageId, "M00PI2100", null, strUserId);
                 bool flag = isExist();
@@ -443,6 +450,36 @@ namespace BatchProcess
             }
 
             return tmp;
+        }
+
+        public bool checkJD()
+        {
+            try
+            {
+                string YM = DateTime.Now.ToString("yyyyMM");
+                string day = Convert.ToInt32(DateTime.Now.ToString("dd")).ToString();
+
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT ISNULL(TARGETDAY" + day + ",0) AS flag FROM TCalendar_PingZhun_Wai WHERE vcFZGC = '2' AND TARGETMONTH = '202104'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+                if (dt.Rows.Count == 0)
+                {
+                    return false;
+                }
+
+                string flag = dt.Rows[0]["flag"].ToString();
+                if (flag.Equals('0'))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

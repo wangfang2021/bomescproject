@@ -396,6 +396,34 @@ namespace Logic
             }
 
         }
+        public void sendEmailInfo_FTMS(string strFRId, string strFRName, string strFRAddress, string strTheme, string strEmailBody, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dtEmail = fs0602_DataAccess.getFTMSEmail();
+                DataTable dtToInfo = fs0603_Logic.createTable("mailaddress");
+                for (int j = 0; j < dtEmail.Rows.Count; j++)
+                {
+                    DataRow drToInfo = dtToInfo.NewRow();
+                    drToInfo["address"] = dtEmail.Rows[j]["vcEmail1"].ToString();
+                    drToInfo["displayName"] = dtEmail.Rows[j]["vcLXR1"].ToString();
+                    dtToInfo.Rows.Add(drToInfo);
+                }
+                DataTable dtCcInfo = null;
+                string result = ComFunction.SendEmailInfo(strFRAddress, strFRName, strEmailBody, dtToInfo, dtCcInfo, strTheme, "", false);
+                if (result != "Success")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "回复销售公司邮件发送失败，请采取其他形式联络。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         public DataTable getToList(DataTable dataTable, ref DataTable dtMessage)
         {
             try
@@ -520,7 +548,7 @@ namespace Logic
                 string strHyState = "1";
                 for (int i = 0; i < dtImport.Rows.Count; i++)
                 {
-                    if(dtImport.Rows[i]["vcHy4"].ToString()=="")
+                    if (dtImport.Rows[i]["vcHy4"].ToString() == "")
                     {
                         dtImport.Rows[i]["vcHy4"] = "1";
                     }

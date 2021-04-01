@@ -118,7 +118,7 @@ namespace SPPSApi.Controllers.G07
                     if (dtPS.Select("vcValue='" + importDt.Rows[i]["vcPackSpot"].ToString() + "'").Length == 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入失败:第" + i + "行,包装场维护错误！";
+                        apiResult.data = "导入失败:第" + (i+2) + "行,包装场维护错误！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     DateTime dt1;
@@ -126,7 +126,7 @@ namespace SPPSApi.Controllers.G07
                     if (!time)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入失败:第" + i + "行,开始时间维护错误！";
+                        apiResult.data = "导入失败:第" + (i + 2) + "行,开始时间维护错误！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     DateTime dt2;
@@ -134,13 +134,13 @@ namespace SPPSApi.Controllers.G07
                     if (!time1)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入失败:第" + i + "行,结束时间维护错误！";
+                        apiResult.data = "导入失败:第" + (i + 2) + "行,结束时间维护错误！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     if (dt1 > dt2)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入失败:第" + i + "行,开始时间大于结束时间！";
+                        apiResult.data = "导入失败:第" + (i + 2) + "行,开始时间大于结束时间！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
@@ -148,15 +148,25 @@ namespace SPPSApi.Controllers.G07
                     if (!b)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "请填写正常的发住收容数格式！";
+                        apiResult.data = "导入失败:第" + (i + 2) + "请填写正常的发住收容数格式！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (Convert.ToInt32(importDt.Rows[i]["iRelease"]) % Convert.ToInt32(importDt.Rows[i]["iZCRelease"]) != 0)
-                    {
+                    if (importDt.Rows[i]["iRelease"].ToString()=="0") {
+
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "收容数不是订购批量的整数倍！";
+                        apiResult.data = "导入失败:第" + (i + 2) + "收容数不能是'0'！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (!string.IsNullOrEmpty(importDt.Rows[i]["iRelease"].ToString())&& !string.IsNullOrEmpty(importDt.Rows[i]["iZCRelease"].ToString())) {
+
+                        if (Convert.ToInt32(importDt.Rows[i]["iRelease"])% Convert.ToInt32(importDt.Rows[i]["iZCRelease"])  != 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导入失败:第" + (i + 2) + "行收容数不是订购批量的整数倍！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    
                    
                     if (importDt.Rows[i]["vcIsorNo"].ToString() == "修改")
                     {
@@ -165,7 +175,7 @@ namespace SPPSApi.Controllers.G07
                         if (dtcheckTime.Rows.Count > 0)
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "品番有维护重复有效时间！";
+                            apiResult.data = "导入失败:第" + (i + 2) + "品番有维护重复有效时间！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                         DataRow[] dr = importDt.Select("vcPackNo='" + importDt.Rows[i]["vcPackNo"].ToString() + "'and iAutoId<>'" + iAutoId.ToString() + "' and  dPackFrom<='"+ importDt.Rows[i]["dPackTo"].ToString().Split(' ')[0] + "' and  dPackTo>='"+ importDt.Rows[i]["dPackFrom"].ToString().Split(' ')[0] + "'");
@@ -174,7 +184,7 @@ namespace SPPSApi.Controllers.G07
                         {
 
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "导入文件品番有维护重复有效时间！";
+                            apiResult.data = "导入失败:第" + (i + 2) + "导入文件品番有维护重复有效时间！";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }

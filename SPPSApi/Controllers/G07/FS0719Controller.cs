@@ -211,22 +211,20 @@ namespace SPPSApi.Controllers.G07
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
                         hasFind = true;
-                        if (listInfoData[i]["VCFaBuType"].ToString() != "1")
+                        if (listInfoData[i]["VCFaBuType"].ToString() != "自动发注")
                         {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "仅能修改手动发注数据！";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
+                            bool b = regex.IsMatch(listInfoData[i]["iOrderNumber"].ToString());
+                            if (!b)
+                            {
+                                apiResult.code = ComConstant.ERROR_CODE;
+                                apiResult.data = "请填写正常的订购数量格式！";
+                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                            }
                         }
 
                     }
-                    Regex regex = new System.Text.RegularExpressions.Regex("^(-?[0-9]*[.]*[0-9]{0,3})$");
-                    bool b = regex.IsMatch(listInfoData[i]["iOrderNumber"].ToString());
-                    if (!b)
-                    {
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "请填写正常的订购数量格式！";
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+
                 }
                 if (!hasFind)
                 {

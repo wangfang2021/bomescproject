@@ -42,10 +42,10 @@ namespace SPPSApi.Controllers.G05
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
                 List<Object> dataList_C056 = ComFunction.convertAllToResult(fs0502_Logic.getTCode("C056"));//状态
-                List<Object> dataList_C074 = ComFunction.convertAllToResult(ComFunction.getTCode("C074"));//可否操作
+                //List<Object> dataList_C074 = ComFunction.convertAllToResult(ComFunction.getTCode("C074"));//可否操作
                 List<Object> dataList_OrderNo = ComFunction.convertAllToResult(fs0502_Logic.getOrderNo(loginInfo.UserId));//订单号
                 res.Add("C056", dataList_C056);
-                res.Add("C074", dataList_C074);
+                //res.Add("C074", dataList_C074);
                 res.Add("OrderNo", dataList_OrderNo);
                 res.Add("vcSupplier_id", loginInfo.UserId);
 
@@ -123,13 +123,13 @@ namespace SPPSApi.Controllers.G05
             string vcStatus = dataForm.vcStatus == null ? "" : dataForm.vcStatus;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
-            string vcOperateEnable = dataForm.vcOperateEnable == null ? "" : dataForm.vcOperateEnable;
+            //string vcOperateEnable = dataForm.vcOperateEnable == null ? "" : dataForm.vcOperateEnable;
             //string vcDelete= dataForm.vcDelete == null ? "" : dataForm.vcDelete;
 
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, vcOperateEnable);
+                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
                 int dhfNum = dt.Rows.Count;//待回复条数
                 string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 DataRow[] drs = dt.Select(" '" + now + "' > dReplyOverDate ");
@@ -138,6 +138,8 @@ namespace SPPSApi.Controllers.G05
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dReplyOverDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dDeliveryDate", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSendTime",ConvertFieldType.DateType,"yyyy/MM/dd HH:mm:ss");
+                dtConverter.addField("dSupReplyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
@@ -222,12 +224,12 @@ namespace SPPSApi.Controllers.G05
             string vcStatus = dataForm.vcStatus == null ? "" : dataForm.vcStatus;
             string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
             string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
-            string vcOperateEnable = dataForm.vcOperateEnable == null ? "" : dataForm.vcOperateEnable;
+            //string vcOperateEnable = dataForm.vcOperateEnable == null ? "" : dataForm.vcOperateEnable;
             //string vcDelete = dataForm.vcDelete == null ? "" : dataForm.vcDelete;
 
             try
             {
-                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, vcOperateEnable);
+                DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
                 string[] heads = { "状态", "订单编号", "品番", "供应商代码", "工区", "回复截至日期", "收容数", "订货总数", "可对应数量", "可对应箱数", "可对应纳期" };
                 string[] fields = { "vcStatusName","vcOrderNo","vcPart_id","vcSupplier_id","vcGQ","dReplyOverDate","iPackingQty","iOrderQuantity",
                     "iDuiYingQuantity","decBoxQuantity","dDeliveryDate"};
@@ -333,7 +335,7 @@ namespace SPPSApi.Controllers.G05
                             apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
-                        //计算箱数
+                        ////计算箱数
                         string strDuiYingQuantity = listInfoData[i]["iDuiYingQuantity"].ToString();
                         string strPackingQty = listInfoData[i]["iPackingQty"].ToString();
                         decimal input = (Convert.ToDecimal(strDuiYingQuantity) / (Convert.ToDecimal(strPackingQty)));
@@ -356,7 +358,7 @@ namespace SPPSApi.Controllers.G05
                 }
                 string strErrorPartId = "";
                 string infopart = "";
-                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, "", "", "", vcSupplier_id, ref infopart);
+                fs0502_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, "", "", "", vcSupplier_id, ref infopart,"");
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -493,7 +495,7 @@ namespace SPPSApi.Controllers.G05
 
                 string strErrorPartId = "";
                 string infopart = "";
-                fs0502_Logic.Save(listSubInfo, loginInfo.UserId, ref strErrorPartId, iAutoId, vcPart_id, vcOrderNo, vcSupplier_id, ref infopart);
+                fs0502_Logic.Save(listSubInfo, loginInfo.UserId, ref strErrorPartId, iAutoId, vcPart_id, vcOrderNo, vcSupplier_id, ref infopart,iPackingQty);
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -545,7 +547,7 @@ namespace SPPSApi.Controllers.G05
                 string vcStatus = dataForm.vcStatus == null ? "" : dataForm.vcStatus;
                 string vcOrderNo = dataForm.vcOrderNo == null ? "" : dataForm.vcOrderNo;
                 string vcPart_id = dataForm.vcPart_id == null ? "" : dataForm.vcPart_id;
-                string vcOperateEnable = dataForm.vcOperateEnable == null ? "" : dataForm.vcOperateEnable;
+                //string vcOperateEnable = dataForm.vcOperateEnable == null ? "" : dataForm.vcOperateEnable;
                 JArray checkedInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
 
@@ -581,10 +583,10 @@ namespace SPPSApi.Controllers.G05
                 }
                 else//按检索条件
                 {
-                    if (fs0502_Logic.IsDQR(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, ref strMsg_status, ref strMsg_null, vcOperateEnable))
+                    if (fs0502_Logic.IsDQR(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, ref strMsg_status, ref strMsg_null))
                     {//全是可操作的数据
                         //执行提交操作：按检索条件提交
-                        fs0502_Logic.ok(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, loginInfo.UserId, vcOperateEnable);
+                        fs0502_Logic.ok(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id, loginInfo.UserId);
                     }
                     else
                     {//有不可以操作的数据

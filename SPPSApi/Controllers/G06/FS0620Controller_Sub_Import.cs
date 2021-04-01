@@ -73,16 +73,19 @@ namespace SPPSApi.Controllers.G06
                                                 {"100","50","50","4","12","100","100","4","1","50","30","30","30","30","30","30","30","30","30","30","30","30","30","30","30"},//最大长度设定,不校验最大长度用0
                                                 {"1","1","1","4","12","1","1","1","1","4","1","0","0","0","0","0","0","0","0","0","0","0","0","0","0"}};//最小长度设定,可以为空用0
                 DataTable importDt = new DataTable();
+                DataTable dataTable = fs0620_Logic.createTable("fs0620");
+                bool bReault = true;
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
-                    if (strMsg != "")
-                    {
-                        ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                    DataTable dt = fs0620_Logic.ExcelToDataTableFfs0620(info.FullName, "sheet1", headers, ref bReault, ref dataTable);
+                    //DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
+                    //if (strMsg != "")
+                    //{
+                    //    ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                    //    apiResult.code = ComConstant.ERROR_CODE;
+                    //    apiResult.data = "导入终止，文件" + info.Name + ":" + strMsg;
+                    //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    //}
                     if (importDt.Columns.Count == 0)
                         importDt = dt.Clone();
                     if (dt.Rows.Count == 0)
@@ -99,35 +102,7 @@ namespace SPPSApi.Controllers.G06
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
-                //var result = from r in importDt.AsEnumerable()
-                //             group r by new { r2 = r.Field<string>("vcPackPlant"), r3 = r.Field<string>("vcTargetYear")
-                //             , r4 = r.Field<string>("vcPartNo")
-                //             , r5 = r.Field<string>("vcInjectionFactory")
-                //             , r6 = r.Field<string>("vcInsideOutsideType")
-                //             , r7 = r.Field<string>("vcSupplier_id")
-                //             , r8 = r.Field<string>("vcWorkArea")
-                //             , r9 = r.Field<string>("vcCarType")
-                //             , r10 = r.Field<string>("vcType")
-                //             , r11 = r.Field<string>("vcReceiver")
-
-                //             } into g
-                //             where g.Count() > 1
-                //             select g;
-                //if (result.Count() > 0)
-                //{
-                //    StringBuilder sbr = new StringBuilder();
-                //    sbr.Append("导入数据重复:<br/>");
-                //    foreach (var item in result)
-                //    {
-                //        sbr.Append("年计类型"+ item.Key.r10 + "收货方"+ item.Key.r11 + "包装工厂:" + item.Key.r2 + " 对象年月:" + item.Key.r3 +
-                //            " 品番:" + item.Key.r4 + " 发注工厂:" + item.Key.r5 +
-                //            " 内外:" + item.Key.r6 + " 供应商代码:" + item.Key.r7 +
-                //            " 工区:" + item.Key.r8 + " 车型:" + item.Key.r9 +"<br/>");
-                //    }
-                //    apiResult.code = ComConstant.ERROR_CODE;
-                //    apiResult.data = sbr.ToString();
-                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                //}
+               
                 DataTable dtReceiver = ComFunction.getTCode("C018");
                 DataTable dtpackPlant = ComFunction.getTCode("C017");
                 DataTable dtfazhuPlant = fs0620_Logic.getTCode("C026");
@@ -178,40 +153,64 @@ namespace SPPSApi.Controllers.G06
                 StringBuilder sbr = new StringBuilder();
                 if (listError.Count>0)
                 {
-                    sbr.Append("收货方:");
+                    //sbr.Append("收货方:");
                     for (int i=0;i<listError.Count;i++)
                     {
-                        sbr.Append(listError[i]+"、");
+                        //sbr.Append(listError[i]+"、");
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = "";
+                        dataRow["vcMessage"] = "收货方" + listError[i]+ "不存在于数据字典收货方里面,请先追加再导入数据!";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
                     }
-                    sbr.Remove(sbr.Length - 1, 1);
-                    sbr.Append("不存在于数据字典收货方里面,请先追加再导入数据!<br/>");
+                    //sbr.Remove(sbr.Length - 1, 1);
+                    //sbr.Append("不存在于数据字典收货方里面,请先追加再导入数据!<br/>");
+                   
                 }
                 if (packlistError.Count > 0)
                 {
-                    sbr.Append("包装工场:");
+                    //sbr.Append("包装工场:");
                     for (int i = 0; i < packlistError.Count; i++)
                     {
-                        sbr.Append(packlistError[i] + "、");
+                        //sbr.Append(packlistError[i] + "、");
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = "";
+                        dataRow["vcMessage"] = "包装工场" + packlistError[i] + "不存在于常量里面,请先追加再导入数据!";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
                     }
-                    sbr.Remove(sbr.Length - 1, 1);
-                    sbr.Append("不存在于常量里面,请先追加再导入数据!<br/>");
+                    //sbr.Remove(sbr.Length - 1, 1);
+                    //sbr.Append("不存在于常量里面,请先追加再导入数据!<br/>");
                 }
                 if (fazhulistError.Count > 0)
                 {
-                    sbr.Append("发注工场:");
+                    //sbr.Append("发注工场:");
                     for (int i = 0; i < fazhulistError.Count; i++)
                     {
-                        sbr.Append(fazhulistError[i] + "、");
+                        //sbr.Append(fazhulistError[i] + "、");
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcPartNo"] = "";
+                        dataRow["vcMessage"] = "发注工场" + fazhulistError[i] + "不存在于常量里面,请先追加再导入数据!";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
                     }
-                    sbr.Remove(sbr.Length - 1, 1);
-                    sbr.Append("不存在于常量里面,请先追加再导入数据!<br/>");
+                    //sbr.Remove(sbr.Length - 1, 1);
+                    //sbr.Append("不存在于常量里面,请先追加再导入数据!<br/>");
                 }
-                if (sbr.Length>0)
+                if (!bReault)
                 {
+                    //弹出错误dtMessage
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
+                    apiResult.type = "list";
+                    apiResult.data = dataTable;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                //if (sbr.Length>0)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = sbr.ToString();
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
                 fs0620_Logic.importSave(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

@@ -193,6 +193,7 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
+            int indexsum = 0;
             try
             {
                 JArray listInfo = dataForm.multipleSelection;
@@ -249,6 +250,12 @@ namespace SPPSApi.Controllers.G07
                                             "iDay31","dZYTime"};
                         string strfileName = "月度内示书_"+strYearMonth+"_"+i+"_";
                         string filepath = ComFunction.DataTableToExcel(head, fields, dt_Month, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+                        if (filepath == "")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导出生成文件失败";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         zIPHelper.addFiles(filepath, _webHostEnvironment.ContentRootPath+ Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar);
                     }
                 }
@@ -260,13 +267,194 @@ namespace SPPSApi.Controllers.G07
                     for (int i = 0; i < list_NSWeek.Count; i++)
                     {
                         string strNSQJ = list_NSWeek[i]["vcNSQJ"].ToString();
+                        /*
+                         * 拿到前台内示期间后还需要做转换
+                         * 前台获取的字符串：XXXX-XX-XX白值 - XXXX-XX-XX夜值
+                         */
+
                         string strBefore = strNSQJ.Split(' ')[0];
                         string strAfter = strNSQJ.Split(' ')[strNSQJ.Split(' ').Length-1];
 
-                        string strBegin = dataForm.dFromBegin;
-                        string strEnd = dataForm.dFromEnd;
-                        string strFromBeginBZ = dataForm.vcFromBeginBZ;
-                        string strFromEndBZ = dataForm.vcFromEndBZ;
+                        string strBeforeTime = strBefore.Substring(0,strBefore.Length-2);
+                        string strBeforeBZ = strBefore.Substring(strBefore.Length-2,2);
+
+                        string strAfterTime = strAfter.Substring(0,strAfter.Length-2);
+                        string strAfterBZ = strAfter.Substring(strAfter.Length-2,2);
+
+                        if (strBeforeBZ == "白值")
+                        {
+                            strBeforeBZ = "0";
+                        }
+                        else if (strBeforeBZ=="夜值")
+                        {
+                            strBeforeBZ = "1";
+                        }
+                        if (strAfterBZ == "白值")
+                        {
+                            strAfterBZ = "0";
+                        }
+                        else if (strAfterBZ == "夜值")
+                        {
+                            strAfterBZ = "1";
+                        }
+
+                        string strBegin = strBeforeTime;
+                        string strEnd = strAfterTime;
+                        string strFromBeginBZ = strBeforeBZ;
+                        string strFromEndBZ = strAfterBZ;
+                        DataTable dt = FS0718_Logic.Search_Week();
+                        for (int t = 0; t < dt.Rows.Count; t++)
+                        {
+                            dt.Rows[t]["vcNum"] = (t + 1).ToString();
+                        }
+                        string resMsg = "";
+                        int count = 0;
+                        string[] headData = new string[0];
+                        string[] fieldsData = new string[0];
+                        if (strBegin.Split("-")[1] == strEnd.Split("-")[1])
+                        {
+                            count = (Convert.ToInt32(strEnd.Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
+
+                            if (strFromBeginBZ == "1")
+                            {
+                                count--;
+                            }
+                            else if (strFromEndBZ == "0")
+                            {
+                                count--;
+                            }
+                            headData = new string[count + 5];
+                            fieldsData = new string[count + 5];
+                            headData[0] = "序号";
+                            headData[1] = "补给品番";
+                            headData[2] = "GPS品番";
+                            headData[3] = "包材厂家";
+                            headData[4] = "纳入收容数";
+                            fieldsData[0] = "vcNum";
+                            fieldsData[1] = "vcPackNo";
+                            fieldsData[2] = "vcPackGPSNo";
+                            fieldsData[3] = "vcSupplierName";
+                            fieldsData[4] = "iRelease";
+                            int x = 1;
+                            for (int j = 1; j <= 31; j++)
+                            {
+                                if (j==6)
+                                {
+                                    indexsum = indexsum;
+                                }
+                                if (dt.Rows[0]["vcD" + j + "bFShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日白值F";
+                                    fieldsData[4 + x] = "vcD" + j + "bF";
+                                    x++;
+                                }
+                                if (dt.Rows[0]["vcD" + j + "yFShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日夜值F";
+                                    fieldsData[4 + x] = "vcD" + j + "yF";
+                                    x++;
+                                }
+                                if (dt.Rows[0]["vcD" + j + "bTShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日白值T";
+                                    fieldsData[4 + x] = "vcD" + j + "bT";
+                                    x++;
+                                }
+
+                                if (dt.Rows[0]["vcD" + j + "yTShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日夜值T";
+                                    fieldsData[4 + x] = "vcD" + j + "yT";
+                                    x++;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            DateTime dt1 = Convert.ToDateTime(strBegin).AddDays(1 - Convert.ToDateTime(strBegin).Day).AddMonths(1).AddDays(-1);
+                            int ss = (Convert.ToInt32(dt1.ToString().Split(" ")[0].Split("-")[2]) - Convert.ToInt32(strBegin.Split("-")[2]) + 1) * 2;
+                            int cs = Convert.ToInt32(strEnd.Split("-")[2]) * 2;
+                            if (strFromBeginBZ == "1")
+                            {
+                                ss--;
+                            }
+                            else if (strFromBeginBZ == "0")
+                            {
+                                cs--;
+                            }
+                            headData = new string[ss + 5 + cs];
+                            fieldsData = new string[ss + 5 + cs];
+                            headData[0] = "序号";
+                            headData[1] = "补给品番";
+                            headData[2] = "GPS品番";
+                            headData[3] = "包材厂家";
+                            headData[4] = "纳入收容数";
+                            fieldsData[0] = "vcNum";
+                            fieldsData[1] = "vcPackNo";
+                            fieldsData[2] = "vcPackGPSNo";
+                            fieldsData[3] = "vcSupplierName";
+                            fieldsData[4] = "iRelease";
+                            int x = 1;
+                            for (int j = 1; j <= 31; j++)
+                            {
+
+                                if (dt.Rows[0]["vcD" + j + "bFShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日白值F";
+                                    fieldsData[4 + x] = "vcD" + j + "bF";
+                                    x++;
+                                }
+                                if (dt.Rows[0]["vcD" + j + "yFShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日夜值F";
+                                    fieldsData[4 + x] = "vcD" + j + "yF";
+                                    x++;
+                                }
+                                if (dt.Rows[0]["vcD" + j + "bTShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日白值T";
+                                    fieldsData[4 + x] = "vcD" + j + "bT";
+                                    x++;
+                                }
+
+                                if (dt.Rows[0]["vcD" + j + "yTShow"].ToString() == "true")
+                                {
+                                    headData[4 + x] = j + "日夜值T";
+                                    fieldsData[4 + x] = "vcD" + j + "yT";
+                                    x++;
+                                }
+                            }
+                        }
+                        string[] head = headData;
+                        string[] fields = fieldsData;
+
+                        string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
+                        if (filepath == "")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导出生成文件失败";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        if (strBeforeBZ=="0")
+                        {
+                            strBeforeBZ = "白值";
+                        }
+                        else if(strBeforeBZ=="1")
+                        {
+                            strBeforeBZ = "夜值";
+                        }
+                        if (strAfterBZ=="0")
+                        {
+                            strAfterBZ = "白值";
+                        }
+                        else if (strAfterBZ=="1")
+                        {
+                            strAfterBZ = "夜值";
+                        }
+                        string strfileName = "周度内示书_" + strBeforeTime+strBeforeBZ+" - "+strAfterTime+strAfterBZ + "_" + i + "_";
+                        string strfilepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+
+                        zIPHelper.addFiles(strfileName, strfilepath);
                     }
                 }
                 #endregion
@@ -283,6 +471,7 @@ namespace SPPSApi.Controllers.G07
             }
             catch (Exception ex)
             {
+                indexsum = indexsum;
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";

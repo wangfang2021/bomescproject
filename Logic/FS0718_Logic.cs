@@ -59,8 +59,7 @@ namespace Logic
         #region 检索需要导出的周度内示
         public DataTable Search_Week() 
         {
-            fs0718_DataAccess.Search_Week();
-            return null;
+            return fs0718_DataAccess.Search_Week();
         }
         #endregion
 

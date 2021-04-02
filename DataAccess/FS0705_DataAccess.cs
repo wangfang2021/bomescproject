@@ -346,18 +346,44 @@ namespace DataAccess
                 #region 将此次的数据结果插入包材发注表中
                 strSql.AppendLine("       insert into TPackOrderFaZhu          ");
                 strSql.AppendLine("       (          ");
-                strSql.AppendLine("           vcOrderNo,          ");
-                strSql.AppendLine("           vcPackNo,          ");
-                strSql.AppendLine("           vcPackGPSNo,          ");
-                strSql.AppendLine("           vcPartName,          ");
-                strSql.AppendLine("           iOrderNumber,          ");
-                strSql.AppendLine("           vcIsorNoFaZhu,          ");
-                strSql.AppendLine("           VCFaBuType,          ");
-                strSql.AppendLine("           vcSupplierCode,          ");
-                strSql.AppendLine("           vcSupplierName,          ");
-                strSql.AppendLine("           vcPackSpot          ");
-                strSql.AppendLine("       )          ");
-                strSql.AppendLine("       select b.vcOrderNo,b.vcPackNo,b.vcPackGPSNo,c.vcParstName,b.iF_DingGou,'0','0',c.vcSupplierCode,c.vcSupplierName,c.vcPackSpot from          ");
+                strSql.AppendLine("           vcOrderNo,          ");//
+                strSql.AppendLine("           vcPackNo,           ");//
+                strSql.AppendLine("           vcPackGPSNo,        ");//
+                strSql.AppendLine("           vcPartName,         ");//
+                strSql.AppendLine("           iOrderNumber,       ");//
+                strSql.AppendLine("           vcIsorNoFaZhu,      ");//
+                strSql.AppendLine("           VCFaBuType,         ");//
+                strSql.AppendLine("           dNaRuTime,          ");
+                strSql.AppendLine("           vcNaRuBianci,       ");
+                strSql.AppendLine("           vcNaRuUnit,         ");
+                strSql.AppendLine("           vcSupplierCode,     ");
+                strSql.AppendLine("           vcSupplierName,     ");
+                strSql.AppendLine("           vcBuShu,            ");
+                strSql.AppendLine("           vcPackSpot,         ");//
+                strSql.AppendLine("           vcCangKuCode,       ");
+                strSql.AppendLine("           vcOperatorID,       ");
+                strSql.AppendLine("           dOperatorTime,      ");
+                strSql.AppendLine("       )                       ");
+                strSql.AppendLine("       select                  ");
+                strSql.AppendLine("       b.vcOrderNo             ");//
+                strSql.AppendLine("       b.vcPackNo              ");//
+                strSql.AppendLine("       b.vcPackGPSNo           ");//
+                strSql.AppendLine("       c.vcParstName           ");//
+                strSql.AppendLine("       b.iF_DingGou,           ");//
+                strSql.AppendLine("       '0',                    ");//
+                strSql.AppendLine("       '0',                    ");//
+                strSql.AppendLine("       dNaRuTime,              ");
+                strSql.AppendLine("       vcNaRuBianci,           ");
+                strSql.AppendLine("       vcNaRuUnit,             ");
+                strSql.AppendLine("       c.vcSupplierCode        ");
+                strSql.AppendLine("       c.vcSupplierName        ");
+                strSql.AppendLine("       vcBuShu,                ");
+                strSql.AppendLine("       vcPackSpot,             ");//
+                strSql.AppendLine("       vcCangKuCode,           ");
+                strSql.AppendLine("       vcOperatorID,           ");
+                strSql.AppendLine("       dOperatorTime,          ");
+                strSql.AppendLine("                               ");
+                strSql.AppendLine("       from          ");
                 strSql.AppendLine("       (          ");
                 strSql.AppendLine("           select * from #TPackCompute_temp          ");
                 strSql.AppendLine("       ) a          ");

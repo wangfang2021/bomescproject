@@ -158,6 +158,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Connected Services\FS1209_PrExcel\Reference.cs" />
+    <Compile Include="Connected Services\PrintCR\Reference.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Connected Services\FS1209_PrExcel\ConnectedService.json" />
+    <Content Include="Connected Services\PrintCR\ConnectedService.json" />
     <Content Include="Doc\Template\FS0705_Export.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -257,16 +257,18 @@ namespace DataAccess
                     //string finishstate = getValue("C014", ObjToString(listInfoData[i]["FinishState"]).Trim());
                     //string change = getValue("C002", ObjToString(listInfoData[i]["THChange"]).Trim());
                     string memo = ObjToString(listInfoData[i]["vcFileNameTJ"]) + ObjToString(listInfoData[i]["THChange"]);
-                    string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_old"]).Trim();
+
+                    string vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
+                    if (string.IsNullOrWhiteSpace(vcPart_Id))
+                    {
+                        vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_old"]).Trim();
+                    }
+
                     if (finishstate.Equals("2"))
                     {
                         if (change.Equals("1") || change.Equals("2"))//新设
                         {
-                            vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_new"]).Trim();
-                            if (string.IsNullOrWhiteSpace(vcPart_Id))
-                            {
-                                vcPart_Id = ObjToString(listInfoData[i]["vcPart_Id_old"]).Trim();
-                            }
+
                             if (!getFlag(partList, vcPart_Id))
                             {
                                 string CarType = ObjToString(listInfoData[i]["vcCarType"]).Trim();

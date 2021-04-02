@@ -57,9 +57,17 @@ namespace Logic
         #endregion
 
         #region 检索需要导出的周度内示
-        public DataTable Search_Week() 
+        public DataTable Search_Week(string strSupplierCode,string strDFaBuTime) 
         {
-            return fs0718_DataAccess.Search_Week();
+            strDFaBuTime = Convert.ToDateTime(strDFaBuTime).ToString();
+            return fs0718_DataAccess.Search_Week(strSupplierCode,strDFaBuTime);
+        }
+        #endregion
+
+        #region 更新包材内示检索表
+        public void updateSearchTable(List<Dictionary<string, Object>> listInfoData, string strUserID)
+        {
+            fs0718_DataAccess.updateSearchTable(listInfoData, strUserID);
         }
         #endregion
 

@@ -22,9 +22,9 @@ namespace DataAccess
                 strSql.Append("select iAutoId,vcStatus,vcBoxNo,vcInstructionNo,vcPart_id,vcOrderNo,vcLianFanNo,  \n");
                 strSql.Append("isnull(iQuantity,0) as iQuantity,dBZID,dBZTime,dZXID,dZXTime,vcOperatorID,dOperatorTime,    \n");
                 strSql.Append("isnull(iRHQuantity,0) as iRHQuantity,vcLabelStart,vcLabelEnd,    \n");
-                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster    \n");
+                strSql.Append("'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster  where 1=1  \n");
                 if (vcBox_id!="" & vcBox_id!=null)
-                    strSql.Append("where isnull(vcBoxNo,'') = '" + vcBox_id + "' \n");
+                    strSql.Append("and isnull(vcBoxNo,'') = '" + vcBox_id + "' \n");
                 if (vcLabelId != "" && vcLabelId != null)
                     strSql.Append("and '"+vcLabelId+ "' between vcLabelStart and vcLabelEnd \n");
                 strSql.Append("order by vcBoxNo,vcInstructionNo, vcPart_id  \n");

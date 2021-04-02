@@ -120,7 +120,8 @@ namespace SPPSApi.Controllers.G07
                         dt.Rows[i]["vcYearMonth"] = "—";
                         string strNSQJ = dt.Rows[i]["vcNSQJ"].ToString();
                         string strBefore = strNSQJ.Split(' ')[0];
-                        string strAfter = strNSQJ.Split(' ')[strNSQJ.Split(' ').Length - 1];
+                        string strAfter = strNSQJ.Split(' ')[1];
+                        string strPlan = strNSQJ.Split(' ')[2];
 
                         #region 开始时间和班值
                         string strBeforeTime = strBefore.Split('/')[0];
@@ -150,7 +151,7 @@ namespace SPPSApi.Controllers.G07
                         strAfter = strAfterTime + strAfterBZ;
                         #endregion
 
-                        dt.Rows[i]["vcNSQJ"] = strBefore + " - " + strAfter;
+                        dt.Rows[i]["vcNSQJ"] = strBefore + " " + strAfter+" "+strPlan;
                     }
                     if (dt.Rows[i]["vcNSDiff"] != null && dt.Rows[i]["vcNSDiff"].ToString() == "月度内示")
                     {
@@ -193,7 +194,6 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-            int indexsum = 0;
             try
             {
                 JArray listInfo = dataForm.multipleSelection;
@@ -267,13 +267,9 @@ namespace SPPSApi.Controllers.G07
                     for (int i = 0; i < list_NSWeek.Count; i++)
                     {
                         string strNSQJ = list_NSWeek[i]["vcNSQJ"].ToString();
-                        /*
-                         * 拿到前台内示期间后还需要做转换
-                         * 前台获取的字符串：XXXX-XX-XX白值 - XXXX-XX-XX夜值
-                         */
 
                         string strBefore = strNSQJ.Split(' ')[0];
-                        string strAfter = strNSQJ.Split(' ')[strNSQJ.Split(' ').Length-1];
+                        string strAfter = strNSQJ.Split(' ')[1];
 
                         string strBeforeTime = strBefore.Substring(0,strBefore.Length-2);
                         string strBeforeBZ = strBefore.Substring(strBefore.Length-2,2);
@@ -302,7 +298,10 @@ namespace SPPSApi.Controllers.G07
                         string strEnd = strAfterTime;
                         string strFromBeginBZ = strBeforeBZ;
                         string strFromEndBZ = strAfterBZ;
-                        DataTable dt = FS0718_Logic.Search_Week();
+
+                        string strSearch_SupplierCode = list_NSWeek[i]["vcSupplier"].ToString();
+                        string strSearch_dFaBuTime = list_NSWeek[i]["dFaBuTime"].ToString().Replace("/","-");
+                        DataTable dt = FS0718_Logic.Search_Week(strSearch_SupplierCode,strSearch_dFaBuTime);
                         for (int t = 0; t < dt.Rows.Count; t++)
                         {
                             dt.Rows[t]["vcNum"] = (t + 1).ToString();
@@ -338,10 +337,6 @@ namespace SPPSApi.Controllers.G07
                             int x = 1;
                             for (int j = 1; j <= 31; j++)
                             {
-                                if (j==6)
-                                {
-                                    indexsum = indexsum;
-                                }
                                 if (dt.Rows[0]["vcD" + j + "bFShow"].ToString() == "true")
                                 {
                                     headData[4 + x] = j + "日白值F";
@@ -428,13 +423,6 @@ namespace SPPSApi.Controllers.G07
                         string[] head = headData;
                         string[] fields = fieldsData;
 
-                        string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
-                        if (filepath == "")
-                        {
-                            apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = "导出生成文件失败";
-                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                        }
                         if (strBeforeBZ=="0")
                         {
                             strBeforeBZ = "白值";
@@ -452,11 +440,20 @@ namespace SPPSApi.Controllers.G07
                             strAfterBZ = "夜值";
                         }
                         string strfileName = "周度内示书_" + strBeforeTime+strBeforeBZ+" - "+strAfterTime+strAfterBZ + "_" + i + "_";
-                        string strfilepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
-
-                        zIPHelper.addFiles(strfileName, strfilepath);
+                        string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, strfileName, ref resMsg);
+                        if (filepath == "")
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导出生成文件失败";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        zIPHelper.addFiles(filepath, _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar);
                     }
                 }
+                #endregion
+
+                #region 更新包材内示检索表
+                FS0718_Logic.updateSearchTable(listInfoData, loginInfo.UserId);
                 #endregion
 
 
@@ -471,7 +468,6 @@ namespace SPPSApi.Controllers.G07
             }
             catch (Exception ex)
             {
-                indexsum = indexsum;
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";

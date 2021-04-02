@@ -176,6 +176,27 @@ namespace Logic
         }
         #endregion
 
+        #region 导出用检索计算结果
+        public DataTable exportSearchJG() 
+        {
+            return fs0705_DataAccess.searchComputeJGAll();
+        }
+        #endregion
+
+        #region 生成发注数据的检索计算结果（舍弃订购数量为NULL或者为0的数据）
+        public DataTable SCFZDataSearchComputeJG()
+        {
+            DataTable dt = fs0705_DataAccess.searchComputeJG();
+            DataTable returnDT = dt.Clone();
+            DataRow[] drs = dt.Select("iF_DingGou > 0");
+            for (int i = 0; i < drs.Length; i++)
+            {
+                returnDT.ImportRow(drs[i]);
+            }
+            return returnDT;
+        }
+        #endregion
+
         #region 检索计算结果
         public DataTable searchComputeJGAll()
         {

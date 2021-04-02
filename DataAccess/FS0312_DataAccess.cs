@@ -291,7 +291,7 @@ namespace DataAccess
                     strSql.Append("     and vcValue = '" + strNameOrValue + "'    \n");
                 }
 
-                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TK").Rows[0][0].ToString();
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString(), "TFTM").Rows[0][0].ToString();
             }
             catch (Exception ex)
             {

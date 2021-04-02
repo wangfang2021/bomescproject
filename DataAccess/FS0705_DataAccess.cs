@@ -395,6 +395,10 @@ namespace DataAccess
                 strSql.AppendLine("       (          ");
                 strSql.AppendLine("           select * from TPackBase          ");
                 strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo          ");
+                strSql.AppendLine("       left JOIN          ");
+                strSql.AppendLine("       (          ");
+                strSql.AppendLine("           select * from TPackBase          ");
+                strSql.AppendLine("       ) c on b.vcPackNo = c.vcPackNo          ");
                 #endregion
 
                 #region 将此次的数据结果插入包材实际表中

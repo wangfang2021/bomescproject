@@ -131,32 +131,6 @@ namespace SPPSApi.Controllers.G12
 
 
         #region 绑定下拉框
-        #region 绑定工厂
-        [HttpPost]
-        [EnableCors("any")]
-        public string GetPorPlant()
-        {
-            //以下开始业务处理
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                FS1209_Logic logic_1 = new FS1209_Logic();
-                DataTable dt = logic_1.dllPorPlant();
-                List<Object> dataList = ComFunction.convertAllToResult(dt);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, "");
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        #endregion
-
         #region 绑定生产部署
         [HttpPost]
         [EnableCors("any")]

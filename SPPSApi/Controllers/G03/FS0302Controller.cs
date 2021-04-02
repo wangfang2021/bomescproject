@@ -322,30 +322,32 @@ namespace SPPSApi.Controllers.G03
                     };
                     //需要判断时间区间先后关系的字段
                     string[,] strDateRegion = { };
+                    //string[,] strSpecialCheck =
+                    //{
+                    //    { "变更事项（统合）",
+                    //        "THChange",//验证vcChange字段
+                    //        "新车新设",
+                    //        "新车新设",//当vcChange=1时
+                    //        "新品番",
+                    //        "vcPart_Id_new",//判断字段
+                    //        "1", //1:该字段不能为空 0:该字段必须为空
+                    //        "新品番",
+                    //        "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                    //    },
+                    //    { "变更事项（统合）",
+                    //        "THChange",//验证vcChange字段
+                    //        "设变新设",
+                    //        "设变新设",//当vcChange=1时
+                    //        "新品番",
+                    //        "vcPart_Id_new",//判断字段
+                    //        "1", //1:该字段不能为空 0:该字段必须为空
+                    //        "新品番",
+                    //        "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
+                    //    }
+                    //};
                     string[,] strSpecialCheck =
                     {
-                        { "变更事项（统合）",
-                            "THChange",//验证vcChange字段
-                            "新车新设",
-                            "新车新设",//当vcChange=1时
-                            "新品番",
-                            "vcPart_Id_new",//判断字段
-                            "1", //1:该字段不能为空 0:该字段必须为空
-                            "新品番",
-                            "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
-                        },
-                        { "变更事项（统合）",
-                            "THChange",//验证vcChange字段
-                            "设变新设",
-                            "设变新设",//当vcChange=1时
-                            "新品番",
-                            "vcPart_Id_new",//判断字段
-                            "1", //1:该字段不能为空 0:该字段必须为空
-                            "新品番",
-                            "" //该字段有值且验证标记为“1”，则vcHaoJiu必须等于H，该字段为空且验证标记为“1”,则该字段值填什么都行
-                        }
                     };
-
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0302");
                     if (checkRes != null)
                     {

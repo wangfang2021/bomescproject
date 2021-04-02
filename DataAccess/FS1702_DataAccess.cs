@@ -308,12 +308,12 @@ namespace DataAccess
             {
                 StringBuilder sql = new StringBuilder();
                 sql.Append("select '补给品中心' as vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
-                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t1.iCapacity,t1.vcBoxType    \n");
+                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t2.iQuantity as iCapacity,t1.vcBoxType    \n");
                 sql.Append("from TSSPManagement t1    \n");
                 sql.Append("inner join     \n");
                 sql.Append("(    \n");
-                sql.Append("	select * from TChuHe_Detail where vcProject='2W' and dChuHeDate='2021-01-29 00:00:00.000' and iQuantity>0    \n");
-                sql.Append(")t2 on t1.vcProject=t2.vcPart_id    \n");
+                sql.Append("	select * from TChuHe_Detail where vcProject='"+vcProject+"' and dChuHeDate='"+dChuHeDate+"' and iQuantity>0    \n");
+                sql.Append(")t2 on t1.vcChuHePart_id=t2.vcPart_id    \n");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
@@ -327,9 +327,17 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select '补给品中心' as vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,    \n");
-                sql.Append("vcChuHePart_id,vcPart_Name,iCapacity,vcBoxType    \n");
-                sql.Append("from TSSPManagement where vcChuHePart_id='" + vcPart_id + "'    \n");
+                sql.Append("select '补给品中心' as vcSupplierName,t1.vcCarType,t1.vcProject,t1.vcProjectPlace,t1.vcSR,t1.vcBackPart_id,    \n");
+                sql.Append("t1.vcChuHePart_id,t1.vcPart_Name,t2.iQuantity as iCapacity,t1.vcBoxType    \n");
+                sql.Append("from TSSPManagement t1    \n");
+                sql.Append("inner join     \n");
+                sql.Append("(    \n");
+                sql.Append("	select * from TChuHe_KB where iQuantity>0    \n");
+                sql.Append(")t2 on t1.vcChuHePart_id=t2.vcPart_id    \n");
+                sql.Append("where t1.vcChuHePart_id='" + vcPart_id + "'    \n");
+                //sql.Append("select '补给品中心' as vcSupplierName,vcCarType,vcProject,vcProjectPlace,vcSR,vcBackPart_id,    \n");
+                //sql.Append("vcChuHePart_id,vcPart_Name,iCapacity,vcBoxType    \n");
+                //sql.Append("from TSSPManagement where vcChuHePart_id='" + vcPart_id + "'    \n");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)
@@ -623,6 +631,150 @@ namespace DataAccess
                     sqlCommand_sub.Parameters["@vcPart_id"].Value = item["vcPart_id"];
                     sqlCommand_sub.Parameters["@vcBackPart_id"].Value = item["vcBackPart_id"];
                     sqlCommand_sub.Parameters["@iQuantity"].Value = item["iQuantity"];
+                    #endregion
+                    sqlCommand_sub.ExecuteNonQuery();
+                }
+                #endregion
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据写入打印数据失败！";
+                dtMessage.Rows.Add(dataRow);
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
+            }
+        }
+
+        public void setPrintTemp_kb_detail(DataTable dtMain, DataTable dtSub, string strOperId, ref DataTable dtMessage)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            try
+            {
+                #region 写入数据库
+                #region sqlCommand_deleteinfo
+                SqlCommand sqlCommand_deleteinfo = sqlConnection.CreateCommand();
+                sqlCommand_deleteinfo.Transaction = sqlTransaction;
+                sqlCommand_deleteinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_deleteinfo = new StringBuilder();
+                #region SQL and Parameters
+                strSql_deleteinfo.AppendLine("DELETE from tPrintTemp_FS1702_kb_main where vcOperator='" + strOperId + "'");
+                strSql_deleteinfo.AppendLine("DELETE from tPrintTemp_FS1702_kb_detail where vcOperator='" + strOperId + "'");
+                sqlCommand_deleteinfo.CommandText = strSql_deleteinfo.ToString();
+                #endregion
+                sqlCommand_deleteinfo.ExecuteNonQuery();
+                #endregion
+
+                #region sqlCommand_main
+                SqlCommand sqlCommand_main = sqlConnection.CreateCommand();
+                sqlCommand_main.Transaction = sqlTransaction;
+                sqlCommand_main.CommandType = CommandType.Text;
+                StringBuilder strSql_main = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_main.AppendLine("INSERT INTO [dbo].[tPrintTemp_FS1702_kb_main]");
+                strSql_main.AppendLine("           ([UUID1]");
+                strSql_main.AppendLine("           ,[UUID2]");
+                strSql_main.AppendLine("           ,[UUID3]");
+                strSql_main.AppendLine("           ,[UUID4]");
+                strSql_main.AppendLine("           ,[vcOperator]");
+                strSql_main.AppendLine("           ,[dOperatorTime])");
+                strSql_main.AppendLine("     VALUES");
+                strSql_main.AppendLine("           (case when @UUID1='' then null else @UUID1 end");
+                strSql_main.AppendLine("           ,case when @UUID2='' then null else @UUID2 end");
+                strSql_main.AppendLine("           ,case when @UUID3='' then null else @UUID3 end");
+                strSql_main.AppendLine("           ,case when @UUID4='' then null else @UUID4 end");
+                strSql_main.AppendLine("           ,'" + strOperId + "'");
+                strSql_main.AppendLine("           ,GETDATE())");
+                sqlCommand_main.CommandText = strSql_main.ToString();
+                sqlCommand_main.Parameters.AddWithValue("@UUID1", "");
+                sqlCommand_main.Parameters.AddWithValue("@UUID2", "");
+                sqlCommand_main.Parameters.AddWithValue("@UUID3", "");
+                sqlCommand_main.Parameters.AddWithValue("@UUID4", "");
+                #endregion
+                foreach (DataRow item in dtMain.Rows)
+                {
+                    #region Value
+                    sqlCommand_main.Parameters["@UUID1"].Value = item["UUID1"].ToString();
+                    sqlCommand_main.Parameters["@UUID2"].Value = item["UUID2"].ToString();
+                    sqlCommand_main.Parameters["@UUID3"].Value = item["UUID3"].ToString();
+                    sqlCommand_main.Parameters["@UUID4"].Value = item["UUID4"].ToString();
+                    #endregion
+                    sqlCommand_main.ExecuteNonQuery();
+                }
+                #endregion
+
+                #region sqlCommand_sub
+                SqlCommand sqlCommand_sub = sqlConnection.CreateCommand();
+                sqlCommand_sub.Transaction = sqlTransaction;
+                sqlCommand_sub.CommandType = CommandType.Text;
+                StringBuilder strSql_sub = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_sub.AppendLine("INSERT INTO [tPrintTemp_FS1702_kb_detail]");
+                strSql_sub.AppendLine("           ([UUID]");
+                strSql_sub.AppendLine("           ,[vcOperator]");
+                strSql_sub.AppendLine("           ,[dOperatorTime]");
+                strSql_sub.AppendLine("           ,[vcCarType]");
+                strSql_sub.AppendLine("           ,[vcProject]");
+                strSql_sub.AppendLine("           ,[vcProjectPlace]");
+                strSql_sub.AppendLine("           ,[vcSR]");
+                strSql_sub.AppendLine("           ,[vcBackPart_id]");
+                strSql_sub.AppendLine("           ,[vcChuHePart_id]");
+                strSql_sub.AppendLine("           ,[vcPart_Name]");
+                strSql_sub.AppendLine("           ,[iCapacity]");
+                strSql_sub.AppendLine("           ,[vcBoxType])");
+                strSql_sub.AppendLine("     VALUES");
+                strSql_sub.AppendLine("           (@UUID");
+                strSql_sub.AppendLine("           ,'" + strOperId + "'");
+                strSql_sub.AppendLine("           ,GETDATE()");
+                strSql_sub.AppendLine("           ,@vcCarType");
+                strSql_sub.AppendLine("           ,@vcProject");
+                strSql_sub.AppendLine("           ,@vcProjectPlace");
+                strSql_sub.AppendLine("           ,@vcSR");
+                strSql_sub.AppendLine("           ,@vcBackPart_id");
+                strSql_sub.AppendLine("           ,@vcChuHePart_id");
+                strSql_sub.AppendLine("           ,@vcPart_Name");
+                strSql_sub.AppendLine("           ,@iCapacity");
+                strSql_sub.AppendLine("           ,@vcBoxType)");
+                sqlCommand_sub.CommandText = strSql_sub.ToString();
+                sqlCommand_sub.Parameters.AddWithValue("@UUID", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcCarType", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcProject", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcProjectPlace", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcSR", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcBackPart_id", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcChuHePart_id","");
+                sqlCommand_sub.Parameters.AddWithValue("@vcPart_Name","");
+                sqlCommand_sub.Parameters.AddWithValue("@iCapacity","");
+                sqlCommand_sub.Parameters.AddWithValue("@vcBoxType","");
+
+                #endregion
+                foreach (DataRow item in dtSub.Rows)
+                {
+                    #region Value
+                    sqlCommand_sub.Parameters["@UUID"].Value = item["UUID"].ToString();
+                    sqlCommand_sub.Parameters["@vcCarType"].Value = item["vcCarType"];
+                    sqlCommand_sub.Parameters["@vcProject"].Value = item["vcProject"];
+                    sqlCommand_sub.Parameters["@vcProjectPlace"].Value = item["vcProjectPlace"];
+                    sqlCommand_sub.Parameters["@vcSR"].Value = item["vcSR"];
+                    sqlCommand_sub.Parameters["@vcBackPart_id"].Value = item["vcBackPart_id"];
+                    sqlCommand_sub.Parameters["@vcChuHePart_id"].Value = item["vcChuHePart_id"];
+                    sqlCommand_sub.Parameters["@vcPart_Name"].Value = item["vcPart_Name"];
+                    sqlCommand_sub.Parameters["@iCapacity"].Value = item["iCapacity"];
+                    sqlCommand_sub.Parameters["@vcBoxType"].Value = item["vcBoxType"];
                     #endregion
                     sqlCommand_sub.ExecuteNonQuery();
                 }

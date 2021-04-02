@@ -276,13 +276,13 @@ namespace DataAccess
                 strSql_tag.AppendLine("      ,[vcPart_id]");
                 strSql_tag.AppendLine("      ,[vcInno]");
                 strSql_tag.AppendLine("      ,[vcCpdcompany]");
-                strSql_tag.AppendLine("      ,[vcLabel]");
+                strSql_tag.AppendLine("      ,[vcLabel1]");
                 strSql_tag.AppendLine("      ,[vcGetnum]");
                 strSql_tag.AppendLine("      ,[iDateprintflg]");
                 strSql_tag.AppendLine("      ,[vcComputernm]");
                 strSql_tag.AppendLine("      ,[vcPrindate]");
-                strSql_tag.AppendLine("      ,[iQrcode]");
-                strSql_tag.AppendLine("      ,[vcPrintcount]");
+                strSql_tag.AppendLine("      ,[iQrcode1]");
+                strSql_tag.AppendLine("      ,[vcPrintcount1]");
                 strSql_tag.AppendLine("      ,[vcPartnamechineese]");
                 strSql_tag.AppendLine("      ,[vcSuppliername]");
                 strSql_tag.AppendLine("      ,[vcSupplieraddress]");

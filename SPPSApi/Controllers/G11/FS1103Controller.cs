@@ -96,10 +96,6 @@ namespace SPPSApi.Controllers.G11
             string strLianFan = dataForm.LianFan == null ? "" : dataForm.LianFan;
             try
             {
-                if(strLianFan!="")
-                {
-                    strLianFan = Convert.ToInt32(strLianFan).ToString();
-                }
                 DataTable dataTable = fS1103_Logic.getSearchInfo(strReceiver, strSupplierId, strInPutOrderNo, strPartId, strLianFan);
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("bInPutOrder", ConvertFieldType.BoolType, null);
@@ -196,7 +192,7 @@ namespace SPPSApi.Controllers.G11
                         //从工厂获取具体的调用实例
                         var callClient = factory.CreateChannel();
                         setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
-                        Body.strCRVName = file_crv + "crv_FS1103_tag.rpt";
+                        Body.strCRVName = file_crv + "crv_FS1103_tag_temp.rpt";
                         Body.strScrpit = "SELECT * from tPrintTemp_tag_FS1103 where vcOperatorID='" + loginInfo.UserId + "' order by vcInno,vcPrintcount";
                         Body.strPrinterName = strPrinterName;
                         Body.sqlUserID = "sa";

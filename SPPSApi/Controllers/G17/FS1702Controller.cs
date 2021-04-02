@@ -346,6 +346,7 @@ namespace SPPSApi.Controllers.G17
         //}
         #endregion
 
+        #region 出荷看板打印
         [HttpPost]
         [EnableCors("any")]
         public string kbPrintApi([FromBody]dynamic data)
@@ -469,6 +470,7 @@ namespace SPPSApi.Controllers.G17
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        #endregion
 
         #region 出荷完了
         [HttpPost]

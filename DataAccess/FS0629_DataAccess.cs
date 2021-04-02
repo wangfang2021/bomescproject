@@ -329,37 +329,39 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%'end as '出荷率(D/A)'   ");
 
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,Type as item from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "'     ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "'     ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOrderPlant = '" + vcInjectionFactory + "' ");
+                    strSql.AppendLine("  and  vcOrderPlantCode = '" + vcInjectionFactory + "' ");
                 }
                 strSql.AppendLine("   ) a   ");
                 strSql.AppendLine("   left join   ");
                 strSql.AppendLine("   (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                strSql.AppendLine("   '月度订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '月度订单',sum(vcInputQtyTotal) as '月度订单纳入实绩' ,sum(vcResultQtyTotal) as '月度订单出荷实绩'   ");
                 strSql.AppendLine("   from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='"+ vcTargetMonth + "' and vcOrderType  in  ('S','W','D')   ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) b on a.item=b.item and a.vcReceiver = b.vcReceiver and a.vcOrderPlant=b.vcOrderPlant   ");
                 strSql.AppendLine("   left join (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                strSql.AppendLine("   '紧急订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '紧急订单',sum(vcInputQtyTotal) as '紧急订单纳入实绩' ,sum(vcResultQtyTotal) as '紧急订单出荷实绩' from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "' and vcOrderType  in  ('H','F','C')     ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item  ");
                 strSql.AppendLine("   ) c    ");
                 strSql.AppendLine("   on c.vcReceiver = a.vcReceiver and c.vcOrderPlant=a.vcOrderPlant and c.item=a.item     ");
                 strSql.AppendLine("   )currentMonth   ");
@@ -382,7 +384,7 @@ namespace DataAccess
                 strSql.AppendLine("    convert(varchar(10),convert(decimal(18,2),(isnull(b.月度订单出荷实绩,0)+isnull(c.紧急订单出荷实绩,0))/(isnull(b.月度订单,0)+isnull(c.紧急订单,0))   ");
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,Type as item from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='"+ vcLastTargetMonth + "'   ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcLastTargetMonth + "'   ");
                 
                 if (vcConsignee.Length > 0)
                 {
@@ -390,34 +392,36 @@ namespace DataAccess
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOrderPlant = '" + vcInjectionFactory + "' ");
+                    strSql.AppendLine("  and  vcOrderPlantCode = '" + vcInjectionFactory + "' ");
                 }
                 strSql.AppendLine("   ) a   ");
                 strSql.AppendLine("   left join   ");
                 strSql.AppendLine("   (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                strSql.AppendLine("   '月度订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '月度订单',sum(vcInputQtyTotal) as '月度订单纳入实绩' ,sum(vcResultQtyTotal) as '月度订单出荷实绩'   ");
                 strSql.AppendLine("   from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='"+ vcLastTargetMonth + "' and vcOrderType  in  ('S','W','D')   ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) b on a.item=b.item and a.vcReceiver = b.vcReceiver and a.vcOrderPlant=b.vcOrderPlant   ");
                 strSql.AppendLine("   left join (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                strSql.AppendLine("   '紧急订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '紧急订单',sum(vcInputQtyTotal) as '紧急订单纳入实绩' ,sum(vcResultQtyTotal) as '紧急订单出荷实绩' from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcLastTargetMonth + "' and vcOrderType  in  ('H','F','C')     ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) c    ");
                 strSql.AppendLine("   on c.vcReceiver = a.vcReceiver and c.vcOrderPlant=a.vcOrderPlant and c.item=a.item     ");
                 strSql.AppendLine("   )lastMonth on currentMonth.收货方=lastMonth.收货方 and currentMonth.工场=lastMonth.工场   ");
-                strSql.AppendLine("   and currentMonth.工程=lastMonth.工程   ");
+                strSql.AppendLine("   and currentMonth.工程=lastMonth.工程   order by currentMonth.工场 asc,currentMonth.工程 asc  ");
                 strSql.AppendLine("   ;   ");
 
 
@@ -480,38 +484,40 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOrderPlant = '" + vcInjectionFactory + "' ");
+                    strSql.AppendLine("  and  vcOrderPlantCode = '" + vcInjectionFactory + "' ");
                 }
 
                 strSql.AppendLine("   ) a   ");
                 strSql.AppendLine("   left join   ");
                 strSql.AppendLine("   (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                strSql.AppendLine("   '月度订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '月度订单',sum(vcInputQtyTotal) as '月度订单纳入实绩' ,sum(vcResultQtyTotal) as '月度订单出荷实绩'   ");
                 strSql.AppendLine("   from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "' and vcOrderType  in  ('S','W','D')   ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item  ");
                 strSql.AppendLine("   ) b on a.item=b.item and a.vcReceiver = b.vcReceiver and a.vcOrderPlant=b.vcOrderPlant   ");
                 strSql.AppendLine("   left join (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                strSql.AppendLine("   '紧急订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '紧急订单',sum(vcInputQtyTotal) as '紧急订单纳入实绩' ,sum(vcResultQtyTotal) as '紧急订单出荷实绩' from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "' and vcOrderType  in  ('H','F','C')     ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) c    ");
                 strSql.AppendLine("   on c.vcReceiver = a.vcReceiver and c.vcOrderPlant=a.vcOrderPlant and c.item=a.item     ");
                 strSql.AppendLine("   ) d group by d.收货方,d.工场   ");
@@ -554,42 +560,44 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOrderPlant = '" + vcInjectionFactory + "' ");
+                    strSql.AppendLine("  and  vcOrderPlantCode = '" + vcInjectionFactory + "' ");
                 }
                 strSql.AppendLine("   ) a   ");
                 strSql.AppendLine("   left join   ");
                 strSql.AppendLine("   (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                strSql.AppendLine("    '月度订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '月度订单',sum(vcInputQtyTotal) as '月度订单纳入实绩' ,sum(vcResultQtyTotal) as '月度订单出荷实绩'   ");
                 strSql.AppendLine("   from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcLastTargetMonth + "' and vcOrderType  in  ('S','W','D')   ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) b on a.item=b.item and a.vcReceiver = b.vcReceiver and a.vcOrderPlant=b.vcOrderPlant   ");
                 strSql.AppendLine("   left join (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                strSql.AppendLine("    '紧急订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '紧急订单',sum(vcInputQtyTotal) as '紧急订单纳入实绩' ,sum(vcResultQtyTotal) as '紧急订单出荷实绩' from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcLastTargetMonth + "' and vcOrderType  in  ('H','F','C')     ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item  ");
                 strSql.AppendLine("   ) c    ");
                 strSql.AppendLine("   on c.vcReceiver = a.vcReceiver and c.vcOrderPlant=a.vcOrderPlant and c.item=a.item     ");
                 strSql.AppendLine("   ) d group by d.收货方,d.工场   ");
                 strSql.AppendLine("      ");
-                strSql.AppendLine("   ) lastMonth on currentMonth.收货方 = lastMonth.收货方 and currentMonth.工场=lastMonth.工场   ");
+                strSql.AppendLine("   ) lastMonth on currentMonth.收货方 = lastMonth.收货方 and currentMonth.工场=lastMonth.工场   order by currentMonth.工场 asc,currentMonth.工程 asc  ");
                 #endregion
 
                 // 合计的dt
@@ -650,38 +658,40 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOrderPlant = '" + vcInjectionFactory + "' ");
+                    strSql.AppendLine("  and  vcOrderPlantCode = '" + vcInjectionFactory + "' ");
                 }
 
                 strSql.AppendLine("   ) a   ");
                 strSql.AppendLine("   left join   ");
                 strSql.AppendLine("   (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                strSql.AppendLine("   '月度订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '月度订单',sum(vcInputQtyTotal) as '月度订单纳入实绩' ,sum(vcResultQtyTotal) as '月度订单出荷实绩'   ");
                 strSql.AppendLine("   from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "' and vcOrderType  in  ('S','W','D')   ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) b on a.item=b.item and a.vcReceiver = b.vcReceiver and a.vcOrderPlant=b.vcOrderPlant   ");
                 strSql.AppendLine("   left join (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                strSql.AppendLine("   '紧急订单' as orderType,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '紧急订单',sum(vcInputQtyTotal) as '紧急订单纳入实绩' ,sum(vcResultQtyTotal) as '紧急订单出荷实绩' from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "' and vcOrderType  in  ('H','F','C')     ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) c    ");
                 strSql.AppendLine("   on c.vcReceiver = a.vcReceiver and c.vcOrderPlant=a.vcOrderPlant and c.item=a.item     ");
                 strSql.AppendLine("   ) d group by d.收货方   ");
@@ -724,42 +734,44 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
                 }
                 if (vcInjectionFactory.Length > 0)
                 {
-                    strSql.AppendLine("  and  vcOrderPlant = '" + vcInjectionFactory + "' ");
+                    strSql.AppendLine("  and  vcOrderPlantCode = '" + vcInjectionFactory + "' ");
                 }
                 strSql.AppendLine("   ) a   ");
                 strSql.AppendLine("   left join   ");
                 strSql.AppendLine("   (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end type1,   ");
+                strSql.AppendLine("   '月度订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '月度订单',sum(vcInputQtyTotal) as '月度订单纳入实绩' ,sum(vcResultQtyTotal) as '月度订单出荷实绩'   ");
                 strSql.AppendLine("   from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcLastTargetMonth + "' and vcOrderType  in  ('S','W','D')   ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) b on a.item=b.item and a.vcReceiver = b.vcReceiver and a.vcOrderPlant=b.vcOrderPlant   ");
                 strSql.AppendLine("   left join (   ");
                 strSql.AppendLine("   select s.vcReceiver,s.vcOrderPlant,s.item,   ");
-                strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
-                strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                //strSql.AppendLine("   case when  s.vcOrderType  in  ('S','W','D') then '月度订单'   ");
+                //strSql.AppendLine("   else  '紧急订单' end orderType,   ");
+                strSql.AppendLine("   '紧急订单' as type1,   ");
                 strSql.AppendLine("   sum(vcPlantQtyTotal) as '紧急订单',sum(vcInputQtyTotal) as '紧急订单纳入实绩' ,sum(vcResultQtyTotal) as '紧急订单出荷实绩' from (   ");
                 strSql.AppendLine("   select vcReceiver, vcOrderPlant, Type as item, vcOrderType,   ");
                 strSql.AppendLine("   vcPlantQtyTotal, vcInputQtyTotal, vcResultQtyTotal    ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcLastTargetMonth + "' and vcOrderType  in  ('H','F','C')     ");
-                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item,s.vcOrderType   ");
+                strSql.AppendLine("   ) S  group by s.vcReceiver,s.vcOrderPlant,s.item   ");
                 strSql.AppendLine("   ) c    ");
                 strSql.AppendLine("   on c.vcReceiver = a.vcReceiver and c.vcOrderPlant=a.vcOrderPlant and c.item=a.item     ");
                 strSql.AppendLine("   ) d group by d.收货方   ");
                 strSql.AppendLine("      ");
-                strSql.AppendLine("   ) lastMonth on currentMonth.收货方 = lastMonth.收货方   ");
+                strSql.AppendLine("   ) lastMonth on currentMonth.收货方 = lastMonth.收货方  order by currentMonth.工场 asc,currentMonth.工程 asc  ");
                 #endregion
                 return excute.ExcuteSqlWithSelectToDS(strSql.ToString());
             }

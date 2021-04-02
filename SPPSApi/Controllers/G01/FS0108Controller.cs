@@ -175,7 +175,7 @@ namespace SPPSApi.Controllers.G00
                 string[] field = new string[] { };
                
 
-                head = new string[] { "供应商编码", "工区", "开始时间", "结束时间", "发注工场", };
+                head = new string[] { "供应商编码", "工区", "开始时间", "结束时间", "发注工场" };
                 field = new string[] { "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
@@ -193,7 +193,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0703", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0804", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -245,15 +245,15 @@ namespace SPPSApi.Controllers.G00
                 //开始数据验证
                 if (hasFind)
                 {
-                    string[,] strField = new string[,] {{"常量区代码", "常量区分名称", "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5", "vcValue6", "vcValue7", "vcValue8", "vcValue9", "vcValue10"},
-                                                {"vcCodeId","vcCodeName","vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5", "vcValue6", "vcValue7", "vcValue8", "vcValue9", "vcValue10"},
-                                                {"","","","","","","","","","","","" },
-                                                {"50","100","500","500","500","2000","500","500","500","500","500","500"},//最大长度设定,不校验最大长度用0
-                                                {"1","1","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
-                                                {"1","2","3","4","5","6","7","8","9","10","11","12"}//前台显示列号，从0开始计算,注意有选择框的是0
+                    string[,] strField = new string[,] {{"供应商编码", "工区", "开始时间", "结束时间", "发注工场" },
+                                                {"vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"},
+                                                {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"" },
+                                                {"4","100","500","500","500"},//最大长度设定,不校验最大长度用0
+                                                {"4","1","0","0","1"},//最小长度设定,可以为空用0
+                                                {"1","2","3","4","5"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
-                    string[,] strDateRegion = {  };
+                    string[,] strDateRegion = { { "vcValue3", "vcValue4" } };
                     string[,] strSpecialCheck = { //例子-变更事项字段，当它为新设时，号旧必须为号口，旧型开始、旧型结束、旧型持续开始必须为空
                         
                     };
@@ -265,20 +265,23 @@ namespace SPPSApi.Controllers.G00
                         {
                             string[] elements = ((DriverRes)checkRes[i]).element.Split("_");
                             string index = elements[1].Substring(elements[1].IndexOf('d') + 1);
-                            string vcCodeId = "";
-                            string vcCodeName = "";
+                            string vcSupplier = "";
+                            string vcWorkArea = "";
+                            string vcFzgc = "";
                             for (int m = 0; m < listInfoData.Count; m++)
                             {
                                 if (listInfoData[m]["iAPILineNo"].ToString() == index)
                                 {
-                                    vcCodeId = listInfoData[m]["vcCodeId"] == null ? "" : listInfoData[m]["vcCodeId"].ToString();
-                                    vcCodeName = listInfoData[m]["vcCodeName"] == null ? "" : listInfoData[m]["vcCodeName"].ToString();
+                                    vcSupplier = listInfoData[m]["vcValue1"] == null ? "" : listInfoData[m]["vcValue1"].ToString();
+                                    vcWorkArea = listInfoData[m]["vcValue2"] == null ? "" : listInfoData[m]["vcValue2"].ToString();
+                                    vcFzgc = listInfoData[m]["vcValue5"] == null ? "" : listInfoData[m]["vcValue5"].ToString();
                                     break;
                                 }
                             }
                             DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcCodeId"] = vcCodeId;
-                            dataRow["vcCodeName"] = vcCodeName;
+                            dataRow["vcSupplier"] = vcSupplier;
+                            dataRow["vcWorkArea"] = vcWorkArea;
+                            dataRow["vcFzgc"] = vcFzgc; 
                             dataRow["vcMessage"] = ((DriverRes)checkRes[i]).popover.title + ((DriverRes)checkRes[i]).popover.description;
                             dataTable.Rows.Add(dataRow);
                             bReault = false;
@@ -286,6 +289,34 @@ namespace SPPSApi.Controllers.G00
                     }
                 }
                 #region 追加自己特殊的校验
+                //本身判重
+                DataTable dtadd = new DataTable();
+                //vcCodeId ,vcCodeName  ,vcValue ,vcName 
+                dtadd.Columns.Add("vcCodeId");
+                dtadd.Columns.Add("vcCodeName");
+                dtadd.Columns.Add("vcValue");
+                dtadd.Columns.Add("vcName");
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcAddFlag"].ToString().ToLower() == "true")
+                    {
+                        DataRow dr = dtadd.NewRow();
+                        dr["vcCodeId"] = listInfoData[i]["vcCodeId"].ToString();
+                        dr["vcCodeName"] = listInfoData[i]["vcCodeName"].ToString();
+                        dr["vcValue"] = listInfoData[i]["vcValue"].ToString();
+                        dr["vcName"] = listInfoData[i]["vcName"].ToString();
+                        dtadd.Rows.Add(dr);
+                    }
+                }
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增
+
+                    }
+                }
 
                 #endregion
                 if (!bReault)

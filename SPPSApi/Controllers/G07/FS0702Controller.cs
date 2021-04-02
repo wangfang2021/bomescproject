@@ -704,6 +704,7 @@ namespace SPPSApi.Controllers.G07
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
                 bool hasFind = false;//是否找到需要新增或者修改的数据
+                string strPartNoAll = "";
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
@@ -711,6 +712,15 @@ namespace SPPSApi.Controllers.G07
                     if (bAddFlag == true)
                     {//新增
                         hasFind = true;
+                        if (i != 0)
+                        {
+                            strPartNoAll = strPartNoAll + "'," + listInfoData[i]["vcPartsNo"].ToString();
+                        }
+                        else
+                        {
+
+                            strPartNoAll = listInfoData[i]["vcPartsNo"].ToString();
+                        }
                     }
                     else if (bAddFlag == false && bModFlag == true)
                     {//修改
@@ -755,6 +765,8 @@ namespace SPPSApi.Controllers.G07
                 DataTable dt = FS0702_Logic.Search_1();
                 DataTable dt1 = FS0701_Logic.Search_1();
                 string strErrorPartId = "";
+                //删除导入含有的部品品番的包材为空的数据
+                FS0702_Logic.DeleteALL(strPartNoAll, loginInfo.UserId);
                 FS0702_Logic.Save(listInfoData, loginInfo.UserId, ref strErrorPartId, dt, dt1);
                 if (strErrorPartId != "")
                 {

@@ -176,7 +176,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  select * from TPackItem where vcPartsNo in ('"+ strPartNoAll + "') and isnull(vcPackNo,'')<>'' and isnull(iBiYao,'')<>''and isnull(vcDistinguish,'')<>''  \r\n ");
+                sql.Append(" delete from TPackItem where vcPartsNo in ('"+ strPartNoAll + "') and isnull(vcPackNo,'')='' and  iBiYao is  null and isnull(vcDistinguish,'')=''  \r\n ");
                 
                 excute.ExcuteSqlWithStringOper(sql.ToString());
             }
@@ -211,7 +211,7 @@ namespace DataAccess
                     strSql.AppendLine("and vcPackNo='" + vcPackNo + "'  ");
                 }
                 strSql.AppendLine("and dFrom<='"+ dUsedTo + "' and dTo>='"+ dUsedFrom + "' ");
-                strSql.AppendLine("and isnull(vcPackNo,'')<>'' and isnull(iBiYao,'')<>''and isnull(vcDistinguish,'')<>'' ");
+                strSql.AppendLine("and isnull(vcPackNo,'')<>'' and  iBiYao is not null and isnull(vcDistinguish,'')<>'' ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -280,7 +280,7 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,a.vcPackSpot,a.vcPartsNo,   ");
+                strSql.AppendLine("    select a.iAutoId,a.vcModFlag,a.vcAddFlag,a.varChangedItem,d.vcBZPlant as vcPackSpot,a.vcPartsNo,   ");
                 strSql.AppendLine("    c.vcName as vcCar,substring(CONVERT(varchar, a.dUsedFrom,120),0,11) as dUsedFrom ,substring(CONVERT(varchar, a.dUsedTo,120),0,11) as dUsedTo ,a.dFrom,a.dTo,a.vcDistinguish,a.vcPackGPSNo,a.iBiYao,a.vcPackNo ");
                 strSql.AppendLine("    ,b.vcName as vcShouhuofangID,'' as vcIsorNo from (       ");
                 strSql.AppendLine("     select *,'0' as vcModFlag,'0' as vcAddFlag from TPackItem    ");
@@ -347,7 +347,10 @@ namespace DataAccess
                 strSql.AppendLine("   (	   ");
                 strSql.AppendLine("    select * from TCode where vcCodeId='C098'	   ");
                 strSql.AppendLine("   )c on a.vcCar=c.vcValue   	   ");
-
+                strSql.AppendLine(" left join   ");
+                strSql.AppendLine(" (   ");
+                strSql.AppendLine(" select * from TPackageMaster   ");
+                strSql.AppendLine(" )d on a.vcPartsNo=d.vcPart_id   ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -509,10 +512,10 @@ namespace DataAccess
 
 
                     }
-                    excute.ExcuteSqlWithStringOper(sql.ToString());
+                   
 
                 }
-
+                excute.ExcuteSqlWithStringOper(sql.ToString());
             }
             catch (Exception ex)
             {
@@ -554,17 +557,28 @@ namespace DataAccess
 
 
         #region 检查
-        public DataTable checkSOQ(string vcPartsNo)
+        public DataTable checkSOQ()
         {
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("  select distinct vcPart_id from TSoqReply where vcPart_id ='"+ vcPartsNo + "'   \r\n ");
-                sql.Append("  union all   \r\n ");
-                sql.Append(" select vcPartsNo from TPackItem where vcPartsNo ='"+ vcPartsNo + "' \r\n ");
+                sql.Append("  select distinct vcPart_id from TSoqReply   \r\n ");
+               
+                return excute.ExcuteSqlWithSelectToDT(sql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable checkItem()
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
                 
-
-
+                sql.Append(" select vcPartsNo from TPackItem  \r\n ");
 
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
@@ -573,6 +587,8 @@ namespace DataAccess
                 throw ex;
             }
         }
+
+
         #endregion
 
 

@@ -130,7 +130,7 @@ namespace SPPSApi.Controllers.G06
                     {
                         DataRow dataRow = dataTable.NewRow();
                         dataRow["vcPartNo"] = item.Key.r2;
-                        dataRow["vcMessage"] = "包装工厂: " + item.Key.r3 + "收货方: " + item.Key.r4 + "供应商代码:" + item.Key.r5 + "导入数据重复";
+                        dataRow["vcMessage"] = "包装工场: " + item.Key.r3 + "收货方: " + item.Key.r4 + "供应商代码:" + item.Key.r5 + "导入数据重复";
                         dataTable.Rows.Add(dataRow);
                         bReault = false;
                         //sbr.Append("品番:" + item.Key.r2 + "包装工厂: " + item.Key.r3 + "收货方: " + item.Key.r4 + "供应商代码:" + item.Key.r5 + " < br/>");
@@ -145,7 +145,7 @@ namespace SPPSApi.Controllers.G06
                         {
                             DataRow dataRow = dataTable.NewRow();
                             dataRow["vcPartNo"] = importDt.Rows[i]["vcPartNo"].ToString().Trim();
-                            dataRow["vcMessage"] = "新增状态的数据,包装工厂" + importDt.Rows[i]["vcPackingPlant"].ToString().Trim() + ",收货方" + importDt.Rows[i]["vcReceiver"].ToString().Trim() + ",供应商代码" + importDt.Rows[i]["vcSupplier_id"].ToString().Trim() +  "数据库主键重复,不能新增！";
+                            dataRow["vcMessage"] = "新增状态的数据,包装工场" + importDt.Rows[i]["vcPackingPlant"].ToString().Trim() + ",收货方" + importDt.Rows[i]["vcReceiver"].ToString().Trim() + ",供应商代码" + importDt.Rows[i]["vcSupplier_id"].ToString().Trim() +  "数据库主键重复,不能新增！";
                             dataTable.Rows.Add(dataRow);
                             bReault = false;
                         }
@@ -167,9 +167,9 @@ namespace SPPSApi.Controllers.G06
             catch (Exception ex)
             {
                 ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0505", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0416", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "保存失败" + ex.Message;
+                apiResult.data = "批量维护导入失败" + ex.Message;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -227,9 +227,9 @@ namespace SPPSApi.Controllers.G06
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0412", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0417", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "导出失败";
+                apiResult.data = "批量维护下载模板失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

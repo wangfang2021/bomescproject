@@ -33,7 +33,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 检索月度内饰数据,返回dt(导出下载用)
+        #region 检索月度内示数据,返回dt(导出下载用)
         public DataTable Search_Month(string strSupplier,string strYearMonth,string dFaBuTime)
         {
             try
@@ -50,7 +50,7 @@ namespace DataAccess
                 strSql.Append("   ,sum(iDay18)as iDay18,sum(iDay19)as iDay19,sum(iDay20)as iDay20,         \n");
                 strSql.Append("    sum(iDay21)as iDay21,sum(iDay22)as iDay22,sum(iDay23)as iDay23,sum(iDay24)as iDay24,sum(iDay25)as iDay25,sum(iDay26)as iDay26,sum(iDay27)as iDay27         \n");
                 strSql.Append("   ,sum(iDay28)as iDay28,sum(iDay29)as iDay29,sum(iDay30)as iDay30,sum(iDay31)as iDay31,dZYTime         \n");
-                strSql.Append("      from TPackNSCalculation         \n");
+                strSql.Append("      from TPackNSCalculationCV         \n");
                 strSql.Append("       where          \n");
                 strSql.Append("       1=1         \n");
                 if (!string.IsNullOrEmpty(strSupplier))
@@ -76,7 +76,7 @@ namespace DataAccess
         #endregion
 
         #region 检索周度,返回dt(导出下载用)
-        public DataTable Search_Week()
+        public DataTable Search_Week(string strSupplierCode,string strDFaBuTime)
         {
             try
             {
@@ -170,7 +170,15 @@ namespace DataAccess
                 strSql.Append("  sum(vcD27bT) as vcD27bT,sum(vcD28bT) as vcD28bT,            \n");
                 strSql.Append("  sum(vcD29bT) as vcD29bT,sum(vcD30bT) as vcD30bT,sum(vcD31bT) as vcD31bT            \n");
                 strSql.Append("              \n");
-                strSql.Append("   from TPackWeekInfo            \n");
+                strSql.Append("   from TPackWeekInfoCV            \n");
+                if (!string.IsNullOrEmpty(strSupplierCode))
+                {
+                    strSql.Append("   where vcSupplierCode = '"+strSupplierCode+"'             \n");
+                }
+                if (!string.IsNullOrEmpty(strDFaBuTime))
+                {
+                    strSql.Append("   and dSendTime = '"+strDFaBuTime+"'             \n");
+                }
                 strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName,            \n");
 
                 strSql.Append("   vcD1yFShow,vcD2yFShow,vcD3yFShow,vcD4yFShow,vcD5yFShow,vcD6yFShow                  \n");
@@ -206,6 +214,23 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        #endregion
+
+        #region 更新包材内示检索表
+        public void updateSearchTable(List<Dictionary<string, Object>> listInfoData,string strUserID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                string strFaBuTime = listInfoData[i]["dFaBuTime"].ToString().Replace("/","-");
+                strSql.AppendLine("      update TPackSearch set dFirstDownload = case when dFirstDownload is null then GETDATE() else dFirstDownload END        ");
+                strSql.AppendLine("      ,vcOperatorID = '"+strUserID+"'       ");
+                strSql.AppendLine("      ,dOperatorTime = GETDATE()       ");
+                strSql.AppendLine("      where dFaBuTime = '"+strFaBuTime+"'       ");
+            }
+            excute.ExcuteSqlWithStringOper(strSql.ToString());
         }
         #endregion
 

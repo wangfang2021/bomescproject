@@ -46,7 +46,7 @@ namespace SPPSApi.Controllers.G12
             try
             {
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(logic.GetPlant());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 List<Object> dataList_PlanSource = ComFunction.convertAllToResult(logic.GetPlanType());
                 res.Add("PlantSource", dataList_PlantSource);
                 res.Add("PlanSource", dataList_PlanSource);

@@ -122,14 +122,10 @@ namespace DataAccess
             ocmd.Dispose();
             return ds;
         }
-        public DataTable getPlantSource()
-        {
-            string ssql = " select '' as value,'' as text union all select vcData1 as value,vcData2 as text from ConstMst where vcDataId='KBPlant'";
-            return excute.ExcuteSqlWithSelectToDT(ssql);
-        }
+
         public DataTable getProtypeSource()
         {
-            string ssql = " select '' as value union all select distinct vcData1 as value from ConstMst where vcDataId='ProType'";
+            string ssql = "select distinct vcData1 as value from ConstMst where vcDataId='ProType'";
             return excute.ExcuteSqlWithSelectToDT(ssql);
         }
 
@@ -643,8 +639,8 @@ namespace DataAccess
                 //tKanbanPrintTbl增加了vcAB01列，对应参数vcPlanProductionAB(Fron/To) - 20181007 李兴旺
                 sbSQL.AppendLine("SELECT t1.vcPlanMonth as vcMonth, ");//对象月
                 sbSQL.AppendLine("       t2.vcPorType as vcGC, ");//部署
-                sbSQL.AppendLine("       t2.vcPartPlant as vcPlant, ");//工厂
-                sbSQL.AppendLine("       t2.iQuantityPerContainer as vcQuantityPerContainer, ");//收容数
+                sbSQL.AppendLine("       convert(int,t2.vcPartPlant) as vcPlant, ");//工厂
+                sbSQL.AppendLine("       convert(int,t2.iQuantityPerContainer) as vcQuantityPerContainer, ");//收容数
                 sbSQL.AppendLine("       t1.iNo as iNo, ");//ino
                 sbSQL.AppendLine("       t1.vcPartsNo as vcPartNo, ");//品番
                 sbSQL.AppendLine("       t1.vcDock as vcDock, ");//受入（有检索但没显示）

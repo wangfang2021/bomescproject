@@ -56,6 +56,7 @@ namespace SPPSApi.Controllers.G12
                 string RolePorType = logic.getRoleTip(loginInfo.UserId);
                 DataTable dtportype = logic.dllPorType(RolePorType.Split('*'));
                 List<Object> dataList_PorTypeSource = ComFunction.convertAllToResult(dtportype);
+
                 string printerName = logic.PrintMess(loginInfo.UserId);
                 res.Add("dataList_PlantSource", dataList_PlantSource);
                 res.Add("dataList_PorTypeSource", dataList_PorTypeSource);
@@ -622,14 +623,14 @@ namespace SPPSApi.Controllers.G12
                                             string inTable_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out inTable_tmp);//创建打印临时表                 
                                             if (inTable_msg.Length == 0)
                                             {
-                                                //BasicHttpBinding binding = new BasicHttpBinding();
-                                                //binding.CloseTimeout = TimeSpan.MaxValue;
-                                                //binding.OpenTimeout = TimeSpan.MaxValue;
-                                                //binding.ReceiveTimeout = TimeSpan.MaxValue;
-                                                //binding.SendTimeout = TimeSpan.MaxValue;
-                                                //EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
-                                                ////FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
-                                                //msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                                BasicHttpBinding binding = new BasicHttpBinding();
+                                                binding.CloseTimeout = TimeSpan.MaxValue;
+                                                binding.OpenTimeout = TimeSpan.MaxValue;
+                                                binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                                binding.SendTimeout = TimeSpan.MaxValue;
+                                                EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                                FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                                msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                             }
                                             lg.DropTempTable(inTable_tmp);//删除打印临时表
                                             lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -666,14 +667,14 @@ namespace SPPSApi.Controllers.G12
                                     string exdthj_msg = lg.CreateTempTable(exdthj, "FS1209_Excel_", out exdthj_tmp);//创建打印临时表                
                                     if (exdthj_msg.Length == 0)
                                     {
-                                        //BasicHttpBinding binding = new BasicHttpBinding();
-                                        //binding.CloseTimeout = TimeSpan.MaxValue;
-                                        //binding.OpenTimeout = TimeSpan.MaxValue;
-                                        //binding.ReceiveTimeout = TimeSpan.MaxValue;
-                                        //binding.SendTimeout = TimeSpan.MaxValue;
-                                        //EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
-                                        //FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
-                                        //exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                        BasicHttpBinding binding = new BasicHttpBinding();
+                                        binding.CloseTimeout = TimeSpan.MaxValue;
+                                        binding.OpenTimeout = TimeSpan.MaxValue;
+                                        binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                        binding.SendTimeout = TimeSpan.MaxValue;
+                                        EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                        FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                        exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, printIme, printDay, vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                     }
                                     lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                     lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -790,17 +791,6 @@ namespace SPPSApi.Controllers.G12
             {
                 strSQL.AppendLine("select '' as [Text],'PP' as [Value]   ");
             }
-            return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
-        }
-        #endregion
-
-        #region 绑定工场 1 2 3 厂
-        public DataTable dllPorPlant()
-        {
-            DataTable dt = new DataTable();
-            StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select '' as [Text],'0' as [Value]  union all ");
-            strSQL.AppendLine(" select distinct [vcData2] as [Text],[vcData1] as [Value]  from [ConstMst] where [vcDataId]='KBPlant'");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
         #endregion
@@ -1014,7 +1004,7 @@ namespace SPPSApi.Controllers.G12
             strSQL.AppendLine(" left join ");
             strSQL.AppendLine(" (select * from tPartInfoMaster) B");
             strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo AND A.vcDock=B.vcDock)");
-            strSQL.AppendLine(" where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial)=any(" + KBorderno + ")");
+            strSQL.AppendLine("      where A.vcPrintflag='1' and A.vcPrintflagED is not null and (a.vcPartsNo+a.vcDock+A.vcKBorderno+a.vcKBSerial)=any(" + KBorderno + ")");
             //strSQL.AppendLine(" A.vcComDate00=CONVERT(varchar(10),GETDATE(),121) and");
             if (vcPrintPartNo.Length != 0)
             {
@@ -1022,15 +1012,15 @@ namespace SPPSApi.Controllers.G12
             }
             if (vcKbOrderId.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBorderno='" + vcKbOrderId + "'");
+                strSQL.AppendLine(" and A.vcKBorderno = '" + vcKbOrderId + "'");
             }
             if (vcLianFan.Length != 0)
             {
-                strSQL.AppendLine(" and A.vcKBSerial='" + vcLianFan + "'");
+                strSQL.AppendLine(" and A.vcKBSerial = '" + vcLianFan + "'");
             }
-            if (vcPorType != "0")
+            if (vcPorType != "")
             {
-                strSQL.AppendLine(" and B.vcPorType='" + vcPorType + "'");
+                strSQL.AppendLine(" and B.vcPorType = '" + vcPorType + "'");
             }
             else
             {
@@ -1053,11 +1043,11 @@ namespace SPPSApi.Controllers.G12
                 }
                 strSQL.AppendLine(" and B.vcPorType in( " + flag + ")");
             }
-            if (vcPlant != "0")
+            if (vcPlant != "")
             {
-                strSQL.AppendLine(" and B.vcPartPlant='" + vcPlant + "'");
+                strSQL.AppendLine(" and B.vcPartPlant = '" + vcPlant + "'");
             }
-            strSQL.AppendLine("order by vcPorType,vcKBorderno,A.vcKBSerial");
+            strSQL.AppendLine("order by  vcPorType,vcKBorderno,A.vcKBSerial");
             return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
         }
         #endregion
@@ -1074,7 +1064,7 @@ namespace SPPSApi.Controllers.G12
         public string searchMasterED(string PartNo, string vcDock)
         {
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("select vcPartsNo from tPartInfoMaster where substring(vcPartsNo,0,11)='" + PartNo.Substring(0, 10) + "' and substring(vcPartsNo,11,2)<>'ED'");
+            strSQL.AppendLine("select vcPartsNo from tPartInfoMaster where  substring(vcPartsNo,0,11)='" + PartNo.Substring(0, 10) + "' and substring(vcPartsNo,11,2)<>'ED'");
             DataTable dt = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
             if (dt.Rows.Count != 0)
             {
@@ -1326,12 +1316,12 @@ namespace SPPSApi.Controllers.G12
                         string vcKBSerial = dt.Rows[i]["vcKBSerial"].ToString();
                         if (type == "1")
                         {
-                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag] ='1',[vcPrintTime] = GETDATE() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "'";
+                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag]='1',[vcPrintTime] = GETDATE() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "'";
                         }
                         else
                             if (type == "2")
                         {
-                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag] ='1',vcKBType='1',[vcPrintTime] = GETDATE() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "'";
+                            strSql = "UPDATE [tKanbanPrintTbl] SET [vcPrintflag]='1',vcKBType='1',[vcPrintTime]=GETDATE() where [vcKBorderno]='" + vcKBorderno + "' and [vcKBSerial]='" + vcKBSerial + "'";
                         }
                         if (strSql != "")
                         {
@@ -1927,14 +1917,14 @@ namespace SPPSApi.Controllers.G12
                     string msg = lg.CreateTempTable(dt, "FS1209_CR_", out tempTb);//创建打印临时表
                     if (msg.Length == 0)
                     {
-                        //BasicHttpBinding binding = new BasicHttpBinding();
-                        //binding.CloseTimeout = TimeSpan.MaxValue;
-                        //binding.OpenTimeout = TimeSpan.MaxValue;
-                        //binding.ReceiveTimeout = TimeSpan.MaxValue;
-                        //binding.SendTimeout = TimeSpan.MaxValue;
-                        //EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
-                        //PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
-                        //msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.140.169", "SPPSdb", "sa", "Sa123");
+                        BasicHttpBinding binding = new BasicHttpBinding();
+                        binding.CloseTimeout = TimeSpan.MaxValue;
+                        binding.OpenTimeout = TimeSpan.MaxValue;
+                        binding.ReceiveTimeout = TimeSpan.MaxValue;
+                        binding.SendTimeout = TimeSpan.MaxValue;
+                        EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
+                        PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
+                        msg = client.PrintCR(tempTb, "vcNo1,vcNo2,vcNo3", strPrinterName, reportName, "172.23.180.116", "SPPSdb", "sa", "SPPS_Server2019");
                         //Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");
                     }
                     lg.DropTempTable(tempTb);//删除打印临时表

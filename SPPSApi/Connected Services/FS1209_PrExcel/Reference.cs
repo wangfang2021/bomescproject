@@ -295,11 +295,11 @@ namespace FS1209_PrExcel
         {
             if ((endpointConfiguration == EndpointConfiguration.FS1209Soap))
             {
-                return new System.ServiceModel.EndpointAddress("http://172.23.238.178:8089/FS1209.asmx");
+                return new System.ServiceModel.EndpointAddress("http://localhost:63480/FS1209.asmx");
             }
             if ((endpointConfiguration == EndpointConfiguration.FS1209Soap12))
             {
-                return new System.ServiceModel.EndpointAddress("http://172.23.238.178:8089/FS1209.asmx");
+                return new System.ServiceModel.EndpointAddress("http://localhost:63480/FS1209.asmx");
             }
             throw new System.InvalidOperationException(string.Format("找不到名称为“{0}”的终结点。", endpointConfiguration));
         }

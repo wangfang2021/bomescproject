@@ -241,7 +241,7 @@ namespace SPPSApi.Controllers.G07
             {
                 strPackSpot = dataForm.PackSpot.ToObject<List<Object>>();
             }
-           // 收货方
+            // 收货方
             List<Object> Shouhuofang = new List<object>();
             if (dataForm.Shouhuofang.ToObject<List<Object>>() == null)
             {
@@ -251,7 +251,7 @@ namespace SPPSApi.Controllers.G07
             {
                 Shouhuofang = dataForm.Shouhuofang.ToObject<List<Object>>();
             }
-            
+
 
 
 
@@ -268,7 +268,7 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
                 string resMsg = "";
-                string[] head = { "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数"};
+                string[] head = { "变更事项", "包装场", "收货方", "品番", "车型", "开始时间", "结束时间", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
 
                 string[] fields = { "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
                     "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
@@ -362,7 +362,7 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0702_Logic.SearchEXZ("", strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
                 string resMsg = "";
-                string[] head = {"导入状态","对应标识", "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
+                string[] head = { "导入状态", "对应标识", "变更事项", "包装场", "收货方", "品番,", "车型", "开始时间(部品)", "结束时间(部品)", "包材品番", "GPS品番", "开始时间", "结束时间", "包装材区分", "必要数" };
 
                 string[] fields = {"vcIsorNo","iAutoId", "varChangedItem","vcPackSpot","vcShouhuofangID","vcPartsNo","vcCar","dUsedFrom","dUsedTo","vcPackNo",
                     "vcPackGPSNo","dFrom","dTo","vcDistinguish","iBiYao"
@@ -406,27 +406,7 @@ namespace SPPSApi.Controllers.G07
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            //ApiResult apiResult = new ApiResult();
-            //dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            //JArray listInfo = dataForm.multipleSelection;
-            //if (listInfo == null)
-            //{
-            //    apiResult.code = ComConstant.ERROR_CODE;
-            //    apiResult.data = "没有可导出数据！";
-            //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            //}
-            //List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             string iautoID = "";
-            //for (int i = 0; i < listInfoData.Count; i++)
-            //{
-            //    if (i == listInfoData.Count - 1)
-            //    {
-            //        iautoID = iautoID + listInfoData[i]["iAutoId"].ToString();
-
-            //    }
-            //    else
-            //        iautoID = iautoID + listInfoData[i]["iAutoId"].ToString() + ",";
-            //}
             //变更事项
             List<Object> strNote = new List<object>();
 
@@ -477,35 +457,213 @@ namespace SPPSApi.Controllers.G07
                 DataTable dt = FS0702_Logic.SearchEXZ(iautoID, strNote, strPackSpot, Shouhuofang, strPartsNo, strCar, strPackNO, strPackGPSNo, strFromBegin, strFromEnd, strToBegin, strToEnd);
 
                 DataTable dtcope = dt.Copy();
-                dtcope.Clear();
 
                 #region 处理导出数据
                 DataTable dt_EX = new DataTable();
                 dt_EX.Columns.Add("varChangedItem", Type.GetType("System.String"));
                 dt_EX.Columns.Add("vcPackSpot", Type.GetType("System.String"));
-                dt_EX.Columns.Add("vcPackSpot", Type.GetType("System.String"));
+                dt_EX.Columns.Add("vcShouhuofangID", Type.GetType("System.String"));
+                dt_EX.Columns.Add("vcPartsNo", Type.GetType("System.String"));
+                dt_EX.Columns.Add("vcCar", Type.GetType("System.String"));
+                dt_EX.Columns.Add("dUsedFrom", Type.GetType("System.String"));
+                dt_EX.Columns.Add("dUsedTo", Type.GetType("System.String"));
+                int count = 1;
+                int num = 0;
+                int maxLeght = 0;
+                for (int i = 0; i < dtcope.Rows.Count; i++)
+                {
+                    if (num == 0)
+                    {
+                        DataRow[] dr = dtcope.Select("vcPartsNo='" + dtcope.Rows[i]["vcPartsNo"].ToString() + "'");
+                        DataRow drImport = dt_EX.NewRow();
+                        for (int j = 1; j <= dr.Length; j++)
+                        {
+                            if (j == 1)
+                            {
+                                dt_EX.Columns.Add("vcPackNo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("vcPackGPSNo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("dFrom" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("dTo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("vcDistinguish" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("iBiYao" + j.ToString(), Type.GetType("System.String"));
 
+                                drImport["varChangedItem"] = dr[i]["varChangedItem"].ToString();
+                                drImport["vcPackSpot"] = dr[i]["vcPackSpot"].ToString();
+                                drImport["vcShouhuofangID"] = dr[i]["vcShouhuofangID"].ToString();
+                                drImport["vcPartsNo"] = dr[i]["vcPartsNo"].ToString();
+                                drImport["vcCar"] = dr[i]["vcCar"].ToString();
+                                drImport["dUsedFrom"] = dr[i]["dUsedFrom"].ToString();
+                                drImport["dUsedTo"] = dr[i]["dUsedTo"].ToString();
+                                drImport["vcPackNo" + j.ToString()] = dr[i]["vcPackNo"].ToString();
+                                drImport["vcPackGPSNo" + j.ToString()] = dr[i]["vcPackGPSNo"].ToString();
+                                drImport["dFrom" + j.ToString()] = dr[i]["dFrom"].ToString();
+                                drImport["dTo" + j.ToString()] = dr[i]["dTo"].ToString();
+                                drImport["vcDistinguish" + j.ToString()] = dr[i]["vcDistinguish"].ToString();
+                                drImport["iBiYao" + j.ToString()] = dr[i]["iBiYao"].ToString();
 
+                            }
+                            else
+                            {
+                                count++;
+                                dt_EX.Columns.Add("vcPackNo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("vcPackGPSNo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("dFrom" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("dTo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("vcDistinguish" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("iBiYao" + j.ToString(), Type.GetType("System.String"));
 
+                                drImport["vcPackNo" + j.ToString()] = dr[i]["vcPackNo"].ToString();
+                                drImport["vcPackGPSNo" + j.ToString()] = dr[i]["vcPackGPSNo"].ToString();
+                                drImport["dFrom" + j.ToString()] = dr[i]["dFrom"].ToString();
+                                drImport["dTo" + j.ToString()] = dr[i]["dTo"].ToString();
+                                drImport["vcDistinguish" + j.ToString()] = dr[i]["vcDistinguish"].ToString();
+                                drImport["iBiYao" + j.ToString()] = dr[i]["iBiYao"].ToString();
 
+                            }
+                            maxLeght++;
+                        }
+                        dt_EX.Rows.Add(drImport);
+                        foreach (DataRow row in dr)
+                        {
+                            dtcope.Rows.Remove(row);
+                        }
+                        i--;
+                        num++;
+                    }
+                    else
+                    {
+                        DataRow[] dr = dtcope.Select("vcPartsNo='" + dtcope.Rows[i]["vcPartsNo"].ToString() + "'");
+                        DataRow drImport = dt_EX.NewRow();
+                        for (int j = 1; j <= dr.Length; j++)
+                        {
+                            if (j <= maxLeght)
+                            {
+                                if (j == 1)
+                                {
+                                    drImport["varChangedItem"] = dr[i]["varChangedItem"].ToString();
+                                    drImport["vcPackSpot"] = dr[i]["vcPackSpot"].ToString();
+                                    drImport["vcShouhuofangID"] = dr[i]["vcShouhuofangID"].ToString();
+                                    drImport["vcPartsNo"] = dr[i]["vcPartsNo"].ToString();
+                                    drImport["vcCar"] = dr[i]["vcCar"].ToString();
+                                    drImport["dUsedFrom"] = dr[i]["dUsedFrom"].ToString();
+                                    drImport["dUsedTo"] = dr[i]["dUsedTo"].ToString();
+                                    drImport["vcPackNo" + j.ToString()] = dr[i]["vcPackNo"].ToString();
+                                    drImport["vcPackGPSNo" + j.ToString()] = dr[i]["vcPackGPSNo"].ToString();
+                                    drImport["dFrom" + j.ToString()] = dr[i]["dFrom"].ToString();
+                                    drImport["dTo" + j.ToString()] = dr[i]["dTo"].ToString();
+                                    drImport["vcDistinguish" + j.ToString()] = dr[i]["vcDistinguish"].ToString();
+                                    drImport["iBiYao" + j.ToString()] = dr[i]["iBiYao"].ToString();
+                                }
+                                else
+                                {
+                                    drImport["vcPackNo" + j.ToString()] = dr[i]["vcPackNo"].ToString();
+                                    drImport["vcPackGPSNo" + j.ToString()] = dr[i]["vcPackGPSNo"].ToString();
+                                    drImport["dFrom" + j.ToString()] = dr[i]["dFrom"].ToString();
+                                    drImport["dTo" + j.ToString()] = dr[i]["dTo"].ToString();
+                                    drImport["vcDistinguish" + j.ToString()] = dr[i]["vcDistinguish"].ToString();
+                                    drImport["iBiYao" + j.ToString()] = dr[i]["iBiYao"].ToString();
 
+                                }
+                            }
+                            else
+                            {
 
+                                dt_EX.Columns.Add("vcPackNo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("vcPackGPSNo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("dFrom" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("dTo" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("vcDistinguish" + j.ToString(), Type.GetType("System.String"));
+                                dt_EX.Columns.Add("iBiYao" + j.ToString(), Type.GetType("System.String"));
 
+                                drImport["vcPackNo" + j.ToString()] = dr[i]["vcPackNo"].ToString();
+                                drImport["vcPackGPSNo" + j.ToString()] = dr[i]["vcPackGPSNo"].ToString();
+                                drImport["dFrom" + j.ToString()] = dr[i]["dFrom"].ToString();
+                                drImport["dTo" + j.ToString()] = dr[i]["dTo"].ToString();
+                                drImport["vcDistinguish" + j.ToString()] = dr[i]["vcDistinguish"].ToString();
+                                drImport["iBiYao" + j.ToString()] = dr[i]["iBiYao"].ToString();
+
+                                maxLeght++;
+                            }
+                        }
+                        dt_EX.Rows.Add(drImport);
+                        foreach (DataRow row in dr)
+                        {
+                            dtcope.Rows.Remove(row);
+                        }
+                        i--;
+                        num++;
+                    }
+
+                }
                 #endregion
 
-                string[] fields = { "varChangedItem","vcPackSpot","vcShouhuofang","vcPartsNo","vcCar","dUsedFrom","dUsedTo",
-                    "vcPackNo1","vcPackGPSNo1","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo2","vcPackGPSNo2","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo3","vcPackGPSNo3","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo4","vcPackGPSNo4","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo5","vcPackGPSNo5","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo6","vcPackGPSNo6","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo7","vcPackGPSNo7","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo8","vcPackGPSNo8","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo9","vcPackGPSNo9","dFrom","dTo","vcDistinguish","iBiYao",
-                    "vcPackNo10","vcPackGPSNo10","dFrom","dTo","vcDistinguish","iBiYao",
-                };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0702_Export_H.xlsx", 2, loginInfo.UserId, FunctionID);
+                string resMsg = "";
+                string[] head = new string[dtcope.Columns.Count];
+                string[] fields = new string[dtcope.Columns.Count];
+
+                head[0] = "变更事项";
+                fields[0] = "varChangedItem";
+                head[1] = "包装场";
+                fields[1] = "vcPackSpot";
+                head[2] = "收货方";
+                fields[2] = "vcShouhuofangID";
+                head[3] = "品番";
+                fields[3] = "vcPartsNo";
+                head[4] = "车型";
+                fields[4] = "vcCar";
+                head[5] = "品番开始时间";
+                fields[5] = "dUsedFrom";
+                head[6] = "品番结束时间";
+                fields[6] = "dUsedTo";
+
+                int xx = dtcope.Columns.Count / 6;
+                for (int x = 1; x <= xx; x++)
+                {
+                    for (int zz = 1; zz <= 6; zz++)
+                    {
+                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("vcPackNo") != -1)
+                        {
+                            head[6 + zz * x] = "包材品番" + x.ToString();
+                            fields[6 + zz * x] = "vcPackNo" + x.ToString();
+                        }
+                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("vcPackGPSNo") != -1)
+                        {
+                            head[6 + zz * x] = "GPS品番" + x.ToString();
+                            fields[6 + zz * x] = "vcPackGPSNo" + x.ToString();
+                        }
+                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("dFrom") != -1)
+                        {
+                            head[6 + zz * x] = "包材开始时间" + x.ToString();
+                            fields[6 + zz * x] = "dFrom" + x.ToString();
+                        }
+                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("dTo") != -1)
+                        {
+                            head[6 + zz * x] = "包材结束时间" + x.ToString();
+                            fields[6 + zz * x] = "dTo" + x.ToString();
+                        }
+                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("vcDistinguish") != -1)
+                        {
+                            head[6 + zz * x] = "包材区分" + x.ToString();
+                            fields[6 + zz * x] = "vcDistinguish" + x.ToString();
+                        }
+                        if (dtcope.Columns[6 + zz * x].ColumnName.IndexOf("iBiYao") != -1)
+                        {
+                            head[6 + zz * x] = "必要数" + x.ToString();
+                            fields[6 + zz * x] = "iBiYao" + x.ToString();
+                        }
+
+                    }
+
+                }
+
+
+
+                string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "包材基础数据导出", ref resMsg);
+
+
+
+
+
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -575,9 +733,9 @@ namespace SPPSApi.Controllers.G07
 
                     }
                     int iAutoId = listInfoData[i]["iAutoId"] == "" ? 0 : Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                    DataTable dtcheckTime = FS0702_Logic.searchcheckTime(listInfoData[i]["vcPackSpot"].ToString(), listInfoData[i]["vcPartsNo"].ToString(), 
-                        listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dFrom"].ToString(), 
-                        listInfoData[i]["dTo"].ToString(), iAutoId,listInfoData[i]["vcShouhuofangID"].ToString());
+                    DataTable dtcheckTime = FS0702_Logic.searchcheckTime(listInfoData[i]["vcPackSpot"].ToString(), listInfoData[i]["vcPartsNo"].ToString(),
+                        listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dFrom"].ToString(),
+                        listInfoData[i]["dTo"].ToString(), iAutoId, listInfoData[i]["vcShouhuofangID"].ToString());
                     if (dtcheckTime.Rows.Count > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -646,16 +804,31 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少选择一条数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                DataTable dtcheck = new DataTable();
+                DataTable dtSOQ = new DataTable();
+                DataTable dtItem = new DataTable();
+                dtItem = FS0702_Logic.checkItem();
+                dtSOQ = FS0702_Logic.checkSOQ();
                 //check
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    dtcheck = FS0702_Logic.checkSOQ(listInfoData[i]["vcPartsNo"].ToString());
 
-                    if (dtcheck.Rows.Count <2)
+                    DataRow[] dr = dtSOQ.Select("vcPart_id='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
+                    DataRow[] dr1 = dtItem.Select("vcPartsNo='" + listInfoData[i]["vcPartsNo"].ToString() + "'");
+                    int z = 0;
+                    foreach (DataRow row in dr1)
+                    {
+                        if (z == 0)
+                        {
+                            dtItem.Rows.Remove(row);
+                        }
+                        z++;
+                    }
+                    int soq = dr.Length;
+                    int item = dr1.Length - 1;
+                    if (soq + item < 2)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = dtcheck.Rows[i]["vcPart_id"] + "存在上游不可删除！";
+                        apiResult.data = dr[0]["vcPart_id"] + "存在上游不可删除！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }

@@ -70,8 +70,8 @@ namespace SPPSApi.Controllers.G12
             vcOrder = vcOrder == null ? "" : vcOrder;
             try
             {
-                Exception ex = new Exception();
                 DataTable dt = logic.getEDPlanInfo(vcMon, vcPartsNo, vcCarType, vcDock, vcType, vcPro, vcZhi, vcDay, vcOrder);
+                Exception ex = new Exception();
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -220,7 +220,7 @@ namespace SPPSApi.Controllers.G12
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string strMon = dataForm.vcMon; 
+            string strMon = dataForm.vcMon;
             string strMsg = "";
             try
             {

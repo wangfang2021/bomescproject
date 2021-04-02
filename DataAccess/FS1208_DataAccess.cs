@@ -84,14 +84,9 @@ namespace DataAccess
             return dt;
         }
 
-        public DataTable GetPlant()
-        {
-            string sql = "select '' as vcData1,'' as vcData2 union all select distinct vcData1,vcData2 from ConstMst where vcDataID='KBPlant'  ";
-            return excute.ExcuteSqlWithSelectToDT(sql);
-        }
         public DataTable GetPlanType()
         {
-            string sql = " select '' as planType ,'' as value union all select planType,value from sPlanType where enable='1'";
+            string sql = "select planType,value from sPlanType where enable='1'";
             return excute.ExcuteSqlWithSelectToDT(sql);
         }
 

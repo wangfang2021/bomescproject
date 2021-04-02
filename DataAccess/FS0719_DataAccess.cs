@@ -37,7 +37,24 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select *,'0' as vcModFlag,'0' as vcAddFlag ");
+                strSql.AppendLine("  SELECT     ");
+                strSql.AppendLine("         [vcOrderNo]    ");
+                strSql.AppendLine("        ,[vcPackNo]    ");
+                strSql.AppendLine("        ,[vcPackGPSNo]    ");
+                strSql.AppendLine("        ,[vcPartName]    ");
+                strSql.AppendLine("        ,[iOrderNumber]    ");
+                strSql.AppendLine("        ,[vcIsorNoFaZhu]    ");
+                strSql.AppendLine("        ,case when [VCFaBuType]='0' then '自动发注'else'手动发注'end as [VCFaBuType]    ");
+                strSql.AppendLine("        ,[dNaRuTime]    ");
+                strSql.AppendLine("        ,[vcNaRuBianci]    ");
+                strSql.AppendLine("        ,[vcNaRuUnit]    ");
+                strSql.AppendLine("        ,[vcSupplierCode]    "); 
+                strSql.AppendLine("        ,[vcSupplierName]    ");
+                strSql.AppendLine("        ,[vcBuShu]    ");
+                strSql.AppendLine("        ,[vcPackSpot]    ");
+                strSql.AppendLine("        ,[vcCangKuCode]    ");
+                strSql.AppendLine("        ,[vcOperatorID]    ");
+                strSql.AppendLine("        ,[dOperatorTime],'0' as vcModFlag,'0' as vcAddFlag    ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPackOrderFaZhu where vcIsorNoFaZhu='0' ");
 
@@ -272,7 +289,15 @@ namespace DataAccess
                         }
                         else if (bAddFlag == false && bModFlag == true)
                         {//修改
-                            int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                            string VCFaBuType = "";
+                            if (listInfoData[i]["VCFaBuType"].ToString() == "自动发注")
+                            {
+                                VCFaBuType = "0";
+                            }
+                            else {
+
+                                VCFaBuType = "1";
+                            }
 
                             sql.AppendLine("  UPDATE TPackOrderFaZhu");
                             sql.AppendLine("  SET ");
@@ -281,7 +306,7 @@ namespace DataAccess
                             sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)},");
                             sql.AppendLine($"   vcPartName = {ComFunction.getSqlValue(listInfoData[i]["vcPartName"], true)},");
                             sql.AppendLine($"   iOrderNumber = {ComFunction.getSqlValue(listInfoData[i]["iOrderNumber"], false)},");
-                            sql.AppendLine($"   VCFaBuType = {ComFunction.getSqlValue(listInfoData[i]["VCFaBuType"], false)},");
+                            sql.AppendLine("   VCFaBuType = '"+ VCFaBuType + "',");
                             sql.AppendLine($"   dNaRuTime = {ComFunction.getSqlValue(listInfoData[i]["dNaRuTime"], false)},");
                             sql.AppendLine($"   vcNaRuBianci = {ComFunction.getSqlValue(listInfoData[i]["vcNaRuBianci"], false)},");
                             sql.AppendLine($"   vcNaRuUnit = {ComFunction.getSqlValue(listInfoData[i]["vcNaRuUnit"], false)},");
@@ -293,7 +318,7 @@ namespace DataAccess
                             sql.AppendLine($"   vcOperatorID = {strUserId},");
                             sql.AppendLine($"   dOperatorTime = '{DateTime.Now.ToString()}'");
                             sql.AppendLine($"  WHERE");
-                            sql.AppendLine($"  iAutoId='{iAutoId}';");
+                            sql.AppendLine($"  vcOrderNo={ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], false)};");
 
                             //修改订单维护
                             sql.AppendLine("  UPDATE TPack_FaZhu_ShiJi");
@@ -302,7 +327,7 @@ namespace DataAccess
                             sql.AppendLine($"   vcPackGPSNo = {ComFunction.getSqlValue(listInfoData[i]["vcPackGPSNo"], true)},");
                             sql.AppendLine($"   vcPartName = {ComFunction.getSqlValue(listInfoData[i]["vcPartName"], true)},");
                             sql.AppendLine($"   iOrderNumber = {ComFunction.getSqlValue(listInfoData[i]["iOrderNumber"], false)},");
-                            sql.AppendLine($"   vcType = '1',");
+                            sql.AppendLine($"   vcType = '"+ VCFaBuType + "',");
                             sql.AppendLine($"   dNaRuYuDing = {ComFunction.getSqlValue(listInfoData[i]["dNaRuTime"], false)},");
                             sql.AppendLine($"   vcNaRuBianCi={ComFunction.getSqlValue(listInfoData[i]["vcNaRuBianci"], false)},");
                             sql.AppendLine($"   vcNaRuUnit={ComFunction.getSqlValue(listInfoData[i]["vcNaRuUnit"], false)},");

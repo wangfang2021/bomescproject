@@ -210,7 +210,7 @@ namespace SPPSApi.Controllers.G07
             try
             {
                 DataTable dt = FS0701_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, dFromB, dFromE, dToB, dToE);
-             
+
 
 
                 if (dt.Rows.Count == 0)
@@ -299,10 +299,10 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0701_Logic.Search(PackSpot, PackNo, PackGPSNo, strSupplierCode, dFromB, dFromE, dToB, dToE);
 
-            
+
 
                 string resMsg = "";
-                string[] head = { "是否修改","指定标识", "包装场", "包装材品番", "GPS品番", "开始时间", "结束时间", "品名", "供应商", "供应商代码", "发注收容数", "资材订购批量", "循环", "段取区分", "场所", "规格", "发注逻辑" };
+                string[] head = { "是否修改", "指定标识", "包装场", "包装材品番", "GPS品番", "开始时间", "结束时间", "品名", "供应商", "供应商代码", "发注收容数", "资材订购批量", "循环", "段取区分", "场所", "规格", "发注逻辑" };
                 string[] fields = {"vcIsorNo", "iAutoId","vcPackSpot","vcPackNo","vcPackGPSNo","dPackFrom","dPackTo","vcParstName","vcSupplierName",
                     "vcSupplierCode","iRelease","iZCRelease","vcCycle","vcDistinguish","vcPackLocation","vcFormat","vcReleaseName"
                 };
@@ -364,9 +364,9 @@ namespace SPPSApi.Controllers.G07
                     {//修改
                         hasFind = true;
                     }
-                   
-                    int iAutoId = listInfoData[i]["iAutoId"]==""?0: Convert.ToInt32(listInfoData[i]["iAutoId"]);
-                    DataTable dtcheckTime = FS0701_Logic.searchcheckTime(listInfoData[i]["vcPackSpot"].ToString(),listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], listInfoData[i]["dPackTo"].ToString().Split(' ')[0], iAutoId);
+
+                    int iAutoId = listInfoData[i]["iAutoId"] == "" ? 0 : Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                    DataTable dtcheckTime = FS0701_Logic.searchcheckTime(listInfoData[i]["vcPackSpot"].ToString(), listInfoData[i]["vcPackNo"].ToString(), listInfoData[i]["dPackFrom"].ToString().Split(' ')[0], listInfoData[i]["dPackTo"].ToString().Split(' ')[0], iAutoId);
                     if (dtcheckTime.Rows.Count > 0)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
@@ -390,11 +390,24 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "请填写正常的发住收容数格式！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    if (Convert.ToInt32(listInfoData[i]["iRelease"]) % Convert.ToInt32(listInfoData[i]["iZCRelease"]) != 0)
+
+                    if (listInfoData[i]["iRelease"].ToString() == "0")
                     {
+
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = "收容数不是订购批量的整数倍！";
+                        apiResult.data = "收容数不能是'0'！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+                    if (!string.IsNullOrEmpty(listInfoData[i]["iRelease"].ToString()) && !string.IsNullOrEmpty(listInfoData[i]["iZCRelease"].ToString()))
+                    {
+                        if ( Convert.ToInt32(listInfoData[i]["iRelease"])% Convert.ToInt32(listInfoData[i]["iZCRelease"]) != 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "收容数不是订购批量的整数倍！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+
                     }
 
                 }

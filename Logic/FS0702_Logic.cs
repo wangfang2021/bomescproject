@@ -86,9 +86,13 @@ namespace Logic
 
 
         #region 检查
-        public DataTable checkSOQ(string vcPartsNo)
+        public DataTable checkSOQ()
         {
-            return FS0702_DataAccess.checkSOQ(vcPartsNo);
+            return FS0702_DataAccess.checkSOQ();
+        }
+        public DataTable checkItem()
+        {
+            return FS0702_DataAccess.checkItem();
         }
         #endregion
 

@@ -1609,7 +1609,7 @@ namespace SPPSApi.Controllers.G06
             catch (Exception ex)
             {
                 Console.WriteLine("catch报错"+ex);
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE0409", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M06UE2511", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "邮件发送失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

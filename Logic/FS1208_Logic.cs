@@ -188,26 +188,12 @@ namespace Logic
             }
             return re;
         }
-        public DataTable GetPlant()
-        {
-            return dataAccess.GetPlant();
-        }
+
         public DataTable GetPlanType()
         {
             return dataAccess.GetPlanType();
         }
 
-        public string checkExcel(string excelpath, ref DataTable dtre, DataTable dtTmplate)
-        {
-            string msg = "";
-            //QMCommon.OfficeCommon.QMExcel oQMExcel = new QMCommon.OfficeCommon.QMExcel();
-            //DataTable dt = oQMExcel.GetExcelContentByOleDb(excelpath);//导入文件
-            //msg = checkExcelHeadpos(dt, dtTmplate);//校验模板
-            //if (msg.Length > 0) return msg;
-            //msg = checkExcelData(dt);//校验数据
-            //dtre = dt;
-            return msg;
-        }
         public string checkExcelHeadpos(DataTable dt, DataTable dtTmplate)
         {
             string msg = "";

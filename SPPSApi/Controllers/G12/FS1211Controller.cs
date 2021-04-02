@@ -54,7 +54,7 @@ namespace SPPSApi.Controllers.G12
             {
                 FS1211_Logic fS1211_Logic = new FS1211_Logic();
                 Dictionary<string, Object> res = new Dictionary<string, Object>();
-                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(fS1211_Logic.plantsource());
+                List<Object> dataList_PlantSource = ComFunction.convertAllToResult(ComFunction.getTCode("C000"));
                 List<Object> dataList_ProtypeSource = ComFunction.convertAllToResult(fS1211_Logic.protypesource());
                 res.Add("PlantSource", dataList_PlantSource);
                 res.Add("ProtypeSource", dataList_ProtypeSource);

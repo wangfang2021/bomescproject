@@ -269,7 +269,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select dSendDate as vcValue,dSendDate as vcName from(    ");
-                strSql.AppendLine("    	select  distinct convert(varchar(10), dSendDate,111) as dSendDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dSendDate,111) as dSendDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4  and  vcState<>5    ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
@@ -323,7 +323,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
 
                 strSql.AppendLine("  select dExpectDeliveryDate as vcValue,dExpectDeliveryDate as vcName from(    ");
-                strSql.AppendLine("    	select  distinct convert(varchar(10), dExpectDeliveryDate,111) as dExpectDeliveryDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4   ");
+                strSql.AppendLine("    	select  distinct convert(varchar(10), dExpectDeliveryDate,111) as dExpectDeliveryDate from [THeZiManage] where vcSupplier_id='" + userId + "' and  vcState<>4 and  vcState<>5  ");
                 strSql.AppendLine("  ) t order by vcValue desc  ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

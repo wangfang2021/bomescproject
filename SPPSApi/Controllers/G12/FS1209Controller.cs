@@ -722,16 +722,11 @@ namespace SPPSApi.Controllers.G12
                         {
                             return msg;
                         }
-
                     }
                     print.UpdatePrintKANB(dtPrint, vctype);
                     if (vctype == "3")
                     {
                         InsertPrint(dtPrint);
-                    }
-                    else
-                    {
-
                     }
                 }
                 else

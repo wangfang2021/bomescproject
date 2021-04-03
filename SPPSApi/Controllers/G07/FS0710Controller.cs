@@ -135,8 +135,14 @@ namespace SPPSApi.Controllers.G07
                         strErrorPartId = "纳入统计计算成功！";
                     }
                 }
+                DataTable dt1 = new DataTable();
+                dt1.Columns.Add("vcName", Type.GetType("System.String"));
+                DataRow dr = dt1.NewRow();
+                dr["vcName"] = strErrorPartId;
+                dt1.Rows.Add(dr);
+                List<Object> vcException = ComFunction.convertAllToResult(dt1);//
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                res.Add("strException", strErrorPartId);
+                res.Add("strException", vcException);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

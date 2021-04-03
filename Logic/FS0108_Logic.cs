@@ -44,8 +44,9 @@ namespace Logic
             DataTable dataTable = new DataTable();
             if (strSpSub == "fs0108")
             {
-                dataTable.Columns.Add("vcCodeId");
-                dataTable.Columns.Add("vcCodeName");
+                dataTable.Columns.Add("vcSupplier");
+                dataTable.Columns.Add("vcWorkArea");
+                dataTable.Columns.Add("vcFzgc");
                 dataTable.Columns.Add("vcMessage");
             }
             return dataTable;

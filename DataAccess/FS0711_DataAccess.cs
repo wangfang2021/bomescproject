@@ -19,7 +19,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("     select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

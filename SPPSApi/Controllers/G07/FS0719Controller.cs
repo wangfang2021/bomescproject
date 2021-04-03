@@ -140,6 +140,8 @@ namespace SPPSApi.Controllers.G07
             {
                 DataTable dt = FS0719_Logic.Search();
 
+
+
                 if (dt.Rows.Count == 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

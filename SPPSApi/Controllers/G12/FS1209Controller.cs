@@ -217,8 +217,9 @@ namespace SPPSApi.Controllers.G12
         /// <param name="tmpName"></param>
         public void DropTempTable(string tmpName)
         {
-            string sql = "drop table " + tmpName;
-            excute.ExecuteSQLNoQuery(sql);
+            int counts = excute.ExecuteScalar("select count(*) from sysobjects where id=object_id(N'" + tmpName + "')");
+            if (counts > 0)
+                excute.ExecuteSQLNoQuery("drop table " + tmpName);
         }
 
         /// <summary>
@@ -638,6 +639,7 @@ namespace SPPSApi.Controllers.G12
                                                 {
                                                     lg.DropTempTable(inTable_tmp);//删除打印临时表
                                                     lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                                    return "看板确认单失败！";
                                                 }
                                             }
                                             lg.DropTempTable(inTable_tmp);//删除打印临时表
@@ -690,6 +692,7 @@ namespace SPPSApi.Controllers.G12
                                         {
                                             lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                             lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                            return "看板确认单失败！";
                                         }
                                     }
                                     lg.DropTempTable(exdttt_tmp);//删除打印临时表
@@ -719,16 +722,11 @@ namespace SPPSApi.Controllers.G12
                         {
                             return msg;
                         }
-
                     }
                     print.UpdatePrintKANB(dtPrint, vctype);
                     if (vctype == "3")
                     {
                         InsertPrint(dtPrint);
-                    }
-                    else
-                    {
-
                     }
                 }
                 else

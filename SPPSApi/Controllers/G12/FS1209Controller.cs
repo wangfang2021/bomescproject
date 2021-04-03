@@ -1948,7 +1948,7 @@ namespace SPPSApi.Controllers.G12
         {
             DataTable dt = new DataTable();
             StringBuilder strSQL = new StringBuilder();
-            strSQL.AppendLine("SELECT vcNo1,vcNo2,vcNo3 FROM [testprinterCRMAIN]   where vcPorType='" + vcProType + "' ");
+            strSQL.AppendLine("SELECT vcNo1,vcNo2,vcNo3 FROM [testprinterCRMAIN] where vcPorType='" + vcProType + "' ");
 
             if (vcorderno != "")
             {

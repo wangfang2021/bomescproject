@@ -303,7 +303,7 @@ namespace SPPSApi.Controllers.G12
                 string printIme = System.DateTime.Now.ToString("yyyy-MM-dd");
                 string ls_fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + Guid.NewGuid().ToString().Replace("-", "") + ".png";
                 string picnull = root + "\\images\\picnull.JPG";
-                string tmplatePath = root + "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
+                string tmplatePath = "\\Template\\FS160170.xlt";//看板投放确认单Excel模板
                 string gud = "";
                 PrinterCR print = new PrinterCR();
                 DataTable dtPrint = new DataTable();
@@ -2037,11 +2037,11 @@ namespace SPPSApi.Controllers.G12
                 strSQL.AppendLine("isnull(A.vcProject03,'') as vcProject03,isnull(A.vcComDate03,'') as vcComDate03,(case when A.vcBanZhi03='1' then '夜' when A.vcBanZhi03='0' then '白' else '' end) as vcBanZhi03,isnull(A.vcAB03,'') as vcAB03,");//20180921添加AB值信息 - 李兴旺
                 strSQL.AppendLine("isnull(A.vcProject04,'') as vcProject04,isnull(A.vcComDate04,'') as vcComDate04,(case when A.vcBanZhi04='1' then '夜' when A.vcBanZhi04='0' then '白' else '' end) as vcBanZhi04,isnull(A.vcAB04,'') as vcAB04,");//20180921添加AB值信息 - 李兴旺
                 strSQL.AppendLine("isnull(B.vcRemark1,'') as vcRemark1,isnull(B.vcRemark2,'') as vcRemark2,A.vcKBSerial,B.vcPhotoPath,B.vcPorType from ");
-                strSQL.AppendLine(" (select * from tKanbanPrintTbl) A");
-                strSQL.AppendLine(" left join ");
-                strSQL.AppendLine(" (select * from tPartInfoMaster) B");
-                strSQL.AppendLine(" on A.vcPartsNo=B.vcPartsNo and   A.vcDock=B.vcDock");
-                strSQL.AppendLine(" where A.iNo='" + iNo + "'");
+                strSQL.AppendLine("tKanbanPrintTbl A ");
+                strSQL.AppendLine("left join ");
+                strSQL.AppendLine("tPartInfoMaster B ");
+                strSQL.AppendLine("on A.vcPartsNo=B.vcPartsNo and A.vcDock=B.vcDock ");
+                strSQL.AppendLine("where A.iNo='" + iNo + "' ");
                 //strSQL.AppendLine(" where (A.[vcKBorderno]+A.[vcKBSerial]+A.vcPartsNo+A.vcDock)=('"+dt.Rows[i]["vcKBorderno"].ToString().Trim() + dt.Rows[i]["vcKBSerial"].ToString().Trim() + vcPartsNo.Trim() + vcDock.Trim()+"')");
                 strSQL.AppendLine(" and (Convert(varchar(6),(CONVERT(datetime,B.dTimeFrom,101)),112)<='" + vcplantMonth.Replace("-", "") + "' and Convert(varchar(6),(CONVERT(datetime,B.dTimeTo,101)),112)>='" + vcplantMonth.Replace("-", "") + "')");
                 dtreturn = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
@@ -2064,11 +2064,11 @@ namespace SPPSApi.Controllers.G12
                 strSQL.AppendLine("isnull(A.vcProject03,'') as vcProject03,isnull(A.vcComDate03,'') as vcComDate03,(case when A.vcBanZhi03='1' then '夜' when A.vcBanZhi03='0' then '白' else '' end) as vcBanZhi03,isnull(A.vcAB03,'') as vcAB03, ");//20180921添加AB值信息 - 李兴旺
                 strSQL.AppendLine("isnull(A.vcProject04,'') as vcProject04,isnull(A.vcComDate04,'') as vcComDate04,(case when A.vcBanZhi04='1' then '夜' when A.vcBanZhi04='0' then '白' else '' end) as vcBanZhi04,isnull(A.vcAB04,'') as vcAB04, ");//20180921添加AB值信息 - 李兴旺
                 strSQL.AppendLine("isnull(B.vcRemark1,'') as vcRemark1,isnull(B.vcRemark2,'') as vcRemark2,A.vcKBSerial,B.vcPhotoPath,B.vcPorType from ");
-                strSQL.AppendLine("  (select * from tKanbanPrintTbl) A ");
-                strSQL.AppendLine(" left join ");
-                strSQL.AppendLine(" (select * from tPartInfoMaster) B");
-                strSQL.AppendLine("  on A.vcPrintflagED=B.vcPartsNo");
-                strSQL.AppendLine(" where A.iNo='" + iNo + "'");
+                strSQL.AppendLine("tKanbanPrintTbl A ");
+                strSQL.AppendLine("left join ");
+                strSQL.AppendLine("tPartInfoMaster B ");
+                strSQL.AppendLine("on A.vcPrintflagED=B.vcPartsNo ");
+                strSQL.AppendLine("where A.iNo='" + iNo + "' ");
                 //strSQL.AppendLine("  where (A.[vcKBorderno]+A.[vcKBSerial]+A.vcPrintflagED)=('" + dt.Rows[i]["vcKBorderno"].ToString().Trim() + dt.Rows[i]["vcKBSerial"].ToString().Trim() + vcPartsNo.Trim() + "')");
                 strSQL.AppendLine(" and (Convert(varchar(6),(CONVERT(datetime,B.dTimeFrom,101)),112)<='" + vcplantMonth.Replace("-", "") + "' and Convert(varchar(6),(CONVERT(datetime,B.dTimeTo,101)),112)>='" + vcplantMonth.Replace("-", "") + "')  and B.vcCarFamilyCode='" + vcCarType + "'");
                 dtreturn = excute.ExcuteSqlWithSelectToDT(strSQL.ToString());

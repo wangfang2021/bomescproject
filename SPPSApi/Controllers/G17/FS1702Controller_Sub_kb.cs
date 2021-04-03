@@ -327,14 +327,7 @@ namespace SPPSApi.Controllers.G17
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     #endregion
-                    if (dtMessage != null && dtMessage.Rows.Count != 0)
-                    {
-                        //弹出错误dtMessage
-                        apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.type = "list";
-                        apiResult.data = dtMessage;
-                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                    }
+                   
                     // 更新打印时间 再发行时还更新打印时间吗？
                     fs1702_Logic.kbPrint(listInfoData, loginInfo.UserId);
 

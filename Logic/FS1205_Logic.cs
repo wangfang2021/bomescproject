@@ -115,14 +115,14 @@ namespace Logic
             dtResult.Columns.Add("vcMonth");//对象月
             dtResult.Columns.Add("vcWeek");//周数
             dtResult.Columns.Add("vcPartsno");//品番
-            dtResult.Columns.Add("vcWeekTotal");//本周内示数
-            dtResult.Columns.Add("vcWeekOrderingCount");//本周订货数
+            dtResult.Columns.Add("vcWeekTotal", typeof(int));//本周内示数
+            dtResult.Columns.Add("vcWeekOrderingCount", typeof(int));//本周订货数
             dtResult.Columns.Add("vcWeekLevelPercentage");//波动率
             dtResult.Columns.Add("vcFlag");//判定
-            dtResult.Columns.Add("vcQuantityPerContainer");//收容数
-            dtResult.Columns.Add("vcAdjust");//调整数（为空，用户自己填写）
-            dtResult.Columns.Add("vcMonTotal");//月度内示
-            dtResult.Columns.Add("vcRealTotal");//本月实际订货数（实际订货数累加，第一周为0）
+            dtResult.Columns.Add("vcQuantityPerContainer", typeof(int));//收容数
+            dtResult.Columns.Add("vcAdjust", typeof(int));//调整数（为空，用户自己填写）
+            dtResult.Columns.Add("vcMonTotal", typeof(int));//月度内示
+            dtResult.Columns.Add("vcRealTotal", typeof(int));//本月实际订货数（实际订货数累加，第一周为0）
 
             //生成要导出的数据表，只要判定为NG的（作废，OK、NG都要导出来）
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -131,7 +131,7 @@ namespace Logic
                 dr["vcMonth"] = dt.Rows[i]["vcMonth"];
                 dr["vcWeek"] = NumberToText(dt.Rows[i]["vcWeek"].ToString());
                 dr["vcPartsno"] = dt.Rows[i]["vcPartsno"];
-                dr["vcWeekTotal"] = Convert.ToUInt32(dt.Rows[i]["vcWeekTotal"]);
+                dr["vcWeekTotal"] = Convert.ToInt32(dt.Rows[i]["vcWeekTotal"]);
                 dr["vcWeekOrderingCount"] = Convert.ToInt32(dt.Rows[i]["vcWeekOrderingCount"]);
                 dr["vcWeekLevelPercentage"] = dt.Rows[i]["vcWeekLevelPercentage"];
                 dr["vcFlag"] = dt.Rows[i]["vcFlag"].ToString() == "Y" ? "OK" : "NG";
@@ -2965,7 +2965,7 @@ namespace Logic
                 }
                 TXTUpdatePlanMST(strMonth, strPlant);//更新到计划品番数据表
                                                      //生成打印数据
-                //_msg = TXTCreatOrderNo(strUser, strMonth, strPlant, strWeek);
+                                                     //_msg = TXTCreatOrderNo(strUser, strMonth, strPlant, strWeek);
             }
             #endregion
             return _msg;

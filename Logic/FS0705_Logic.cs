@@ -403,6 +403,12 @@ namespace Logic
         }
         #endregion
 
+        #region 获取品番是否满足保存条件
+        public DataTable getIsSave(List<Dictionary<string, Object>> listInfoData) 
+        {
+            return fs0705_DataAccess.getIsSave(listInfoData);
+        }
+        #endregion
 
 
 

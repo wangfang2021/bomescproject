@@ -105,20 +105,41 @@ namespace SPPSApi.Controllers.G15
                              } into g
                              where g.Count() > 1
                              select g;
-                if (result.Count() > 0)
-                {
-                    StringBuilder sbr = new StringBuilder();
-                    sbr.Append("导入数据重复:<br/>");
-                    foreach (var item in result)
-                    {
-                        string str = string.Format("供应商代码：{0}、工区：{1}、受入：{2}、订单号：{3} <br/>", item.Key.r2, item.Key.r3, item.Key.r4, item.Key.r5);
-                        sbr.Append(str);
-                    }
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = sbr.ToString();
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                
+                //不校验重复性了，因为导入文件中会有重复的，如果有重复的，直接用后面的覆盖前面的
+                //if (result.Count() > 0)
+                //{
+                //    StringBuilder sbr = new StringBuilder();
+                //    sbr.Append("导入数据重复:<br/>");
+                //    foreach (var item in result)
+                //    {
+                //        string str = string.Format("供应商代码：{0}、工区：{1}、受入：{2}、订单号：{3} <br/>", item.Key.r2, item.Key.r3, item.Key.r4, item.Key.r5);
+                //        sbr.Append(str);
+                //    }
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = sbr.ToString();
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
+
+                //处理重复数据，覆盖前面
+                //DataTable dtboss = importDt.Clone();
+                //for(int i=0;i<importDt.Rows.Count;i++)
+                //{
+                //    string vcSupplier_id = importDt.Rows[i]["vcSupplier_id"].ToString();
+                //    string vcGQ = importDt.Rows[i]["vcGQ"].ToString();
+                //    string vcSR = importDt.Rows[i]["vcSR"].ToString();
+                //    string vcOrderNo = importDt.Rows[i]["vcOrderNo"].ToString();
+                //    DataRow[] drs = dtboss.Select("vcSupplier_id='"+vcSupplier_id+ "' and vcGQ='"+vcGQ+ "' and vcSR='"+vcSR+ "' and vcOrderNo='"+vcOrderNo+"' ");
+                //    if(drs.Length==0)
+                //    {
+                //        dtboss.ImportRow(importDt.Rows[i]);
+                //    }
+                //    else
+                //    {
+                //        dtboss.Rows.Remove(drs[0]);
+                //        dtboss.ImportRow(importDt.Rows[i]);
+                //    }
+                //}
+
                 fs1501_Logic.importSave_Sub(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";

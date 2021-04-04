@@ -164,9 +164,15 @@ namespace SPPSApi.Controllers.G12
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
-                string s = logic.BtnPrintAll(printTable, vcType, _webHostEnvironment.ContentRootPath, printerName, loginInfo.UserId);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "打印成功";
+                string msg = logic.BtnPrintAll(printTable, vcType, _webHostEnvironment.ContentRootPath, printerName, loginInfo.UserId);
+                if (msg == "打印成功")
+                {
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "打印成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = msg;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -1869,7 +1875,8 @@ namespace SPPSApi.Controllers.G12
             //    File.Delete(ls_savePath);
             //}
             //return bufferPhoto;
-            return null;
+            FS0617_Logic lg = new FS0617_Logic();
+            return lg.GenerateQRCode(ls_savePath);
         }
         #endregion
 
@@ -1943,6 +1950,7 @@ namespace SPPSApi.Controllers.G12
                         }
                         catch
                         {
+                            msg = "调用打印机失败！";
                             lg.DropTempTable(tempTb);//删除打印临时表
                         }
                         //Task<SPPSPrint.PrinterResponse> responseTask = client.PrinterAsync(uuidTb, "\\\\172.23.129.181\\刷卡打印机黑白", "C:\\inetpub\\SPPSPrint\\Test.rpt", "172.23.140.169", "SPPSdb", "sa", "Sa123");

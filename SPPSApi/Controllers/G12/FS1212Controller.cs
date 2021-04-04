@@ -277,7 +277,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 string[] fields = { "vcPartsNo","dTimeFrom","dTimeTo","vcPartPlant","vcDock","vcCarFamilyCode","vcPartsNameEN",
                                     "vcQFflag","iQuantityPerContainer","vcQJcontainer","vcPorType","vcZB","vcPartFrequence","vcCpdCompany","vcSupplierCode" };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1212_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = FS1206_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1212_Export.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

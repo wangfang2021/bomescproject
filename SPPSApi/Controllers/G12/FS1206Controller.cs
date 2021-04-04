@@ -105,7 +105,7 @@ namespace SPPSApi.Controllers.G12
             {
                 DataTable dt = logic.Search(vcPartsNo, vcMon);
                 string[] fields = { "vcPartsNo", "vcPartsNoFZ", "vcSource", "vcFactory", "vcBF", "iSRNum", "iCONum" };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1206_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1206_Export.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

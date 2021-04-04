@@ -2128,7 +2128,7 @@ namespace Logic
             DataTable dt = new DataTable();
             StringBuilder strSQL1 = new StringBuilder();
             strSQL1.AppendLine(" select " +
-                "vcMonth, case vcWeek when null then null else convert(int,vcWeek) end as vcWeek, vcPlant, vcGC, vcZB, vcPartsno, " +
+                "vcMonth, case vcWeek when null then null else convert(int,vcWeek) end as vcWeek, convert(int,vcPlant) as vcPlant, vcGC, vcZB, vcPartsno, " +
                 "case vcQuantityPerContainer when null then null else convert(int,vcQuantityPerContainer) end as vcQuantityPerContainer, " +
                 "case vcD1b when null then null else convert(int,vcD1b) end as vcD1b," +
                 "case vcD1y when null then null else convert(int,vcD1y) end as vcD1y, " +

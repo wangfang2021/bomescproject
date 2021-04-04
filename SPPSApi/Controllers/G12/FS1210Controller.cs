@@ -621,14 +621,25 @@ namespace SPPSApi.Controllers.G12
                                         string inTable_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out inTable_tmp);//创建打印临时表                 
                                         if (inTable_msg.Length == 0)
                                         {
-                                            //BasicHttpBinding binding = new BasicHttpBinding();
-                                            //binding.CloseTimeout = TimeSpan.MaxValue;
-                                            //binding.OpenTimeout = TimeSpan.MaxValue;
-                                            //binding.ReceiveTimeout = TimeSpan.MaxValue;
-                                            //binding.SendTimeout = TimeSpan.MaxValue;
-                                            //EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
-                                            //FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
-                                            //msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                            try
+                                            {
+                                                BasicHttpBinding binding = new BasicHttpBinding();
+                                                binding.CloseTimeout = TimeSpan.MaxValue;
+                                                binding.OpenTimeout = TimeSpan.MaxValue;
+                                                binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                                binding.SendTimeout = TimeSpan.MaxValue;
+                                                EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                                FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                                msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                            }
+                                            catch
+                                            {
+                                                lg.DropTempTable(inTable_tmp);//删除打印临时表
+                                                lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                                apiResult.code = ComConstant.ERROR_CODE;
+                                                apiResult.data = "看板确认单失败！";
+                                                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                            }
                                         }
                                         lg.DropTempTable(inTable_tmp);//删除打印临时表
                                         lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -652,14 +663,25 @@ namespace SPPSApi.Controllers.G12
                                 string exdthj_msg = lg.CreateTempTable(exdthj, "FS1209_Excel_", out exdthj_tmp);//创建打印临时表                
                                 if (exdthj_msg.Length == 0)
                                 {
-                                    //BasicHttpBinding binding = new BasicHttpBinding();
-                                    //binding.CloseTimeout = TimeSpan.MaxValue;
-                                    //binding.OpenTimeout = TimeSpan.MaxValue;
-                                    //binding.ReceiveTimeout = TimeSpan.MaxValue;
-                                    //binding.SendTimeout = TimeSpan.MaxValue;
-                                    //EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
-                                    //FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
-                                    //exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                    try
+                                    {
+                                        BasicHttpBinding binding = new BasicHttpBinding();
+                                        binding.CloseTimeout = TimeSpan.MaxValue;
+                                        binding.OpenTimeout = TimeSpan.MaxValue;
+                                        binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                        binding.SendTimeout = TimeSpan.MaxValue;
+                                        EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                        FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                        exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                    }
+                                    catch
+                                    {
+                                        lg.DropTempTable(exdttt_tmp);//删除打印临时表
+                                        lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                        apiResult.code = ComConstant.ERROR_CODE;
+                                        apiResult.data = "看板确认单失败！";
+                                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                    }
                                 }
                                 lg.DropTempTable(exdttt_tmp);//删除打印临时表
                                 lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -679,13 +701,15 @@ namespace SPPSApi.Controllers.G12
                 if (msg == "打印成功")
                 {
                     apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = msg;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.data = msg;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
@@ -717,7 +741,7 @@ namespace SPPSApi.Controllers.G12
             LoginInfo loginInfo = getLoginByToken(strToken);
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            JArray checkedInfo = dataForm.multipleSelection;
+            JArray checkedInfo = dataForm._multipleSelection;
             List<Dictionary<string, Object>> listInfoData = checkedInfo.ToObject<List<Dictionary<string, Object>>>();
             if (listInfoData.Count == 0)
             {
@@ -754,7 +778,9 @@ namespace SPPSApi.Controllers.G12
                 {
                     //SearchBound();
                     //ShowMessage("无可打印数据,请确认", QMWebCommon.MessageType.Information);
-                    return "无可打印数据,请确认";
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无可打印数据,请确认！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 byte[] vcPhotoPath = print.PhotoToArray("", picnull);
                 DataTable dtPrintCR = new DataTable();
@@ -781,18 +807,18 @@ namespace SPPSApi.Controllers.G12
                     string vcDock = dt17.Rows[i]["vcDock"].ToString();//受入
                     string vcCarFamilyCode = dt17.Rows[i]["vcCarType"].ToString();//车型
                     string vcEDflag = dt17.Rows[i]["jinjiqufen"].ToString();//紧急区分
-                    if (vcEDflag == "通常")
-                    {
-                        vcEDflag = "S";
-                    }
-                    else if (vcEDflag == "紧急")
-                    {
-                        vcEDflag = "E";
-                    }
-                    else
-                    {
-                        vcEDflag = " ";
-                    }
+                    //if (vcEDflag == "通常")
+                    //{
+                    //    vcEDflag = "S";
+                    //}
+                    //else if (vcEDflag == "紧急")
+                    //{
+                    //    vcEDflag = "E";
+                    //}
+                    //else
+                    //{
+                    //    vcEDflag = " ";
+                    //}
                     string vcKBorderno = dt17.Rows[i]["vcKBorderno"].ToString(); //看板订单号
                     string vcKBSerial = dt17.Rows[i]["vcKBSerial"].ToString();//连番
                     string vcPlanMonth = "";
@@ -1024,14 +1050,14 @@ namespace SPPSApi.Controllers.G12
                                     string inTable_msg = lg.CreateTempTable(exdttt, "FS1209_Excel_", out inTable_tmp);//创建打印临时表                 
                                     if (inTable_msg.Length == 0)
                                     {
-                                        //BasicHttpBinding binding = new BasicHttpBinding();
-                                        //binding.CloseTimeout = TimeSpan.MaxValue;
-                                        //binding.OpenTimeout = TimeSpan.MaxValue;
-                                        //binding.ReceiveTimeout = TimeSpan.MaxValue;
-                                        //binding.SendTimeout = TimeSpan.MaxValue;
-                                        //EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
-                                        //FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
-                                        //msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                        BasicHttpBinding binding = new BasicHttpBinding();
+                                        binding.CloseTimeout = TimeSpan.MaxValue;
+                                        binding.OpenTimeout = TimeSpan.MaxValue;
+                                        binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                        binding.SendTimeout = TimeSpan.MaxValue;
+                                        EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                        FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                        msg = client.PrintExcel_1209_1(inTable_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
                                     }
                                     lg.DropTempTable(inTable_tmp);//删除打印临时表
                                     lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -1070,14 +1096,25 @@ namespace SPPSApi.Controllers.G12
                             string exdthj_msg = lg.CreateTempTable(exdthj, "FS1209_Excel_", out exdthj_tmp);//创建打印临时表                
                             if (exdthj_msg.Length == 0)
                             {
-                                //BasicHttpBinding binding = new BasicHttpBinding();
-                                //binding.CloseTimeout = TimeSpan.MaxValue;
-                                //binding.OpenTimeout = TimeSpan.MaxValue;
-                                //binding.ReceiveTimeout = TimeSpan.MaxValue;
-                                //binding.SendTimeout = TimeSpan.MaxValue;
-                                //EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
-                                //FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
-                                //exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                try
+                                {
+                                    BasicHttpBinding binding = new BasicHttpBinding();
+                                    binding.CloseTimeout = TimeSpan.MaxValue;
+                                    binding.OpenTimeout = TimeSpan.MaxValue;
+                                    binding.ReceiveTimeout = TimeSpan.MaxValue;
+                                    binding.SendTimeout = TimeSpan.MaxValue;
+                                    EndpointAddress address = new EndpointAddress("http://localhost:63480/FS1209.asmx");
+                                    FS1209_PrExcel.FS1209SoapClient client = new FS1209_PrExcel.FS1209SoapClient(binding, address);
+                                    exdthj_msg = client.PrintExcel_1209_1(exdttt_tmp, exdthj_tmp, tmplatePath, vcorderno, vcPorType, strLoginId, vcComDate00, vcBanZhi00 == "白" ? "白值" : "夜值", vcComDate01, vcBanZhi01 == "白" ? "白值" : "夜值", strPrinterName, Convert.ToString(pagetotle), Convert.ToString(pageno), pageB);
+                                }
+                                catch
+                                {
+                                    lg.DropTempTable(exdttt_tmp);//删除打印临时表
+                                    lg.DropTempTable(exdthj_tmp);//删除打印临时表
+                                    apiResult.code = ComConstant.ERROR_CODE;
+                                    apiResult.data = "打印失败";
+                                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                                }
                             }
                             lg.DropTempTable(exdttt_tmp);//删除打印临时表
                             lg.DropTempTable(exdthj_tmp);//删除打印临时表
@@ -1108,9 +1145,9 @@ namespace SPPSApi.Controllers.G12
                 {
                     logic.UpdatePrintKANB(dtPrint);//更新看板打印表
                 }
-                return "打印成功";
-                //SearchGridViewFirst();
-                //ShowMessage("打印成功", QMWebCommon.MessageType.Information);
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "打印成功！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {

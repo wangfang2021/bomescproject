@@ -131,7 +131,7 @@ namespace Logic
             return dataAccess.InUpdeOldData(dt, useid);
         }
 
-        public string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, bool isAlignCenter)
+        public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, bool isAlignCenter)
         {
             try
             {

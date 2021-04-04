@@ -301,7 +301,7 @@ namespace DataAccess
         {
             try
             {
-                string str = "select A.vcMonth, A.vcPartsNo, iSRNum, Total, iXZNum, Total+iXZNum as iBYNum,\r\n";
+                string str = "select A.vcMonth, A.vcPartsNo, convert(int,isnull(iSRNum,0)) as iSRNum, Total, iXZNum, Total+iXZNum as iBYNum,\r\n";
                 str += "	 CASE WHEN syco-iXZNum-Total>0 THEN 0 \r\n";
                 str += "	 else CEILING( ABS(convert(numeric(5,0),syco-iXZNum- Total ))/CONVERT(numeric(5,0),iSRNum ))*iSRNum \r\n";
                 str += "	 END AS iFZNum ,\r\n";
@@ -346,7 +346,7 @@ namespace DataAccess
         public DataTable searchFZFinsh(string mon, string partsno)
         {
             string str = "";
-            str += "	select vcMonth,t1.vcPartsNo,iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag  from (															\r\n";
+            str += "	select vcMonth,t1.vcPartsNo,convert(int,isnull(iSRNum,0)) as iSRNum,Total,iXZNum,Total+iXZNum as iBYNum,iFZNum,iCO AS syco,iCONum,'2' as iFlag,vcPartsNoFZ,vcSource, t1.iAutoId, '0' as vcModFlag,'0' as vcAddFlag  from (															\r\n";
             str += "	select * from tSSP) t1															\r\n";
             str += "	left join tSSPMaster t2															\r\n";
             str += "	on t1.vcPartsNo=t2.vcPartsNo 															\r\n";

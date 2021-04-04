@@ -201,7 +201,7 @@ namespace SPPSApi.Controllers.G12
                 string[] fields = { "vcMonth", "vcPartsNo","iSRNum","Total","iXZNum","iBYNum",
                 "iFZNum","syco","iCONum"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub1_Export.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = FS1206_Logic.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1207_Sub1_Export.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
@@ -374,7 +374,9 @@ namespace SPPSApi.Controllers.G12
 
                 if (dtSSPtmp.Rows.Count == 0 || dtSSPtmp == null)
                 {
-                    return "无发注数据，请进行检索检索数据！";
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无发注数据，请进行检索检索数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 DataTable dtSSP = new DataTable();
                 dtSSP = dtSSPtmp.Clone();
@@ -388,7 +390,9 @@ namespace SPPSApi.Controllers.G12
                 }
                 else
                 {
-                    return "无发注数据！";
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "无发注数据！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
                 //获取销售公司信息
@@ -398,7 +402,9 @@ namespace SPPSApi.Controllers.G12
                 DataTable dtUser = logic.GetUser(UserId);
                 if (dtUser.Rows.Count == 0)
                 {
-                    return "不是发注担当，不能进行发注！";
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "不是发注担当，不能进行发注！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
                 //订单号作成：
@@ -495,7 +501,9 @@ namespace SPPSApi.Controllers.G12
                     }
                     if (dtDetail.Rows.Count == 0)
                     {
-                        msg = "无发注数据！";
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "无发注数据！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     else
                     {
@@ -516,16 +524,12 @@ namespace SPPSApi.Controllers.G12
                         //string path = System.Web.HttpContext.Current.Server.MapPath("~/Temps/" + exlName);//文件路径
                         //oQMExcel.ExportFromTemplate(dtHeader, dtDetail, tmplatePath, path, 19, 1, false);
                     }
-                    dtSSP.Dispose();
+                    //dtSSP.Dispose();
                 }
                 else
                 {
-                    msg = "导出失败：";
-                }
-                if (msg == "")
-                {
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = null;
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.ERROR_CODE;

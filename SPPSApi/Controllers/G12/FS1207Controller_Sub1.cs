@@ -529,18 +529,15 @@ namespace SPPSApi.Controllers.G12
                 else
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "导出生成文件失败";
+                    apiResult.data = "导出生成文件失败！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = msg;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "检索失败";
+                apiResult.data = "发注失败！";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

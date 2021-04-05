@@ -154,74 +154,6 @@ namespace SPPSApi.Controllers
             }
         }
         [HttpPost]
-        public string uploadImageApi4Pack(IFormFile file)
-        {
-            ApiResult apiResult = new ApiResult();
-            try
-            {
-                string token = Request.Form["token"].ToString();
-                string hashCode = Request.Form["hashCode"].ToString();
-                if (!isLogin(token))
-                {
-                    return "error";
-                }
-                LoginInfo loginInfo = getLoginByToken(token);
-                //以下开始业务处理
-                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
-                var extName = filename.Substring(filename.LastIndexOf('.') + 1).Replace("\"", "");// 扩展名
-                string ImageType = ".jpg,.png,.gif,.bmp,.jpeg";
-                //判断上传格式是否合法
-                if (ImageType.IndexOf(extName.ToLower()) <= 0)
-                {
-                    apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "图片格式必须是jpg|png|gif|bmp|jpeg,请确认上传图片格式!";
-                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-                }
-                string oldFileName = filename;
-
-                // 获取到要保存文件的名称 
-                String newFileName = getUUIDName(oldFileName);
-
-                //获取到当前项目下products/3下的真实路径
-                //D:\tomcat\tomcat71_sz07\webapps\store_v5\products\3
-                String realPath = string.Empty;
-                if (Directory.Exists(ComConstant.strImagePath))
-                {
-                    realPath = ComConstant.strImagePath;
-                }
-                else
-                {
-                    realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper" + Path.DirectorySeparatorChar ;
-                }
-                //String dir = getDir(newFileName); // /f/e/d/c/4/9/8/4
-                String path = realPath; //D:\\products\3/f/e/d/c/4/9/8/4
-                string fileSavePath = path;
-                //string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
-                if (!Directory.Exists(fileSavePath))
-                {
-                    Directory.CreateDirectory(fileSavePath);
-                }
-
-                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
-
-                filename = fileSavePath + newFileName; // 新文件名（包括路径）
-                using (FileStream fs = System.IO.File.Create(filename)) // 创建新文件
-                {
-                    file.CopyTo(fs);// 复制文件
-                    fs.Flush();// 清空缓冲区数据
-                }
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = newFileName;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-            catch (Exception ex)
-            {
-                apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "图片上传失败!";
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            }
-        }
-        [HttpPost]
         public string uploadImagetospisApi(IFormFile file)
         {
             ApiResult apiResult = new ApiResult();
@@ -284,6 +216,60 @@ namespace SPPSApi.Controllers
             {
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "图片上传失败!";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        [HttpPost]
+        public string uploadsharpcompressApi(IFormFile file)
+        {
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                //deleteOldDir();//删除过期文件夹
+                string token = Request.Form["token"].ToString();
+                string hashCode = Request.Form["hashCode"].ToString();
+                if (!isLogin(token))
+                {
+                    return "error";
+                }
+                LoginInfo loginInfo = getLoginByToken(token);
+                //以下开始业务处理
+                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Replace("\"", ""); // 原文件名（包括路径）
+                var extName = filename.Substring(filename.LastIndexOf('.') + 1).Replace("\"", "");// 扩展名
+                //string ImageType = ".rar,.zip,.7z";
+                ////判断上传格式是否合法
+                //if (ImageType.IndexOf(extName.ToLower()) <= 0)
+                //{
+                //    apiResult.code = ComConstant.ERROR_CODE;
+                //    apiResult.data = "格式必须是rar|zip|7z,请确认上传文件格式!";
+                //    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                //}
+
+                string shortfilename = filename;
+
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+                if (!Directory.Exists(fileSavePath))
+                {
+                    Directory.CreateDirectory(fileSavePath);
+                }
+
+
+
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+
+
+                filename = fileSavePath + theFolder.GetFiles().Length + "_" + shortfilename; // 新文件名（包括路径）
+                using (FileStream fs = System.IO.File.Create(filename)) // 创建新文件
+                {
+                    file.CopyTo(fs);// 复制文件
+                    fs.Flush();// 清空缓冲区数据
+                }
+                return shortfilename;
+            }
+            catch (Exception ex)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "文件上传失败!";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
@@ -360,6 +346,29 @@ namespace SPPSApi.Controllers
             try
             {
                 string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+                var provider = new FileExtensionContentTypeProvider();
+                FileInfo fileInfo = new FileInfo(fileSavePath + path);
+                var ext = fileInfo.Extension;
+                new FileExtensionContentTypeProvider().Mappings.TryGetValue(ext, out var contenttype);
+                byte[] bt = System.IO.File.ReadAllBytes(fileSavePath + path);
+                return File(bt, contenttype ?? "image/Jpeg", fileInfo.Name);
+            }
+            catch (Exception ex)
+            {
+                ContentResult result = new ContentResult();
+                result.Content = "<script>alert('导出失败,没有找到要导出的图片！')</script>";
+                result.ContentType = "text/html;charset=utf-8";
+                ComMessage.GetInstance().ProcessMessage("getImage", "M00UE0008", ex, "system");
+                return result;
+            }
+        }
+        [HttpGet]
+        [EnableCors("any")]
+        public IActionResult getImagetopackList(string path)
+        {
+            try
+            {
+                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper" + Path.DirectorySeparatorChar;
                 var provider = new FileExtensionContentTypeProvider();
                 FileInfo fileInfo = new FileInfo(fileSavePath + path);
                 var ext = fileInfo.Extension;

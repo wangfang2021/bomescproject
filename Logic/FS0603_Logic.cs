@@ -3818,6 +3818,16 @@ namespace Logic
                 dataTable.Columns.Add("vcOutPut", typeof(string));
                 dataTable.Columns.Add("vcOutPutUnLock", typeof(string));
             }
+            if (strSpSub == "Power1310")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcPlant", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("vcPicUrl", typeof(string));
+                dataTable.Columns.Add("vcPicPath", typeof(string));
+                dataTable.Columns.Add("vcPicUrlUUID", typeof(string));
+                dataTable.Columns.Add("vcNote", typeof(string));
+            }
             if (strSpSub == "SOQ602")
             {
                 dataTable.Columns.Add("vcYearMonth", typeof(string));

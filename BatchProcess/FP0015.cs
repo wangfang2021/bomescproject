@@ -294,7 +294,8 @@ namespace BatchProcess
                     if (drr.Length > 0)
                     {
                         //订单被资材系统删除
-                        sql.Append($" vcState='6' \n");
+                        sql.Append($" vcState='6', \n");
+                        sql.Append($" vcColour='1' \n");
 
                     }
                     else
@@ -302,7 +303,8 @@ namespace BatchProcess
                         if (dtINFO.Rows[r]["vcIsorNoFaZhu"].ToString() == "0")
                         {
 
-                            sql.Append($" vcState='0' \n");
+                            sql.Append($" vcState='0', \n");
+                            sql.Append($" vcColour='0' \n");
                         }
                         else
                         {
@@ -312,12 +314,15 @@ namespace BatchProcess
                                 //未纳
                                 if (dtNow >= dtYJ)
                                 {
-                                    sql.Append($" vcState='4' \n");
+                                    sql.Append($" vcState='4', \n");
+                                    sql.Append($" vcColour='1' \n");
+                                    
                                 }
                                 else
                                 {
 
-                                    sql.Append($" vcState='3' \n");
+                                    sql.Append($" vcState='3', \n");
+                                    sql.Append($" vcColour='0' \n");
 
                                 }
                             }
@@ -329,12 +334,14 @@ namespace BatchProcess
                                 if (dtSJ <= dtYJ)
                                 {
                                     //纳期纳入
-                                    sql.Append($" vcState='2' \n");
+                                    sql.Append($" vcState='2', \n");
+                                    sql.Append($" vcColour='0' \n");
                                 }
                                 else
                                 {
                                     //超期纳入
-                                    sql.Append($" vcState='5' \n");
+                                    sql.Append($" vcState='5', \n");
+                                    sql.Append($" vcColour='1' \n");
 
                                 }
                             }

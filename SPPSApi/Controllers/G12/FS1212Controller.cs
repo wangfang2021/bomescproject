@@ -264,7 +264,7 @@ namespace SPPSApi.Controllers.G12
             string vcPartFrequence = dataForm.vcPartFrequence;
             try
             {
-                DataTable dt = logic.SearchPartData(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcLB, vcPartFrequence);
+                DataTable dt = logic.OutputPartData(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcLB, vcPartFrequence);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     dt.Rows[i]["vcPartsNo"] = dt.Rows[i]["vcPartsNo"].ToString().Replace("-", "");

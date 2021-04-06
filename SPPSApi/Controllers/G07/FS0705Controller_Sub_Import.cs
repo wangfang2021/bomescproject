@@ -67,16 +67,16 @@ namespace SPPSApi.Controllers.G07
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
                 
                 string strMsg = "";
-                string[,] strField = new string[,] {{"品番"    ,"GPS品番"    ,"调整数量"        ,"调整时间"     ,"调整原因"},
-                                                    {"vcPackNo","vcPackGPSNo","iNumber"         ,"dTime"        ,"vcReason"},
-                                                    {""        ,""           ,FieldCheck.Decimal,FieldCheck.Date,""        },
-                                                    {"0"       ,"0"          ,"0"               ,"0"            ,"0"       },//最大长度设定,不校验最大长度用0
-                                                    {"1"       ,"1"          ,"1"               ,"1"            ,"1"       }//最小长度设定,可以为空用0                         
+                string[,] strField = new string[,] {{"GPS品番"    ,"调整数量"        ,"调整原因"},
+                                                    {"vcPackGPSNo","iNumber"         ,"vcReason"},
+                                                    {""           ,FieldCheck.Decimal,""        },
+                                                    {"0"          ,"0"               ,"0"       },//最大长度设定,不校验最大长度用0
+                                                    {"1"          ,"1"               ,"1"       }//最小长度设定,可以为空用0                         
                     };
                 DataTable importDt = new DataTable();
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1"     , strField, ref strMsg);
+                    DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", strField, ref strMsg);
 
                     if (strMsg != "")
                     {
@@ -101,6 +101,54 @@ namespace SPPSApi.Controllers.G07
                     }
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
+
+                #region 验证数据是否满足保存条件
+                DataTable checkDT = fs0705_Logic.getIsSave(importDt);
+                string str1 = "";       //记录哪些GPS品番在包材基础数据表中不存在
+                string str2 = "";       //记录哪些GPS品番在包材基础数据表中已废止
+                string str3 = "";       //记录哪些GPS品番在包材基础数据表中不属于自动发注品番
+                for (int i = 0; i < importDt.Rows.Count; i++)
+                {
+                    if (checkDT.Select("IsGPSNo='" + importDt.Rows[i]["vcPackGPSNo"] + "'").Length <= 0)
+                    {
+                        str1 += checkDT.Rows[i]["vcPackGPSNo"].ToString() + " ";
+                    }
+                    else
+                    {
+                        DataRow[] drs = checkDT.Select("dPackFrom<='" + DateTime.Now.ToString() + "' and  dPackTo>='" + DateTime.Now.ToString() + "'");
+                        if (drs.Length <= 0)
+                        {
+                            str2 += checkDT.Rows[i]["vcPackGPSNo"].ToString();
+                        }
+                        else
+                        {
+                            if (drs[0]["vcReleaseName"] == null || drs[0]["vcReleaseName"].ToString() == "")
+                            {
+                                str3 += checkDT.Rows[i]["vcPackGPSNo"].ToString();
+                            }
+                        }
+                    }
+                }
+
+                if (str1 != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败,以下GPS品番" + str1 + "在包材基础信息中不存在";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (str2 != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败,以下GPS品番" + str1 + "在当前时间范围无效";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (str3 != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败,以下GPS品番" + str1 + "不是自动发注品番";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
 
                 fs0705_Logic.importSave_Sub(importDt, loginInfo.UserId);
                 apiResult.code = ComConstant.SUCCESS_CODE;

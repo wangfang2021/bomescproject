@@ -910,7 +910,8 @@ namespace SPPSApi.Controllers.G06
                 mysheetHSSF.AddMergedRegion(new CellRangeAddress(2, 2, 0, 16)); //合并单元格第二行从第1列到第2列
                 IRow ThreeHSSF = mysheetHSSF.CreateRow(2); //添加第二行
                 ThreeHSSF.Height = 34 * 20; //设置高度为50个点
-                ThreeHSSF.CreateCell(0).SetCellValue(DateTime.Now.ToString("yyyy") + "年" + loginInfo.UnitCode + "补给部品"+ vcTypeName);
+                //ThreeHSSF.CreateCell(0).SetCellValue(DateTime.Now.ToString("yyyy") + "年" + loginInfo.UnitCode + "补给部品"+ vcTypeName);
+                ThreeHSSF.CreateCell(0).SetCellValue(vcTargetYear.Substring(0,4) + "年" + loginInfo.UnitCode + "补给部品" + vcTypeName);
                 ThreeHSSF.GetCell(0).CellStyle = style1;//将CellStyle应用于具体单元格
                 #endregion
                 #region //设置第五行 内制开始
@@ -918,9 +919,9 @@ namespace SPPSApi.Controllers.G06
                 mysheetHSSF.AddMergedRegion(new CellRangeAddress(4, 4, 0, 1));
                 IRow FiveRowHSSF = mysheetHSSF.CreateRow(4); //设置第五行
                 int nextRow = 6;
-                string strYear2 = DateTime.Now.ToString("yyyy").Substring(2);
-                string strNextOneYear = (Convert.ToInt32( DateTime.Now.ToString("yyyy")) + 1).ToString();
-                string strNextTwoYear = (Convert.ToInt32(DateTime.Now.ToString("yyyy")) + 2).ToString();
+                string strYear2 = vcTargetYear.Substring(0, 4).Substring(2);
+                string strNextOneYear = (Convert.ToInt32(vcTargetYear.Substring(0, 4)) + 1).ToString();
+                string strNextTwoYear = (Convert.ToInt32(vcTargetYear.Substring(0, 4)) + 2).ToString();
                 if (arrayList.Count > 0)
                 {
                     FiveRowHSSF.Height = 34 * 20; //设置高度为50个点
@@ -961,7 +962,7 @@ namespace SPPSApi.Controllers.G06
                         nextRowHSSFCol.GetCell(12).CellStyle = style4;
                         nextRowHSSFCol.CreateCell(13).SetCellValue(strYear2 + "年12月");
                         nextRowHSSFCol.GetCell(13).CellStyle = style4;
-                        nextRowHSSFCol.CreateCell(14).SetCellValue(DateTime.Now.ToString("yyyy") + "年合计");
+                        nextRowHSSFCol.CreateCell(14).SetCellValue(vcTargetYear.Substring(0, 4) + "年合计");
                         nextRowHSSFCol.GetCell(14).CellStyle = style4;
                         nextRowHSSFCol.CreateCell(15).SetCellValue(strNextOneYear + "年合计");
                         nextRowHSSFCol.GetCell(15).CellStyle = style4;
@@ -1071,7 +1072,7 @@ namespace SPPSApi.Controllers.G06
                     nextRowHSSFColWaiZhu.GetCell(12).CellStyle = style4;
                     nextRowHSSFColWaiZhu.CreateCell(13).SetCellValue(strYear2 + "年12月");
                     nextRowHSSFColWaiZhu.GetCell(13).CellStyle = style4;
-                    nextRowHSSFColWaiZhu.CreateCell(14).SetCellValue(DateTime.Now.ToString("yyyy") + "年合计");
+                    nextRowHSSFColWaiZhu.CreateCell(14).SetCellValue(vcTargetYear.Substring(0, 4) + "年合计");
                     nextRowHSSFColWaiZhu.GetCell(14).CellStyle = style4;
                     nextRowHSSFColWaiZhu.CreateCell(15).SetCellValue(strNextOneYear + "年合计");
                     nextRowHSSFColWaiZhu.GetCell(15).CellStyle = style4;
@@ -1182,7 +1183,7 @@ namespace SPPSApi.Controllers.G06
                     nextRowHSSFColWaiZhu.GetCell(12).CellStyle = style4;
                     nextRowHSSFColWaiZhu.CreateCell(13).SetCellValue(strYear2 + "年12月");
                     nextRowHSSFColWaiZhu.GetCell(13).CellStyle = style4;
-                    nextRowHSSFColWaiZhu.CreateCell(14).SetCellValue(DateTime.Now.ToString("yyyy") + "年合计");
+                    nextRowHSSFColWaiZhu.CreateCell(14).SetCellValue(vcTargetYear.Substring(0, 4) + "年合计");
                     nextRowHSSFColWaiZhu.GetCell(14).CellStyle = style4;
                     nextRowHSSFColWaiZhu.CreateCell(15).SetCellValue(strNextOneYear + "年合计");
                     nextRowHSSFColWaiZhu.GetCell(15).CellStyle = style4;

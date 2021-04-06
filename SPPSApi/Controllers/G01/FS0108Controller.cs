@@ -292,31 +292,129 @@ namespace SPPSApi.Controllers.G00
                 //本身判重
                 DataTable dtadd = new DataTable();
                 //vcCodeId ,vcCodeName  ,vcValue ,vcName 
-                dtadd.Columns.Add("vcCodeId");
-                dtadd.Columns.Add("vcCodeName");
-                dtadd.Columns.Add("vcValue");
-                dtadd.Columns.Add("vcName");
+                dtadd.Columns.Add("vcValue1");
+                dtadd.Columns.Add("vcValue2");
+                dtadd.Columns.Add("vcValue3");
+                dtadd.Columns.Add("vcValue4");
+                dtadd.Columns.Add("vcValue5");
+                DataTable dtamody = new DataTable();
+                dtamody.Columns.Add("vcValue1");
+                dtamody.Columns.Add("vcValue2");
+                dtamody.Columns.Add("vcValue3");
+                dtamody.Columns.Add("vcValue4");
+                dtamody.Columns.Add("vcValue5");
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     if (listInfoData[i]["vcAddFlag"].ToString().ToLower() == "true")
                     {
                         DataRow dr = dtadd.NewRow();
-                        dr["vcCodeId"] = listInfoData[i]["vcCodeId"].ToString();
-                        dr["vcCodeName"] = listInfoData[i]["vcCodeName"].ToString();
-                        dr["vcValue"] = listInfoData[i]["vcValue"].ToString();
-                        dr["vcName"] = listInfoData[i]["vcName"].ToString();
+                        dr["vcValue1"] = listInfoData[i]["vcValue1"].ToString();
+                        dr["vcValue2"] = listInfoData[i]["vcValue2"].ToString();
+                        dr["vcValue3"] = listInfoData[i]["vcValue3"].ToString();
+                        dr["vcValue4"] = listInfoData[i]["vcValue4"].ToString();
+                        dr["vcValue5"] = listInfoData[i]["vcValue5"].ToString();
                         dtadd.Rows.Add(dr);
                     }
-                }
-                for (int i = 0; i < listInfoData.Count; i++)
-                {
-                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
-                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
-                    if (bAddFlag == true)
-                    {//新增
-
+                    else if ((bool)listInfoData[i]["vcAddFlag"] == false && (bool)listInfoData[i]["vcModFlag"] == true)
+                    {//修改
+                        DataRow dr = dtamody.NewRow();
+                        dr["vcValue1"] = listInfoData[i]["vcValue1"].ToString();
+                        dr["vcValue2"] = listInfoData[i]["vcValue2"].ToString();
+                        dr["vcValue3"] = listInfoData[i]["vcValue3"].ToString();
+                        dr["vcValue4"] = listInfoData[i]["vcValue4"].ToString();
+                        dr["vcValue5"] = listInfoData[i]["vcValue5"].ToString();
+                        dtamody.Rows.Add(dr);
                     }
                 }
+                for (int i=0;i< dtadd.Rows.Count;i++)
+                {
+                    string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
+                    string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
+                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString();
+                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString();
+                    for (int j=0;j<dtadd.Rows.Count;j++) {
+                        string vcSupplier1 = dtadd.Rows[j]["vcValue1"].ToString();
+                        string vcWorkArea1 = dtadd.Rows[j]["vcValue2"].ToString();
+                        string vcFzgc1 = dtadd.Rows[j]["vcValue5"].ToString();
+                        string vcStart1 = dtadd.Rows[j]["vcValue3"].ToString();
+                        string vcEnd1 = dtadd.Rows[j]["vcValue4"].ToString();
+                        if (vcSupplier== vcSupplier1&& vcWorkArea== vcWorkArea1) {
+                            if (Convert.ToInt32( vcStart.Replace("/","").Replace("-","")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
+                            {
+                            }
+                            else
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["vcSupplier"] = vcSupplier;
+                                dataRow["vcWorkArea"] = vcWorkArea;
+                                dataRow["vcFzgc"] = vcFzgc;
+                                dataRow["vcMessage"] = "新增的数据时间区间出现重叠";
+                                dataTable.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                    }
+                    for (int j = 0; j < dtadd.Rows.Count; j++)
+                    {
+                        string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
+                        string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
+                        string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
+                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString();
+                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString();
+                        if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
+                        {
+                            if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
+                            {
+                            }
+                            else
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["vcSupplier"] = vcSupplier;
+                                dataRow["vcWorkArea"] = vcWorkArea;
+                                dataRow["vcFzgc"] = vcFzgc;
+                                dataRow["vcMessage"] = "新增的数据与修改的数据时间区间出现重叠";
+                                dataTable.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                    }
+                }
+                //修改数据之间是否出现重叠校验
+                for (int i = 0; i < dtamody.Rows.Count; i++)
+                {
+                    string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
+                    string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
+                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString();
+                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString();
+                    for (int j = 0; j < dtamody.Rows.Count; j++)
+                    {
+                        string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
+                        string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
+                        string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
+                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString();
+                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString();
+                        if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
+                        {
+                            if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
+                            {
+                            }
+                            else
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["vcSupplier"] = vcSupplier;
+                                dataRow["vcWorkArea"] = vcWorkArea;
+                                dataRow["vcFzgc"] = vcFzgc;
+                                dataRow["vcMessage"] = "修改的数据时间区间出现重叠";
+                                dataTable.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                    }
+                }
+                //验证新增与修改跟数据库里面是否重叠
+                DataTable dtCheck = fs0108_Logic.checkData(dtadd,listInfoData);
 
                 #endregion
                 if (!bReault)

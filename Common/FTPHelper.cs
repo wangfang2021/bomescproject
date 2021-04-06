@@ -81,12 +81,13 @@ namespace Common
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="fileName"></param>
-        public void Download(string filePath, string fileName)
+        public string Download(string filePath, string fileName)
         {
             FtpWebRequest reqFTP;
             try
             {
-                FileStream outputStream = new FileStream(filePath + Path.DirectorySeparatorChar + fileName, FileMode.Create);
+                string path = filePath + Path.DirectorySeparatorChar + fileName;
+                FileStream outputStream = new FileStream(path, FileMode.Create);
 
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftpURI + fileName));
                 reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
@@ -109,6 +110,7 @@ namespace Common
                 ftpStream.Close();
                 outputStream.Close();
                 response.Close();
+                return path;
             }
             catch (Exception ex)
             {

@@ -278,9 +278,9 @@ namespace SPPSApi.Controllers.G06
                         {
                             strdisplayName3 = "";
                         }
-                        string strEmail1 = dtEmail.Rows[0]["vcEmail1"].ToString();
-                        string strEmail2 = dtEmail.Rows[0]["vcEmail2"].ToString();
-                        string strEmail3 = dtEmail.Rows[0]["vcEmail3"].ToString();
+                        string strEmail1 = dtEmail.Rows[m]["vcEmail1"].ToString();
+                        string strEmail2 = dtEmail.Rows[m]["vcEmail2"].ToString();
+                        string strEmail3 = dtEmail.Rows[m]["vcEmail3"].ToString();
                         if (strEmail1.Length > 0)
                         {
                             DataRow dr = receiverDt.NewRow();

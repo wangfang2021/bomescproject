@@ -297,7 +297,7 @@ namespace Logic
                         {
 
                             DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcPartNo"] = "";
+                            dataRow["vcPartNo"] = data.Rows[i]["vcPartNo"].ToString();
                             dataRow["vcMessage"] = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
                             dataTable.Rows.Add(dataRow);
                             bReault = false;
@@ -309,7 +309,7 @@ namespace Logic
                             dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
                         {
                             DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcPartNo"] = "";
+                            dataRow["vcPartNo"] = data.Rows[i]["vcPartNo"].ToString();
                             dataRow["vcMessage"] = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
                             dataTable.Rows.Add(dataRow);
                             bReault = false;
@@ -323,7 +323,7 @@ namespace Logic
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDecimal(dr[Header[1, j]].ToString()))
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcPartNo"] = data.Rows[i]["vcPartNo"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;
@@ -336,7 +336,7 @@ namespace Logic
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDate(dr[Header[1, j]].ToString()))
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcPartNo"] = data.Rows[i]["vcPartNo"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;
@@ -349,7 +349,7 @@ namespace Logic
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckYearMonth(dr[Header[1, j]].ToString()))
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcPartNo"] = data.Rows[i]["vcPartNo"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;
@@ -363,7 +363,7 @@ namespace Logic
                                     RegexOptions.None).Success)
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcPartNo"] = "";
+                                    dataRow["vcPartNo"] = data.Rows[i]["vcPartNo"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;

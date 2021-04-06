@@ -207,7 +207,8 @@ namespace DataAccess
                 }
                 #endregion
                 #region 统一更新需要关联字段：订货频度vcMakingOrderType,车型编码vcCarType
-                sql.Append("update t1 set t1.vcMakingOrderType=t2.vcOrderingMethod,t1.vcCarType=t2.vcCarfamilyCode     \n");
+                sql.Append("update t1 set t1.vcMakingOrderType=ISNULL(t2.vcOrderingMethod,ISNULL(t3.vcOrderingMethod,isnull(t4.vcOrderingMethod,''))),     \n");
+                sql.Append("t1.vcCarType=ISNULL(t2.vcCarfamilyCode,ISNULL(t3.vcCarfamilyCode,isnull(t4.vcCarfamilyCode,'')))    \n");
                 sql.Append("from    \n");
                 sql.Append("(    \n");
                 sql.Append("	select * from TSoqReply     \n");
@@ -217,6 +218,14 @@ namespace DataAccess
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
                 sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='"+ vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
+                sql.Append("left join(    \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append(")t3 on t1.vcPart_id=t3.vcPartId    \n");
+                sql.Append("left join(    \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append(")t4 on t1.vcPart_id=t4.vcPartId    \n");
 
                 sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id,t1.vcSR=t6.vcSufferIn    \n");
                 sql.Append("from (    \n");
@@ -245,6 +254,7 @@ namespace DataAccess
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = 0;
                 cmd.ExecuteNonQuery();
+                sql.Length = 0;
                 #endregion
 
                 #region 删除生产计划相关表
@@ -266,6 +276,7 @@ namespace DataAccess
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = 0;
                 cmd.ExecuteNonQuery();
+                sql.Length = 0;
                 #endregion
 
                 st.Commit();

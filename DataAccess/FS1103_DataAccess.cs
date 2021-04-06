@@ -72,7 +72,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select * from TLabelList where vcInno='"+ strInPutOrderNo + "' order by vcPrintcount");
+                strSql.AppendLine("select * from TLabelList where vcInno='" + strInPutOrderNo + "' order by vcPrintcount");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)
@@ -227,7 +227,7 @@ namespace DataAccess
                 strSql_input.AppendLine("      ,[vcCompanyname]");
                 strSql_input.AppendLine("      ,[vcPlantname]");
                 strSql_input.AppendLine("      ,[iQrcode]");
-                strSql_input.AppendLine("      ,'"+strOperId+"'");
+                strSql_input.AppendLine("      ,'" + strOperId + "'");
                 strSql_input.AppendLine("      ,GETDATE()");
                 strSql_input.AppendLine("  FROM [dbo].[TInvList] WHERE vcInno=@vcInno");
                 #endregion
@@ -343,6 +343,176 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public DataTable getPartInfo(string strPartId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                string strUrl = "https://wxsite.ftms.com.cn/carowner/part?tabindex=3&tracingcode=";
+                strSql.AppendLine("select a.vcPartENName as vcPartsnameen");
+                strSql.AppendLine("		,a.vcPartId as vcPart_id");
+                strSql.AppendLine("		,'' as vcInno");
+                strSql.AppendLine("		,a.vcReceiver as vcCpdcompany");
+                strSql.AppendLine("		,'*'+a.vcPartId+SUBSTRING(convert(varchar(100), GETDATE(), 112)+ replace(CONVERT(varchar(5), GETDATE(), 108),':',''),3,10)+'BD'+'*' as vcLabel");
+                strSql.AppendLine("		,'*'+a.vcPartId+SUBSTRING(convert(varchar(100), GETDATE(), 112)+ replace(CONVERT(varchar(5), GETDATE(), 108),':',''),3,10)+'BD'+'*' as vcLabel1");
+                strSql.AppendLine("		,'1' as vcGetnum");
+                strSql.AppendLine("		,'0' as iDateprintflg");
+                strSql.AppendLine("		,'' as vcComputernm");
+                strSql.AppendLine("		,GETDATE() as vcPrindate");
+                strSql.AppendLine("		,'"+strUrl+"'+a.vcPartId+SUBSTRING(convert(varchar(100), GETDATE(), 112)+ replace(CONVERT(varchar(5), GETDATE(), 108),':',''),3,10)+'BD' as vcQrcodeString1");
+                strSql.AppendLine("		,null as iQrcode");
+                strSql.AppendLine("		,null as iQrcode1");
+                strSql.AppendLine("		,SUBSTRING(convert(varchar(100), GETDATE(), 112)+ replace(CONVERT(varchar(5), GETDATE(), 108),':',''),3,10)+'BD' as vcPrintcount");
+                strSql.AppendLine("		,SUBSTRING(convert(varchar(100), GETDATE(), 112)+ replace(CONVERT(varchar(5), GETDATE(), 108),':',''),3,10)+'BD' as vcPrintcount1");
+                strSql.AppendLine("		,b.vcPartNameCN as vcPartnamechineese");
+                strSql.AppendLine("		,b.vcSCSName as vcSuppliername");
+                strSql.AppendLine("		,b.vcSCSAdress as vcSupplieraddress");
+                strSql.AppendLine("		,b.vcZXBZNo as vcExecutestandard");
+                strSql.AppendLine("		,a.vcCarfamilyCode as vcCartype");
+                strSql.AppendLine("		from ");
+                strSql.AppendLine("  (select * from TSPMaster)a");
+                strSql.AppendLine("  left join");
+                strSql.AppendLine("  (select * from TtagMaster)b");
+                strSql.AppendLine("  on a.vcReceiver=b.vcCPDCompany and a.vcPartId=b.vcPart_Id and a.vcSupplierId=b.vcSupplier_id");
+                strSql.AppendLine("  where vcPartId='" + strPartId + "'");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void setPrintTemp(DataTable dtInfo, string strOperId, ref DataTable dtMessage)
+        {
+            SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
+
+            sqlConnection.Open();
+            SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
+            try
+            {
+                #region 写入数据库
+                #region sqlCommand_deleteinfo
+                SqlCommand sqlCommand_deleteinfo = sqlConnection.CreateCommand();
+                sqlCommand_deleteinfo.Transaction = sqlTransaction;
+                sqlCommand_deleteinfo.CommandType = CommandType.Text;
+                StringBuilder strSql_deleteinfo = new StringBuilder();
+                #region SQL and Parameters
+                strSql_deleteinfo.AppendLine("DELETE from tPrintTemp_tag_FS1103 where vcOperatorID='" + strOperId + "'");
+                sqlCommand_deleteinfo.CommandText = strSql_deleteinfo.ToString();
+                #endregion
+                sqlCommand_deleteinfo.ExecuteNonQuery();
+                #endregion
+
+                #region sqlCommand_sub
+                SqlCommand sqlCommand_sub = sqlConnection.CreateCommand();
+                sqlCommand_sub.Transaction = sqlTransaction;
+                sqlCommand_sub.CommandType = CommandType.Text;
+                StringBuilder strSql_sub = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_sub.AppendLine("INSERT INTO [dbo].[tPrintTemp_tag_FS1103]");
+                strSql_sub.AppendLine("           ([vcPartsnameen]");
+                strSql_sub.AppendLine("           ,[vcPart_id]");
+                strSql_sub.AppendLine("           ,[vcInno]");
+                strSql_sub.AppendLine("           ,[vcCpdcompany]");
+                strSql_sub.AppendLine("           ,[vcLabel]");
+                strSql_sub.AppendLine("           ,[vcGetnum]");
+                strSql_sub.AppendLine("           ,[iDateprintflg]");
+                strSql_sub.AppendLine("           ,[vcComputernm]");
+                strSql_sub.AppendLine("           ,[vcPrindate]");
+                strSql_sub.AppendLine("           ,[iQrcode]");
+                strSql_sub.AppendLine("           ,[vcPrintcount]");
+                strSql_sub.AppendLine("           ,[vcPartnamechineese]");
+                strSql_sub.AppendLine("           ,[vcSuppliername]");
+                strSql_sub.AppendLine("           ,[vcSupplieraddress]");
+                strSql_sub.AppendLine("           ,[vcExecutestandard]");
+                strSql_sub.AppendLine("           ,[vcCartype]");
+                strSql_sub.AppendLine("           ,[vcHostip]");
+                strSql_sub.AppendLine("           ,[vcOperatorID]");
+                strSql_sub.AppendLine("           ,[dOperatorTime])");
+                strSql_sub.AppendLine("     VALUES");
+                strSql_sub.AppendLine("           (@vcPartsnameen");
+                strSql_sub.AppendLine("           ,@vcPart_id");
+                strSql_sub.AppendLine("           ,@vcInno");
+                strSql_sub.AppendLine("           ,@vcCpdcompany");
+                strSql_sub.AppendLine("           ,@vcLabel");
+                strSql_sub.AppendLine("           ,@vcGetnum");
+                strSql_sub.AppendLine("           ,@iDateprintflg");
+                strSql_sub.AppendLine("           ,@vcComputernm");
+                strSql_sub.AppendLine("           ,@vcPrindate");
+                strSql_sub.AppendLine("           ,@iQrcode");
+                strSql_sub.AppendLine("           ,@vcPrintcount");
+                strSql_sub.AppendLine("           ,@vcPartnamechineese");
+                strSql_sub.AppendLine("           ,@vcSuppliername");
+                strSql_sub.AppendLine("           ,@vcSupplieraddress");
+                strSql_sub.AppendLine("           ,@vcExecutestandard");
+                strSql_sub.AppendLine("           ,@vcCartype");
+                strSql_sub.AppendLine("           ,@vcHostip");
+                strSql_sub.AppendLine("           ,'"+strOperId+"'");
+                strSql_sub.AppendLine("           ,GETDATE())");
+                sqlCommand_sub.CommandText = strSql_sub.ToString();
+                sqlCommand_sub.Parameters.AddWithValue("@vcPartsnameen", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcPart_id", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcInno", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcCpdcompany", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcLabel", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcGetnum", "");
+                sqlCommand_sub.Parameters.AddWithValue("@iDateprintflg", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcComputernm", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcPrindate", "");
+                sqlCommand_sub.Parameters.Add("@iQrcode", SqlDbType.Image);
+                sqlCommand_sub.Parameters.AddWithValue("@vcPrintcount", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcPartnamechineese", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcSuppliername", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcSupplieraddress", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcExecutestandard", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcCartype", "");
+                sqlCommand_sub.Parameters.AddWithValue("@vcHostip", "");
+                #endregion
+                foreach (DataRow item in dtInfo.Rows)
+                {
+                    #region Value
+                    sqlCommand_sub.Parameters["@vcPartsnameen"].Value = item["vcPartsnameen"].ToString();
+                    sqlCommand_sub.Parameters["@vcPart_id"].Value = item["vcPart_id"].ToString();
+                    sqlCommand_sub.Parameters["@vcInno"].Value = item["vcInno"].ToString();
+                    sqlCommand_sub.Parameters["@vcCpdcompany"].Value = item["vcCpdcompany"].ToString();
+                    sqlCommand_sub.Parameters["@vcLabel"].Value = item["vcLabel"].ToString();
+                    sqlCommand_sub.Parameters["@vcGetnum"].Value = item["vcGetnum"].ToString();
+                    sqlCommand_sub.Parameters["@iDateprintflg"].Value = item["iDateprintflg"].ToString();
+                    sqlCommand_sub.Parameters["@vcComputernm"].Value = item["vcComputernm"].ToString();
+                    sqlCommand_sub.Parameters["@vcPrindate"].Value = item["vcPrindate"].ToString();
+                    sqlCommand_sub.Parameters["@iQrcode"].Value = item["iQrcode"];
+                    sqlCommand_sub.Parameters["@vcPrintcount"].Value = item["vcPrintcount"].ToString();
+                    sqlCommand_sub.Parameters["@vcPartnamechineese"].Value = item["vcPartnamechineese"].ToString();
+                    sqlCommand_sub.Parameters["@vcSuppliername"].Value = item["vcSuppliername"].ToString();
+                    sqlCommand_sub.Parameters["@vcSupplieraddress"].Value = item["vcSupplieraddress"].ToString();
+                    sqlCommand_sub.Parameters["@vcExecutestandard"].Value = item["vcExecutestandard"].ToString();
+                    sqlCommand_sub.Parameters["@vcCartype"].Value = item["vcCartype"].ToString();
+                    sqlCommand_sub.Parameters["@vcHostip"].Value = item["vcHostip"].ToString();
+                    #endregion
+                    sqlCommand_sub.ExecuteNonQuery();
+                }
+                #endregion
+                //提交事务
+                sqlTransaction.Commit();
+                sqlConnection.Close();
+                #endregion
+
+            }
+            catch (Exception ex)
+            {
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "数据写入打印数据失败！";
+                dtMessage.Rows.Add(dataRow);
+                //回滚事务
+                if (sqlTransaction != null && sqlConnection != null)
+                {
+                    sqlTransaction.Rollback();
+                    sqlConnection.Close();
+                }
             }
         }
     }

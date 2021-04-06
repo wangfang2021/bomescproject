@@ -260,20 +260,12 @@ namespace SPPSApi.Controllers.G02
         {
             try
             {
-                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
-                                      Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + Type + Path.DirectorySeparatorChar;
-
-                if (Directory.Exists(fileSavePath) == false)
-                {
-                    Directory.CreateDirectory(fileSavePath);
-                }
 
                 DirectoryInfo theFolder = new DirectoryInfo(filePath);
 
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    string newfileSavePath = fileSavePath + info.Name;
-                    System.IO.File.Copy(filePath + info.Name, newfileSavePath, true);
+                    ComFunction.FtpUpload("TTCC" + Path.DirectorySeparatorChar + Type, info.FullName);
                 }
             }
             catch (Exception ex)

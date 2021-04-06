@@ -266,38 +266,90 @@ namespace SPPSApi.Controllers.G11
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            JArray listInfo = dataForm.list;
-            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            string strPartId = dataForm.selectVaule.PartId == null ? "" : dataForm.selectVaule.PartId;
+            string strPrintNum = dataForm.selectVaule.PrintNum == null ? "" : dataForm.selectVaule.PrintNum;
             try
             {
-                if (listInfoData.Count != 0)
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                string imagefile_qr = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "QRcodeImage" + Path.DirectorySeparatorChar;
+                if (strPartId == "")
                 {
-                    //获取待打印的数据
-                    //DataTable dataTable = fS0617_Logic.getPrintInfo(listInfoData);
-                    //执行打印操作
-                    //===========================================
-                    DataTable dtMessage = fS0603_Logic.createTable("MES");
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "错误测试";
+                    dataRow["vcMessage"] = "品番不能为空";
                     dtMessage.Rows.Add(dataRow);
-
+                }
+                if (strPrintNum == "" || strPrintNum == "0")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "打印数量不能为空(0)";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.type = "list";
                     apiResult.data = dtMessage;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-
-
-
-
-                    //===========================================
-                    apiResult.code = ComConstant.SUCCESS_CODE;
-                    apiResult.data = "打印成功";
                 }
-                else
+                fS1103_Logic.getPrintInfo(strPartId, strPrintNum, loginInfo.UserId, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "未选择有效的打印数据";
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                #region 调用webApi打印
+                string strPrinterName = fS0603_Logic.getPrinterName("FS1103", loginInfo.UserId);
+                //创建 HTTP 绑定对象
+                string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                if (fS1103_Logic.getTempInfo(loginInfo.UserId, "tag").Rows.Count != 0)
+                {
+                    var binding = new BasicHttpBinding();
+                    //根据 WebService 的 URL 构建终端点对象
+                    var endpoint = new EndpointAddress(@"http://172.23.238.179/WebAPI/WebServiceAPI.asmx");
+                    //创建调用接口的工厂，注意这里泛型只能传入接口
+                    var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                    //从工厂获取具体的调用实例
+                    var callClient = factory.CreateChannel();
+                    setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                    Body.strCRVName = file_crv + "crv_FS1103_tag_temp.rpt";
+                    Body.strScrpit = "SELECT * from tPrintTemp_tag_FS1103 where vcOperatorID='" + loginInfo.UserId + "' order by vcInno,vcPrintcount";
+                    Body.strPrinterName = strPrinterName;
+                    Body.sqlUserID = "sa";
+                    Body.sqlPassword = "SPPS_Server2019";
+                    Body.sqlCatalog = "SPPSdb";
+                    Body.sqlSource = "172.23.180.116";
+                    //调用具体的方法，这里是 HelloWorldAsync 方法
+                    Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                    //获取结果
+                    setCRVPrintResponse response = responseTask.Result;
+                    if (response.Body.setCRVPrintResult != "打印成功")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "标签打印失败，请联系管理员进行打印接口故障检查。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                }
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    //弹出错误dtMessage
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "打印成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
             }

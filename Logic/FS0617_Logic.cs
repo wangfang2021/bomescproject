@@ -31,7 +31,7 @@ namespace Logic
         {
             try
             {
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "0", "", "", "", "", "", "", "", "", "", "", "", "", false, "", "", "", "");
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "0", "", "", "", "", "", "", "", "", "", "", "", "", false, "", "", "", "", false);
                 DataTable dataTable = fs0617_DataAccess.getPrintTemp("FS0617");
                 DataTable dtSub = dataTable.Clone();
                 DataTable dtMain = fS0603_Logic.createTable("mainFs0617");

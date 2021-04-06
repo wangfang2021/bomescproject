@@ -54,10 +54,12 @@ namespace Logic
             }
         }
         public DataTable getSearchInfo(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, string strOrderingMethod, string strMandOrder, string strSPChild)
+                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, 
+                    string strOrderingMethod, string strMandOrder, string strSPChild,bool bNow)
         {
             DataTable dataTable = fs0603_DataAccess.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck, strOrderby, strOrderingMethod, strMandOrder, strSPChild);
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck, strOrderby, 
+                    strOrderingMethod, strMandOrder, strSPChild, bNow);
 
             foreach (DataRow dataRow in dataTable.Rows)
             {
@@ -109,7 +111,7 @@ namespace Logic
                     if (dataTable.Rows[i]["vcType"].ToString().Trim() == "")
                         dataTable.Rows.RemoveAt(i);
                 }
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "");
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "",false);
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 #region 检验数据重复性及数据格式
@@ -1290,7 +1292,7 @@ namespace Logic
                 //处理List集合
                 listInfoData = setNullData(listInfoData);
                 bReault = true;
-                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "");
+                DataTable dtSPInfo = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "",false);
                 DataTable dtImport = dtSPInfo.Clone();
                 dtImport.Columns.Add("vcType");
                 for (int i = 0; i < listInfoData.Count; i++)
@@ -1598,7 +1600,7 @@ namespace Logic
         public void setSPInfo(DataTable dtImport, string strOperId, ref DataTable dtMessage)
         {
             //用于检查变更情况
-            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "");
+            DataTable dtOperCheck = fs0603_DataAccess.getSearchInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "", false);
             //用于新增数据
             DataTable dtAddInfo = dtOperCheck.Clone();
             //用于修改数据--修改主数据表

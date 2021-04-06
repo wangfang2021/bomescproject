@@ -537,6 +537,11 @@ namespace Logic
             return dataAccess.SearchPartData(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcPartPlant, vcPartFrequence);
         }
 
+        public DataTable OutputPartData(string vcPartsNo, string vcCarFamilyCode, string vcPorType, string vcZB, string vcPartPlant, string vcPartFrequence)
+        {
+            return dataAccess.OutputPartData(vcPartsNo, vcCarFamilyCode, vcPorType, vcZB, vcPartPlant, vcPartFrequence);
+        }
+
         //导出数据
         public DataTable SearchPartDataEX(string vcPartsNo, string vcCarFamilyCode, string vcPorType, string vcZB, string vcPartPlant, string vcPartFrequence)
         {            

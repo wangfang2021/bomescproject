@@ -329,7 +329,7 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%'end as '出荷率(D/A)'   ");
 
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcTargetMonth + "'     ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData] where  vcReceiver is not null and vcTargetYearMonth='" + vcTargetMonth + "'     ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
@@ -384,7 +384,7 @@ namespace DataAccess
                 strSql.AppendLine("    convert(varchar(10),convert(decimal(18,2),(isnull(b.月度订单出荷实绩,0)+isnull(c.紧急订单出荷实绩,0))/(isnull(b.月度订单,0)+isnull(c.紧急订单,0))   ");
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData] where vcTargetYearMonth='" + vcLastTargetMonth + "'   ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData] where vcReceiver is not null and vcTargetYearMonth='" + vcLastTargetMonth + "'   ");
                 
                 if (vcConsignee.Length > 0)
                 {
@@ -484,7 +484,7 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcReceiver is not null and vcTargetYearMonth='" + vcTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
@@ -560,7 +560,7 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcReceiver is not null and vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
@@ -658,7 +658,7 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcReceiver is not null and vcTargetYearMonth='" + vcTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");
@@ -734,7 +734,7 @@ namespace DataAccess
                 strSql.AppendLine("    ) *100)+'%' end as '出荷率(D/A)',   ");
                 strSql.AppendLine("    null as '前月出荷率'   ");
                 strSql.AppendLine("    from (   ");
-                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
+                strSql.AppendLine("   select distinct vcReceiver,vcOrderPlant,vcOrderPlantCode,Type as item from [dbo].[VI_SP_M_OrderData]  where vcReceiver is not null and vcTargetYearMonth='" + vcLastTargetMonth + "'    ");
                 if (vcConsignee.Length > 0)
                 {
                     strSql.AppendLine("  and  vcReceiver = '" + vcConsignee + "' ");

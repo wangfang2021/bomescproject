@@ -149,7 +149,7 @@ namespace Logic
                     {
                         if (dt_info.Rows[i]["kbsrs"] == null || string.IsNullOrEmpty(dt_info.Rows[i]["kbsrs"].ToString()))
                         {
-                            return vcFZGC[k] + "厂品番：" + dt_info.Rows[i]["Partsno"].ToString() + "器具收容数未维护！";
+                            return vcFZGC[k] + "厂品番：" + dt_info.Rows[i]["vcPart_id"].ToString() + "器具收容数未维护！";
                         }
                     }
                 }

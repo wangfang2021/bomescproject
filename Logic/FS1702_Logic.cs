@@ -375,9 +375,9 @@ namespace Logic
                 DataTable dtSub = dataTable.Clone();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    string vcQueRenNo = listInfoData[0]["vcQueRenNo"] == null ? "" : listInfoData[0]["vcQueRenNo"].ToString(); 
-                    string vcProject = listInfoData[0]["vcProject"] == null ? "" : listInfoData[0]["vcProject"].ToString();
-                    string dChuHeDate = listInfoData[0]["dChuHeDate"] == null ? "" : listInfoData[0]["dChuHeDate"].ToString();
+                    string vcQueRenNo = listInfoData[i]["vcQueRenNo"] == null ? "" : listInfoData[i]["vcQueRenNo"].ToString(); 
+                    string vcProject = listInfoData[i]["vcProject"] == null ? "" : listInfoData[i]["vcProject"].ToString();
+                    string dChuHeDate = listInfoData[i]["dChuHeDate"] == null ? "" : listInfoData[i]["dChuHeDate"].ToString();
                     DataTable dtSPInfo = fs1702_DataAccess.GetqrdInfo(vcProject, dChuHeDate);
                     string uuid = Guid.NewGuid().ToString("N");
                     for (int j = 0; j < dtSPInfo.Rows.Count; j++)
@@ -395,12 +395,198 @@ namespace Logic
                 if (dtSub.Rows.Count == 0)
                 {
                     DataRow dataRow = dtMessage.NewRow();
-                    dataRow["vcMessage"] = "没有有效的装箱单数据，请确认后再操作。";
+                    dataRow["vcMessage"] = "没有有效的确认单数据，请确认后再操作。";
                     dtMessage.Rows.Add(dataRow);
                 }
                 if (dtMessage.Rows.Count != 0)
                     return false;
                 fs1702_DataAccess.setPrintTemp(dtSub, strOperId, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                    return false;
+                else
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool getPrintInfo_kb(List<Dictionary<string, Object>> listInfoData, string strOperId, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dt_detail = fs1702_DataAccess.getPrintTemp("FS1702_kb_detail");
+                DataTable dt_main= fs1702_DataAccess.getPrintTemp("FS1702_kb_main");
+                DataTable dtSub_detail = dt_detail.Clone();
+                DataTable dtSub_main = dt_main.Clone();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string vcQueRenNo = listInfoData[i]["vcQueRenNo"] == null ? "" : listInfoData[i]["vcQueRenNo"].ToString();
+                    string vcProject = listInfoData[i]["vcProject"] == null ? "" : listInfoData[i]["vcProject"].ToString();
+                    string dChuHeDate = listInfoData[i]["dChuHeDate"] == null ? "" : listInfoData[i]["dChuHeDate"].ToString();
+                    DataTable dtInfo = fs1702_DataAccess.getKBData(vcProject, dChuHeDate);
+                    for (int j = 0; j < dtInfo.Rows.Count; j++)
+                    {
+                        string uuid = Guid.NewGuid().ToString("N");
+                        DataRow dataRow = dtSub_detail.NewRow();
+                        dataRow["UUID"] = uuid;
+                        dataRow["vcCarType"] = dtInfo.Rows[j]["vcCarType"].ToString();
+                        dataRow["vcProject"] = dtInfo.Rows[j]["vcProject"].ToString();
+                        dataRow["vcProjectPlace"] = dtInfo.Rows[j]["vcProjectPlace"].ToString();
+                        dataRow["vcSR"] = dtInfo.Rows[j]["vcSR"].ToString();
+                        dataRow["vcBackPart_id"] = dtInfo.Rows[j]["vcBackPart_id"].ToString();
+                        dataRow["vcChuHePart_id"] = dtInfo.Rows[j]["vcChuHePart_id"].ToString();
+                        dataRow["vcPart_Name"] = dtInfo.Rows[j]["vcPart_Name"].ToString();
+                        dataRow["iCapacity"] = dtInfo.Rows[j]["iCapacity"].ToString();
+                        dataRow["vcBoxType"] = dtInfo.Rows[j]["vcBoxType"].ToString();
+                        dtSub_detail.Rows.Add(dataRow);
+
+                    }
+                }
+                for (int i = 0; i < dtSub_detail.Rows.Count; i = i + 4)
+                {
+                    string UUID1 = "";
+                    string UUID2 = "";
+                    string UUID3 = "";
+                    string UUID4 = "";
+                    if (i < dtSub_detail.Rows.Count)
+                    {
+                        if (i + 1 < dtSub_detail.Rows.Count)
+                        {
+                            if (i + 3 < dtSub_detail.Rows.Count)
+                            {
+                                UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                                UUID2 = dtSub_detail.Rows[i + 1]["UUID"].ToString();
+                                UUID3 = dtSub_detail.Rows[i + 2]["UUID"].ToString();
+                                UUID4 = dtSub_detail.Rows[i + 3]["UUID"].ToString();
+                            }
+                            else if (i + 2 < dtSub_detail.Rows.Count)
+                            {
+                                UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                                UUID2 = dtSub_detail.Rows[i + 1]["UUID"].ToString();
+                                UUID3 = dtSub_detail.Rows[i + 2]["UUID"].ToString();
+                            }
+                            else
+                            {
+                                UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                                UUID2 = dtSub_detail.Rows[i + 1]["UUID"].ToString();
+                            }
+                        }
+                        else
+                        {
+                            UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                        }
+                    }
+                    DataRow dataRow = dtSub_main.NewRow();
+                    dataRow["UUID1"] = UUID1;
+                    dataRow["UUID2"] = UUID2;
+                    dataRow["UUID3"] = UUID3;
+                    dataRow["UUID4"] = UUID4;
+                    dtSub_main.Rows.Add(dataRow);
+                }
+
+                if (dtSub_detail.Rows.Count == 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "没有有效的看板数据，请确认后再操作。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                    return false;
+                fs1702_DataAccess.setPrintTemp_kb_detail(dtSub_main,dtSub_detail, strOperId, ref dtMessage);
+                if (dtMessage.Rows.Count != 0)
+                    return false;
+                else
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool getPrintInfo_kb_zfx(List<Dictionary<string, Object>> listInfoData, string strOperId, ref DataTable dtMessage)
+        {
+            try
+            {
+                DataTable dt_detail = fs1702_DataAccess.getPrintTemp("FS1702_kb_detail");
+                DataTable dt_main = fs1702_DataAccess.getPrintTemp("FS1702_kb_main");
+                DataTable dtSub_detail = dt_detail.Clone();
+                DataTable dtSub_main = dt_main.Clone();
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    string vcPart_id = listInfoData[i]["vcPart_id"] == null ? "" : listInfoData[i]["vcPart_id"].ToString();
+                    DataTable dtInfo = fs1702_DataAccess.getKBData(vcPart_id);
+                    for (int j = 0; j < dtInfo.Rows.Count; j++)
+                    {
+                        string uuid = Guid.NewGuid().ToString("N");
+                        DataRow dataRow = dtSub_detail.NewRow();
+                        dataRow["UUID"] = uuid;
+                        dataRow["vcCarType"] = dtInfo.Rows[j]["vcCarType"].ToString();
+                        dataRow["vcProject"] = dtInfo.Rows[j]["vcProject"].ToString();
+                        dataRow["vcProjectPlace"] = dtInfo.Rows[j]["vcProjectPlace"].ToString();
+                        dataRow["vcSR"] = dtInfo.Rows[j]["vcSR"].ToString();
+                        dataRow["vcBackPart_id"] = dtInfo.Rows[j]["vcBackPart_id"].ToString();
+                        dataRow["vcChuHePart_id"] = dtInfo.Rows[j]["vcChuHePart_id"].ToString();
+                        dataRow["vcPart_Name"] = dtInfo.Rows[j]["vcPart_Name"].ToString();
+                        dataRow["iCapacity"] = dtInfo.Rows[j]["iCapacity"].ToString();
+                        dataRow["vcBoxType"] = dtInfo.Rows[j]["vcBoxType"].ToString();
+                        dtSub_detail.Rows.Add(dataRow);
+
+                    }
+                }
+                for (int i = 0; i < dtSub_detail.Rows.Count; i = i + 4)
+                {
+                    string UUID1 = "";
+                    string UUID2 = "";
+                    string UUID3 = "";
+                    string UUID4 = "";
+                    if (i < dtSub_detail.Rows.Count)
+                    {
+                        if (i + 1 < dtSub_detail.Rows.Count)
+                        {
+                            if (i + 3 < dtSub_detail.Rows.Count)
+                            {
+                                UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                                UUID2 = dtSub_detail.Rows[i + 1]["UUID"].ToString();
+                                UUID3 = dtSub_detail.Rows[i + 2]["UUID"].ToString();
+                                UUID4 = dtSub_detail.Rows[i + 3]["UUID"].ToString();
+                            }
+                            else if (i + 2 < dtSub_detail.Rows.Count)
+                            {
+                                UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                                UUID2 = dtSub_detail.Rows[i + 1]["UUID"].ToString();
+                                UUID3 = dtSub_detail.Rows[i + 2]["UUID"].ToString();
+                            }
+                            else
+                            {
+                                UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                                UUID2 = dtSub_detail.Rows[i + 1]["UUID"].ToString();
+                            }
+                        }
+                        else
+                        {
+                            UUID1 = dtSub_detail.Rows[i]["UUID"].ToString();
+                        }
+                    }
+                    DataRow dataRow = dtSub_main.NewRow();
+                    dataRow["UUID1"] = UUID1;
+                    dataRow["UUID2"] = UUID2;
+                    dataRow["UUID3"] = UUID3;
+                    dataRow["UUID4"] = UUID4;
+                    dtSub_main.Rows.Add(dataRow);
+                }
+
+                if (dtSub_detail.Rows.Count == 0)
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "没有有效的看板数据，请确认后再操作。";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                    return false;
+                fs1702_DataAccess.setPrintTemp_kb_detail(dtSub_main, dtSub_detail, strOperId, ref dtMessage);
                 if (dtMessage.Rows.Count != 0)
                     return false;
                 else

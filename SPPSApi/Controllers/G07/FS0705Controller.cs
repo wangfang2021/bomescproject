@@ -179,7 +179,7 @@ namespace SPPSApi.Controllers.G07
                 /*
                  * 查询出计算结果中订单号未空的数据
                  */
-                DataTable JGDT = fs0705_Logic.searchComputeJG();
+                DataTable JGDT = fs0705_Logic.SCFZDataSearchComputeJG();
                 fs0705_Logic.SCFZData(JGDT,strOrderNo);
 
 
@@ -214,7 +214,7 @@ namespace SPPSApi.Controllers.G07
 
             try
             {
-                DataTable dt = fs0705_Logic.searchComputeJG();
+                DataTable dt = fs0705_Logic.exportSearchJG();
                 string[] fields = { "vcFaZhuID","dTimeStr","vcPackNo","vcPackGPSNo", "iA_SRS", "iB_LastShengYu", "iC_LiLun"
                 ,"iD_TiaoZheng","iE_JinJi","iF_DingGou","iG_ShengYu"
                 };

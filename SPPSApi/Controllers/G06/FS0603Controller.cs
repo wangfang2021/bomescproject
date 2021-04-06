@@ -1296,6 +1296,105 @@ namespace SPPSApi.Controllers.G06
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }
+        [HttpPost]
+        [EnableCors("any")]
+        public string downloadTplApi2([FromBody] dynamic data)
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+
+            string strSyncTime_from = "";
+            string strSyncTime_to = "";
+            JArray listSyncTime = dataForm.SyncTime;
+            if (listSyncTime != null && listSyncTime.Count != 0)
+            {
+                strSyncTime_from = listSyncTime[0].ToString();
+                strSyncTime_to = listSyncTime[1].ToString();
+            }
+            string strChanges = dataForm.Changes == null ? "" : dataForm.Changes;
+            string strPartId = dataForm.PartId == null ? "" : dataForm.PartId;
+            string strCarModel = dataForm.CarModel == null ? "" : dataForm.CarModel;
+            string strReceiver = dataForm.Receiver == null ? "" : dataForm.Receiver;
+            string strInOut = dataForm.InOut == null ? "" : dataForm.InOut;
+            string strHaoJiu = dataForm.HaoJiu == null ? "" : dataForm.HaoJiu;
+            string strSupplierId = dataForm.SupplierId == null ? "" : dataForm.SupplierId;
+            string strSupplierPlant = dataForm.SupplierPlant == null ? "" : dataForm.SupplierPlant;
+            string strOrderPlant = dataForm.OrderPlant == null ? "" : dataForm.OrderPlant;
+            string strFromTime = dataForm.FromTime == null ? "" : dataForm.FromTime;
+            string strToTime = dataForm.ToTime == null ? "" : dataForm.ToTime;
+            string strBoxType = dataForm.BoxType == null ? "" : dataForm.BoxType;
+            string strSufferIn = dataForm.SufferIn == null ? "" : dataForm.SufferIn;
+            string strSupplierPacking = dataForm.SupplierPacking == null ? "" : dataForm.SupplierPacking;
+            string strOldProduction = dataForm.OldProduction == null ? "" : dataForm.OldProduction;
+            string strDebugTime = dataForm.DebugTime == null ? "" : dataForm.DebugTime;
+            string strOrderingMethod = dataForm.OrderingMethod == null ? "" : dataForm.OrderingMethod;
+            string strMandOrder = dataForm.MandOrder == null ? "" : dataForm.MandOrder;
+            string strSPChild = dataForm.SPChild == null ? "" : dataForm.SPChild;
+            string strshoupei = dataForm.shoupei == null ? "" : dataForm.shoupei;
+
+            try
+            {
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                if (strshoupei == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请选择要维护的手配类型";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                string filepath = "";
+                DataTable dtChildInfo = fs0603_Logic.getChildInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                        strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "", strOrderingMethod, strMandOrder, strSPChild, strshoupei);
+                dtChildInfo.Columns.Add("vcType");
+                if (strshoupei == "gq")//工区
+                {
+                    string[] fields = {"vcType","vcPackingPlant","vcPartId","vcReceiver","dFromTime","dToTime","vcSupplierId",
+                        "SupplierPlantLinId_ed","SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed"};
+                    filepath = ComFunction.generateExcelWithXlt(dtChildInfo, fields, _webHostEnvironment.ContentRootPath, "FS0603_Child_gq.xlsx", 1, loginInfo.UserId, FunctionID);
+                }
+                if (strshoupei == "sr")//受入
+                {
+                    string[] fields = {"vcType","vcPackingPlant","vcPartId","vcReceiver","dFromTime","dToTime","vcSupplierId",
+                        "SufferInLinId_ed","SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed"};
+                    filepath = ComFunction.generateExcelWithXlt(dtChildInfo, fields, _webHostEnvironment.ContentRootPath, "FS0603_Child_sr.xlsx", 1, loginInfo.UserId, FunctionID);
+                }
+                if (strshoupei == "hz")//荷姿
+                {
+                    string[] fields = {"vcType","vcPackingPlant","vcPartId","vcReceiver","dFromTime","dToTime","vcSupplierId",
+                        "BoxLinId_ed","BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed"};
+                    filepath = ComFunction.generateExcelWithXlt(dtChildInfo, fields, _webHostEnvironment.ContentRootPath, "FS0603_Child_hz.xlsx", 1, loginInfo.UserId, FunctionID);
+                }
+                if (filepath == "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "导出模板文件失败";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = filepath;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0904", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
         /// <summary>
         /// 批量维护
         /// </summary>
@@ -1414,6 +1513,177 @@ namespace SPPSApi.Controllers.G06
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                     fs0603_Logic.setSPInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                    if (dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                }
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = "导入成功";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0905", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.type = "info";
+                apiResult.data = "导入失败" + ex.Message;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            //finally
+            //{
+            //    ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
+            //}
+        }
+        [HttpPost]
+        [EnableCors("any")]
+        public string forceimportSaveApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            JArray fileNameList = dataForm.fileNameList;
+            string hashCode = dataForm.hashCode;
+            string strshoupei = dataForm.shoupei == null ? "" : dataForm.shoupei;
+            string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload" + Path.DirectorySeparatorChar + hashCode + Path.DirectorySeparatorChar;
+            try
+            {
+                DataTable dtMessage = fs0603_Logic.createTable("MES");
+                if (strshoupei == "")
+                {
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "请选择要维护的手配类型";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (!Directory.Exists(fileSavePath))
+                {
+                    ComFunction.DeleteFolder(fileSavePath);//读取异常则，删除文件夹，全部重新上传
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "没有要导入的文件，请重新上传！";
+                    dtMessage.Rows.Add(dataRow);
+                }
+                if (dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+                string strMsg = "";
+                string[,] headers = null;
+                #region  string[,] headers = new string[,] {}
+                if (strshoupei == "gq")
+                {
+                    headers = new string[,] {
+                    {       "操作类型",
+                            "包装工场","补给品番","收货方","品番-使用开始","品番-使用结束","供应商代码",
+                            "LINID","工区","工区-使用开始","工区-使用结束",//5
+                    },//10
+                    {       "vcType",
+                            "vcPackingPlant","vcPartId","vcReceiver","dFromTime","dToTime","vcSupplierId",
+                            "LINID","SupplierPlant_ed","SupplierPlantFromTime_ed","SupplierPlantToTime_ed",//5
+                    },//10
+                    {       "",
+                            "","","","","","",//4
+                            "",FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,//5
+                    },//10
+                    {       "0",
+                            "0","0","0","0","0","0",
+                            "0","1","0","0",//5
+                    },//最大长度设定,不校验最大长度用0//10
+                    {       "0",
+                            "0","0","0","0","0","0",//4
+                            "0","1","0","0",//5
+                    }};//最小长度设定,可以为空用0//10
+                }
+                if (strshoupei == "sr")
+                {
+                    headers = new string[,] {
+                    {       "操作类型",
+                            "包装工场","补给品番","收货方","品番-使用开始","品番-使用结束","供应商代码",
+                            "LINID","受入","受入-使用开始","受入-使用结束",//7
+                    },//10
+                    {       "vcType",
+                            "vcPackingPlant","vcPartId","vcReceiver","dFromTime","dToTime","vcSupplierId",
+                            "LINID","SufferIn_ed","SufferInFromTime_ed","SufferInToTime_ed",//7
+                    },//10
+                    {       "",
+                            "","","","","","",//4
+                            "",FieldCheck.NumCharLLL,FieldCheck.Date,FieldCheck.Date,//7
+                    },//10
+                    {       "0",
+                            "0","0","0","0","0","0",
+                            "0","0","0","0",//7
+                    },//最大长度设定,不校验最大长度用0//10
+                    {       "0",
+                            "0","0","0","0","0","0",//4
+                            "0","0","0","0",//7
+                    }};//最小长度设定,可以为空用0//10
+                }
+                if (strshoupei == "hz")
+                {
+                    headers = new string[,] {
+                    {       "操作类型",
+                            "包装工场","补给品番","收货方","品番-使用开始","品番-使用结束","供应商代码",
+                            "LINID","收容数","收容数-使用开始","收容数-使用结束","箱种","长(mm)","宽(mm)","高(mm)","体积(m³)"//6
+                    },//10
+                    {       "vcType",
+                            "vcPackingPlant","vcPartId","vcReceiver","dFromTime","dToTime","vcSupplierId",
+                            "LINID","BoxPackingQty_ed","BoxFromTime_ed","BoxToTime_ed","BoxType_ed","BoxLength_ed","BoxWidth_ed","BoxHeight_ed","BoxVolume_ed"//6
+                    },//10
+                    {       "",
+                            "","","","","","",//4
+                            "",FieldCheck.Num,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumCharLLL,FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,""//6
+                    },//10
+                    {       "0",
+                            "0","0","0","0","0","0",
+                            "0","0","0","0","0","0","0","0","0"//6
+                    },//最大长度设定,不校验最大长度用0//10
+                    {       "0",
+                            "0","0","0","0","0","0",//4
+                            "0","0","0","0","0","0","0","0","0"//6
+                    }};//最小长度设定,可以为空用0//10
+                }
+                #endregion
+                DataTable importDt = new DataTable();
+                bool bReault = true;
+                foreach (FileInfo info in theFolder.GetFiles())
+                {
+                    DataTable dt = ComFunction.ExcelToDataTableformRows(info.FullName, "sheet1", headers, 2, 2, ref strMsg);
+                    if (strMsg != "")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "读取导入文件" + info.Name + "出错！";
+                        dtMessage.Rows.Add(dataRow);
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    DataTable dtImport = fs0603_Logic.checkFileInfo(dt, strshoupei, headers, 2, 3, ref bReault, ref dtMessage);
+                    if (!bReault)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    fs0603_Logic.setSPInfo(dtImport, strshoupei, loginInfo.UserId, ref dtMessage);
                     if (dtMessage.Rows.Count != 0)
                     {
                         //弹出错误dtMessage

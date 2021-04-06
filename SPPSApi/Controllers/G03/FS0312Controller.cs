@@ -25,7 +25,7 @@ namespace SPPSApi.Controllers.G03
     [Route("api/FS0312/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS0312Controller : BaseController
+    public class FS0312Controller : BaseController  
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 

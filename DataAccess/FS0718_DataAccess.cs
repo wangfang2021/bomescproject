@@ -76,7 +76,7 @@ namespace DataAccess
         #endregion
 
         #region 检索周度,返回dt(导出下载用)
-        public DataTable Search_Week()
+        public DataTable Search_Week(string strSupplierCode,string strDFaBuTime)
         {
             try
             {
@@ -171,6 +171,14 @@ namespace DataAccess
                 strSql.Append("  sum(vcD29bT) as vcD29bT,sum(vcD30bT) as vcD30bT,sum(vcD31bT) as vcD31bT            \n");
                 strSql.Append("              \n");
                 strSql.Append("   from TPackWeekInfoCV            \n");
+                if (!string.IsNullOrEmpty(strSupplierCode))
+                {
+                    strSql.Append("   where vcSupplierCode = '"+strSupplierCode+"'             \n");
+                }
+                if (!string.IsNullOrEmpty(strDFaBuTime))
+                {
+                    strSql.Append("   and dSendTime = '"+strDFaBuTime+"'             \n");
+                }
                 strSql.Append("   group by vcPackNo,vcPackGPSNo,vcSupplierName,            \n");
 
                 strSql.Append("   vcD1yFShow,vcD2yFShow,vcD3yFShow,vcD4yFShow,vcD5yFShow,vcD6yFShow                  \n");
@@ -206,6 +214,23 @@ namespace DataAccess
             {
                 throw ex;
             }
+        }
+        #endregion
+
+        #region 更新包材内示检索表
+        public void updateSearchTable(List<Dictionary<string, Object>> listInfoData,string strUserID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            
+            for (int i = 0; i < listInfoData.Count; i++)
+            {
+                string strFaBuTime = listInfoData[i]["dFaBuTime"].ToString().Replace("/","-");
+                strSql.AppendLine("      update TPackSearch set dFirstDownload = case when dFirstDownload is null then GETDATE() else dFirstDownload END        ");
+                strSql.AppendLine("      ,vcOperatorID = '"+strUserID+"'       ");
+                strSql.AppendLine("      ,dOperatorTime = GETDATE()       ");
+                strSql.AppendLine("      where dFaBuTime = '"+strFaBuTime+"'       ");
+            }
+            excute.ExcuteSqlWithStringOper(strSql.ToString());
         }
         #endregion
 

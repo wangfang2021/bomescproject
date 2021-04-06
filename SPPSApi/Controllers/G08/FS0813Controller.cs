@@ -144,7 +144,7 @@ namespace SPPSApi.Controllers.G08
             {
                 DataTable dt = fs0813_Logic.Search(strSellNo, strStartTime, strEndTime, strYinQuType,strSHF,strLabelID);
                 string[] heads = { "引取类别","便次", "销售单号","器具数量", "卡车号", "生成时间","传送人"};
-                string[] fields = { "vcYinQuTypeName","vcBianCi", "vcSellNo", "iQuantity", "vcTruckNo", "dOperatorTime", "vcSender" };
+                string[] fields = { "vcYinQuTypeName","vcBianCi", "vcSellNo", "iToolQuantity", "vcTruckNo", "dOperatorTime", "vcSender" };
                 string strMsg = "";
                 string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")

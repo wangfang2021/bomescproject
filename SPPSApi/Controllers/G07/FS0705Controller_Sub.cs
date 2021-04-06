@@ -117,7 +117,7 @@ namespace SPPSApi.Controllers.G07
                 dtConverter.addField("selected", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dTime", ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
 
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
 
@@ -211,7 +211,6 @@ namespace SPPSApi.Controllers.G07
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
 
-
             try
             {
                 JArray listInfo = dataForm.multipleSelection;
@@ -231,29 +230,84 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "最少有一个编辑行！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-                //开始数据验证
-                if (hasFind)
-                {
-                    string[,] strField = new string[,] {{"品番"    ,"GPS品番"    ,"调整数量"        ,"调整时间"     ,"调整原因"},
-                                                        {"vcPackNo","vcPackGPSNo","iNumber"         ,"dTime"        ,"vcReason"},
-                                                        {""        ,""           ,FieldCheck.Decimal,FieldCheck.Date,""        },
-                                                        {"0"       ,"0"          ,"0"               ,"0"            ,"0"       },//最大长度设定,不校验最大长度用0
-                                                        {"1"       ,"1"          ,"1"               ,"1"            ,"1"       },//最小长度设定,可以为空用0                         
-                                                        {"1"       ,"2"          ,"3"               ,"4"            ,"5"       }//前台显示列号，从0开始计算,注意有选择框的是0
-                    };
-                    //需要判断时间区间先后关系的字段
-                    string[,] strDateRegion = null;
-                    string[,] strSpecialCheck = null;
 
-                    List<Object> checkRes = ListChecker.validateList(listInfoData, strField, strDateRegion, strSpecialCheck, true, "FS0312");
-                    if (checkRes != null)
+                #region 校验输入数据合法性
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if (listInfoData[i]["vcPackGPSNo"]==null || listInfoData[i]["vcPackGPSNo"].ToString().Trim()=="")
                     {
                         apiResult.code = ComConstant.ERROR_CODE;
-                        apiResult.data = checkRes;
-                        apiResult.flag = Convert.ToInt32(ERROR_FLAG.单元格定位提示);
+                        apiResult.data = "GPS品番不能为空";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (listInfoData[i]["iNumber"]==null  || listInfoData[i]["iNumber"].ToString().Trim()=="")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "调整数量不能为空";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    if (listInfoData[i]["vcReason"]==null || listInfoData[i]["vcReason"].ToString().Trim()=="")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "调整原因不能为空";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
                 }
+                #endregion
+                #region 验证数据是否满足保存条件
+                DataTable dt = fs0705_Logic.getIsSave(listInfoData);
+                string str1 = "";       //记录哪些GPS品番在包材基础数据表中不存在
+                string str2 = "";       //记录哪些GPS品番在包材基础数据表中已废止
+                string str3 = "";       //记录哪些GPS品番在包材基础数据表中不属于自动发注品番
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    
+                    if (dt.Rows[i]["IsGPSNo"]==null || dt.Rows[i]["IsGPSNo"].ToString()=="")
+                    {
+                        str1 += dt.Rows[i]["vcPackGPSNo"].ToString() + " ";
+                    }
+                    else
+                    {
+                        /*
+                         * 校验品番是否存活，
+                         * 注：会存在多条
+                         * 包材品番基础表中的数据示例：
+                         * A 2020/1/1 - 2021/1/1
+                         * A 2021/1/2 - 2021
+                         */
+                        if (Convert.ToDateTime(dt.Rows[i]["dPackTo"]) < DateTime.Now || Convert.ToDateTime(dt.Rows[i]["dPackFrom"]) > DateTime.Now)
+                        {
+                            str2 += dt.Rows[i]["vcPackGPSNo"].ToString() + " ";
+                        }
+                        /*
+                         * 校验品番是否是自动发注
+                         */
+                        if (dt.Rows[i]["vcReleaseName"] == null || dt.Rows[i]["vcReleaseName"].ToString() == "")
+                        {
+                            str3 += dt.Rows[i]["vcPackGPSNo"].ToString() + " ";
+                        }
+                    }
+                }
+
+                if (str1!="")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败,以下GPS品番"+str1+"在包材基础信息中不存在";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (str2 != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败,以下GPS品番" + str1 + "已经废止";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (str3 != "")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "保存失败,以下GPS品番" + str1 + "不是自动发注品番";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                #endregion
 
                 fs0705_Logic.Save_Sub(listInfoData, loginInfo.UserId);
 

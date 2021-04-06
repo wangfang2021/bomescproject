@@ -108,7 +108,7 @@ namespace DataAccess
                 {
                     strSql.Append("      and vcSupplier_id like '"+ strSupplier_id + "%'   ");
                 }
-                strSql.Append("     order by vcPart_id,dSSDate desc    \n");
+                strSql.Append("     order by dSSDate desc,vcPart_id    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString(),"TK");
             }
             catch (Exception ex)

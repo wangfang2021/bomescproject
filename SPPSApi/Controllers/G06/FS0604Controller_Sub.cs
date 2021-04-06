@@ -242,6 +242,15 @@ namespace SPPSApi.Controllers.G06
                             dataRow["vcMessage"] = "供应商" + strSupplier + "在供应商表中邮箱信息不存在，请维护邮箱";
                             dtMessage.Rows.Add(dataRow);
                             bReault = false;
+
+                            DataRow[] drArray = dt.Select("vcSupplier_id='" + strSupplier + "' ");
+                            DataTable dtNewSupplierand = drArray[0].Table.Clone(); // 复制DataRow的表结构
+                            string msg = string.Empty;
+                            foreach (DataRow dr in drArray)
+                            {
+                                dtNewSupplierand.ImportRow(dr);
+                            }
+                            fs0604_Logic.hZZK(dtNewSupplierand, dExpectDeliveryDate, loginInfo.UserId);
                         }
                         else {
                             DataRow[] drArray = dt.Select("vcSupplier_id='" + strSupplier + "' ");

@@ -742,7 +742,7 @@ namespace Common
                 #region 校验格式
 
                 for (int i = 0; i < data.Rows.Count; i++)
-                { 
+                {
                     DataRow dr = data.Rows[i];
                     for (int j = 0; j < Header.GetLength(1); j++)
                     {
@@ -1310,7 +1310,7 @@ namespace Common
         #region 导出带模板
         public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName)
         {
-            return generateExcelWithXlt(dt, field, rootPath, xltName, startRow, strUserId, strFunctionName,false);
+            return generateExcelWithXlt(dt, field, rootPath, xltName, startRow, strUserId, strFunctionName, false);
         }
 
         public static string generateExcelWithXlt(DataTable dt, string[] field, string rootPath, string xltName, int startRow, string strUserId, string strFunctionName, bool isAlignCenter)
@@ -1570,7 +1570,7 @@ namespace Common
                 System.Data.DataTable dt = new System.Data.DataTable();
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("   select vcName,vcValue from TCode where vcCodeId='" + strCodeId + "'     \n");
-                if(strCodeId == "C002"|| strCodeId == "C016")//变更事项有排序规定，还有类似的在这加or
+                if (strCodeId == "C002" || strCodeId == "C016")//变更事项有排序规定，还有类似的在这加or
                     strSql.Append("     order by cast(vcMeaning as int) asc     \n");
                 else
                     strSql.Append("     ORDER BY iAutoId    \n");
@@ -1760,6 +1760,59 @@ namespace Common
         }
 
         #endregion
+
+        /// <summary>
+        /// 默认上传文件到116
+        /// </summary>
+        /// <param name="FtpRemotePath">指定FTP连接成功后的当前目录, 如果不指定即默认为根目录</param>
+        /// <param name="filename">源文件完整路径</param>
+        public static void FtpUpload(string FtpRemotePath, string filename)
+        {
+            try
+            {
+                FTPHelper helper = new FTPHelper("172.23.180.116:21111", FtpRemotePath, "Administrator", "TFTMspps116");
+                helper.Upload(filename);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// <summary>
+        /// 下载文件到所选目录
+        /// </summary>
+        /// <param name="FtpRemotePath">指定FTP连接成功后的当前目录, 如果不指定即默认为根目录</param>
+        /// <param name="filePath">文件保存路径</param>
+        /// <param name="fileName">文件名</param>
+        public static string FtpDownload(string FtpRemotePath, string filePath, string fileName)
+        {
+            try
+            {
+                FTPHelper helper = new FTPHelper("172.23.180.116:21111", FtpRemotePath, "Administrator", "TFTMspps116");
+                return helper.Download(filePath, fileName);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 默认连接116Ftp
+        /// </summary>
+        /// <param name="FtpRemotePath">指定FTP连接成功后的当前目录, 如果不指定即默认为根目录</param>
+        public static FTPHelper DefaultFtpHelper(string FtpRemotePath)
+        {
+            try
+            {
+                FTPHelper helper = new FTPHelper("172.23.180.116:21111", FtpRemotePath, "Administrator", "TFTMspps116");
+                return helper;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 

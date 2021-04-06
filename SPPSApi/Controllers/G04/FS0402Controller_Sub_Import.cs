@@ -235,7 +235,7 @@ namespace SPPSApi.Controllers.G04
             DataTable receiverDt = fs0402_Logic.getReciveEmail();
             if (receiverDt.Rows.Count == 0)
             {
-                strMsg = string.Format("tcode(C050)中没有找到收件人信息。");
+                strMsg = string.Format("toutcode(C018)中没有找到收件人信息。");
                 return;
             }
             string strTitle = "FTMS已导入SOQ数据成功";

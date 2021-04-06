@@ -207,7 +207,8 @@ namespace DataAccess
                 }
                 #endregion
                 #region 统一更新需要关联字段：订货频度vcMakingOrderType,车型编码vcCarType
-                sql.Append("update t1 set t1.vcMakingOrderType=t2.vcOrderingMethod,t1.vcCarType=t2.vcCarfamilyCode     \n");
+                sql.Append("update t1 set t1.vcMakingOrderType=ISNULL(t2.vcOrderingMethod,ISNULL(t3.vcOrderingMethod,isnull(t4.vcOrderingMethod,''))),     \n");
+                sql.Append("t1.vcCarType=ISNULL(t2.vcCarfamilyCode,ISNULL(t3.vcCarfamilyCode,isnull(t4.vcCarfamilyCode,'')))    \n");
                 sql.Append("from    \n");
                 sql.Append("(    \n");
                 sql.Append("	select * from TSoqReply     \n");
@@ -217,7 +218,16 @@ namespace DataAccess
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
                 sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='"+ vcReceiver + "' and '" + strDXYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
                 sql.Append(")t2 on t1.vcPart_id=t2.vcPartId    \n");
+                sql.Append("left join(    \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append(")t3 on t1.vcPart_id=t3.vcPartId    \n");
+                sql.Append("left join(    \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcOrderingMethod from TSPMaster     \n");
+                sql.Append("	where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and '" + strNNSYM + "' between convert(varchar(6),dFromTime,112) and convert(varchar(6),dToTime,112)    \n");//TFTM和APC06是写死的
+                sql.Append(")t4 on t1.vcPart_id=t4.vcPartId    \n");
 
+                //N月
                 sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id,t1.vcSR=t6.vcSufferIn    \n");
                 sql.Append("from (    \n");
                 sql.Append("	select * from TSoqReply where vcCLYM='" + strCLYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0'   \n");
@@ -229,22 +239,67 @@ namespace DataAccess
                 sql.Append("left join        \n");
                 sql.Append("(--手配主表        \n");
                 sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
-                sql.Append("	from TSPMaster where vcPackingPlant='"+strUnit+"' and vcReceiver='"+ vcReceiver + "' and dFromTime<>dToTime     \n");
-                sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and t1.vcDXYM between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime     \n");
+                sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and '" + strDXYM + "' between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
                 sql.Append("left join             \n");
                 sql.Append("(    --//受入 N        \n");
                 sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn,dFromTime,dToTime        \n");
                 sql.Append("	from TSPMaster_SufferIn            \n");
                 sql.Append("	where vcOperatorType='1'            \n");
                 sql.Append(")t6 on t3.vcPartId=t6.vcPartId and t3.vcPackingPlant=t6.vcPackingPlant and t3.vcReceiver=t6.vcReceiver and t3.vcSupplierId=t6.vcSupplierId         \n");
-                sql.Append("and t1.vcDXYM between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)      \n");
-                
+                sql.Append("and '" + strDXYM + "' between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)      \n");
+                //N+1月
+                sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id,t1.vcSR=t6.vcSufferIn    \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply where vcCLYM='" + strCLYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0'   \n");
+                sql.Append("    and isnull(vcSR,'')=''      \n");
+                sql.Append(")t1    \n");
+                sql.Append("left join (    \n");
+                sql.Append("	select * from TSoq    \n");
+                sql.Append("	where vcYearMonth='" + strDXYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0'   \n");
+                sql.Append(") t2 on t1.vcPart_id=t2.vcPart_id     \n");
+                sql.Append("left join        \n");
+                sql.Append("(--手配主表        \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime     \n");
+                sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and '" + strNSYM + "' between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
+                sql.Append("left join             \n");
+                sql.Append("(    --//受入 N        \n");
+                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn,dFromTime,dToTime        \n");
+                sql.Append("	from TSPMaster_SufferIn            \n");
+                sql.Append("	where vcOperatorType='1'            \n");
+                sql.Append(")t6 on t3.vcPartId=t6.vcPartId and t3.vcPackingPlant=t6.vcPackingPlant and t3.vcReceiver=t6.vcReceiver and t3.vcSupplierId=t6.vcSupplierId         \n");
+                sql.Append("and '" + strNSYM + "' between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)      \n");
+                //N+2月
+                sql.Append("update t1 set t1.vcSupplier_id=t2.vcSupplier_id,t1.vcSR=t6.vcSufferIn    \n");
+                sql.Append("from (    \n");
+                sql.Append("	select * from TSoqReply where vcCLYM='" + strCLYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0'   \n");
+                sql.Append("    and isnull(vcSR,'')=''      \n");
+                sql.Append(")t1    \n");
+                sql.Append("left join (    \n");
+                sql.Append("	select * from TSoq    \n");
+                sql.Append("	where vcYearMonth='" + strDXYM + "' and vcFZGC='" + strPlant + "' and vcInOutFlag='0'   \n");
+                sql.Append(") t2 on t1.vcPart_id=t2.vcPart_id     \n");
+                sql.Append("left join        \n");
+                sql.Append("(--手配主表        \n");
+                sql.Append("	select vcPartId,vcCarfamilyCode,vcHaoJiu,vcReceiver,vcPackingPlant,vcSupplierId,vcInOut,dFromTime,dToTime         \n");
+                sql.Append("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + vcReceiver + "' and dFromTime<>dToTime     \n");
+                sql.Append(")t3 on t1.vcPart_id=t3.vcPartId and '" + strNNSYM + "' between convert(varchar(6),t3.dFromTime,112) and convert(varchar(6),t3.dToTime,112)        \n");
+                sql.Append("left join             \n");
+                sql.Append("(    --//受入 N        \n");
+                sql.Append("	select vcPartId,vcReceiver,vcPackingPlant,vcSupplierId,vcSufferIn,dFromTime,dToTime        \n");
+                sql.Append("	from TSPMaster_SufferIn            \n");
+                sql.Append("	where vcOperatorType='1'            \n");
+                sql.Append(")t6 on t3.vcPartId=t6.vcPartId and t3.vcPackingPlant=t6.vcPackingPlant and t3.vcReceiver=t6.vcReceiver and t3.vcSupplierId=t6.vcSupplierId         \n");
+                sql.Append("and '" + strNNSYM + "' between convert(varchar(6),t6.dFromTime,112) and convert(varchar(6),t6.dToTime,112)      \n");
+
                 cmd.Connection = conn;
                 cmd.Transaction = st;
                 cmd.CommandText = sql.ToString();
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = 0;
                 cmd.ExecuteNonQuery();
+                sql.Length = 0;
                 #endregion
 
                 #region 删除生产计划相关表
@@ -266,6 +321,7 @@ namespace DataAccess
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandTimeout = 0;
                 cmd.ExecuteNonQuery();
+                sql.Length = 0;
                 #endregion
 
                 st.Commit();

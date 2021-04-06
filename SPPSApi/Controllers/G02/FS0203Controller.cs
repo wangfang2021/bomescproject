@@ -127,29 +127,30 @@ namespace SPPSApi.Controllers.G02
             string carType = dataForm.carType == null ? "" : dataForm.carType;
             try
             {
+                string realPath = ComFunction.FtpDownload("TTCC/SPRL", _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export", carType + ".xlsx");
+                string filepath = System.IO.Path.GetFileName(realPath);
 
-                //转存下载
-                string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
-                                  Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar + carType + ".xlsx";
+                ////转存下载
+                //string realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                //                  Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar + carType + ".xlsx";
 
-                string filepath = "";
-                if (System.IO.File.Exists(realPath))
-                {
-                    filepath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
-                               Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar;
+                //string filepath = "";
+                //if (System.IO.File.Exists(realPath))
+                //{
+                //    filepath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
+                //               Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar + "SPRL" + Path.DirectorySeparatorChar;
 
-                    if (Directory.Exists(filepath))
-                    {
-                        ComFunction.DeleteFolder(filepath);
-                    }
+                //    if (Directory.Exists(filepath))
+                //    {
+                //        ComFunction.DeleteFolder(filepath);
+                //    }
 
-                    Directory.CreateDirectory(filepath);
+                //    Directory.CreateDirectory(filepath);
 
-                    filepath = filepath + System.IO.Path.GetFileName(realPath);
-                    System.IO.File.Copy(realPath, filepath, true);
-                    filepath = "SPRL" + Path.DirectorySeparatorChar + System.IO.Path.GetFileName(realPath);
+                //    filepath = filepath + System.IO.Path.GetFileName(realPath);
+                //    System.IO.File.Copy(realPath, filepath, true);
+                //    filepath = "SPRL" + Path.DirectorySeparatorChar + System.IO.Path.GetFileName(realPath);
 
-                }
 
 
 

@@ -1025,7 +1025,7 @@ namespace DataAccess
         }
         #endregion
 
-        #region 返回用户邮箱
+        #region 返回发件人邮箱
         public DataTable getEmail(string strSendUserId)
         {
             try
@@ -1047,7 +1047,7 @@ namespace DataAccess
             try
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("select vcName as address,vcMeaning as displayName from TCode where vcCodeId='C050'");
+                sql.Append("select vcValue2 as address,vcValue1 as displayName from TOutCode where vcCodeId='C018' and vcIsColum='0' ");
                 return excute.ExcuteSqlWithSelectToDT(sql.ToString());
             }
             catch (Exception ex)

@@ -127,7 +127,7 @@ namespace SPPSApi.Controllers.G06
         #region 生成SOQReply
         [HttpPost]
         [EnableCors("any")]
-        public string createApi_test([FromBody] dynamic data)
+        public string ShengChengApi([FromBody] dynamic data)
         {
             //验证是否登录
             string strToken = Request.Headers["X-Token"];

@@ -401,7 +401,7 @@ namespace SPPSApi.Controllers.G17
                     string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
                     var binding = new BasicHttpBinding();
                     //根据 WebService 的 URL 构建终端点对象
-                    var endpoint = new EndpointAddress(@"http://172.23.164.28/WebAPI/WebServiceAPI.asmx");
+                    var endpoint = new EndpointAddress(@"http://172.23.238.171/WebAPI/WebServiceAPI.asmx");
                     //创建调用接口的工厂，注意这里泛型只能传入接口
                     var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
                     //从工厂获取具体的调用实例

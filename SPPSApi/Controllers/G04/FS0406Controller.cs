@@ -85,7 +85,8 @@ namespace SPPSApi.Controllers.G04
             string vcType = dataForm.vcType == null ? "" : dataForm.vcType;
             string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
             string start = dataForm.start == null ? "" : dataForm.start;
-            string end = dataForm.end == null ? "" : dataForm.end;
+            string end = "";
+            //string end = dataForm.end == null ? "" : dataForm.end;
 
             try
             {

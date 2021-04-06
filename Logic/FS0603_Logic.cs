@@ -74,6 +74,27 @@ namespace Logic
             }
             return dataTable;
         }
+        public DataTable getChildInfo(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+            string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, string strOrderingMethod, string strMandOrder, string strSPChild, string strshoupei)
+        {
+            DataTable dtChildInfo = new DataTable();
+            if (strshoupei == "gq")
+            {
+                dtChildInfo = fs0603_DataAccess.getChildInfo_gq(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck, strOrderby, strOrderingMethod, strMandOrder, strSPChild);
+            }
+            if (strshoupei == "sr")
+            {
+                dtChildInfo = fs0603_DataAccess.getChildInfo_sr(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck, strOrderby, strOrderingMethod, strMandOrder, strSPChild);
+            }
+            if (strshoupei == "hz")
+            {
+                dtChildInfo = fs0603_DataAccess.getChildInfo_hz(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, strPackingPlant, bCheck, strOrderby, strOrderingMethod, strMandOrder, strSPChild);
+            }
+            return dtChildInfo;
+        }
         public void deleteInfo(List<Dictionary<string, Object>> listInfoData, string strOperId)
         {
             fs0603_DataAccess.deleteInfo(listInfoData, strOperId);
@@ -802,6 +823,466 @@ namespace Logic
                 throw ex;
             }
         }
+        public DataTable checkFileInfo(DataTable dataTable, string strshoupei, string[,] Header, int heardrow, int datarow, ref bool bReault, ref DataTable dtMessage)
+        {
+            try
+            {
+                int count = dataTable.Rows.Count;
+                for (int i = count - 1; i >= 0; i--)
+                {
+                    if (dataTable.Rows[i]["vcType"].ToString().Trim() == "")
+                        dataTable.Rows.RemoveAt(i);
+                }
+                DataTable dtSPInfo = getChildInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "", strshoupei);
+                DataTable dtImport = dtSPInfo.Clone();
+                dtImport.Columns.Add("vcType");
+                #region 检验数据重复性及数据格式
+                for (int i = 0; i < dataTable.Rows.Count; i++)
+                {
+                    string strType = dataTable.Rows[i]["vcType"].ToString().Trim();
+                    string strPackingPlant = dataTable.Rows[i]["vcPackingPlant"].ToString().Trim();
+                    string strPartId = dataTable.Rows[i]["vcPartId"].ToString().Trim();
+                    string strReceiver = dataTable.Rows[i]["vcReceiver"].ToString().Trim();
+                    string strSupplierId = dataTable.Rows[i]["vcSupplierId"].ToString().Trim();
+                    string strLINID = dataTable.Rows[i]["LINID"].ToString().Trim() == "" ? "0" : dataTable.Rows[i]["LINID"].ToString().Trim();
+                    if (strPackingPlant == "" || strPartId == "" || strReceiver == "" || strSupplierId == "")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报主Key存在空值禁止操作", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (strType == "新增")
+                    {
+                    }
+                    if (strType == "修改" || strType == "删除")
+                    {
+                        if (strLINID == "0")
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报隐藏ID列为空", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                }
+                #endregion
+
+                if (dtMessage == null || dtMessage.Rows.Count == 0)
+                {
+                    for (int i = 0; i < dataTable.Rows.Count; i++)
+                    {
+                        DataRow drImport = dtImport.NewRow();
+                        string strType = dataTable.Rows[i]["vcType"].ToString().Trim();
+                        drImport["vcType"] = strType;
+                        //包装工厂
+                        string strPackingPlant = dataTable.Rows[i]["vcPackingPlant"].ToString().Trim();
+                        drImport["vcPackingPlant"] = strPackingPlant;
+                        //品番
+                        string strPartId = dataTable.Rows[i]["vcPartId"].ToString().Trim();
+                        drImport["vcPartId"] = strPartId;
+                        //收货方
+                        string strReceiver = dataTable.Rows[i]["vcReceiver"].ToString().Trim();
+                        drImport["vcReceiver"] = strReceiver;
+                        #region 开始时间
+                        string strFromTime = dataTable.Rows[i]["dFromTime"].ToString().Trim();
+                        if (!ComFunction.CheckDate(strFromTime))
+                        {
+                            strFromTime = "";
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报开始时间格式不正确", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        else
+                            strFromTime = Convert.ToDateTime(strFromTime).ToString("yyyy-MM-dd");
+                        drImport["dFromTime"] = strFromTime;
+                        #endregion
+                        #region 结束时间
+                        string strToTime = dataTable.Rows[i]["dToTime"].ToString().Trim();
+                        if (strToTime != "")
+                        {
+                            if (!ComFunction.CheckDate(strFromTime))
+                            {
+                                strToTime = "";
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报结束时间格式不正确", i + 1);
+                                dtMessage.Rows.Add(dataRow);
+                            }
+                            else
+                                strToTime = Convert.ToDateTime(strToTime).ToString("yyyy-MM-dd");
+                        }
+                        else
+                            strToTime = "9999-12-31";
+                        drImport["dToTime"] = strToTime;
+                        if (strFromTime != ""
+                                && strToTime != ""
+                                && Convert.ToDateTime(strFromTime) > Convert.ToDateTime(strToTime))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报开始时间大于结束时间", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        #endregion
+                        //供应商
+                        string strSupplierId = dataTable.Rows[i]["vcSupplierId"].ToString().Trim();
+                        drImport["vcSupplierId"] = strSupplierId;
+                        #region 工区
+                        if (strshoupei == "gq")
+                        {
+                            string strLINID = dataTable.Rows[i]["LINID"].ToString().Trim() == "" ? "0" : dataTable.Rows[i]["LINID"].ToString().Trim();
+                            string strSupplierPlant_ed = dataTable.Rows[i]["SupplierPlant_ed"].ToString().Trim();
+                            string strSupplierPlantFromTime_ed = dataTable.Rows[i]["SupplierPlantFromTime_ed"].ToString().Trim();
+                            string strSupplierPlantToTime_ed = dataTable.Rows[i]["SupplierPlantToTime_ed"].ToString().Trim();
+                            if (strType == "新增")
+                            {
+                                if (strSupplierPlantFromTime_ed == "")
+                                    strSupplierPlantFromTime_ed = Convert.ToDateTime(strFromTime).ToString("yyyy-MM-dd");
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSupplierPlantFromTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区-开始时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSupplierPlantFromTime_ed = Convert.ToDateTime(strSupplierPlantFromTime_ed).ToString("yyyy-MM-dd");
+                                }
+                                if (strSupplierPlantToTime_ed == "")
+                                    strSupplierPlantToTime_ed = Convert.ToDateTime(strToTime).ToString("yyyy-MM-dd");
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSupplierPlantToTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区-结束时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSupplierPlantToTime_ed = Convert.ToDateTime(strSupplierPlantToTime_ed).ToString("yyyy-MM-dd");
+                                }
+                            }
+                            if (strType == "修改")
+                            {
+                                if (strSupplierPlantFromTime_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区-开始时间不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSupplierPlantFromTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区-开始时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSupplierPlantFromTime_ed = Convert.ToDateTime(strSupplierPlantFromTime_ed).ToString("yyyy-MM-dd");
+                                }
+                                if (strSupplierPlantToTime_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区-结束时间不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSupplierPlantToTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区-结束时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSupplierPlantToTime_ed = Convert.ToDateTime(strSupplierPlantToTime_ed).ToString("yyyy-MM-dd");
+                                }
+                            }
+                            if (strType == "新增" || strType == "修改")
+                            {
+                                if (strSupplierPlantFromTime_ed != ""
+                                && strSupplierPlantToTime_ed != ""
+                                && Convert.ToDateTime(strSupplierPlantFromTime_ed) > Convert.ToDateTime(strSupplierPlantToTime_ed))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区-开始时间大于工区-开始时间", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (strSupplierPlant_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                            }
+                            drImport["SupplierPlantLinId_ed"] = strLINID;
+                            drImport["SupplierPlant_ed"] = strSupplierPlant_ed;
+                            drImport["SupplierPlantFromTime_ed"] = strSupplierPlantFromTime_ed;
+                            drImport["SupplierPlantToTime_ed"] = strSupplierPlantToTime_ed;
+                        }
+                        #endregion
+
+                        #region 收容数
+                        if (strshoupei == "hz")
+                        {
+                            string strLINID = dataTable.Rows[i]["LINID"].ToString().Trim() == "" ? "0" : dataTable.Rows[i]["LINID"].ToString().Trim();
+                            string strBoxPackingQty_ed = dataTable.Rows[i]["BoxPackingQty_ed"].ToString().Trim();
+                            string strBoxFromTime_ed = dataTable.Rows[i]["BoxFromTime_ed"].ToString().Trim();
+                            string strBoxToTime_ed = dataTable.Rows[i]["BoxToTime_ed"].ToString().Trim();
+                            string strBoxType_ed = dataTable.Rows[i]["BoxType_ed"].ToString().Trim();
+                            string strBoxLength_ed = dataTable.Rows[i]["BoxLength_ed"].ToString().Trim() == "" ? "0" : dataTable.Rows[i]["BoxLength_ed"].ToString().Trim();
+                            string strBoxWidth_ed = dataTable.Rows[i]["BoxWidth_ed"].ToString().Trim() == "" ? "0" : dataTable.Rows[i]["BoxWidth_ed"].ToString().Trim();
+                            string strBoxHeight_ed = dataTable.Rows[i]["BoxHeight_ed"].ToString().Trim() == "" ? "0" : dataTable.Rows[i]["BoxHeight_ed"].ToString().Trim();
+                            string strBoxVolume_ed = dataTable.Rows[i]["BoxVolume_ed"].ToString().Trim();
+                            if (strType == "新增")
+                            {
+                                if (strBoxFromTime_ed == "")
+                                    strBoxFromTime_ed =Convert.ToDateTime(strFromTime).ToString("yyyy-MM-dd");
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strBoxFromTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数-开始时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strBoxFromTime_ed = Convert.ToDateTime(strBoxFromTime_ed).ToString("yyyy-MM-dd");
+                                }
+                                if (strBoxToTime_ed == "")
+                                    strBoxToTime_ed = Convert.ToDateTime(strToTime).ToString("yyyy-MM-dd");
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strBoxToTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数-结束时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strBoxToTime_ed = Convert.ToDateTime(strBoxToTime_ed).ToString("yyyy-MM-dd");
+                                }
+                            }
+                            if (strType == "修改")
+                            {
+                                if (strBoxFromTime_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数-开始时间不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strBoxFromTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数-开始时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strBoxFromTime_ed = Convert.ToDateTime(strBoxFromTime_ed).ToString("yyyy-MM-dd");
+                                }
+                                if (strBoxToTime_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数-结束时间不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strBoxToTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数-结束时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strBoxToTime_ed = Convert.ToDateTime(strBoxToTime_ed).ToString("yyyy-MM-dd");
+                                }
+                            }
+                            if (strType == "新增" || strType == "修改")
+                            {
+                                if (strBoxFromTime_ed != ""
+                                && strBoxToTime_ed != ""
+                                && Convert.ToDateTime(strBoxFromTime_ed) > Convert.ToDateTime(strBoxToTime_ed))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报荷姿-开始时间大于工区-开始时间", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (strBoxPackingQty_ed == "" || strBoxPackingQty_ed == "0")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (!ComFunction.CheckDecimal(strBoxPackingQty_ed))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数格式不正确", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (strBoxType_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报箱种信息不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (!ComFunction.CheckDecimal(strBoxLength_ed))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报箱种长格式不正确", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (!ComFunction.CheckDecimal(strBoxWidth_ed))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报箱种宽格式不正确", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (!ComFunction.CheckDecimal(strBoxHeight_ed))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报箱种高格式不正确", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (ComFunction.CheckDecimal(strBoxLength_ed) && ComFunction.CheckDecimal(strBoxWidth_ed) && ComFunction.CheckDecimal(strBoxHeight_ed))
+                                {
+                                    strBoxVolume_ed = ((Convert.ToInt32(strBoxLength_ed) / 1000.0) * (Convert.ToInt32(strBoxWidth_ed) / 1000.0) * (Convert.ToInt32(strBoxHeight_ed) / 1000.0)).ToString("#.0000");
+                                }
+                            }
+                            drImport["BoxLinId_ed"] = strLINID;
+                            drImport["BoxPackingQty_ed"] = strBoxPackingQty_ed == "" ? "0" : strBoxPackingQty_ed;
+                            drImport["BoxFromTime_ed"] = strBoxFromTime_ed;
+                            drImport["BoxToTime_ed"] = strBoxToTime_ed;
+                            drImport["BoxType_ed"] = strBoxType_ed;
+                            drImport["BoxLength_ed"] = strBoxLength_ed == "" ? "0" : strBoxLength_ed;
+                            drImport["BoxWidth_ed"] = strBoxWidth_ed == "" ? "0" : strBoxWidth_ed;
+                            drImport["BoxHeight_ed"] = strBoxHeight_ed == "" ? "0" : strBoxHeight_ed;
+                            drImport["BoxVolume_ed"] = strBoxVolume_ed == "" ? "0" : strBoxVolume_ed;
+                        }
+
+                        #endregion
+
+                        #region 受入
+                        if (strshoupei == "sr")
+                        {
+                            string strLINID = dataTable.Rows[i]["LINID"].ToString().Trim() == "" ? "0" : dataTable.Rows[i]["LINID"].ToString().Trim();
+                            string strSufferIn_ed = dataTable.Rows[i]["SufferIn_ed"].ToString().Trim();
+                            string strSufferInFromTime_ed = dataTable.Rows[i]["SufferInFromTime_ed"].ToString().Trim();
+                            string strSufferInToTime_ed = dataTable.Rows[i]["SufferInToTime_ed"].ToString().Trim();
+                            if (strType == "新增")
+                            {
+                                if (strSufferInFromTime_ed == "")
+                                    strSufferInFromTime_ed =  Convert.ToDateTime(strFromTime).ToString("yyyy-MM-dd");
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSufferInFromTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入-开始时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSufferInFromTime_ed = Convert.ToDateTime(strSufferInFromTime_ed).ToString("yyyy-MM-dd");
+                                }
+                                if (strSufferInToTime_ed == "")
+                                    strSufferInToTime_ed =  Convert.ToDateTime(strToTime).ToString("yyyy-MM-dd");
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSufferInToTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入-结束时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSufferInToTime_ed = Convert.ToDateTime(strSufferInToTime_ed).ToString("yyyy-MM-dd");
+                                }
+                            }
+                            if (strType == "修改")
+                            {
+                                if (strSufferInFromTime_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入-开始时间不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSufferInFromTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入-开始时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSufferInFromTime_ed = Convert.ToDateTime(strSufferInFromTime_ed).ToString("yyyy-MM-dd");
+                                }
+                                if (strSufferInToTime_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入-结束时间不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                else
+                                {
+                                    if (!ComFunction.CheckDate(strSufferInToTime_ed))
+                                    {
+                                        DataRow dataRow = dtMessage.NewRow();
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入-结束时间格式不正确", i + 1);
+                                        dtMessage.Rows.Add(dataRow);
+                                    }
+                                    else
+                                        strSufferInToTime_ed = Convert.ToDateTime(strSufferInToTime_ed).ToString("yyyy-MM-dd");
+                                }
+                            }
+                            if (strType == "新增" || strType == "修改")
+                            {
+                                if (strSufferInFromTime_ed != ""
+                                && strSufferInToTime_ed != ""
+                                && Convert.ToDateTime(strSufferInFromTime_ed) > Convert.ToDateTime(strSufferInToTime_ed))
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入-开始时间大于工区-开始时间", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                                if (strSufferIn_ed == "")
+                                {
+                                    DataRow dataRow = dtMessage.NewRow();
+                                    dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入不能为空", i + 1);
+                                    dtMessage.Rows.Add(dataRow);
+                                }
+                            }
+                            drImport["SufferInLinId_ed"] = strLINID;
+                            drImport["SufferIn_ed"] = strSufferIn_ed;
+                            drImport["SufferInFromTime_ed"] = strSufferInFromTime_ed;
+                            drImport["SufferInToTime_ed"] = strSufferInToTime_ed;
+                        }
+                        #endregion
+                        dtImport.Rows.Add(drImport);
+                    }
+                    if (dtMessage == null || dtMessage.Rows.Count == 0)
+                    {
+                        bReault = true;
+                        return dtImport;
+                    }
+                    else
+                    {
+                        bReault = false;
+                        return null;
+                    }
+                }
+                else
+                {
+                    bReault = false;
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public DataTable checkDataInfo(List<Dictionary<string, Object>> listInfoData, ref bool bReault, ref DataTable dtMessage)
         {
             try
@@ -1136,6 +1617,12 @@ namespace Logic
             DataTable dtOperHistory = createTable("OH");
             //用于更新手配子表--主数据时间变更引起子表变更
             DataTable dtSPChild = createTable("SPChild");
+            //用于强制入力维护--工区
+            DataTable dtChildInfo_gq = createTable("SP");
+            //用于强制入力维护--受入
+            DataTable dtChildInfo_sr = createTable("SI");
+            //用于强制入力维护--荷姿
+            DataTable dtChildInfo_hz = createTable("PQ");
             for (int i = 0; i < dtImport.Rows.Count; i++)
             {
                 string strType = dtImport.Rows[i]["vcType"].ToString();//新增、修改、删除
@@ -1374,7 +1861,7 @@ namespace Logic
                     #endregion
 
                     #region 判断是否有变更
-                    if (dtOperHistory.Select("vcPackingPlant='"+ strPackingPlant + "' and vcPartId='"+ strPartId + "' and vcReceiver='"+ strReceiver + "' and vcSupplierId='"+ strSupplierId + "'").Length==0)
+                    if (dtOperHistory.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'").Length == 0)
                     {
                         DataRow dataRow = dtMessage.NewRow();
                         dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报品番没有变更情报", i + 1);
@@ -2197,7 +2684,473 @@ namespace Logic
             }
             if (dtMessage == null || dtMessage.Rows.Count == 0)
             {
-                fs0603_DataAccess.setSPInfo(dtAddInfo, dtModInfo, dtDelInfo, dtModInfo_SP, dtModInfo_PQ, dtModInfo_SI, dtModInfo_OP, dtOperHistory, dtSPChild,
+                fs0603_DataAccess.setSPInfo(dtAddInfo, dtModInfo, dtDelInfo, dtModInfo_SP, dtModInfo_PQ, dtModInfo_SI, dtModInfo_OP, dtOperHistory, dtSPChild, dtChildInfo_gq, dtChildInfo_sr, dtChildInfo_hz,
+                    strOperId, ref dtMessage);
+            }
+        }
+        public void setSPInfo(DataTable dtImport, string strshoupei, string strOperId, ref DataTable dtMessage)
+        {
+            //用于检查变更情况
+            DataTable dtOperCheck = getChildInfo("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", true, "", "", "", "", strshoupei);
+            //用于新增数据
+            DataTable dtAddInfo = dtOperCheck.Clone();
+            //用于修改数据--修改主数据表
+            DataTable dtModInfo = dtOperCheck.Clone();
+            //用于删除数据--删除主数据表
+            DataTable dtDelInfo = dtOperCheck.Clone();
+            //用于修改数据--修改工区数据表
+            DataTable dtModInfo_SP = createTable("SP");
+            //用于修改数据--修改收容数数据表
+            DataTable dtModInfo_PQ = createTable("PQ");
+            //用于修改数据--修改受入数据表
+            DataTable dtModInfo_SI = createTable("SI");
+            //用于修改数据--修改发注工厂数据表
+            DataTable dtModInfo_OP = createTable("OP");
+            //用于记录修改履历
+            DataTable dtOperHistory = createTable("OH");
+            //用于更新手配子表--主数据时间变更引起子表变更
+            DataTable dtSPChild = createTable("SPChild");
+            //用于强制入力维护--工区
+            DataTable dtChildInfo_gq = createTable("SP");
+            //用于强制入力维护--受入
+            DataTable dtChildInfo_sr = createTable("SI");
+            //用于强制入力维护--荷姿
+            DataTable dtChildInfo_hz = createTable("PQ");
+            for (int i = 0; i < dtImport.Rows.Count; i++)
+            {
+                string strType = dtImport.Rows[i]["vcType"].ToString();//新增、修改、删除
+                if (strType == "新增")
+                {
+                    string strPackingPlant = dtImport.Rows[i]["vcPackingPlant"].ToString().Trim();
+                    string strPartId = dtImport.Rows[i]["vcPartId"].ToString().Trim();
+                    string strReceiver = dtImport.Rows[i]["vcReceiver"].ToString().Trim();
+                    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString().Trim();
+
+                    #region 子表-工区
+                    if (strshoupei == "gq")
+                    {
+                        string strSupplierPlantLinId_ed = dtImport.Rows[i]["SupplierPlantLinId_ed"].ToString();
+                        string strSupplierPlant_ed = dtImport.Rows[i]["SupplierPlant_ed"].ToString();
+                        string strSupplierPlantFromTime_ed = dtImport.Rows[i]["SupplierPlantFromTime_ed"].ToString();
+                        string strSupplierPlantToTime_ed = dtImport.Rows[i]["SupplierPlantToTime_ed"].ToString();
+                        if (dtOperCheck.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "' and SupplierPlant_ed='" + strSupplierPlant_ed + "' and SupplierPlantFromTime_ed='" + strSupplierPlantFromTime_ed.Replace("-", "/") + "' and SupplierPlantToTime_ed='" + strSupplierPlantToTime_ed.Replace("-", "/") + "'").Length == 0)
+                        {
+                            #region AddNewRow
+                            DataRow drChildInfo_gq = dtChildInfo_gq.NewRow();
+                            drChildInfo_gq["LinId"] = "";
+                            drChildInfo_gq["vcPackingPlant"] = strPackingPlant;
+                            drChildInfo_gq["vcPartId"] = strPartId;
+                            drChildInfo_gq["vcReceiver"] = strReceiver;
+                            drChildInfo_gq["vcSupplierId"] = strSupplierId;
+                            drChildInfo_gq["dFromTime"] = strSupplierPlantFromTime_ed;
+                            drChildInfo_gq["dToTime"] = strSupplierPlantToTime_ed;
+                            drChildInfo_gq["vcSupplierPlant"] = strSupplierPlant_ed;
+                            drChildInfo_gq["status"] = "add";
+                            drChildInfo_gq["error"] = "";
+                            dtChildInfo_gq.Rows.Add(drChildInfo_gq);
+                            #endregion
+                            #region HistoryNewRow
+                            DataRow drOperHistory = dtOperHistory.NewRow();
+                            drOperHistory["vcPackingPlant"] = strPackingPlant;
+                            drOperHistory["vcPartId"] = strPartId;
+                            drOperHistory["vcReceiver"] = strReceiver;
+                            drOperHistory["vcSupplierId"] = strSupplierId;
+                            drOperHistory["vcChangeItem"] = "工区强制入力";
+                            drOperHistory["vcAction"] = "工区增加:" + strSupplierPlant_ed;
+                            drOperHistory["vcActionTime"] = "使用开始：" + strSupplierPlantFromTime_ed + "；使用结束：" + strSupplierPlantToTime_ed;
+                            drOperHistory["error"] = "";
+                            dtOperHistory.Rows.Add(drOperHistory);
+                            #endregion
+                        }
+                        else
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报工区已经存在不能重复添加", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    #endregion
+
+                    #region 子表-收容数
+                    if (strshoupei == "hz")
+                    {
+                        string strBoxLinId_ed = dtImport.Rows[i]["BoxLinId_ed"].ToString();
+                        string strBoxPackingQty_ed = dtImport.Rows[i]["BoxPackingQty_ed"].ToString();
+                        string strBoxFromTime_ed = dtImport.Rows[i]["BoxFromTime_ed"].ToString();
+                        string strBoxToTime_ed = dtImport.Rows[i]["BoxToTime_ed"].ToString();
+                        string strBoxType_ed = dtImport.Rows[i]["BoxType_ed"].ToString();
+                        string strBoxLength_ed = dtImport.Rows[i]["BoxLength_ed"].ToString();
+                        string strBoxWidth_ed = dtImport.Rows[i]["BoxWidth_ed"].ToString();
+                        string strBoxHeight_ed = dtImport.Rows[i]["BoxHeight_ed"].ToString();
+                        string strBoxVolume_ed = dtImport.Rows[i]["BoxVolume_ed"].ToString();
+                        if (dtOperCheck.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "' and BoxPackingQty_ed='" + strBoxPackingQty_ed + "' and BoxType_ed='" + strBoxType_ed + "' and SupplierPlantFromTime_ed='" + strBoxFromTime_ed.Replace("-", "/") + "' and SupplierPlantToTime_ed='" + strBoxToTime_ed.Replace("-", "/") + "'").Length == 0)
+                        {
+                            #region AddNewRow
+                            DataRow drChildInfo_hz = dtChildInfo_hz.NewRow();
+                            drChildInfo_hz["LinId"] = "";
+                            drChildInfo_hz["vcPackingPlant"] = strPackingPlant;
+                            drChildInfo_hz["vcPartId"] = strPartId;
+                            drChildInfo_hz["vcReceiver"] = strReceiver;
+                            drChildInfo_hz["vcSupplierId"] = strSupplierId;
+                            drChildInfo_hz["dFromTime"] = strBoxFromTime_ed;
+                            drChildInfo_hz["dToTime"] = strBoxToTime_ed;
+                            drChildInfo_hz["iPackingQty"] = strBoxPackingQty_ed;
+                            drChildInfo_hz["vcBoxType"] = strBoxType_ed;
+                            drChildInfo_hz["iLength"] = strBoxLength_ed;
+                            drChildInfo_hz["iWidth"] = strBoxWidth_ed;
+                            drChildInfo_hz["iHeight"] = strBoxHeight_ed;
+                            drChildInfo_hz["iVolume"] = strBoxVolume_ed;
+                            drChildInfo_hz["status"] = "add";
+                            drChildInfo_hz["error"] = "";
+                            dtChildInfo_hz.Rows.Add(drChildInfo_hz);
+                            #endregion
+                            #region HistoryNewRow
+                            DataRow drOperHistory = dtOperHistory.NewRow();
+                            drOperHistory["vcPackingPlant"] = strPackingPlant;
+                            drOperHistory["vcPartId"] = strPartId;
+                            drOperHistory["vcReceiver"] = strReceiver;
+                            drOperHistory["vcSupplierId"] = strSupplierId;
+                            drOperHistory["vcChangeItem"] = "收容数强制入力";
+                            drOperHistory["vcAction"] = "收容数增加:" + strBoxPackingQty_ed + "；箱种:" + strBoxType_ed + "；长:" + strBoxLength_ed + "；宽:" + strBoxWidth_ed + "；高:" + strBoxHeight_ed + "；体积:" + strBoxVolume_ed;
+                            drOperHistory["vcActionTime"] = "使用开始：" + strBoxFromTime_ed + "；使用结束：" + strBoxToTime_ed;
+                            drOperHistory["error"] = "";
+                            dtOperHistory.Rows.Add(drOperHistory);
+                            #endregion
+                        }
+                        else
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报收容数已经存在不能重复添加", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    #endregion
+
+                    #region 子表-受入
+                    if (strshoupei == "sr")
+                    {
+                        string strSufferInLinId_ed = dtImport.Rows[i]["SufferInLinId_ed"].ToString();
+                        string strSufferIn_ed = dtImport.Rows[i]["SufferIn_ed"].ToString();
+                        string strSufferInFromTime_ed = dtImport.Rows[i]["SufferInFromTime_ed"].ToString();
+                        string strSufferInToTime_ed = dtImport.Rows[i]["SufferInToTime_ed"].ToString();
+                        if (dtOperCheck.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "' and SufferIn_ed='" + strSufferIn_ed + "' and SufferInFromTime_ed='" + strSufferInFromTime_ed.Replace("-", "/") + "' and SufferInToTime_ed='" + strSufferInToTime_ed.Replace("-", "/") + "'").Length == 0)
+                        {
+                            #region AddNewRow
+                            DataRow drChildInfo_sr = dtChildInfo_sr.NewRow();
+                            drChildInfo_sr["LinId"] = "";
+                            drChildInfo_sr["vcPackingPlant"] = strPackingPlant;
+                            drChildInfo_sr["vcPartId"] = strPartId;
+                            drChildInfo_sr["vcReceiver"] = strReceiver;
+                            drChildInfo_sr["vcSupplierId"] = strSupplierId;
+                            drChildInfo_sr["dFromTime"] = strSufferInFromTime_ed;
+                            drChildInfo_sr["dToTime"] = strSufferInToTime_ed;
+                            drChildInfo_sr["vcSufferIn"] = strSufferIn_ed;
+                            drChildInfo_sr["status"] = "add";
+                            drChildInfo_sr["error"] = "";
+                            dtChildInfo_sr.Rows.Add(drChildInfo_sr);
+                            #endregion
+                            #region HistoryNewRow
+                            DataRow drOperHistory = dtOperHistory.NewRow();
+                            drOperHistory["vcPackingPlant"] = strPackingPlant;
+                            drOperHistory["vcPartId"] = strPartId;
+                            drOperHistory["vcReceiver"] = strReceiver;
+                            drOperHistory["vcSupplierId"] = strSupplierId;
+                            drOperHistory["vcChangeItem"] = "受入强制入力";
+                            drOperHistory["vcAction"] = "受入增加:" + strSufferIn_ed;
+                            drOperHistory["vcActionTime"] = "使用开始：" + strSufferInFromTime_ed + "；使用结束：" + strSufferInToTime_ed;
+                            drOperHistory["error"] = "";
+                            dtOperHistory.Rows.Add(drOperHistory);
+                            #endregion
+                        }
+                        else
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报受入已经存在不能重复添加", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    #endregion
+
+                    #region 判断是否有变更
+                    if (dtOperHistory.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'").Length == 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报手配没有变更情报", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    #endregion
+                }
+                if (strType == "修改")
+                {
+                    string strPackingPlant = dtImport.Rows[i]["vcPackingPlant"].ToString().Trim();
+                    string strPartId = dtImport.Rows[i]["vcPartId"].ToString().Trim();
+                    string strReceiver = dtImport.Rows[i]["vcReceiver"].ToString().Trim();
+                    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString().Trim();
+                    #region 子表-工区
+                    if (strshoupei == "gq")
+                    {
+                        string strSupplierPlantLinId_ed = dtImport.Rows[i]["SupplierPlantLinId_ed"].ToString();
+                        string strSupplierPlant_ed = dtImport.Rows[i]["SupplierPlant_ed"].ToString();
+                        string strSupplierPlantFromTime_ed = dtImport.Rows[i]["SupplierPlantFromTime_ed"].ToString();
+                        string strSupplierPlantToTime_ed = dtImport.Rows[i]["SupplierPlantToTime_ed"].ToString();
+                        #region AddNewRow
+                        DataRow drChildInfo_gq = dtChildInfo_gq.NewRow();
+                        drChildInfo_gq["LinId"] = strSupplierPlantLinId_ed;
+                        drChildInfo_gq["vcPackingPlant"] = strPackingPlant;
+                        drChildInfo_gq["vcPartId"] = strPartId;
+                        drChildInfo_gq["vcReceiver"] = strReceiver;
+                        drChildInfo_gq["vcSupplierId"] = strSupplierId;
+                        drChildInfo_gq["dFromTime"] = strSupplierPlantFromTime_ed;
+                        drChildInfo_gq["dToTime"] = strSupplierPlantToTime_ed;
+                        drChildInfo_gq["vcSupplierPlant"] = strSupplierPlant_ed;
+                        drChildInfo_gq["status"] = "mod";
+                        drChildInfo_gq["error"] = "";
+                        dtChildInfo_gq.Rows.Add(drChildInfo_gq);
+                        #endregion
+                        #region HistoryNewRow
+                        DataRow drOperHistory = dtOperHistory.NewRow();
+                        drOperHistory["vcPackingPlant"] = strPackingPlant;
+                        drOperHistory["vcPartId"] = strPartId;
+                        drOperHistory["vcReceiver"] = strReceiver;
+                        drOperHistory["vcSupplierId"] = strSupplierId;
+                        drOperHistory["vcChangeItem"] = "工区强制入力";
+                        drOperHistory["vcAction"] = "工区修改:" + strSupplierPlant_ed;
+                        drOperHistory["vcActionTime"] = "使用开始：" + strSupplierPlantFromTime_ed + "；使用结束：" + strSupplierPlantToTime_ed;
+                        drOperHistory["error"] = "";
+                        dtOperHistory.Rows.Add(drOperHistory);
+                        #endregion
+                    }
+                    #endregion
+
+                    #region 子表-收容数
+                    if (strshoupei == "hz")
+                    {
+                        string strBoxLinId_ed = dtImport.Rows[i]["BoxLinId_ed"].ToString();
+                        string strBoxPackingQty_ed = dtImport.Rows[i]["BoxPackingQty_ed"].ToString();
+                        string strBoxFromTime_ed = dtImport.Rows[i]["BoxFromTime_ed"].ToString();
+                        string strBoxToTime_ed = dtImport.Rows[i]["BoxToTime_ed"].ToString();
+                        string strBoxType_ed = dtImport.Rows[i]["BoxType_ed"].ToString();
+                        string strBoxLength_ed = dtImport.Rows[i]["BoxLength_ed"].ToString();
+                        string strBoxWidth_ed = dtImport.Rows[i]["BoxWidth_ed"].ToString();
+                        string strBoxHeight_ed = dtImport.Rows[i]["BoxHeight_ed"].ToString();
+                        string strBoxVolume_ed = dtImport.Rows[i]["BoxVolume_ed"].ToString();
+                        #region AddNewRow
+                        DataRow drChildInfo_hz = dtChildInfo_hz.NewRow();
+                        drChildInfo_hz["LinId"] = strBoxLinId_ed;
+                        drChildInfo_hz["vcPackingPlant"] = strPackingPlant;
+                        drChildInfo_hz["vcPartId"] = strPartId;
+                        drChildInfo_hz["vcReceiver"] = strReceiver;
+                        drChildInfo_hz["vcSupplierId"] = strSupplierId;
+                        drChildInfo_hz["dFromTime"] = strBoxFromTime_ed;
+                        drChildInfo_hz["dToTime"] = strBoxToTime_ed;
+                        drChildInfo_hz["iPackingQty"] = strBoxPackingQty_ed;
+                        drChildInfo_hz["vcBoxType"] = strBoxType_ed;
+                        drChildInfo_hz["iLength"] = strBoxLength_ed;
+                        drChildInfo_hz["iWidth"] = strBoxWidth_ed;
+                        drChildInfo_hz["iHeight"] = strBoxHeight_ed;
+                        drChildInfo_hz["iVolume"] = strBoxVolume_ed;
+                        drChildInfo_hz["status"] = "mod";
+                        drChildInfo_hz["error"] = "";
+                        dtChildInfo_hz.Rows.Add(drChildInfo_hz);
+                        #endregion
+                        #region HistoryNewRow
+                        DataRow drOperHistory = dtOperHistory.NewRow();
+                        drOperHistory["vcPackingPlant"] = strPackingPlant;
+                        drOperHistory["vcPartId"] = strPartId;
+                        drOperHistory["vcReceiver"] = strReceiver;
+                        drOperHistory["vcSupplierId"] = strSupplierId;
+                        drOperHistory["vcChangeItem"] = "收容数强制入力";
+                        drOperHistory["vcAction"] = "收容数修改:" + strBoxPackingQty_ed + "；箱种:" + strBoxType_ed + "；长:" + strBoxLength_ed + "；宽:" + strBoxWidth_ed + "；高:" + strBoxHeight_ed + "；体积:" + strBoxVolume_ed;
+                        drOperHistory["vcActionTime"] = "使用开始：" + strBoxFromTime_ed + "；使用结束：" + strBoxToTime_ed;
+                        drOperHistory["error"] = "";
+                        dtOperHistory.Rows.Add(drOperHistory);
+                        #endregion
+                    }
+                    #endregion
+
+                    #region 子表-受入
+                    if (strshoupei == "sr")
+                    {
+                        string strSufferInLinId_ed = dtImport.Rows[i]["SufferInLinId_ed"].ToString();
+                        string strSufferIn_ed = dtImport.Rows[i]["SufferIn_ed"].ToString();
+                        string strSufferInFromTime_ed = dtImport.Rows[i]["SufferInFromTime_ed"].ToString();
+                        string strSufferInToTime_ed = dtImport.Rows[i]["SufferInToTime_ed"].ToString();
+                        #region AddNewRow
+                        DataRow drChildInfo_sr = dtChildInfo_sr.NewRow();
+                        drChildInfo_sr["LinId"] = strSufferInLinId_ed;
+                        drChildInfo_sr["vcPackingPlant"] = strPackingPlant;
+                        drChildInfo_sr["vcPartId"] = strPartId;
+                        drChildInfo_sr["vcReceiver"] = strReceiver;
+                        drChildInfo_sr["vcSupplierId"] = strSupplierId;
+                        drChildInfo_sr["dFromTime"] = strSufferInFromTime_ed;
+                        drChildInfo_sr["dToTime"] = strSufferInToTime_ed;
+                        drChildInfo_sr["vcSufferIn"] = strSufferIn_ed;
+                        drChildInfo_sr["status"] = "mod";
+                        drChildInfo_sr["error"] = "";
+                        dtChildInfo_sr.Rows.Add(drChildInfo_sr);
+                        #endregion
+                        #region HistoryNewRow
+                        DataRow drOperHistory = dtOperHistory.NewRow();
+                        drOperHistory["vcPackingPlant"] = strPackingPlant;
+                        drOperHistory["vcPartId"] = strPartId;
+                        drOperHistory["vcReceiver"] = strReceiver;
+                        drOperHistory["vcSupplierId"] = strSupplierId;
+                        drOperHistory["vcChangeItem"] = "受入强制入力";
+                        drOperHistory["vcAction"] = "受入修改:" + strSufferIn_ed;
+                        drOperHistory["vcActionTime"] = "使用开始：" + strSufferInFromTime_ed + "；使用结束：" + strSufferInToTime_ed;
+                        drOperHistory["error"] = "";
+                        dtOperHistory.Rows.Add(drOperHistory);
+                        #endregion
+                    }
+                    #endregion
+
+                    #region 判断是否有变更
+                    if (dtOperHistory.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'").Length == 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报手配没有变更情报", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    #endregion
+                }
+                if (strType == "删除")
+                {
+                    string strPackingPlant = dtImport.Rows[i]["vcPackingPlant"].ToString().Trim();
+                    string strPartId = dtImport.Rows[i]["vcPartId"].ToString().Trim();
+                    string strReceiver = dtImport.Rows[i]["vcReceiver"].ToString().Trim();
+                    string strSupplierId = dtImport.Rows[i]["vcSupplierId"].ToString().Trim();
+                    #region 子表-工区
+                    if (strshoupei == "gq")
+                    {
+                        string strSupplierPlantLinId_ed = dtImport.Rows[i]["SupplierPlantLinId_ed"].ToString();
+                        string strSupplierPlant_ed = dtImport.Rows[i]["SupplierPlant_ed"].ToString();
+                        string strSupplierPlantFromTime_ed = dtImport.Rows[i]["SupplierPlantFromTime_ed"].ToString();
+                        string strSupplierPlantToTime_ed = dtImport.Rows[i]["SupplierPlantToTime_ed"].ToString();
+                        #region AddNewRow
+                        DataRow drChildInfo_gq = dtChildInfo_gq.NewRow();
+                        drChildInfo_gq["LinId"] = strSupplierPlantLinId_ed;
+                        drChildInfo_gq["vcPackingPlant"] = strPackingPlant;
+                        drChildInfo_gq["vcPartId"] = strPartId;
+                        drChildInfo_gq["vcReceiver"] = strReceiver;
+                        drChildInfo_gq["vcSupplierId"] = strSupplierId;
+                        drChildInfo_gq["dFromTime"] = strSupplierPlantFromTime_ed;
+                        drChildInfo_gq["dToTime"] = strSupplierPlantToTime_ed;
+                        drChildInfo_gq["vcSupplierPlant"] = strSupplierPlant_ed;
+                        drChildInfo_gq["status"] = "del";
+                        drChildInfo_gq["error"] = "";
+                        dtChildInfo_gq.Rows.Add(drChildInfo_gq);
+                        #endregion
+                        #region HistoryNewRow
+                        DataRow drOperHistory = dtOperHistory.NewRow();
+                        drOperHistory["vcPackingPlant"] = strPackingPlant;
+                        drOperHistory["vcPartId"] = strPartId;
+                        drOperHistory["vcReceiver"] = strReceiver;
+                        drOperHistory["vcSupplierId"] = strSupplierId;
+                        drOperHistory["vcChangeItem"] = "工区强制入力";
+                        drOperHistory["vcAction"] = "工区删除:" + strSupplierPlant_ed;
+                        drOperHistory["vcActionTime"] = "使用开始：" + strSupplierPlantFromTime_ed + "；使用结束：" + strSupplierPlantToTime_ed;
+                        drOperHistory["error"] = "";
+                        dtOperHistory.Rows.Add(drOperHistory);
+                        #endregion
+                    }
+                    #endregion
+
+                    #region 子表-收容数
+                    if (strshoupei == "hz")
+                    {
+                        string strBoxLinId_ed = dtImport.Rows[i]["BoxLinId_ed"].ToString();
+                        string strBoxPackingQty_ed = dtImport.Rows[i]["BoxPackingQty_ed"].ToString();
+                        string strBoxFromTime_ed = dtImport.Rows[i]["BoxFromTime_ed"].ToString();
+                        string strBoxToTime_ed = dtImport.Rows[i]["BoxToTime_ed"].ToString();
+                        string strBoxType_ed = dtImport.Rows[i]["BoxType_ed"].ToString();
+                        string strBoxLength_ed = dtImport.Rows[i]["BoxLength_ed"].ToString();
+                        string strBoxWidth_ed = dtImport.Rows[i]["BoxWidth_ed"].ToString();
+                        string strBoxHeight_ed = dtImport.Rows[i]["BoxHeight_ed"].ToString();
+                        string strBoxVolume_ed = dtImport.Rows[i]["BoxVolume_ed"].ToString();
+                        #region AddNewRow
+                        DataRow drChildInfo_hz = dtChildInfo_hz.NewRow();
+                        drChildInfo_hz["LinId"] = strBoxLinId_ed;
+                        drChildInfo_hz["vcPackingPlant"] = strPackingPlant;
+                        drChildInfo_hz["vcPartId"] = strPartId;
+                        drChildInfo_hz["vcReceiver"] = strReceiver;
+                        drChildInfo_hz["vcSupplierId"] = strSupplierId;
+                        drChildInfo_hz["dFromTime"] = strBoxFromTime_ed;
+                        drChildInfo_hz["dToTime"] = strBoxToTime_ed;
+                        drChildInfo_hz["iPackingQty"] = strBoxPackingQty_ed;
+                        drChildInfo_hz["vcBoxType"] = strBoxType_ed;
+                        drChildInfo_hz["iLength"] = strBoxLength_ed;
+                        drChildInfo_hz["iWidth"] = strBoxWidth_ed;
+                        drChildInfo_hz["iHeight"] = strBoxHeight_ed;
+                        drChildInfo_hz["iVolume"] = strBoxVolume_ed;
+                        drChildInfo_hz["status"] = "del";
+                        drChildInfo_hz["error"] = "";
+                        dtChildInfo_hz.Rows.Add(drChildInfo_hz);
+                        #endregion
+                        #region HistoryNewRow
+                        DataRow drOperHistory = dtOperHistory.NewRow();
+                        drOperHistory["vcPackingPlant"] = strPackingPlant;
+                        drOperHistory["vcPartId"] = strPartId;
+                        drOperHistory["vcReceiver"] = strReceiver;
+                        drOperHistory["vcSupplierId"] = strSupplierId;
+                        drOperHistory["vcChangeItem"] = "收容数强制入力";
+                        drOperHistory["vcAction"] = "收容数删除:" + strBoxPackingQty_ed + "；箱种:" + strBoxType_ed + "；长:" + strBoxLength_ed + "；宽:" + strBoxWidth_ed + "；高:" + strBoxHeight_ed + "；体积:" + strBoxVolume_ed;
+                        drOperHistory["vcActionTime"] = "使用开始：" + strBoxFromTime_ed + "；使用结束：" + strBoxToTime_ed;
+                        drOperHistory["error"] = "";
+                        dtOperHistory.Rows.Add(drOperHistory);
+                        #endregion
+                    }
+                    #endregion
+
+                    #region 子表-受入
+                    if (strshoupei == "sr")
+                    {
+                        string strSufferInLinId_ed = dtImport.Rows[i]["SufferInLinId_ed"].ToString();
+                        string strSufferIn_ed = dtImport.Rows[i]["SufferIn_ed"].ToString();
+                        string strSufferInFromTime_ed = dtImport.Rows[i]["SufferInFromTime_ed"].ToString();
+                        string strSufferInToTime_ed = dtImport.Rows[i]["SufferInToTime_ed"].ToString();
+                        #region AddNewRow
+                        DataRow drChildInfo_sr = dtChildInfo_sr.NewRow();
+                        drChildInfo_sr["LinId"] = strSufferInLinId_ed;
+                        drChildInfo_sr["vcPackingPlant"] = strPackingPlant;
+                        drChildInfo_sr["vcPartId"] = strPartId;
+                        drChildInfo_sr["vcReceiver"] = strReceiver;
+                        drChildInfo_sr["vcSupplierId"] = strSupplierId;
+                        drChildInfo_sr["dFromTime"] = strSufferInFromTime_ed;
+                        drChildInfo_sr["dToTime"] = strSufferInToTime_ed;
+                        drChildInfo_sr["vcSufferIn"] = strSufferIn_ed;
+                        drChildInfo_sr["status"] = "del";
+                        drChildInfo_sr["error"] = "";
+                        dtChildInfo_sr.Rows.Add(drChildInfo_sr);
+                        #endregion
+                        #region HistoryNewRow
+                        DataRow drOperHistory = dtOperHistory.NewRow();
+                        drOperHistory["vcPackingPlant"] = strPackingPlant;
+                        drOperHistory["vcPartId"] = strPartId;
+                        drOperHistory["vcReceiver"] = strReceiver;
+                        drOperHistory["vcSupplierId"] = strSupplierId;
+                        drOperHistory["vcChangeItem"] = "受入强制入力";
+                        drOperHistory["vcAction"] = "受入删除:" + strSufferIn_ed;
+                        drOperHistory["vcActionTime"] = "使用开始：" + strSufferInFromTime_ed + "；使用结束：" + strSufferInToTime_ed;
+                        drOperHistory["error"] = "";
+                        dtOperHistory.Rows.Add(drOperHistory);
+                        #endregion
+                    }
+                    #endregion
+
+                    #region 判断是否有变更
+                    if (dtOperHistory.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "'").Length == 0)
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报手配没有变更情报", i + 1);
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    #endregion
+                }
+
+            }
+            if (dtMessage == null || dtMessage.Rows.Count == 0)
+            {
+                fs0603_DataAccess.setSPInfo(dtAddInfo, dtModInfo, dtDelInfo, dtModInfo_SP, dtModInfo_PQ, dtModInfo_SI, dtModInfo_OP, dtOperHistory, dtSPChild, dtChildInfo_gq, dtChildInfo_sr, dtChildInfo_hz,
                     strOperId, ref dtMessage);
             }
         }
@@ -2864,6 +3817,16 @@ namespace Logic
                 dataTable.Columns.Add("vcPackUnLock", typeof(string));
                 dataTable.Columns.Add("vcOutPut", typeof(string));
                 dataTable.Columns.Add("vcOutPutUnLock", typeof(string));
+            }
+            if (strSpSub == "Power1310")
+            {
+                dataTable.Columns.Add("LinId", typeof(string));
+                dataTable.Columns.Add("vcPlant", typeof(string));
+                dataTable.Columns.Add("vcPartId", typeof(string));
+                dataTable.Columns.Add("vcPicUrl", typeof(string));
+                dataTable.Columns.Add("vcPicPath", typeof(string));
+                dataTable.Columns.Add("vcPicUrlUUID", typeof(string));
+                dataTable.Columns.Add("vcNote", typeof(string));
             }
             if (strSpSub == "SOQ602")
             {

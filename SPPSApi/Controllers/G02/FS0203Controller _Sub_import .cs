@@ -69,7 +69,7 @@ namespace SPPSApi.Controllers.G02
                         if (list.Count > 0)
                         {
                             fs0203_logic.importPartList(list, info.Name, loginInfo.UserId);
-                            SaveFile(fileSavePath + info.Name, "PartList");
+                            SaveFile(fileSavePath, "PartList");
                         }
                     }
 
@@ -111,7 +111,7 @@ namespace SPPSApi.Controllers.G02
                             importDt.ImportRow(row);
                         }
                         fs0203_logic.importSPRL(importDt, info.Name, loginInfo.UserId);
-                        SaveFile(fileSavePath + info.Name, "SPRL");
+                        SaveFile(fileSavePath, "SPRL");
                     }
                     ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
 
@@ -214,16 +214,13 @@ namespace SPPSApi.Controllers.G02
         {
             try
             {
-                string fileSavePath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" +
-                                      Path.DirectorySeparatorChar + "TTCC" + Path.DirectorySeparatorChar + Type + Path.DirectorySeparatorChar;
 
-                if (Directory.Exists(fileSavePath) == false)
+                DirectoryInfo theFolder = new DirectoryInfo(filePath);
+
+                foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    Directory.CreateDirectory(fileSavePath);
+                    ComFunction.FtpUpload("TTCC" + Path.DirectorySeparatorChar + Type, info.FullName);
                 }
-
-                fileSavePath = fileSavePath + Path.GetFileName(filePath);
-                System.IO.File.Copy(filePath, fileSavePath, true);
 
             }
             catch (Exception ex)

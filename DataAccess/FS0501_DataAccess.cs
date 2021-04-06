@@ -568,36 +568,36 @@ namespace DataAccess
                 #endregion
 
                 #region 验证5：是否有价格，且在有效期内(只判断N月)，数量为0不校验；如果是强制订货，则没有价格也可以
-                sql.Length = 0;
-                sql.AppendLine("select * from ");
-                sql.AppendLine("(");
-                sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
-                sql.AppendLine("	,case when item=1 then iCbSOQN");
-                sql.AppendLine("	  when item=2 then iCbSOQN1");
-                sql.AppendLine("	  when item=3 then iCbSOQN2");
-                sql.AppendLine("	  else 0  end as iCbSOQN");
-                sql.AppendLine("	,case when item=1 then iTzhSOQN");
-                sql.AppendLine("		  when item=2 then iTzhSOQN1");
-                sql.AppendLine("		  when item=3 then iTzhSOQN2");
-                sql.AppendLine("		  else 0  end as iTzhSOQN");
-                sql.AppendLine("	from");
-                sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
-                sql.AppendLine("	left join");
-                sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
-                sql.AppendLine(")t1");
-                sql.AppendLine("left join");
-                sql.AppendLine("(--手配主表");
-                sql.AppendLine("	select vcPartId,vcSupplierId,vcMandOrder,dFromTime,dToTime ");
-                sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime ");
-                sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
-                sql.AppendLine("left join     ");
-                sql.AppendLine("(--价格     ");
-                sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd,vcSupplier_id from TPrice     ");
-                sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplier_id and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
-                sql.AppendLine("where item=1 and cast(t1.iTzhSOQN as int) <>0 and t3.vcPart_id is null and isnull(t2.vcMandOrder,'')<>'1' --vcMandOrder='1' 是强制订货");
-                sql.AppendLine("order by t1.vcPart_id,t1.vcYM");
-                DataTable dt5 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
-                ErrorMsg(ref dterrMessage, dtc, dt5, "{0}月没有价格", true);
+                //sql.Length = 0;
+                //sql.AppendLine("select * from ");
+                //sql.AppendLine("(");
+                //sql.AppendLine("	select a.vcYM,a.item,b.vcPart_id,b.vcSupplier_id");
+                //sql.AppendLine("	,case when item=1 then iCbSOQN");
+                //sql.AppendLine("	  when item=2 then iCbSOQN1");
+                //sql.AppendLine("	  when item=3 then iCbSOQN2");
+                //sql.AppendLine("	  else 0  end as iCbSOQN");
+                //sql.AppendLine("	,case when item=1 then iTzhSOQN");
+                //sql.AppendLine("		  when item=2 then iTzhSOQN1");
+                //sql.AppendLine("		  when item=3 then iTzhSOQN2");
+                //sql.AppendLine("		  else 0  end as iTzhSOQN");
+                //sql.AppendLine("	from");
+                //sql.AppendLine("	(select '" + strYearMonth + "' as vcYM ,1 as item union all select '" + strYearMonth_2 + "' as vcYM,2 as item union all select '" + strYearMonth_3 + "' as vcYM,3 as item)a");
+                //sql.AppendLine("	left join");
+                //sql.AppendLine("	(select * from TSoq_temp where vcOperator='" + strUserId + "')b on 1=1");
+                //sql.AppendLine(")t1");
+                //sql.AppendLine("left join");
+                //sql.AppendLine("(--手配主表");
+                //sql.AppendLine("	select vcPartId,vcSupplierId,vcMandOrder,dFromTime,dToTime ");
+                //sql.AppendLine("	from TSPMaster where vcPackingPlant='" + strUnit + "' and vcReceiver='" + strReceiver + "' and dFromTime<>dToTime ");
+                //sql.AppendLine(")t2 on t1.vcPart_id=t2.vcPartId and t1.vcSupplier_id=t2.vcSupplierId and t1.vcYM between convert(varchar(6),t2.dFromTime,112) and convert(varchar(6),t2.dToTime,112)");
+                //sql.AppendLine("left join     ");
+                //sql.AppendLine("(--价格     ");
+                //sql.AppendLine("   select vcPart_id,dPricebegin,dPriceEnd,vcSupplier_id from TPrice     ");
+                //sql.AppendLine(")t3 on t1.vcPart_id=t3.vcPart_id and t1.vcSupplier_id=t3.vcSupplier_id and t1.vcYM between convert(varchar(6),t3.dPricebegin,112) and convert(varchar(6),t3.dPriceEnd,112)   ");
+                //sql.AppendLine("where item=1 and cast(t1.iTzhSOQN as int) <>0 and t3.vcPart_id is null and isnull(t2.vcMandOrder,'')<>'1' --vcMandOrder='1' 是强制订货");
+                //sql.AppendLine("order by t1.vcPart_id,t1.vcYM");
+                //DataTable dt5 = excute.ExcuteSqlWithSelectToDT(sql.ToString());
+                //ErrorMsg(ref dterrMessage, dtc, dt5, "{0}月没有价格", true);
                 #endregion
 
                 #region 验证6：手配中是否有受入、收容数、发注工厂（N、N+1、N+2都判断），数量为0不校验

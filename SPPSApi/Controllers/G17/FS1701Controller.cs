@@ -2,8 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.ServiceModel;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Logic;
 using Microsoft.AspNetCore.Cors;
@@ -13,7 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using WebServiceAPI;
 
 
 namespace SPPSApi.Controllers.G17
@@ -24,6 +27,7 @@ namespace SPPSApi.Controllers.G17
     public class FS1701Controller : BaseController
     {
         FS1701_Logic fs1701_Logic = new FS1701_Logic();
+        FS1702_Logic fs1702_Logic = new FS1702_Logic();
         private readonly string FunctionID = "FS1701";
 
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -283,6 +287,118 @@ namespace SPPSApi.Controllers.G17
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0203", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "删除失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 纳入看板打印
+        [HttpPost]
+        [EnableCors("any")]
+        public string kbPrintApi([FromBody]dynamic data)
+        {
+            //验证是否登录
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            JArray listInfo = dataForm.multipleSelection;
+            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+            try
+            {
+                DataTable dtMessage = fs1702_Logic.createTable("MES");
+                if (listInfoData.Count != 0)
+                {
+                    for (int i = 0; i < listInfoData.Count; i++)
+                    {
+                        string vcLJNo = listInfoData[i]["vcLJNo"] == null ? "" : listInfoData[i]["vcLJNo"].ToString();
+                        if (vcLJNo == "" )
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("零件号码{0}为空，无法打印", vcLJNo);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                    }
+                    if (dtMessage.Rows.Count != 0)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    DataSet dsyushu = new DataSet();
+                    bool bResult = fs1701_Logic.getPrintInfo_kb(listInfoData, loginInfo.UserId, ref dtMessage,ref dsyushu);
+                    if (!bResult)
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #region 调用webApi打印
+                    FS0603_Logic fS0603_Logic = new FS0603_Logic();
+                    string strPrinterName = fS0603_Logic.getPrinterName("FS1701", loginInfo.UserId);
+                    //创建 HTTP 绑定对象
+                    string file_crv = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "CryReports" + Path.DirectorySeparatorChar;
+                    var binding = new BasicHttpBinding();
+                    //根据 WebService 的 URL 构建终端点对象
+                    var endpoint = new EndpointAddress(@"http://172.23.238.171/WebAPI/WebServiceAPI.asmx");
+                    //创建调用接口的工厂，注意这里泛型只能传入接口
+                    var factory = new ChannelFactory<WebServiceAPISoap>(binding, endpoint);
+                    //从工厂获取具体的调用实例
+                    var callClient = factory.CreateChannel();
+                    setCRVPrintRequestBody Body = new setCRVPrintRequestBody();
+                    Body.strCRVName = file_crv + "crv_FS1702_kb_main.rpt";
+                    Body.strScrpit = "select * from tPrintTemp_FS1702_kb_main where vcOperator='" + loginInfo.UserId + "' ORDER BY LinId";
+                    Body.strPrinterName = strPrinterName;
+                    Body.sqlUserID = "sa";
+                    Body.sqlPassword = "SPPS_Server2019";
+                    Body.sqlCatalog = "SPPSdb";
+                    Body.sqlSource = "172.23.238.116";
+                    //调用具体的方法，这里是 HelloWorldAsync 方法
+                    Task<setCRVPrintResponse> responseTask = callClient.setCRVPrintAsync(new setCRVPrintRequest(Body));
+                    //获取结果
+                    setCRVPrintResponse response = responseTask.Result;
+                    if (response.Body.setCRVPrintResult != "打印成功")
+                    {
+                        DataRow dataRow = dtMessage.NewRow();
+                        dataRow["vcMessage"] = "打印失败，请联系管理员进行打印接口故障检查。";
+                        dtMessage.Rows.Add(dataRow);
+                    }
+                    if (dtMessage != null && dtMessage.Rows.Count != 0)
+                    {
+                        //弹出错误dtMessage
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.type = "list";
+                        apiResult.data = dtMessage;
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+                    #endregion
+                    
+                    //更新打印时间
+                    fs1701_Logic.kbPrint(listInfoData, loginInfo.UserId,dsyushu);
+
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = "打印成功";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "未选择有效的打印数据";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "生成印刷文件失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

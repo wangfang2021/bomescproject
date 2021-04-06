@@ -135,8 +135,14 @@ namespace SPPSApi.Controllers.G07
                         strErrorPartId = "纳入统计计算成功！";
                     }
                 }
+                DataTable dt1 = new DataTable();
+                dt1.Columns.Add("vcName", Type.GetType("System.String"));
+                DataRow dr = dt1.NewRow();
+                dr["vcName"] = strErrorPartId;
+                dt1.Rows.Add(dr);
+                List<Object> vcException = ComFunction.convertAllToResult(dt1);//
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                res.Add("strException", strErrorPartId);
+                res.Add("strException", vcException);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -227,13 +233,27 @@ namespace SPPSApi.Controllers.G07
                 DataTable dt = FS0710_Logic.Search_DD(PackSpot, strSupplierCode, dFrom, dTo);
                 //插入临时表
                 string strErrorPartId = "";
-                FS0710_Logic.Save_DD(dt, ref strErrorPartId);
-                if (strErrorPartId == "")
+                if (dt.Rows.Count == 0)
                 {
-                    strErrorPartId = "订单统计计算成功！";
+
+                    strErrorPartId = "订单统计0条！";
                 }
+                else
+                {
+                    FS0710_Logic.Save_DD(dt, ref strErrorPartId);
+                    if (strErrorPartId == "")
+                    {
+                        strErrorPartId = "订单统计计算成功！";
+                    }
+                }
+                DataTable dt1 = new DataTable();
+                dt1.Columns.Add("vcName", Type.GetType("System.String"));
+                DataRow dr = dt1.NewRow();
+                dr["vcName"] = strErrorPartId;
+                dt1.Rows.Add(dr);
+                List<Object> vcException = ComFunction.convertAllToResult(dt1);//
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                res.Add("strException", strErrorPartId);
+                res.Add("strException", vcException);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -275,7 +295,7 @@ namespace SPPSApi.Controllers.G07
 
                 }
                 string[] head = { "供应商", "订单号", "GPS品番", "包材品番", "到货预定日", "到货预订数", "到货日", "到货数" };
-                string[] fields = { "vcSupplieCode", "vcOrderNo", "vcPackGPSNo", "vcPackNo", "dNaRuYuDing", "vcNaRuBianCi", "dNaRuShiJi", "iSJNumber" };
+                string[] fields = { "vcSupplieCode", "vcOrderNo", "vcPackGPSNo", "vcPackNo", "dNaRuYuDing", "iOrderNumber", "dNaRuShiJi", "iSJNumber" };
 
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref resMsg);
                 if (filepath == "")

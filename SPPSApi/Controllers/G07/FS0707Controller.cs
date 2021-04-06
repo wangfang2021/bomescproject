@@ -596,6 +596,12 @@ namespace SPPSApi.Controllers.G07
 
                     dt.Rows[t]["vcNum"] = (t + 1).ToString();
                 }
+                if (dt.Rows.Count==0) {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请重新计算";
+                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 FS0707_Logic.Save(dt,loginInfo.UserId, ref strErrorPartId,strBegin, strEnd, strFromBeginBZ, strFromEndBZ, strKind, OrderState);
                 if (strErrorPartId != "")
                 {

@@ -221,7 +221,7 @@ namespace SPPSApi.Controllers.G07
 
                     //判断对应逻辑下是否有重叠时间
                     #region 判断对应逻辑下是否有重叠时间
-                    DataTable dtLJtime = FS0704_Logic.SearchLJTime(listInfoData[i]["vcFaZhu"].ToString(), listInfoData[i]["iAutoId"].ToString());
+                    DataTable dtLJtime = FS0704_Logic.SearchLJTime(listInfoData[i]["vcFaZhuID"].ToString(), listInfoData[i]["iAutoId"].ToString());
 
 
                     DateTime dRuHeFromDay = DateTime.Parse(listInfoData[i]["dRuHeFromTime"].ToString());
@@ -245,19 +245,19 @@ namespace SPPSApi.Controllers.G07
                         if (!(dRuHeFromDay < dRuHeFromDay1 && dRuHeToDay < dRuHeFromDay1) || !(dRuHeFromDay > dRuHeToDay1 && dRuHeToDay > dRuHeToDay1))
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = listInfoData[i]["vcFaZhu"].ToString()+"部品入荷时间有重叠";
+                            apiResult.data = listInfoData[i]["vcFaZhuID"].ToString()+"部品入荷时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                         if (!(dFaZhuFromDay < dFaZhuFromDay1 && dFaZhuToDay < dFaZhuFromDay1) || !(dFaZhuFromDay > dFaZhuToDay1 && dFaZhuToDay > dFaZhuToDay1))
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = listInfoData[i]["vcFaZhu"].ToString() + "发注作业时间有重叠";
+                            apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "发注作业时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                         if (!(dNaQiFromDay < dNaQiFromDay1 && dNaQiToDay < dNaQiFromDay1) || !(dNaQiFromDay > dNaQiToDay1 && dNaQiToDay > dNaQiToDay1))
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
-                            apiResult.data = listInfoData[i]["vcFaZhu"].ToString() + "部品入荷时间有重叠";
+                            apiResult.data = listInfoData[i]["vcFaZhuID"].ToString() + "部品入荷时间有重叠";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }

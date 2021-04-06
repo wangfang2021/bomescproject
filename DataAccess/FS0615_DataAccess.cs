@@ -25,7 +25,10 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("select vcOrderNo, b.vcName vcOrderState, dUploadDate, a.vcMemo, a.iAutoId from TOrderUploadManage a ");
+                strSql.AppendLine("select vcOrderNo, b.vcName vcOrderState, dUploadDate, ");
+                strSql.AppendLine("case a.vcOrderState when '2' then '撤销时间：'+convert(varchar, a.dOperatorTime,20) ");
+                strSql.AppendLine("                    when '3' then '更正时间：'+convert(varchar, a.dOperatorTime,20) ");
+                strSql.AppendLine(" else a.vcMemo end as vcMemo, a.iAutoId from TOrderUploadManage a ");
                 strSql.AppendLine("left join (select * from TCode where vcCodeId='C044') b ");
                 strSql.AppendLine("on a.vcOrderState=b.vcValue where vcOrderType='H' ");
                 if (vcOrderNo.Length > 0)
@@ -36,7 +39,7 @@ namespace DataAccess
                 {
                     strSql.AppendLine(" and vcOrderState='" + vcOrderState + "' ");
                 }
-                strSql.AppendLine(" order by a.dOperatorTime desc ");
+                strSql.AppendLine(" order by a.dOperatorTime desc");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

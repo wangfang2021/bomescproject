@@ -833,7 +833,7 @@ namespace DataAccess
                         DataRow[] arrayDR = tmp2.Select(" vcPart_id = '" + tmp.Rows[i]["vcPartNo"] + "' and vcSR = '" + tmp.Rows[i]["vcDock"] + "' and vcKBOrderNo = '" + tmp.Rows[i]["vcOrderNo"] + "' and vcKBLFNo = '" + tmp.Rows[i]["vcSerial"] + "'  ");
                         if (arrayDR.Length >= 1)
                         {
-                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["DADDTIME"].ToString();
+                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["dStart"].ToString();
                         }
                         else
                         {
@@ -859,7 +859,7 @@ namespace DataAccess
                         DataRow[] arrayDR = tmp2.Select(" vcPart_id = '" + tmp.Rows[i]["vcPartNo"] + "' and vcSR = '" + tmp.Rows[i]["vcDock"] + "' and vcKBOrderNo = '" + tmp.Rows[i]["vcOrderNo"] + "' and vcKBLFNo = '" + tmp.Rows[i]["vcSerial"] + "'  ");
                         if (arrayDR.Length >= 1)
                         {
-                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["DADDTIME"].ToString();
+                            tmp.Rows[i]["vcRealProcTime"] = arrayDR[0]["dStart"].ToString();
                         }
                     }
                 }

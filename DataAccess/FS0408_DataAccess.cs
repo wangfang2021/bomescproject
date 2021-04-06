@@ -44,25 +44,35 @@ namespace DataAccess
                 {
                     if (!string.IsNullOrWhiteSpace(start))
                     {
-                        start = start.Substring(0, 6);
-                        sbr.AppendLine("AND CONVERT(VARCHAR(6),a.dRangeStart,112) >= '" + start + "'");
+                        start = start.Substring(0, 4);
+                        sbr.AppendLine("AND CONVERT(VARCHAR(4),a.dRangeStart,112) = '" + start + "'");
                     }
-                    if (!string.IsNullOrWhiteSpace(end))
-                    {
-                        start = start.Substring(0, 6);
-                        sbr.AppendLine("AND CONVERT(VARCHAR(6),a.dRangeEnd,112) <= '" + end + "'");
-                    }
+                    //if (!string.IsNullOrWhiteSpace(start))
+                    //{
+                    //    start = start.Substring(0, 6);
+                    //    sbr.AppendLine("AND CONVERT(VARCHAR(6),a.dRangeStart,112) >= '" + start + "'");
+                    //}
+                    //if (!string.IsNullOrWhiteSpace(end))
+                    //{
+                    //    start = start.Substring(0, 6);
+                    //    sbr.AppendLine("AND CONVERT(VARCHAR(6),a.dRangeEnd,112) <= '" + end + "'");
+                    //}
                 }
                 else if (vcType == "1")
                 {
                     if (!string.IsNullOrWhiteSpace(start))
                     {
-                        sbr.AppendLine("AND CONVERT(VARCHAR(8),a.dRangeStart,112) >= '" + start + "'");
+                        start = start.Substring(0, 4);
+                        sbr.AppendLine("AND CONVERT(VARCHAR(4),a.dRangeStart,112) = '" + start + "'");
                     }
-                    if (!string.IsNullOrWhiteSpace(end))
-                    {
-                        sbr.AppendLine("AND CONVERT(VARCHAR(8),a.dRangeEnd,112) <= '" + end + "'");
-                    }
+                    //if (!string.IsNullOrWhiteSpace(start))
+                    //{
+                    //    sbr.AppendLine("AND CONVERT(VARCHAR(8),a.dRangeStart,112) >= '" + start + "'");
+                    //}
+                    //if (!string.IsNullOrWhiteSpace(end))
+                    //{
+                    //    sbr.AppendLine("AND CONVERT(VARCHAR(8),a.dRangeEnd,112) <= '" + end + "'");
+                    //}
                 }
                 sbr.AppendLine(" ORDER BY dOperatorTime desc");
                 return excute.ExcuteSqlWithSelectToDT(sbr.ToString());

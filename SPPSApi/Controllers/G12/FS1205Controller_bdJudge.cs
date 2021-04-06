@@ -143,7 +143,7 @@ namespace SPPSApi.Controllers.G12
                     DataTable dt = fS1205_Logic.TXTSearchWeekLevelPercentage(vcMonth, vcWeek, vcPlant);
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        for(int j = 0;j< listInfoData.Count;j++)
+                        for (int j = 0; j < listInfoData.Count; j++)
                         {
                             if (dt.Rows[i]["iAutoId"].ToString() == listInfoData[j]["iAutoId"].ToString())
                                 dt.Rows[i]["vcFlag"] = listInfoData[j]["vcFlag"].ToString();
@@ -273,7 +273,7 @@ namespace SPPSApi.Controllers.G12
                     if (tb != null && tb.Rows.Count > 0)
                     {
                         string[] fields = { "vcMonth", "vcWeek", "vcPartsno", "vcWeekTotal", "vcWeekOrderingCount", "vcWeekLevelPercentage", "vcFlag", "vcQuantityPerContainer", "vcAdjust", "vcMonTotal", "vcRealTotal" };
-                        string filepath = ComFunction.generateExcelWithXlt(tb, fields, _webHostEnvironment.ContentRootPath, "FS1205_Exp.xlsx", 1, loginInfo.UserId, FunctionID);
+                        string filepath = ComFunction.generateExcelWithXlt(tb, fields, _webHostEnvironment.ContentRootPath, "FS1205_Exp.xlsx", 1, loginInfo.UserId, FunctionID, true);
                         if (filepath == "")
                         {
                             apiResult.code = ComConstant.ERROR_CODE;

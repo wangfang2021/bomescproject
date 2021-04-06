@@ -545,6 +545,974 @@ namespace DataAccess
                 throw ex;
             }
         }
+        public DataTable getChildInfo_gq(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+                     string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, string strOrderingMethod, string strMandOrder, string strSPChild)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT  T1.LinId,");
+                strSql.AppendLine("		T1.vcPackingPlant,");
+                strSql.AppendLine("		T1.vcPartId,");
+                strSql.AppendLine("		T1.vcReceiver,");
+                strSql.AppendLine("		Convert(varchar(10),T1.dFromTime,111) as dFromTime,");
+                strSql.AppendLine("		Convert(varchar(10),T1.dToTime,111) as dToTime,");
+                strSql.AppendLine("		T1.vcSupplierId,");
+                strSql.AppendLine("		T2.LinId as SupplierPlantLinId_ed,");
+                strSql.AppendLine("		T2.vcSupplierPlant as SupplierPlant_ed,");
+                strSql.AppendLine("		Convert(varchar(10),T2.dFromTime,111) as SupplierPlantFromTime_ed,");
+                strSql.AppendLine("		Convert(varchar(10),T2.dToTime,111) as SupplierPlantToTime_ed  FROM");
+                strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE 1=1 ");
+                if (!bCheck)
+                {
+                    strSql.AppendLine(" and isnull(vcDelete, '') <> '1'");
+                }
+                if (strSyncTime_from != "" && strSyncTime_to != "")
+                {
+                    strSql.AppendLine("    AND (CONVERT(varchar(10),[dSyncTime],111)>='" + strSyncTime_from + "' AND CONVERT(varchar(10),[dSyncTime],111)<='" + strSyncTime_to + "')");
+                }
+                if (strPackingPlant != "")
+                {
+                    if (strPackingPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcPackingPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcPackingPlant='" + strPackingPlant + "'");
+                    }
+                }
+                if (strChanges != "")
+                {
+                    if (strChanges == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcChanges,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcChanges='" + strChanges + "'");
+                    }
+                }
+                if (strPartId != "")
+                {
+                    strSql.AppendLine("    AND [vcPartId] like '" + strPartId + "%'");
+                }
+                if (strCarModel != "")
+                {
+                    if (strCarModel == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcCarfamilyCode,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcCarfamilyCode]='" + strCarModel + "'");
+                    }
+
+                }
+                if (strReceiver != "")
+                {
+                    if (strReceiver == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcReceiver,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcReceiver]='" + strReceiver + "'");
+                    }
+                }
+                if (strInOut != "")
+                {
+                    if (strInOut == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcInOut,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcInOut]='" + strInOut + "'");
+                    }
+                }
+                if (strHaoJiu != "")
+                {
+                    if (strHaoJiu == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcHaoJiu,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcHaoJiu]='" + strHaoJiu + "'");
+                    }
+                }
+                if (strSupplierId != "")
+                {
+                    if (strSupplierId == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierId,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierId]='" + strSupplierId + "'");
+                    }
+                }
+                if (strFromTime != "")
+                {
+                    if (strFromTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dFromTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dFromTime]='" + strFromTime + "'");
+                    }
+                }
+                if (strToTime != "")
+                {
+                    if (strToTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dToTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dToTime]='" + strToTime + "'");
+                    }
+                }
+                if (strSupplierPacking != "")
+                {
+                    if (strSupplierPacking == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierPacking,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierPacking]='" + strSupplierPacking + "'");
+                    }
+                }
+                if (strOldProduction != "")
+                {
+                    if (strOldProduction == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOldProduction,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOldProduction]='" + strOldProduction + "'");
+                    }
+                }
+                if (strDebugTime != "")
+                {
+                    if (strDebugTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dDebugTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND CONVERT(varchar(7),[dDebugTime],111)='" + strDebugTime + "'");
+                    }
+                }
+                if (strOrderingMethod != "")
+                {
+                    if (strOrderingMethod == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOrderingMethod,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOrderingMethod]='" + strOrderingMethod + "'");
+                    }
+                }
+                if (strMandOrder != "")
+                {
+                    if (strMandOrder == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcMandOrder,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcMandOrder]='" + strMandOrder + "'");
+                    }
+                }
+                strSql.AppendLine("  )T1");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                strSql.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1'");
+                strSql.AppendLine(")T2");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
+                strSql.AppendLine("FROM [TSPMaster_Box] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T3");
+                strSql.AppendLine("ON T3.rank='1' AND T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn");
+                strSql.AppendLine("FROM [TSPMaster_SufferIn] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T4");
+                strSql.AppendLine("ON T4.rank='1' AND T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcSupplierId,vcSupplierPlant order by dFromTime) [rank],");
+                strSql.AppendLine("vcSupplierId,vcSupplierPlant,dFromTime,dToTime,vcOrderPlant");
+                strSql.AppendLine("FROM (select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))a ");
+                strSql.AppendLine("WHERE [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                strSql.AppendLine("ON t5.[rank]='1' AND T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C002')T6--变更事项");
+                strSql.AppendLine("ON T1.vcChanges=T6.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C017')T7--包装工厂");
+                strSql.AppendLine("ON T1.vcPackingPlant=T7.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T8--内外区分");
+                strSql.AppendLine("ON T1.vcInOut=T8.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C012')T9--OE=SP");
+                strSql.AppendLine("ON T1.vcOESP=T9.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T10--号旧区分");
+                strSql.AppendLine("ON T1.vcHaoJiu=T10.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T12--发注工厂");
+                strSql.AppendLine("ON T5.vcOrderPlant=T12.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C007')T13--单据区分");
+                strSql.AppendLine("ON T1.vcBillType=T13.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T14--订货方式");
+                strSql.AppendLine("ON T1.vcOrderingMethod=T14.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C048')T15--强制订货");
+                strSql.AppendLine("ON T1.vcMandOrder=T15.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')T16--供应商包装");
+                strSql.AppendLine("ON T1.vcSupplierPacking=T16.vcValue");
+                strSql.AppendLine("WHERE 1=1");
+                if (strSupplierPlant != "")
+                {
+                    if (strSupplierPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T2.vcSupplierPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T2.vcSupplierPlant='" + strSupplierPlant + "'");
+                    }
+                }
+                if (strOrderPlant != "")
+                {
+                    if (strOrderPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T5.vcOrderPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T5.vcOrderPlant='" + strOrderPlant + "'");
+                    }
+                }
+                if (strSufferIn != "")
+                {
+                    if (strSufferIn == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T4.vcSufferIn,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T4.vcSufferIn='" + strSufferIn + "'");
+                    }
+                }
+                if (strBoxType != "")
+                {
+                    if (strBoxType == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T3.vcBoxType,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T3.vcBoxType like '" + strBoxType + "%'");
+                    }
+                }
+                if (strSPChild != "")
+                {
+                    if (strSPChild == "0")//全部
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='' OR ISNULL(T3.iPackingQty,0)=0 OR ISNULL(T4.vcSufferIn,'')='' OR ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                    if (strSPChild == "1")//工区
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='')");
+                    }
+                    if (strSPChild == "2")//收容数
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T3.iPackingQty,0)=0)");
+                    }
+                    if (strSPChild == "3")//受入
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T4.vcSufferIn,'')='')");
+                    }
+                    if (strSPChild == "4")//发注工场
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                }
+                strSql.AppendLine("ORDER BY T1.LinId,T2.dFromTime");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getChildInfo_hz(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+                     string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, string strOrderingMethod, string strMandOrder, string strSPChild)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT  T1.LinId,");
+                strSql.AppendLine("		T1.vcPackingPlant,");
+                strSql.AppendLine("		T1.vcPartId,");
+                strSql.AppendLine("		T1.vcReceiver,");
+                strSql.AppendLine("		Convert(varchar(10),T1.dFromTime,111) as dFromTime,");
+                strSql.AppendLine("		Convert(varchar(10),T1.dToTime,111) as dToTime,");
+                strSql.AppendLine("		T1.vcSupplierId,");
+                strSql.AppendLine("		T3.LinId as BoxLinId_ed,");
+                strSql.AppendLine("		CAST(T3.iPackingQty AS varchar(10)) AS BoxPackingQty_ed,");
+                strSql.AppendLine("		Convert(varchar(10),T3.dFromTime,111) as BoxFromTime_ed,");
+                strSql.AppendLine("		Convert(varchar(10),T3.dToTime,111) as BoxToTime_ed,");
+                strSql.AppendLine("		T3.vcBoxType as BoxType_ed,T3.iLength as BoxLength_ed,T3.iWidth as BoxWidth_ed,T3.iHeight as BoxHeight_ed,T3.iVolume as BoxVolume_ed  FROM");
+                strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE 1=1 ");
+                if (!bCheck)
+                {
+                    strSql.AppendLine(" and isnull(vcDelete, '') <> '1'");
+                }
+                if (strSyncTime_from != "" && strSyncTime_to != "")
+                {
+                    strSql.AppendLine("    AND (CONVERT(varchar(10),[dSyncTime],111)>='" + strSyncTime_from + "' AND CONVERT(varchar(10),[dSyncTime],111)<='" + strSyncTime_to + "')");
+                }
+                if (strPackingPlant != "")
+                {
+                    if (strPackingPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcPackingPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcPackingPlant='" + strPackingPlant + "'");
+                    }
+                }
+                if (strChanges != "")
+                {
+                    if (strChanges == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcChanges,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcChanges='" + strChanges + "'");
+                    }
+                }
+                if (strPartId != "")
+                {
+                    strSql.AppendLine("    AND [vcPartId] like '" + strPartId + "%'");
+                }
+                if (strCarModel != "")
+                {
+                    if (strCarModel == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcCarfamilyCode,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcCarfamilyCode]='" + strCarModel + "'");
+                    }
+
+                }
+                if (strReceiver != "")
+                {
+                    if (strReceiver == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcReceiver,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcReceiver]='" + strReceiver + "'");
+                    }
+                }
+                if (strInOut != "")
+                {
+                    if (strInOut == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcInOut,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcInOut]='" + strInOut + "'");
+                    }
+                }
+                if (strHaoJiu != "")
+                {
+                    if (strHaoJiu == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcHaoJiu,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcHaoJiu]='" + strHaoJiu + "'");
+                    }
+                }
+                if (strSupplierId != "")
+                {
+                    if (strSupplierId == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierId,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierId]='" + strSupplierId + "'");
+                    }
+                }
+                if (strFromTime != "")
+                {
+                    if (strFromTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dFromTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dFromTime]='" + strFromTime + "'");
+                    }
+                }
+                if (strToTime != "")
+                {
+                    if (strToTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dToTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dToTime]='" + strToTime + "'");
+                    }
+                }
+                if (strSupplierPacking != "")
+                {
+                    if (strSupplierPacking == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierPacking,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierPacking]='" + strSupplierPacking + "'");
+                    }
+                }
+                if (strOldProduction != "")
+                {
+                    if (strOldProduction == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOldProduction,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOldProduction]='" + strOldProduction + "'");
+                    }
+                }
+                if (strDebugTime != "")
+                {
+                    if (strDebugTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dDebugTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND CONVERT(varchar(7),[dDebugTime],111)='" + strDebugTime + "'");
+                    }
+                }
+                if (strOrderingMethod != "")
+                {
+                    if (strOrderingMethod == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOrderingMethod,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOrderingMethod]='" + strOrderingMethod + "'");
+                    }
+                }
+                if (strMandOrder != "")
+                {
+                    if (strMandOrder == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcMandOrder,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcMandOrder]='" + strMandOrder + "'");
+                    }
+                }
+                strSql.AppendLine("  )T1");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                strSql.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T2");
+                strSql.AppendLine("ON T2.rank='1' AND T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
+                strSql.AppendLine("FROM [TSPMaster_Box] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1'");
+                strSql.AppendLine(")T3");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn");
+                strSql.AppendLine("FROM [TSPMaster_SufferIn] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T4");
+                strSql.AppendLine("ON T4.rank='1' AND T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcSupplierId,vcSupplierPlant order by dFromTime) [rank],");
+                strSql.AppendLine("vcSupplierId,vcSupplierPlant,dFromTime,dToTime,vcOrderPlant");
+                strSql.AppendLine("FROM (select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))a ");
+                strSql.AppendLine("WHERE [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                strSql.AppendLine("ON t5.[rank]='1' AND T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C002')T6--变更事项");
+                strSql.AppendLine("ON T1.vcChanges=T6.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C017')T7--包装工厂");
+                strSql.AppendLine("ON T1.vcPackingPlant=T7.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T8--内外区分");
+                strSql.AppendLine("ON T1.vcInOut=T8.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C012')T9--OE=SP");
+                strSql.AppendLine("ON T1.vcOESP=T9.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T10--号旧区分");
+                strSql.AppendLine("ON T1.vcHaoJiu=T10.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T12--发注工厂");
+                strSql.AppendLine("ON T5.vcOrderPlant=T12.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C007')T13--单据区分");
+                strSql.AppendLine("ON T1.vcBillType=T13.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T14--订货方式");
+                strSql.AppendLine("ON T1.vcOrderingMethod=T14.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C048')T15--强制订货");
+                strSql.AppendLine("ON T1.vcMandOrder=T15.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')T16--供应商包装");
+                strSql.AppendLine("ON T1.vcSupplierPacking=T16.vcValue");
+                strSql.AppendLine("WHERE 1=1");
+                if (strSupplierPlant != "")
+                {
+                    if (strSupplierPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T2.vcSupplierPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T2.vcSupplierPlant='" + strSupplierPlant + "'");
+                    }
+                }
+                if (strOrderPlant != "")
+                {
+                    if (strOrderPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T5.vcOrderPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T5.vcOrderPlant='" + strOrderPlant + "'");
+                    }
+                }
+                if (strSufferIn != "")
+                {
+                    if (strSufferIn == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T4.vcSufferIn,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T4.vcSufferIn='" + strSufferIn + "'");
+                    }
+                }
+                if (strBoxType != "")
+                {
+                    if (strBoxType == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T3.vcBoxType,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T3.vcBoxType like '" + strBoxType + "%'");
+                    }
+                }
+                if (strSPChild != "")
+                {
+                    if (strSPChild == "0")//全部
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='' OR ISNULL(T3.iPackingQty,0)=0 OR ISNULL(T4.vcSufferIn,'')='' OR ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                    if (strSPChild == "1")//工区
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='')");
+                    }
+                    if (strSPChild == "2")//收容数
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T3.iPackingQty,0)=0)");
+                    }
+                    if (strSPChild == "3")//受入
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T4.vcSufferIn,'')='')");
+                    }
+                    if (strSPChild == "4")//发注工场
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                }
+                strSql.AppendLine("ORDER BY T1.LinId,T3.dFromTime");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getChildInfo_sr(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
+                     string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, string strOrderingMethod, string strMandOrder, string strSPChild)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("SELECT  T1.LinId,");
+                strSql.AppendLine("		T1.vcPackingPlant,");
+                strSql.AppendLine("		T1.vcPartId,");
+                strSql.AppendLine("		T1.vcReceiver,");
+                strSql.AppendLine("		Convert(varchar(10),T1.dFromTime,111) as dFromTime,");
+                strSql.AppendLine("		Convert(varchar(10),T1.dToTime,111) as dToTime,");
+                strSql.AppendLine("		T1.vcSupplierId,");
+                strSql.AppendLine("		T4.LinId as SufferInLinId_ed,");
+                strSql.AppendLine("		T4.vcSufferIn as SufferIn_ed,");
+                strSql.AppendLine("		Convert(varchar(10),T4.dFromTime,111) as SufferInFromTime_ed,");
+                strSql.AppendLine("		Convert(varchar(10),T4.dToTime,111) as SufferInToTime_ed  FROM");
+                strSql.AppendLine("(SELECT * FROM [TSPMaster] WHERE 1=1 ");
+                if (!bCheck)
+                {
+                    strSql.AppendLine(" and isnull(vcDelete, '') <> '1'");
+                }
+                if (strSyncTime_from != "" && strSyncTime_to != "")
+                {
+                    strSql.AppendLine("    AND (CONVERT(varchar(10),[dSyncTime],111)>='" + strSyncTime_from + "' AND CONVERT(varchar(10),[dSyncTime],111)<='" + strSyncTime_to + "')");
+                }
+                if (strPackingPlant != "")
+                {
+                    if (strPackingPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcPackingPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcPackingPlant='" + strPackingPlant + "'");
+                    }
+                }
+                if (strChanges != "")
+                {
+                    if (strChanges == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcChanges,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND vcChanges='" + strChanges + "'");
+                    }
+                }
+                if (strPartId != "")
+                {
+                    strSql.AppendLine("    AND [vcPartId] like '" + strPartId + "%'");
+                }
+                if (strCarModel != "")
+                {
+                    if (strCarModel == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcCarfamilyCode,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcCarfamilyCode]='" + strCarModel + "'");
+                    }
+
+                }
+                if (strReceiver != "")
+                {
+                    if (strReceiver == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcReceiver,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcReceiver]='" + strReceiver + "'");
+                    }
+                }
+                if (strInOut != "")
+                {
+                    if (strInOut == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcInOut,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcInOut]='" + strInOut + "'");
+                    }
+                }
+                if (strHaoJiu != "")
+                {
+                    if (strHaoJiu == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcHaoJiu,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcHaoJiu]='" + strHaoJiu + "'");
+                    }
+                }
+                if (strSupplierId != "")
+                {
+                    if (strSupplierId == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierId,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierId]='" + strSupplierId + "'");
+                    }
+                }
+                if (strFromTime != "")
+                {
+                    if (strFromTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dFromTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dFromTime]='" + strFromTime + "'");
+                    }
+                }
+                if (strToTime != "")
+                {
+                    if (strToTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dToTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [dToTime]='" + strToTime + "'");
+                    }
+                }
+                if (strSupplierPacking != "")
+                {
+                    if (strSupplierPacking == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcSupplierPacking,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcSupplierPacking]='" + strSupplierPacking + "'");
+                    }
+                }
+                if (strOldProduction != "")
+                {
+                    if (strOldProduction == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOldProduction,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOldProduction]='" + strOldProduction + "'");
+                    }
+                }
+                if (strDebugTime != "")
+                {
+                    if (strDebugTime == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(dDebugTime,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND CONVERT(varchar(7),[dDebugTime],111)='" + strDebugTime + "'");
+                    }
+                }
+                if (strOrderingMethod != "")
+                {
+                    if (strOrderingMethod == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcOrderingMethod,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcOrderingMethod]='" + strOrderingMethod + "'");
+                    }
+                }
+                if (strMandOrder != "")
+                {
+                    if (strMandOrder == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(vcMandOrder,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("    AND [vcMandOrder]='" + strMandOrder + "'");
+                    }
+                }
+                strSql.AppendLine("  )T1");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                strSql.AppendLine("FROM [TSPMaster_SupplierPlant] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T2");
+                strSql.AppendLine("ON T2.rank='1' AND T1.[vcPackingPlant]=T2.[vcPackingPlant] AND T1.[vcPartId]=T2.[vcPartId] AND T1.[vcReceiver]=T2.[vcReceiver] AND T1.[vcSupplierId]=T2.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
+                strSql.AppendLine("FROM [TSPMaster_Box] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1' AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23)");
+                strSql.AppendLine(")T3");
+                strSql.AppendLine("ON T3.rank='1' AND T1.[vcPackingPlant]=T3.[vcPackingPlant] AND T1.[vcPartId]=T3.[vcPartId] AND T1.[vcReceiver]=T3.[vcReceiver] AND T1.[vcSupplierId]=T3.[vcSupplierId]");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn");
+                strSql.AppendLine("FROM [TSPMaster_SufferIn] ");
+                strSql.AppendLine("WHERE [vcOperatorType]='1'");
+                strSql.AppendLine(")T4");
+                strSql.AppendLine("ON T1.[vcPackingPlant]=T4.[vcPackingPlant] AND T1.[vcPartId]=T4.[vcPartId] AND T1.[vcReceiver]=T4.[vcReceiver] AND T1.[vcSupplierId]=T4.[vcSupplierId] ");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT ");
+                strSql.AppendLine("ROW_NUMBER() OVER(partition by vcSupplierId,vcSupplierPlant order by dFromTime) [rank],");
+                strSql.AppendLine("vcSupplierId,vcSupplierPlant,dFromTime,dToTime,vcOrderPlant");
+                strSql.AppendLine("FROM (select vcValue1 as [vcSupplierId],vcValue2 as vcSupplierPlant,vcValue3 as [dFromTime],vcValue4 as [dToTime],vcValue5 as vcOrderPlant from TOutCode where vcCodeId='C010' and vcIsColum='0'");
+                strSql.AppendLine("and vcValue3<=CONVERT(VARCHAR(10),GETDATE(),23) AND vcValue4>=CONVERT(VARCHAR(10),GETDATE(),23))a ");
+                strSql.AppendLine("WHERE [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))T5");
+                strSql.AppendLine("ON t5.[rank]='1' AND T1.[vcSupplierId]=T5.[vcSupplierId] AND T2.vcSupplierPlant=T5.vcSupplierPlant");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C002')T6--变更事项");
+                strSql.AppendLine("ON T1.vcChanges=T6.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C017')T7--包装工厂");
+                strSql.AppendLine("ON T1.vcPackingPlant=T7.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C003')T8--内外区分");
+                strSql.AppendLine("ON T1.vcInOut=T8.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C012')T9--OE=SP");
+                strSql.AppendLine("ON T1.vcOESP=T9.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C004')T10--号旧区分");
+                strSql.AppendLine("ON T1.vcHaoJiu=T10.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C000')T12--发注工厂");
+                strSql.AppendLine("ON T5.vcOrderPlant=T12.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C007')T13--单据区分");
+                strSql.AppendLine("ON T1.vcBillType=T13.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C047')T14--订货方式");
+                strSql.AppendLine("ON T1.vcOrderingMethod=T14.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C048')T15--强制订货");
+                strSql.AppendLine("ON T1.vcMandOrder=T15.vcValue");
+                strSql.AppendLine("LEFT JOIN");
+                strSql.AppendLine("(SELECT vcName,vcValue FROM TCode WHERE vcCodeId='C059')T16--供应商包装");
+                strSql.AppendLine("ON T1.vcSupplierPacking=T16.vcValue");
+                strSql.AppendLine("WHERE 1=1");
+                if (strSupplierPlant != "")
+                {
+                    if (strSupplierPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T2.vcSupplierPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T2.vcSupplierPlant='" + strSupplierPlant + "'");
+                    }
+                }
+                if (strOrderPlant != "")
+                {
+                    if (strOrderPlant == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T5.vcOrderPlant,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T5.vcOrderPlant='" + strOrderPlant + "'");
+                    }
+                }
+                if (strSufferIn != "")
+                {
+                    if (strSufferIn == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T4.vcSufferIn,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T4.vcSufferIn='" + strSufferIn + "'");
+                    }
+                }
+                if (strBoxType != "")
+                {
+                    if (strBoxType == "--")
+                    {
+                        strSql.AppendLine("    AND isnull(T3.vcBoxType,'')=''");
+                    }
+                    else
+                    {
+                        strSql.AppendLine("AND T3.vcBoxType like '" + strBoxType + "%'");
+                    }
+                }
+                if (strSPChild != "")
+                {
+                    if (strSPChild == "0")//全部
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='' OR ISNULL(T3.iPackingQty,0)=0 OR ISNULL(T4.vcSufferIn,'')='' OR ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                    if (strSPChild == "1")//工区
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T2.vcSupplierPlant,'')='')");
+                    }
+                    if (strSPChild == "2")//收容数
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T3.iPackingQty,0)=0)");
+                    }
+                    if (strSPChild == "3")//受入
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T4.vcSufferIn,'')='')");
+                    }
+                    if (strSPChild == "4")//发注工场
+                    {
+                        strSql.AppendLine("    AND (ISNULL(T5.vcOrderPlant,'')='')");
+                    }
+                }
+                strSql.AppendLine("ORDER BY T1.LinId,T4.dFromTime");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void deleteInfo(List<Dictionary<string, Object>> listInfoData, string strOperId)
         {
             try
@@ -589,7 +1557,7 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public void setSPInfo(DataTable dtAddInfo, DataTable dtModInfo, DataTable dtDelInfo, DataTable dtModInfo_SP, DataTable dtModInfo_PQ, DataTable dtModInfo_SI, DataTable dtModInfo_OP, DataTable dtOperHistory, DataTable dtSPChild,
+        public void setSPInfo(DataTable dtAddInfo, DataTable dtModInfo, DataTable dtDelInfo, DataTable dtModInfo_SP, DataTable dtModInfo_PQ, DataTable dtModInfo_SI, DataTable dtModInfo_OP, DataTable dtOperHistory, DataTable dtSPChild, DataTable dtChildInfo_gq, DataTable dtChildInfo_sr, DataTable dtChildInfo_hz,
             string strOperId, ref DataTable dtMessage)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
@@ -599,7 +1567,7 @@ namespace DataAccess
             try
             {
                 #region 写入数据库
-                #region sqlCommand_addinfo
+                #region 1.sqlCommand_addinfo
                 SqlCommand sqlCommand_addinfo = sqlConnection.CreateCommand();
                 sqlCommand_addinfo.Transaction = sqlTransaction;
                 sqlCommand_addinfo.CommandType = CommandType.Text;
@@ -755,7 +1723,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo
+                #region 2.sqlCommand_modinfo
                 SqlCommand sqlCommand_modinfo = sqlConnection.CreateCommand();
                 sqlCommand_modinfo.Transaction = sqlTransaction;
                 sqlCommand_modinfo.CommandType = CommandType.Text;
@@ -870,7 +1838,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_delinfo
+                #region 3.sqlCommand_delinfo
                 SqlCommand sqlCommand_delinfo = sqlConnection.CreateCommand();
                 sqlCommand_delinfo.Transaction = sqlTransaction;
                 sqlCommand_delinfo.CommandType = CommandType.Text;
@@ -894,7 +1862,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo_sp_add
+                #region 4.sqlCommand_modinfo_sp_add
                 SqlCommand sqlCommand_modinfo_sp_add = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_sp_add.Transaction = sqlTransaction;
                 sqlCommand_modinfo_sp_add.CommandType = CommandType.Text;
@@ -950,7 +1918,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo_sp_mod
+                #region 5.sqlCommand_modinfo_sp_mod
                 SqlCommand sqlCommand_modinfo_sp_mod = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_sp_mod.Transaction = sqlTransaction;
                 sqlCommand_modinfo_sp_mod.CommandType = CommandType.Text;
@@ -979,7 +1947,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo_pq_add
+                #region 6.sqlCommand_modinfo_pq_add
                 SqlCommand sqlCommand_modinfo_pq_add = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_pq_add.Transaction = sqlTransaction;
                 sqlCommand_modinfo_pq_add.CommandType = CommandType.Text;
@@ -1058,7 +2026,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo_pq_mod
+                #region 7.sqlCommand_modinfo_pq_mod
                 SqlCommand sqlCommand_modinfo_pq_mod = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_pq_mod.Transaction = sqlTransaction;
                 sqlCommand_modinfo_pq_mod.CommandType = CommandType.Text;
@@ -1086,7 +2054,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo_si_add
+                #region 8.sqlCommand_modinfo_si_add
                 SqlCommand sqlCommand_modinfo_si_add = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_si_add.Transaction = sqlTransaction;
                 sqlCommand_modinfo_si_add.CommandType = CommandType.Text;
@@ -1141,7 +2109,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo_si_mod
+                #region 9.sqlCommand_modinfo_si_mod
                 SqlCommand sqlCommand_modinfo_si_mod = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_si_mod.Transaction = sqlTransaction;
                 sqlCommand_modinfo_si_mod.CommandType = CommandType.Text;
@@ -1169,7 +2137,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_operhistory
+                #region 10.sqlCommand_operhistory
                 SqlCommand sqlCommand_operhistory = sqlConnection.CreateCommand();
                 sqlCommand_operhistory.Transaction = sqlTransaction;
                 sqlCommand_operhistory.CommandType = CommandType.Text;
@@ -1222,7 +2190,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_updateinfo
+                #region 11.sqlCommand_updateinfo
                 SqlCommand sqlCommand_updateinfo = sqlConnection.CreateCommand();
                 sqlCommand_updateinfo.Transaction = sqlTransaction;
                 sqlCommand_updateinfo.CommandType = CommandType.Text;
@@ -1246,7 +2214,7 @@ namespace DataAccess
                 sqlCommand_updateinfo.ExecuteNonQuery();
                 #endregion
 
-                #region sqlCommand_modinfo_child_from
+                #region 12.sqlCommand_modinfo_child_from
                 SqlCommand sqlCommand_modinfo_child_from = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_child_from.Transaction = sqlTransaction;
                 sqlCommand_modinfo_child_from.CommandType = CommandType.Text;
@@ -1294,7 +2262,7 @@ namespace DataAccess
                 }
                 #endregion
 
-                #region sqlCommand_modinfo_child_to
+                #region 13.sqlCommand_modinfo_child_to
                 SqlCommand sqlCommand_modinfo_child_to = sqlConnection.CreateCommand();
                 sqlCommand_modinfo_child_to.Transaction = sqlTransaction;
                 sqlCommand_modinfo_child_to.CommandType = CommandType.Text;
@@ -1307,6 +2275,27 @@ namespace DataAccess
                 strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_SupplierPlant] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
                 strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_Box] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
                 strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_SufferIn] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine("");
+                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime from ");
+                strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime desc) [rank],");
+                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                strSql_modinfo_child_to.AppendLine("FROM [TSPMaster_SupplierPlant]  ");
+                strSql_modinfo_child_to.AppendLine("WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine(")A where A.rank='1' ");
+                strSql_modinfo_child_to.AppendLine("");
+                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime from ");
+                strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
+                strSql_modinfo_child_to.AppendLine("FROM [TSPMaster_Box] ");
+                strSql_modinfo_child_to.AppendLine("WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine(")A where A.rank='1' ");
+                strSql_modinfo_child_to.AppendLine("");
+                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime from ");
+                strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
+                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn");
+                strSql_modinfo_child_to.AppendLine("FROM [TSPMaster_SufferIn] ");
+                strSql_modinfo_child_to.AppendLine("WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
+                strSql_modinfo_child_to.AppendLine(")A where A.rank='1' ");
                 sqlCommand_modinfo_child_to.CommandText = strSql_modinfo_child_to.ToString();
                 sqlCommand_modinfo_child_to.Parameters.AddWithValue("@vcPackingPlant", "");
                 sqlCommand_modinfo_child_to.Parameters.AddWithValue("@vcPartId", "");
@@ -1329,6 +2318,394 @@ namespace DataAccess
                     }
                 }
                 #endregion
+
+                #region 14.sqlCommand_childinfo_gq_add
+                SqlCommand sqlCommand_childinfo_gq_add = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_gq_add.Transaction = sqlTransaction;
+                sqlCommand_childinfo_gq_add.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_gq_add = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_gq_add.AppendLine("INSERT INTO [dbo].[TSPMaster_SupplierPlant]");
+                strSql_childinfo_gq_add.AppendLine("           ([vcPackingPlant]");
+                strSql_childinfo_gq_add.AppendLine("           ,[vcPartId]");
+                strSql_childinfo_gq_add.AppendLine("           ,[vcReceiver]");
+                strSql_childinfo_gq_add.AppendLine("           ,[vcSupplierId]");
+                strSql_childinfo_gq_add.AppendLine("           ,[dFromTime]");
+                strSql_childinfo_gq_add.AppendLine("           ,[dToTime]");
+                strSql_childinfo_gq_add.AppendLine("           ,[vcSupplierPlant]");
+                strSql_childinfo_gq_add.AppendLine("           ,[vcOperatorType]");
+                strSql_childinfo_gq_add.AppendLine("           ,[vcOperatorID]");
+                strSql_childinfo_gq_add.AppendLine("           ,[dOperatorTime])");
+                strSql_childinfo_gq_add.AppendLine("     VALUES");
+                strSql_childinfo_gq_add.AppendLine("           (@vcPackingPlant");
+                strSql_childinfo_gq_add.AppendLine("           ,@vcPartId");
+                strSql_childinfo_gq_add.AppendLine("           ,@vcReceiver");
+                strSql_childinfo_gq_add.AppendLine("           ,@vcSupplierId");
+                strSql_childinfo_gq_add.AppendLine("           ,case when @dFromTime='' then null else @dFromTime end");
+                strSql_childinfo_gq_add.AppendLine("           ,case when @dToTime='' then '9999-12-31' else @dToTime end");
+                strSql_childinfo_gq_add.AppendLine("           ,@vcSupplierPlant");
+                strSql_childinfo_gq_add.AppendLine("           ,'1'");
+                strSql_childinfo_gq_add.AppendLine("           ,'" + strOperId + "'");
+                strSql_childinfo_gq_add.AppendLine("           ,GETDATE())");
+                sqlCommand_childinfo_gq_add.CommandText = strSql_childinfo_gq_add.ToString();
+                sqlCommand_childinfo_gq_add.Parameters.AddWithValue("@vcPackingPlant", "");
+                sqlCommand_childinfo_gq_add.Parameters.AddWithValue("@vcPartId", "");
+                sqlCommand_childinfo_gq_add.Parameters.AddWithValue("@vcReceiver", "");
+                sqlCommand_childinfo_gq_add.Parameters.AddWithValue("@vcSupplierId", "");
+                sqlCommand_childinfo_gq_add.Parameters.AddWithValue("@dFromTime", "");
+                sqlCommand_childinfo_gq_add.Parameters.AddWithValue("@dToTime", "");
+                sqlCommand_childinfo_gq_add.Parameters.AddWithValue("@vcSupplierPlant", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_gq.Rows)
+                {
+                    if (item["status"].ToString() == "add" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_gq_add.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
+                        sqlCommand_childinfo_gq_add.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
+                        sqlCommand_childinfo_gq_add.Parameters["@vcReceiver"].Value = item["vcReceiver"].ToString();
+                        sqlCommand_childinfo_gq_add.Parameters["@vcSupplierId"].Value = item["vcSupplierId"].ToString();
+                        sqlCommand_childinfo_gq_add.Parameters["@dFromTime"].Value = item["dFromTime"].ToString();
+                        sqlCommand_childinfo_gq_add.Parameters["@dToTime"].Value = item["dToTime"].ToString();
+                        sqlCommand_childinfo_gq_add.Parameters["@vcSupplierPlant"].Value = item["vcSupplierPlant"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_gq_add.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 15.sqlCommand_childinfo_hz_add
+                SqlCommand sqlCommand_childinfo_hz_add = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_hz_add.Transaction = sqlTransaction;
+                sqlCommand_childinfo_hz_add.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_hz_add = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_hz_add.AppendLine("INSERT INTO [dbo].[TSPMaster_Box]");
+                strSql_childinfo_hz_add.AppendLine("           ([vcPackingPlant]");
+                strSql_childinfo_hz_add.AppendLine("           ,[vcPartId]");
+                strSql_childinfo_hz_add.AppendLine("           ,[vcReceiver]");
+                strSql_childinfo_hz_add.AppendLine("           ,[vcSupplierId]");
+                strSql_childinfo_hz_add.AppendLine("           ,[vcSupplierPlant]");
+                strSql_childinfo_hz_add.AppendLine("           ,[dFromTime]");
+                strSql_childinfo_hz_add.AppendLine("           ,[dToTime]");
+                strSql_childinfo_hz_add.AppendLine("           ,[iPackingQty]");
+                strSql_childinfo_hz_add.AppendLine("           ,[vcBoxType]");
+                strSql_childinfo_hz_add.AppendLine("           ,[iLength]");
+                strSql_childinfo_hz_add.AppendLine("           ,[iWidth]");
+                strSql_childinfo_hz_add.AppendLine("           ,[iHeight]");
+                strSql_childinfo_hz_add.AppendLine("           ,[iVolume]");
+                strSql_childinfo_hz_add.AppendLine("           ,[vcOperatorType]");
+                strSql_childinfo_hz_add.AppendLine("           ,[vcOperatorID]");
+                strSql_childinfo_hz_add.AppendLine("           ,[dOperatorTime])");
+                strSql_childinfo_hz_add.AppendLine("     VALUES");
+                strSql_childinfo_hz_add.AppendLine("           (@vcPackingPlant");
+                strSql_childinfo_hz_add.AppendLine("           ,@vcPartId");
+                strSql_childinfo_hz_add.AppendLine("           ,@vcReceiver");
+                strSql_childinfo_hz_add.AppendLine("           ,@vcSupplierId");
+                strSql_childinfo_hz_add.AppendLine("           ,@vcSupplierPlant");
+                strSql_childinfo_hz_add.AppendLine("           ,case when @dFromTime='' then null else @dFromTime end");
+                strSql_childinfo_hz_add.AppendLine("           ,case when @dToTime='' then '9999-12-31' else @dToTime end");
+                strSql_childinfo_hz_add.AppendLine("           ,@iPackingQty");
+                strSql_childinfo_hz_add.AppendLine("           ,case when @vcBoxType='' then null else @vcBoxType end");
+                strSql_childinfo_hz_add.AppendLine("           ,case when @iLength='' then null else @iLength end");
+                strSql_childinfo_hz_add.AppendLine("           ,case when @iWidth='' then null else @iWidth end");
+                strSql_childinfo_hz_add.AppendLine("           ,case when @iHeight='' then null else @iHeight end");
+                strSql_childinfo_hz_add.AppendLine("           ,case when @iVolume='' then null else @iVolume end");
+                strSql_childinfo_hz_add.AppendLine("           ,'1'");
+                strSql_childinfo_hz_add.AppendLine("           ,'" + strOperId + "'");
+                strSql_childinfo_hz_add.AppendLine("           ,GETDATE())");
+                sqlCommand_childinfo_hz_add.CommandText = strSql_childinfo_hz_add.ToString();
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@vcPackingPlant", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@vcPartId", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@vcReceiver", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@vcSupplierId", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@vcSupplierPlant", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@dFromTime", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@dToTime", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@iPackingQty", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@vcBoxType", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@iLength", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@iWidth", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@iHeight", "");
+                sqlCommand_childinfo_hz_add.Parameters.AddWithValue("@iVolume", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_hz.Rows)
+                {
+                    if (item["status"].ToString() == "add" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_hz_add.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@vcReceiver"].Value = item["vcReceiver"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@vcSupplierId"].Value = item["vcSupplierId"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@vcSupplierPlant"].Value = item["vcSupplierPlant"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@dFromTime"].Value = item["dFromTime"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@dToTime"].Value = item["dToTime"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@iPackingQty"].Value = item["iPackingQty"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@vcBoxType"].Value = item["vcBoxType"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@iLength"].Value = item["iLength"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@iWidth"].Value = item["iWidth"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@iHeight"].Value = item["iHeight"].ToString();
+                        sqlCommand_childinfo_hz_add.Parameters["@iVolume"].Value = item["iVolume"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_hz_add.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 16.sqlCommand_childinfo_sr_add
+                SqlCommand sqlCommand_childinfo_sr_add = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_sr_add.Transaction = sqlTransaction;
+                sqlCommand_childinfo_sr_add.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_sr_add = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_sr_add.AppendLine("INSERT INTO [dbo].[TSPMaster_SufferIn]");
+                strSql_childinfo_sr_add.AppendLine("           ([vcPackingPlant]");
+                strSql_childinfo_sr_add.AppendLine("           ,[vcPartId]");
+                strSql_childinfo_sr_add.AppendLine("           ,[vcReceiver]");
+                strSql_childinfo_sr_add.AppendLine("           ,[vcSupplierId]");
+                strSql_childinfo_sr_add.AppendLine("           ,[dFromTime]");
+                strSql_childinfo_sr_add.AppendLine("           ,[dToTime]");
+                strSql_childinfo_sr_add.AppendLine("           ,[vcSufferIn]");
+                strSql_childinfo_sr_add.AppendLine("           ,[vcOperatorType]");
+                strSql_childinfo_sr_add.AppendLine("           ,[vcOperatorID]");
+                strSql_childinfo_sr_add.AppendLine("           ,[dOperatorTime])");
+                strSql_childinfo_sr_add.AppendLine("     VALUES");
+                strSql_childinfo_sr_add.AppendLine("           (@vcPackingPlant");
+                strSql_childinfo_sr_add.AppendLine("           ,@vcPartId");
+                strSql_childinfo_sr_add.AppendLine("           ,@vcReceiver");
+                strSql_childinfo_sr_add.AppendLine("           ,@vcSupplierId");
+                strSql_childinfo_sr_add.AppendLine("           ,case when @dFromTime='' then null else @dFromTime end");
+                strSql_childinfo_sr_add.AppendLine("           ,case when @dToTime='' then '9999-12-31' else @dToTime end");
+                strSql_childinfo_sr_add.AppendLine("           ,@vcSufferIn");
+                strSql_childinfo_sr_add.AppendLine("           ,'1'");
+                strSql_childinfo_sr_add.AppendLine("           ,'" + strOperId + "'");
+                strSql_childinfo_sr_add.AppendLine("           ,GETDATE())");
+                sqlCommand_childinfo_sr_add.CommandText = strSql_childinfo_sr_add.ToString();
+                sqlCommand_childinfo_sr_add.Parameters.AddWithValue("@vcPackingPlant", "");
+                sqlCommand_childinfo_sr_add.Parameters.AddWithValue("@vcPartId", "");
+                sqlCommand_childinfo_sr_add.Parameters.AddWithValue("@vcReceiver", "");
+                sqlCommand_childinfo_sr_add.Parameters.AddWithValue("@vcSupplierId", "");
+                sqlCommand_childinfo_sr_add.Parameters.AddWithValue("@dFromTime", "");
+                sqlCommand_childinfo_sr_add.Parameters.AddWithValue("@dToTime", "");
+                sqlCommand_childinfo_sr_add.Parameters.AddWithValue("@vcSufferIn", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_sr.Rows)
+                {
+                    if (item["status"].ToString() == "add" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_sr_add.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
+                        sqlCommand_childinfo_sr_add.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
+                        sqlCommand_childinfo_sr_add.Parameters["@vcReceiver"].Value = item["vcReceiver"].ToString();
+                        sqlCommand_childinfo_sr_add.Parameters["@vcSupplierId"].Value = item["vcSupplierId"].ToString();
+                        sqlCommand_childinfo_sr_add.Parameters["@dFromTime"].Value = item["dFromTime"].ToString();
+                        sqlCommand_childinfo_sr_add.Parameters["@dToTime"].Value = item["dToTime"].ToString();
+                        sqlCommand_childinfo_sr_add.Parameters["@vcSufferIn"].Value = item["vcSufferIn"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_sr_add.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 17.sqlCommand_childinfo_gq_mod
+                SqlCommand sqlCommand_childinfo_gq_mod = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_gq_mod.Transaction = sqlTransaction;
+                sqlCommand_childinfo_gq_mod.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_gq_mod = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_gq_mod.AppendLine("UPDATE [dbo].[TSPMaster_SupplierPlant]");
+                strSql_childinfo_gq_mod.AppendLine("   SET [dFromTime] = case when @dFromTime='' then null else @dFromTime end");
+                strSql_childinfo_gq_mod.AppendLine("      ,[dToTime] = case when @dToTime='' then '9999-12-31' else @dToTime end");
+                strSql_childinfo_gq_mod.AppendLine("      ,[vcSupplierPlant] = @vcSupplierPlant");
+                strSql_childinfo_gq_mod.AppendLine("      ,[vcOperatorType] = '1'");
+                strSql_childinfo_gq_mod.AppendLine("      ,[vcOperatorID] = '" + strOperId + "'");
+                strSql_childinfo_gq_mod.AppendLine("      ,[dOperatorTime] = GETDATE()");
+                strSql_childinfo_gq_mod.AppendLine(" WHERE [LinId]=@LinId");
+                sqlCommand_childinfo_gq_mod.CommandText = strSql_childinfo_gq_mod.ToString();
+                sqlCommand_childinfo_gq_mod.Parameters.AddWithValue("@LinId", "");
+                sqlCommand_childinfo_gq_mod.Parameters.AddWithValue("@dFromTime", "");
+                sqlCommand_childinfo_gq_mod.Parameters.AddWithValue("@dToTime", "");
+                sqlCommand_childinfo_gq_mod.Parameters.AddWithValue("@vcSupplierPlant", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_gq.Rows)
+                {
+                    if (item["status"].ToString() == "mod" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_gq_mod.Parameters["@LinId"].Value = item["LinId"].ToString();
+                        sqlCommand_childinfo_gq_mod.Parameters["@dFromTime"].Value = item["dFromTime"].ToString();
+                        sqlCommand_childinfo_gq_mod.Parameters["@dToTime"].Value = item["dToTime"].ToString();
+                        sqlCommand_childinfo_gq_mod.Parameters["@vcSupplierPlant"].Value = item["vcSupplierPlant"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_gq_mod.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 18.sqlCommand_childinfo_hz_mod
+                SqlCommand sqlCommand_childinfo_hz_mod = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_hz_mod.Transaction = sqlTransaction;
+                sqlCommand_childinfo_hz_mod.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_hz_mod = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_hz_mod.AppendLine("UPDATE [dbo].[TSPMaster_Box]");
+                strSql_childinfo_hz_mod.AppendLine("   SET [dFromTime] = case when @dFromTime='' then null else @dFromTime end");
+                strSql_childinfo_hz_mod.AppendLine("      ,[dToTime] = case when @dToTime='' then '9999-12-31' else @dToTime end");
+                strSql_childinfo_hz_mod.AppendLine("      ,[iPackingQty] = @iPackingQty");
+                strSql_childinfo_hz_mod.AppendLine("      ,[vcBoxType] = case when @vcBoxType='' then null else @vcBoxType end");
+                strSql_childinfo_hz_mod.AppendLine("      ,[iLength] = case when @iLength='' then null else @iLength end");
+                strSql_childinfo_hz_mod.AppendLine("      ,[iWidth] = case when @iWidth='' then null else @iWidth end");
+                strSql_childinfo_hz_mod.AppendLine("      ,[iHeight] =case when @iHeight='' then null else @iHeight end");
+                strSql_childinfo_hz_mod.AppendLine("      ,[iVolume] =case when @iVolume='' then null else @iVolume end");
+                strSql_childinfo_hz_mod.AppendLine("      ,[vcOperatorType] = '1'");
+                strSql_childinfo_hz_mod.AppendLine("      ,[vcOperatorID] = '" + strOperId + "'");
+                strSql_childinfo_hz_mod.AppendLine("      ,[dOperatorTime] = GETDATE()");
+                strSql_childinfo_hz_mod.AppendLine(" WHERE [LinId]=@LinId");
+                sqlCommand_childinfo_hz_mod.CommandText = strSql_childinfo_hz_mod.ToString();
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@LinId", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@dFromTime", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@dToTime", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@iPackingQty", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@vcBoxType", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@iLength", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@iWidth", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@iHeight", "");
+                sqlCommand_childinfo_hz_mod.Parameters.AddWithValue("@iVolume", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_hz.Rows)
+                {
+                    if (item["status"].ToString() == "mod" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_hz_mod.Parameters["@LinId"].Value = item["LinId"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@dFromTime"].Value = item["dFromTime"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@dToTime"].Value = item["dToTime"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@iPackingQty"].Value = item["iPackingQty"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@vcBoxType"].Value = item["vcBoxType"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@iLength"].Value = item["iLength"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@iWidth"].Value = item["iWidth"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@iHeight"].Value = item["iHeight"].ToString();
+                        sqlCommand_childinfo_hz_mod.Parameters["@iVolume"].Value = item["iVolume"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_hz_mod.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 19.sqlCommand_childinfo_sr_mod
+                SqlCommand sqlCommand_childinfo_sr_mod = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_sr_mod.Transaction = sqlTransaction;
+                sqlCommand_childinfo_sr_mod.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_sr_mod = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_sr_mod.AppendLine("UPDATE [dbo].[TSPMaster_SufferIn]");
+                strSql_childinfo_sr_mod.AppendLine("   SET [dFromTime] = case when @dFromTime='' then null else @dFromTime end");
+                strSql_childinfo_sr_mod.AppendLine("      ,[dToTime] = case when @dToTime='' then '9999-12-31' else @dToTime end");
+                strSql_childinfo_sr_mod.AppendLine("      ,[vcSufferIn] = @vcSufferIn");
+                strSql_childinfo_sr_mod.AppendLine("      ,[vcOperatorType] = '1'");
+                strSql_childinfo_sr_mod.AppendLine("      ,[vcOperatorID] = '" + strOperId + "'");
+                strSql_childinfo_sr_mod.AppendLine("      ,[dOperatorTime] = GETDATE()");
+                strSql_childinfo_sr_mod.AppendLine(" WHERE [LinId]=@LinId");
+                sqlCommand_childinfo_sr_mod.CommandText = strSql_childinfo_sr_mod.ToString();
+                sqlCommand_childinfo_sr_mod.Parameters.AddWithValue("@LinId", "");
+                sqlCommand_childinfo_sr_mod.Parameters.AddWithValue("@dFromTime", "");
+                sqlCommand_childinfo_sr_mod.Parameters.AddWithValue("@dToTime", "");
+                sqlCommand_childinfo_sr_mod.Parameters.AddWithValue("@vcSufferIn", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_sr.Rows)
+                {
+                    if (item["status"].ToString() == "mod" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_sr_mod.Parameters["@LinId"].Value = item["LinId"].ToString();
+                        sqlCommand_childinfo_sr_mod.Parameters["@dFromTime"].Value = item["dFromTime"].ToString();
+                        sqlCommand_childinfo_sr_mod.Parameters["@dToTime"].Value = item["dToTime"].ToString();
+                        sqlCommand_childinfo_sr_mod.Parameters["@vcSufferIn"].Value = item["vcSufferIn"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_sr_mod.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 20.sqlCommand_childinfo_gq_del
+                SqlCommand sqlCommand_childinfo_gq_del = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_gq_del.Transaction = sqlTransaction;
+                sqlCommand_childinfo_gq_del.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_gq_del = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_gq_del.AppendLine("DELETE FROM [dbo].[TSPMaster_SupplierPlant]");
+                strSql_childinfo_gq_del.AppendLine(" WHERE [LinId]=@LinId");
+                sqlCommand_childinfo_gq_del.CommandText = strSql_childinfo_gq_del.ToString();
+                sqlCommand_childinfo_gq_del.Parameters.AddWithValue("@LinId", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_gq.Rows)
+                {
+                    if (item["status"].ToString() == "del" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_gq_del.Parameters["@LinId"].Value = item["LinId"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_gq_del.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 21.sqlCommand_childinfo_hz_del
+                SqlCommand sqlCommand_childinfo_hz_del = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_hz_del.Transaction = sqlTransaction;
+                sqlCommand_childinfo_hz_del.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_hz_del = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_hz_del.AppendLine("DELETE FROM [dbo].[TSPMaster_Box]");
+                strSql_childinfo_hz_del.AppendLine(" WHERE [LinId]=@LinId");
+                sqlCommand_childinfo_hz_del.CommandText = strSql_childinfo_hz_del.ToString();
+                sqlCommand_childinfo_hz_del.Parameters.AddWithValue("@LinId", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_hz.Rows)
+                {
+                    if (item["status"].ToString() == "del" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_hz_del.Parameters["@LinId"].Value = item["LinId"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_hz_del.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
+                #region 22.sqlCommand_childinfo_sr_del
+                SqlCommand sqlCommand_childinfo_sr_del = sqlConnection.CreateCommand();
+                sqlCommand_childinfo_sr_del.Transaction = sqlTransaction;
+                sqlCommand_childinfo_sr_del.CommandType = CommandType.Text;
+                StringBuilder strSql_childinfo_sr_del = new StringBuilder();
+
+                #region SQL and Parameters
+                strSql_childinfo_sr_del.AppendLine("DELETE FROM [dbo].[TSPMaster_SufferIn]");
+                strSql_childinfo_sr_del.AppendLine(" WHERE [LinId]=@LinId");
+                sqlCommand_childinfo_sr_del.CommandText = strSql_childinfo_sr_del.ToString();
+                sqlCommand_childinfo_sr_del.Parameters.AddWithValue("@LinId", "");
+                #endregion
+                foreach (DataRow item in dtChildInfo_sr.Rows)
+                {
+                    if (item["status"].ToString() == "del" && item["error"].ToString() == "")
+                    {
+                        #region Value
+                        sqlCommand_childinfo_sr_del.Parameters["@LinId"].Value = item["LinId"].ToString();
+                        #endregion
+                        sqlCommand_childinfo_sr_del.ExecuteNonQuery();
+                    }
+                }
+                #endregion
+
                 //提交事务
                 sqlTransaction.Commit();
                 sqlConnection.Close();

@@ -28,7 +28,10 @@ namespace Logic
         {
             return fs0604_DataAccess.Search(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType, dSendDate);
         }
-
+        public DataTable SearchImport(string dSynchronizationDateFrom, string dSynchronizationDateTo, string dSynchronizationDate, string vcState, string vcPartNo, string vcSupplier_id, string vcWorkArea, string vcCarType, string dExpectDeliveryDate, string vcOEOrSP, string vcBoxType, string dSendDate)
+        {
+            return fs0604_DataAccess.SearchImport(dSynchronizationDateFrom, dSynchronizationDateTo, dSynchronizationDate, vcState, vcPartNo, vcSupplier_id, vcWorkArea, vcCarType, dExpectDeliveryDate, vcOEOrSP, vcBoxType, dSendDate);
+        }
         public DataTable GetBoxType()
         {
             return fs0604_DataAccess.GetBoxType();
@@ -416,6 +419,8 @@ namespace Logic
                 }
             }
         }
+
+       
 
         public void getData(string userId)
         {

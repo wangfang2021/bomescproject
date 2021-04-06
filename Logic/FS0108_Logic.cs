@@ -54,15 +54,20 @@ namespace Logic
 
         public DataTable GetSupplier()
         {
-            throw new NotImplementedException();
+            return fs0108_DataAccess.GetSupplier();
         }
 
         public DataTable GetWorkArea()
         {
-            throw new NotImplementedException();
+            return fs0108_DataAccess.GetSupplier();
         }
 
         public DataTable GetWorkAreaBySupplier(string supplierCode)
+        {
+            return fs0108_DataAccess.GetWorkAreaBySupplier(supplierCode);
+        }
+
+        public DataTable checkData(DataTable dtadd, List<Dictionary<string, object>> listInfoData)
         {
             throw new NotImplementedException();
         }

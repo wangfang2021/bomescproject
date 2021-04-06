@@ -931,7 +931,7 @@ namespace Logic
                         int k = 0;
                         if (dr[0][j].ToString().Trim().Length == 0 && dt.Rows[i][j].ToString().Trim().Length > 0)
                         {
-                            msg = "第" + (i + 1) + "行，" + ExcelPos(j + 2) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
+                            msg = "第" + (i + 1) + "行，" + ExcelPos(j + 1) + "列，导入数据与本月初版生产计划不符，请重新导出修改！";
                             return msg;
                         }
                         else if (dr[0][j].ToString().Trim().Length > 0)
@@ -942,7 +942,7 @@ namespace Logic
                             }
                             catch (Exception ex)
                             {
-                                msg = "第" + (i + 1) + "行，" + ExcelPos(j + 2) + "列，输入数据应为数字！";
+                                msg = "第" + (i + 1) + "行，" + ExcelPos(j + 1) + "列，输入数据应为数字！";
                                 return msg;
                             }
                         }

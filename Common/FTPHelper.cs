@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Common
 {
-    class FTPHelper
+    public class FTPHelper
     {
         string ftpServerIP;
         string ftpRemotePath;

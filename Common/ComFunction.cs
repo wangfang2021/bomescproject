@@ -1774,6 +1774,19 @@ namespace Common
             }
         }
 
+        public static FTPHelper DefaultFtpHelper(string FtpRemotePath)
+        {
+            try
+            {
+                FTPHelper helper = new FTPHelper("172.23.180.116:21111", FtpRemotePath, "Administrator", "TFTMspps116");
+                return helper;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 

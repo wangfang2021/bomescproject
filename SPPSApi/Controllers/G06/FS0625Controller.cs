@@ -2094,7 +2094,7 @@ namespace SPPSApi.Controllers.G06
                 }
 
                 string[] fields = { "vcSupplier", "vcMessage" };
-                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0620_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0625_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

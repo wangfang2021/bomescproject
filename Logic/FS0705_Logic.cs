@@ -410,6 +410,13 @@ namespace Logic
         }
         #endregion
 
+        #region 获取品番是否满足保存条件
+        public DataTable getIsSave(DataTable dt)
+        {
+            return fs0705_DataAccess.getIsSave(dt);
+        }
+        #endregion
+
 
 
     }

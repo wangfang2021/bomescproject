@@ -254,37 +254,31 @@ namespace SPPSApi.Controllers.G07
                     }
                 }
                 #endregion
+
                 #region 验证数据是否满足保存条件
                 DataTable dt = fs0705_Logic.getIsSave(listInfoData);
                 string str1 = "";       //记录哪些GPS品番在包材基础数据表中不存在
                 string str2 = "";       //记录哪些GPS品番在包材基础数据表中已废止
                 string str3 = "";       //记录哪些GPS品番在包材基础数据表中不属于自动发注品番
-                for (int i = 0; i < dt.Rows.Count; i++)
+                for (int i = 0; i < listInfoData.Count; i++)
                 {
-                    
-                    if (dt.Rows[i]["IsGPSNo"]==null || dt.Rows[i]["IsGPSNo"].ToString()=="")
+                    if (dt.Select("IsGPSNo='"+listInfoData[i]["vcPackGPSNo"] +"'").Length<=0)
                     {
                         str1 += dt.Rows[i]["vcPackGPSNo"].ToString() + " ";
                     }
                     else
                     {
-                        /*
-                         * 校验品番是否存活，
-                         * 注：会存在多条
-                         * 包材品番基础表中的数据示例：
-                         * A 2020/1/1 - 2021/1/1
-                         * A 2021/1/2 - 2021
-                         */
-                        if (Convert.ToDateTime(dt.Rows[i]["dPackTo"]) < DateTime.Now || Convert.ToDateTime(dt.Rows[i]["dPackFrom"]) > DateTime.Now)
+                        DataRow[] drs = dt.Select("dPackFrom<='"+DateTime.Now.ToString()+"' and  dPackTo>='"+DateTime.Now.ToString()+"'");
+                        if (drs.Length<=0)
                         {
-                            str2 += dt.Rows[i]["vcPackGPSNo"].ToString() + " ";
+                            str2 += listInfoData[i]["vcPackGPSNo"].ToString();
                         }
-                        /*
-                         * 校验品番是否是自动发注
-                         */
-                        if (dt.Rows[i]["vcReleaseName"] == null || dt.Rows[i]["vcReleaseName"].ToString() == "")
+                        else
                         {
-                            str3 += dt.Rows[i]["vcPackGPSNo"].ToString() + " ";
+                            if (drs[0]["vcReleaseName"]==null || drs[0]["vcReleaseName"].ToString()=="")
+                            {
+                                str3 += listInfoData[i]["vcPackGPSNo"].ToString();
+                            }
                         }
                     }
                 }
@@ -298,7 +292,7 @@ namespace SPPSApi.Controllers.G07
                 if (str2 != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败,以下GPS品番" + str1 + "已经废止";
+                    apiResult.data = "保存失败,以下GPS品番" + str1 + "在当前时间范围无效";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 if (str3 != "")

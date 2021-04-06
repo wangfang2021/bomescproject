@@ -270,11 +270,15 @@ namespace BatchProcess
 
                 DateTime dtNow = DateTime.Now;
 
+                DataTable dtdeleteOrder = this.SearchDeleteMapsOrder();
+
+
                 for (int r = 0; r < dtINFO.Rows.Count; r++)
                 {
+                    string iSJNum = dtINFO.Rows[r]["iSJNum"].ToString() == "" ? "0" : dtINFO.Rows[r]["iSJNum"].ToString();
                     string a = dtINFO.Rows[r]["vcSJTime"].ToString() == "" ? "NULL" : dtINFO.Rows[r]["vcSJTime"].ToString();
                     sql.Append(" UPDATE [dbo].[TPack_FaZhu_ShiJi] set   \n");
-                    sql.Append(" iSJNumber='" + dtINFO.Rows[r]["iSJNum"].ToString() + "',  \n");
+                    sql.Append(" iSJNumber='" + Decimal.ToInt32(Convert.ToDecimal(iSJNum)) + "',  \n");
                     if (a == "NULL")
                     {
 
@@ -285,51 +289,57 @@ namespace BatchProcess
 
                         sql.Append($" dNaRuShiJi='{a}', \n");
                     }
-                    if (dtINFO.Rows[r]["vcIsorNoFaZhu"].ToString() == "0")
-                    {
 
-                        sql.Append($" vcState='0' \n");
-                    }
-                    else if (string.IsNullOrEmpty(dtINFO.Rows[r]["dNaRuYuDing"].ToString()))
+                    DataRow[] drr = dtdeleteOrder.Select("ORDER_NO='" + dtINFO.Rows[r]["vcOrderNo"].ToString() + "'");
+                    if (drr.Length > 0)
                     {
                         //订单被资材系统删除
                         sql.Append($" vcState='6' \n");
+
                     }
                     else
                     {
-                        DateTime dtYJ = Convert.ToDateTime(dtINFO.Rows[r]["dNaRuYuDing"].ToString());
-                        if (string.IsNullOrEmpty(dtINFO.Rows[r]["iSJNum"].ToString()))
+                        if (dtINFO.Rows[r]["vcIsorNoFaZhu"].ToString() == "0")
                         {
-                            //未纳
-                            if (dtNow >= dtYJ)
-                            {
-                                sql.Append($" vcState='4' \n");
-                            }
-                            else
-                            {
 
-                                sql.Append($" vcState='3' \n");
-
-                            }
+                            sql.Append($" vcState='0' \n");
                         }
                         else
                         {
-                            //纳入
-
-                            DateTime dtSJ = Convert.ToDateTime(dtINFO.Rows[r]["vcSJTime"].ToString());
-                            if (dtSJ <= dtYJ)
+                            DateTime dtYJ = Convert.ToDateTime(dtINFO.Rows[r]["dNaRuYuDing"].ToString());
+                            if (string.IsNullOrEmpty(dtINFO.Rows[r]["iSJNum"].ToString()) || dtINFO.Rows[r]["iSJNum"].ToString() == "0.00")
                             {
-                                //纳期纳入
-                                sql.Append($" vcState='2' \n");
+                                //未纳
+                                if (dtNow >= dtYJ)
+                                {
+                                    sql.Append($" vcState='4' \n");
+                                }
+                                else
+                                {
+
+                                    sql.Append($" vcState='3' \n");
+
+                                }
                             }
                             else
                             {
-                                //超期纳入
-                                sql.Append($" vcState='5' \n");
+                                //纳入
 
+                                DateTime dtSJ = Convert.ToDateTime(dtINFO.Rows[r]["vcSJTime"].ToString());
+                                if (dtSJ <= dtYJ)
+                                {
+                                    //纳期纳入
+                                    sql.Append($" vcState='2' \n");
+                                }
+                                else
+                                {
+                                    //超期纳入
+                                    sql.Append($" vcState='5' \n");
+
+                                }
                             }
-                        }
 
+                        }
                     }
                     sql.Append("       ,[vcOperatorID] = '" + strUserId + "'   \n");
                     sql.Append("       ,[dOperatorTime] = getdate()   \n");
@@ -349,10 +359,10 @@ namespace BatchProcess
                     drImport["ORDER_QUANTITY"] = drnew[m]["ORDER_QUANTITY"].ToString();
                     drImport["ORDER_DATE"] = drnew[m]["ORDER_DATE"].ToString();
                     drImport["RECEIVED_QUANTITY"] = drnew[m]["RECEIVED_QUANTITY"].ToString() == "" ? "0" : drnew[m]["RECEIVED_QUANTITY"].ToString();
-                    drImport["SJNRTime"] = drnew[m]["SJNRTime"].ToString();
+                    //drImport["SJNRTime"] = drnew[m]["SJNRTime"].ToString() == "" ? "NULL" : drnew[m]["SJNRTime"].ToString();
                     drImport["COST_GROUP"] = drnew[m]["COST_GROUP"].ToString();
-                    drImport["YanShouDate"] = drnew[m]["YanShouDate"].ToString();
-                    drImport["Email_TIME"] = drnew[m]["Email_TIME"].ToString();
+                    //drImport["YanShouDate"] = drnew[m]["YanShouDate"].ToString();
+                    //drImport["Email_TIME"] = drnew[m]["Email_TIME"].ToString();
                     drImport["CREATE_TIME"] = drnew[m]["CREATE_TIME"].ToString();
                     drImport["PART_ID"] = drnew[m]["PART_ID"].ToString();
                     drImport["SUPPLIER_CODE"] = drnew[m]["SUPPLIER_CODE"].ToString();
@@ -630,6 +640,30 @@ namespace BatchProcess
         }
 
         #endregion
+
+
+        #region 查找资材删除订单
+
+        public DataTable SearchDeleteMapsOrder()
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("  select * from TB_B0030_Delete where (ASCII(SUBSTRING(ORDER_NO,1,1))between 65 and 90) and (ASCII(SUBSTRING(ORDER_NO,2,1))between 65 and 90)  ");
+
+                return this.MAPSSearch(strSql.ToString());
+              
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+
 
         #region 获取安全在库数据
 

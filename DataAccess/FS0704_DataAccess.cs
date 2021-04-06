@@ -38,24 +38,24 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFromB))
                 {
-                    dFromB = "1990-01-01 0:00:00";
+                    dFromB = "1900-01-01 0:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dFromE))
                 {
-                    dFromE = "3000-01-01 0:00:00";
+                    dFromE = "9999-12-31 0:00:00";
 
                 }
                 if (string.IsNullOrEmpty(dToB))
                 {
-                    dToB = "1990-01-01 0:00:00";
+                    dToB = "1900-01-01 0:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dToE))
                 {
-                    dToE = "3000-01-01 0:00:00";
+                    dToE = "9999-12-31 0:00:00";
 
                 }
                 StringBuilder strSql = new StringBuilder();
@@ -156,7 +156,6 @@ namespace DataAccess
                         sql.AppendLine("  UPDATE TPackFaZhuTime");
                         sql.AppendLine("  SET ");
                         sql.AppendLine($"   vcFaZhuID = {ComFunction.getSqlValue(listInfoData[i]["vcFaZhuID"], false)},");
-                        sql.AppendLine($"   vcFaZhu = {ComFunction.getSqlValue(listInfoData[i]["vcFaZhu"], false)},");
                         sql.AppendLine($"   vcRuHeFromDay = {ComFunction.getSqlValue(listInfoData[i]["vcRuHeFromDay"], false)},");
                         sql.AppendLine($"   dRuHeFromTime = {ComFunction.getSqlValue(listInfoData[i]["dRuHeFromTime"], true)},");
                         sql.AppendLine($"   vcRuHeToDay = {ComFunction.getSqlValue(listInfoData[i]["vcRuHeToDay"], false)},");
@@ -231,11 +230,11 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 if (iAutoId == "")
                 {
-                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhu='" + strFaZhu + "'   order by dRuHeFromTime asc      \n");
+                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhuID='" + strFaZhu + "'   order by dRuHeFromTime asc      \n");
                 }
                 else
                 {
-                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhu='" + strFaZhu + "' and iAutoId <>'" + iAutoId + "'  order by dRuHeFromTime asc    \n");
+                    strSql.Append("  select* from TPackFaZhuTime where vcFaZhuID='" + strFaZhu + "' and iAutoId <>'" + iAutoId + "'  order by dRuHeFromTime asc    \n");
                 }
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());

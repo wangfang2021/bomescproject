@@ -20,7 +20,7 @@ namespace DataAccess
             {
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("      select vcPackSupplierCode as vcValue,vcPackSupplierName as vcName from TPackSupplier; ");
+                strSql.AppendLine("     select distinct vcSupplierCode  as vcValue,vcSupplierName as vcName from TPackBase where vcSupplierCode is not null ");
 
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
@@ -88,6 +88,7 @@ namespace DataAccess
                 strSql.AppendLine("   )a left join    ");
                 strSql.AppendLine("   (    ");
                 strSql.AppendLine("   select vcSupplierCode,vcSupplierName,vcParstName,vcFormat,vcPackNo,vcPackGPSNo from TPackBase    ");
+                strSql.AppendLine("      where getdate() between dPackFrom and dPackTo      ");
                 strSql.AppendLine("   )b on a.vcPackNo=b.vcPackNo     ");
                 strSql.AppendLine("   group by  a.vcSupplieCode,b.vcSupplierName,a.vcPackGPSNo,b.vcParstName,b.vcFormat    ");
                 strSql.AppendLine("   ,a.vcUnit,a.vcCostID    ");
@@ -131,7 +132,7 @@ namespace DataAccess
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcParstName"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcFormat"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcUnit"].ToString() + "',   ");
-                    sql.AppendLine("    '" + listInfoData.Rows[i]["isjNum"].ToString() + "',   ");
+                    sql.AppendLine("    '" + Decimal.ToInt32(Convert.ToDecimal(listInfoData.Rows[i]["isjNum"].ToString())) + "',   ");
                     sql.AppendLine("    '',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcCostID"].ToString() + "'  ");
                     sql.AppendLine("     ) ");
@@ -173,7 +174,7 @@ namespace DataAccess
                     sql.AppendLine("            ,[vcPackGPSNo]    ");
                     sql.AppendLine("            ,[vcPackNo]    ");
                     sql.AppendLine("            ,[dNaRuYuDing]    ");
-                    sql.AppendLine("            ,[vcNaRuBianCi]    ");
+                    sql.AppendLine("            ,[iOrderNumber]    ");
                     sql.AppendLine("            ,[dNaRuShiJi]    ");
                     sql.AppendLine("            ,[iSJNumber])    ");
                     sql.AppendLine("      VALUES     ");
@@ -183,7 +184,7 @@ namespace DataAccess
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcPackGPSNo"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["vcPackNo"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["dNaRuYuDing"].ToString() + "',   ");
-                    sql.AppendLine("    '" + listInfoData.Rows[i]["vcNaRuBianCi"].ToString() + "',   ");
+                    sql.AppendLine("    '" + listInfoData.Rows[i]["iOrderNumber"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["dNaRuShiJi"].ToString() + "',   ");
                     sql.AppendLine("    '" + listInfoData.Rows[i]["iSJNumber"].ToString() + "'   ");
                     sql.AppendLine("     ) ");
@@ -219,7 +220,7 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dFrom))
                 {
-                    dFrom = "1990-01-01 0:00:00";
+                    dFrom = "1900-01-01 0:00:00";
 
                 }
 
@@ -230,12 +231,12 @@ namespace DataAccess
                 }
 
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("  select a.vcSupplieCode,a.vcOrderNo,a.vcPackGPSNo,a.vcPackNo,b.dNaRuYuDing,b.vcNaRuBianCi,b.iSJNumber,b.dNaRuShiJi from    ");
+                strSql.AppendLine("  select a.vcSupplieCode,a.vcOrderNo,a.vcPackGPSNo,a.vcPackNo,b.dNaRuYuDing,b.vcNaRuBianCi,b.iSJNumber,b.dNaRuShiJi,b.iOrderNumber from    ");
                 strSql.AppendLine("  (    ");
                 strSql.AppendLine("    select c.vcSupplieCode,c.vcOrderNo,c.vcPackGPSNo,c.vcPackNo from(    ");
                 strSql.AppendLine("     select vcSupplieCode,vcOrderNo,vcPackGPSNo,vcPackNo from TPackRuKuInFo    "); 
                 strSql.AppendLine("     --已验收时段为判断条件    ");
-                strSql.AppendLine("     where  dYanshouTime is not null     ");
+                strSql.AppendLine("      where  isnull(vcSJTime,'')<>''     ");
                 strSql.AppendLine("  and dYanshouTime between '" + dFrom + "' and '" + dTo + "'     ");
                 if (strSupplierCode.Count != 0)
                 {
@@ -269,6 +270,7 @@ namespace DataAccess
                 strSql.AppendLine("     )c left join     ");
                 strSql.AppendLine("     (     ");
                 strSql.AppendLine("     select * from TPackBase     ");
+                strSql.AppendLine("     where GETDATE() between dPackFrom and dPackTo   ");
                 strSql.AppendLine("     )d on c.vcPackNo=d.vcPackNo     ");
                 strSql.AppendLine("        ");
                 strSql.AppendLine("  )a left join     ");

@@ -12,6 +12,7 @@ namespace Logic
     {
         FS1103_DataAccess fs1103_DataAccess;
         FS0603_Logic fS0603_Logic = new FS0603_Logic();
+        FS0617_Logic fS0617_Logic = new FS0617_Logic();
 
         public FS1103_Logic()
         {
@@ -147,9 +148,51 @@ namespace Logic
         {
             fs1103_DataAccess.setPrintTemp(dtInputTemp, dtTagTemp, strOperId, ref dtMessage);
         }
-        public DataTable getTempInfo(string strOperId,string strType)
+        public DataTable getTempInfo(string strOperId, string strType)
         {
             return fs1103_DataAccess.getTempInfo(strOperId, strType);
+        }
+
+        public void getPrintInfo(string strPartId, string strPrintNum, string strOperId, ref DataTable dtMessage)
+        {
+            //校验品番是否存在
+            DataTable dtPartInfo = fs1103_DataAccess.getPartInfo(strPartId);
+            if (dtPartInfo.Rows.Count == 0)
+            {
+                DataRow dataRow = dtMessage.NewRow();
+                dataRow["vcMessage"] = "品番不在采购基础数据中，请确认";
+                dtMessage.Rows.Add(dataRow);
+            }
+            if (dtMessage != null && dtMessage.Rows.Count != 0)
+                return;
+            int iPrintNum = Convert.ToInt32(strPrintNum);
+            DataTable dtTag = fs1103_DataAccess.getPrintTemp("tag_FS1103");
+            DataTable dtTagTemp = dtTag.Clone();
+            for (int i = 1; i <= iPrintNum; i++)
+            {
+                DataRow drTagTemp = dtTagTemp.NewRow();
+
+                drTagTemp["vcPartsnameen"] = dtPartInfo.Rows[0]["vcPartsnameen"].ToString();
+                drTagTemp["vcPart_id"] = dtPartInfo.Rows[0]["vcPart_id"].ToString();
+                drTagTemp["vcInno"] = dtPartInfo.Rows[0]["vcInno"].ToString();
+                drTagTemp["vcCpdcompany"] = dtPartInfo.Rows[0]["vcCpdcompany"].ToString();
+                drTagTemp["vcLabel"] = dtPartInfo.Rows[0]["vcLabel1"].ToString();
+                drTagTemp["vcGetnum"] = dtPartInfo.Rows[0]["vcGetnum"].ToString();
+                drTagTemp["iDateprintflg"] = dtPartInfo.Rows[0]["iDateprintflg"].ToString();
+                drTagTemp["vcComputernm"] = dtPartInfo.Rows[0]["vcComputernm"].ToString();
+                drTagTemp["vcPrindate"] = dtPartInfo.Rows[0]["vcPrindate"].ToString();
+                byte[] iCodemage = fS0617_Logic.GenerateQRCode(dtPartInfo.Rows[0]["vcQrcodeString1"].ToString());//二维码信息
+                drTagTemp["iQrcode"] = iCodemage;
+                drTagTemp["vcPrintcount"] = dtPartInfo.Rows[0]["vcPrintcount1"].ToString();
+                drTagTemp["vcPartnamechineese"] = dtPartInfo.Rows[0]["vcPartnamechineese"].ToString();
+                drTagTemp["vcSuppliername"] = dtPartInfo.Rows[0]["vcSuppliername"].ToString();
+                drTagTemp["vcSupplieraddress"] = dtPartInfo.Rows[0]["vcSupplieraddress"].ToString();
+                drTagTemp["vcExecutestandard"] = dtPartInfo.Rows[0]["vcExecutestandard"].ToString();
+                drTagTemp["vcCartype"] = dtPartInfo.Rows[0]["vcCartype"].ToString();
+                drTagTemp["vcHostip"] = "";
+                dtTagTemp.Rows.Add(drTagTemp);
+            }
+            fs1103_DataAccess.setPrintTemp(dtTagTemp, strOperId, ref dtMessage);
         }
 
     }

@@ -102,7 +102,7 @@ namespace DataAccess
             StringBuilder strSQL = new StringBuilder();
             strSQL.Append("select substring(vcPartsNo,0, 6) + '-' + substring(vcPartsNo,6, 5) + '-' + substring(vcPartsNo,11, 2) as vcPartsNo,");
             strSQL.Append("dTimeFrom, dTimeTo, vcPartPlant, vcDock, vcCarFamilyCode, vcPartsNameEN,");
-            strSQL.Append("vcQFflag, iQuantityPerContainer, vcQJcontainer, vcPorType, vcZB, t.vcName as vcPartFrequence, vcCpdCompany, vcSupplierCode,");
+            strSQL.Append("vcQFflag, convert(int,isnull(iQuantityPerContainer,0)) as iQuantityPerContainer, convert(int,isnull(vcQJcontainer,0)) as vcQJcontainer, vcPorType, convert(int,isnull(vcZB,0)) as vcZB, t.vcName as vcPartFrequence, vcCpdCompany, vcSupplierCode,");
             strSQL.Append("'0' as iFlag, '0' as vcModFlag, '0' as vcAddFlag, iAutoId ");
             strSQL.Append("from TPartInfoMaster ");
             strSQL.Append("left join (select vcCodeId, vcName, vcValue from TCode where vcCodeId='C047') t ");

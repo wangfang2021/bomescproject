@@ -1761,6 +1761,11 @@ namespace Common
 
         #endregion
 
+        /// <summary>
+        /// 默认上传文件到116
+        /// </summary>
+        /// <param name="FtpRemotePath">指定FTP连接成功后的当前目录, 如果不指定即默认为根目录</param>
+        /// <param name="filename">源文件完整路径</param>
         public static void FtpUpload(string FtpRemotePath, string filename)
         {
             try
@@ -1773,7 +1778,10 @@ namespace Common
                 throw ex;
             }
         }
-
+        /// <summary>
+        /// 默认连接116Ftp
+        /// </summary>
+        /// <param name="FtpRemotePath">指定FTP连接成功后的当前目录, 如果不指定即默认为根目录</param>
         public static FTPHelper DefaultFtpHelper(string FtpRemotePath)
         {
             try

@@ -59,24 +59,24 @@ namespace DataAccess
 
                 if (string.IsNullOrEmpty(dtFromBegin))
                 {
-                    dtFromBegin = "1990-01-01 0:00:00";
+                    dtFromBegin = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dtFromEnd))
                 {
-                    dtFromEnd = "9999-12-31 0:00:00";
+                    dtFromEnd = "9999-12-31 23:59:59";
 
                 }
                 if (string.IsNullOrEmpty(dtToBegin))
                 {
-                    dtToBegin = "1990-01-01 0:00:00";
+                    dtToBegin = "1900-01-01 00:00:00";
 
                 }
 
                 if (string.IsNullOrEmpty(dtToEnd))
                 {
-                    dtToEnd = "9999-12-31 0:00:00";
+                    dtToEnd = "9999-12-31 23:59:59";
 
                 }
 
@@ -194,24 +194,31 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendLine("   select * from TPackItem where   iAutoId<>'" + iAutoId + "'  ");
+                strSql.AppendLine("  select * from   ");
+                strSql.AppendLine("  (  ");
+                strSql.AppendLine("  select * from TPackItem  ");
+                strSql.AppendLine("  )a left join  ");
+                strSql.AppendLine("  (  ");
+                strSql.AppendLine("  select * from TPackageMaster  ");
+                strSql.AppendLine("  )b on a.vcPartsNo=b.vcPart_id  ");
+                strSql.AppendLine("    where   a.iAutoId<>'" + iAutoId + "'  ");
                 if (!string.IsNullOrEmpty(vcPackSpot)) {
-                    strSql.AppendLine("and vcPackSpot='" + vcPackSpot + "'   ");
+                    strSql.AppendLine("and b.vcBZPlant='" + vcPackSpot + "'   ");
                 }
                 if (!string.IsNullOrEmpty(vcPartsNo))
                 {
-                    strSql.AppendLine("and vcPartsNo='" + vcPartsNo + "'   ");
+                    strSql.AppendLine("and a.vcPartsNo='" + vcPartsNo + "'   ");
                 }
                 if (!string.IsNullOrEmpty(vcShouhuofangID))
                 {
-                    strSql.AppendLine("and vcShouhuofangID='" + vcShouhuofangID + "'   ");
+                    strSql.AppendLine("and a.vcShouhuofangID='" + vcShouhuofangID + "'   ");
                 }
                 if (!string.IsNullOrEmpty(vcPackNo))
                 {
-                    strSql.AppendLine("and vcPackNo='" + vcPackNo + "'  ");
+                    strSql.AppendLine("and a.vcPackNo='" + vcPackNo + "'  ");
                 }
-                strSql.AppendLine("and dFrom<='"+ dUsedTo + "' and dTo>='"+ dUsedFrom + "' ");
-                strSql.AppendLine("and isnull(vcPackNo,'')<>'' and  iBiYao is not null and isnull(vcDistinguish,'')<>'' ");
+                strSql.AppendLine("and a.dFrom<='"+ dUsedTo + "' and a.dTo>='"+ dUsedFrom + "' ");
+                strSql.AppendLine("and isnull(a.vcPackNo,'')<>'' and  a.iBiYao is not null and isnull(a.vcDistinguish,'')<>'' ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

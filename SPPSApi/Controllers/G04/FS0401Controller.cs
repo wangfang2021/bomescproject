@@ -44,10 +44,12 @@ namespace SPPSApi.Controllers.G04
 
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外
                 List<Object> dataList_C047 = ComFunction.convertAllToResult(ComFunction.getTCode("C047"));//订货方式
+                List<Object> dataList_CarType = ComFunction.convertAllToResult(fs0401_Logic.getCarType());//车种
 
 
                 res.Add("C003", dataList_C003);
                 res.Add("C047", dataList_C047);
+                res.Add("CarType", dataList_CarType);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -148,7 +150,7 @@ namespace SPPSApi.Controllers.G04
 
                 DataTable dt = fs0401_Logic.searchApi(Part_id, TimeFrom, TimeTo, carType, InOut, DHFlag);
                 string[] fields = { "vcPackingPlant", "vcPartIdDC", "dFromTime", "dToTime", "vcPartId_Replace", "vcCarfamilyCode", "vcInOut_name", "vcHaoJiu_name", "vcOrderingMethod_name", "iPackingQty", "BoxFromTime_ed", "BoxToTime_ed", "vcOldProduction_name", "dDebugTime" };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0401.xlsx", 1, loginInfo.UserId, FunctionID,true);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0401.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

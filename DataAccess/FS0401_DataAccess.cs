@@ -177,5 +177,23 @@ namespace DataAccess
             }
         }
 
+        public DataTable getCarType()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcCarfamilyCode AS vcName,a.vcCarfamilyCode AS vcValue FROM");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT DISTINCT vcCarfamilyCode FROM dbo.TSPMaster ");
+                sbr.AppendLine(") a");
+
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

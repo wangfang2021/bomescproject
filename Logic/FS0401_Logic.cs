@@ -22,6 +22,10 @@ namespace Logic
 
         #endregion
 
+        public DataTable getCarType()
+        {
+            return fs0401_dataAccess.getCarType();
+        }
     }
 
 }

@@ -178,7 +178,7 @@ namespace DataAccess
         {
             try
             {
-                string ssql = "select '' as vcValue,'' as vcName union all select distinct vcData1 as vcValue,vcData1 as vcName from ConstMst where vcDataID='ProType'";
+                string ssql = "select distinct vcData1 as vcValue,vcData1 as vcName from ConstMst where vcDataID='ProType'";
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql);
             }
@@ -206,10 +206,6 @@ namespace DataAccess
             {
                 DataTable dt = new DataTable();
                 StringBuilder ssql = new StringBuilder();
-                if (zb == "")
-                {
-                    ssql.AppendLine("select '' as vcValue,'' as vcName union all ");
-                }
                 ssql.AppendLine(" select distinct vcData1 as vcValue,vcData1 as vcName from ConstMst where vcDataID='ProType'");
                 if (zb != "")
                 {
@@ -227,15 +223,10 @@ namespace DataAccess
             try
             {
                 StringBuilder ssql = new StringBuilder();
-                if (Protype == "")
-                {
-                    ssql.AppendLine("select '' as vcValue,'' as vcName union all");
-                }
                 ssql.AppendLine(" select distinct vcData3 as vcValue,vcData3 as vcName from ConstMst where vcDataID='ProType'");
                 if (Protype != "")
                 {
                     ssql.AppendLine(" and vcData1='" + Protype + "'");
-                    ssql.AppendLine(" union all select distinct '' as vcValue,'' as vcName from ConstMst");
                 }
                 DataTable dt = new DataTable();
                 return excute.ExcuteSqlWithSelectToDT(ssql.ToString());
@@ -251,9 +242,7 @@ namespace DataAccess
             {
                 DataTable dt = new DataTable();
                 string ssql = "";
-                ssql += " select '' as vcValue, '' as vcName ";
-                ssql += " union ";
-                ssql += " select vcData1+'-'+vcData3, vcData1+'-'+vcData3 from ConstMst where vcDataId='ProType' or vcDataId='CalendarType' and vcData10 is null";
+                ssql += " select vcData1+'-'+vcData3 as vcValue, vcData1+'-'+vcData3 as vcName from ConstMst where vcDataId='ProType' or vcDataId='CalendarType' and vcData10 is null";
                 ssql += " union";
                 ssql += " select AA+'-'+BB as vcValue, AA+'-'+BB as vcName from ";
                 ssql += " (SELECT distinct [vcData2] as AA FROM [ConstMst] where vcDataId='KBpartType' and vcData1='1') a";
@@ -390,9 +379,9 @@ namespace DataAccess
                         }
                         sb.Length = 0;
                         sb.AppendLine("  INSERT INTO ProRuleMst");
-                        sb.AppendLine("             ([vcPorType],[vcZB],KBpartType,[vcProName0],[vcLT0],[vcCalendar0],[vcProName1],[vcLT1] ");
-                        sb.AppendLine("  ,[vcCalendar1],[vcProName2],[vcLT2],[vcCalendar2],[vcProName3],[vcLT3],[vcCalendar3] ");
-                        sb.AppendLine("  ,[vcProName4],[vcLT4],[vcCalendar4],[LogicType],[DADDTIME],[CUPDUSER]) ");
+                        sb.AppendLine("             (vcPorType,vcZB,KBpartType,vcProName0,vcLT0,vcCalendar0,vcProName1,vcLT1 ");
+                        sb.AppendLine("  ,vcCalendar1,vcProName2,vcLT2,vcCalendar2,vcProName3,vcLT3,vcCalendar3 ");
+                        sb.AppendLine("  ,vcProName4,vcLT4,vcCalendar4,LogicType,DADDTIME,CUPDUSER) ");
                         sb.AppendFormat("       VALUES('{0}' ", dt.Rows[i]["vcPorType"].ToString());
                         sb.AppendFormat("      , '{0}' ", dt.Rows[i]["vcZB"].ToString());
                         sb.AppendFormat("      , '{0}' ", dt.Rows[i]["KBpartType"].ToString());
@@ -449,7 +438,7 @@ namespace DataAccess
                     {
                         StringBuilder sb = new StringBuilder();
                         sb.AppendLine(" DELETE FROM ProRuleMst ");
-                        sb.AppendFormat("  WHERE [vcPorType] ='{0}' and [vcZB]='{1}' ", dt.Rows[i]["vcPorType"].ToString(), dt.Rows[i]["vcZB"].ToString());
+                        sb.AppendFormat("  WHERE vcPorType='{0}' and vcZB='{1}' ", dt.Rows[i]["vcPorType"].ToString(), dt.Rows[i]["vcZB"].ToString());
                         cmd.CommandText = sb.ToString();
                         cmd.ExecuteNonQuery();
                     }

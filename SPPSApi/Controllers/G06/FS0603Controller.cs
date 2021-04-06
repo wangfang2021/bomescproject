@@ -189,7 +189,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, strOrderby, strOrderingMethod, strMandOrder, strSPChild);
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, strOrderby, strOrderingMethod, strMandOrder, strSPChild, false);
 
                 DataTable dttaskNum = fs0603_Logic.gettaskNum();
                 string taskoutNum = "0";
@@ -290,7 +290,7 @@ namespace SPPSApi.Controllers.G06
             {
                 DataTable dtMessage = fs0603_Logic.createTable("MES");
                 DataTable dtMainInfo = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "", strOrderingMethod, strMandOrder, strSPChild);
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "", strOrderingMethod, strMandOrder, strSPChild, false);
                 DataTable dtSPInfo = fs0603_Logic.getSubInfo("SupplierPlantEdit", "", strPartId, strReceiver, strSupplierId, "");
                 DataTable dtPQInfo = fs0603_Logic.getSubInfo("PackingQtyEdit", "", strPartId, strReceiver, strSupplierId, "");
                 DataTable dtSIInfo = fs0603_Logic.getSubInfo("SufferInEdit", "", strPartId, strReceiver, strSupplierId, "");
@@ -521,7 +521,7 @@ namespace SPPSApi.Controllers.G06
                 bool bAddFlag = (bool)dRowinfo.bAddFlag;//true可编辑,false不可编辑
                 if (bAddFlag == true)
                 {
-                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", "", "", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant, true, "", "", "", "");
+                    DataTable dtSPInfo = fs0603_Logic.getSearchInfo("", "", "", strPartId, "", strReceiver, "", "", strSupplierId, "", "", "", "", "", "", "", "", "", strPackingPlant, true, "", "", "", "", false);
                     if (dtSPInfo.Rows.Count != 0)
                     {
                         DataRow dataRow = dtMessage.NewRow();
@@ -1263,7 +1263,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dataTable = fs0603_Logic.getSearchInfo(strSyncTime_from, strSyncTime_to, strChanges, strPartId, strCarModel, strReceiver, strInOut, strHaoJiu, strSupplierId, strSupplierPlant,
-                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "", strOrderingMethod, strMandOrder, strSPChild);
+                    strOrderPlant, strFromTime, strToTime, strBoxType, strSufferIn, strSupplierPacking, strOldProduction, strDebugTime, "", false, "", strOrderingMethod, strMandOrder, strSPChild,true);
                 dataTable.Columns.Add("vcType");
                 string[] fields = {"vcType",
                     "dSyncTime","vcChanges_name","vcPackingPlant","vcPartId","vcPartENName","vcCarfamilyCode",

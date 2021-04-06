@@ -147,7 +147,8 @@ namespace DataAccess
             }
         }
         public DataTable getSearchInfo(string strSyncTime_from, string strSyncTime_to, string strChanges, string strPartId, string strCarModel, string strReceiver, string strInOut, string strHaoJiu, string strSupplierId, string strSupplierPlant,
-                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, string strOrderingMethod, string strMandOrder, string strSPChild)
+                    string strOrderPlant, string strFromTime, string strToTime, string strBoxType, string strSufferIn, string strSupplierPacking, string strOldProduction, string strDebugTime, string strPackingPlant, bool bCheck, string strOrderby, 
+                    string strOrderingMethod, string strMandOrder, string strSPChild, bool bNow)
         {
             try
             {
@@ -217,6 +218,11 @@ namespace DataAccess
                 if (!bCheck)
                 {
                     strSql.AppendLine(" and isnull(vcDelete, '') <> '1'");
+                }
+                if (bNow)
+                {
+                    strSql.AppendLine(" AND (([dFromTime]<=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))");
+                    strSql.AppendLine(" OR ([dFromTime]>=CONVERT(VARCHAR(10),GETDATE(),23) AND [dToTime]>=CONVERT(VARCHAR(10),GETDATE(),23))) ");
                 }
                 if (strSyncTime_from != "" && strSyncTime_to != "")
                 {

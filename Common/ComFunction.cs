@@ -1779,6 +1779,25 @@ namespace Common
             }
         }
         /// <summary>
+        /// 下载文件到所选目录
+        /// </summary>
+        /// <param name="FtpRemotePath">指定FTP连接成功后的当前目录, 如果不指定即默认为根目录</param>
+        /// <param name="filePath">文件保存路径</param>
+        /// <param name="fileName">文件名</param>
+        public static string FtpDownload(string FtpRemotePath, string filePath, string fileName)
+        {
+            try
+            {
+                FTPHelper helper = new FTPHelper("172.23.180.116:21111", FtpRemotePath, "Administrator", "TFTMspps116");
+                return helper.Download(filePath, fileName);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// 默认连接116Ftp
         /// </summary>
         /// <param name="FtpRemotePath">指定FTP连接成功后的当前目录, 如果不指定即默认为根目录</param>

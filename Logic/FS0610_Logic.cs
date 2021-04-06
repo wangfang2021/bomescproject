@@ -139,7 +139,7 @@ namespace Logic
             {
                 //判断SOQREPLY是否存在
                 DataTable dt_info = fs0610_DataAccess.getSoqInfo(vcDxny, vcFZGC[k]);
-                if (dt_info.Rows.Count == 0)
+                if (dt_info == null || dt_info.Rows.Count == 0)
                 {
                     return "请先导入“" + vcFZGC[k] + "厂”SOQREPLY再生成计划！";
                 }
@@ -147,7 +147,7 @@ namespace Logic
                 {
                     for (int i = 0; i < dt_info.Rows.Count; i++)
                     {
-                        if (dt_info.Rows[i]["kbsrs"].ToString().Length == 0)
+                        if (dt_info.Rows[i]["kbsrs"] == null || string.IsNullOrEmpty(dt_info.Rows[i]["kbsrs"].ToString()))
                         {
                             return vcFZGC[k] + "厂品番：" + dt_info.Rows[i]["Partsno"].ToString() + "器具收容数未维护！";
                         }
@@ -370,7 +370,6 @@ namespace Logic
                             if (Convert.ToInt32(dtpro.Rows[m]["zhou"].ToString().Length > 0 ? dtpro.Rows[m]["zhou"].ToString() : "0") >= 5 && dtpro.Rows[m]["zhi"].ToString() != "9999")
                             {
                                 dtpro.Rows[m]["zhou"] = 5;
-                                ;
                             }
                         }
                         // 2014-12-2 修正52值得问题 end

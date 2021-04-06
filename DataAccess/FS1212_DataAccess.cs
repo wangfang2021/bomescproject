@@ -102,7 +102,46 @@ namespace DataAccess
             StringBuilder strSQL = new StringBuilder();
             strSQL.Append("select substring(vcPartsNo,0, 6) + '-' + substring(vcPartsNo,6, 5) + '-' + substring(vcPartsNo,11, 2) as vcPartsNo,");
             strSQL.Append("dTimeFrom, dTimeTo, vcPartPlant, vcDock, vcCarFamilyCode, vcPartsNameEN,");
-            strSQL.Append("vcQFflag, convert(int,isnull(iQuantityPerContainer,0)) as iQuantityPerContainer, convert(int,isnull(vcQJcontainer,0)) as vcQJcontainer, vcPorType, convert(int,isnull(vcZB,0)) as vcZB, t.vcName as vcPartFrequence, vcCpdCompany, vcSupplierCode,");
+            strSQL.Append("vcQFflag, iQuantityPerContainer, vcQJcontainer, vcPorType, vcZB, t.vcName as vcPartFrequence, vcCpdCompany, vcSupplierCode,");
+            strSQL.Append("'0' as iFlag, '0' as vcModFlag, '0' as vcAddFlag, iAutoId ");
+            strSQL.Append("from TPartInfoMaster ");
+            strSQL.Append("left join (select vcCodeId, vcName, vcValue from TCode where vcCodeId='C047') t ");
+            strSQL.Append("on vcPartFrequence=t.vcValue ");
+            strSQL.Append("where vcInOutFlag='0' ");
+            if (!string.IsNullOrEmpty(vcPartsNo))
+            {
+                strSQL.AppendLine(" and vcPartsNo like '" + vcPartsNo + "%'");
+            }
+            if (!string.IsNullOrEmpty(vcCarFamilyCode))
+            {
+                strSQL.AppendLine(" and vcCarFamilyCode like '" + vcCarFamilyCode + "%'");
+            }
+            if (vcPorType != "")
+            {
+                strSQL.AppendLine(" and vcPorType like '%" + vcPorType + "%'");
+            }
+            if (vcZB != "")
+            {
+                strSQL.AppendLine(" and vcZB like '" + vcZB + "%'");
+            }
+            if (vcPartPlant != "")
+            {
+                strSQL.AppendLine(" and vcPartPlant like '" + vcPartPlant + "%'");
+            }
+            if (vcPartFrequence != "")
+            {
+                strSQL.AppendLine(" and vcPartFrequence='" + vcPartFrequence + "'");
+            }
+            strSQL.AppendLine(" order by vcPartsNo");
+            return excute.ExcuteSqlWithSelectToDT(strSQL.ToString());
+        }
+
+        public DataTable OutputPartData(string vcPartsNo, string vcCarFamilyCode, string vcPorType, string vcZB, string vcPartPlant, string vcPartFrequence)
+        {
+            StringBuilder strSQL = new StringBuilder();
+            strSQL.Append("select substring(vcPartsNo,0, 6) + '-' + substring(vcPartsNo,6, 5) + '-' + substring(vcPartsNo,11, 2) as vcPartsNo,");
+            strSQL.Append("dTimeFrom, dTimeTo, vcPartPlant, vcDock, vcCarFamilyCode, vcPartsNameEN,");
+            strSQL.Append("vcQFflag, case when len(iQuantityPerContainer)>0 then convert(int,iQuantityPerContainer) end as iQuantityPerContainer,  case when len(vcQJcontainer)>0 then convert(int,vcQJcontainer) end as vcQJcontainer, vcPorType, case when len(vcZB)>0 then convert(int,vcZB) end as vcZB, t.vcName as vcPartFrequence, vcCpdCompany, vcSupplierCode,");
             strSQL.Append("'0' as iFlag, '0' as vcModFlag, '0' as vcAddFlag, iAutoId ");
             strSQL.Append("from TPartInfoMaster ");
             strSQL.Append("left join (select vcCodeId, vcName, vcValue from TCode where vcCodeId='C047') t ");

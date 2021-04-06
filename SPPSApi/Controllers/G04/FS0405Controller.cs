@@ -186,7 +186,7 @@ namespace SPPSApi.Controllers.G03
                 string strFileName = "SOQREP_" + "0_" + strYearMonth + "_" + strInOutFlag + "_" + DateTime.Now.ToString("yyyy")+DateTime.Now.ToString("MM")+DateTime.Now.ToString("dd")+DateTime.Now.ToString("HH")+DateTime.Now.ToString("mm")+DateTime.Now.ToString("ss")+".xlsx";
 
                 string RetMsg = "";
-                string filepath = fs0405_Logic.generateExcelWithXlt(dt, ExcelHeader, _webHostEnvironment.ContentRootPath, "FS0405.xlsx", 1, loginInfo.UserId, strFileName, false);
+                string filepath = fs0405_Logic.generateExcelWithXlt(dt, ExcelHeader, _webHostEnvironment.ContentRootPath, "FS0405.xlsx", 1, loginInfo.UserId, strFileName, true);
 
                 if (RetMsg != "")
                 {

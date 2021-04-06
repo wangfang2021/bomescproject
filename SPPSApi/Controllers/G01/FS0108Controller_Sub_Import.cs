@@ -136,15 +136,15 @@ namespace SPPSApi.Controllers.G01
                     string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
                     string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
-                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString();
-                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString();
+                    string vcStart = Convert.ToDateTime(dtadd.Rows[i]["vcValue3"].ToString().Replace("/","-")).ToString();
+                    string vcEnd = Convert.ToDateTime( dtadd.Rows[i]["vcValue4"].ToString().Replace("/", "-")).ToString();
                     for (int j = i + 1; j < dtadd.Rows.Count; j++)
                     {
                         string vcSupplier1 = dtadd.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtadd.Rows[j]["vcValue2"].ToString();
                         string vcFzgc1 = dtadd.Rows[j]["vcValue5"].ToString();
-                        string vcStart1 = dtadd.Rows[j]["vcValue3"].ToString();
-                        string vcEnd1 = dtadd.Rows[j]["vcValue4"].ToString();
+                        string vcStart1 = Convert.ToDateTime(dtadd.Rows[j]["vcValue3"].ToString().Replace("/", "-")).ToString();
+                        string vcEnd1 = Convert.ToDateTime(dtadd.Rows[j]["vcValue4"].ToString().Replace("/", "-")).ToString();
                         if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
                         {
                             if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
@@ -167,8 +167,8 @@ namespace SPPSApi.Controllers.G01
                         string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
                         string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
-                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString();
-                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString();
+                        string vcStart1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue3"].ToString().Replace("/", "-")).ToString();
+                        string vcEnd1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue4"].ToString().Replace("/", "-")).ToString();
                         if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
                         {
                             if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
@@ -193,15 +193,15 @@ namespace SPPSApi.Controllers.G01
                     string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
                     string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
-                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString();
-                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString();
+                    string vcStart = Convert.ToDateTime(dtamody.Rows[i]["vcValue3"].ToString().Replace("/", "-")).ToString();
+                    string vcEnd = Convert.ToDateTime(dtamody.Rows[i]["vcValue4"].ToString().Replace("/", "-")).ToString();
                     for (int j = i + 1; j < dtamody.Rows.Count; j++)
                     {
                         string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
                         string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
-                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString();
-                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString();
+                        string vcStart1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue3"].ToString().Replace("/", "-")).ToString();
+                        string vcEnd1 = Convert.ToDateTime(dtamody.Rows[j]["vcValue4"].ToString().Replace("/", "-")).ToString();
                         if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
                         {
                             if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
@@ -236,9 +236,9 @@ namespace SPPSApi.Controllers.G01
                 {
                     string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
-                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString();
+                    string vcStart = Convert.ToDateTime(dtadd.Rows[i]["vcValue3"].ToString().Replace("/", "-")).ToString();
                     string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
-                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString();
+                    string vcEnd = Convert.ToDateTime(dtadd.Rows[i]["vcValue4"].ToString().Replace("/", "-")).ToString();
                     DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
                     if (dtCheck.Rows.Count > 0)
                     {
@@ -255,9 +255,9 @@ namespace SPPSApi.Controllers.G01
                 {
                     string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
                     string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
-                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString();
+                    string vcStart = Convert.ToDateTime(dtamody.Rows[i]["vcValue3"].ToString().Replace("/", "-")).ToString();
                     string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
-                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString();
+                    string vcEnd = Convert.ToDateTime(dtamody.Rows[i]["vcValue4"].ToString().Replace("/", "-")).ToString();
                     DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
                     if (dtCheck.Rows.Count > 0)
                     {

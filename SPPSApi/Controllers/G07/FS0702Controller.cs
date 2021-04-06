@@ -728,7 +728,7 @@ namespace SPPSApi.Controllers.G07
                     }
                     //判断品番是否存在
 
-                    bool isok = FS0702_Logic.CheckPartsNo(listInfoData[i]["vcShouhuofangID"].ToString(), listInfoData[i]["vcPartsNo"].ToString());
+                    bool isok = FS0702_Logic.CheckPartsNo("", listInfoData[i]["vcPartsNo"].ToString());
                     if (!isok)
                     {
                         apiResult.code = ComConstant.ERROR_CODE;

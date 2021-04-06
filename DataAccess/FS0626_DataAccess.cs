@@ -50,7 +50,7 @@ namespace DataAccess
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendLine(" select a.vcPackPlant, '#'+a.vcInjectionFactory as vcInjectionFactory, convert(int,a.vcTargetMonth) as vcTargetMonth, a.vcSupplier_id, a.vcWorkArea, ");
                 strSql.AppendLine(" a.vcDock, convert(int,a.vcOrderNo) as vcOrderNo, convert(int,substring(a.vcOrderNo,1,8)) as vcOrderDate, a.vcPartNo, b.vcName as vcNewOldFlag, ");
-                strSql.AppendLine(" convert(int,a.vcOrderNumber) as vcOrderNumber, a.vcNoReceiveNumber, ");
+                strSql.AppendLine(" convert(int,a.vcOrderNumber) as vcOrderNumber, convert(int,isnull(a.vcNoReceiveNumber,0)) as vcNoReceiveNumber, ");
                 strSql.AppendLine(" a.vcNoReceiveReason, a.vcExpectRedeemDate, 1 as vcFlag, '0' as iflag,'0' as vcModFlag,'0' as vcAddFlag, a.iAutoId  ");
                 strSql.AppendLine(" from TOutsidePurchaseManage a ");
                 strSql.AppendLine(" left join (select vcName,vcValue from TCode where vcCodeId='C004') b ");

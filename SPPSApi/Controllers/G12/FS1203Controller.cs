@@ -134,7 +134,7 @@ namespace SPPSApi.Controllers.G12
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    if(dt.Rows[i]["vcPartsno"].ToString().Substring(12,2) == "00")
+                    if (dt.Rows[i]["vcPartsno"].ToString().Substring(12, 2) == "00")
                     {
                         dt.Rows[i]["vcPartsno"] = dt.Rows[i]["vcPartsno"].ToString().Substring(0, 11);
                     }
@@ -153,7 +153,7 @@ namespace SPPSApi.Controllers.G12
                                     "ED19b","ED19y","ED20b","ED20y","ED21b","ED21y","ED22b","ED22y","ED23b","ED23y","ED24b","ED24y",
                                     "ED25b","ED25y","ED26b","ED26y","ED27b","ED27y","ED28b","ED28y","ED29b","ED29y","ED30b","ED30y","ED31b","ED31y"
                 };
-                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1203_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID);
+                string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1203_PlanMake.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 if (filepath == "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

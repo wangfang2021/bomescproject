@@ -25,6 +25,7 @@ namespace SPPSApi.Controllers.G13
     public class FS1310Controller : BaseController
     {
         FS1310_Logic fS1310_Logic = new FS1310_Logic();
+        FS1404_Logic fS1404_Logic = new FS1404_Logic();
         FS0603_Logic fS0603_Logic = new FS0603_Logic();
         private readonly string FunctionID = "FS1310";
 
@@ -97,6 +98,9 @@ namespace SPPSApi.Controllers.G13
             {
                 DataTable dataTable = fS1310_Logic.getSearchInfo(strPackPlant, strPinMu, strPartId, strOperImage);
                 DtConverter dtConverter = new DtConverter();
+                dtConverter.addField("bAddFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bModFlag", ConvertFieldType.BoolType, null);
+                dtConverter.addField("bSelectFlag", ConvertFieldType.BoolType, null);
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dataTable, dtConverter);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -136,14 +140,6 @@ namespace SPPSApi.Controllers.G13
             try
             {
                 DataTable dataTable = fS1310_Logic.getSearchInfo(strPackPlant, strPinMu, strPartId, strOperImage);
-                for (int i = 0; i < dataTable.Rows.Count; i++)
-                {
-                    dataTable.Rows[i]["LinId"] = (i + 1).ToString();
-                    if (dataTable.Rows[i]["vcOperImage"].ToString() == "/暂无图像.jpg")
-                        dataTable.Rows[i]["vcOperImage"] = "未导入";
-                    else
-                        dataTable.Rows[i]["vcOperImage"] = "已导入";
-                }
                 string[] fields = { "vcPackPlant_name", "vcPartId", "vcPinMu", "vcOperImage", "vcOperator", "vcOperatorTime" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS1310_Export.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
@@ -196,14 +192,83 @@ namespace SPPSApi.Controllers.G13
                     apiResult.data = "没有要导入的文件，请重新上传！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                DataTable dtImport = fS0603_Logic.createTable("Power1310");
                 DirectoryInfo theFolder = new DirectoryInfo(fileSavePath);
+                string strDestPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_pack" + Path.DirectorySeparatorChar + Guid.NewGuid().ToString("N");
                 foreach (FileInfo info in theFolder.GetFiles())
                 {
-                    string strRarPatch = info.FullName;
+                    string strSourcesPath = info.FullName;
+                    string strFileType = info.Name.Substring(info.Name.LastIndexOf('.') + 1).Replace("\"", "");// 扩展名
+                    fS1310_Logic.sharpCompress(strFileType, strSourcesPath, strDestPath);
+
                 }
-                string strMsg = "";
-                //==================
-                //==================
+                DirectoryInfo theFolder_file = new DirectoryInfo(strDestPath + Path.DirectorySeparatorChar);
+                foreach (FileInfo info in theFolder_file.GetFiles())
+                {
+                    string strFilePath = info.FullName;
+                    string strFileName = info.Name;
+                    DataRow drImport = dtImport.NewRow();
+                    drImport["LinId"] = "";
+                    drImport["vcPlant"] = "";
+                    drImport["vcPartId"] = "";
+                    drImport["vcPicUrl"] = strFileName;
+                    drImport["vcPicPath"] = strFilePath;
+                    drImport["vcPicUrlUUID"] = "";
+                    drImport["vcNote"] = "";
+                    dtImport.Rows.Add(drImport);
+                }
+                DataTable dtInfo = fS1310_Logic.checkSaveInfo(dtImport, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                    theFolder_file.Delete(true);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fS1310_Logic.setSaveInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                //保存图片
+                for (int i = 0; i < dtImport.Rows.Count; i++)
+                {
+                    string sources = dtImport.Rows[i]["vcPicPath"].ToString();
+                    string dest = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper" + Path.DirectorySeparatorChar + dtImport.Rows[i]["vcPicUrlUUID"].ToString();
+                    fS1404_Logic.CopyFile(sources, dest);
+                }
+                #region 删除照片
+                theFolder_file.Delete(true);
+                //if (strDelImageRoutes.Length > 0)
+                //{
+                //    if (strDelImageRoutes.LastIndexOf(",") > 0)
+                //    {
+                //        string[] images = dataForm.DelImageRoutes.Split(",");
+                //        for (int i = 0; i < images.Length; i++)
+                //        {
+                //            String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+                //            if (System.IO.File.Exists(realPath + images[i]))
+                //            {
+                //                System.IO.File.Delete(realPath + images[i]);
+                //            }
+                //        }
+                //    }
+                //    else
+                //    {
+                //        String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+                //        if (System.IO.File.Exists(realPath + strDelImageRoutes))
+                //        {
+                //            System.IO.File.Delete(realPath + strDelImageRoutes);
+                //        }
+                //    }
+                //}
+                #endregion
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -234,11 +299,12 @@ namespace SPPSApi.Controllers.G13
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             Dictionary<string, object> res = new Dictionary<string, object>();
-            dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            JArray listInfo = dataForm.multipleSelection;
-            List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
             try
             {
+                dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+                JArray listInfo = dataForm.multipleSelection;
+                List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
+
                 DataTable dtMessage = fS0603_Logic.createTable("MES");
                 if (listInfoData.Count != 1)
                 {
@@ -262,7 +328,7 @@ namespace SPPSApi.Controllers.G13
                 res.Add("PackPlantItem", strPackPlant);
                 res.Add("PartIdItem", strPartId);
                 res.Add("PinMuItem", strPinMu);
-                res.Add("OperImageItem", strOperImage == "/暂无图像.jpg" ? "" : strOperImage);
+                res.Add("PicUrlItem", strOperImage == "暂无图像.jpg" ? "" : strOperImage);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -301,35 +367,71 @@ namespace SPPSApi.Controllers.G13
                 string strPartId = dataForm.PartId;
                 string strPinMu = dataForm.PinMu;
                 string strPackPlant = dataForm.PackPlant;
-                string strOperImage = dataForm.OperImage;
-                string strDelImageRoutes = dataForm.DelImageRoutes;
-                fS1310_Logic.setPackOperImage(strPartId, strPinMu, strPackPlant, strOperImage, loginInfo.UserId);
-                //保存图片
-                if (strDelImageRoutes.Length > 0)
+
+                string strOperImage = dataForm.PicRoutes;
+                string strDelImageRoutes = dataForm.DelPicRoutes;
+
+                DataTable dtImport = fS0603_Logic.createTable("Power1310");
+                DataRow drImport = dtImport.NewRow();
+                drImport["LinId"] = "";
+                drImport["vcPlant"] = strPackPlant;
+                drImport["vcPartId"] = strPartId;
+                drImport["vcPicUrl"] = strOperImage;
+                drImport["vcNote"] = "";
+                dtImport.Rows.Add(drImport);
+                DataTable dtMessage = fS0603_Logic.createTable("MES");
+                string strPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "upload_spis" + Path.DirectorySeparatorChar + "spis" + Path.DirectorySeparatorChar;
+                DataTable dtInfo = fS1310_Logic.checkSaveInfo(dtImport, strPath, ref dtMessage);
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
                 {
-                    if (strDelImageRoutes.LastIndexOf(",") > 0)
-                    {
-                        string[] images = dataForm.DelImageRoutes.Split(",");
-                        for (int i = 0; i < images.Length; i++)
-                        {
-                            String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper";
-                            if (System.IO.File.Exists(realPath + images[i]))
-                            {
-                                System.IO.File.Delete(realPath + images[i]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper";
-                        if (System.IO.File.Exists(realPath + strDelImageRoutes))
-                        {
-                            System.IO.File.Delete(realPath + strDelImageRoutes);
-                        }
-                    }
+                    dtMessage = dtMessage.DefaultView.ToTable(true, "vcMessage");
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                fS1310_Logic.setSaveInfo(dtImport, loginInfo.UserId, ref dtMessage);
+                //保存图片
+                for (int i = 0; i < dtImport.Rows.Count; i++)
+                {
+                    string sources = strPath + dtImport.Rows[i]["vcPicUrl"].ToString();
+                    string dest = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "PackingOper" + Path.DirectorySeparatorChar + dtImport.Rows[i]["vcPicUrlUUID"].ToString();
+                    fS1404_Logic.CopyFile(sources, dest);
+                }
+                #region 删除照片
+                //if (strDelImageRoutes.Length > 0)
+                //{
+                //    if (strDelImageRoutes.LastIndexOf(",") > 0)
+                //    {
+                //        string[] images = dataForm.DelImageRoutes.Split(",");
+                //        for (int i = 0; i < images.Length; i++)
+                //        {
+                //            String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+                //            if (System.IO.File.Exists(realPath + images[i]))
+                //            {
+                //                System.IO.File.Delete(realPath + images[i]);
+                //            }
+                //        }
+                //    }
+                //    else
+                //    {
+                //        String realPath = _webHostEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Image" + Path.DirectorySeparatorChar + "SPISImage" + Path.DirectorySeparatorChar;
+                //        if (System.IO.File.Exists(realPath + strDelImageRoutes))
+                //        {
+                //            System.IO.File.Delete(realPath + strDelImageRoutes);
+                //        }
+                //    }
+                //}
+                #endregion
+                if (dtMessage != null && dtMessage.Rows.Count != 0)
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "list";
+                    apiResult.data = dtMessage;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = "保存成功！";
+                apiResult.data = "保存成功";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
             catch (Exception ex)
@@ -381,7 +483,7 @@ namespace SPPSApi.Controllers.G13
             {
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0204", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "生成印刷文件失败";
+                apiResult.data = "删除操作失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

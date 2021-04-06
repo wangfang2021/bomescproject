@@ -119,6 +119,7 @@ namespace SPPSApi.Controllers.G12
                 }
                 DtConverter dtConverter = new DtConverter();
                 List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                dtConverter.addField("dStart", ConvertFieldType.DateType, "yyyy/MM/dd hh:mm:ss");
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -470,8 +471,8 @@ namespace SPPSApi.Controllers.G12
                     if (dt.Columns.Contains("vcEDflag")) dt.Columns["vcEDflag"].SetOrdinal(3);
                     if (dt.Columns.Contains("chkFlag")) dt.Columns.Remove("chkFlag");
                 }
-                string[] fields = { "partsno","cpdcompany","dock","vcEDflag","inno","quantity","kanbanorderno","kanbanserial","packingcondition","packingspot",
-                                    "scandatetimeht","htuser","htno","daddtime","cupduser"
+                string[] fields = { "vcPart_id","vcSHF","vcSR","vcEDflag","vcInputNo","iQuantity","vcKBOrderNo","vcKBLFNo","packingcondition","vcBZPlant",
+                                    "dStart","vcOperatorID","vcSheBeiNo","dOperatorTime","vcOperatorID"
                 };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS1211_ItemExport.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")

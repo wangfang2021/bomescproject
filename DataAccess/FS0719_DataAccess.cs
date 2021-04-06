@@ -237,7 +237,7 @@ namespace DataAccess
                             sql.AppendLine("     vcState,	 ");//纳入状态
                             sql.AppendLine("     vcPackSupplierID,	 ");
                             sql.AppendLine("     vcPackSpot,	 ");
-                            sql.AppendLine("     vcCangKuID,vcOperatorID,dOperatorTime	 ");
+                            sql.AppendLine("     vcCangKuID,vcFeiYongID,vcOperatorID,dOperatorTime	 ");
                             sql.AppendLine("     	) ");
                             sql.AppendLine("     VALUES");
                             sql.AppendLine("     	(");
@@ -254,6 +254,7 @@ namespace DataAccess
                             sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcPackSpot"], false) + ",");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcCangKuCode"], true) + ",");
+                            sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcBuShu"], false) + ",");
                             sql.AppendLine($"     		{strUserId},");
                             sql.AppendLine("     		getDate()");
                             sql.AppendLine("     	); ");
@@ -352,11 +353,11 @@ namespace DataAccess
                             //sql.AppendLine($"  vcOrderNo='{ComFunction.getSqlValue(listInfoData[i]["vcOrderNo"], false)}';");
 
                         }
-                        IsEnd = true;
-                        excute.ExcuteSqlWithStringOper(sql.ToString());
+                       
 
                     }
-
+                    IsEnd = true;
+                    excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
                 catch (Exception ex)
                 {

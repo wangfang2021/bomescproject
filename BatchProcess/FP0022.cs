@@ -55,13 +55,13 @@ namespace BatchProcess
                 strSQL.Append("TPartInfoMaster.vcPartsNameEN=t.vcPartENName, \n");
                 strSQL.Append("TPartInfoMaster.vcPartFrequence=t.vcOrderingMethod, \n");
                 strSQL.Append("TPartInfoMaster.vcDock=t.vcDock, \n");
-                strSQL.Append("TPartInfoMaster.vcCurrentPastCode=t.vcHaoJiu \n");
-                //strSQL.Append("TPartInfoMaster.vcPhotoPath=t.vcPartImage  \n");
+                strSQL.Append("TPartInfoMaster.vcCurrentPastCode=t.vcHaoJiu, \n");
+                strSQL.Append("TPartInfoMaster.vcPhotoPath=t.vcPartImage  \n");
                 strSQL.Append("from (select a.vcPartId, \n");
                 strSQL.Append("convert(char(10),a.dFromTime,120) as dFromTime, convert(char(10),a.dToTime,120) as dToTime, \n");
                 strSQL.Append("isnull(c.vcSufferIn,'') as vcDock,a.vcCarFamilyCode,a.vcPartENName,  \n");
                 strSQL.Append("b.iPackingQty as iQuantityPerContainer, \n");
-                strSQL.Append("a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId,d.vcSupplierPlant,a.vcHaoJiu  \n");
+                strSQL.Append("a.vcValue as vcOrderingMethod, a.vcReceiver, a.vcSupplierId,d.vcSupplierPlant,a.vcHaoJiu, a.vcPartImage  \n");
                 strSQL.Append("from    \n");
                 strSQL.Append(" (select TSPMaster.*, TCode.vcValue  \n");
                 strSQL.Append("  from TSPMaster  \n");

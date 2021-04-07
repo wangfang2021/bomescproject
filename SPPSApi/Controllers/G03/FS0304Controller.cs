@@ -108,7 +108,7 @@ namespace SPPSApi.Controllers.G03
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0401", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -591,6 +591,39 @@ namespace SPPSApi.Controllers.G03
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
+        #region 下载PDF文件
+        [HttpPost]
+        [EnableCors("any")]
+        public string downloadPDFApi([FromBody] dynamic data)
+        {
+            string strtoken = Request.Headers["x-token"];
+            if (!isLogin(strtoken))
+            {
+                return error_login();
+            }
+            LoginInfo logininfo = getLoginByToken(strtoken);
+            //以下开始业务处理
+            ApiResult apiresult = new ApiResult();
+            dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                string strFileName = dataform.fileName;
+                strFileName = "-" + strFileName.Substring(strFileName.Length - 5);
+                string fileSavePath = strFileName + ".pdf";
+                apiresult.code = ComConstant.SUCCESS_CODE;
+                apiresult.data = fileSavePath;
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0408", ex, logininfo.UserId);
+                apiresult.code = ComConstant.ERROR_CODE;
+                apiresult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
             }
         }
         #endregion

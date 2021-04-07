@@ -54,7 +54,10 @@ namespace SPPSApi.Controllers
                 Console.WriteLine("登录异常:" + ex.Message);
                 ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0008", ex, strUserId);
                 apiResult.code = ComConstant.ERROR_CODE;
-                apiResult.data = "登录失败";
+                if(strUserId=="000000")
+                    apiResult.data = "登录失败 "+ ex.Message;
+                else
+                    apiResult.data = "登录失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
             }
         }

@@ -212,7 +212,9 @@ namespace DataAccess
                             sql.AppendLine(" '0' ,");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["VCFaBuType"], false) + ",");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["dNaRuTime"], false) + ",");
-                            sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcNaRuBianci"], false) + ",");
+
+                            //sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcNaRuBianci"], false) + ",");
+                            sql.AppendLine("'" + dr[0]["vcReleaseName"].ToString() + "',");
                             sql.AppendLine("'" + dr[0]["iRelease"].ToString() + "',");
                             sql.AppendLine("'" + dr[0]["vcSupplierCode"].ToString() + "',");
                             sql.AppendLine(ComFunction.getSqlValue(listInfoData[i]["vcSupplierName"], false) + ",");
@@ -733,6 +735,7 @@ namespace DataAccess
                     sql1.Append("             ,[vcPackSpot]    \n");
                     sql1.Append("             ,[iNumber]    \n");
                     sql1.Append("             ,[dBuJiTime]    \n");
+                    sql1.Append("             ,[vcYanShouID]    \n");
                     sql1.Append("             ,[vcOperatorID]    \n");
                     sql1.Append("             ,[dOperatorTime])    \n");
                     sql1.Append("       VALUES    \n");
@@ -745,6 +748,7 @@ namespace DataAccess
                     sql1.AppendLine("     '" + dt.Rows[i]["vcPackSpot"].ToString() + "' ,\r\n");
                     sql1.AppendLine("     '" + dt.Rows[i]["iOrderNumber"].ToString() + "' ,\r\n");
                     sql1.Append("   '" + dtime1 + "',  \n");
+                    sql1.Append("  '" + userId + "', \n");
                     sql1.Append("  '" + userId + "', \n");
                     sql1.Append("   GETDATE()  \n");
                     sql1.Append("     ) \n");

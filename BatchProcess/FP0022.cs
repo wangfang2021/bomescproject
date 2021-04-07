@@ -65,11 +65,11 @@ namespace BatchProcess
                 strSQL.Append(" (select TSPMaster.*, TCode.vcValue  \n");
                 strSQL.Append(" from TSPMaster  \n");
                 strSQL.Append("  left join TCode on TSPMaster.vcOrderingMethod=TCode.vcValue where TCode.vcCodeId='C047' and vcInOut='0') a  \n");
-                strSQL.Append("  left join (select * from TSPMaster_Box where vcOperatorType='1') b  \n");
+                strSQL.Append("  left join (select * from TSPMaster_Box where vcOperatorType='1' and dFromTime<=getdate() and dToTime>=getdate()) b  \n");
                 strSQL.Append("  on a.vcPartId=b.vcPartId and a.vcPackingPlant=b.vcPackingPlant and a.vcReceiver=b.vcReceiver and a.vcSupplierId=b.vcSupplierId  \n");
-                strSQL.Append("  left join (select * from TSPMaster_SufferIn where vcOperatorType='1') c  \n");
+                strSQL.Append("  left join (select * from TSPMaster_SufferIn where vcOperatorType='1' and dFromTime<=getdate() and dToTime>=getdate()) c  \n");
                 strSQL.Append("  on a.vcPartId=c.vcPartId and a.vcPackingPlant=c.vcPackingPlant and a.vcReceiver=c.vcReceiver and a.vcSupplierId=c.vcSupplierId  \n");
-                strSQL.Append("  left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1') d \n");
+                strSQL.Append("  left join (select * from TSPMaster_SupplierPlant where vcOperatorType='1' and dFromTime<=getdate() and dToTime>=getdate()) d \n");
                 strSQL.Append("  on a.vcPartId=d.vcPartId and a.vcPackingPlant=d.vcPackingPlant and a.vcReceiver=d.vcReceiver and a.vcSupplierId=d.vcSupplierId) t \n");
                 strSQL.Append("where TPartInfoMaster.vcPartsNo=t.vcPartId  \n");
                 strSQL.Append("and TPartInfoMaster.vcCpdCompany=t.vcReceiver \n");

@@ -1567,7 +1567,8 @@ namespace DataAccess
             string strOperId, ref DataTable dtMessage)
         {
             SqlConnection sqlConnection = Common.ComConnectionHelper.CreateSqlConnection();
-
+            string vcppp = "";
+            string vcsss = "";
             sqlConnection.Open();
             SqlTransaction sqlTransaction = sqlConnection.BeginTransaction();
             try
@@ -2102,6 +2103,7 @@ namespace DataAccess
                     if (item["status"].ToString() == "add" && item["error"].ToString() == "")
                     {
                         #region Value
+                        
                         sqlCommand_modinfo_si_add.Parameters["@vcPackingPlant"].Value = item["vcPackingPlant"].ToString();
                         sqlCommand_modinfo_si_add.Parameters["@vcPartId"].Value = item["vcPartId"].ToString();
                         sqlCommand_modinfo_si_add.Parameters["@vcReceiver"].Value = item["vcReceiver"].ToString();
@@ -2110,6 +2112,8 @@ namespace DataAccess
                         sqlCommand_modinfo_si_add.Parameters["@dToTime"].Value = item["dToTime"].ToString();
                         sqlCommand_modinfo_si_add.Parameters["@vcSufferIn"].Value = item["vcSufferIn"].ToString();
                         #endregion
+                        vcppp= item["vcPartId"].ToString();
+                        vcsss= item["vcSufferIn"].ToString();
                         sqlCommand_modinfo_si_add.ExecuteNonQuery();
                     }
                 }
@@ -2282,23 +2286,23 @@ namespace DataAccess
                 strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_Box] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
                 strSql_modinfo_child_to.AppendLine("DELETE FROM [TSPMaster_SufferIn] WHERE dToTime<dFromTime AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
                 strSql_modinfo_child_to.AppendLine("");
-                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime from ");
+                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime,A.vcOperatorID='" + strOperId + "',A.dOperatorTime=GETDATE() from ");
                 strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime desc) [rank],");
-                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant ");
+                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSupplierPlant,vcOperatorID,dOperatorTime ");
                 strSql_modinfo_child_to.AppendLine("FROM [TSPMaster_SupplierPlant]  ");
                 strSql_modinfo_child_to.AppendLine("WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
                 strSql_modinfo_child_to.AppendLine(")A where A.rank='1' ");
                 strSql_modinfo_child_to.AppendLine("");
-                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime from ");
-                strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
-                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume ");
+                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime,A.vcOperatorID='" + strOperId + "',A.dOperatorTime=GETDATE() from ");
+                strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime desc) [rank],");
+                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,iPackingQty,vcBoxType,iLength,iWidth,iHeight,iVolume,vcOperatorID,dOperatorTime ");
                 strSql_modinfo_child_to.AppendLine("FROM [TSPMaster_Box] ");
                 strSql_modinfo_child_to.AppendLine("WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
                 strSql_modinfo_child_to.AppendLine(")A where A.rank='1' ");
                 strSql_modinfo_child_to.AppendLine("");
-                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime from ");
-                strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime) [rank],");
-                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn");
+                strSql_modinfo_child_to.AppendLine("update A set A.dToTime=@dToTime,A.vcOperatorID='" + strOperId + "',A.dOperatorTime=GETDATE() from ");
+                strSql_modinfo_child_to.AppendLine("(SELECT ROW_NUMBER() OVER(partition by vcPackingPlant,vcPartId,vcReceiver,vcSupplierId order by dFromTime desc) [rank],");
+                strSql_modinfo_child_to.AppendLine("LinId,vcPackingPlant,vcPartId,vcReceiver,vcSupplierId,dFromTime,dToTime,vcSufferIn,vcOperatorID,dOperatorTime");
                 strSql_modinfo_child_to.AppendLine("FROM [TSPMaster_SufferIn] ");
                 strSql_modinfo_child_to.AppendLine("WHERE [vcOperatorType]='1' AND vcPackingPlant=@vcPackingPlant AND vcPartId=@vcPartId AND vcReceiver=@vcReceiver AND vcSupplierId=@vcSupplierId");
                 strSql_modinfo_child_to.AppendLine(")A where A.rank='1' ");
@@ -2720,6 +2724,8 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
+                string vcppp1 = vcppp;
+                string vcsss1 = vcsss;
                 DataRow dataRow = dtMessage.NewRow();
                 dataRow["vcMessage"] = "数据写入数据库失败！";
                 dtMessage.Rows.Add(dataRow);

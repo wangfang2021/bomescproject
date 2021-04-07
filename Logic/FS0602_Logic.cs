@@ -273,7 +273,8 @@ namespace Logic
                         string strExpectTime = fs0603_DataAccess.setNullValue(dExpectTime, "", "");
                         string strInputType = "company";
                         if ((strDyState == "0" || strDyState == "2" || strDyState == "3") &&
-                            (strHyState == "0" || strHyState == "3"))//0：未发送；2：有调整；3：无调整//0：待回复(TFTM)；3：退回
+                            (strHyState == "0"))//0：未发送；2：有调整；3：无调整//0：待回复(TFTM)；3：退回
+                            //(strHyState == "0" || strHyState == "3"))//0：未发送；2：有调整；3：无调整//0：待回复(TFTM)；3：退回
                         {
                             DataRow drImport = dtImport.NewRow();
                             drImport["vcYearMonth"] = strYearMonth;
@@ -303,7 +304,8 @@ namespace Logic
                         string strDyState = dtImport.Rows[i]["vcDyState"].ToString();
                         string strHyState = dtImport.Rows[i]["vcHyState"].ToString();
                         if (!((strDyState == "0" || strDyState == "2" || strDyState == "3")
-                            && (strHyState == "0" || strHyState == "3")))
+                            && (strHyState == "0" )))
+                            //&& (strHyState == "0" || strHyState == "3")))
                             dtImport.Rows.RemoveAt(i);
                     }
                 }
@@ -638,14 +640,19 @@ namespace Logic
         public string setEmailBody(string strExpectTime, string strFlag)
         {
             StringBuilder sbr = new StringBuilder();
-            sbr.AppendLine(" <p><strong class=\"ql - size - huge\" style = \"background - color: rgb(102, 185, 102); color: rgb(230, 0, 0); \"><em>请用户尽快提供符合用户标准的邮件样式！</em></strong></p><p><br></p>");
+            //sbr.AppendLine(" <p><strong class=\"ql - size - huge\" style = \"background - color: rgb(102, 185, 102); color: rgb(230, 0, 0); \"><em>请用户尽快提供符合用户标准的邮件样式！</em></strong></p><p><br></p>");
             sbr.AppendLine("<p>各位供应商殿&nbsp;（请转发给贵司社内相关人员）</p>");
-            sbr.AppendLine("<p>非常感谢一直以来对TFTM补给业务的支持！</p>");
             sbr.AppendLine("<p><br></p>");
-            sbr.AppendLine("<p>关于标题一事，</p>");
-            sbr.AppendLine("<p>内示情报确认情况展开。 </p>");
-            sbr.AppendLine("<p>请查收。</p>");
-            sbr.AppendLine("<p>回复纳期：<u style=\"color: rgb(230, 0, 0);\">" + strExpectTime + "</u>下班前</p><p><br></p><p>请在补给系统上进行调整回复</p>");
+            sbr.AppendLine("<p>TFTM 补给资材企管课 </p>");
+            sbr.AppendLine("<p>长期补给业务协力感谢！</p>");
+            sbr.AppendLine("<p><br></p>");
+            sbr.AppendLine("<p>关于标题一事，联络如下：</p>");
+            sbr.AppendLine("<p><br></p>");
+            sbr.AppendLine("<p>现送附TFTM补给未来三个月内示（N月=确定、N+1=内示、N+2=内示），请查收。</p>");
+            sbr.AppendLine("<p>请厂家在系统上确认内示能否对应，并在系统上进行回复。</p>");
+            sbr.AppendLine("<p>如个别月数量需调整，可以在三个月范围内修正，但三个月总数不能增加或减少。</p>");
+            sbr.AppendLine("<p><br></p>");
+            sbr.AppendLine("<p>回复纳期：<u style=\"color: rgb(230, 0, 0);\">" + strExpectTime + "</u>下班前（逾期或未回复视为可以对应。）</p>");
             sbr.AppendLine("<p>如有问题，请随时与我联络（联络方式：022-66230666）。</p><p><br></p>");
             sbr.AppendLine("<p>以上。</p><p><br></p>");
 

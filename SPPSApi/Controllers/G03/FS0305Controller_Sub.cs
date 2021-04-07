@@ -20,19 +20,19 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G99
+namespace SPPSApi.Controllers.G03
 {
-    [Route("api/FS9905_Sub/[action]")]
+    [Route("api/FS0305_Sub/[action]")]
     [EnableCors("any")]
     [ApiController]
-    public class FS9905Controller_Sub : BaseController
+    public class FS0305Controller_Sub : BaseController
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        FS9905_Logic fs9905_Logic = new FS9905_Logic();
-        private readonly string FunctionID = "FS9905_Sub";
+        FS0305_Logic fs0305_Logic = new FS0305_Logic();
+        private readonly string FunctionID = "FS0305_Sub";
 
-        public FS9905Controller_Sub(IWebHostEnvironment webHostEnvironment)
+        public FS0305Controller_Sub(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
@@ -53,7 +53,7 @@ namespace SPPSApi.Controllers.G99
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                List<Object> datalist_ZXBZ = ComFunction.convertAllToResult(fs9905_Logic.getZXBZDT());    //执行标准
+                List<Object> datalist_ZXBZ = ComFunction.convertAllToResult(fs0305_Logic.getZXBZDT());    //执行标准
                 
                 res.Add("ZXBZNo",datalist_ZXBZ);
 
@@ -63,7 +63,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0501", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

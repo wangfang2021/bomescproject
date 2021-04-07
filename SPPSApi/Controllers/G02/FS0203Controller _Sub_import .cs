@@ -93,7 +93,7 @@ namespace SPPSApi.Controllers.G02
                         DataRow[] rows = sprlList.Select("vcFileName = '" + info.Name + "'");
                         if (rows.Length > 0)
                         {
-                            apiResult.code = ComConstant.SUCCESS_CODE;
+                            apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "导入失败,文件" + info.Name + "已上传过无法再次上传。";
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }

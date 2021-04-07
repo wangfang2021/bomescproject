@@ -21,7 +21,8 @@ namespace SPPSApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>().UseUrls("http://*:5000;");//注意这块接口配置，才能让外网访问
+                    //webBuilder.UseStartup<Startup>().UseUrls("http://*:8097;");//注意这块接口配置，才能让外网访问
+                    webBuilder.UseStartup<Startup>().UseUrls("http://*:5000;");
 
                     //webBuilder.UseStartup<Startup>().UseUrls("http://*:5000;https://*:5001;")
                     //.UseKestrel(option =>

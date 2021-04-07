@@ -64,7 +64,7 @@ namespace Logic
 
         public DataTable GetWorkArea()
         {
-            return fs0108_DataAccess.GetSupplier();
+            return fs0108_DataAccess.GetWorkArea();
         }
 
         public DataTable GetWorkAreaBySupplier(string supplierCode)
@@ -199,9 +199,9 @@ namespace Logic
                         {
 
                             DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcSupplier"] = data.Rows[i]["vcSupplier"].ToString();
-                            dataRow["vcWorkArea"] = data.Rows[i]["vcWorkArea"].ToString();
-                            dataRow["vcFzgc"] = data.Rows[i]["vcFzgc"].ToString();
+                            dataRow["vcSupplier"] = data.Rows[i]["vcValue1"].ToString();
+                            dataRow["vcWorkArea"] = data.Rows[i]["vcValue2"].ToString();
+                            dataRow["vcFzgc"] = data.Rows[i]["vcValue5"].ToString();
                             dataRow["vcMessage"] = string.Format("第{0}行{1}大于设定长度", i + 2, Header[0, j]);
                             dataTable.Rows.Add(dataRow);
                             bReault = false;
@@ -213,9 +213,9 @@ namespace Logic
                             dr[Header[1, j]].ToString().Length < Convert.ToInt32(Header[4, j]))
                         {
                             DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcSupplier"] = data.Rows[i]["vcSupplier"].ToString();
-                            dataRow["vcWorkArea"] = data.Rows[i]["vcWorkArea"].ToString();
-                            dataRow["vcFzgc"] = data.Rows[i]["vcFzgc"].ToString();
+                            dataRow["vcSupplier"] = data.Rows[i]["vcValue1"].ToString();
+                            dataRow["vcWorkArea"] = data.Rows[i]["vcValue2"].ToString();
+                            dataRow["vcFzgc"] = data.Rows[i]["vcValue5"].ToString();
                             dataRow["vcMessage"] = string.Format("第{0}行{1}小于设定长度", i + 2, Header[0, j]);
                             dataTable.Rows.Add(dataRow);
                             bReault = false;
@@ -229,9 +229,9 @@ namespace Logic
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDecimal(dr[Header[1, j]].ToString()))
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcSupplier"] = data.Rows[i]["vcSupplier"].ToString();
-                                    dataRow["vcWorkArea"] = data.Rows[i]["vcWorkArea"].ToString();
-                                    dataRow["vcFzgc"] = data.Rows[i]["vcFzgc"].ToString();
+                                    dataRow["vcSupplier"] = data.Rows[i]["vcValue1"].ToString();
+                                    dataRow["vcWorkArea"] = data.Rows[i]["vcValue2"].ToString();
+                                    dataRow["vcFzgc"] = data.Rows[i]["vcValue5"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法数值", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;
@@ -244,9 +244,9 @@ namespace Logic
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckDate(dr[Header[1, j]].ToString()))
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcSupplier"] = data.Rows[i]["vcSupplier"].ToString();
-                                    dataRow["vcWorkArea"] = data.Rows[i]["vcWorkArea"].ToString();
-                                    dataRow["vcFzgc"] = data.Rows[i]["vcFzgc"].ToString();
+                                    dataRow["vcSupplier"] = data.Rows[i]["vcValue1"].ToString();
+                                    dataRow["vcWorkArea"] = data.Rows[i]["vcValue2"].ToString();
+                                    dataRow["vcFzgc"] = data.Rows[i]["vcValue5"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;
@@ -259,9 +259,9 @@ namespace Logic
                                 if (Convert.ToInt32(Header[4, j]) > 0 && !ComFunction.CheckYearMonth(dr[Header[1, j]].ToString()))
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcSupplier"] = data.Rows[i]["vcSupplier"].ToString();
-                                    dataRow["vcWorkArea"] = data.Rows[i]["vcWorkArea"].ToString();
-                                    dataRow["vcFzgc"] = data.Rows[i]["vcFzgc"].ToString();
+                                    dataRow["vcSupplier"] = data.Rows[i]["vcValue1"].ToString();
+                                    dataRow["vcWorkArea"] = data.Rows[i]["vcValue2"].ToString();
+                                    dataRow["vcFzgc"] = data.Rows[i]["vcValue5"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}不是合法日期", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;
@@ -275,9 +275,9 @@ namespace Logic
                                     RegexOptions.None).Success)
                                 {
                                     DataRow dataRow = dataTable.NewRow();
-                                    dataRow["vcSupplier"] = data.Rows[i]["vcSupplier"].ToString();
-                                    dataRow["vcWorkArea"] = data.Rows[i]["vcWorkArea"].ToString();
-                                    dataRow["vcFzgc"] = data.Rows[i]["vcFzgc"].ToString();
+                                    dataRow["vcSupplier"] = data.Rows[i]["vcValue1"].ToString();
+                                    dataRow["vcWorkArea"] = data.Rows[i]["vcValue2"].ToString();
+                                    dataRow["vcFzgc"] = data.Rows[i]["vcValue5"].ToString();
                                     dataRow["vcMessage"] = string.Format("第{0}行{1}有非法字符", i + 2, Header[0, j]);
                                     dataTable.Rows.Add(dataRow);
                                     bReault = false;
@@ -315,14 +315,9 @@ namespace Logic
         
     }
 
-        public bool isCheckImportAddData(string v1, string v2, string v3, string v4)
-        {
-            throw new NotImplementedException();
-        }
-
         public void importSave(DataTable importDt, string userId)
         {
-            throw new NotImplementedException();
+            fs0108_DataAccess.importSave(importDt,userId);
         }
     }
 }

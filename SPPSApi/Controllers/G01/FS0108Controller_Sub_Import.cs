@@ -84,8 +84,8 @@ namespace SPPSApi.Controllers.G01
 
                 string[,] headers = new string[,] {{"操作类型","iAutoId", "供应商编码", "工区", "开始时间", "结束时间", "发注工场" },
                                                 { "vcType","iAutoId",  "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"},
-                                                {"","",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,FieldCheck.NumCharLLL},
-                                                {"20","0","4","4","10","10","10"},//最大长度设定,不校验最大长度用0
+                                                {"","",FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,""},
+                                                {"20","0","4","4","500","500","500"},//最大长度设定,不校验最大长度用0
                                                 {"1","0","4","1","1","1","1"}};//最小长度设定,可以为空用0
 
 
@@ -112,33 +112,165 @@ namespace SPPSApi.Controllers.G01
                 }
                 ComFunction.DeleteFolder(fileSavePath);//读取数据后删除文件夹
                 DataRow[] drArrayAdd = importDt.Select("vcType='新增' ");
-                DataTable dtadd = drArrayAdd[0].Table.Clone(); // 复制DataRow的表结构
-                foreach (DataRow dr in drArrayAdd)
+                DataTable dtadd = new DataTable();
+                if (drArrayAdd.Length>0)
                 {
-                    dtadd.ImportRow(dr);
-                }
-                DataRow[] drArrayMod = importDt.Select("vcType='修改' ");
-                DataTable dtamody = drArrayMod[0].Table.Clone(); // 复制DataRow的表结构
-                foreach (DataRow dr in drArrayMod)
-                {
-                    dtamody.ImportRow(dr);
-                }
-                
-                //判断新增的数据四个主键是否在数存在重复
-                for (int i=0;i< importDt.Rows.Count;i++)
-                {
-                    if (importDt.Rows[i]["vcType"].ToString().Trim()=="新增")
+                    dtadd = drArrayAdd[0].Table.Clone(); // 复制DataRow的表结构
+                    foreach (DataRow dr in drArrayAdd)
                     {
-                        if (fs0108_Logic.isCheckImportAddData(importDt.Rows[i]["vcPackingPlant"].ToString().Trim(), importDt.Rows[i]["vcReceiver"].ToString().Trim(), importDt.Rows[i]["vcSupplier_id"].ToString().Trim(), importDt.Rows[i]["vcPartNo"].ToString().Trim()))
+                        dtadd.ImportRow(dr);
+                    }
+                }
+                DataTable dtamody = new DataTable();
+                DataRow[] drArrayMod = importDt.Select("vcType='修改' ");
+                if (drArrayMod.Length > 0)
+                {
+                    dtamody = drArrayMod[0].Table.Clone(); // 复制DataRow的表结构
+                    foreach (DataRow dr in drArrayMod)
+                    {
+                        dtamody.ImportRow(dr);
+                    }
+                }
+                for (int i = 0; i < dtadd.Rows.Count; i++)
+                {
+                    string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
+                    string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
+                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
+                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    for (int j = i + 1; j < dtadd.Rows.Count; j++)
+                    {
+                        string vcSupplier1 = dtadd.Rows[j]["vcValue1"].ToString();
+                        string vcWorkArea1 = dtadd.Rows[j]["vcValue2"].ToString();
+                        string vcFzgc1 = dtadd.Rows[j]["vcValue5"].ToString();
+                        string vcStart1 = dtadd.Rows[j]["vcValue3"].ToString().Replace("/", "-").ToString();
+                        string vcEnd1 =  dtadd.Rows[j]["vcValue4"].ToString().Replace("/", "-").ToString();
+                        if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
                         {
-                            DataRow dataRow = dataTable.NewRow();
-                            dataRow["vcPartNo"] = importDt.Rows[i]["vcPartNo"].ToString().Trim();
-                            dataRow["vcMessage"] = "新增状态的数据,包装工场" + importDt.Rows[i]["vcPackingPlant"].ToString().Trim() + ",收货方" + importDt.Rows[i]["vcReceiver"].ToString().Trim() + ",供应商代码" + importDt.Rows[i]["vcSupplier_id"].ToString().Trim() +  "数据库主键重复,不能新增！";
-                            dataTable.Rows.Add(dataRow);
-                            bReault = false;
+                            if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
+                            {
+                            }
+                            else
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["vcSupplier"] = vcSupplier;
+                                dataRow["vcWorkArea"] = vcWorkArea;
+                                dataRow["vcFzgc"] = vcFzgc;
+                                dataRow["vcMessage"] = "新增的数据时间区间出现重叠";
+                                dataTable.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                    }
+                    for (int j = 0; j < dtamody.Rows.Count; j++)
+                    {
+                        string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
+                        string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
+                        string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
+                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString().Replace("/", "-").ToString();
+                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString().Replace("/", "-").ToString();
+                        if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
+                        {
+                            if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
+                            {
+                            }
+                            else
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["vcSupplier"] = vcSupplier;
+                                dataRow["vcWorkArea"] = vcWorkArea;
+                                dataRow["vcFzgc"] = vcFzgc;
+                                dataRow["vcMessage"] = "新增的数据与修改的数据时间区间出现重叠";
+                                dataTable.Rows.Add(dataRow);
+                                bReault = false;
+                            }
                         }
                     }
                 }
+                //修改数据之间是否出现重叠校验
+                for (int i = 0; i < dtamody.Rows.Count; i++)
+                {
+                    string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
+                    string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
+                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
+                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    for (int j = i + 1; j < dtamody.Rows.Count; j++)
+                    {
+                        string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
+                        string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
+                        string vcFzgc1 = dtamody.Rows[j]["vcValue5"].ToString();
+                        string vcStart1 = dtamody.Rows[j]["vcValue3"].ToString().Replace("/", "-").ToString();
+                        string vcEnd1 = dtamody.Rows[j]["vcValue4"].ToString().Replace("/", "-").ToString();
+                        if (vcSupplier == vcSupplier1 && vcWorkArea == vcWorkArea1)
+                        {
+                            if (Convert.ToInt32(vcStart.Replace("/", "").Replace("-", "")) > Convert.ToInt32(vcEnd1.Replace("/", "").Replace("-", "")) || Convert.ToInt32(vcEnd.Replace("/", "").Replace("-", "")) < Convert.ToInt32(vcStart1.Replace("/", "").Replace("-", "")))
+                            {
+                            }
+                            else
+                            {
+                                DataRow dataRow = dataTable.NewRow();
+                                dataRow["vcSupplier"] = vcSupplier;
+                                dataRow["vcWorkArea"] = vcWorkArea;
+                                dataRow["vcFzgc"] = vcFzgc;
+                                dataRow["vcMessage"] = "修改的数据时间区间出现重叠";
+                                dataTable.Rows.Add(dataRow);
+                                bReault = false;
+                            }
+                        }
+                    }
+                }
+                //验证新增与修改跟数据库里面是否重叠
+                string strInAutoIds = string.Empty;
+                for (int i = 0; i < importDt.Rows.Count; i++)
+                {
+                    if ( importDt.Rows[i]["vcType"].ToString() == "修改")
+                    {
+                        int iAutoId = Convert.ToInt32(importDt.Rows[i]["iAutoId"]);
+                        strInAutoIds += iAutoId + ",";
+                    }
+                }
+                strInAutoIds = strInAutoIds.Substring(0,strInAutoIds.Length - 1);
+
+                for (int i = 0; i < dtadd.Rows.Count; i++)
+                {
+                    string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
+                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
+                    string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
+                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
+                    if (dtCheck.Rows.Count > 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier;
+                        dataRow["vcWorkArea"] = vcWorkArea;
+                        dataRow["vcFzgc"] = vcFzgc;
+                        dataRow["vcMessage"] = "新增的数据时间区间出现重叠";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                }
+                for (int i = 0; i < dtamody.Rows.Count; i++)
+                {
+                    string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
+                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString().Replace("/", "-").ToString();
+                    string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
+                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString().Replace("/", "-").ToString();
+                    DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
+                    if (dtCheck.Rows.Count > 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier;
+                        dataRow["vcWorkArea"] = vcWorkArea;
+                        dataRow["vcFzgc"] = vcFzgc;
+                        dataRow["vcMessage"] = "修改的数据时间区间出现重叠";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                }
+                
                 if (!bReault)
                 {
                     //弹出错误dtMessage

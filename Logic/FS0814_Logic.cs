@@ -45,5 +45,20 @@ namespace Logic
             fs0814_DataAccess.Del(checkedInfoData, strUserId);
         }
         #endregion
+
+        #region 对象年月+白夜 不能重复
+        public bool RepeatCheck(string vcYearMonth, string vcType)
+        {
+            int num = fs0814_DataAccess.RepeatCheck(vcYearMonth, vcType);
+            if (num > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        #endregion 
     }
 }

@@ -288,6 +288,7 @@ namespace DataAccess
         {
             try
             {
+                DateTime now = DateTime.Now;
                 StringBuilder sql = new StringBuilder();
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
@@ -301,6 +302,80 @@ namespace DataAccess
 
                     if (baddflag == true)
                     {//新增
+                        #region insert sql
+                        sql.AppendLine("INSERT INTO [TCalendar]");
+                        sql.AppendLine("           ([vcYearMonth]");
+                        sql.AppendLine("           ,[vcType]");
+                        sql.AppendLine("           ,[vcD1]");
+                        sql.AppendLine("           ,[vcD2]");
+                        sql.AppendLine("           ,[vcD3]");
+                        sql.AppendLine("           ,[vcD4]");
+                        sql.AppendLine("           ,[vcD5]");
+                        sql.AppendLine("           ,[vcD6]");
+                        sql.AppendLine("           ,[vcD7]");
+                        sql.AppendLine("           ,[vcD8]");
+                        sql.AppendLine("           ,[vcD9]");
+                        sql.AppendLine("           ,[vcD10]");
+                        sql.AppendLine("           ,[vcD11]");
+                        sql.AppendLine("           ,[vcD12]");
+                        sql.AppendLine("           ,[vcD13]");
+                        sql.AppendLine("           ,[vcD14]");
+                        sql.AppendLine("           ,[vcD15]");
+                        sql.AppendLine("           ,[vcD16]");
+                        sql.AppendLine("           ,[vcD17]");
+                        sql.AppendLine("           ,[vcD18]");
+                        sql.AppendLine("           ,[vcD19]");
+                        sql.AppendLine("           ,[vcD20]");
+                        sql.AppendLine("           ,[vcD21]");
+                        sql.AppendLine("           ,[vcD22]");
+                        sql.AppendLine("           ,[vcD23]");
+                        sql.AppendLine("           ,[vcD24]");
+                        sql.AppendLine("           ,[vcD25]");
+                        sql.AppendLine("           ,[vcD26]");
+                        sql.AppendLine("           ,[vcD27]");
+                        sql.AppendLine("           ,[vcD28]");
+                        sql.AppendLine("           ,[vcD29]");
+                        sql.AppendLine("           ,[vcD30]");
+                        sql.AppendLine("           ,[vcD31]");
+                        sql.AppendLine("           ,[vcOperatorID]");
+                        sql.AppendLine("           ,[dOperatorTime])");
+                        sql.AppendLine("     VALUES");
+                        sql.AppendLine("           ('" + listInfoData[i]["vcYearMonth"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcType"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD1"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD2"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD3"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD4"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD5"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD6"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD7"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD8"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD9"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD10"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD11"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD12"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD13"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD14"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD15"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD16"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD17"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD18"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD19"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD20"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD21"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD22"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD23"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD24"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD25"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD26"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD27"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD28"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD29"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD30"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'" + listInfoData[i]["vcD31"].ToString().ToUpper() + "'");
+                        sql.AppendLine("           ,'"+strUserId+"'");
+                        sql.AppendLine("           ,'"+now+"')");
+                        #endregion
                     }
                     else if (baddflag == false && bmodflag == true)
                     {//修改
@@ -339,7 +414,7 @@ namespace DataAccess
                         sql.Append("      ,[vcD30] = '" + listInfoData[i]["vcD30"].ToString().ToUpper() + "'    \n");
                         sql.Append("      ,[vcD31] = '" + listInfoData[i]["vcD31"].ToString().ToUpper() + "'    \n");
                         sql.Append("      ,[vcOperatorID] = '"+strUserId+"'    \n");
-                        sql.Append("      ,[dOperatorTime] = getdate()    \n");
+                        sql.Append("      ,[dOperatorTime] ='"+now+"'    \n");
                         sql.Append(" WHERE iAutoId=" + iAutoId + "    \n");
                         #endregion
                     }
@@ -462,6 +537,23 @@ namespace DataAccess
                 {
                     excute.ExcuteSqlWithStringOper(sql.ToString());
                 }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region 对象年月+白夜 不能重复
+        public int RepeatCheck(string vcYearMonth, string vcType)
+        {
+            try
+            {
+                StringBuilder sql = new StringBuilder();
+                sql.Append("select COUNT(1) from TCalendar   \n");
+                sql.Append("where vcYearMonth='" + vcYearMonth + "' and vcType='" + vcType + "'  \n");
+                return excute.ExecuteScalar(sql.ToString());
             }
             catch (Exception ex)
             {

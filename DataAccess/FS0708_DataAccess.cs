@@ -48,7 +48,7 @@ namespace DataAccess
                 strSql.AppendLine("    when vcState='4' then '超期未纳入'  ");
                 strSql.AppendLine("    when vcState='5' then '超期纳入'  ");
                 strSql.AppendLine("    else '资材系统删除' end as vcState,  ");
-                strSql.AppendLine("    vcPackSupplierID,vcFeiYongID,vcPackSpot,vcCangKuID   ");
+                strSql.AppendLine("    vcPackSupplierID,vcFeiYongID,vcPackSpot,vcCangKuID,vcColour   ");
                 strSql.AppendLine("      FROM");
                 strSql.AppendLine("      	TPack_FaZhu_ShiJi");
                 strSql.AppendLine("      WHERE");

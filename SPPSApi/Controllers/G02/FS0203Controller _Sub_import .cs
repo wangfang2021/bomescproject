@@ -63,6 +63,26 @@ namespace SPPSApi.Controllers.G02
                 //0 部品导入
                 if (flag == "0")
                 {
+                    string msg = "";
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        List<Hashtable> list = fs0203_logic.GetPartFromFile(info.FullName);
+                        if (list.Count == 0)
+                        {
+                            if (!string.IsNullOrWhiteSpace(msg))
+                            {
+                                msg += ";";
+                            }
+                            msg += info.Name;
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(msg))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败,文件" + msg + "存在问题，请进行修正。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
                         List<Hashtable> list = fs0203_logic.GetPartFromFile(info.FullName);
@@ -79,16 +99,24 @@ namespace SPPSApi.Controllers.G02
                 {
                     string strMsg = "";
 
-                    string[,] headers = new string[,] {{"工場区分","補給区分","品番－類別","品名","設変ＮＯカラ","適用期間カラ","防錆区分","防錆指示書ＮＯ","補給出荷場所"},
-                        {"vcPlant","vcBJDiff","vcPart_Id_new","vcPartName","vcSPINo","vcStartYearMonth","vcFXDiff","vcFXNo","vcNewProj"},
-                        {"","","","","","","","",""},
-                        {"0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
-                        {"0","1","1","0","1","0","0","0","0"},//最小长度设定,可以为空用0
+                    string[,] headers = new string[,] {{"工場区分","補給区分","品番－類別","品名","設変ＮＯカラ","適用期間カラ","防錆区分","防錆指示書ＮＯ","補給出荷場所","号口工程"},
+                        {"vcPlant","vcBJDiff","vcPart_Id_new","vcPartName","vcSPINo","vcStartYearMonth","vcFXDiff","vcFXNo","vcNewProj","vcHK"},
+                        {"","","","","","","","","",""},
+                        {"0","0","0","0","0","0","0","0","0","0"},//最大长度设定,不校验最大长度用0
+                        {"0","1","1","0","1","0","0","0","0","0"},//最小长度设定,可以为空用0
                     };
 
                     DataTable importDt = new DataTable();
+                    DataTable sprlList = fs0203_logic.getSPRLList();
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
+                        DataRow[] rows = sprlList.Select("vcFileName = '" + info.Name + "'");
+                        if (rows.Length > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导入失败,文件" + info.Name + "已上传过无法再次上传。";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
                         if (strMsg != "")
                         {

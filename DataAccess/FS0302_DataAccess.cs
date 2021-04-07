@@ -196,6 +196,7 @@ namespace DataAccess
                 List<string> partListHaoKao = getHaoPart();
                 List<string> partListJiu = getJiuPart();
                 List<string> carType = new List<string>();
+                List<string> gcList = getGCList();
                 Hashtable changeht = getChangeList();
                 Hashtable finishht = getFinishList();
 
@@ -289,9 +290,13 @@ namespace DataAccess
                                 string NRPartId = "";
                                 if (vcType.Equals("1"))
                                 {
-                                    NRPartId = getPartId((List<List<ParentEntity>>)listPath[CarType], vcPart_Id, vcNewProj);
+                                    NRPartId = getPartId((List<List<ParentEntity>>)listPath[CarType], vcPart_Id, gcList);
                                 }
 
+                                if (NRPartId.Equals(partId))
+                                {
+                                    NRPartId = "-";
+                                }
                                 sbr.Append(" INSERT INTO TUnit  \r\n");
                                 sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDesign,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff,vcSQContent,vcHKGC) values\r\n");
                                 //sbr.Append(" (" + ComFunction.getSqlValue(partId, false) + ",'" + change + "'," + ComFunction.getSqlValue(vcStartYearMonth, true) + ",CONVERT(DATE,'99991231')," + ComFunction.getSqlValue(listInfoData[i]["THChange"], false) + ",'H','2'," + ComFunction.getSqlValue(CarType, false) + ",'" + getValue("C006", listInfoData[i]["vcUnit"].ToString()) + "','" + strUserId + "', GETDATE(),'" + vcPartNameEn + "','" + vcSPINo + "','" + NRPartId + "','0'," + ComFunction.getSqlValue(vcFXDiff, false) + "," + ComFunction.getSqlValue(vcFXNo, false) + "," + ComFunction.getSqlValue(vcBJDiff, false) + ")  \r\n");
@@ -619,7 +624,7 @@ namespace DataAccess
         //        throw ex;
         //    }
         //}
-        public string getPartId(List<List<ParentEntity>> listPath, string vcPart_Id, string vcParent)
+        public string getPartId(List<List<ParentEntity>> listPath, string vcPart_Id, List<string> parentlist)
         {
             try
             {
@@ -632,7 +637,17 @@ namespace DataAccess
                     {
                         for (int j = index; j >= 0; j--)
                         {
-                            if (vcParent.Equals(listPath[i][j].Parent))
+                            bool hasFind = false;
+                            foreach (string gc in parentlist)
+                            {
+                                if (listPath[i][j].Parent.Contains(gc))
+                                {
+                                    hasFind = true;
+                                    break;
+                                }
+                            }
+
+                            if (hasFind)
                             {
                                 partId = listPath[i][j].PartId;
                                 break;
@@ -966,7 +981,7 @@ namespace DataAccess
         {
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i].PartId.Equals(partId))
+                if (list[i].PartId.Equals(partId) && !string.IsNullOrWhiteSpace(list[i].Parent.Trim()))
                 {
                     return i;
                 }
@@ -1348,6 +1363,31 @@ namespace DataAccess
                 throw ex;
             }
         }
+        #endregion
+
+        #region 获取工程符号
+
+        public List<string> getGCList()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT vcValue1 FROM dbo.TOutCode WHERE vcCodeId = 'C054' AND vcIsColum = '0'");
+                DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+                List<string> list = new List<string>();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    list.Add(dt.Rows[i]["vcValue1"].ToString().Trim());
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
     }
 }

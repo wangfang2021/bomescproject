@@ -179,7 +179,7 @@ namespace SPPSApi.Controllers.G00
                 field = new string[] { "vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5" };
                 string msg = string.Empty;
                 //string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0309_Export.xlsx", 2, loginInfo.UserId, FunctionID);
-                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0620_Data.xlsx", 1, loginInfo.UserId, FunctionID, true);
+                string filepath = ComFunction.generateExcelWithXlt(dt, field, _webHostEnvironment.ContentRootPath, "FS0108_Data.xlsx", 1, loginInfo.UserId, FunctionID, true);
                 //string filepath = ComFunction.DataTableToExcel(head, field, dt, ".", loginInfo.UserId, FunctionID,ref msg);
                 if (filepath == "")
                 {
@@ -249,7 +249,7 @@ namespace SPPSApi.Controllers.G00
                                                 {"vcValue1", "vcValue2", "vcValue3", "vcValue4", "vcValue5"},
                                                 {FieldCheck.NumChar,FieldCheck.NumChar,FieldCheck.Date,FieldCheck.Date,"" },
                                                 {"4","100","500","500","500"},//最大长度设定,不校验最大长度用0
-                                                {"4","1","0","0","1"},//最小长度设定,可以为空用0
+                                                {"4","1","1","1","1"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5"}//前台显示列号，从0开始计算,注意有选择框的是0
                     };
                     //需要判断时间区间先后关系的字段
@@ -333,7 +333,7 @@ namespace SPPSApi.Controllers.G00
                     string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
                     string vcStart = dtadd.Rows[i]["vcValue3"].ToString();
                     string vcEnd = dtadd.Rows[i]["vcValue4"].ToString();
-                    for (int j=0;j<dtadd.Rows.Count;j++) {
+                    for (int j= i + 1; j<dtadd.Rows.Count;j++) {
                         string vcSupplier1 = dtadd.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtadd.Rows[j]["vcValue2"].ToString();
                         string vcFzgc1 = dtadd.Rows[j]["vcValue5"].ToString();
@@ -355,7 +355,7 @@ namespace SPPSApi.Controllers.G00
                             }
                         }
                     }
-                    for (int j = 0; j < dtadd.Rows.Count; j++)
+                    for (int j = 0; j < dtamody.Rows.Count; j++)
                     {
                         string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
@@ -388,7 +388,7 @@ namespace SPPSApi.Controllers.G00
                     string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
                     string vcStart = dtamody.Rows[i]["vcValue3"].ToString();
                     string vcEnd = dtamody.Rows[i]["vcValue4"].ToString();
-                    for (int j = 0; j < dtamody.Rows.Count; j++)
+                    for (int j = i+1; j < dtamody.Rows.Count; j++)
                     {
                         string vcSupplier1 = dtamody.Rows[j]["vcValue1"].ToString();
                         string vcWorkArea1 = dtamody.Rows[j]["vcValue2"].ToString();
@@ -414,7 +414,59 @@ namespace SPPSApi.Controllers.G00
                     }
                 }
                 //验证新增与修改跟数据库里面是否重叠
-                DataTable dtCheck = fs0108_Logic.checkData(dtadd,listInfoData);
+                string strInAutoIds = string.Empty;
+                for (int i = 0; i < listInfoData.Count; i++)
+                {
+                    if ((bool)listInfoData[i]["vcAddFlag"] == false && (bool)listInfoData[i]["vcModFlag"] == true)
+                    {
+                        int iAutoId = Convert.ToInt32(listInfoData[i]["iAutoId"]);
+                        strInAutoIds += iAutoId + ",";
+                    }
+                    
+                }
+                if (strInAutoIds.Length>0)
+                {
+                    strInAutoIds = strInAutoIds.Substring(0, strInAutoIds.Length - 1);
+                }
+                
+                for (int i=0;i<dtadd.Rows.Count;i++)
+                {
+                    string vcSupplier = dtadd.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtadd.Rows[i]["vcValue2"].ToString();
+                    string vcStart = dtadd.Rows[i]["vcValue3"].ToString();
+                    string vcFzgc = dtadd.Rows[i]["vcValue5"].ToString();
+                    string vcEnd = dtadd.Rows[i]["vcValue4"].ToString();
+                    DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
+                    if (dtCheck.Rows.Count>0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier;
+                        dataRow["vcWorkArea"] = vcWorkArea;
+                        dataRow["vcFzgc"] = vcFzgc;
+                        dataRow["vcMessage"] = "新增的数据时间区间出现重叠";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                }
+                for (int i = 0; i < dtamody.Rows.Count; i++)
+                {
+                    string vcSupplier = dtamody.Rows[i]["vcValue1"].ToString();
+                    string vcWorkArea = dtamody.Rows[i]["vcValue2"].ToString();
+                    string vcStart = dtamody.Rows[i]["vcValue3"].ToString();
+                    string vcFzgc = dtamody.Rows[i]["vcValue5"].ToString();
+                    string vcEnd = dtamody.Rows[i]["vcValue4"].ToString();
+                    DataTable dtCheck = fs0108_Logic.checkData(vcSupplier, vcWorkArea, vcStart, vcEnd, strInAutoIds);
+                    if (dtCheck.Rows.Count > 0)
+                    {
+                        DataRow dataRow = dataTable.NewRow();
+                        dataRow["vcSupplier"] = vcSupplier;
+                        dataRow["vcWorkArea"] = vcWorkArea;
+                        dataRow["vcFzgc"] = vcFzgc;
+                        dataRow["vcMessage"] = "修改的数据时间区间出现重叠";
+                        dataTable.Rows.Add(dataRow);
+                        bReault = false;
+                    }
+                }
 
                 #endregion
                 if (!bReault)
@@ -440,7 +492,7 @@ namespace SPPSApi.Controllers.G00
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0704", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M01UE0804", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -515,13 +567,14 @@ namespace SPPSApi.Controllers.G00
                 for (int i = 0; i < listInfoData.Count; i++)
                 {
                     DataRow dataRow = dataTable.NewRow();
-                    dataRow["vcCodeId"] = listInfoData[i]["vcCodeId"].ToString();
-                    dataRow["vcCodeName"] = listInfoData[i]["vcCodeName"].ToString();
+                    dataRow["vcSupplier"] = listInfoData[i]["vcSupplier"].ToString();
+                    dataRow["vcWorkArea"] = listInfoData[i]["vcWorkArea"].ToString();
+                    dataRow["vcFzgc"] = listInfoData[i]["vcFzgc"].ToString();
                     dataRow["vcMessage"] = listInfoData[i]["vcMessage"].ToString();
                     dataTable.Rows.Add(dataRow);
                 }
 
-                string[] fields = { "vcCodeId", "vcCodeName", "vcMessage" };
+                string[] fields = { "vcSupplier", "vcWorkArea", "vcMessage" };
                 string filepath = ComFunction.generateExcelWithXlt(dataTable, fields, _webHostEnvironment.ContentRootPath, "FS0108_MessageList.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

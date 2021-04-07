@@ -37,5 +37,10 @@ namespace Logic
         {
             fs0203_dataAccess.importSPRL(dt, fileName, userId);
         }
+
+        public DataTable getSPRLList()
+        {
+            return fs0203_dataAccess.getSPRLList();
+        }
     }
 }

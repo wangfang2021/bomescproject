@@ -3,6 +3,7 @@ using DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace Logic
 {
@@ -496,7 +497,7 @@ namespace Logic
                                     if (Convert.ToDateTime(strSupplierPlantFromTime_before) >= Convert.ToDateTime(strSupplierPlantFromTime_ed))
                                     {
                                         DataRow dataRow = dtMessage.NewRow();
-                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                         dtMessage.Rows.Add(dataRow);
                                     }
                                 }
@@ -599,7 +600,7 @@ namespace Logic
                                     if (Convert.ToDateTime(strBoxFromTime_before) >= Convert.ToDateTime(strBoxFromTime_ed))
                                     {
                                         DataRow dataRow = dtMessage.NewRow();
-                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                         dtMessage.Rows.Add(dataRow);
                                     }
                                 }
@@ -675,7 +676,7 @@ namespace Logic
                                     if (Convert.ToDateTime(strSufferInFromTime_before) >= Convert.ToDateTime(strSufferInFromTime_ed))
                                     {
                                         DataRow dataRow = dtMessage.NewRow();
-                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                        dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                         dtMessage.Rows.Add(dataRow);
                                     }
                                 }
@@ -1476,7 +1477,7 @@ namespace Logic
                             if (Convert.ToDateTime(strSupplierPlantFromTime_before) >= Convert.ToDateTime(strSupplierPlantFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -1517,7 +1518,7 @@ namespace Logic
                             if (Convert.ToDateTime(strBoxFromTime_before) >= Convert.ToDateTime(strBoxFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -1558,7 +1559,7 @@ namespace Logic
                             if (Convert.ToDateTime(strSufferInFromTime_before) >= Convert.ToDateTime(strSufferInFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                                 bReault = false;
                             }
@@ -1692,10 +1693,16 @@ namespace Logic
                             if (Convert.ToDateTime(strSupplierPlantFromTime_before) >= Convert.ToDateTime(strSupplierPlantFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                             }
                             strSupplierPlantToTime_before = Convert.ToDateTime(strSupplierPlantFromTime_ed).AddDays(-1).ToString("yyyy-MM-dd");
+                        }
+                        if(strSupplierPlant_ed.Length>1)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区】维护有误(工区长度应为1位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
                         }
                         //插入TSPMaster_SupplierPlant表
                         #region AddNewRow
@@ -1751,10 +1758,22 @@ namespace Logic
                             if (Convert.ToDateTime(strBoxFromTime_before) >= Convert.ToDateTime(strBoxFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                             }
                             strBoxToTime_before = Convert.ToDateTime(strBoxFromTime_ed).AddDays(-1).ToString("yyyy-MM-dd");
+                        }
+                        if (!IsInt(strBoxPackingQty_ed))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数】维护有误(收容数应为正整数)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (strBoxType_ed.Length > 15)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【箱种】维护有误(箱种长度应小于15位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
                         }
                         //插入TSPMaster_Box表
                         #region AddNewRow
@@ -1811,10 +1830,16 @@ namespace Logic
                             if (Convert.ToDateTime(strSufferInFromTime_before) >= Convert.ToDateTime(strSufferInFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                             }
                             strSufferInToTime_before = Convert.ToDateTime(strSufferInFromTime_ed).AddDays(-1).ToString("yyyy-MM-dd");
+                        }
+                        if (strSufferIn_ed.Length > 2)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入】维护有误(受入长度应为2位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
                         }
                         //插入TSPMaster_SufferIn表
                         #region AddNewRow
@@ -2443,10 +2468,16 @@ namespace Logic
                             if (Convert.ToDateTime(strSupplierPlantFromTime_before) >= Convert.ToDateTime(strSupplierPlantFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                             }
                             strSupplierPlantToTime_before = Convert.ToDateTime(strSupplierPlantFromTime_ed).AddDays(-1).ToString("yyyy-MM-dd");
+                        }
+                        if (strSupplierPlant_ed.Length > 1)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区】维护有误(工区长度应为1位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
                         }
                         //插入TSPMaster_SupplierPlant表
                         #region AddNewRow
@@ -2514,10 +2545,22 @@ namespace Logic
                             if (Convert.ToDateTime(strBoxFromTime_before) >= Convert.ToDateTime(strBoxFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                             }
                             strBoxToTime_before = Convert.ToDateTime(strBoxFromTime_ed).AddDays(-1).ToString("yyyy-MM-dd");
+                        }
+                        if (!IsInt(strBoxPackingQty_ed))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数】维护有误(收容数应为正整数)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (strBoxType_ed.Length > 15)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【箱种】维护有误(箱种长度应小于15位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
                         }
                         //插入TSPMaster_Box表
                         #region AddNewRow
@@ -2586,10 +2629,16 @@ namespace Logic
                             if (Convert.ToDateTime(strSufferInFromTime_before) >= Convert.ToDateTime(strSufferInFromTime_ed))
                             {
                                 DataRow dataRow = dtMessage.NewRow();
-                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前有效的开始使用时间小于维护的开始使用时间)", i + 1);
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数有效期】维护有误(当前维护的开始时间不能早于上一条开始时间)", i + 1);
                                 dtMessage.Rows.Add(dataRow);
                             }
                             strSufferInToTime_before = Convert.ToDateTime(strSufferInFromTime_ed).AddDays(-1).ToString("yyyy-MM-dd");
+                        }
+                        if (strSufferIn_ed.Length > 2)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入】维护有误(受入长度应为2位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
                         }
                         //插入TSPMaster_SufferIn表
                         #region AddNewRow
@@ -2737,6 +2786,12 @@ namespace Logic
                         string strSupplierPlantToTime_ed = dtImport.Rows[i]["SupplierPlantToTime_ed"].ToString();
                         if (dtOperCheck.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "' and SupplierPlant_ed='" + strSupplierPlant_ed + "' and SupplierPlantFromTime_ed='" + strSupplierPlantFromTime_ed.Replace("-", "/") + "' and SupplierPlantToTime_ed='" + strSupplierPlantToTime_ed.Replace("-", "/") + "'").Length == 0)
                         {
+                            if (strSupplierPlant_ed.Length > 1)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区】维护有误(工区长度应为1位)", i + 1);
+                                dtMessage.Rows.Add(dataRow);
+                            }
                             #region AddNewRow
                             DataRow drChildInfo_gq = dtChildInfo_gq.NewRow();
                             drChildInfo_gq["LinId"] = "";
@@ -2787,6 +2842,18 @@ namespace Logic
                         string strBoxVolume_ed = dtImport.Rows[i]["BoxVolume_ed"].ToString();
                         if (dtOperCheck.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "' and BoxPackingQty_ed='" + strBoxPackingQty_ed + "' and BoxType_ed='" + strBoxType_ed + "' and SupplierPlantFromTime_ed='" + strBoxFromTime_ed.Replace("-", "/") + "' and SupplierPlantToTime_ed='" + strBoxToTime_ed.Replace("-", "/") + "'").Length == 0)
                         {
+                            if (!IsInt(strBoxPackingQty_ed))
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数】维护有误(收容数应为正整数)", i + 1);
+                                dtMessage.Rows.Add(dataRow);
+                            }
+                            if (strBoxType_ed.Length > 15)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【箱种】维护有误(箱种长度应小于15位)", i + 1);
+                                dtMessage.Rows.Add(dataRow);
+                            }
                             #region AddNewRow
                             DataRow drChildInfo_hz = dtChildInfo_hz.NewRow();
                             drChildInfo_hz["LinId"] = "";
@@ -2837,6 +2904,12 @@ namespace Logic
                         string strSufferInToTime_ed = dtImport.Rows[i]["SufferInToTime_ed"].ToString();
                         if (dtOperCheck.Select("vcPackingPlant='" + strPackingPlant + "' and vcPartId='" + strPartId + "' and vcReceiver='" + strReceiver + "' and vcSupplierId='" + strSupplierId + "' and SufferIn_ed='" + strSufferIn_ed + "' and SufferInFromTime_ed='" + strSufferInFromTime_ed.Replace("-", "/") + "' and SufferInToTime_ed='" + strSufferInToTime_ed.Replace("-", "/") + "'").Length == 0)
                         {
+                            if (strSufferIn_ed.Length > 2)
+                            {
+                                DataRow dataRow = dtMessage.NewRow();
+                                dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入】维护有误(受入长度应为2位)", i + 1);
+                                dtMessage.Rows.Add(dataRow);
+                            }
                             #region AddNewRow
                             DataRow drChildInfo_sr = dtChildInfo_sr.NewRow();
                             drChildInfo_sr["LinId"] = "";
@@ -2895,6 +2968,12 @@ namespace Logic
                         string strSupplierPlant_ed = dtImport.Rows[i]["SupplierPlant_ed"].ToString();
                         string strSupplierPlantFromTime_ed = dtImport.Rows[i]["SupplierPlantFromTime_ed"].ToString();
                         string strSupplierPlantToTime_ed = dtImport.Rows[i]["SupplierPlantToTime_ed"].ToString();
+                        if (strSupplierPlant_ed.Length > 1)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【工区】维护有误(工区长度应为1位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
                         #region AddNewRow
                         DataRow drChildInfo_gq = dtChildInfo_gq.NewRow();
                         drChildInfo_gq["LinId"] = strSupplierPlantLinId_ed;
@@ -2936,6 +3015,18 @@ namespace Logic
                         string strBoxWidth_ed = dtImport.Rows[i]["BoxWidth_ed"].ToString();
                         string strBoxHeight_ed = dtImport.Rows[i]["BoxHeight_ed"].ToString();
                         string strBoxVolume_ed = dtImport.Rows[i]["BoxVolume_ed"].ToString();
+                        if (!IsInt(strBoxPackingQty_ed))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【收容数】维护有误(收容数应为正整数)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
+                        if (strBoxType_ed.Length > 15)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【箱种】维护有误(箱种长度应小于15位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
                         #region AddNewRow
                         DataRow drChildInfo_hz = dtChildInfo_hz.NewRow();
                         drChildInfo_hz["LinId"] = strBoxLinId_ed;
@@ -2977,6 +3068,12 @@ namespace Logic
                         string strSufferIn_ed = dtImport.Rows[i]["SufferIn_ed"].ToString();
                         string strSufferInFromTime_ed = dtImport.Rows[i]["SufferInFromTime_ed"].ToString();
                         string strSufferInToTime_ed = dtImport.Rows[i]["SufferInToTime_ed"].ToString();
+                        if (strSufferIn_ed.Length > 2)
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = string.Format("第{0}行【" + strType + "】情报【受入】维护有误(受入长度应为2位)", i + 1);
+                            dtMessage.Rows.Add(dataRow);
+                        }
                         #region AddNewRow
                         DataRow drChildInfo_sr = dtChildInfo_sr.NewRow();
                         drChildInfo_sr["LinId"] = strSufferInLinId_ed;
@@ -4160,6 +4257,12 @@ namespace Logic
                 dataTable.Columns.Add("vcType", typeof(string));
             }
             return dataTable;
+        }
+
+        public bool IsInt(string inString)
+        {
+            Regex regex = new Regex("^[0-9]*[1-9][0-9]*$");
+            return regex.IsMatch(inString.Trim());
         }
     }
 }

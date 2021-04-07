@@ -87,8 +87,16 @@ namespace SPPSApi.Controllers.G02
                     };
 
                     DataTable importDt = new DataTable();
+                    DataTable sprlList = fs0203_logic.getSPRLList();
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
+                        DataRow[] rows = sprlList.Select("vcFileName = '" + info.Name + "'");
+                        if (rows.Length > 0)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "导入失败,文件" + info.Name + "已上传过无法再次上传。";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
                         DataTable dt = ComFunction.ExcelToDataTable(info.FullName, "sheet1", headers, ref strMsg);
                         if (strMsg != "")
                         {

@@ -107,6 +107,7 @@ namespace SPPSApi.Controllers.G07
                 #region 导入限制
                 //查找包装厂
                 DataTable dtPS = fs0719_Logic.SearchPackSpot();
+                DateTime dt2 = DateTime.Now;
                 for (int i = 0; i < importDt.Rows.Count; i++)
                 {
                     if (dtPS.Select("vcValue='" + importDt.Rows[i]["vcPackSpot"].ToString() + "'").Length == 0)
@@ -132,6 +133,13 @@ namespace SPPSApi.Controllers.G07
                         apiResult.data = "导入失败:第" + i + "行,订购数量维护错误！"; 
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    if (Convert.ToDateTime(importDt.Rows[i]["dNaRuTime"].ToString())< dt2) {
+
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败:第" + i + "行,不能维护以前纳入时间！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
                 }
                 #endregion
 

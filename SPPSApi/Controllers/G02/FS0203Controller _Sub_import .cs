@@ -63,6 +63,26 @@ namespace SPPSApi.Controllers.G02
                 //0 部品导入
                 if (flag == "0")
                 {
+                    string msg = "";
+                    foreach (FileInfo info in theFolder.GetFiles())
+                    {
+                        List<Hashtable> list = fs0203_logic.GetPartFromFile(info.FullName);
+                        if (list.Count == 0)
+                        {
+                            if (!string.IsNullOrWhiteSpace(msg))
+                            {
+                                msg += ";";
+                            }
+                            msg += info.Name;
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(msg))
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "导入失败,文件" + msg + "存在问题，请进行修正。";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
                     foreach (FileInfo info in theFolder.GetFiles())
                     {
                         List<Hashtable> list = fs0203_logic.GetPartFromFile(info.FullName);

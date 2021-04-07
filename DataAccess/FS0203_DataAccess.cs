@@ -326,5 +326,19 @@ namespace DataAccess
                 return "";
             }
         }
+
+        public DataTable getSPRLList()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT DISTINCT vcFileName FROM dbo.TSBManager WHERE vcType = '1'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

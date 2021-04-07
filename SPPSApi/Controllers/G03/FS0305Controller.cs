@@ -20,7 +20,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SPPSApi.Controllers.G99
+namespace SPPSApi.Controllers.G03
 {
     [Route("api/FS0305/[action]")]
     [EnableCors("any")]
@@ -58,11 +58,10 @@ namespace SPPSApi.Controllers.G99
                 List<Object> dataList_C003 = ComFunction.convertAllToResult(ComFunction.getTCode("C003"));//内外区分
                 List<Object> dataList_C012 = ComFunction.convertAllToResult(ComFunction.getTCode("C012"));//OE
                 List<Object> dataList_C015 = ComFunction.convertAllToResult(ComFunction.getTCode("C015"));//省
-                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装事业体
+                List<Object> dataList_C016 = ComFunction.convertAllToResult(ComFunction.getTCode("C016"));//包装工场
                 List<Object> dataList_C028 = ComFunction.convertAllToResult(ComFunction.getTCode("C028"));//防锈指示
                 List<Object> dataList_C029 = ComFunction.convertAllToResult(ComFunction.getTCode("C029"));//对应可否确认结果
                 List<Object> dataList_C030 = ComFunction.convertAllToResult(ComFunction.getTCode("C030"));//防锈对应可否
-
                 List<Object> dataList_C040_all = new List<object>();
 
                 foreach (var item in dataList_C040)
@@ -108,7 +107,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0501", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M00UE0006", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "初始化失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -187,19 +186,21 @@ namespace SPPSApi.Controllers.G99
                     #endregion
 
                 }
-                DtConverter dtConverter = new DtConverter();
 
-                dtConverter.addField("selected", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("vcSupplierEditFlag", ConvertFieldType.BoolType, null);
-                dtConverter.addField("dSSDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSupplier_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSupplier_HK", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dTFTM_BJ", ConvertFieldType.DateType, "yyyy/MM/dd");
+                FS0305_Logic.DtConverter dtConverter = new FS0305_Logic.DtConverter();
+                dtConverter.addField("selected", FS0305_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcModFlag", FS0305_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcAddFlag", FS0305_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", FS0305_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("vcSupplierEditFlag", FS0305_Logic.ConvertFieldType.BoolType, null);
+                dtConverter.addField("dSSDate", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_BJ", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dSupplier_HK", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("dTFTM_BJ", FS0305_Logic.ConvertFieldType.DateType, "yyyy/MM/dd");
+                dtConverter.addField("vcZXBZNo", FS0305_Logic.ConvertFieldType.string2list, null);
 
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                List<Object> dataList = fs0305_Logic.convertAllToResultByConverter(dt, dtConverter);
+
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = dataList;
@@ -207,7 +208,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0502", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0501", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -299,7 +300,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0502", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0502", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -340,7 +341,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0502", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0503", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "检索失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -367,7 +368,6 @@ namespace SPPSApi.Controllers.G99
                 dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
                 JArray listInfo = dataForm.multipleSelection;
                 List<Dictionary<string, Object>> listInfoData = listInfo.ToObject<List<Dictionary<string, Object>>>();
-
 
                 JArray factoryArray1 = dataForm.options;
                 JArray factoryArray2 = dataForm.select_ZXBZNo;
@@ -420,7 +420,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0503", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0504", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -476,7 +476,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0504", ex, logininfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0505", ex, logininfo.UserId);
                 apiresult.code = ComConstant.ERROR_CODE;
                 apiresult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
@@ -609,7 +609,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0505", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0506", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -680,7 +680,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0505", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0507", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "延期说明发送失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -745,7 +745,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0506", ex, loginInfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0508", ex, loginInfo.UserId);
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "保存失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -778,7 +778,7 @@ namespace SPPSApi.Controllers.G99
             }
             catch (Exception ex)
             {
-                ComMessage.GetInstance().ProcessMessage(FunctionID, "M99UE0504", ex, logininfo.UserId);
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0509", ex, logininfo.UserId);
                 apiresult.code = ComConstant.ERROR_CODE;
                 apiresult.data = "导出失败";
                 return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);

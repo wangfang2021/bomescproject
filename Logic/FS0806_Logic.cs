@@ -20,9 +20,9 @@ namespace Logic
 
         #region 检索
         public DataTable Search(string vcZYType, string vcBZPlant, string vcInputNo, string vcKBOrderNo, 
-            string vcKBLFNo, string vcSellNo, string vcPart_id, string vcBoxNo, string dStart, string dEnd,string vcLabelNo,string vcStatus)
+            string vcKBLFNo, string vcSellNo, string vcPart_id, string vcBoxNo, string dStart, string dEnd,string vcLabelNo,string vcStatus,string vcSHF)
         {
-            return fs0806_DataAccess.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus);
+            return fs0806_DataAccess.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus,vcSHF);
         }
         public DataTable initSubApi(string vcPart_id,string vcKBOrderNo,string vcKBLFNo,string vcSR)
         {

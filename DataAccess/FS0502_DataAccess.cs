@@ -59,8 +59,8 @@ namespace DataAccess
 
                 StringBuilder strSql = new StringBuilder();
                 strSql.Append("select t1.iAutoId,t3.iAutoId as iAutoId_sub,t1.vcStatus,t1.vcOrderNo,t1.vcPart_id,t1.vcSupplier_id,    \n");
-                strSql.Append("t1.vcGQ,t1.vcChuHePlant,t1.dReplyOverDate,t1.iPackingQty,t1.iOrderQuantity,t3.iDuiYingQuantity,     \n");
-                strSql.Append("t3.decBoxQuantity,t3.dDeliveryDate,'0' as vcModFlag,'0' as vcAddFlag,         \n");
+                strSql.Append("t1.vcGQ,t1.vcChuHePlant,convert(varchar(10),t1.dReplyOverDate,120) as dReplyOverDate,t1.iPackingQty,t1.iOrderQuantity,t3.iDuiYingQuantity,     \n");
+                strSql.Append("t3.decBoxQuantity,convert(varchar(10),t3.dDeliveryDate,120) as dDeliveryDate,'0' as vcModFlag,'0' as vcAddFlag,         \n");
                 strSql.Append("CASE WHEN isnull(t1.vcStatus,'')='1' and isnull(t1.vcShowFlag,'')='1' and isnull(t1.vcSaveFlag,'')!='1' then '0'  else '1' end as bSelectFlag,        \n");
                 strSql.Append("isnull(t1.vcShowFlag,'') as vcShowFlag,isnull(t1.vcSaveFlag,'') as vcSaveFlag,    \n");
                 //strSql.Append("case when t3.iDuiYingQuantity%t1.iPackingQty<>0 then 'red' else '' end as boxColor,    \n");
@@ -69,7 +69,7 @@ namespace DataAccess
                 strSql.Append("case when t1.dSupReplyTime is null and isnull(t1.vcStatus,'')='1' and isnull(t1.vcShowFlag,'')='1' and isnull(t1.vcSaveFlag,'')!='1' then '待回复'   \n");
                 strSql.Append("when t1.dSupReplyTime is not null and isnull(t1.vcStatus,'') in ('2','3') and isnull(t1.vcShowFlag,'')='1' then '已回复'    \n");
                 strSql.Append("when t1.dSupReplyTime is null and isnull(t1.vcStatus,'')='3' and isnull(t1.vcShowFlag,'')='1' then '延误'  \n");
-                strSql.Append("end as vcStatusName,t1.dSendTime,t1.dSupReplyTime    \n");
+                strSql.Append("end as vcStatusName,convert(varchar(10),t1.dSendTime,120) as dSendTime,t1.dSupReplyTime    \n");
                 strSql.Append("from(        \n");
                 strSql.Append("	select * from TUrgentOrder         \n");
                 strSql.Append("	where isnull(vcSupplier_id,'')='" + strSupplier + "' and isnull(vcGQ,'')='" + strGQ + "'     \n");

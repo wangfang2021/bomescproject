@@ -138,7 +138,7 @@ namespace SPPSApi.Controllers.G05
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("dReplyOverDate", ConvertFieldType.DateType, "yyyy/MM/dd");
                 dtConverter.addField("dDeliveryDate", ConvertFieldType.DateType, "yyyy/MM/dd");
-                dtConverter.addField("dSendTime",ConvertFieldType.DateType,"yyyy/MM/dd HH:mm:ss");
+                dtConverter.addField("dSendTime",ConvertFieldType.DateType,"yyyy/MM/dd");
                 dtConverter.addField("dSupReplyTime", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("vcModFlag", ConvertFieldType.BoolType, null);
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -230,11 +230,11 @@ namespace SPPSApi.Controllers.G05
             try
             {
                 DataTable dt = fs0502_Logic.Search(vcSupplier_id, vcStatus, vcOrderNo, vcPart_id);
-                string[] heads = { "状态", "订单编号", "品番", "供应商代码", "工区", "回复截至日期", "收容数", "订货总数", "可对应数量", "可对应箱数", "可对应纳期" };
-                string[] fields = { "vcStatusName","vcOrderNo","vcPart_id","vcSupplier_id","vcGQ","dReplyOverDate","iPackingQty","iOrderQuantity",
-                    "iDuiYingQuantity","decBoxQuantity","dDeliveryDate"};
+                string[] heads = { "状态", "纳期表发送时间", "订单编号", "品番", "供应商代码", "工区", "回复截至日期", "收容数", "订货总数", "可对应数量", "可对应箱数", "可对应纳期", "供应商回复时间" };
+                string[] fields = { "vcStatusName","dSendTime","vcOrderNo","vcPart_id","vcSupplier_id","vcGQ","dReplyOverDate","iPackingQty","iOrderQuantity",
+                    "iDuiYingQuantity","decBoxQuantity","dDeliveryDate","dSupReplyTime"};
                 string strMsg = "";
-                string filepath = ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
+                string filepath =ComFunction.DataTableToExcel(heads, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, FunctionID, ref strMsg);
                 if (strMsg != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;

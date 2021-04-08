@@ -69,7 +69,20 @@ namespace DataAccess
                 throw ex;
             }
         }
-        public DataTable getSearchInfo(string strInPutOrderNo)
+        public DataTable getInvList(string strInPutOrderNo)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendLine("select * from TInvList where vcInno='" + strInPutOrderNo + "'");
+                return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable getLabelList(string strInPutOrderNo)
         {
             try
             {

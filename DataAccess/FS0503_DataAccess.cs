@@ -751,20 +751,38 @@ namespace DataAccess
                 }
 
                 //删除
-                sql.Append("   delete from  THeZiManageTmp where iAutoId in   \n");
-                sql.Append("   (   \n");
-                sql.Append("   select b.iAutoId   \n");
-                sql.Append("    from (   \n");
-                sql.Append("   select * from THeZiManageImportTmp4Supplier where vcOperatorID='" + strUserId + "'   \n");
-                sql.Append("   ) a left join   \n");
-                sql.Append("   (   \n");
-                sql.Append("   select * from THeZiManage where vcState in ('1','3')   \n");
-                sql.Append("   ) b on a.vcPartNo=b.vcPartNo and a.vcPackingPlant=b.vcPackingPlant   \n");
-                sql.Append("    and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.vcState =b.vcState   \n");
-                sql.Append("    where b.vcPartNo is not null   \n");
-                sql.Append("   )   \n");
-                
-                //更新
+                //sql.Append("   delete from  THeZiManageTmp where iAutoId in   \n");
+                //sql.Append("   (   \n");
+                //sql.Append("   select b.iAutoId   \n");
+                //sql.Append("    from (   \n");
+                //sql.Append("   select * from THeZiManageImportTmp4Supplier where vcOperatorID='" + strUserId + "'   \n");
+                //sql.Append("   ) a left join   \n");
+                //sql.Append("   (   \n");
+                //sql.Append("   select * from THeZiManage where vcState in ('1','3')   \n");
+                //sql.Append("   ) b on a.vcPartNo=b.vcPartNo and a.vcPackingPlant=b.vcPackingPlant   \n");
+                //sql.Append("    and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.vcState =b.vcState   \n");
+                //sql.Append("    where b.vcPartNo is not null   \n");
+                //sql.Append("   )   \n");
+                //update
+                sql.Append("  update c set c.vcWorkArea = a.vcWorkArea, c.vcIntake = a.vcIntake,   \n");
+                sql.Append("  c.vcBoxMaxIntake=a.vcBoxMaxIntake,c.vcBoxType=a.vcBoxType   \n");
+                sql.Append("  ,c.vcLength=a.vcLength,c.vcWide=a.vcWide ,c.vcHeight=a.vcHeight,   \n");
+                sql.Append("  c.vcEmptyWeight=a.vcEmptyWeight,c.vcUnitNetWeight=a.vcUnitNetWeight,   \n");
+                sql.Append("  c.dOperatorTime=GETDATE()   \n");
+                sql.Append("   from (      \n");
+                sql.Append("  select * from THeZiManageImportTmp4Supplier where vcOperatorID='" + strUserId + "'      \n");
+                sql.Append("  ) a left join  (   \n");
+                sql.Append("   select * from THeZiManage where vcState in ('1','3')     \n");
+                sql.Append("  ) b on a.vcPartNo=b.vcPartNo and a.vcPackingPlant=b.vcPackingPlant     \n");
+                sql.Append("   and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.vcState =b.vcState    \n");
+                sql.Append("   left join   THeZiManageTmp c on b.iAutoId = c.iAutoId   \n");
+                sql.Append("   where b.vcPartNo is not null and isnull(b.vcIsEdit,'0')='1'     \n");
+                sql.Append("     \n");
+                sql.Append("     \n");
+
+
+
+                //新增
                 sql.Append("   insert into [THeZiManageTmp] (iAutoId,vcState,vcSupplier_id,vcWorkArea,vcIntake,   \n");
                 sql.Append("   vcBoxMaxIntake,vcBoxType,vcLength,vcWide ,vcHeight,vcEmptyWeight   \n");
                 sql.Append("   ,vcUnitNetWeight,vcDelFlag,[vcOperatorID], [dOperatorTime])    \n");
@@ -779,7 +797,7 @@ namespace DataAccess
                 sql.Append("   select * from THeZiManage where vcState in ('1','3')   \n");
                 sql.Append("   ) b on a.vcPartNo=b.vcPartNo and a.vcPackingPlant=b.vcPackingPlant   \n");
                 sql.Append("    and a.vcSupplier_id=b.vcSupplier_id and a.vcReceiver=b.vcReceiver and a.vcState =b.vcState   \n");
-                sql.Append("    where b.vcPartNo is not null   \n");
+                sql.Append("    where b.vcPartNo is not null and isnull(b.vcIsEdit,'0')='0'   \n");
 
                 //gengxin
                 sql.Append("    update [dbo].[THeZiManage] set vcIsEdit='1' where iAutoId in   \n");

@@ -19,9 +19,9 @@ namespace Logic
         }
 
         #region 检索
-        public DataTable Search(string vcBox_id,string vcLabelId)
+        public DataTable Search(string vcBox_id,string vcLabelId,string strFHF)
         {
-            return fs0812_DataAccess.Search(vcBox_id, vcLabelId);
+            return fs0812_DataAccess.Search(vcBox_id, vcLabelId,strFHF);
         }
         #endregion
 

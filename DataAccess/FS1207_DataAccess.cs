@@ -184,7 +184,7 @@ namespace DataAccess
                 SqlCommandBuilder sb = new SqlCommandBuilder(apt);
                 apt.Update(dtupdate);
                 //插入数据到tSSP表
-                //deletetSSP(cmd, mon);
+                deletetSSP(cmd, mon);
                 InsertSSP(cmd, mon, user);
                 sb.Dispose();
                 cmd.Transaction.Commit();
@@ -208,7 +208,7 @@ namespace DataAccess
 
         public void deletetSSP(SqlCommand cmd, string mon)
         {
-            cmd.CommandText = "delete from tSSP where vcMonth='" + mon + "'";
+            cmd.CommandText = "delete from tSSP where vcMonth='" + mon + "' and flag=0";
             cmd.ExecuteNonQuery();
         }
         /// <summary>

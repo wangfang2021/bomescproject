@@ -108,7 +108,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"' and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
                 if (vcReceiver.Length>0)
                 {
                     strSql.AppendLine("  and vcReceiver='"+vcReceiver+"' ");
@@ -128,7 +128,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"'  and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
                 if (vcReceiver.Length > 0)
                 {
                     strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
@@ -151,7 +151,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
                 if (vcReceiver.Length > 0)
                 {
                     strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
@@ -171,7 +171,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "'  and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null  and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
                 if (vcReceiver.Length > 0)
                 {
                     strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
@@ -197,7 +197,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"'  ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null  ");
                 if (vcReceiver.Length > 0)
                 {
                     strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
@@ -218,7 +218,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcPlantQtyTotal-vcInputQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+"'  and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null  and (vcPlantQtyTotal-vcInputQtyTotal)>0 ");
                 if (vcReceiver.Length > 0)
                 {
                     strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
@@ -241,7 +241,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
                 if (vcReceiver.Length > 0)
                 {
                     strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");
@@ -261,7 +261,7 @@ namespace DataAccess
                 strSql.AppendLine("  else type end as vcSupplierId, ");
                 strSql.AppendLine("  vcPartNo,vcInputQtyTotal-vcResultQtyTotal as chaZhiNaRu ");
                 strSql.AppendLine("   from [dbo].[VI_SP_M_ORD_S0629]  ");
-                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
+                strSql.AppendLine("   where vcTargetYearMonth='"+vcTargetYearMonth+ "' and vcReceiver is not null and (vcInputQtyTotal-vcResultQtyTotal)>0 ");
                 if (vcReceiver.Length > 0)
                 {
                     strSql.AppendLine("  and vcReceiver='" + vcReceiver + "' ");

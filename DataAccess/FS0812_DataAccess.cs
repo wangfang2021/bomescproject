@@ -14,7 +14,7 @@ namespace DataAccess
         private MultiExcute excute = new MultiExcute();
 
         #region 检索
-        public DataTable Search(string vcBox_id,string vcLabelId)
+        public DataTable Search(string vcBox_id,string vcLabelId,string strFHF)
         {
             try
             {
@@ -23,10 +23,12 @@ namespace DataAccess
                 strSql.Append("isnull(iQuantity,0) as iQuantity,dBZID,dBZTime,dZXID,dZXTime,vcOperatorID,dOperatorTime,    \n");
                 strSql.Append("isnull(iRHQuantity,0) as iRHQuantity,vcLabelStart,vcLabelEnd,    \n");
                 strSql.Append("'0' as vcModFlag,'0' as vcAddFlag from TBoxMaster  where 1=1  \n");
-                if (vcBox_id!="" & vcBox_id!=null)
+                if (vcBox_id!="" && vcBox_id !=null)
                     strSql.Append("and isnull(vcBoxNo,'') = '" + vcBox_id + "' \n");
                 if (vcLabelId != "" && vcLabelId != null)
                     strSql.Append("and '"+vcLabelId+ "' between vcLabelStart and vcLabelEnd \n");
+                if (strFHF != "" && strFHF != null)
+                    strSql.Append("and isnull(vcBoxNo,'') like '"+strFHF+"%' ");
                 strSql.Append("order by vcBoxNo,vcInstructionNo, vcPart_id  \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

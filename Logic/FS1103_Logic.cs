@@ -38,6 +38,7 @@ namespace Logic
                         string strPartId = listInfoData[i]["vcPartId"] == null ? "" : listInfoData[i]["vcPartId"].ToString();
                         string strInPutOrderNo = listInfoData[i]["vcInPutOrderNo"] == null ? "" : listInfoData[i]["vcInPutOrderNo"].ToString();
                         string strLabelNum = listInfoData[i]["vcLabelNum"] == null ? "" : listInfoData[i]["vcLabelNum"].ToString();
+                        string strInPutNum = listInfoData[i]["vcInPutNum"] == null ? "" : listInfoData[i]["vcInPutNum"].ToString();
                         string strTagLianFFrom = listInfoData[i]["vcTagLianFFrom"] == null ? "" : listInfoData[i]["vcTagLianFFrom"].ToString();
                         string strTagLianFTo = listInfoData[i]["vcTagLianFTo"] == null ? "" : listInfoData[i]["vcTagLianFTo"].ToString();
                         DataRow dataRow = dataTable.NewRow();
@@ -45,6 +46,7 @@ namespace Logic
                         dataRow["vcPartId"] = strPartId;
                         dataRow["vcInPutOrderNo"] = strInPutOrderNo;
                         dataRow["vcLabelNum"] = strLabelNum;
+                        dataRow["vcInPutNum"] = strInPutNum;
                         dataRow["bInPutOrder"] = bInPutOrder;
                         dataRow["bTag"] = bTag;
                         dataRow["vcTagLianFFrom"] = strTagLianFFrom;
@@ -71,8 +73,21 @@ namespace Logic
                     string strInPutOrderNo = dataTable.Rows[i]["vcInPutOrderNo"].ToString();
                     if (bInPutOrder == "1")
                     {
+                        string strLabelNum = dataTable.Rows[i]["vcLabelNum"].ToString();
+                        string strInPutNum= dataTable.Rows[i]["vcInPutNum"].ToString();
+                        if(strInPutNum==""|| strInPutNum=="0")
+                        {
+                            strInPutNum = strLabelNum;
+                        }
+                        if(!fS0603_Logic.IsInt(strInPutNum))
+                        {
+                            DataRow dataRow = dtMessage.NewRow();
+                            dataRow["vcMessage"] = "所选择的入库指令书" + strInPutOrderNo + "的指令书数量不为数字";
+                            dtMessage.Rows.Add(dataRow);
+                        }
                         DataRow drInputTemp = dtInputTemp.NewRow();
                         drInputTemp["vcInno"] = strInPutOrderNo;
+                        drInputTemp["vcInPutNum"] = strInPutNum;
                         dtInputTemp.Rows.Add(drInputTemp);
                     }
                     if (bTag == "1")

@@ -202,18 +202,18 @@ namespace SPPSApi.Controllers.G06
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
-            string dSynchronizationDateFrom = dataForm.dSynchronizationDateFrom == null ? "" : dataForm.dSynchronizationDateFrom;
-            string dSynchronizationDateTo = dataForm.dSynchronizationDateTo == null ? "" : dataForm.dSynchronizationDateTo;
-            string dSynchronizationDate = dataForm.dSynchronizationDate == null ? "" : dataForm.dSynchronizationDate;
-            string vcState = dataForm.vcState == null ? "" : dataForm.vcState;
-            string vcPartNo = dataForm.vcPartNo == null ? "" : dataForm.vcPartNo;
-            string vcSupplier_id = dataForm.vcSupplier_id == null ? "" : dataForm.vcSupplier_id;
-            string vcWorkArea = dataForm.vcWorkArea == null ? "" : dataForm.vcWorkArea;
-            string vcCarType = dataForm.vcCarType == null ? "" : dataForm.vcCarType;
-            string dExpectDeliveryDate = dataForm.dExpectDeliveryDate == null ? "" : dataForm.dExpectDeliveryDate;
-            string dSendDate = dataForm.dSendDate == null ? "" : dataForm.dSendDate;
-            string vcOEOrSP = dataForm.vcOEOrSP == null ? "" : dataForm.vcOEOrSP;
-            string vcBoxType = dataForm.vcBoxType == null ? "" : dataForm.vcBoxType;
+            string dSynchronizationDateFrom = dataForm.searchForm.dSynchronizationDateFrom == null ? "" : dataForm.searchForm.dSynchronizationDateFrom;
+            string dSynchronizationDateTo = dataForm.searchForm.dSynchronizationDateTo == null ? "" : dataForm.searchForm.dSynchronizationDateTo;
+            string dSynchronizationDate = dataForm.searchForm.dSynchronizationDate == null ? "" : dataForm.searchForm.dSynchronizationDate;
+            string vcState = dataForm.searchForm.vcState == null ? "" : dataForm.searchForm.vcState;
+            string vcPartNo = dataForm.searchForm.vcPartNo == null ? "" : dataForm.searchForm.vcPartNo;
+            string vcSupplier_id = dataForm.searchForm.vcSupplier_id == null ? "" : dataForm.searchForm.vcSupplier_id;
+            string vcWorkArea = dataForm.searchForm.vcWorkArea == null ? "" : dataForm.searchForm.vcWorkArea;
+            string vcCarType = dataForm.searchForm.vcCarType == null ? "" : dataForm.searchForm.vcCarType;
+            string dExpectDeliveryDate = dataForm.searchForm.dExpectDeliveryDate == null ? "" : dataForm.searchForm.dExpectDeliveryDate;
+            string dSendDate = dataForm.searchForm.dSendDate == null ? "" : dataForm.searchForm.dSendDate;
+            string vcOEOrSP = dataForm.searchForm.vcOEOrSP == null ? "" : dataForm.searchForm.vcOEOrSP;
+            string vcBoxType = dataForm.searchForm.vcBoxType == null ? "" : dataForm.searchForm.vcBoxType;
 
             try
             {

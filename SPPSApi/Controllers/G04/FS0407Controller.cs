@@ -131,7 +131,7 @@ namespace SPPSApi.Controllers.G04
 
                 DataTable dt = fs0407_Logic.SearchApi(OrderNo, PartId);
 
-                string[] fields = { "vcOrderNo", "vcPart_id", "vcInOut", "iPackingQty", "iOrderQuantity", "iDuiYingQuantity", "dOutPutDate" };
+                string[] fields = { "vcOrderNo", "vcPart_id", "vcInOut", "iPackingQty", "iOrderQuantity", "iDuiYingQuantity", "dOutPutDateDC" };
                 string filepath = ComFunction.generateExcelWithXlt(dt, fields, _webHostEnvironment.ContentRootPath, "FS0407.xlsx", 1, loginInfo.UserId, FunctionID);
                 if (filepath == "")
                 {

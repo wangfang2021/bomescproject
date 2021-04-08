@@ -567,7 +567,7 @@ namespace Logic
                         string strBoxVolume_ed = "";
                         if (ComFunction.CheckDecimal(strBoxLength_ed) && ComFunction.CheckDecimal(strBoxWidth_ed) && ComFunction.CheckDecimal(strBoxHeight_ed))
                         {
-                            strBoxVolume_ed = ((Convert.ToInt32(strBoxLength_ed) / 1000.0) * (Convert.ToInt32(strBoxWidth_ed) / 1000.0) * (Convert.ToInt32(strBoxHeight_ed) / 1000.0)).ToString("#.0000");
+                            strBoxVolume_ed = ((Convert.ToInt32(strBoxLength_ed) / 1000.0) * (Convert.ToInt32(strBoxWidth_ed) / 1000.0) * (Convert.ToInt32(strBoxHeight_ed) / 1000.0)).ToString("#0.0000");
                         }
                         if (strBoxPackingQty_ed != "" && strBoxPackingQty_ed != "0")
                         {
@@ -3960,6 +3960,7 @@ namespace Logic
                 dataTable.Columns.Add("vcPartId", typeof(string));
                 dataTable.Columns.Add("vcInPutOrderNo", typeof(string));
                 dataTable.Columns.Add("vcLabelNum", typeof(string));
+                dataTable.Columns.Add("vcInPutNum", typeof(string));
                 dataTable.Columns.Add("bInPutOrder", typeof(string));
                 dataTable.Columns.Add("bTag", typeof(string));
                 dataTable.Columns.Add("vcTagLianFFrom", typeof(string));

@@ -31,6 +31,44 @@ namespace SPPSApi.Controllers.G08
             _webHostEnvironment = webHostEnvironment;
         }
 
+        #region 页面初始化
+        [HttpPost]
+        [EnableCors("any")]
+        public string pageloadApi()
+        {
+            string strToken = Request.Headers["X-Token"];
+            if (!isLogin(strToken))
+            {
+                return error_login();
+            }
+            LoginInfo loginInfo = getLoginByToken(strToken);
+            //以下开始业务处理
+            ApiResult apiResult = new ApiResult();
+            try
+            {
+                Dictionary<string, object> res = new Dictionary<string, object>();
+                //if (loginInfo.Special == "财务用户")
+                //    res.Add("caiWuBtnVisible", false);
+                //else
+                //    res.Add("caiWuBtnVisible", true);
+
+                List<Object> dataList_C071 = ComFunction.convertAllToResult(ComFunction.getTCode("C071"));//发货方
+                res.Add("C071", dataList_C071);
+
+                apiResult.code = ComConstant.SUCCESS_CODE;
+                apiResult.data = res;
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M08UE0701", ex, loginInfo.UserId);
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "初始化失败";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
+
         #region 检索
         [HttpPost]
         [EnableCors("any")]
@@ -48,10 +86,11 @@ namespace SPPSApi.Controllers.G08
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcBox_id = dataForm.vcBoxNo;
             string vcLabelId = dataForm.vcLabelId;
+            string vcFHF = dataForm.vcFHF;
 
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId);
+                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId,vcFHF);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -90,10 +129,11 @@ namespace SPPSApi.Controllers.G08
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
             string vcBox_id = dataForm.vcBoxNo == null ? "" : dataForm.vcBoxNo;
             string vcLabelId = dataForm.vcLabelId;
+            string vcFHF = dataForm.vcFHF;
 
             try
             {
-                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId);
+                DataTable dt = fs0812_Logic.Search(vcBox_id, vcLabelId, vcFHF);
                 string[] heads = { "状态", "箱号", "入库指示书号", "品番", "订单号", "连番号", "数量",
                 "包装时间","包装者","装箱时间","装箱者"};
                 string[] fields = { "vcStatus", "vcBoxNo", "vcInstructionNo", "vcPart_id", "vcOrderNo", "vcLianFanNo", "iQuantity",

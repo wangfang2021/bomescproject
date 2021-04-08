@@ -157,7 +157,7 @@ namespace DataAccess
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.Append("   select vcPlantCode,vcPlantName from SUnitPlant where vcUnitCode='"+ strUnitCode + "' order by iAuto_id asc   ");
+                strSql.Append("   select vcValue as vcPlantCode,vcMeaning as vcPlantName from TCode where vcCodeId='C000' order by vcValue asc   ");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }
             catch (Exception ex)

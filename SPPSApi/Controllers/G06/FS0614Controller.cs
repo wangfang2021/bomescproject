@@ -49,9 +49,11 @@ namespace SPPSApi.Controllers.G06
 
                 List<Object> dataList_C044 = ComFunction.convertAllToResult(ComFunction.getTCode("C044")); //收货方
                 List<Object> dataList_C045 = ComFunction.convertAllToResult(fs0614_logic.getType()); //原单位
+                List<Object> dataList_order = ComFunction.convertAllToResult(fs0614_logic.orderList()); //原单位
 
                 res.Add("C044", dataList_C044);
                 res.Add("C045", dataList_C045);
+                res.Add("order", dataList_order);
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);

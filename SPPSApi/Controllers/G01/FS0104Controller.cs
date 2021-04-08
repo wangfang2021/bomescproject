@@ -76,5 +76,38 @@ namespace SPPSApi.Controllers.G00
             }
         }
         #endregion
+
+        #region 下载后台日志文件
+        [HttpPost]
+        [EnableCors("any")]
+        public string downloadLLoadApi([FromBody] dynamic data)
+        {
+            string strtoken = Request.Headers["x-token"];
+            if (!isLogin(strtoken))
+            {
+                return error_login();
+            }
+            LoginInfo logininfo = getLoginByToken(strtoken);
+            //以下开始业务处理
+            ApiResult apiresult = new ApiResult();
+            dynamic dataform = JsonConvert.DeserializeObject(Convert.ToString(data));
+            try
+            {
+                string strFileName = dataform.fileName;
+                strFileName = "-" + strFileName.Substring(strFileName.Length - 5);
+                string fileSavePath = strFileName + ".pdf";
+                apiresult.code = ComConstant.SUCCESS_CODE;
+                apiresult.data = fileSavePath;
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+            }
+            catch (Exception ex)
+            {
+                ComMessage.GetInstance().ProcessMessage(FunctionID, "M03UE0408", ex, logininfo.UserId);
+                apiresult.code = ComConstant.ERROR_CODE;
+                apiresult.data = "导出失败";
+                return JsonConvert.SerializeObject(apiresult, Formatting.Indented, JSON_SETTING);
+            }
+        }
+        #endregion
     }
 }

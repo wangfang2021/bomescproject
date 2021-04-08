@@ -295,7 +295,7 @@ namespace DataAccess
 
                                 if (NRPartId.Equals(partId))
                                 {
-                                    NRPartId = "-";
+                                    NRPartId = "";
                                 }
                                 sbr.Append(" INSERT INTO TUnit  \r\n");
                                 sbr.Append(" (vcPart_id,vcChange,dTimeFrom,dTimeTo,vcMeno,vcHaoJiu,vcDiff,vcCarTypeDesign,vcOriginCompany,vcOperator,dOperatorTime,vcPartNameEn,vcSPINo,vcHKPart_id,vcSQState,vcFXDiff,vcFXNo,vcBJDiff,vcSQContent,vcHKGC) values\r\n");

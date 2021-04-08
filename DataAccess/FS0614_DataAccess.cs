@@ -1531,5 +1531,24 @@ namespace DataAccess
 
             return tmp;
         }
+
+        public DataTable orderList()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT a.vcOrderNo AS vcName,a.vcOrderNo AS vcValue FROM ");
+                sbr.AppendLine("(");
+                sbr.AppendLine("SELECT DISTINCT vcOrderNo FROM dbo.TOrderUploadManage");
+                sbr.AppendLine(") a");
+
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

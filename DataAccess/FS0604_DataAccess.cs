@@ -369,7 +369,8 @@ namespace DataAccess
                 strSql.AppendLine("     	[vcIntake], [vcBoxMaxIntake], [vcBoxType], [vcLength], [vcWide], [vcHeight], [vcEmptyWeight],         ");
                 strSql.AppendLine("     	[vcUnitNetWeight], [dSendDate], [dReplyDate], [dAdmitDate], [dWeaveDate], [vcMemo], vcImageRoutes,         ");
                 strSql.AppendLine("     	[vcInserter], [vcInserterDate],[vcFactoryOperatorID], [dFactoryOperatorTime],        ");
-                strSql.AppendLine("     	[vcOperatorID], [dOperatorTime] as vcAddFlag from [dbo].[THeZiManage] where vcState<>'5'           ");
+                //strSql.AppendLine("     	[vcOperatorID], [dOperatorTime] as vcAddFlag from [dbo].[THeZiManage] where vcState<>'5'           ");
+                strSql.AppendLine("     	[vcOperatorID], [dOperatorTime] as vcAddFlag from [dbo].[THeZiManage] where 1=1           ");
                 strSql.AppendLine("     	)a       ");
                 //strSql.AppendLine("     	) m      ");
                 strSql.AppendLine("     	) n    ");
@@ -1357,10 +1358,10 @@ namespace DataAccess
                     {//修改
                       
                        
-                        //string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();
+                        //string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "' 
 
                         strSql.AppendLine("  declare @isExist int =0;   ");
-                        strSql.AppendLine("  select @isExist=COUNT(*) from THeZiManage where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "'  ");
+                        strSql.AppendLine("  select @isExist=COUNT(*) from THeZiManage where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "'  ");
                         strSql.AppendLine("     ");
                         strSql.AppendLine("  if @isExist>0   ");
                         strSql.AppendLine("  begin   ");
@@ -1378,7 +1379,7 @@ namespace DataAccess
                         strSql.AppendLine("         ,[vcUnitNetWeight] = " + getSqlValue(listInfoData[i]["vcUnitNetWeight"], true) + "   ");
                         strSql.AppendLine("         ,[vcMemo] =  " + getSqlValue(listInfoData[i]["vcMemo"], false) + "   ");
                         strSql.AppendLine("  ,vcOperatorID='" + userId + "',dOperatorTime=GETDATE() ");
-                        strSql.AppendLine("  where   vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "'  ;  \n");
+                        strSql.AppendLine("  where   vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' ;  \n");
                         strSql.AppendLine("  end   ");
                         strSql.AppendLine("  else   ");
                         strSql.AppendLine("  begin   ");
@@ -1467,7 +1468,7 @@ namespace DataAccess
                     //string vcWorkArea = listInfoData[i]["vcWorkArea"].ToString();
 
                     strSql.AppendLine("  declare @isExist int =0;   ");
-                    strSql.AppendLine("  select @isExist=COUNT(*) from THeZiManage where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "' and dUseStartDate='" + dUseStartDate + "' and dUserEndDate='" + dUserEndDate + "'  ");
+                    strSql.AppendLine("  select @isExist=COUNT(*) from THeZiManage where vcPackingPlant='" + vcPackingPlant + "' and vcReceiver='" + vcReceiver + "' and vcPartNo='" + vcPartNo + "' and vcSupplier_id='" + vcSupplier_id + "'  ");
                     strSql.AppendLine("     ");
                     strSql.AppendLine("  if @isExist>0   ");
                     strSql.AppendLine("  begin   ");

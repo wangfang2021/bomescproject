@@ -315,7 +315,7 @@ namespace SPPSApi.Controllers.G06
                                                 {"vcState","dSendDate", "dExpectDeliveryDate", "dSynchronizationDate", "vcPackingPlant", "vcReceiver", "vcPartNo","vcPartName", "vcCarType", "dUseStartDate", "vcOEOrSP", "vcSupplier_id", "vcWorkArea",  "vcExpectIntake", "vcIntake", "vcBoxMaxIntake", "vcBoxType", "vcLength", "vcWide", "vcHeight", "vcEmptyWeight", "vcUnitNetWeight","vcImageRoutes", "dReplyDate", "dAdmitDate", "dWeaveDate", "vcMemo"},
                                                 {"","","","","","",FieldCheck.NumChar,"","","","",FieldCheck.NumChar,"",FieldCheck.Num,FieldCheck.Num,FieldCheck.Num,FieldCheck.NumChar, "","","","","","","","","",""},
                                                 {"5","0","0","0","20","10","12","200","50","0","0","4","50","20","20","20","50","20","20","20","20","20","0","0","0","0","500"},//最大长度设定,不校验最大长度用0
-                                                {"1","0","0","0","1","1","12","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                                                {"1","0","0","0","1","1","12","0","0","0","0","4","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
                                                 {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27"}//前台显示列号，从0开始计算,注意有选择框的是0
                          };
                     //需要判断时间区间先后关系的字段

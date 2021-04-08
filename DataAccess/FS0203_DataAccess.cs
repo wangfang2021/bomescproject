@@ -268,7 +268,7 @@ namespace DataAccess
                         sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("*", "").Replace("/", "").Trim(), false) + ",");
                         sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXDiff"].ToString().Trim(), false) + ",");
                         sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcFXNo"].ToString().Trim(), false) + ",");
-                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcNewProj"].ToString().Trim(), false) + ",");
+                        sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcHK"].ToString().Trim(), false) + ",");
                         sbr.Append(ComFunction.getSqlValue(dt.Rows[i]["vcStartYearMonth"].ToString().Replace("**", "/01").Replace("/", "").Trim(), true) + ",");
                         sbr.Append("'" + fileName + "',");
                         sbr.Append("'" + FileNameTJ + "',");
@@ -324,6 +324,20 @@ namespace DataAccess
             catch (Exception ex)
             {
                 return "";
+            }
+        }
+
+        public DataTable getSPRLList()
+        {
+            try
+            {
+                StringBuilder sbr = new StringBuilder();
+                sbr.AppendLine("SELECT DISTINCT vcFileName FROM dbo.TSBManager WHERE vcType = '1'");
+                return excute.ExcuteSqlWithSelectToDT(sbr.ToString(), "TK");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

@@ -325,8 +325,10 @@ namespace SPPSApi.Controllers.G12
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         DataTable redt = print.searchPrintKANBALL(dt, vctype, i);
-                        string ls_savePath = root + "\\QRCodeImages\\" + ls_fileName;
-                        byte[] vcPhotoPath = print.PhotoToArray(redt.Rows[0]["vcPhotoPath"].ToString(), picnull);//图片二进制流
+                        string ls_savePath = root + "\\Doc\\Image\\QRCodeImages\\" + ls_fileName;
+                        string vcPartImage = root + "\\Doc\\Image\\SPPartImage\\" + redt.Rows[0]["vcPhotoPath"].ToString();
+
+                        byte[] vcPhotoPath = print.PhotoToArray(vcPartImage, picnull);//图片二进制流
                         string reCode = print.reCode(redt.Rows[0]["vcSupplierCode"].ToString(), redt.Rows[0]["vcSupplierPlant"].ToString(), redt.Rows[0]["vcDock"].ToString(), redt.Rows[0]["vcPartsNo"].ToString(), redt.Rows[0]["iQuantityPerContainer"].ToString(), redt.Rows[0]["vcKBSerial"].ToString(), redt.Rows[0]["vcEDflag"].ToString(), redt.Rows[0]["vcKBorderno"].ToString());
                         byte[] vcQRCodeImge = print.GenGenerateQRCode(reCode, ls_savePath);
                         if (vctype == "3")

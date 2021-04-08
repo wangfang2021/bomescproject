@@ -15,7 +15,7 @@ namespace DataAccess
 
         #region 检索
         public DataTable Search(string vcZYType, string vcBZPlant, string vcInputNo, string vcKBOrderNo , 
-            string vcKBLFNo, string vcSellNo, string vcPart_id, string vcBoxNo, string dStart, string dEnd,string vcLabelNo,string vcStatus)
+            string vcKBLFNo, string vcSellNo, string vcPart_id, string vcBoxNo, string dStart, string dEnd,string vcLabelNo,string vcStatus,string vcSHF)
         {
             try
             {
@@ -61,6 +61,8 @@ namespace DataAccess
                     strSql.Append("and '"+vcLabelNo+"' between t1.vcLabelStart and t1.vcLabelEnd   \n");
                 if (vcStatus != "" && vcStatus != null)
                     strSql.Append("and (case when t1.vcZYType='S1' and  t5.vcPart_id is not null then 'NG' else t1.vcCheckStatus end)='" + vcStatus+"'    \n");
+                if (vcSHF != "" && vcSHF != null)
+                    strSql.Append("and isnull(t1.vcSHF,'')='"+vcSHF+"'    \n");
                 strSql.Append("order by t1.vcZYType,t1.vcInputNo,t1.dStart    \n");
                 return excute.ExcuteSqlWithSelectToDT(strSql.ToString());
             }

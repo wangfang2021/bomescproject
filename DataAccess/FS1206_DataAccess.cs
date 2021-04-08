@@ -166,18 +166,32 @@ namespace DataAccess
                 apt.Fill(dttmp);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    dttmp.Rows.Add(
-                                    dt.Rows[i][0].ToString(),
-                                    dt.Rows[i][1].ToString(),
-                                    dt.Rows[i][2].ToString().ToUpper(),
-                                    dt.Rows[i][3].ToString().ToUpper(),
-                                    dt.Rows[i][4].ToString(),
-                                    dt.Rows[i][5].ToString(),
-                                    user,
-                                    DateTime.Now,
-                                    null,
-                                    null
-                                   );
+                    DataRow[] r = dttmp.Select("vcPartsNo='" + dt.Rows[i]["vcPartsNo"].ToString() + "'");
+                    if (r.Length > 0)
+                    {
+                        r[0]["vcPartsNoFZ"] = dt.Rows[i]["vcPartsNoFZ"].ToString();
+                        r[0]["vcSource"] = dt.Rows[i]["vcSource"].ToString();
+                        r[0]["vcFactory"] = dt.Rows[i]["vcFactory"].ToString();
+                        r[0]["vcBF"] = dt.Rows[i]["vcBF"].ToString();
+                        r[0]["iSRNum"] = dt.Rows[i]["iSRNum"].ToString();
+                        r[0]["vcUpdateUser"] = user;
+                        r[0]["dUpdateTime"] = DateTime.Now;
+                    }
+                    else
+                    {
+                        dttmp.Rows.Add(
+                                        dt.Rows[i][0].ToString(),
+                                        dt.Rows[i][1].ToString(),
+                                        dt.Rows[i][2].ToString().ToUpper(),
+                                        dt.Rows[i][3].ToString().ToUpper(),
+                                        dt.Rows[i][4].ToString(),
+                                        dt.Rows[i][5].ToString(),
+                                        user,
+                                        DateTime.Now,
+                                        null,
+                                        null
+                                       );
+                    }
                     StringBuilder sb = new StringBuilder();
                     sb.Append("insert into TSSP (vcMonth, vcPartsNo, Total, iXZNum, iFZNum, iCO, iCONum, iFZFlg, Creater, dCreatDate)");
                     sb.Append("values ('" + vcCLYM + "','" + dt.Rows[i][0].ToString() + "',0,0,0,0," + Convert.ToInt32(dt.Rows[i]["iCONum"].ToString()) + ",0,'" + user + "','" + DateTime.Now.ToString() + "');");

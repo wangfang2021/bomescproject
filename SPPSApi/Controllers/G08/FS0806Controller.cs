@@ -56,8 +56,10 @@ namespace SPPSApi.Controllers.G08
 
                 List<Object> dataList_C022 = ComFunction.convertAllToResult(ComFunction.getTCode("C022"));//作业类型区分
                 List<Object> dataList_C023 = ComFunction.convertAllToResult(ComFunction.getTCode("C023"));//包装场
+                List<Object> dataList_C018 = ComFunction.convertAllToResult(ComFunction.getTCode("C018"));//收货方
                 res.Add("C022", dataList_C022);
                 res.Add("C023", dataList_C023);
+                res.Add("C018", dataList_C018);
 
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = res;
@@ -88,6 +90,7 @@ namespace SPPSApi.Controllers.G08
             //以下开始业务处理
             ApiResult apiResult = new ApiResult();
             dynamic dataForm = JsonConvert.DeserializeObject(Convert.ToString(data));
+            Dictionary<string, object> res = new Dictionary<string, object>();
 
             string vcZYType = dataForm.vcZYType;
             string vcBZPlant = dataForm.vcBZPlant;
@@ -101,10 +104,11 @@ namespace SPPSApi.Controllers.G08
             string dEnd = dataForm.dEnd;
             string vcLabelNo = dataForm.vcLabelNo;
             string vcStatus = dataForm.vcStatus;
+            string vcSHF = dataForm.vcSHF;
 
             try
             {
-                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus);
+                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus,vcSHF);
 
                 DtConverter dtConverter = new DtConverter();
                 dtConverter.addField("vcAddFlag", ConvertFieldType.BoolType, null);
@@ -112,10 +116,32 @@ namespace SPPSApi.Controllers.G08
                 dtConverter.addField("dStart", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
                 dtConverter.addField("dEnd", ConvertFieldType.DateType, "yyyy/MM/dd HH:mm:ss");
 
-                List<Object> dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
-                apiResult.code = ComConstant.SUCCESS_CODE;
-                apiResult.data = dataList;
-                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                List<Object> dataList = null;
+                if (dt.Rows.Count > 1000)
+                {
+                    FS0603_Logic fs0603_Logic = new FS0603_Logic();
+                    DataTable dtMessage = fs0603_Logic.createTable("MES");
+                    DataRow dataRow = dtMessage.NewRow();
+                    dataRow["vcMessage"] = "本次检索数据条数超过1000,为避免浏览器内存溢出，请调整检索条件或进行数据导出。";
+                    dtMessage.Rows.Add(dataRow);
+
+                    DataTable table = dt.Clone();
+                    dataList = ComFunction.convertAllToResultByConverter(table, dtConverter);
+                    res.Add("tempList", dataList);
+                    res.Add("messageList", dtMessage);
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.type = "message";
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                else
+                {
+                    dataList = ComFunction.convertAllToResultByConverter(dt, dtConverter);
+                    res.Add("tempList", dataList);
+                    apiResult.code = ComConstant.SUCCESS_CODE;
+                    apiResult.data = res;
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
             }
             catch (Exception ex)
             {
@@ -154,10 +180,11 @@ namespace SPPSApi.Controllers.G08
             string dEnd = dataForm.dEnd;
             string vcLabelNo = dataForm.vcLabelNo;
             string vcStatus = dataForm.vcStatus;
+            string vcSHF = dataForm.vcSHF;
 
             try
             {
-                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus);
+                DataTable dt = fs0806_Logic.Search(vcZYType, vcBZPlant, vcInputNo, vcKBOrderNo, vcKBLFNo, vcSellNo, vcPart_id, vcBoxNo, dStart, dEnd, vcLabelNo,vcStatus, vcSHF);
                 string[] heads = { "作业类型区分","包装场","入库单号","看板订单号","看板连番","品番","内外区分","供应商","供应商工区","开始时间","结束时间",
                     "数量","包装单位","收货方","受入","箱号","设备编号","检查区分","检查个数","检查状态","员工编号","员工姓名","标签ID起","标签ID止","解锁员",
                     "解锁时间","销售单号"

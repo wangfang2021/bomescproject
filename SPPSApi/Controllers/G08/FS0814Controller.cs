@@ -162,25 +162,25 @@ namespace SPPSApi.Controllers.G08
                 {
                     #region 数据格式校验
                     string[,] strField = new string[,] {
-                    {"D1","D2","D3","D4","D5","D6","D7","D8","D9","D10",
+                    {"对象年月","白夜","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10",
                     "D11","D12","D13","D14","D15","D16","D17","D18","D19","D20",
                     "D21","D22","D23","D24","D25","D26","D27","D28","D29","D30","D31"},
-                    {"vcD1", "vcD2","vcD3","vcD4","vcD5","vcD6","vcD7","vcD8","vcD9","vcD10",
+                    {"vcYearMonth","vcType","vcD1", "vcD2","vcD3","vcD4","vcD5","vcD6","vcD7","vcD8","vcD9","vcD10",
                     "vcD11","vcD12","vcD13","vcD14","vcD15","vcD16","vcD17","vcD18","vcD19","vcD20",
                     "vcD21","vcD22","vcD23","vcD24","vcD25","vcD26","vcD27","vcD28","vcD29","vcD30","vcD31"},
-                    {FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,
+                    {FieldCheck.Num,"",FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,
                     FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,
                     FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char,FieldCheck.Char},
-                    {"1","1","1","1","1","1","1","1","1","1"
+                    {"6","1","1","1","1","1","1","1","1","1","1","1"
                     ,"1","1","1","1","1","1","1","1","1","1"
                     ,"1","1","1","1","1","1","1","1","1","1","1"},//最大长度设定,不校验最大长度用0
-                    {"0","0","0","0","0","0","0","0","0","0"
+                    {"1","1","0","0","0","0","0","0","0","0","0","0"
                     ,"0","0","0","0","0","0","0","0","0","0"
-                    ,"0","0","0","0","0","0","0","0","0","0","0"},
-                    {"3","4","5","6","7","8","9","10","11","12"
+                    ,"0","0","0","0","0","0","0","0","0","0","0"},//最小长度设定,可以为空用0
+                    {"1","2","3","4","5","6","7","8","9","10","11","12"
                     ,"13","14","15","16","17","18","19","20","21","22"
                     ,"23","24","25","26","27","28","29","30","31","32","33"}
-                    };//最小长度设定,可以为空用0
+                    };//位置
                     List<Object> checkRes = ListChecker.validateList(listInfoData, strField, null, null, true, "FS0814");
                     if (checkRes != null)
                     {
@@ -201,6 +201,28 @@ namespace SPPSApi.Controllers.G08
                         {
                             apiResult.code = ComConstant.ERROR_CODE;
                             apiResult.data = "[D"+j+"]列只能填写A/B";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    bool bModFlag = (bool)listInfoData[i]["vcModFlag"];//true可编辑,false不可编辑
+                    bool bAddFlag = (bool)listInfoData[i]["vcAddFlag"];//true可编辑,false不可编辑
+                    if (bAddFlag == true)
+                    {//新增 
+                     //校验 对象年月+白夜 不能重复
+                        string vcYearMonth = listInfoData[i]["vcYearMonth"].ToString();
+                        string vcType = listInfoData[i]["vcType"].ToString();
+                        if (vcType != "" && vcType != null && Array.IndexOf(new string[] { "白", "夜" }, vcType) == -1)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "[白夜]列只能填写白/夜";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                        bool isRepeat = fs0814_Logic.RepeatCheck(vcYearMonth, vcType);
+                        if (isRepeat)
+                        {//有重复数据  
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = string.Format("保存失败，有重复数据[对象年月-白夜]：{0}-{1}",vcYearMonth,vcType);
+                            apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
                             return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                         }
                     }

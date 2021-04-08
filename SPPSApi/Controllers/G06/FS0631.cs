@@ -137,7 +137,7 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dt = fs0631_Logic.SearchNQCResult(strCLYM.Replace("/", ""), strDXYM, strPartNo,strPlant);
-                string[] heads = { "品番", "处理年月", "对象年月","工厂","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12",
+                string[] heads = { "品番", "处理年月", "对象年月","工场","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12",
                     "D13","D14","D15","D16" ,"D17","D18","D19","D20","D21","D22","D23","D24","D25","D26","D27","D28","D29","D30","D31"
                 };
                 string[] fields = { "Part_No_Disp","vcCLYM","vcDXYM","Process_Factory","Daily_Qty_01","Daily_Qty_02","Daily_Qty_03","Daily_Qty_04",
@@ -213,7 +213,7 @@ namespace SPPSApi.Controllers.G06
                     #region 数据格式校验
                     string[,] strField = new string[,]
                     {
-                        {"品番", "处理年月", "对象年月","工厂","D1","D2","D3","D4",
+                        {"品番", "处理年月", "对象年月","工场","D1","D2","D3","D4",
                          "D5","D6","D7","D8","D9","D10","D11","D12",
                          "D13","D14","D15","D16" ,"D17","D18","D19","D20",
                          "D21","D22","D23","D24","D25","D26","D27","D28",

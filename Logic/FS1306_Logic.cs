@@ -91,13 +91,13 @@ namespace Logic
             dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["AI"] = "0.00";
             if (decS_sum != 0)
             {
-                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["T"] = (decR_sum * 100 / decS_sum).ToString("#.00");
-                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["AI"] = (decR_sum * 100 / decS_sum).ToString("#.00");
+                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["T"] = (decR_sum * 100 / decS_sum).ToString("#0.00");
+                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["AI"] = (decR_sum * 100 / decS_sum).ToString("#0.00");
             }
             if (decI_sum != 0)
             {
-                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["U"] = (decR_sum * 100 / (decI_sum * 60)).ToString("#.00");
-                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["AJ"] = (decR_sum * 100 / (decI_sum * 60)).ToString("#.00");
+                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["U"] = (decR_sum * 100 / (decI_sum * 60)).ToString("#0.00");
+                dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["AJ"] = (decR_sum * 100 / (decI_sum * 60)).ToString("#0.00");
             }
             #region 赋值
             dtList.Rows[0]["vcDeng"] = dtDataInfo.Rows[0]["AA"].ToString();
@@ -180,13 +180,13 @@ namespace Logic
             dtList.Rows[9]["vcChengx"] = dtDataInfo.Rows[5]["AJ"].ToString() + "%";
             dtList.Rows[9]["vcHej"] = dtDataInfo.Rows[6]["AJ"].ToString() + "%";
             #endregion
-            strOverTime_plan = Convert.ToDecimal(dtDataInfo.Rows[0]["D"].ToString() == "" ? "0" : dtDataInfo.Rows[0]["D"].ToString()).ToString("#.00");
+            strOverTime_plan = Convert.ToDecimal(dtDataInfo.Rows[0]["D"].ToString() == "" ? "0" : dtDataInfo.Rows[0]["D"].ToString()).ToString("#0.00");
             decimal decPeopleNum = Convert.ToDecimal(dtDataInfo.Rows[0]["C"].ToString() == "" ? "0" : dtDataInfo.Rows[0]["C"].ToString());
             decimal decHeJ_X = Convert.ToDecimal(dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["X"].ToString() == "" ? "0" : dtDataInfo.Rows[dtDataInfo.Rows.Count - 1]["X"].ToString());
             if (decHeJ_X > 0)
             {
                 if (decPeopleNum != 0)
-                    strOverTime_now = Convert.ToDecimal(decHeJ_X / decPeopleNum).ToString("#.00");
+                    strOverTime_now = Convert.ToDecimal(decHeJ_X / decPeopleNum).ToString("#0.00");
             }
 
             return dtList;

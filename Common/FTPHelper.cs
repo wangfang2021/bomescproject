@@ -44,10 +44,11 @@ namespace Common
         /// <param name="filename"></param>
         public void Upload(string filename)
         {
+            Console.WriteLine("TFPUpload filename:" + filename);
             FileInfo fileInf = new FileInfo(filename);
             string uri = ftpURI + fileInf.Name;
             FtpWebRequest reqFTP;
-
+            Console.WriteLine("TFPUpload create uri:"+ uri);
             reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
             reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
             reqFTP.KeepAlive = false;
@@ -57,10 +58,13 @@ namespace Common
             int buffLength = 2048;
             byte[] buff = new byte[buffLength];
             int contentLen;
+            Console.WriteLine("TFPUpload beginRead");
             FileStream fs = fileInf.OpenRead();
+            Console.WriteLine("TFPUpload read");
             try
             {
                 Stream strm = reqFTP.GetRequestStream();
+                Console.WriteLine("TFPUpload GetRequestStream");
                 contentLen = fs.Read(buff, 0, buffLength);
                 while (contentLen != 0)
                 {
@@ -69,9 +73,11 @@ namespace Common
                 }
                 strm.Close();
                 fs.Close();
+                Console.WriteLine("TFPUpload finish");
             }
             catch (Exception ex)
             {
+                Console.WriteLine("TFPUpload error"+ ex.Message);
                 throw ex;
             }
         }
@@ -86,14 +92,23 @@ namespace Common
             FtpWebRequest reqFTP;
             try
             {
+                Console.WriteLine("TFPDownload  filePath:" + filePath);
+                Console.WriteLine("TFPDownload  fileName:" + fileName);
+
+
                 string path = filePath + Path.DirectorySeparatorChar + fileName;
                 FileStream outputStream = new FileStream(path, FileMode.Create);
-
+                Console.WriteLine("TFPDownload  path:" + path);
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftpURI + fileName));
+
+                Console.WriteLine("TFPDownload  Create:" + ftpURI + fileName);
                 reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
                 reqFTP.UseBinary = true;
                 reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
+                Console.WriteLine("TFPDownload  NetworkCredential:" + ftpUserID+" "+ ftpPassword);
+                Console.WriteLine("TFPDownload  responsebegin");
                 FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
+                Console.WriteLine("TFPDownload  response" );
                 Stream ftpStream = response.GetResponseStream();
                 long cl = response.ContentLength;
                 int bufferSize = 2048;
@@ -110,10 +125,12 @@ namespace Common
                 ftpStream.Close();
                 outputStream.Close();
                 response.Close();
+                Console.WriteLine("TFPDownload  finish");
                 return path;
             }
             catch (Exception ex)
             {
+                Console.WriteLine("TFPDownload"+ ex.Message);
                 throw ex;
             }
         }

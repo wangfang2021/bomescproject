@@ -553,6 +553,8 @@ namespace SPPSApi.Controllers.G06
                     string SupplierPlantToTime_ed = dRowinfo.SupplierPlantToTime_ed == null ? "" : dRowinfo.SupplierPlantToTime_ed.ToString();
 
                     DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
+                    dataTable.DefaultView.Sort = "dFromTime desc";
+                    dataTable = dataTable.DefaultView.ToTable();
                     if (SupplierPlantLinId_ed != "" && dataTable.Select("LinId='" + SupplierPlantLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     {
                         DataRow dataRow = dataTable.NewRow();
@@ -601,6 +603,8 @@ namespace SPPSApi.Controllers.G06
                     string BoxVolume_ed = dRowinfo.BoxVolume_ed == null ? "" : dRowinfo.BoxVolume_ed.ToString();
 
                     DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
+                    dataTable.DefaultView.Sort = "dFromTime desc";
+                    dataTable = dataTable.DefaultView.ToTable();
                     if (BoxPackingQty_ed != "" && dataTable.Select("LinId='" + BoxLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     {
                         DataRow dataRow = dataTable.NewRow();
@@ -642,6 +646,8 @@ namespace SPPSApi.Controllers.G06
                     string SufferInToTime_ed = dRowinfo.SufferInToTime_ed == null ? "" : dRowinfo.SufferInToTime_ed.ToString();
 
                     DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, strPackingPlant, strPartId, strReceiver, strSupplierId, "");
+                    dataTable.DefaultView.Sort = "dFromTime desc";
+                    dataTable = dataTable.DefaultView.ToTable();
                     if (SufferInLinId_ed != "" && dataTable.Select("LinId='" + SufferInLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     {
                         DataRow dataRow = dataTable.NewRow();
@@ -679,6 +685,8 @@ namespace SPPSApi.Controllers.G06
                     string OrderPlantToTime_ed = dRowinfo.OrderPlantToTime_ed == null ? "" : dRowinfo.OrderPlantToTime_ed.ToString();
 
                     DataTable dataTable = fs0603_Logic.getEditLoadInfo(strEditType, "", "", "", strSupplierId, strSupplierPlant);
+                    dataTable.DefaultView.Sort = "dFromTime desc";
+                    dataTable = dataTable.DefaultView.ToTable();
                     //if (OrderPlantLinId_ed != "" && dataTable.Select("LinId='" + OrderPlantLinId_ed + "'").Length == 0)//数据库中不是最新有效期履历
                     //{
                     //    DataRow dataRow = dataTable.NewRow();

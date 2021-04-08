@@ -166,6 +166,17 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 DataTable dt = fs0605_Logic.Search(vcSupplier_id, vcWorkArea, vcIsSureFlag);
+
+                for (int i=0;i<dt.Rows.Count;i++)
+                {
+                    if (dt.Rows[i]["vcIsSureFlag"].ToString() == "1")
+                    {
+                        dt.Rows[i]["vcIsSureFlag"] = "√";
+                    }
+                    else {
+                        dt.Rows[i]["vcIsSureFlag"] = "";
+                    }
+                }
                 string[] head = new string[] { };
                 string[] field = new string[] { };
 

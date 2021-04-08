@@ -1944,7 +1944,7 @@ namespace SPPSApi.Controllers.G12
                         binding.OpenTimeout = TimeSpan.MaxValue;
                         binding.ReceiveTimeout = TimeSpan.MaxValue;
                         binding.SendTimeout = TimeSpan.MaxValue;
-                        EndpointAddress address = new EndpointAddress("http://localhost:63480/PrintTable.asmx");
+                        EndpointAddress address = new EndpointAddress("http://localhost:8089/PrintTable.asmx");
                         PrintCR.PrintTableSoapClient client = new PrintCR.PrintTableSoapClient(binding, address);
                         try
                         {

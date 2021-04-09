@@ -280,6 +280,7 @@ namespace SPPSApi.Controllers.G08
                 for (int i = 0; i < listInfo.Count; i++)
                 {
                     int iQuantity_input = Convert.ToInt32(listInfo[i]["iQuantity"].ToString());
+                    int iQuantity_old= Convert.ToInt32(listInfo[i]["iQuantity_old"].ToString());
                     string vcPart_id = listInfo[i]["vcPart_id"].ToString();
                     string vcKBOrderNo = listInfo[i]["vcKBOrderNo"].ToString();
                     string vcKBLFNo = listInfo[i]["vcKBLFNo"].ToString();
@@ -292,13 +293,24 @@ namespace SPPSApi.Controllers.G08
                         apiResult.data = "数量不能为0！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
-                    //校验 录入数量<上一层数量
-                    if (fs0806_Logic.isQuantityOK(vcPart_id, vcKBOrderNo, vcKBLFNo, vcSR, vcZYType, iQuantity_input) == false)
-                    {
+                    
+                    if(vcZYType=="S0")
+                    {//校验 S0时录入的数量不能大于他自己
+                        if(iQuantity_input>iQuantity_old)
+                        {
+                            apiResult.code = ComConstant.ERROR_CODE;
+                            apiResult.data = "不能大于他自己("+ iQuantity_old + ")！";
+                            return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                        }
+                    }
+                    else if (fs0806_Logic.isQuantityOK(vcPart_id, vcKBOrderNo, vcKBLFNo, vcSR, vcZYType, iQuantity_input) == false)
+                    {//校验 录入数量<上一层数量
                         apiResult.code = ComConstant.ERROR_CODE;
                         apiResult.data = "不能大于上一层数量！";
                         return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                     }
+                    
+                   
                     //校验 出荷和检查的不能修改
                     if(vcZYType=="S1" || vcZYType=="S4")
                     {

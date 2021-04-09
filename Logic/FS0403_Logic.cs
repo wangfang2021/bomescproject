@@ -24,6 +24,10 @@ namespace Logic
 
         #region 日别导入
 
+        public bool checkJD()
+        {
+            return fs0403_dataAccess.checkJD();
+        }
         public void ImportFile(DateTime time, DataTable excelTable, string strUserId, ref List<Object> refMsg)
         {
 

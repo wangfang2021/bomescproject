@@ -460,7 +460,7 @@ namespace BatchProcess
                 string day = Convert.ToInt32(DateTime.Now.ToString("dd")).ToString();
 
                 StringBuilder sbr = new StringBuilder();
-                sbr.AppendLine("SELECT ISNULL(TARGETDAY" + day + ",0) AS flag FROM TCalendar_PingZhun_Wai WHERE vcFZGC = '2' AND TARGETMONTH = '202104'");
+                sbr.AppendLine("SELECT ISNULL(TARGETDAY" + day + ",0) AS flag FROM TCalendar_PingZhun_Wai WHERE vcFZGC = '2' AND TARGETMONTH = '" + YM + "'");
                 DataTable dt = excute.ExcuteSqlWithSelectToDT(sbr.ToString());
 
                 if (dt.Rows.Count == 0)
@@ -469,7 +469,7 @@ namespace BatchProcess
                 }
 
                 string flag = dt.Rows[0]["flag"].ToString();
-                if (flag.Equals('0'))
+                if (flag.Equals("0"))
                 {
                     return false;
                 }

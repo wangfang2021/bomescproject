@@ -48,15 +48,17 @@ namespace SPPSApi.Controllers.G06
             try
             {
                 Dictionary<string, object> res = new Dictionary<string, object>();
-                DataTable dtOptionsList = fS0616_logic.getFormOptions();
-                List<Object> OrderNoListForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderNo_Name", "vcOrderNo_Value"));//订单
-                List<Object> InOutForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcInOut_Name", "vcInOut_Value"));//内外区分选项
-                List<Object> HaoJiuForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcHaoJiu_Name", "vcHaoJiu_Value"));//号旧
-                List<Object> OrderPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOrderPlant_Name", "vcOrderPlant_Value"));//发注工场
-                List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商
-                List<Object> SupplierPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcSupplierPlant_Name", "vcSupplierPlant_Value"));//工区
-                List<Object> ReplyOverDateForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcReplyOverDate_Name", "vcReplyOverDate_Value"));//回复截止日
-                List<Object> OutPutDateForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList, "vcOutPutDate_Name", "vcOutPutDate_Value"));//出荷日
+                DataTable dtOptionsList_order = fS0616_logic.getFormOptions("orderno");
+                DataTable dtOptionsList_info = fS0616_logic.getFormOptions("info");
+                DataTable dtOptionsList_overdate = fS0616_logic.getFormOptions("overdate");
+                List<Object> OrderNoListForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_order, "vcOrderNo_Name", "vcOrderNo_Value"));//订单
+                List<Object> InOutForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcInOut_Name", "vcInOut_Value"));//内外区分选项
+                List<Object> HaoJiuForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcHaoJiu_Name", "vcHaoJiu_Value"));//号旧
+                List<Object> OrderPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcOrderPlant_Name", "vcOrderPlant_Value"));//发注工场
+                List<Object> SupplierIdForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcSupplierId_Name", "vcSupplierId_Value"));//供应商
+                List<Object> SupplierPlantForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcSupplierPlant_Name", "vcSupplierPlant_Value"));//工区
+                List<Object> ReplyOverDateForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_overdate, "vcReplyOverDate_Name", "vcReplyOverDate_Value"));//回复截止日
+                List<Object> OutPutDateForForm = ComFunction.convertAllToResult(fs0603_Logic.getSelectOptions(dtOptionsList_info, "vcOutPutDate_Name", "vcOutPutDate_Value"));//出荷日
 
                 List<Object> StateList = ComFunction.convertAllToResult(ComFunction.getTCode("C056"));//状态
 

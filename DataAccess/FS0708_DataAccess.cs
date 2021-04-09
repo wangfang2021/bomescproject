@@ -31,7 +31,7 @@ namespace DataAccess
         #endregion
 
         #region 按检索条件检索,返回dt
-        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo, string OrderFrom, string OrderTo, string Type, List<Object> OrderState, string IsQianPin, List<object> SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
+        public DataTable Search(List<object> PackSpot, string PackNo, string PackGPSNo, string OrderFrom, string OrderTo, List<object> Type, List<Object> OrderState, string IsQianPin, List<object> SupplierName, string ZuCode, string dFaZhuFrom, string dFaZhuTo, string dNaQiFrom,string dNaQiTo,string dNaRuFrom, string dNaRuTo)
         {
             try
             {
@@ -89,10 +89,23 @@ namespace DataAccess
                 {
                     strSql.AppendLine($"      AND vcPackGPSNo LIKE '%{PackGPSNo}%'");
                 }
-                if (!string.IsNullOrEmpty(Type))
+                if (Type.Count != 0)
                 {
-                    strSql.AppendLine($"      AND vcType = '{Type}'");
+                    strSql.AppendLine($"      AND vcType in( ");
+                    for (int i = 0; i < Type.Count; i++)
+                    {
+                        if (PackSpot.Count - i == 1)
+                        {
+                            strSql.AppendLine("   '" + Type[i] + "'   \n");
+                        }
+                        else
+                            strSql.AppendLine("  '" + Type[i] + "' ,   \n");
+                    }
+                    strSql.Append("   )       \n");
                 }
+
+
+                
                 if (!string.IsNullOrEmpty(IsQianPin))
                 {
                     strSql.AppendLine($"      AND isQianPin = '{IsQianPin}'");

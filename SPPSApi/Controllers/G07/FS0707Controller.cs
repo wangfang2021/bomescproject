@@ -460,6 +460,7 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                FS0707_Logic.Updateprint();
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -600,6 +601,12 @@ namespace SPPSApi.Controllers.G07
                     apiResult.code = ComConstant.ERROR_CODE;
                     apiResult.data = "请重新计算";
                     apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                }
+                if (dt.Rows[0]["vcIsorNoPrint"].ToString() != "1")
+                {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请导出再发送！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 FS0707_Logic.Save(dt,loginInfo.UserId, ref strErrorPartId,strBegin, strEnd, strFromBeginBZ, strFromEndBZ, strKind, OrderState);

@@ -226,6 +226,14 @@ namespace SPPSApi.Controllers.G07
                         }
 
                     }
+                    if (listInfoData[i]["VCFaBuType"].ToString() == "0")
+                    {
+                        apiResult.code = ComConstant.ERROR_CODE;
+                        apiResult.data = "订购数量不能为0！";
+                        return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+                    }
+
+
 
                 }
                 if (!hasFind)
@@ -243,8 +251,7 @@ namespace SPPSApi.Controllers.G07
                 if (strErrorPartId != "")
                 {
                     apiResult.code = ComConstant.ERROR_CODE;
-                    apiResult.data = "保存失败";
-                    apiResult.flag = Convert.ToInt32(ERROR_FLAG.弹窗提示);
+                    apiResult.data = strErrorPartId;
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
                 apiResult.code = ComConstant.SUCCESS_CODE;

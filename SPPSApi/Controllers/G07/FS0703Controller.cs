@@ -262,8 +262,7 @@ namespace SPPSApi.Controllers.G07
                     "iDay31","dZYTime"
                 };
 
-
-
+            
                 string filepath = ComFunction.DataTableToExcel(head, fields, dt, _webHostEnvironment.ContentRootPath, loginInfo.UserId, "月度内饰书导出", ref resMsg);
                 if (filepath == "")
                 {
@@ -271,6 +270,9 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "导出生成文件失败";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
+                FS0703_Logic.Updateprint();
+
+
                 apiResult.code = ComConstant.SUCCESS_CODE;
                 apiResult.data = filepath;
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
@@ -390,7 +392,7 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "没有可发送数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
-
+                
                 if (dt.Rows.Count == 0)
                 {
 
@@ -398,6 +400,11 @@ namespace SPPSApi.Controllers.G07
                     apiResult.data = "没有可发送数据！";
                     return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
 
+                }
+                if (dt.Rows[0]["vcIsorNoPrint"].ToString()!="1") {
+                    apiResult.code = ComConstant.ERROR_CODE;
+                    apiResult.data = "请导出再发送！";
+                    return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
                 }
 
                 FS0703_Logic.Save(dt, loginInfo.UserId, ref strErrorPartId, PackFrom, SupplierCodeList, PackSpot);

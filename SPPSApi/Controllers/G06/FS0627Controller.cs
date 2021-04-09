@@ -158,6 +158,12 @@ namespace SPPSApi.Controllers.G06
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcProject = dataForm.vcProject == null ? "" : dataForm.vcProject;
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
+            if (vcTargetYear.Length == 0)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "对象年为空，无法检索数据！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
             try
             {
                 DataSet ds = fs0627_Logic.Search(vcInjectionFactory, vcProject, vcTargetYear);
@@ -202,6 +208,12 @@ namespace SPPSApi.Controllers.G06
             string vcInjectionFactory = dataForm.vcInjectionFactory == null ? "" : dataForm.vcInjectionFactory;
             string vcProject = dataForm.vcProject == null ? "" : dataForm.vcProject;
             string vcTargetYear = dataForm.vcTargetYear == null ? "" : dataForm.vcTargetYear;
+            if (vcTargetYear.Length == 0)
+            {
+                apiResult.code = ComConstant.ERROR_CODE;
+                apiResult.data = "对象年为空，无法导出的报表！";
+                return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
+            }
             string filepath = "";
             try
             {
@@ -312,7 +324,7 @@ namespace SPPSApi.Controllers.G06
                 style1.SetFont(font);
                 style1.Alignment = HorizontalAlignment.Center;//两端自动对齐（自动换行）
                 style1.VerticalAlignment = VerticalAlignment.Center;
-               
+
                 style2.SetFont(font);
                 style2.Alignment = HorizontalAlignment.Center;
                 style2.VerticalAlignment = VerticalAlignment.Center;
@@ -412,41 +424,41 @@ namespace SPPSApi.Controllers.G06
                 SecondRowHSSF.GetCell(0).CellStyle = style3;//将CellStyle应用于具体单元格 
                 SecondRowHSSF.CreateCell(1).SetCellValue("");
                 SecondRowHSSF.GetCell(1).CellStyle = style3;//将CellStyle应用于具体单元格 
-                SecondRowHSSF.CreateCell(2).SetCellValue("1月");
+                SecondRowHSSF.CreateCell(2).SetCellValue(vcTargetYear + "年" + "1月");
                 SecondRowHSSF.GetCell(2).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(3).SetCellValue("2月");
+                SecondRowHSSF.CreateCell(3).SetCellValue(vcTargetYear + "年" + "2月");
                 SecondRowHSSF.GetCell(3).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(4).SetCellValue("3月");
+                SecondRowHSSF.CreateCell(4).SetCellValue(vcTargetYear + "年" + "3月");
                 SecondRowHSSF.GetCell(4).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(5).SetCellValue("4月");
+                SecondRowHSSF.CreateCell(5).SetCellValue(vcTargetYear + "年" + "4月");
                 SecondRowHSSF.GetCell(5).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(6).SetCellValue("5月");
+                SecondRowHSSF.CreateCell(6).SetCellValue(vcTargetYear + "年" + "5月");
                 SecondRowHSSF.GetCell(6).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(7).SetCellValue("6月");
+                SecondRowHSSF.CreateCell(7).SetCellValue(vcTargetYear + "年" + "6月");
                 SecondRowHSSF.GetCell(7).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(8).SetCellValue("7月");
+                SecondRowHSSF.CreateCell(8).SetCellValue(vcTargetYear + "年" + "7月");
                 SecondRowHSSF.GetCell(8).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(9).SetCellValue("8月");
+                SecondRowHSSF.CreateCell(9).SetCellValue(vcTargetYear + "年" + "8月");
                 SecondRowHSSF.GetCell(9).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(10).SetCellValue("9月");
+                SecondRowHSSF.CreateCell(10).SetCellValue(vcTargetYear + "年" + "9月");
                 SecondRowHSSF.GetCell(10).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(11).SetCellValue("10月");
+                SecondRowHSSF.CreateCell(11).SetCellValue(vcTargetYear + "年" + "10月");
                 SecondRowHSSF.GetCell(11).CellStyle = style3;
 
-                SecondRowHSSF.CreateCell(12).SetCellValue("11月");
+                SecondRowHSSF.CreateCell(12).SetCellValue(vcTargetYear + "年" + "11月");
                 SecondRowHSSF.GetCell(12).CellStyle = style3;
 
 
-                SecondRowHSSF.CreateCell(13).SetCellValue("12月");
+                SecondRowHSSF.CreateCell(13).SetCellValue(vcTargetYear + "年" + "12月");
                 SecondRowHSSF.GetCell(13).CellStyle = style3;
 
                 SecondRowHSSF.CreateCell(14).SetCellValue("合计");
@@ -457,7 +469,7 @@ namespace SPPSApi.Controllers.G06
                 //设置第二行 统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
                 IRow ThreeRowHSSF = mysheetHSSF.CreateRow(2); //添加第二行
                 ThreeRowHSSF.Height = 18 * 20;
-                ThreeRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
+                ThreeRowHSSF.CreateCell(0).SetCellValue("销售额(万元)");
                 ThreeRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
 
                 ThreeRowHSSF.CreateCell(1).SetCellValue("");
@@ -475,7 +487,7 @@ namespace SPPSApi.Controllers.G06
                 //设置第四行  统计项目  合并单元格【CellRangeAddress(开始行,结束行,开始列,结束列)】
                 IRow FourRowHSSF = mysheetHSSF.CreateRow(3); //添加第二行
                 FourRowHSSF.Height = 18 * 20;
-                FourRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
+                FourRowHSSF.CreateCell(0).SetCellValue("销售数量(件)");
                 FourRowHSSF.GetCell(0).CellStyle = style5;//将CellStyle应用于具体单元格 
 
                 FourRowHSSF.CreateCell(1).SetCellValue("");
@@ -513,118 +525,74 @@ namespace SPPSApi.Controllers.G06
                 bool isNeedNumCol = true;//是否需要设置列头
                 if (dtNum.Rows.Count > 0)
                 {
-                    string strPlantName = dtNum.Rows[0]["vcInjectionFactory"].ToString();
-                    int j = 0;
-                    for (int i = 1; i < dtNum.Rows.Count; i++)
+                    #region 追加列头
+                    IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                    EightRowHSSF.Height = 18 * 20;
+                    EightRowHSSF.CreateCell(0).SetCellValue("发注工场");
+                    EightRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
+                    EightRowHSSF.CreateCell(1).SetCellValue("工程");
+                    EightRowHSSF.GetCell(1).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(2).SetCellValue(vcTargetYear + "年" + "1月");
+                    EightRowHSSF.GetCell(2).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(3).SetCellValue(vcTargetYear + "年" + "2月");
+                    EightRowHSSF.GetCell(3).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(4).SetCellValue(vcTargetYear + "年" + "3月");
+                    EightRowHSSF.GetCell(4).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(5).SetCellValue(vcTargetYear + "年" + "4月");
+                    EightRowHSSF.GetCell(5).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(6).SetCellValue(vcTargetYear + "年" + "5月");
+                    EightRowHSSF.GetCell(6).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(7).SetCellValue(vcTargetYear + "年" + "6月");
+                    EightRowHSSF.GetCell(7).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(8).SetCellValue(vcTargetYear + "年" + "7月");
+                    EightRowHSSF.GetCell(8).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(9).SetCellValue(vcTargetYear + "年" + "8月");
+                    EightRowHSSF.GetCell(9).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(10).SetCellValue(vcTargetYear + "年" + "9月");
+                    EightRowHSSF.GetCell(10).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(11).SetCellValue(vcTargetYear + "年" + "10月");
+                    EightRowHSSF.GetCell(11).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(12).SetCellValue(vcTargetYear + "年" + "11月");
+                    EightRowHSSF.GetCell(12).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(13).SetCellValue(vcTargetYear + "年" + "12月");
+                    EightRowHSSF.GetCell(13).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    EightRowHSSF.CreateCell(14).SetCellValue("合计");
+                    EightRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
+                    #endregion
+                    nextRow++;
+                    for (int i = 0; i < dtNum.Rows.Count; i++)
                     {
-                        if (dtNum.Rows[i]["vcInjectionFactory"].ToString() != strPlantName)
+                        string strPlantName = dtNum.Rows[i]["vcInjectionFactory"].ToString();
+                        IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                        NextRowHSSF.Height = 18 * 20;
+                        NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
+                        NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
+                        int colNum = 1;//用于计数
+                        for (var k = 1; k < dtNum.Columns.Count; k++)
                         {
-                            if (heBingStartRow != hebingEndRow)
+                            if (k != 2)//k=2是 年份 去掉
                             {
-                                mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                                NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[i][k].ToString());
+                                NextRowHSSF.GetCell(colNum).CellStyle = style6;
+                                colNum++;
                             }
-                            if (isNeedNumCol)
-                            {
-                                #region 追加列头
-                                IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                EightRowHSSF.Height = 18 * 20;
-                                EightRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                EightRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                EightRowHSSF.CreateCell(1).SetCellValue("工程");
-                                EightRowHSSF.GetCell(1).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(2).SetCellValue("1月");
-                                EightRowHSSF.GetCell(2).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(3).SetCellValue("2月");
-                                EightRowHSSF.GetCell(3).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(4).SetCellValue("3月");
-                                EightRowHSSF.GetCell(4).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(5).SetCellValue("4月");
-                                EightRowHSSF.GetCell(5).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(6).SetCellValue("5月");
-                                EightRowHSSF.GetCell(6).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(7).SetCellValue("6月");
-                                EightRowHSSF.GetCell(7).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(8).SetCellValue("7月");
-                                EightRowHSSF.GetCell(8).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(9).SetCellValue("8月");
-                                EightRowHSSF.GetCell(9).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(10).SetCellValue("9月");
-                                EightRowHSSF.GetCell(10).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(11).SetCellValue("10月");
-                                EightRowHSSF.GetCell(11).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(12).SetCellValue("11月");
-                                EightRowHSSF.GetCell(12).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(13).SetCellValue("12月");
-                                EightRowHSSF.GetCell(13).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                EightRowHSSF.CreateCell(14).SetCellValue("合计");
-                                EightRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                #endregion
-                                nextRow++;
-                            }
-                            for ( ; j < i; j++)//行
-                            {
-                                IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                NextRowHSSF.Height = 18 * 20;
-                                if (heBingStartRow == nextRow)
-                                {
-                                    NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                    NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                }
-                                else
-                                {
-                                    NextRowHSSF.CreateCell(0).CellStyle = style6;
-                                }
-                                //NextRowHSSF.GetCell(0).CellStyle = style6;
-                                int colNum = 1;//用于计数
-                                for (var k = 1; k < dtNum.Columns.Count; k++)
-                                {
-                                    if (k != 2)//k=2是 年份 去掉
-                                    {
-                                        NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[j][k].ToString());
-                                        NextRowHSSF.GetCell(colNum).CellStyle = style6;
-                                        colNum++;
-                                    }
-                                }
-                                nextRow++;
-                            }
-                            strPlantName = dtNum.Rows[i]["vcInjectionFactory"].ToString();
-                            isNeedNumCol = false;
-                            heBingStartRow = hebingEndRow+1;
-                            hebingEndRow++;
-                            j = i;
                         }
-                        else
-                        {
-                            hebingEndRow++;
-                                //IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                //int colNum = 1;//用于计数
-                                //for (var k = 1; k < dtNum.Columns.Count; k++)
-                                //{
-                                //    if (k != 2)//k=2是 年份 去掉
-                                //    {
-                                //        NextRowHSSF.CreateCell(colNum).SetCellValue(dtNum.Rows[i][k].ToString());
-                                //        NextRowHSSF.GetCell(colNum).CellStyle = styleCenter;
-                                //        NextRowHSSF.GetCell(colNum).CellStyle = Fontstyle1;
-                                //    }
-                                //    colNum++;
-                                //}
-                                //nextRow++;
-                        }
+                        nextRow++;
+
                     }
-
                     //创建销售数据最后一行
                     #region
                     IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
@@ -639,67 +607,8 @@ namespace SPPSApi.Controllers.G06
                         NineRowHSSF.CreateCell(i - 1).SetCellValue(dtNum.Rows[dtNum.Rows.Count - 1][i].ToString());
                         NineRowHSSF.GetCell(i - 1).CellStyle = style7;
                     }
-                    nextRow ++;
-                    #endregion
-                }
-                else
-                {
-                    #region  不存在数据 就只创建列头 
-                    IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    EightRowHSSF.Height = 18 * 20;
-                    EightRowHSSF.CreateCell(0).SetCellValue("");
-                    EightRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(1).SetCellValue("工程");
-                    EightRowHSSF.GetCell(1).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(2).SetCellValue("1月");
-                    EightRowHSSF.GetCell(2).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(3).SetCellValue("2月");
-                    EightRowHSSF.GetCell(3).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(4).SetCellValue("3月");
-                    EightRowHSSF.GetCell(4).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(5).SetCellValue("4月");
-                    EightRowHSSF.GetCell(5).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(6).SetCellValue("5月");
-                    EightRowHSSF.GetCell(6).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(7).SetCellValue("6月");
-                    EightRowHSSF.GetCell(7).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(8).SetCellValue("7月");
-                    EightRowHSSF.GetCell(8).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(9).SetCellValue("8月");
-                    EightRowHSSF.GetCell(9).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(10).SetCellValue("9月");
-                    EightRowHSSF.GetCell(10).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(11).SetCellValue("10月");
-                    EightRowHSSF.GetCell(11).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(12).SetCellValue("11月");
-                    EightRowHSSF.GetCell(12).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(13).SetCellValue("12月");
-                    EightRowHSSF.GetCell(13).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(14).SetCellValue("合计");
-                    EightRowHSSF.GetCell(14).CellStyle = style2;//将CellStyle应用于具体单元格 
                     nextRow++;
-                    //下一行
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.Height = 18 * 20;
-                    //NineRowHSSF.CreateCell(0).SetCellValue("4)销售数量（件）");
-                    //NineRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
-                    NineRowHSSF.CreateCell(1).SetCellValue("合计");
                     #endregion
-                    nextRow ++;
                 }
 
                 // 写 销售额(万元）
@@ -712,123 +621,78 @@ namespace SPPSApi.Controllers.G06
                 #endregion
                 #region 销售万元明细
                 heBingStartRow = nextRow;
-                hebingEndRow = nextRow+1;
+                hebingEndRow = nextRow + 1;
                 isNeedNumCol = true;
                 if (dtMonty.Rows.Count > 0)
                 {
-                    string strPlantName = dtMonty.Rows[0]["vcInjectionFactory"].ToString();
-                    int j = 0;
-                    for (int i = 1; i < dtMonty.Rows.Count; i++)
+                    #region 追加列头
+                    IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
+                    NextRowHSSF.Height = 18 * 20;
+                    NextRowHSSF.CreateCell(0).SetCellValue("发注工场");
+                    NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
+                    NextRowHSSF.CreateCell(1).SetCellValue("工程");
+                    NextRowHSSF.GetCell(1).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(2).SetCellValue(vcTargetYear + "年" + "1月");
+                    NextRowHSSF.GetCell(2).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(3).SetCellValue(vcTargetYear + "年" + "2月");
+                    NextRowHSSF.GetCell(3).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(4).SetCellValue(vcTargetYear + "年" + "3月");
+                    NextRowHSSF.GetCell(4).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(5).SetCellValue(vcTargetYear + "年" + "4月");
+                    NextRowHSSF.GetCell(5).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(6).SetCellValue(vcTargetYear + "年" + "5月");
+                    NextRowHSSF.GetCell(6).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(7).SetCellValue(vcTargetYear + "年" + "6月");
+                    NextRowHSSF.GetCell(7).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(8).SetCellValue(vcTargetYear + "年" + "7月");
+                    NextRowHSSF.GetCell(8).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(9).SetCellValue(vcTargetYear + "年" + "8月");
+                    NextRowHSSF.GetCell(9).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(10).SetCellValue(vcTargetYear + "年" + "9月");
+                    NextRowHSSF.GetCell(10).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(11).SetCellValue(vcTargetYear + "年" + "10月");
+                    NextRowHSSF.GetCell(11).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(12).SetCellValue(vcTargetYear + "年" + "11月");
+                    NextRowHSSF.GetCell(12).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(13).SetCellValue(vcTargetYear + "年" + "12月");
+                    NextRowHSSF.GetCell(13).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                    NextRowHSSF.CreateCell(14).SetCellValue("合计");
+                    NextRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
+                    #endregion
+                    nextRow++;
+                    for (int i = 0; i < dtMonty.Rows.Count; i++)
                     {
-                        if (dtMonty.Rows[i]["vcInjectionFactory"].ToString() != strPlantName)
+                        string strPlantName = dtMonty.Rows[i]["vcInjectionFactory"].ToString();
+                        IRow NextRowHSSFM = mysheetHSSF.CreateRow(nextRow);
+                        NextRowHSSFM.Height = 18 * 20;
+                        NextRowHSSFM.CreateCell(0).SetCellValue(strPlantName);
+                        NextRowHSSFM.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
+
+                        int colNum = 1;//用于计数
+                        for (var k = 1; k < dtMonty.Columns.Count; k++)
                         {
-                            if (heBingStartRow!=hebingEndRow)
+                            if (k != 2)//k=2是 年份 去掉
                             {
-                                mysheetHSSF.AddMergedRegion(new CellRangeAddress(heBingStartRow, hebingEndRow, 0, 0));
+                                NextRowHSSFM.CreateCell(colNum).SetCellValue(dtMonty.Rows[i][k].ToString());
+                                NextRowHSSFM.GetCell(colNum).CellStyle = style6;
+                                colNum++;
                             }
-                            
-                            if (isNeedNumCol)
-                            {
-                                #region 追加列头
-                                IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                NextRowHSSF.Height = 18 * 20;
-                                NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                NextRowHSSF.CreateCell(1).SetCellValue("工程");
-                                NextRowHSSF.GetCell(1).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(2).SetCellValue("1月");
-                                NextRowHSSF.GetCell(2).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(3).SetCellValue("2月");
-                                NextRowHSSF.GetCell(3).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(4).SetCellValue("3月");
-                                NextRowHSSF.GetCell(4).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(5).SetCellValue("4月");
-                                NextRowHSSF.GetCell(5).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(6).SetCellValue("5月");
-                                NextRowHSSF.GetCell(6).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(7).SetCellValue("6月");
-                                NextRowHSSF.GetCell(7).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(8).SetCellValue("7月");
-                                NextRowHSSF.GetCell(8).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(9).SetCellValue("8月");
-                                NextRowHSSF.GetCell(9).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(10).SetCellValue("9月");
-                                NextRowHSSF.GetCell(10).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(11).SetCellValue("10月");
-                                NextRowHSSF.GetCell(11).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(12).SetCellValue("11月");
-                                NextRowHSSF.GetCell(12).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(13).SetCellValue("12月");
-                                NextRowHSSF.GetCell(13).CellStyle = style6;//将CellStyle应用于具体单元格 
-
-                                NextRowHSSF.CreateCell(14).SetCellValue("合计");
-                                NextRowHSSF.GetCell(14).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                #endregion
-                                nextRow++;
-
-                            }
-                            for (; j < i; j++)//行
-                            {
-                                IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                                NextRowHSSF.Height = 18 * 20;
-                                if (heBingStartRow == nextRow)
-                                {
-                                    NextRowHSSF.CreateCell(0).SetCellValue(strPlantName);
-                                    NextRowHSSF.GetCell(0).CellStyle = style6;//将CellStyle应用于具体单元格 
-                                }
-                                else
-                                {
-                                    NextRowHSSF.CreateCell(0).CellStyle = style6;
-                                }
-                                int colNum = 1;//用于计数
-                                for (var k = 1; k < dtMonty.Columns.Count; k++)
-                                {
-                                    if (k != 2)//k=2是 年份 去掉
-                                    {
-                                        NextRowHSSF.CreateCell(colNum).SetCellValue(dtMonty.Rows[j][k].ToString());
-                                        NextRowHSSF.GetCell(colNum).CellStyle = style6;
-                                        colNum++;
-                                    }
-                                }
-                                nextRow++;
-                            }
-                            strPlantName = dtNum.Rows[i]["vcInjectionFactory"].ToString();
-                            isNeedNumCol = false;
-                            heBingStartRow = hebingEndRow + 1;
-                            hebingEndRow++;
-                            j = i;
                         }
-                        else
-                        {
-                            hebingEndRow++;
-                            //IRow NextRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                            //int colNum = 1;//用于计数
-                            //for (var k = 1; k < dtMonty.Columns.Count; k++)
-                            //{
-                            //    if (k != 2)//k=2是 年份 去掉
-                            //    {
-                            //        NextRowHSSF.CreateCell(colNum).SetCellValue(dtMonty.Rows[i][k].ToString());
-                            //        NextRowHSSF.GetCell(colNum).CellStyle = styleCenter;
-                            //        NextRowHSSF.GetCell(colNum).CellStyle = Fontstyle1;
-                            //    }
-                            //    colNum++;
-                            //}
-                            //nextRow++;
-                        }
+                        nextRow++;
                     }
-
                     //创建销售数据最后一行
                     #region
                     IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
@@ -846,65 +710,7 @@ namespace SPPSApi.Controllers.G06
                     nextRow++;
                     #endregion
                 }
-                else
-                {
-                    #region  不存在数据 就只创建列头 
-                    IRow EightRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    EightRowHSSF.Height = 18 * 20;
-                    EightRowHSSF.CreateCell(0).SetCellValue("");
-                    EightRowHSSF.GetCell(0).CellStyle = style2;//将CellStyle应用于具体单元格 
 
-                    EightRowHSSF.CreateCell(1).SetCellValue("工程");
-                    EightRowHSSF.GetCell(1).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(2).SetCellValue("1月");
-                    EightRowHSSF.GetCell(2).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(3).SetCellValue("2月");
-                    EightRowHSSF.GetCell(3).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(4).SetCellValue("3月");
-                    EightRowHSSF.GetCell(4).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(5).SetCellValue("4月");
-                    EightRowHSSF.GetCell(5).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(6).SetCellValue("5月");
-                    EightRowHSSF.GetCell(6).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(7).SetCellValue("6月");
-                    EightRowHSSF.GetCell(7).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(8).SetCellValue("7月");
-                    EightRowHSSF.GetCell(8).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(9).SetCellValue("8月");
-                    EightRowHSSF.GetCell(9).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(10).SetCellValue("9月");
-                    EightRowHSSF.GetCell(10).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(11).SetCellValue("10月");
-                    EightRowHSSF.GetCell(11).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(12).SetCellValue("11月");
-                    EightRowHSSF.GetCell(12).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(13).SetCellValue("12月");
-                    EightRowHSSF.GetCell(13).CellStyle = style2;//将CellStyle应用于具体单元格 
-
-                    EightRowHSSF.CreateCell(14).SetCellValue("合计");
-                    EightRowHSSF.GetCell(14).CellStyle = style2;//将CellStyle应用于具体单元格 
-                    nextRow++;
-                    //下一行
-                    IRow NineRowHSSF = mysheetHSSF.CreateRow(nextRow);
-                    NineRowHSSF.Height = 18 * 20;
-                    //NineRowHSSF.CreateCell(0).SetCellValue("1)销售额(万元）");
-                    //NineRowHSSF.GetCell(0).CellStyle = style4;//将CellStyle应用于具体单元格 
-                    NineRowHSSF.CreateCell(1).SetCellValue("合计");
-                    #endregion
-                    nextRow++;
-                }
                 #endregion
                 #endregion
 
@@ -913,7 +719,7 @@ namespace SPPSApi.Controllers.G06
                 string strFunctionName = "FS0627_Export";
                 string strFileName = strFunctionName + "_导出信息_" + System.DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + loginInfo.UserId + ".xlsx";
                 string fileSavePath = rootPath + Path.DirectorySeparatorChar + "Doc" + Path.DirectorySeparatorChar + "Export" + Path.DirectorySeparatorChar;//文件临时目录，导入完成后 删除
-                filepath = fileSavePath+strFileName;
+                filepath = fileSavePath + strFileName;
 
                 using (FileStream file = new FileStream(filepath, FileMode.Create))
                 {
@@ -952,8 +758,8 @@ namespace SPPSApi.Controllers.G06
                 apiResult.code = ComConstant.ERROR_CODE;
                 apiResult.data = "导出报表失败";
                 return JsonConvert.SerializeObject(apiResult, Formatting.Indented, JSON_SETTING);
-            } 
-          
+            }
+
         }
         #endregion
     }

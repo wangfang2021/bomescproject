@@ -51,6 +51,9 @@ namespace Common
             reqFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
             reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
             reqFTP.KeepAlive = false;
+            //主被动模式
+            reqFTP.UsePassive = true;
+            //reqFTP.UsePassive = false;
             reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
             reqFTP.UseBinary = true;
             reqFTP.ContentLength = fileInf.Length;
@@ -93,6 +96,9 @@ namespace Common
                 reqFTP.Method = WebRequestMethods.Ftp.DownloadFile;
                 reqFTP.UseBinary = true;
                 reqFTP.Credentials = new NetworkCredential(ftpUserID, ftpPassword);
+                //主被动模式
+                reqFTP.UsePassive = true;
+                //reqFTP.UsePassive = false;
                 FtpWebResponse response = (FtpWebResponse)reqFTP.GetResponse();
                 Stream ftpStream = response.GetResponseStream();
                 long cl = response.ContentLength;
